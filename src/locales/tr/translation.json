@@ -1022,6 +1022,8 @@
   "Warning: You have an overlapping shift on {{date}}": "Uyarı: {{date}} tarihinde çakışan vardiyınız var",
   "Warning: {{userName}} has an overlapping shift on {{date}}": "Uyarı: {{userName}} kullanıcısının {{date}} tarihinde çakışan vardiyası var",
   "{{userName}}'s Shift": "{{userName}} Kullanıcısının Vardiyası",
+  "Warning: {{userName}} already has another shift on {{date}}": "Uyarı: {{userName}} kullanıcısının {{date}} tarihinde zaten başka bir vardiyası var",
+  "Warning: You already have another shift on {{date}}": "Uyarı: {{date}} tarihinde zaten başka bir vardiyınız var",
   "Manager Note": "Yönetici Notu",
   "Optional": "Opsiyonel",
   "Approve": "Onayla",

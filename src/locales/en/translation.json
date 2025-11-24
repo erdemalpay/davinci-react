@@ -1017,6 +1017,8 @@
   "Warning: You have an overlapping shift on {{date}}": "Warning: You have an overlapping shift on {{date}}",
   "Warning: {{userName}} has an overlapping shift on {{date}}": "Warning: {{userName}} has an overlapping shift on {{date}}",
   "{{userName}}'s Shift": "{{userName}}'s Shift",
+  "Warning: {{userName}} already has another shift on {{date}}": "Warning: {{userName}} already has another shift on {{date}}",
+  "Warning: You already have another shift on {{date}}": "Warning: You already have another shift on {{date}}",
   "Manager Note": "Manager Note",
   "Optional": "Optional",
   "Approve": "Approve",
