@@ -1149,7 +1149,6 @@ const ShiftChange = () => {
         filterPanel={filterPanel as any}
       />
 
-      {/* Shift Change Request Modal */}
       <GenericAddEditPanel
         key={modalKey}
         isOpen={isShiftChangeModalOpen}
