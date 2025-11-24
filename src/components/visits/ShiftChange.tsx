@@ -33,13 +33,12 @@ const ShiftChange = () => {
   const { t } = useTranslation();
   const users = useGetUsersMinimal();
 
-  // Shift Change Request States
   const [isShiftChangeModalOpen, setIsShiftChangeModalOpen] = useState(false);
   const [shiftChangeForm, setShiftChangeForm] = useState<ShiftChangeFormState>({
     type: "SWAP",
   });
   const [conflictWarning, setConflictWarning] = useState<string>("");
-  const [modalKey, setModalKey] = useState(0); // Force re-render of modal
+  const [modalKey, setModalKey] = useState(0);
   const { mutate: createShiftChangeRequest } = useCreateShiftChangeRequest();
   const locations = useGetStoreLocations();
   const buildShiftKey = (
@@ -75,11 +74,10 @@ const ShiftChange = () => {
     selectedLocationId
   );
 
-  // Separate shifts data for modal - fetch ALL locations
   const modalShifts = useGetShifts(
     filterPanelFormElements?.after,
     filterPanelFormElements?.before,
-    -1 // Fetch all locations for modal dropdown
+    -1
   );
   const { user } = useUserContext();
   const isDisabledCondition = user
@@ -92,7 +90,6 @@ const ShiftChange = () => {
   const { showShiftsFilters, setShowShiftsFilters } = useFilterContext();
   const foundLocation = getItem(selectedLocationId, locations);
 
-  // Get all unique shifts from all locations, sorted by start time (for "All" mode)
   const allShifts =
     selectedLocationId === -1
       ? (() => {
@@ -115,7 +112,6 @@ const ShiftChange = () => {
 
           const shiftsArray = Array.from(shiftsMap.values());
 
-          // Sort by shift start time
           return shiftsArray.sort((a, b) => {
             const [aHour, aMin] = a.shift.split(":").map(Number);
             const [bHour, bMin] = b.shift.split(":").map(Number);
@@ -127,7 +123,6 @@ const ShiftChange = () => {
   const allRows =
     selectedLocationId === -1
       ? (() => {
-          // Group by day for "All" mode
           const groupedByDay = shifts?.reduce((acc, shift) => {
             if (!acc[shift.day]) {
               acc[shift.day] = [];
@@ -155,7 +150,6 @@ const ShiftChange = () => {
                 }
 
                 const locationConfig = getItem(shiftRecord.location, locations);
-                // Skip shifts not defined for this location to avoid rendering phantom dropdowns
                 const locationHasShift = locationConfig?.shifts?.some(
                   (locationShift) => {
                     return (
@@ -168,7 +162,6 @@ const ShiftChange = () => {
                   return;
                 }
 
-                // Check if this location already exists for this shift
                 const existingIndex = shiftsByLocation[shiftKey].findIndex(
                   (sl) => sl.location === shiftRecord.location
                 );
@@ -257,7 +250,6 @@ const ShiftChange = () => {
       rowKeys.push({
         key: shiftKey,
         node: (row: any) => {
-          // Check if we're in "All" mode
           if (selectedLocationId === -1) {
             const shiftKey = buildShiftKey(shift);
             const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
@@ -311,7 +303,6 @@ const ShiftChange = () => {
               </div>
             );
           } else {
-            // Original single location logic
             const shiftValue = row[shift.shift];
             if (Array.isArray(shiftValue) && shiftValue.length > 0) {
               return (
@@ -386,11 +377,10 @@ const ShiftChange = () => {
     },
   ];
 
-  // Shift Change Request Button
   const shiftChangeButton = {
     name: t("Change Working Hours"),
     isModal: true,
-    modal: null, // Modal'ı aşağıda tanımlayacağız
+    modal: null,
     isModalOpen: isShiftChangeModalOpen,
     setIsModal: setIsShiftChangeModalOpen,
     isPath: false,
@@ -487,9 +477,7 @@ const ShiftChange = () => {
     },
   };
 
-  // Get user's own shifts (all shifts where user is assigned) - using modalShifts
   const userOwnShifts = modalShifts?.filter((shift) => {
-    // Check if this shift record has the user assigned
     const hasUser = shift.shifts?.some((s: any) => {
       if (Array.isArray(s.user)) {
         return s.user.includes(user?._id);
@@ -499,7 +487,6 @@ const ShiftChange = () => {
     return hasUser;
   });
 
-  // Show ALL locations (not just where user has shifts in current date range)
   const userLocations =
     locations
       ?.map((location) => ({
@@ -508,7 +495,6 @@ const ShiftChange = () => {
       }))
       .filter((loc) => loc.label) || [];
 
-  // Get user's shifts for selected source location (only today and future)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -536,7 +522,6 @@ const ShiftChange = () => {
       }),
     }));
 
-  // Flatten to get all shift options for user
   const userShiftOptions = userShiftsInLocation
     ?.flatMap((shiftRecord) =>
       shiftRecord.shifts?.map((s: any) => ({
@@ -558,7 +543,6 @@ const ShiftChange = () => {
     )
     .filter(Boolean);
 
-  // Get all shifts for target location (for SWAP) - only today and future - using modalShifts
   const targetLocationShifts = modalShifts?.filter((shift) => {
     if (
       !shift.location ||
@@ -572,7 +556,6 @@ const ShiftChange = () => {
     return shiftDate >= today;
   });
 
-  // Get target shift options - filtered by selected target user
   const targetShiftOptions = shiftChangeForm.targetUser
     ? targetLocationShifts
         ?.flatMap((shiftRecord) =>
@@ -601,9 +584,7 @@ const ShiftChange = () => {
         .filter(Boolean)
     : [];
 
-  // Shift Change Request Modal Inputs (Dynamic based on type)
   const baseInputs = [
-    // Type Selection (First field)
     {
       type: InputTypes.SELECT,
       formKey: "type",
@@ -619,12 +600,10 @@ const ShiftChange = () => {
           ? undefined
           : selectedOption?.value;
         if (!selectedValue) return;
-        // Reset form when type changes
         setShiftChangeForm({ type: selectedValue as "SWAP" | "TRANSFER" });
-        setModalKey((prev) => prev + 1); // Force modal re-render
+        setModalKey((prev) => prev + 1);
       },
     },
-    // Source Location
     {
       type: InputTypes.SELECT,
       formKey: "sourceLocation",
@@ -638,7 +617,6 @@ const ShiftChange = () => {
         { key: "targetUser", defaultValue: "" },
       ],
     },
-    // Source Shift
     {
       type: InputTypes.SELECT,
       formKey: "sourceShift",
@@ -650,7 +628,6 @@ const ShiftChange = () => {
     },
   ];
 
-  // SWAP-specific fields (better order: location -> user -> shift)
   const swapFields =
     shiftChangeForm.type === "SWAP"
       ? [
@@ -691,7 +668,6 @@ const ShiftChange = () => {
         ]
       : [];
 
-  // TRANSFER-specific fields
   const transferFields =
     shiftChangeForm.type === "TRANSFER"
       ? [
@@ -709,7 +685,6 @@ const ShiftChange = () => {
         ]
       : [];
 
-  // Note field (common for both)
   const noteField = {
     type: InputTypes.TEXTAREA,
     formKey: "requesterNote",
@@ -718,7 +693,6 @@ const ShiftChange = () => {
     invalidateKeys: [],
   } as any;
 
-  // Combine all inputs
   const shiftChangeInputs = [
     ...baseInputs,
     ...swapFields,
@@ -736,20 +710,16 @@ const ShiftChange = () => {
     { key: "requesterNote", type: FormKeyTypeEnum.STRING },
   ];
 
-  // Shift Change Submit Handler
   const handleShiftChangeSubmit = (formData: any) => {
-    // Check for conflicts before submitting
     if (conflictWarning) {
       toast.error(t("Cannot submit: User has a conflicting shift"));
       return;
     }
 
-    // Parse source shift
     const [sourceShiftId, sourceStartTime, sourceEndTime, sourceDay] =
       formData.sourceShift.split("|");
 
     if (formData.type === "SWAP") {
-      // Parse target shift
       const [
         targetShiftId,
         targetStartTime,
@@ -758,7 +728,6 @@ const ShiftChange = () => {
         targetUsers,
       ] = formData.targetShift.split("|");
 
-      // Get first user from target shift (or use targetUser if single selection)
       const targetUserId = formData.targetUser || targetUsers.split(",")[0];
 
       const payload = {
@@ -803,7 +772,7 @@ const ShiftChange = () => {
           userId: user?._id || "",
         },
         targetShift: {
-          shiftId: Number(sourceShiftId), // Same shift for transfer
+          shiftId: Number(sourceShiftId),
           day: sourceDay,
           startTime: sourceStartTime,
           endTime: sourceEndTime || undefined,
@@ -836,49 +805,12 @@ const ShiftChange = () => {
     filterPanelFormElements,
   ]);
 
-  // Helper function to parse time and check overlap
-  const checkTimeOverlap = (
-    start1: string,
-    end1: string | undefined,
-    start2: string,
-    end2: string | undefined
-  ): boolean => {
-    const [start1Hour, start1Min] = start1.split(":").map(Number);
-    const start1Minutes = start1Hour * 60 + start1Min;
-
-    const [start2Hour, start2Min] = start2.split(":").map(Number);
-    const start2Minutes = start2Hour * 60 + start2Min;
-
-    let end1Minutes: number;
-    if (end1) {
-      const [end1Hour, end1Min] = end1.split(":").map(Number);
-      end1Minutes = end1Hour * 60 + end1Min;
-    } else {
-      end1Minutes = start1Minutes + 8 * 60; // Default 8 hours
-    }
-
-    let end2Minutes: number;
-    if (end2) {
-      const [end2Hour, end2Min] = end2.split(":").map(Number);
-      end2Minutes = end2Hour * 60 + end2Min;
-    } else {
-      end2Minutes = start2Minutes + 8 * 60; // Default 8 hours
-    }
-
-    // Check if times overlap
-    return start1Minutes < end2Minutes && start2Minutes < end1Minutes;
-  };
-
-  // Conflict detection for TRANSFER and SWAP - using modalShifts
   useEffect(() => {
     if (shiftChangeForm.type === "TRANSFER") {
-      // TRANSFER: Check if target user has overlapping shift on same day (any location)
       if (shiftChangeForm.sourceShift && shiftChangeForm.targetUser) {
-        const [, sourceStartTime, sourceEndTime, sourceDay] =
-          shiftChangeForm.sourceShift.split("|");
+        const [, , , sourceDay] = shiftChangeForm.sourceShift.split("|");
 
-        // Find all shifts for target user on the same day (any location)
-        const targetUserShifts = modalShifts?.filter(
+        const targetUserShiftsOnDay = modalShifts?.filter(
           (shift) =>
             shift.day === sourceDay &&
             shift.shifts?.some((s: any) =>
@@ -886,57 +818,30 @@ const ShiftChange = () => {
             )
         );
 
-        // Check for time conflicts and collect conflicting shift info
-        let conflictingShift: {
-          location: string;
-          startTime: string;
-          endTime: string;
-        } | null = null as {
-          location: string;
-          startTime: string;
-          endTime: string;
-        } | null;
-
-        const hasConflict = targetUserShifts?.some((shiftRecord) =>
-          shiftRecord.shifts?.some((s: any) => {
-            if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
-
-            const isOverlap = checkTimeOverlap(
-              sourceStartTime,
-              sourceEndTime,
-              s.shift,
-              s.shiftEndHour
-            );
-
-            if (isOverlap) {
-              const location = getItem(shiftRecord.location, locations);
-              conflictingShift = {
-                location: location?.name || "Bilinmeyen Lokasyon",
-                startTime: s.shift,
-                endTime: s.shiftEndHour || "",
-              };
-            }
-
-            return isOverlap;
-          })
-        );
-
-        if (hasConflict && conflictingShift) {
+        if (targetUserShiftsOnDay && targetUserShiftsOnDay.length > 0) {
           const targetUserName = getItem(
             shiftChangeForm.targetUser,
             users
           )?.name;
+          const firstShift = targetUserShiftsOnDay[0].shifts?.find((s: any) =>
+            s.user?.includes(shiftChangeForm.targetUser)
+          );
+          const location = getItem(
+            targetUserShiftsOnDay[0].location,
+            locations
+          );
+
           setConflictWarning(
             t(
-              "Warning: {{userName}} already has a shift at this time on {{date}}",
+              "Warning: {{userName}} already has another shift on {{date}}",
               {
                 userName: targetUserName,
                 date: convertDateFormat(sourceDay),
               }
             ) +
-              `\n${t("Conflicting Shift")}: ${convertDateFormat(sourceDay)} - ${conflictingShift.location} (${
-                conflictingShift.startTime
-              }${conflictingShift.endTime ? `-${conflictingShift.endTime}` : ""})`
+              `\n${t("Conflicting Shift")}: ${convertDateFormat(sourceDay)} - ${location?.name || "Bilinmeyen Lokasyon"} (${
+                firstShift?.shift || ""
+              }${firstShift?.shiftEndHour ? `-${firstShift.shiftEndHour}` : ""})`
           );
         } else {
           setConflictWarning("");
@@ -945,33 +850,28 @@ const ShiftChange = () => {
         setConflictWarning("");
       }
     } else if (shiftChangeForm.type === "SWAP") {
-      // SWAP: Only check if different day OR different location
       if (
         shiftChangeForm.sourceShift &&
         shiftChangeForm.targetShift &&
         shiftChangeForm.targetUser
       ) {
-        const [, sourceStartTime, sourceEndTime, sourceDay] =
+        const [, sourceStartTime, sourceDay] =
           shiftChangeForm.sourceShift.split("|");
-        const [, targetStartTime, targetEndTime, targetDay] =
+        const [, targetStartTime, targetDay] =
           shiftChangeForm.targetShift.split("|");
 
         const sameDay = sourceDay === targetDay;
 
         if (sameDay) {
-          // Same day swap - check if either user has OTHER shifts on the same day
           let hasConflict = false;
           let conflictMessage = "";
 
-          // Check if target user has other shifts on the same day (excluding their swap shift)
           const targetUserOtherShiftsOnDay = modalShifts?.filter(
             (shift) =>
               shift.day === sourceDay &&
               shift.shifts?.some((s: any) => {
-                // Check if target user is in this shift
                 if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
 
-                // Exclude the target shift itself (the one being swapped)
                 const [targetShiftId] =
                   shiftChangeForm.targetShift?.split("|") || [];
                 if (
@@ -1024,16 +924,13 @@ const ShiftChange = () => {
               }${otherShift?.shiftEndHour ? `-${otherShift.shiftEndHour}` : ""})`;
           }
 
-          // Check if requester has other shifts on the same day (excluding their swap shift)
           if (!hasConflict) {
             const requesterOtherShiftsOnDay = modalShifts?.filter(
               (shift) =>
                 shift.day === sourceDay &&
                 shift.shifts?.some((s: any) => {
-                  // Check if requester is in this shift
                   if (!s.user?.includes(user?._id)) return false;
 
-                  // Exclude the requester shift itself (the one being swapped)
                   const [sourceShiftId] =
                     shiftChangeForm.sourceShift?.split("|") || [];
                   if (
@@ -1088,18 +985,15 @@ const ShiftChange = () => {
             setConflictWarning("");
           }
         } else {
-          // Different day - first check if either user has ANY shift on the other's day
           let hasConflict = false;
           let conflictMessage = "";
 
-          // Check if target user has ANY shift on requester's day (excluding the target shift being swapped)
           const targetUserShiftsOnRequesterDay = modalShifts?.filter(
             (shift) =>
               shift.day === sourceDay &&
               shift.shifts?.some((s: any) => {
                 if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
 
-                // Exclude the target shift itself (the one being swapped)
                 const [targetShiftId] =
                   shiftChangeForm.targetShift?.split("|") || [];
                 if (
@@ -1155,7 +1049,6 @@ const ShiftChange = () => {
               }${otherShift?.shiftEndHour ? `-${otherShift.shiftEndHour}` : ""})`;
           }
 
-          // Check if requester has ANY shift on target day (excluding the requester shift being swapped)
           if (!hasConflict) {
             const requesterShiftsOnTargetDay = modalShifts?.filter(
               (shift) =>
@@ -1163,7 +1056,6 @@ const ShiftChange = () => {
                 shift.shifts?.some((s: any) => {
                   if (!s.user?.includes(user?._id)) return false;
 
-                  // Exclude the requester shift itself (the one being swapped)
                   const [sourceShiftId] =
                     shiftChangeForm.sourceShift?.split("|") || [];
                   if (
