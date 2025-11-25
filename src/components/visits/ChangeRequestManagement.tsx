@@ -92,11 +92,10 @@ const ChangeRequestManagement = () => {
       : getUserName(row.targetUserId);
 
   const getDerivedStatus = (row: ShiftChangeRequestType) => {
-    const statusStr = String((row as any).status || "").toUpperCase();
-    if (statusStr === "CANCELED" || statusStr === "CANCELLED") {
+    if (row.status === ShiftChangeStatusEnum.CANCELLED) {
       return { text: t("UserCancelled"), cls: "bg-red-600" };
     }
-    if (statusStr === "REJECTED") {
+    if (row.status === ShiftChangeStatusEnum.REJECTED) {
       return { text: t("Rejected"), cls: "bg-red-600" };
     }
     const manager = row.managerApprovalStatus;
@@ -289,13 +288,12 @@ const ChangeRequestManagement = () => {
       node: (row: ShiftChangeRequestType) => (
         <div className="flex flex-row gap-2 items-center">
           {(() => {
-            const statusStr = String((row as any).status || "").toUpperCase();
-            const isCanceled =
-              statusStr === "CANCELED" || statusStr === "CANCELLED";
+            const isCanceled = row.status === ShiftChangeStatusEnum.CANCELLED;
+            const isRejected = row.status === ShiftChangeStatusEnum.REJECTED;
             const approveDisabled =
-              isCanceled || row.managerApprovalStatus !== "PENDING";
+              isCanceled || isRejected || row.managerApprovalStatus !== "PENDING";
             const rejectDisabled =
-              isCanceled || row.managerApprovalStatus !== "PENDING";
+              isCanceled || isRejected || row.managerApprovalStatus !== "PENDING";
             const approveTitle = approveDisabled
               ? t("Already processed by manager")
               : t("Approve");

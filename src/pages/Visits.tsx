@@ -74,7 +74,6 @@ export const VisitPageTabs = [
     content: <UserChangeRequestTab />,
     isDisabled: false,
   },
-  //Yönetici Tabı oluşturulacak
   {
     number: VisitPageTabEnum.CHANGEREQUESTMANAGEMENT,
     label: "ChangeRequestManagement",
