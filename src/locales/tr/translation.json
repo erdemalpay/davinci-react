@@ -760,10 +760,13 @@
   "COMPLETECOUNT": "Sayım Tamamlandı",
   "NEGATIVESTOCK": "Negatif Stok",
   "ZEROSTOCK": "Sıfır Stok",
+  "STOCKRESTORED": "Stok Yenilendi",
   "LOSSPRODUCT": "Kayıp Ürün",
   "IKASTAKEAWAY": "İkas Paket Servis",
   "Negative Stock": "Negatif Stok",
   "Zero Stock": "Sıfır Stok",
+  "Stock Restored": "Stok Yenilendi",
+  "StockRestored": "{{product}} ürününün {{location}} lokasyonundaki stoğu yenilendi.Menuye eklendi.",
   "Ikas Takeaway": "İkas Paket Servis",
   "Late Shift Start": "Geç Vardiya Başlangıcı",
   "Night Open Table": "Gece Açık Masa",
@@ -1101,6 +1104,6 @@
   "Opening Hours": "Açılış Saatleri",
   "Daily Opening Hours": "Günlük Çalışma Saatleri",
   "Closed": "Kapalı",
-  "View Map" : "Haritada Göster",
-  "Activity Note" : "Aktiflik Notu"
+  "View Map": "Haritada Göster",
+  "Activity Note": "Aktiflik Notu"
 }
