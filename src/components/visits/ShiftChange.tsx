@@ -41,6 +41,7 @@ const ShiftChange = () => {
   const [modalKey, setModalKey] = useState(0);
   const { mutate: createShiftChangeRequest } = useCreateShiftChangeRequest();
   const locations = useGetStoreLocations();
+
   const buildShiftKey = (
     shiftData: { shift?: string; shiftEndHour?: string } | null | undefined,
     locationId?: number | null
@@ -57,6 +58,101 @@ const ShiftChange = () => {
     }
 
     return `${shiftStart}-${shiftEnd || ""}`;
+  };
+
+  const filterUsersByRole = (userId: string) => {
+    const foundUser = getItem(userId, users);
+    return (
+      foundUser &&
+      (!filterPanelFormElements?.role ||
+        filterPanelFormElements?.role?.length === 0 ||
+        filterPanelFormElements?.role?.includes(foundUser?.role?._id))
+    );
+  };
+
+  const isDateValidForShiftChange = (shiftDate: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(shiftDate);
+    dateToCheck.setHours(0, 0, 0, 0);
+    return dateToCheck >= today;
+  };
+
+  const buildConflictWarningMessage = (
+    userName: string | undefined,
+    day: string,
+    locationId: number | undefined,
+    shift: { shift?: string; shiftEndHour?: string } | undefined
+  ) => {
+    if (!locationId || !shift) return "";
+
+    const location = getItem(locationId, locations);
+    const isCurrentUser = userName === user?.name;
+
+    const warningBase = isCurrentUser
+      ? t("Warning: You already have another shift on {{date}}", {
+          date: convertDateFormat(day),
+        })
+      : t("Warning: {{userName}} already has another shift on {{date}}", {
+          userName,
+          date: convertDateFormat(day),
+        });
+
+    return (
+      warningBase +
+      `\n${t("Conflicting Shift")}: ${convertDateFormat(day)} - ${
+        location?.name || "Bilinmeyen Lokasyon"
+      } (${shift?.shift || ""}${
+        shift?.shiftEndHour ? `-${shift.shiftEndHour}` : ""
+      })`
+    );
+  };
+
+  const findUserShiftsOnDay = (
+    userId: string | undefined,
+    day: string,
+    excludeShiftId?: string,
+    excludeShiftTime?: string
+  ) => {
+    return modalShifts?.filter((shift) =>
+      shift.day === day &&
+      shift.shifts?.some((s: any) => {
+        if (!s.user?.includes(userId)) return false;
+
+        if (
+          excludeShiftId &&
+          excludeShiftTime &&
+          shift._id?.toString() === excludeShiftId &&
+          s.shift === excludeShiftTime
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+    );
+  };
+
+  const extractShiftFromShifts = (
+    shifts: any[],
+    userId: string | undefined,
+    excludeShiftId?: string,
+    excludeShiftTime?: string
+  ) => {
+    return shifts?.[0]?.shifts?.find((s: any) => {
+      if (!s.user?.includes(userId)) return false;
+
+      if (
+        excludeShiftId &&
+        excludeShiftTime &&
+        shifts[0]._id?.toString() === excludeShiftId &&
+        s.shift === excludeShiftTime
+      ) {
+        return false;
+      }
+
+      return true;
+    });
   };
   const roles = useGetAllUserRoles();
   const { selectedLocationId: globalSelectedLocationId } = useLocationContext();
@@ -120,112 +216,94 @@ const ShiftChange = () => {
         })()
       : foundLocation?.shifts || [];
 
+  const formatDayWithWeekday = (day: string) => {
+    const dayName = new Date(day).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+    return convertDateFormat(day) + "  " + "(" + t(dayName) + ")";
+  };
+
+  const buildAllLocationsRows = () => {
+    const groupedByDay = shifts?.reduce((acc, shift) => {
+      if (!acc[shift.day]) {
+        acc[shift.day] = [];
+      }
+      acc[shift.day].push(shift);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
+      const shiftsByLocation: Record<
+        string,
+        Array<{
+          location: number;
+          users: string[];
+          chefUser?: string;
+          _id: string;
+        }>
+      > = {};
+
+      dayShifts.forEach((shiftRecord) => {
+        shiftRecord.shifts?.forEach((s: any) => {
+          const shiftKey = buildShiftKey(s, shiftRecord.location);
+          if (!shiftsByLocation[shiftKey]) {
+            shiftsByLocation[shiftKey] = [];
+          }
+
+          const locationConfig = getItem(shiftRecord.location, locations);
+          const locationHasShift = locationConfig?.shifts?.some(
+            (locationShift) =>
+              buildShiftKey(locationShift, shiftRecord.location) === shiftKey
+          );
+
+          if (!locationHasShift) {
+            return;
+          }
+
+          const existingIndex = shiftsByLocation[shiftKey].findIndex(
+            (sl) => sl.location === shiftRecord.location
+          );
+
+          if (existingIndex === -1) {
+            shiftsByLocation[shiftKey].push({
+              location: shiftRecord.location,
+              users: s.user?.filter(filterUsersByRole) || [],
+              chefUser: s.chefUser,
+              _id: shiftRecord._id,
+            });
+          }
+        });
+      });
+
+      return {
+        day,
+        formattedDay: formatDayWithWeekday(day),
+        shiftsByLocation,
+      };
+    });
+  };
+
+  const buildSingleLocationRows = () => {
+    return shifts?.map((shift) => {
+      const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
+        if (shiftValue.shift && shiftValue.user) {
+          acc[shiftValue.shift] = shiftValue.user?.filter(filterUsersByRole);
+        }
+        return acc;
+      }, {} as { [key: string]: string[] });
+
+      return {
+        ...shift,
+        formattedDay: formatDayWithWeekday(shift.day),
+        ...shiftMapping,
+      };
+    });
+  };
+
   const allRows =
     selectedLocationId === -1
-      ? (() => {
-          const groupedByDay = shifts?.reduce((acc, shift) => {
-            if (!acc[shift.day]) {
-              acc[shift.day] = [];
-            }
-            acc[shift.day].push(shift);
-            return acc;
-          }, {} as Record<string, any[]>);
-
-          return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
-            const shiftsByLocation: Record<
-              string,
-              Array<{
-                location: number;
-                users: string[];
-                chefUser?: string;
-                _id: string;
-              }>
-            > = {};
-
-            dayShifts.forEach((shiftRecord) => {
-              shiftRecord.shifts?.forEach((s: any) => {
-                const shiftKey = buildShiftKey(s, shiftRecord.location);
-                if (!shiftsByLocation[shiftKey]) {
-                  shiftsByLocation[shiftKey] = [];
-                }
-
-                const locationConfig = getItem(shiftRecord.location, locations);
-                const locationHasShift = locationConfig?.shifts?.some(
-                  (locationShift) => {
-                    return (
-                      buildShiftKey(locationShift, shiftRecord.location) ===
-                      shiftKey
-                    );
-                  }
-                );
-                if (!locationHasShift) {
-                  return;
-                }
-
-                const existingIndex = shiftsByLocation[shiftKey].findIndex(
-                  (sl) => sl.location === shiftRecord.location
-                );
-
-                if (existingIndex === -1) {
-                  shiftsByLocation[shiftKey].push({
-                    location: shiftRecord.location,
-                    users:
-                      s.user?.filter((userId: string) => {
-                        const foundUser = getItem(userId, users);
-                        return (
-                          foundUser &&
-                          (!filterPanelFormElements?.role ||
-                            filterPanelFormElements?.role?.length === 0 ||
-                            filterPanelFormElements?.role?.includes(
-                              foundUser?.role?._id
-                            ))
-                        );
-                      }) || [],
-                    chefUser: s.chefUser,
-                    _id: shiftRecord._id,
-                  });
-                }
-              });
-            });
-
-            const dayName = new Date(day).toLocaleDateString("en-US", {
-              weekday: "long",
-            });
-            return {
-              day,
-              formattedDay:
-                convertDateFormat(day) + "  " + "(" + t(dayName) + ")",
-              shiftsByLocation,
-            };
-          });
-        })()
-      : shifts?.map((shift) => {
-          const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
-            if (shiftValue.shift && shiftValue.user) {
-              acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
-                const foundUser = getItem(userId, users);
-                return (
-                  foundUser &&
-                  (!filterPanelFormElements?.role ||
-                    filterPanelFormElements?.role?.length === 0 ||
-                    filterPanelFormElements?.role?.includes(
-                      foundUser?.role?._id
-                    ))
-                );
-              });
-            }
-            return acc;
-          }, {} as { [key: string]: string[] });
-          const dayName = new Date(shift.day).toLocaleDateString("en-US", {
-            weekday: "long",
-          });
-          return {
-            ...shift,
-            formattedDay:
-              convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
-            ...shiftMapping,
-          };
-        });
+      ? buildAllLocationsRows()
+      : buildSingleLocationRows();
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
@@ -495,9 +573,6 @@ const ShiftChange = () => {
       }))
       .filter((loc) => loc.label) || [];
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
   const userShiftsInLocation = userOwnShifts
     ?.filter((shift) => {
       if (
@@ -507,9 +582,7 @@ const ShiftChange = () => {
       ) {
         return false;
       }
-      const shiftDate = new Date(shift.day);
-      shiftDate.setHours(0, 0, 0, 0);
-      return shiftDate >= today;
+      return isDateValidForShiftChange(shift.day);
     })
     ?.map((shift) => ({
       _id: shift._id,
@@ -551,9 +624,7 @@ const ShiftChange = () => {
     ) {
       return false;
     }
-    const shiftDate = new Date(shift.day);
-    shiftDate.setHours(0, 0, 0, 0);
-    return shiftDate >= today;
+    return isDateValidForShiftChange(shift.day);
   });
 
   const targetShiftOptions = shiftChangeForm.targetUser
@@ -710,6 +781,29 @@ const ShiftChange = () => {
     { key: "requesterNote", type: FormKeyTypeEnum.STRING },
   ];
 
+  const resetShiftChangeModal = () => {
+    setIsShiftChangeModalOpen(false);
+    setShiftChangeForm({ type: "SWAP" });
+    setConflictWarning("");
+    setModalKey((prev) => prev + 1);
+  };
+
+  const buildShiftPayload = (
+    shiftId: string,
+    day: string,
+    startTime: string,
+    endTime: string,
+    location: number,
+    userId: string
+  ) => ({
+    shiftId: Number(shiftId),
+    day,
+    startTime,
+    endTime: endTime || undefined,
+    location,
+    userId,
+  });
+
   const handleShiftChangeSubmit = (formData: any) => {
     if (conflictWarning) {
       toast.error(t("Cannot submit: User has a conflicting shift"));
@@ -732,64 +826,54 @@ const ShiftChange = () => {
 
       const payload = {
         targetUserId,
-        requesterShift: {
-          shiftId: Number(sourceShiftId),
-          day: sourceDay,
-          startTime: sourceStartTime,
-          endTime: sourceEndTime || undefined,
-          location: formData.sourceLocation,
-          userId: user?._id || "",
-        },
-        targetShift: {
-          shiftId: Number(targetShiftId),
-          day: targetDay,
-          startTime: targetStartTime,
-          endTime: targetEndTime || undefined,
-          location: formData.targetLocation,
-          userId: targetUserId,
-        },
+        requesterShift: buildShiftPayload(
+          sourceShiftId,
+          sourceDay,
+          sourceStartTime,
+          sourceEndTime,
+          formData.sourceLocation,
+          user?._id || ""
+        ),
+        targetShift: buildShiftPayload(
+          targetShiftId,
+          targetDay,
+          targetStartTime,
+          targetEndTime,
+          formData.targetLocation,
+          targetUserId
+        ),
         type: "SWAP" as "SWAP" | "TRANSFER",
         requesterNote: formData.requesterNote,
       };
 
       createShiftChangeRequest(payload, {
-        onSuccess: () => {
-          setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({ type: "SWAP" });
-          setConflictWarning("");
-          setModalKey((prev) => prev + 1);
-        },
+        onSuccess: resetShiftChangeModal,
       });
     } else if (formData.type === "TRANSFER") {
       const payload = {
         targetUserId: formData.targetUser,
-        requesterShift: {
-          shiftId: Number(sourceShiftId),
-          day: sourceDay,
-          startTime: sourceStartTime,
-          endTime: sourceEndTime || undefined,
-          location: formData.sourceLocation,
-          userId: user?._id || "",
-        },
-        targetShift: {
-          shiftId: Number(sourceShiftId),
-          day: sourceDay,
-          startTime: sourceStartTime,
-          endTime: sourceEndTime || undefined,
-          location: formData.sourceLocation,
-          userId: formData.targetUser,
-        },
+        requesterShift: buildShiftPayload(
+          sourceShiftId,
+          sourceDay,
+          sourceStartTime,
+          sourceEndTime,
+          formData.sourceLocation,
+          user?._id || ""
+        ),
+        targetShift: buildShiftPayload(
+          sourceShiftId,
+          sourceDay,
+          sourceStartTime,
+          sourceEndTime,
+          formData.sourceLocation,
+          formData.targetUser
+        ),
         type: "TRANSFER" as "SWAP" | "TRANSFER",
         requesterNote: formData.requesterNote,
       };
 
       createShiftChangeRequest(payload, {
-        onSuccess: () => {
-          setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({ type: "SWAP" });
-          setConflictWarning("");
-          setModalKey((prev) => prev + 1);
-        },
+        onSuccess: resetShiftChangeModal,
       });
     }
   };
@@ -806,313 +890,109 @@ const ShiftChange = () => {
   ]);
 
   useEffect(() => {
-    if (shiftChangeForm.type === "TRANSFER") {
-      if (shiftChangeForm.sourceShift && shiftChangeForm.targetUser) {
-        const [, , , sourceDay] = shiftChangeForm.sourceShift.split("|");
+    const checkTransferConflict = () => {
+      if (!shiftChangeForm.sourceShift || !shiftChangeForm.targetUser) {
+        return "";
+      }
 
-        const targetUserShiftsOnDay = modalShifts?.filter(
-          (shift) =>
-            shift.day === sourceDay &&
-            shift.shifts?.some((s: any) =>
-              s.user?.includes(shiftChangeForm.targetUser)
-            )
+      const [, , , sourceDay] = shiftChangeForm.sourceShift.split("|");
+      const targetUserShiftsOnDay = findUserShiftsOnDay(
+        shiftChangeForm.targetUser,
+        sourceDay
+      );
+
+      if (targetUserShiftsOnDay && targetUserShiftsOnDay.length > 0) {
+        const targetUserName = getItem(shiftChangeForm.targetUser, users)?.name;
+        const firstShift = extractShiftFromShifts(
+          targetUserShiftsOnDay,
+          shiftChangeForm.targetUser
         );
 
-        if (targetUserShiftsOnDay && targetUserShiftsOnDay.length > 0) {
-          const targetUserName = getItem(
-            shiftChangeForm.targetUser,
-            users
-          )?.name;
-          const firstShift = targetUserShiftsOnDay[0].shifts?.find((s: any) =>
-            s.user?.includes(shiftChangeForm.targetUser)
-          );
-          const location = getItem(
-            targetUserShiftsOnDay[0].location,
-            locations
-          );
-
-          setConflictWarning(
-            t(
-              "Warning: {{userName}} already has another shift on {{date}}",
-              {
-                userName: targetUserName,
-                date: convertDateFormat(sourceDay),
-              }
-            ) +
-              `\n${t("Conflicting Shift")}: ${convertDateFormat(sourceDay)} - ${location?.name || "Bilinmeyen Lokasyon"} (${
-                firstShift?.shift || ""
-              }${firstShift?.shiftEndHour ? `-${firstShift.shiftEndHour}` : ""})`
-          );
-        } else {
-          setConflictWarning("");
-        }
-      } else {
-        setConflictWarning("");
+        return buildConflictWarningMessage(
+          targetUserName,
+          sourceDay,
+          targetUserShiftsOnDay[0].location,
+          firstShift
+        );
       }
-    } else if (shiftChangeForm.type === "SWAP") {
+
+      return "";
+    };
+
+    const checkSwapConflict = () => {
       if (
-        shiftChangeForm.sourceShift &&
-        shiftChangeForm.targetShift &&
-        shiftChangeForm.targetUser
+        !shiftChangeForm.sourceShift ||
+        !shiftChangeForm.targetShift ||
+        !shiftChangeForm.targetUser
       ) {
-        const [, sourceStartTime, sourceDay] =
-          shiftChangeForm.sourceShift.split("|");
-        const [, targetStartTime, targetDay] =
-          shiftChangeForm.targetShift.split("|");
-
-        const sameDay = sourceDay === targetDay;
-
-        if (sameDay) {
-          let hasConflict = false;
-          let conflictMessage = "";
-
-          const targetUserOtherShiftsOnDay = modalShifts?.filter(
-            (shift) =>
-              shift.day === sourceDay &&
-              shift.shifts?.some((s: any) => {
-                if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
-
-                const [targetShiftId] =
-                  shiftChangeForm.targetShift?.split("|") || [];
-                if (
-                  targetShiftId &&
-                  shift._id?.toString() === targetShiftId &&
-                  s.shift === targetStartTime
-                ) {
-                  return false;
-                }
-
-                return true;
-              })
-          );
-
-          if (targetUserOtherShiftsOnDay && targetUserOtherShiftsOnDay.length > 0) {
-            const targetUserName = getItem(
-              shiftChangeForm.targetUser,
-              users
-            )?.name;
-            const otherShift = targetUserOtherShiftsOnDay[0].shifts?.find(
-              (s: any) => {
-                const [targetShiftId] =
-                  shiftChangeForm.targetShift?.split("|") || [];
-                return (
-                  s.user?.includes(shiftChangeForm.targetUser) &&
-                  !(
-                    targetShiftId &&
-                    targetUserOtherShiftsOnDay[0]._id?.toString() ===
-                      targetShiftId && s.shift === targetStartTime
-                  )
-                );
-              }
-            );
-            const location = getItem(
-              targetUserOtherShiftsOnDay[0].location,
-              locations
-            );
-
-            hasConflict = true;
-            conflictMessage =
-              t(
-                "Warning: {{userName}} already has another shift on {{date}}",
-                {
-                  userName: targetUserName,
-                  date: convertDateFormat(sourceDay),
-                }
-              ) +
-              `\n${t("Conflicting Shift")}: ${convertDateFormat(sourceDay)} - ${location?.name || "Bilinmeyen Lokasyon"} (${
-                otherShift?.shift || ""
-              }${otherShift?.shiftEndHour ? `-${otherShift.shiftEndHour}` : ""})`;
-          }
-
-          if (!hasConflict) {
-            const requesterOtherShiftsOnDay = modalShifts?.filter(
-              (shift) =>
-                shift.day === sourceDay &&
-                shift.shifts?.some((s: any) => {
-                  if (!s.user?.includes(user?._id)) return false;
-
-                  const [sourceShiftId] =
-                    shiftChangeForm.sourceShift?.split("|") || [];
-                  if (
-                    sourceShiftId &&
-                    shift._id?.toString() === sourceShiftId &&
-                    s.shift === sourceStartTime
-                  ) {
-                    return false;
-                  }
-
-                  return true;
-                })
-            );
-
-            if (
-              requesterOtherShiftsOnDay &&
-              requesterOtherShiftsOnDay.length > 0
-            ) {
-              const otherShift = requesterOtherShiftsOnDay[0].shifts?.find(
-                (s: any) => {
-                  const [sourceShiftId] =
-                    shiftChangeForm.sourceShift?.split("|") || [];
-                  return (
-                    s.user?.includes(user?._id) &&
-                    !(
-                      sourceShiftId &&
-                      requesterOtherShiftsOnDay[0]._id?.toString() ===
-                        sourceShiftId && s.shift === sourceStartTime
-                    )
-                  );
-                }
-              );
-              const location = getItem(
-                requesterOtherShiftsOnDay[0].location,
-                locations
-              );
-
-              hasConflict = true;
-              conflictMessage =
-                t("Warning: You already have another shift on {{date}}", {
-                  date: convertDateFormat(sourceDay),
-                }) +
-                `\n${t("Conflicting Shift")}: ${convertDateFormat(sourceDay)} - ${location?.name || "Bilinmeyen Lokasyon"} (${
-                  otherShift?.shift || ""
-                }${otherShift?.shiftEndHour ? `-${otherShift.shiftEndHour}` : ""})`;
-            }
-          }
-
-          if (hasConflict) {
-            setConflictWarning(conflictMessage);
-          } else {
-            setConflictWarning("");
-          }
-        } else {
-          let hasConflict = false;
-          let conflictMessage = "";
-
-          const targetUserShiftsOnRequesterDay = modalShifts?.filter(
-            (shift) =>
-              shift.day === sourceDay &&
-              shift.shifts?.some((s: any) => {
-                if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
-
-                const [targetShiftId] =
-                  shiftChangeForm.targetShift?.split("|") || [];
-                if (
-                  targetShiftId &&
-                  shift._id?.toString() === targetShiftId &&
-                  s.shift === targetStartTime
-                ) {
-                  return false;
-                }
-
-                return true;
-              })
-          );
-
-          if (
-            targetUserShiftsOnRequesterDay &&
-            targetUserShiftsOnRequesterDay.length > 0
-          ) {
-            const targetUserName = getItem(
-              shiftChangeForm.targetUser,
-              users
-            )?.name;
-            const otherShift = targetUserShiftsOnRequesterDay[0].shifts?.find(
-              (s: any) => {
-                const [targetShiftId] =
-                  shiftChangeForm.targetShift?.split("|") || [];
-                return (
-                  s.user?.includes(shiftChangeForm.targetUser) &&
-                  !(
-                    targetShiftId &&
-                    targetUserShiftsOnRequesterDay[0]._id?.toString() ===
-                      targetShiftId && s.shift === targetStartTime
-                  )
-                );
-              }
-            );
-            const location = getItem(
-              targetUserShiftsOnRequesterDay[0].location,
-              locations
-            );
-
-            hasConflict = true;
-            conflictMessage =
-              t(
-                "Warning: {{userName}} already has another shift on {{date}}",
-                {
-                  userName: targetUserName,
-                  date: convertDateFormat(sourceDay),
-                }
-              ) +
-              `\n${t("Conflicting Shift")}: ${convertDateFormat(sourceDay)} - ${location?.name || "Bilinmeyen Lokasyon"} (${
-                otherShift?.shift || ""
-              }${otherShift?.shiftEndHour ? `-${otherShift.shiftEndHour}` : ""})`;
-          }
-
-          if (!hasConflict) {
-            const requesterShiftsOnTargetDay = modalShifts?.filter(
-              (shift) =>
-                shift.day === targetDay &&
-                shift.shifts?.some((s: any) => {
-                  if (!s.user?.includes(user?._id)) return false;
-
-                  const [sourceShiftId] =
-                    shiftChangeForm.sourceShift?.split("|") || [];
-                  if (
-                    sourceShiftId &&
-                    shift._id?.toString() === sourceShiftId &&
-                    s.shift === sourceStartTime
-                  ) {
-                    return false;
-                  }
-
-                  return true;
-                })
-            );
-
-            if (
-              requesterShiftsOnTargetDay &&
-              requesterShiftsOnTargetDay.length > 0
-            ) {
-              const otherShift = requesterShiftsOnTargetDay[0].shifts?.find(
-                (s: any) => {
-                  const [sourceShiftId] =
-                    shiftChangeForm.sourceShift?.split("|") || [];
-                  return (
-                    s.user?.includes(user?._id) &&
-                    !(
-                      sourceShiftId &&
-                      requesterShiftsOnTargetDay[0]._id?.toString() ===
-                        sourceShiftId && s.shift === sourceStartTime
-                    )
-                  );
-                }
-              );
-              const location = getItem(
-                requesterShiftsOnTargetDay[0].location,
-                locations
-              );
-
-              hasConflict = true;
-              conflictMessage =
-                t("Warning: You already have another shift on {{date}}", {
-                  date: convertDateFormat(targetDay),
-                }) +
-                `\n${t("Conflicting Shift")}: ${convertDateFormat(targetDay)} - ${location?.name || "Bilinmeyen Lokasyon"} (${
-                  otherShift?.shift || ""
-                }${otherShift?.shiftEndHour ? `-${otherShift.shiftEndHour}` : ""})`;
-            }
-          }
-
-          if (hasConflict) {
-            setConflictWarning(conflictMessage);
-          } else {
-            setConflictWarning("");
-          }
-        }
-      } else {
-        setConflictWarning("");
+        return "";
       }
+
+      const [, sourceStartTime, , sourceDay] =
+        shiftChangeForm.sourceShift.split("|");
+      const [targetShiftId, targetStartTime, , targetDay] =
+        shiftChangeForm.targetShift.split("|");
+      const [sourceShiftId] = shiftChangeForm.sourceShift.split("|");
+
+      const sameDay = sourceDay === targetDay;
+
+      // Check target user conflicts
+      const targetUserConflicts = findUserShiftsOnDay(
+        shiftChangeForm.targetUser,
+        sourceDay,
+        targetShiftId,
+        targetStartTime
+      );
+
+      if (targetUserConflicts && targetUserConflicts.length > 0) {
+        const targetUserName = getItem(shiftChangeForm.targetUser, users)?.name;
+        const otherShift = extractShiftFromShifts(
+          targetUserConflicts,
+          shiftChangeForm.targetUser,
+          targetShiftId,
+          targetStartTime
+        );
+
+        return buildConflictWarningMessage(
+          targetUserName,
+          sourceDay,
+          targetUserConflicts[0].location,
+          otherShift
+        );
+      }
+
+      // Check requester conflicts
+      const checkDay = sameDay ? sourceDay : targetDay;
+      const requesterConflicts = findUserShiftsOnDay(
+        user?._id,
+        checkDay,
+        sourceShiftId,
+        sourceStartTime
+      );
+
+      if (requesterConflicts && requesterConflicts.length > 0) {
+        const otherShift = extractShiftFromShifts(
+          requesterConflicts,
+          user?._id,
+          sourceShiftId,
+          sourceStartTime
+        );
+
+        return buildConflictWarningMessage(
+          user?.name,
+          checkDay,
+          requesterConflicts[0].location,
+          otherShift
+        );
+      }
+
+      return "";
+    };
+
+    if (shiftChangeForm.type === "TRANSFER") {
+      setConflictWarning(checkTransferConflict());
+    } else if (shiftChangeForm.type === "SWAP") {
+      setConflictWarning(checkSwapConflict());
     } else {
       setConflictWarning("");
     }
@@ -1152,12 +1032,7 @@ const ShiftChange = () => {
       <GenericAddEditPanel
         key={modalKey}
         isOpen={isShiftChangeModalOpen}
-        close={() => {
-          setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({ type: "SWAP" });
-          setConflictWarning("");
-          setModalKey((prev) => prev + 1);
-        }}
+        close={resetShiftChangeModal}
         inputs={shiftChangeInputs}
         formKeys={shiftChangeFormKeys}
         submitItem={handleShiftChangeSubmit}
