@@ -5,7 +5,7 @@ import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
-import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
+import { DateRangeKey, RoleEnum, Shift, ShiftValue, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetShifts } from "../../utils/api/shift";
@@ -101,7 +101,7 @@ const ShiftChange = () => {
     return (
       warningBase +
       `\n${t("Conflicting Shift")}: ${convertDateFormat(day)} - ${
-        location?.name || "Bilinmeyen Lokasyon"
+        location?.name || t("Unknown Location")
       } (${shift?.shift || ""}${
         shift?.shiftEndHour ? `-${shift.shiftEndHour}` : ""
       })`
@@ -113,10 +113,12 @@ const ShiftChange = () => {
     day: string,
     excludeShiftId?: string,
     excludeShiftTime?: string
-  ) => {
+  ): Shift[] | undefined => {
+    if (!userId) return undefined;
+
     return modalShifts?.filter((shift) =>
       shift.day === day &&
-      shift.shifts?.some((s: any) => {
+      shift.shifts?.some((s: ShiftValue) => {
         if (!s.user?.includes(userId)) return false;
 
         if (
@@ -134,12 +136,14 @@ const ShiftChange = () => {
   };
 
   const extractShiftFromShifts = (
-    shifts: any[],
+    shifts: Shift[],
     userId: string | undefined,
     excludeShiftId?: string,
     excludeShiftTime?: string
-  ) => {
-    return shifts?.[0]?.shifts?.find((s: any) => {
+  ): ShiftValue | undefined => {
+    if (!userId) return undefined;
+
+    return shifts?.[0]?.shifts?.find((s: ShiftValue) => {
       if (!s.user?.includes(userId)) return false;
 
       if (
