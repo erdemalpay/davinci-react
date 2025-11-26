@@ -183,7 +183,7 @@ const OrdersReport = () => {
       ),
       formattedDate: "Total",
     };
-    allRows?.push(totalRow as any);
+ allRows?.unshift(totalRow as any);
     return allRows;
   }, [orders, users, discounts, items, sellLocations, t]);
 

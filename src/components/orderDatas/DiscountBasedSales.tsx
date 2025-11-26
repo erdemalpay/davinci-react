@@ -286,7 +286,7 @@ const DiscountBasedSales = () => {
 
     if (allRows.length > 0) {
       allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);
-      allRows.push({
+      allRows.unshift({
         item: 0,
         itemName: "",
         paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),

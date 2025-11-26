@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-  ActionEnum,
-  DateRangeKey,
-  DisabledConditionEnum,
-  OrderStatus,
-  TURKISHLIRA,
-  commonDateOptions,
-  orderFilterStatusOptions,
+    ActionEnum,
+    DateRangeKey,
+    DisabledConditionEnum,
+    OrderStatus,
+    TURKISHLIRA,
+    commonDateOptions,
+    orderFilterStatusOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
@@ -288,7 +288,7 @@ const UpperCategoryBasedSalesReport = () => {
 
     // Push the total row at the end of the allRows array
     if (allRows.length > 0) {
-      allRows.push(totalRow as any);
+      allRows.unshift(totalRow as any);
     }
 
     return allRows;

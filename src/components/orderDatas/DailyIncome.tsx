@@ -6,12 +6,12 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-  ActionEnum,
-  DateRangeKey,
-  DisabledConditionEnum,
-  OrderCollectionStatus,
-  TURKISHLIRA,
-  commonDateOptions,
+    ActionEnum,
+    DateRangeKey,
+    DisabledConditionEnum,
+    OrderCollectionStatus,
+    TURKISHLIRA,
+    commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -98,7 +98,7 @@ const DailyIncome = () => {
         return acc;
       }, [] as any[]);
 
-    allRows.push({
+    allRows.unshift({
       date: t("Total"),
       formattedDate: t("Total"),
       location: 0,

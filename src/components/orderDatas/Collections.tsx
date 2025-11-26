@@ -7,13 +7,13 @@ import { FiEdit } from "react-icons/fi";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-  ActionEnum,
-  DateRangeKey,
-  DisabledConditionEnum,
-  OrderCollection,
-  OrderCollectionStatus,
-  Table,
-  commonDateOptions,
+    ActionEnum,
+    DateRangeKey,
+    DisabledConditionEnum,
+    OrderCollection,
+    OrderCollectionStatus,
+    Table,
+    commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -22,8 +22,8 @@ import { useGetSellLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import {
-  useCollectionMutation,
-  useGetAllOrderCollections,
+    useCollectionMutation,
+    useGetAllOrderCollections,
 } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
@@ -237,7 +237,7 @@ const Collections = () => {
         returnedTotal,
       },
     };
-    filteredRows.push(totalRow);
+    filteredRows.unshift(totalRow);
     return filteredRows;
   }, [allRows, filterPanelFormElements, t]);
 
