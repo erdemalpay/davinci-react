@@ -135,6 +135,38 @@ const OrderDiscountPage = () => {
         placeholder: t("Note Placeholder"),
         required: false,
       },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isOnlineOrder",
+        label: t("Online Order"),
+        placeholder: t("Online Order"),
+        required: true,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isStoreOrder",
+        label: t("Store Order"),
+        placeholder: t("Store Order"),
+        required: true,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isNoteRequired",
+        label: t("Note Required"),
+        placeholder: t("Note Required"),
+        required: true,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isVisibleOnPaymentScreen",
+        label: t("Visible on Payment Screen"),
+        placeholder: t("Visible on Payment Screen"),
+        required: true,
+        isTopFlexRow: true,
+      },
     ],
     [t, form.type]
   );
@@ -146,6 +178,10 @@ const OrderDiscountPage = () => {
       { key: "percentage", type: FormKeyTypeEnum.NUMBER },
       { key: "amount", type: FormKeyTypeEnum.NUMBER },
       { key: "note", type: FormKeyTypeEnum.STRING },
+      { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
+      { key: "isStoreOrder", type: FormKeyTypeEnum.BOOLEAN },
+      { key: "isNoteRequired", type: FormKeyTypeEnum.BOOLEAN },
+      { key: "isVisibleOnPaymentScreen", type: FormKeyTypeEnum.BOOLEAN },
     ],
     []
   );
