@@ -1833,6 +1833,10 @@ export const NotificationEventColors: Record<
     gradient: "linear-gradient(135deg, #48BB78 0%, #38A169 100%)", // Green
     solid: "#48BB78",
   },
+  STOCKRESTORED: {
+    gradient: "linear-gradient(135deg, #68D391 0%, #48BB78 100%)", // Light Green
+    solid: "#68D391",
+  },
 
   // 🔵 BİLGİLENDİRME - Mavi/Turkuaz Tonları
   IKASTAKEAWAY: {
@@ -1865,6 +1869,7 @@ export enum NotificationEventType {
   COMPLETECOUNT = "COMPLETECOUNT",
   NEGATIVESTOCK = "NEGATIVESTOCK",
   ZEROSTOCK = "ZEROSTOCK",
+  STOCKRESTORED = "STOCKRESTORED",
   LOSSPRODUCT = "LOSSPRODUCT",
   IKASTAKEAWAY = "IKASTAKEAWAY",
   LATESHIFTSTART = "LATESHIFTSTART",
@@ -1888,6 +1893,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.ZEROSTOCK,
     label: "Zero Stock",
+  },
+  {
+    value: NotificationEventType.STOCKRESTORED,
+    label: "Stock Restored",
   },
   {
     value: NotificationEventType.LOSSPRODUCT,
