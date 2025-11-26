@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-  ActionEnum,
-  DateRangeKey,
-  DisabledConditionEnum,
-  OrderStatus,
-  TURKISHLIRA,
-  commonDateOptions,
-  orderFilterStatusOptions,
+    ActionEnum,
+    DateRangeKey,
+    DisabledConditionEnum,
+    OrderStatus,
+    TURKISHLIRA,
+    commonDateOptions,
+    orderFilterStatusOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
@@ -200,7 +200,7 @@ const GroupedProductSalesReport = () => {
 
     if (allRows.length > 0) {
       allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);
-      allRows.push({
+      allRows.unshift({
         item: 0,
         itemName: t("Total"),
         isSortable: false,

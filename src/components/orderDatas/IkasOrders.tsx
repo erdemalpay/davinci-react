@@ -170,7 +170,7 @@ const IkasOrders = () => {
       ),
       formattedDate: "Total",
     };
-    allRows?.push(totalRow as any);
+ allRows?.unshift(totalRow as any);
     return allRows;
   }, [
     orders,

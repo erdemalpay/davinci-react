@@ -125,7 +125,7 @@ const SingleProductSalesReport = () => {
 
     if (allRows.length > 0) {
       allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);
-      allRows.push({
+      allRows.unshift({
         item: 0,
         itemName: t("Total"),
         isSortable: false,
