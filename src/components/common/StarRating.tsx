@@ -9,7 +9,7 @@ type Props = {
 
 const StarRating = ({ numberOfStars, onChange }: Props) => {
   const [hoverRating, setHoverRating] = useState<number | null>(null);
-  const totalStars = 5;
+  const totalStars = 10;
 
   const debounceHover = useRef(
     debounce((index: number | null) => {
