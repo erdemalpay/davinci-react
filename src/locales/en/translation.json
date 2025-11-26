@@ -1015,6 +1015,12 @@
   "Warning: {{userName}} already has a shift at this time on {{date}}": "Warning: {{userName}} already has a shift at this time on {{date}}",
   "Cannot submit: User has a conflicting shift": "Cannot submit: User has a conflicting shift",
   "Conflict Detected!": "Conflict Detected!",
+  "Conflicting Shift": "Conflicting Shift",
+  "Warning: You have an overlapping shift on {{date}}": "Warning: You have an overlapping shift on {{date}}",
+  "Warning: {{userName}} has an overlapping shift on {{date}}": "Warning: {{userName}} has an overlapping shift on {{date}}",
+  "{{userName}}'s Shift": "{{userName}}'s Shift",
+  "Warning: {{userName}} already has another shift on {{date}}": "Warning: {{userName}} already has another shift on {{date}}",
+  "Warning: You already have another shift on {{date}}": "Warning: You already have another shift on {{date}}",
   "Manager Note": "Manager Note",
   "Optional": "Optional",
   "Approve": "Approve",
@@ -1098,6 +1104,7 @@
   "Opening Hours": "Opening Hours",
   "Daily Opening Hours": "Daily Opening Hours",
   "Closed": "Closed",
-  "View Map": "View on Maps",
-  "Activity Note": "Activity Note"
+  "View Map" : "View on Maps",
+  "Activity Note" : "Activity Note",
+  "Unknown Location" : "Unknown Location"
 }

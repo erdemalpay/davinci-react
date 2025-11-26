@@ -5,7 +5,7 @@ import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
-import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
+import { DateRangeKey, RoleEnum, Shift, ShiftValue, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetShifts } from "../../utils/api/shift";
@@ -33,15 +33,15 @@ const ShiftChange = () => {
   const { t } = useTranslation();
   const users = useGetUsersMinimal();
 
-  // Shift Change Request States
   const [isShiftChangeModalOpen, setIsShiftChangeModalOpen] = useState(false);
   const [shiftChangeForm, setShiftChangeForm] = useState<ShiftChangeFormState>({
     type: "SWAP",
   });
   const [conflictWarning, setConflictWarning] = useState<string>("");
-  const [modalKey, setModalKey] = useState(0); // Force re-render of modal
+  const [modalKey, setModalKey] = useState(0);
   const { mutate: createShiftChangeRequest } = useCreateShiftChangeRequest();
   const locations = useGetStoreLocations();
+
   const buildShiftKey = (
     shiftData: { shift?: string; shiftEndHour?: string } | null | undefined,
     locationId?: number | null
@@ -59,6 +59,105 @@ const ShiftChange = () => {
 
     return `${shiftStart}-${shiftEnd || ""}`;
   };
+
+  const filterUsersByRole = (userId: string) => {
+    const foundUser = getItem(userId, users);
+    return (
+      foundUser &&
+      (!filterPanelFormElements?.role ||
+        filterPanelFormElements?.role?.length === 0 ||
+        filterPanelFormElements?.role?.includes(foundUser?.role?._id))
+    );
+  };
+
+  const isDateValidForShiftChange = (shiftDate: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(shiftDate);
+    dateToCheck.setHours(0, 0, 0, 0);
+    return dateToCheck >= today;
+  };
+
+  const buildConflictWarningMessage = (
+    userName: string | undefined,
+    day: string,
+    locationId: number | undefined,
+    shift: { shift?: string; shiftEndHour?: string } | undefined
+  ) => {
+    if (!locationId || !shift) return "";
+
+    const location = getItem(locationId, locations);
+    const isCurrentUser = userName === user?.name;
+
+    const warningBase = isCurrentUser
+      ? t("Warning: You already have another shift on {{date}}", {
+          date: convertDateFormat(day),
+        })
+      : t("Warning: {{userName}} already has another shift on {{date}}", {
+          userName,
+          date: convertDateFormat(day),
+        });
+
+    return (
+      warningBase +
+      `\n${t("Conflicting Shift")}: ${convertDateFormat(day)} - ${
+        location?.name || t("Unknown Location")
+      } (${shift?.shift || ""}${
+        shift?.shiftEndHour ? `-${shift.shiftEndHour}` : ""
+      })`
+    );
+  };
+
+  const findUserShiftsOnDay = (
+    userId: string | undefined,
+    day: string,
+    excludeShiftId?: string,
+    excludeShiftTime?: string
+  ): Shift[] | undefined => {
+    if (!userId) return undefined;
+
+    return modalShifts?.filter((shift) =>
+      shift.day === day &&
+      shift.shifts?.some((s: ShiftValue) => {
+        if (!s.user?.includes(userId)) return false;
+
+        if (
+          excludeShiftId &&
+          excludeShiftTime &&
+          shift._id?.toString() === excludeShiftId &&
+          s.shift === excludeShiftTime
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+    );
+  };
+
+  const extractShiftFromShifts = (
+    shifts: Shift[],
+    userId: string | undefined,
+    excludeShiftId?: string,
+    excludeShiftTime?: string
+  ): ShiftValue | undefined => {
+    if (!userId) return undefined;
+
+    return shifts?.[0]?.shifts?.find((s: ShiftValue) => {
+      if (!s.user?.includes(userId)) return false;
+
+      if (
+        excludeShiftId &&
+        excludeShiftTime &&
+        shifts[0]._id?.toString() === excludeShiftId &&
+        s.shift === excludeShiftTime
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  };
   const roles = useGetAllUserRoles();
   const { selectedLocationId: globalSelectedLocationId } = useLocationContext();
   const [selectedLocationId, setSelectedLocationId] = useState(
@@ -75,11 +174,10 @@ const ShiftChange = () => {
     selectedLocationId
   );
 
-  // Separate shifts data for modal - fetch ALL locations
   const modalShifts = useGetShifts(
     filterPanelFormElements?.after,
     filterPanelFormElements?.before,
-    -1 // Fetch all locations for modal dropdown
+    -1
   );
   const { user } = useUserContext();
   const isDisabledCondition = user
@@ -92,7 +190,6 @@ const ShiftChange = () => {
   const { showShiftsFilters, setShowShiftsFilters } = useFilterContext();
   const foundLocation = getItem(selectedLocationId, locations);
 
-  // Get all unique shifts from all locations, sorted by start time (for "All" mode)
   const allShifts =
     selectedLocationId === -1
       ? (() => {
@@ -115,7 +212,6 @@ const ShiftChange = () => {
 
           const shiftsArray = Array.from(shiftsMap.values());
 
-          // Sort by shift start time
           return shiftsArray.sort((a, b) => {
             const [aHour, aMin] = a.shift.split(":").map(Number);
             const [bHour, bMin] = b.shift.split(":").map(Number);
@@ -124,115 +220,94 @@ const ShiftChange = () => {
         })()
       : foundLocation?.shifts || [];
 
+  const formatDayWithWeekday = (day: string) => {
+    const dayName = new Date(day).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+    return convertDateFormat(day) + "  " + "(" + t(dayName) + ")";
+  };
+
+  const buildAllLocationsRows = () => {
+    const groupedByDay = shifts?.reduce((acc, shift) => {
+      if (!acc[shift.day]) {
+        acc[shift.day] = [];
+      }
+      acc[shift.day].push(shift);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
+      const shiftsByLocation: Record<
+        string,
+        Array<{
+          location: number;
+          users: string[];
+          chefUser?: string;
+          _id: string;
+        }>
+      > = {};
+
+      dayShifts.forEach((shiftRecord) => {
+        shiftRecord.shifts?.forEach((s: any) => {
+          const shiftKey = buildShiftKey(s, shiftRecord.location);
+          if (!shiftsByLocation[shiftKey]) {
+            shiftsByLocation[shiftKey] = [];
+          }
+
+          const locationConfig = getItem(shiftRecord.location, locations);
+          const locationHasShift = locationConfig?.shifts?.some(
+            (locationShift) =>
+              buildShiftKey(locationShift, shiftRecord.location) === shiftKey
+          );
+
+          if (!locationHasShift) {
+            return;
+          }
+
+          const existingIndex = shiftsByLocation[shiftKey].findIndex(
+            (sl) => sl.location === shiftRecord.location
+          );
+
+          if (existingIndex === -1) {
+            shiftsByLocation[shiftKey].push({
+              location: shiftRecord.location,
+              users: s.user?.filter(filterUsersByRole) || [],
+              chefUser: s.chefUser,
+              _id: shiftRecord._id,
+            });
+          }
+        });
+      });
+
+      return {
+        day,
+        formattedDay: formatDayWithWeekday(day),
+        shiftsByLocation,
+      };
+    });
+  };
+
+  const buildSingleLocationRows = () => {
+    return shifts?.map((shift) => {
+      const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
+        if (shiftValue.shift && shiftValue.user) {
+          acc[shiftValue.shift] = shiftValue.user?.filter(filterUsersByRole);
+        }
+        return acc;
+      }, {} as { [key: string]: string[] });
+
+      return {
+        ...shift,
+        formattedDay: formatDayWithWeekday(shift.day),
+        ...shiftMapping,
+      };
+    });
+  };
+
   const allRows =
     selectedLocationId === -1
-      ? (() => {
-          // Group by day for "All" mode
-          const groupedByDay = shifts?.reduce((acc, shift) => {
-            if (!acc[shift.day]) {
-              acc[shift.day] = [];
-            }
-            acc[shift.day].push(shift);
-            return acc;
-          }, {} as Record<string, any[]>);
-
-          return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
-            const shiftsByLocation: Record<
-              string,
-              Array<{
-                location: number;
-                users: string[];
-                chefUser?: string;
-                _id: string;
-              }>
-            > = {};
-
-            dayShifts.forEach((shiftRecord) => {
-              shiftRecord.shifts?.forEach((s: any) => {
-                const shiftKey = buildShiftKey(s, shiftRecord.location);
-                if (!shiftsByLocation[shiftKey]) {
-                  shiftsByLocation[shiftKey] = [];
-                }
-
-                const locationConfig = getItem(shiftRecord.location, locations);
-                // Skip shifts not defined for this location to avoid rendering phantom dropdowns
-                const locationHasShift = locationConfig?.shifts?.some(
-                  (locationShift) => {
-                    return (
-                      buildShiftKey(locationShift, shiftRecord.location) ===
-                      shiftKey
-                    );
-                  }
-                );
-                if (!locationHasShift) {
-                  return;
-                }
-
-                // Check if this location already exists for this shift
-                const existingIndex = shiftsByLocation[shiftKey].findIndex(
-                  (sl) => sl.location === shiftRecord.location
-                );
-
-                if (existingIndex === -1) {
-                  shiftsByLocation[shiftKey].push({
-                    location: shiftRecord.location,
-                    users:
-                      s.user?.filter((userId: string) => {
-                        const foundUser = getItem(userId, users);
-                        return (
-                          foundUser &&
-                          (!filterPanelFormElements?.role ||
-                            filterPanelFormElements?.role?.length === 0 ||
-                            filterPanelFormElements?.role?.includes(
-                              foundUser?.role?._id
-                            ))
-                        );
-                      }) || [],
-                    chefUser: s.chefUser,
-                    _id: shiftRecord._id,
-                  });
-                }
-              });
-            });
-
-            const dayName = new Date(day).toLocaleDateString("en-US", {
-              weekday: "long",
-            });
-            return {
-              day,
-              formattedDay:
-                convertDateFormat(day) + "  " + "(" + t(dayName) + ")",
-              shiftsByLocation,
-            };
-          });
-        })()
-      : shifts?.map((shift) => {
-          const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
-            if (shiftValue.shift && shiftValue.user) {
-              acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
-                const foundUser = getItem(userId, users);
-                return (
-                  foundUser &&
-                  (!filterPanelFormElements?.role ||
-                    filterPanelFormElements?.role?.length === 0 ||
-                    filterPanelFormElements?.role?.includes(
-                      foundUser?.role?._id
-                    ))
-                );
-              });
-            }
-            return acc;
-          }, {} as { [key: string]: string[] });
-          const dayName = new Date(shift.day).toLocaleDateString("en-US", {
-            weekday: "long",
-          });
-          return {
-            ...shift,
-            formattedDay:
-              convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
-            ...shiftMapping,
-          };
-        });
+      ? buildAllLocationsRows()
+      : buildSingleLocationRows();
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
@@ -257,7 +332,6 @@ const ShiftChange = () => {
       rowKeys.push({
         key: shiftKey,
         node: (row: any) => {
-          // Check if we're in "All" mode
           if (selectedLocationId === -1) {
             const shiftKey = buildShiftKey(shift);
             const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
@@ -311,7 +385,6 @@ const ShiftChange = () => {
               </div>
             );
           } else {
-            // Original single location logic
             const shiftValue = row[shift.shift];
             if (Array.isArray(shiftValue) && shiftValue.length > 0) {
               return (
@@ -386,11 +459,10 @@ const ShiftChange = () => {
     },
   ];
 
-  // Shift Change Request Button
   const shiftChangeButton = {
     name: t("Change Working Hours"),
     isModal: true,
-    modal: null, // Modal'ı aşağıda tanımlayacağız
+    modal: null,
     isModalOpen: isShiftChangeModalOpen,
     setIsModal: setIsShiftChangeModalOpen,
     isPath: false,
@@ -487,9 +559,7 @@ const ShiftChange = () => {
     },
   };
 
-  // Get user's own shifts (all shifts where user is assigned) - using modalShifts
   const userOwnShifts = modalShifts?.filter((shift) => {
-    // Check if this shift record has the user assigned
     const hasUser = shift.shifts?.some((s: any) => {
       if (Array.isArray(s.user)) {
         return s.user.includes(user?._id);
@@ -499,7 +569,6 @@ const ShiftChange = () => {
     return hasUser;
   });
 
-  // Show ALL locations (not just where user has shifts in current date range)
   const userLocations =
     locations
       ?.map((location) => ({
@@ -507,10 +576,6 @@ const ShiftChange = () => {
         label: location.name || "",
       }))
       .filter((loc) => loc.label) || [];
-
-  // Get user's shifts for selected source location (only today and future)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
   const userShiftsInLocation = userOwnShifts
     ?.filter((shift) => {
@@ -521,9 +586,7 @@ const ShiftChange = () => {
       ) {
         return false;
       }
-      const shiftDate = new Date(shift.day);
-      shiftDate.setHours(0, 0, 0, 0);
-      return shiftDate >= today;
+      return isDateValidForShiftChange(shift.day);
     })
     ?.map((shift) => ({
       _id: shift._id,
@@ -536,7 +599,6 @@ const ShiftChange = () => {
       }),
     }));
 
-  // Flatten to get all shift options for user
   const userShiftOptions = userShiftsInLocation
     ?.flatMap((shiftRecord) =>
       shiftRecord.shifts?.map((s: any) => ({
@@ -558,7 +620,6 @@ const ShiftChange = () => {
     )
     .filter(Boolean);
 
-  // Get all shifts for target location (for SWAP) - only today and future - using modalShifts
   const targetLocationShifts = modalShifts?.filter((shift) => {
     if (
       !shift.location ||
@@ -567,12 +628,9 @@ const ShiftChange = () => {
     ) {
       return false;
     }
-    const shiftDate = new Date(shift.day);
-    shiftDate.setHours(0, 0, 0, 0);
-    return shiftDate >= today;
+    return isDateValidForShiftChange(shift.day);
   });
 
-  // Get target shift options - filtered by selected target user
   const targetShiftOptions = shiftChangeForm.targetUser
     ? targetLocationShifts
         ?.flatMap((shiftRecord) =>
@@ -601,9 +659,7 @@ const ShiftChange = () => {
         .filter(Boolean)
     : [];
 
-  // Shift Change Request Modal Inputs (Dynamic based on type)
   const baseInputs = [
-    // Type Selection (First field)
     {
       type: InputTypes.SELECT,
       formKey: "type",
@@ -619,12 +675,10 @@ const ShiftChange = () => {
           ? undefined
           : selectedOption?.value;
         if (!selectedValue) return;
-        // Reset form when type changes
         setShiftChangeForm({ type: selectedValue as "SWAP" | "TRANSFER" });
-        setModalKey((prev) => prev + 1); // Force modal re-render
+        setModalKey((prev) => prev + 1);
       },
     },
-    // Source Location
     {
       type: InputTypes.SELECT,
       formKey: "sourceLocation",
@@ -638,7 +692,6 @@ const ShiftChange = () => {
         { key: "targetUser", defaultValue: "" },
       ],
     },
-    // Source Shift
     {
       type: InputTypes.SELECT,
       formKey: "sourceShift",
@@ -650,7 +703,6 @@ const ShiftChange = () => {
     },
   ];
 
-  // SWAP-specific fields (better order: location -> user -> shift)
   const swapFields =
     shiftChangeForm.type === "SWAP"
       ? [
@@ -691,7 +743,6 @@ const ShiftChange = () => {
         ]
       : [];
 
-  // TRANSFER-specific fields
   const transferFields =
     shiftChangeForm.type === "TRANSFER"
       ? [
@@ -709,7 +760,6 @@ const ShiftChange = () => {
         ]
       : [];
 
-  // Note field (common for both)
   const noteField = {
     type: InputTypes.TEXTAREA,
     formKey: "requesterNote",
@@ -718,7 +768,6 @@ const ShiftChange = () => {
     invalidateKeys: [],
   } as any;
 
-  // Combine all inputs
   const shiftChangeInputs = [
     ...baseInputs,
     ...swapFields,
@@ -736,20 +785,39 @@ const ShiftChange = () => {
     { key: "requesterNote", type: FormKeyTypeEnum.STRING },
   ];
 
-  // Shift Change Submit Handler
+  const resetShiftChangeModal = () => {
+    setIsShiftChangeModalOpen(false);
+    setShiftChangeForm({ type: "SWAP" });
+    setConflictWarning("");
+    setModalKey((prev) => prev + 1);
+  };
+
+  const buildShiftPayload = (
+    shiftId: string,
+    day: string,
+    startTime: string,
+    endTime: string,
+    location: number,
+    userId: string
+  ) => ({
+    shiftId: Number(shiftId),
+    day,
+    startTime,
+    endTime: endTime || undefined,
+    location,
+    userId,
+  });
+
   const handleShiftChangeSubmit = (formData: any) => {
-    // Check for conflicts before submitting
     if (conflictWarning) {
       toast.error(t("Cannot submit: User has a conflicting shift"));
       return;
     }
 
-    // Parse source shift
     const [sourceShiftId, sourceStartTime, sourceEndTime, sourceDay] =
       formData.sourceShift.split("|");
 
     if (formData.type === "SWAP") {
-      // Parse target shift
       const [
         targetShiftId,
         targetStartTime,
@@ -758,69 +826,58 @@ const ShiftChange = () => {
         targetUsers,
       ] = formData.targetShift.split("|");
 
-      // Get first user from target shift (or use targetUser if single selection)
       const targetUserId = formData.targetUser || targetUsers.split(",")[0];
 
       const payload = {
         targetUserId,
-        requesterShift: {
-          shiftId: Number(sourceShiftId),
-          day: sourceDay,
-          startTime: sourceStartTime,
-          endTime: sourceEndTime || undefined,
-          location: formData.sourceLocation,
-          userId: user?._id || "",
-        },
-        targetShift: {
-          shiftId: Number(targetShiftId),
-          day: targetDay,
-          startTime: targetStartTime,
-          endTime: targetEndTime || undefined,
-          location: formData.targetLocation,
-          userId: targetUserId,
-        },
+        requesterShift: buildShiftPayload(
+          sourceShiftId,
+          sourceDay,
+          sourceStartTime,
+          sourceEndTime,
+          formData.sourceLocation,
+          user?._id || ""
+        ),
+        targetShift: buildShiftPayload(
+          targetShiftId,
+          targetDay,
+          targetStartTime,
+          targetEndTime,
+          formData.targetLocation,
+          targetUserId
+        ),
         type: "SWAP" as "SWAP" | "TRANSFER",
         requesterNote: formData.requesterNote,
       };
 
       createShiftChangeRequest(payload, {
-        onSuccess: () => {
-          setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({ type: "SWAP" });
-          setConflictWarning("");
-          setModalKey((prev) => prev + 1);
-        },
+        onSuccess: resetShiftChangeModal,
       });
     } else if (formData.type === "TRANSFER") {
       const payload = {
         targetUserId: formData.targetUser,
-        requesterShift: {
-          shiftId: Number(sourceShiftId),
-          day: sourceDay,
-          startTime: sourceStartTime,
-          endTime: sourceEndTime || undefined,
-          location: formData.sourceLocation,
-          userId: user?._id || "",
-        },
-        targetShift: {
-          shiftId: Number(sourceShiftId), // Same shift for transfer
-          day: sourceDay,
-          startTime: sourceStartTime,
-          endTime: sourceEndTime || undefined,
-          location: formData.sourceLocation,
-          userId: formData.targetUser,
-        },
+        requesterShift: buildShiftPayload(
+          sourceShiftId,
+          sourceDay,
+          sourceStartTime,
+          sourceEndTime,
+          formData.sourceLocation,
+          user?._id || ""
+        ),
+        targetShift: buildShiftPayload(
+          sourceShiftId,
+          sourceDay,
+          sourceStartTime,
+          sourceEndTime,
+          formData.sourceLocation,
+          formData.targetUser
+        ),
         type: "TRANSFER" as "SWAP" | "TRANSFER",
         requesterNote: formData.requesterNote,
       };
 
       createShiftChangeRequest(payload, {
-        onSuccess: () => {
-          setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({ type: "SWAP" });
-          setConflictWarning("");
-          setModalKey((prev) => prev + 1);
-        },
+        onSuccess: resetShiftChangeModal,
       });
     }
   };
@@ -836,66 +893,123 @@ const ShiftChange = () => {
     filterPanelFormElements,
   ]);
 
-  // Conflict detection for TRANSFER - using modalShifts
   useEffect(() => {
-    if (
-      shiftChangeForm.type === "TRANSFER" &&
-      shiftChangeForm.sourceShift &&
-      shiftChangeForm.targetUser
-    ) {
-      // Parse source shift data
+    const checkTransferConflict = () => {
+      if (!shiftChangeForm.sourceShift || !shiftChangeForm.targetUser) {
+        return "";
+      }
+
+      const [, , , sourceDay] = shiftChangeForm.sourceShift.split("|");
+      const targetUserShiftsOnDay = findUserShiftsOnDay(
+        shiftChangeForm.targetUser,
+        sourceDay
+      );
+
+      if (targetUserShiftsOnDay && targetUserShiftsOnDay.length > 0) {
+        const targetUserName = getItem(shiftChangeForm.targetUser, users)?.name;
+        const firstShift = extractShiftFromShifts(
+          targetUserShiftsOnDay,
+          shiftChangeForm.targetUser
+        );
+
+        return buildConflictWarningMessage(
+          targetUserName,
+          sourceDay,
+          targetUserShiftsOnDay[0].location,
+          firstShift
+        );
+      }
+
+      return "";
+    };
+
+    const checkSwapConflict = () => {
+      if (
+        !shiftChangeForm.sourceShift ||
+        !shiftChangeForm.targetShift ||
+        !shiftChangeForm.targetUser
+      ) {
+        return "";
+      }
+
       const [, sourceStartTime, , sourceDay] =
         shiftChangeForm.sourceShift.split("|");
+      const [targetShiftId, targetStartTime, , targetDay] =
+        shiftChangeForm.targetShift.split("|");
+      const [sourceShiftId] = shiftChangeForm.sourceShift.split("|");
 
-      // Find all shifts for target user on the same day
-      const targetUserShifts = modalShifts?.filter(
-        (shift) =>
-          shift.day === sourceDay &&
-          shift.shifts?.some((s: any) =>
-            s.user?.includes(shiftChangeForm.targetUser)
-          )
+      const sameDay = sourceDay === targetDay;
+
+      // Check target user conflicts
+      const targetUserConflicts = findUserShiftsOnDay(
+        shiftChangeForm.targetUser,
+        sourceDay,
+        targetShiftId,
+        targetStartTime
       );
 
-      // Check for time conflicts
-      const hasConflict = targetUserShifts?.some((shiftRecord) =>
-        shiftRecord.shifts?.some((s: any) => {
-          if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
-
-          // Check if shift times overlap
-          const existingStart = s.shift;
-          // Simple overlap check: if times match exactly
-          if (existingStart === sourceStartTime) {
-            return true;
-          }
-
-          // You could add more sophisticated time overlap logic here
-          return false;
-        })
-      );
-
-      if (hasConflict) {
+      if (targetUserConflicts && targetUserConflicts.length > 0) {
         const targetUserName = getItem(shiftChangeForm.targetUser, users)?.name;
-        setConflictWarning(
-          t(
-            "Warning: {{userName}} already has a shift at this time on {{date}}",
-            {
-              userName: targetUserName,
-              date: convertDateFormat(sourceDay),
-            }
-          )
+        const otherShift = extractShiftFromShifts(
+          targetUserConflicts,
+          shiftChangeForm.targetUser,
+          targetShiftId,
+          targetStartTime
         );
-      } else {
-        setConflictWarning("");
+
+        return buildConflictWarningMessage(
+          targetUserName,
+          sourceDay,
+          targetUserConflicts[0].location,
+          otherShift
+        );
       }
+
+      // Check requester conflicts
+      const checkDay = sameDay ? sourceDay : targetDay;
+      const requesterConflicts = findUserShiftsOnDay(
+        user?._id,
+        checkDay,
+        sourceShiftId,
+        sourceStartTime
+      );
+
+      if (requesterConflicts && requesterConflicts.length > 0) {
+        const otherShift = extractShiftFromShifts(
+          requesterConflicts,
+          user?._id,
+          sourceShiftId,
+          sourceStartTime
+        );
+
+        return buildConflictWarningMessage(
+          user?.name,
+          checkDay,
+          requesterConflicts[0].location,
+          otherShift
+        );
+      }
+
+      return "";
+    };
+
+    if (shiftChangeForm.type === "TRANSFER") {
+      setConflictWarning(checkTransferConflict());
+    } else if (shiftChangeForm.type === "SWAP") {
+      setConflictWarning(checkSwapConflict());
     } else {
       setConflictWarning("");
     }
   }, [
     shiftChangeForm.type,
     shiftChangeForm.sourceShift,
+    shiftChangeForm.targetShift,
+    shiftChangeForm.sourceLocation,
+    shiftChangeForm.targetLocation,
     shiftChangeForm.targetUser,
     modalShifts,
     users,
+    user?._id,
     t,
   ]);
   return (
@@ -919,16 +1033,10 @@ const ShiftChange = () => {
         filterPanel={filterPanel as any}
       />
 
-      {/* Shift Change Request Modal */}
       <GenericAddEditPanel
         key={modalKey}
         isOpen={isShiftChangeModalOpen}
-        close={() => {
-          setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({ type: "SWAP" });
-          setConflictWarning("");
-          setModalKey((prev) => prev + 1);
-        }}
+        close={resetShiftChangeModal}
         inputs={shiftChangeInputs}
         formKeys={shiftChangeFormKeys}
         submitItem={handleShiftChangeSubmit}

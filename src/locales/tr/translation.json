@@ -1021,6 +1021,12 @@
   "Warning: {{userName}} already has a shift at this time on {{date}}": "Uyarı: {{userName}} kullanıcısının {{date}} tarihinde bu saatte zaten bir vardiyası var",
   "Cannot submit: User has a conflicting shift": "Gönderilemez: Kullanıcının çakışan bir vardiyası var",
   "Conflict Detected!": "Çakışma Tespit Edildi!",
+  "Conflicting Shift": "Çakışan Vardiya",
+  "Warning: You have an overlapping shift on {{date}}": "Uyarı: {{date}} tarihinde çakışan vardiyınız var",
+  "Warning: {{userName}} has an overlapping shift on {{date}}": "Uyarı: {{userName}} kullanıcısının {{date}} tarihinde çakışan vardiyası var",
+  "{{userName}}'s Shift": "{{userName}} Kullanıcısının Vardiyası",
+  "Warning: {{userName}} already has another shift on {{date}}": "Uyarı: {{userName}} kullanıcısının {{date}} tarihinde zaten başka bir vardiyası var",
+  "Warning: You already have another shift on {{date}}": "Uyarı: {{date}} tarihinde zaten başka bir vardiyınız var",
   "Manager Note": "Yönetici Notu",
   "Optional": "Opsiyonel",
   "Approve": "Onayla",
@@ -1104,6 +1110,7 @@
   "Opening Hours": "Açılış Saatleri",
   "Daily Opening Hours": "Günlük Çalışma Saatleri",
   "Closed": "Kapalı",
-  "View Map": "Haritada Göster",
-  "Activity Note": "Aktiflik Notu"
+  "View Map" : "Haritada Göster",
+  "Activity Note" : "Aktiflik Notu",
+  "Unknown Location" : "Bilinmeyen Lokasyon"
 }
