@@ -527,6 +527,8 @@ export enum DisabledConditionEnum {
   ACCOUNTING_UPPERCATEGORIES = "uppercategories",
   ACCOUNTING_ORDERNOTES = "ordernotes",
   ACCOUNTING_ACTIONS = "actions",
+  MENU = "menu",
+  MENU_CATEGORIES = "menu_categories"
 }
 
 export enum ActionEnum {
@@ -566,6 +568,14 @@ export enum ActionEnum {
   CREATE_MULTIPLE = "create_multiple",
   COMBINE_ELEMENTS = "combine_elements",
   ROLE_AUDIO_UPDATE = "role_audio_update",
+  ACTIVATE_THE_SELECTION = "activate_the_selection",
+  SHOW_BARCODE_INFO = "show_barcode_info",
+  SHOW_DELETED_ELEMENTS = "show_deleted_elements",
+  UPDATE_PRODUCT_SLUGS = "update_product_slugs",
+  SHOW_ON_MENU = "show_on_menu",
+  SHOW_IKAS_CATEGORIES = "show_ikas_categories",
+  POPULARIZE = "popularize",
+
 }
 
 export type Membership = {

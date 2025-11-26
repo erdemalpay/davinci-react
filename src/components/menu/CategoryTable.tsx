@@ -7,7 +7,12 @@ import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { MenuCategory, OrderDiscountStatus, RoleEnum } from "../../types";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  MenuCategory,
+  OrderDiscountStatus,
+} from "../../types";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useCategoryMutations,
@@ -16,6 +21,7 @@ import {
 } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -44,9 +50,11 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
   const { user } = useUserContext();
-  const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
-    : true;
+  const disabledConditions = useGetDisabledConditions();
+  const menuPageDisabledCondition = getItem(
+    DisabledConditionEnum.MENU_CATEGORIES,
+    disabledConditions
+  );
   const kitchens = useGetKitchens();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
@@ -179,14 +187,19 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     { key: t("Name"), isSortable: true },
     { key: t("Kitchen"), isSortable: true },
     { key: t("Discounts"), isSortable: false },
-    ...(!isDisabledCondition
-      ? [
+    ...(menuPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOWPRICES &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    )
+      ? []
+      : [
           { key: t("Auto served"), isSortable: false },
           { key: t("Online Order"), isSortable: false },
           { key: t("Has Kitchen Menu"), isSortable: false },
           { key: t("Limited Time"), isSortable: false },
-        ]
-      : []),
+        ]),
   ];
   const rowKeys = [
     { key: "imageUrl", isImage: true },
@@ -228,8 +241,14 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
         });
       },
     },
-    ...(!isDisabledCondition
-      ? [
+    ...(menuPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOWPRICES &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    )
+      ? []
+      : [
           {
             key: "isAutoServed",
             node: (row: MenuCategory) =>
@@ -266,8 +285,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
                 <IoCloseOutline className="text-red-800 text-2xl " />
               ),
           },
-        ]
-      : []),
+        ]),
   ];
   const insertIndex = 4;
   for (const location of locations) {
@@ -321,7 +339,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-    isDisabled: isDisabledCondition,
+    isDisabled: menuPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
 
   const handleDrag = (DragRow: MenuCategory, DropRow: MenuCategory) => {
@@ -354,6 +377,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Edit"),
@@ -379,6 +408,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Toggle Active"),
@@ -408,6 +443,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           }}
         />
       ),
+      isDisabled: menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE_LOCATION &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Inactive Categories"),
@@ -417,6 +458,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           checked={showInactiveCategories}
           onChange={setShowInactiveCategories}
         />
+      ),
+      isDisabled: menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
     },
   ];

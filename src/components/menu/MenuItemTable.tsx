@@ -13,9 +13,10 @@ import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
 import {
   AccountProduct,
+  ActionEnum,
+  DisabledConditionEnum,
   MenuItem,
   MenuPopular,
-  RoleEnum,
   TURKISHLIRA,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
@@ -38,6 +39,7 @@ import {
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -120,10 +122,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     vendor: [],
     expenseType: [],
   });
+  const disabledConditions = useGetDisabledConditions();
 
-  const isDisabledCondition = useMemo(() => {
-    return user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true;
-  }, [user]);
+  const menuPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.MENU, disabledConditions);
+  }, [disabledConditions]);
 
   const usedItems = useMemo(() => {
     return showDeletedItems
@@ -156,9 +159,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           collapsibleColumns: [
             { key: t("Product"), isSortable: true },
             { key: t("Quantity"), isSortable: true },
-            ...(!isDisabledCondition
-              ? [{ key: t("Cost"), isSortable: true }]
-              : []),
+            ...(menuPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.SHOWPRICES &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+              ? []
+              : [{ key: t("Cost"), isSortable: true }]),
             { key: t("Decrement Stock"), isSortable: false },
             {
               key: t("Action"),
@@ -172,22 +180,43 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               (product: AccountProduct) =>
                 product._id === itemProduction.product
             )?.name,
-            ...(!isDisabledCondition && {
-              price: formatPrice(
-                (products?.find(
-                  (product) => product._id === itemProduction.product
-                )?.unitPrice ?? 0) * itemProduction.quantity
-              ),
-            }),
+            ...(menuPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.SHOWPRICES &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+              ? {}
+              : {
+                  price: formatPrice(
+                    (products?.find(
+                      (product) => product._id === itemProduction.product
+                    )?.unitPrice ?? 0) * itemProduction.quantity
+                  ),
+                }),
             quantity: itemProduction.quantity,
-            ...(!isDisabledCondition && {
-              isDecrementStock: itemProduction?.isDecrementStock,
-            }),
+            ...(menuPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.SHOWPRICES &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+              ? {}
+              : {
+                  isDecrementStock: itemProduction?.isDecrementStock,
+                }),
           })),
           collapsibleRowKeys: [
             { key: "name" },
             { key: "quantity" },
-            ...(!isDisabledCondition ? [{ key: "price" }] : []),
+            ...(menuPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.SHOWPRICES &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+              ? []
+              : [{ key: "price" }]),
             {
               key: "isDecrementStock",
               node: (row: any) => {
@@ -225,7 +254,15 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         },
       };
     });
-  }, [usedItems, discounts, products, t, isDisabledCondition, updateItem]);
+  }, [
+    usedItems,
+    discounts,
+    products,
+    t,
+    menuPageDisabledCondition,
+    user,
+    updateItem,
+  ]);
 
   const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
 
@@ -592,7 +629,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ...(singleItemGroup?.category?.isOnlineOrder
         ? [{ key: `${t("Ikas Discounted Price")}`, isSortable: true }]
         : []),
-      ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
+      ...(menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWPRICES &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      )
+        ? []
+        : [{ key: t("Cost"), isSortable: false }]),
       ...(isMenuShowIkasCategories
         ? [{ key: t("Ikas Categories"), isSortable: false }]
         : []),
@@ -669,8 +713,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             },
           ]
         : []),
-      ...(!isDisabledCondition
-        ? [
+      ...(menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWPRICES &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      )
+        ? []
+        : [
             {
               key: "cost",
               node: (item: MenuItem) => {
@@ -686,8 +736,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                 return total === 0 ? "-" : `${formatPrice(total)} ₺`;
               },
             },
-          ]
-        : []),
+          ]),
       ...(isMenuShowIkasCategories
         ? [
             {
@@ -784,7 +833,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   }, [
     t,
     singleItemGroup,
-    isDisabledCondition,
+    menuPageDisabledCondition,
+    user,
     isMenuShowIkasCategories,
     showMenuBarcodeInfo,
     items,
@@ -824,7 +874,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: isDisabledCondition,
+      isDisabled: menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
     [
       t,
@@ -833,7 +888,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       formKeys,
       createItem,
       singleItemGroup,
-      isDisabledCondition,
+      menuPageDisabledCondition,
+      user,
     ]
   );
 
@@ -947,6 +1003,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -974,6 +1036,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t(`Add Product`),
@@ -1008,6 +1076,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isModalOpen: isProductAddModalOpen,
         setIsModal: setIsProductAddModalOpen,
         isPath: false,
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ADD_TO_ELEMENT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Popular"),
@@ -1038,6 +1112,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             </button>
           );
         },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.POPULARIZE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Toggle Active"),
@@ -1082,6 +1162,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       deletePopular,
       createPopular,
       showDeletedItems,
+      menuPageDisabledCondition,
+      user,
     ]
   );
 
@@ -1098,6 +1180,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             }}
           />
         ),
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE_LOCATION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         label: t("Shown In Menu"),
@@ -1109,6 +1197,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               setIsShownInMenu(!isShownInMenu);
             }}
           />
+        ),
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_ON_MENU &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
       {
@@ -1122,6 +1216,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             }}
           />
         ),
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_IKAS_CATEGORIES &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         label: t("Show Barcode Info"),
@@ -1133,6 +1233,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               setShowMenuBarcodeInfo(!showMenuBarcodeInfo);
             }}
           />
+        ),
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_BARCODE_INFO &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
       {
@@ -1146,10 +1252,21 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             }}
           />
         ),
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_DELETED_ELEMENTS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         isUpperSide: true,
-        isDisabled: isDisabledCondition,
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE_PRODUCT_SLUGS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         node: (
           <ButtonFilter
             buttonName={t("Update Items Slugs")}
@@ -1170,7 +1287,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       setShowMenuBarcodeInfo,
       showDeletedItems,
       setShowDeletedItems,
-      isDisabledCondition,
+      menuPageDisabledCondition,
+      user,
       updateItemsSlugs,
     ]
   );
@@ -1241,6 +1359,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isModalOpen: isBulkEditModalOpen,
         setIsModal: setIsBulkEditModalOpen,
         isPath: false,
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Create Ikas Product"),
@@ -1255,6 +1379,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           setIsSelectionActive(false);
           setIsEditSelectionCompeted(false);
         },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -1271,6 +1401,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       setSelectedRows,
       setIsSelectionActive,
       createMultipleIkasProduct,
+      menuPageDisabledCondition,
+      user,
     ]
   );
 
@@ -1279,7 +1411,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       <GenericTable
         rowKeys={rowKeys}
         actions={actions}
-        {...(!isDisabledCondition && { selectionActions: selectionActions })} //this condition may be removed
+        {...(!menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ) && { selectionActions: selectionActions })}
         isActionsActive={true}
         columns={columns}
         rows={rows}
