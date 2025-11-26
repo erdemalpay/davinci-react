@@ -13,6 +13,10 @@ import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
+const USER_ACTIVITIES_ROWS_PER_PAGE_OPTIONS: number[] = [
+  10, 20, 50, 100, 200, 1000, 2000, 5000,
+];
+
 type CollapsibleRow = {
   collapsibleColumns: { key: string; isSortable: boolean }[];
   collapsibleRows: { payload: any }[]; // payload can be any type
@@ -173,11 +177,10 @@ const UserActivities = () => {
         type: InputTypes.SELECT,
         formKey: "user",
         label: t("User"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("User"),
         required: false,
       },
@@ -259,6 +262,7 @@ const UserActivities = () => {
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}
+          rowsPerPageOptions={USER_ACTIVITIES_ROWS_PER_PAGE_OPTIONS}
           rows={rows ?? []}
           filterPanel={filterPanel}
           filters={filters}
