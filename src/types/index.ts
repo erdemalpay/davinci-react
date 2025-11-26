@@ -1946,6 +1946,7 @@ export enum ShiftChangeStatusEnum {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum ShiftChangeTypeEnum {

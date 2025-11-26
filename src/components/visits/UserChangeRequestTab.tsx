@@ -82,11 +82,10 @@ const UserChangeRequestTab = () => {
       : getUserName(row.targetUserId);
 
   const getDerivedStatus = (row: ShiftChangeRequestType) => {
-    const statusStr = String((row as any).status || "").toUpperCase();
-    if (statusStr === "CANCELED" || statusStr === "CANCELLED") {
+    if (row.status === ShiftChangeStatusEnum.CANCELLED) {
       return { text: t("UserCancelled"), cls: "bg-red-600" };
     }
-    if (statusStr === "REJECTED") {
+    if (row.status === ShiftChangeStatusEnum.REJECTED) {
       return { text: t("Rejected"), cls: "bg-red-600" };
     }
     const manager = row.managerApprovalStatus;
@@ -315,11 +314,10 @@ const UserChangeRequestTab = () => {
         const isRequester = !!currentUserId && requesterId === currentUserId;
         const isTarget = !!currentUserId && targetUserId === currentUserId;
 
-        const statusStr = String((row as any).status || "").toUpperCase();
-        const isCanceled =
-          statusStr === "CANCELED" || statusStr === "CANCELLED";
+        const isCanceled = row.status === ShiftChangeStatusEnum.CANCELLED;
+        const isRejected = row.status === ShiftChangeStatusEnum.REJECTED;
         const canTargetAct = row.targetUserApprovalStatus === "PENDING";
-        const canRequesterCancel = row.status === "PENDING";
+        const canRequesterCancel = row.status === ShiftChangeStatusEnum.PENDING;
 
         if (isRequester) {
           return (
@@ -328,7 +326,7 @@ const UserChangeRequestTab = () => {
                 <button
                   aria-label={t("Cancel")}
                   title={t("Cancel")}
-                  disabled={!canRequesterCancel || isCanceled}
+                  disabled={!canRequesterCancel || isCanceled || isRejected}
                   className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                   onClick={() => cancel({ id: row._id })}
                 >
@@ -358,7 +356,7 @@ const UserChangeRequestTab = () => {
                 <button
                   aria-label={t("Approve")}
                   title={t("Approve")}
-                  disabled={!canTargetAct || isCanceled}
+                  disabled={!canTargetAct || isCanceled || isRejected}
                   className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                   onClick={() => approve({ id: row._id })}
                 >
@@ -381,7 +379,7 @@ const UserChangeRequestTab = () => {
                 <button
                   aria-label={t("Reject")}
                   title={t("Reject")}
-                  disabled={!canTargetAct || isCanceled}
+                  disabled={!canTargetAct || isCanceled || isRejected}
                   className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                   onClick={() => reject({ id: row._id })}
                 >
