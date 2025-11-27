@@ -20,16 +20,18 @@ import { orderBgColor } from "./OrderCard";
 type Props = {
   orderStatus: Partial<OrderStatus>[];
   tableId: number;
+  tableOrdersProp?: Order[];
+
 };
 type DisabledButtons = {
   [key: string]: boolean;
 };
 
-const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
+const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const { updateOrder, createOrder } = useOrderMutations();
-  const tableOrders = useGetTableOrders(tableId);
+  const tableOrders = tableOrdersProp?? useGetTableOrders(tableId) 
   const [key, setKey] = useState(0);
   const orders = tableOrders?.filter((order) =>
     orderStatus.includes(order.status as OrderStatus)

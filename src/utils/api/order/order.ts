@@ -358,10 +358,36 @@ export function useReturnOrdersMutation() {
   });
 }
 export function useGetTableOrders(tableId: number) {
-  return useGetList<Order>(`${baseUrl}/table/${tableId}`, [
-    `${Paths.Order}/table`,
-    tableId,
-  ]);
+  const queryClient = useQueryClient();
+  const { selectedDate } = useDateContext();
+
+  return useGetList<Order>(
+    `${baseUrl}/table/${tableId}`,
+    [`${Paths.Order}/table`, tableId],
+    true, // or false if you don't want staleTime = 0
+    {
+      onSuccess: (tableOrders) => {
+        // keep todayOrders in sync with this table
+        queryClient.setQueryData<Order[]>(
+          [`${baseUrl}/today`, selectedDate],
+          (oldTodayOrders) => {
+            const current = oldTodayOrders ?? [];
+
+            // 1. remove existing orders for this table
+            const withoutThisTable = current.filter(
+              (order) =>
+                ((order.table as Table)?._id) !== tableId
+            );
+            console.log(withoutThisTable);
+            console.log(tableOrders);
+            
+            // 2. add fresh table orders
+            return [...withoutThisTable, ...tableOrders];
+          }
+        );
+      },
+    }
+  );
 }
 
 export function useGetPersonalOrderDatas() {

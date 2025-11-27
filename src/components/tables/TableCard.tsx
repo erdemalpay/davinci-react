@@ -73,6 +73,8 @@ export interface TableCardProps {
   showAllOrders?: boolean;
   showServedOrders?: boolean;
   tables: Table[];
+  tableOrdersProp?: Order[];
+
 }
 
 export function TableCard({
@@ -82,6 +84,7 @@ export function TableCard({
   showAllOrders = false,
   showServedOrders = false,
   tables,
+  tableOrdersProp,
 }: TableCardProps) {
   const { t } = useTranslation();
  const games = useGetGamesMinimal(); 
@@ -94,7 +97,7 @@ export function TableCard({
     useState(false);
   let tableOrders: Order[] = [];
   if (table?._id) {
-    tableOrders = useGetTableOrders(table?._id);
+    tableOrders = tableOrdersProp??useGetTableOrders(table?._id);
   }
   const categories = useGetAllCategories();
   const kitchens = useGetKitchens();

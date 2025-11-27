@@ -10,6 +10,7 @@ import { useOrderContext } from "../../../context/Order.context";
 import {
   MenuItem,
   OptionType,
+  Order,
   OrderCollectionStatus,
   OrderStatus,
   TURKISHLIRA,
@@ -57,12 +58,12 @@ import CollectionModal from "./CollectionModal";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
 import OrderLists from "./orderList/OrderLists";
-
 type Props = {
   close: () => void;
   tableId: number;
   tables: Table[];
   isAddOrderActive?: boolean;
+  tableOrdersProp?: Order[];
 };
 type ButtonType = {
   label: string;
@@ -74,12 +75,13 @@ const OrderPaymentModal = ({
   tableId,
   tables,
   isAddOrderActive = true,
+  tableOrdersProp,
 }: Props) => {
   const { t } = useTranslation();
   const user = useGetUser();
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
-  const orders = useGetTableOrders(tableId);
+  const orders =tableOrdersProp??useGetTableOrders(tableId);
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
