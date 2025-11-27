@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum, Visit } from "../../types";
+import { RoleEnum, Visit, VisitSource } from "../../types";
 import { useGetPanelSettings } from "../../utils/api/panelControl/panelSettings";
 import { MinimalUser, useGetUsersMinimal } from "../../utils/api/user";
 import {
@@ -43,6 +43,7 @@ export function ActiveVisitList({
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
+  const [closedVisitFinishHour, setClosedVisitFinishHour] = useState<string>("");
   function handleChipClose(userId: string) {
     if (!isUserActive(userId)) {
       return;
@@ -51,7 +52,10 @@ export function ActiveVisitList({
       (visitItem) => visitItem.user === userId && !visitItem?.finishHour
     );
     if (visit) {
+      const now = new Date();
+      const finishHour = format(now, "HH:mm");
       setClosedVisitId(visit._id);
+      setClosedVisitFinishHour(finishHour);
       setIsConfirmationDialogOpen(true);
     }
 
@@ -70,6 +74,7 @@ export function ActiveVisitList({
       location: selectedLocationId,
       date,
       startHour,
+      visitStartSource: VisitSource.PANEL,
     });
     // setItems([...items, item]);
   }
@@ -107,7 +112,11 @@ export function ActiveVisitList({
         close={() => setIsConfirmationDialogOpen(false)}
         confirm={() => {
           if (!closedVisitId) return;
-          finishVisit({ id: closedVisitId });
+          finishVisit({
+            id: closedVisitId,
+            finishHour: closedVisitFinishHour,
+            visitFinishSource: VisitSource.PANEL
+          });
           setIsConfirmationDialogOpen(false);
         }}
         title={t("Close Visit")}

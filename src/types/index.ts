@@ -421,6 +421,11 @@ export type AccountProductStockHistory = {
   createdAt: Date;
 };
 
+export enum VisitSource {
+  PANEL = "panel",
+  FACE_RECOGNITION = "face_recognition",
+}
+
 export type Visit = {
   _id: number;
   location: number;
@@ -428,6 +433,8 @@ export type Visit = {
   user: string;
   startHour: string;
   finishHour?: string;
+  visitStartSource?: VisitSource;
+  visitFinishSource?: VisitSource;
 };
 
 export enum ButtonCallTypeEnum {
