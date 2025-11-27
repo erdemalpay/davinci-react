@@ -7,6 +7,7 @@ import { useGetCategories } from "../utils/api/menu/category";
 import { useLocationContext } from "./../context/Location.context";
 import { useOrderContext } from "./../context/Order.context";
 import { useUserContext } from "./../context/User.context";
+import { Table } from "./../types";
 import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
 import { socketEventListeners } from "./socketConstant";
@@ -161,6 +162,22 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
+
+    socket.on("tableChanged", (data) => {
+  const locationId = data.table.location;
+  const date = data.table.date;
+type TablesByLocation = Record<string, Table[]>;
+  queryClient.setQueryData<TablesByLocation>(
+    [Paths.Tables, date],
+    (old) => {
+      if (!old) return old;
+      const { [locationId]: _, ...rest } = old;
+      return rest;    
+    }
+  );
+  queryClient.invalidateQueries({ queryKey: [Paths.Tables, date] });
+});
+
 
     socket.on("createMultipleOrder", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
