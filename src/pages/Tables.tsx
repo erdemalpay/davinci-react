@@ -1539,7 +1539,9 @@ const Tables = () => {
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
           {tableColumns?.map((tablesColumns, idx) => (
             <div key={idx + "tablecolumns"}>
-              {tablesColumns.map((table) => (
+              {tablesColumns.map((table) => {
+
+                return (
                 <div
                   id={`table-large-${table?._id}`}
                   key={table?._id || table?.startHour}
@@ -1551,9 +1553,10 @@ const Tables = () => {
                     showAllOrders={showAllOrders}
                     showServedOrders={showServedOrders}
                     tables={tables}
+                    tableOrdersProp={todayOrders?.filter((order) => (order.table as Table)?._id === table?._id)}
                   />
                 </div>
-              ))}
+                )})}
             </div>
           ))}
         </div>
@@ -1570,6 +1573,7 @@ const Tables = () => {
                 showAllOrders={showAllOrders}
                 showServedOrders={showServedOrders}
                 tables={tables}
+                tableOrdersProp={todayOrders?.filter((order) => (order.table as Table)?._id === table?._id)}
               />
             </div>
           ))}
@@ -1834,6 +1838,7 @@ const Tables = () => {
       {isTableOrderPaymentModalOpen && tableOrderPaymentTableId && (
         <OrderPaymentModal
           tableId={tableOrderPaymentTableId}
+          tableOrdersProp={todayOrders?.filter((order) => order.table === tableOrderPaymentTableId)}
           tables={tables}
           close={() => {
             setExpandedRows({});

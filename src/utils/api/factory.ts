@@ -3,10 +3,11 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  UseQueryOptions,
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { UpdatePayload, get, patch, post, remove } from ".";
+import { get, patch, post, remove, UpdatePayload } from ".";
 export const Paths = {
   Authorization: "/authorization",
   Education: "/education",
@@ -58,28 +59,34 @@ interface Props<T> {
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
   additionalInvalidates?: QueryKey[];
 }
-
 export function useGet<T>(
   path: string,
   queryKey?: QueryKey,
-  isStaleTimeZero?: boolean
+  isStaleTimeZero?: boolean,
+  options?: UseQueryOptions<T>
 ) {
-  // We are using path as a query key if queryKey is not provided
   const fetchQueryKey = queryKey || [path];
-  const { data } = useQuery(fetchQueryKey, () => get<T>({ path }), {
-    staleTime: isStaleTimeZero ? 0 : Infinity,
-  });
+
+  const { data } = useQuery<T>(
+    fetchQueryKey,
+    () => get<T>({ path }),
+    {
+      staleTime: isStaleTimeZero ? 0 : Infinity,
+      ...(options || {}),
+    }
+  );
+
   return data;
 }
 
 export function useGetList<T>(
   path: string,
   queryKey?: QueryKey,
-  isStaleTimeZero?: boolean
+  isStaleTimeZero?: boolean,
+  options?: UseQueryOptions<T[]>
 ) {
-  return useGet<T[]>(path, queryKey, isStaleTimeZero) || [];
+  return useGet<T[]>(path, queryKey, isStaleTimeZero, options) || [];
 }
-
 export function useMutationApi<T extends { _id: number | string }>({
   baseQuery,
   queryKey = [baseQuery],
