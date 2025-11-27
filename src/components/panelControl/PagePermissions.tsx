@@ -2,10 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { allRoutes } from "../../navigation/constants";
-import { PanelControlPage } from "../../types";
 import {
   useCreateMultiplePageMutation,
   useGetPanelControlPages,
@@ -27,22 +24,22 @@ const PagePermissions = () => {
     useGeneralContext();
   const { updatePanelControlPage } = usePanelControlPageMutations();
 
-  function handleRolePermission(row: PanelControlPage, roleKey: number) {
-    const newPermissionRoles = row?.permissionRoles || [];
-    const index = newPermissionRoles.indexOf(roleKey);
-    if (index === -1) {
-      newPermissionRoles.push(roleKey);
-    } else {
-      newPermissionRoles.splice(index, 1);
-    }
-    updatePanelControlPage({
-      id: row._id,
-      updates: { permissionRoles: newPermissionRoles },
-    });
-    toast.success(`${t("Role permissions updated successfully.")}`);
-  }
+  // function handleRolePermission(row: PanelControlPage, roleKey: number) {
+  //   const newPermissionRoles = row?.permissionRoles || [];
+  //   const index = newPermissionRoles.indexOf(roleKey);
+  //   if (index === -1) {
+  //     newPermissionRoles.push(roleKey);
+  //   } else {
+  //     newPermissionRoles.splice(index, 1);
+  //   }
+  //   /*updatePanelControlPage({
+  //     id: row._id,
+  //     updates: { permissionRoles: newPermissionRoles },
+  //   });*/
+  //   toast.success(`${t("Role permissions updated successfully.")}`);
+  // }
 
-  const fillMissingPages = useMemo(() => {
+  /*const fillMissingPages = useMemo(() => {
     const missedRoutes = [];
     for (const route of allRoutes) {
       if (route?.children) {
@@ -70,10 +67,10 @@ const PagePermissions = () => {
       }
     }
     if (missedRoutes.length > 0) {
-      createMultiplePage(missedRoutes);
+      //createMultiplePage(missedRoutes); 
     }
     return missedRoutes;
-  }, [pages, createMultiplePage]);
+  }, [pages, createMultiplePage]);*/
 
   const { columns, rowKeys } = useMemo(() => {
     const cols = [{ key: t("Page"), isSortable: true }];
@@ -110,7 +107,9 @@ const PagePermissions = () => {
           return isEnableEdit ? (
             <CheckSwitch
               checked={hasPermission}
-              onChange={() => handleRolePermission(row, role._id)}
+              onChange={() => {
+                //handleRolePermission(row, role._id)
+              }}
             />
           ) : hasPermission ? (
             <IoCheckmark className={`text-blue-500 text-2xl `} />
@@ -130,7 +129,7 @@ const PagePermissions = () => {
     setSearchQuery,
     setSortConfigKey,
     navigate,
-    updatePanelControlPage,
+    // updatePanelControlPage,
   ]);
 
   const filters = useMemo(
