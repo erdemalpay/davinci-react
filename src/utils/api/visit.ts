@@ -1,14 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { get, patch, post } from ".";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
-import { Visit } from "../../types";
+import { Visit, VisitSource } from "../../types";
 import { Paths, useGetList, useMutationApi } from "./factory";
 
 interface UpdateVisitPayload {
   id: number;
+  finishHour: string;
+  visitFinishSource: VisitSource;
 }
 
 export function useVisitMutation() {
@@ -26,10 +27,10 @@ export function createVisit(visit: Partial<Visit>): Promise<Visit> {
   });
 }
 
-export function finishVisit({ id }: UpdateVisitPayload): Promise<Visit> {
+export function finishVisit({ id, finishHour, visitFinishSource }: UpdateVisitPayload): Promise<Visit> {
   return patch<Partial<Visit>, Visit>({
     path: `${Paths.Visits}/finish/${id}`,
-    payload: {},
+    payload: { finishHour, visitFinishSource },
   });
 }
 
@@ -141,7 +142,7 @@ export function useFinishVisitMutation() {
 
   return useMutation(finishVisit, {
     // We are updating visits query data with new visit
-    onMutate: async ({ id }) => {
+    onMutate: async ({ id, finishHour, visitFinishSource }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries(queryKey);
 
@@ -154,7 +155,8 @@ export function useFinishVisitMutation() {
         if (updatedVisits[i]._id === id) {
           updatedVisits[i] = {
             ...updatedVisits[i],
-            finishHour: format(new Date(), "HH:mm"),
+            finishHour,
+            visitFinishSource,
           };
         }
       }
