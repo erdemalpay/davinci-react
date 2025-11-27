@@ -11,10 +11,6 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Reservations}`],
   },
   {
-    event: "tableChanged",
-    invalidateKeys: [`${Paths.Tables}`],
-  },
-  {
     event: "visitChanged",
     invalidateKeys: [`${Paths.Visits}`],
   },
