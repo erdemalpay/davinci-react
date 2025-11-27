@@ -1143,7 +1143,7 @@ const OrderPaymentModal = ({
                   </div>
                 </div>
                 {/* buttons */}
-                <div className="flex flex-row gap-2 sm:gap-5 ml-auto mr-6 ">
+                <div className="flex flex-row flex-wrap gap-2 sm:gap-5 ml-auto mr-6 ">
                   {buttons?.map((button) => {
                     if (button.isActive) {
                       return (
