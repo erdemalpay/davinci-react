@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -6,7 +7,9 @@ import { useOrderContext } from "../../context/Order.context";
 import { Table } from "../../types/index";
 import { sortTable } from "../sort";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
-import { patch } from "./index";
+import { get, patch } from "./index";
+
+type TablesByLocation = Record<string, Table[]>;
 interface UpdateTablePayload {
   id: number;
   updates: Partial<Table>;
@@ -220,10 +223,43 @@ export function useGetTable(id: number) {
 export function useGetTables() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  return useGetList<Table>(
-    `${Paths.Tables}?location=${selectedLocationId}&date=${selectedDate}`,
-    [Paths.Tables, selectedLocationId, selectedDate]
-  );
+  const queryClient = useQueryClient();
+
+  const queryKey: QueryKey = [Paths.Tables, selectedDate];
+
+  const queryFn = async (): Promise<TablesByLocation> => {
+    const existing = queryClient.getQueryData<TablesByLocation>(queryKey);
+
+    if (existing?.[selectedLocationId]) {
+      return existing;
+    }
+    const tablesForLocation = await get<Table[]>({
+      path: `${Paths.Tables}?location=${selectedLocationId}&date=${selectedDate}`,
+    });
+
+    return {
+      ...(existing ?? {}),
+      [selectedLocationId]: tablesForLocation,
+    };
+  };
+
+  const { data, refetch } = useQuery<TablesByLocation>({
+    queryKey,
+    queryFn,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (!selectedLocationId) return;
+
+    const existing = queryClient.getQueryData<TablesByLocation>(queryKey);
+    if (!existing?.[selectedLocationId]) {
+      refetch();
+    }
+  }, [selectedLocationId, selectedDate, queryClient, refetch]);
+
+  return (data?.[selectedLocationId] ?? []) as Table[];
 }
 
 export function useGetTablePlayerCounts(month: string, year: string) {
