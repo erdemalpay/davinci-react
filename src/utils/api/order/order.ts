@@ -372,17 +372,20 @@ export function useGetTableOrders(tableId: number) {
           [`${baseUrl}/today`, selectedDate],
           (oldTodayOrders) => {
             const current = oldTodayOrders ?? [];
-
+            console.log(selectedDate)
+            console.log((tableOrders[0]?.table as Table)?.date) 
+            if(selectedDate===(tableOrders[0]?.table as Table)?.date){
+              
             // 1. remove existing orders for this table
             const withoutThisTable = current.filter(
               (order) =>
                 ((order.table as Table)?._id) !== tableId
             );
-            console.log(withoutThisTable);
-            console.log(tableOrders);
             
             // 2. add fresh table orders
             return [...withoutThisTable, ...tableOrders];
+            }
+            return current;
           }
         );
       },
