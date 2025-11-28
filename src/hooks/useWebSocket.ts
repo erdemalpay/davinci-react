@@ -181,6 +181,33 @@ export function useWebSocket() {
   );
 });
 
+    socket.on("tableClosed", (data) => {
+      const locationId = data.table.location;
+      const date = data.table.date;
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          const prev = old ?? {};
+          const prevForLocation = prev[locationId] ?? [];
+          const updatedTables = prevForLocation.map((table) => {
+            if (table._id === data.table._id) {
+              return {
+                ...table,
+                finishHour: data.table.finishHour,
+              };
+            }
+            return table;
+          });
+
+          return {
+            ...prev,
+            [locationId]: updatedTables,
+          };
+        }
+      );
+    });
+
+
 
     socket.on("tableChanged", (data) => {
   const locationId = data.table.location;
