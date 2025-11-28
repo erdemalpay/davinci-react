@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
+import { useTranslation } from "react-i18next";
 import { GenericButton } from "../common/GenericButton";
 import { Reservation, ReservationStatusEnum } from "../../types/index";
 
@@ -13,6 +14,7 @@ export function ReservationCallDialog({
   handle: (status: ReservationStatusEnum) => void;
   reservation?: Reservation;
 }) {
+  const { t } = useTranslation();
   return (
     <Transition
       show={isOpen}
@@ -37,17 +39,20 @@ export function ReservationCallDialog({
             <div className="flex items-center justify-center h-full w-full">
               <div className="bg-white rounded-md shadow fixed overflow-y-auto sm:h-auto w-10/12 lg:w-2/5">
                 <div className="bg-gray-100 rounded-tl-md rounded-tr-md px-4 md:px-8 md:py-4 py-7 flex items-center justify-center lg:justify-start">
-                  <p className="text-base font-semibold">Reservation called</p>
+                  <p className="text-base font-semibold">{t("Reservation called")}</p>
                 </div>
                 <div className="p-4 text-center">
-                  You called {reservation?.name} ({reservation?.phone}).
+                  {t("You called {{name}} ({{phone}}).", {
+                    name: reservation?.name,
+                    phone: reservation?.phone,
+                  })}
                   <div className="flex items-center justify-between mt-9">
                     <GenericButton
                       onClick={() => handle(ReservationStatusEnum.NOT_COMING)}
                       variant="danger"
                       size="sm"
                     >
-                      Not coming
+                      {t("Not coming")}
                     </GenericButton>
                     <GenericButton
                       onClick={() =>
@@ -56,7 +61,7 @@ export function ReservationCallDialog({
                       variant="secondary"
                       size="sm"
                     >
-                      Not responded
+                      {t("Not responded")}
                     </GenericButton>
                     <GenericButton
                       onClick={() => handle(ReservationStatusEnum.COMING)}
@@ -64,7 +69,7 @@ export function ReservationCallDialog({
                       size="sm"
                       className="bg-green-500 hover:bg-green-600"
                     >
-                      Coming
+                      {t("Coming")}
                     </GenericButton>
                   </div>
                 </div>
