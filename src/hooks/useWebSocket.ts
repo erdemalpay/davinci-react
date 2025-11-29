@@ -212,11 +212,10 @@ export function useWebSocket() {
       if (data?.user?._id === user?._id) return;
 
       const gameplay = data.gameplay;
-      const table = data.table;
-      const locationId = table?.location;
-      const date = table?.date;
+      const locationId = gameplay.location;
+      const date = gameplay.date;
 
-      if (!gameplay || !table || !locationId || !date) return;
+      if (!gameplay ||  !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
@@ -225,7 +224,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === table._id) {
+            if (t._id === gameplay.table) {
               return {
                 ...t,
                 gameplays: [...t.gameplays, gameplay],
@@ -246,12 +245,11 @@ export function useWebSocket() {
       // Only update cache for other users' actions
       if (data?.user?._id === user?._id) return;
 
-      const gameplayId = data.gameplayId;
-      const table = data.table;
-      const locationId = table?.location;
-      const date = table?.date;
+      const gameplayId = data.gameplay._id;
+      const locationId = data.gameplay.location;
+      const date = data.gameplay.date;
 
-      if (!gameplayId || !table || !locationId || !date) return;
+      if (!gameplayId || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
@@ -260,7 +258,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === table._id) {
+            if (t._id === data.gameplay.table) {
               return {
                 ...t,
                 gameplays: t.gameplays.filter((g) => g._id !== gameplayId),
@@ -282,11 +280,10 @@ export function useWebSocket() {
       if (data?.user?._id === user?._id) return;
 
       const gameplay = data.gameplay;
-      const table = data.table;
-      const locationId = table?.location;
-      const date = table?.date;
+      const locationId = gameplay.location;
+      const date = gameplay.date;
 
-      if (!gameplay || !table || !locationId || !date) return;
+      if (!gameplay || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
@@ -295,7 +292,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === table._id) {
+            if (t._id === gameplay.table) {
               return {
                 ...t,
                 gameplays: t.gameplays.map((g) =>
