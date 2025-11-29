@@ -149,7 +149,7 @@ export function ActiveVisitList({
                 height: "fit-content",
               }}
               color="gray"
-              {...(!isDisabledCondition && isUserActive(visit.user)
+              {...(!isDisabledCondition && isUserActive(visit.user) && visit.user === user?._id
                 ? { onClose: () => handleChipClose(visit.user) }
                 : {})}
             />
