@@ -9,7 +9,7 @@ import { sortTable } from "../sort";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 import { get, patch } from "./index";
 
-type TablesByLocation = Record<string, Table[]>;
+export type TablesByLocation = Record<string, Table[]>;
 interface UpdateTablePayload {
   id: number;
   updates: Partial<Table>;
