@@ -208,13 +208,15 @@ export function useWebSocket() {
     });
 
     socket.on("gameplayCreated", (data) => {
+      console.log("gameplayCreated", data);
+      console.log(data.gameplay)
       // Only update cache for other users' actions
       if (data?.user?._id === user?._id) return;
 
       const gameplay = data.gameplay;
       const locationId = gameplay.location;
       const date = gameplay.date;
-
+      const table=data.table
       if (!gameplay ||  !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -224,7 +226,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === gameplay.table) {
+            if (t._id === table._id) {
               return {
                 ...t,
                 gameplays: [...t.gameplays, gameplay],
@@ -248,7 +250,7 @@ export function useWebSocket() {
       const gameplayId = data.gameplay._id;
       const locationId = data.gameplay.location;
       const date = data.gameplay.date;
-
+      const table=data.table
       if (!gameplayId || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -258,7 +260,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === data.gameplay.table) {
+            if (t._id === table._id) {
               return {
                 ...t,
                 gameplays: t.gameplays.filter((g) => g._id !== gameplayId),
@@ -282,7 +284,7 @@ export function useWebSocket() {
       const gameplay = data.gameplay;
       const locationId = gameplay.location;
       const date = gameplay.date;
-
+      const table=data.table
       if (!gameplay || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -292,7 +294,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === gameplay.table) {
+            if (t._id === table._id) {
               return {
                 ...t,
                 gameplays: t.gameplays.map((g) =>
