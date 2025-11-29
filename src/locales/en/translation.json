@@ -1106,5 +1106,12 @@
   "Closed": "Closed",
   "View Map" : "View on Maps",
   "Activity Note" : "Activity Note",
-  "Unknown Location" : "Unknown Location"
+  "Unknown Location" : "Unknown Location",
+  "Table Number" : "Table Number",
+  "Duration (minutes)" : "Duration (minutes)",
+  "Reservation called" : "Reservation called",
+  "You called {{name}} ({{phone}})." : "You called {{name}} ({{phone}}).",
+  "Not coming" : "Not coming",
+  "Not responded" : "Not responded",
+  "Coming" : "Coming"
 }

@@ -1112,5 +1112,12 @@
   "Closed": "Kapalı",
   "View Map" : "Haritada Göster",
   "Activity Note" : "Aktiflik Notu",
-  "Unknown Location" : "Bilinmeyen Lokasyon"
+  "Unknown Location" : "Bilinmeyen Lokasyon",
+  "Table Number" : "Masa Numarası",
+  "Duration (minutes)" : "Rezervasyon süresi (dakika)",
+  "Reservation called" : "Rezervasyon arandı",
+  "You called {{name}} ({{phone}})." : "{{name}} ({{phone}}) kişisini aradınız.",
+  "Not coming" : "Gelmeyecek",
+  "Not responded" : "Cevap vermedi",
+  "Coming" : "Gelecek"
 }

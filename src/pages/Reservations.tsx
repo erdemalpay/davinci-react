@@ -53,7 +53,7 @@ export default function Reservations() {
   const { updateReservation, createReservation } = useReservationMutations();
   const [selectedReservation, setSelectedReservation] = useState<Reservation>();
   const { updateReservationCall } = useReservationCallMutations();
-  const { selectedLocationId } = useLocationContext();
+  const { selectedLocationId, locations } = useLocationContext();
   const { user } = useUserContext();
   const users = useGetUsersMinimal();
   const disabledConditions = useGetDisabledConditions();
@@ -62,6 +62,18 @@ export default function Reservations() {
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(30);
+  const [selectedTableNumber, setSelectedTableNumber] = useState<string>("");
+
+  const tableOptions = useMemo(() => {
+    const location = locations.find((loc) => loc._id === selectedLocationId);
+    if (!location?.tableCount) return [];
+
+    const options = [];
+    for (let i = 1; i <= location.tableCount; i++) {
+      options.push({ value: String(i), label: String(i) });
+    }
+    return options;
+  }, [locations, selectedLocationId]);
 
   const reservationsDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.RESERVATIONS, disabledConditions);
@@ -101,6 +113,7 @@ export default function Reservations() {
       updates: {
         status: ReservationStatusEnum.COMING,
         comingDurationInMinutes: selectedDuration,
+        reservedTable: selectedTableNumber,
       } as Partial<Reservation>,
     });
 
@@ -173,13 +186,6 @@ export default function Reservations() {
         label: t("Reservation Time"),
         placeholder: t("Reservation Time"),
         required: true,
-      },
-      {
-        type: InputTypes.TEXT,
-        formKey: "reservedTable",
-        label: t("Reserved Table"),
-        placeholder: t("Reserved Table"),
-        required: false,
       },
       {
         type: InputTypes.NUMBER,
@@ -257,6 +263,9 @@ export default function Reservations() {
       {
         key: "reservedTable",
         className: "min-w-32",
+        node: (row: Reservation) => {
+          return <p>{row.reservedTable || "-"}</p>;
+        },
       },
       {
         key: "playerCount",
@@ -580,6 +589,14 @@ export default function Reservations() {
             close={() => setIsDurationModalOpen(false)}
             inputs={[
               {
+                type: InputTypes.SELECT,
+                formKey: "tableNumber",
+                label: t("Table Number"),
+                options: tableOptions,
+                placeholder: t("Select Table"),
+                required: true,
+              },
+              {
                 type: InputTypes.NUMBER,
                 formKey: "duration",
                 label: t("Duration (minutes)"),
@@ -590,11 +607,15 @@ export default function Reservations() {
                 isOnClearActive: false,
               },
             ]}
-            formKeys={[{ key: "duration", type: FormKeyTypeEnum.NUMBER }]}
+            formKeys={[
+              { key: "tableNumber", type: FormKeyTypeEnum.STRING },
+              { key: "duration", type: FormKeyTypeEnum.NUMBER },
+            ]}
             constantValues={{ duration: 30 }}
-            setForm={(form: { duration: number }) =>
-              setSelectedDuration(form.duration)
-            }
+            setForm={(form: { duration: number; tableNumber: string }) => {
+              setSelectedDuration(form.duration);
+              setSelectedTableNumber(form.tableNumber);
+            }}
             submitItem={() => {
               /* submitFunction is used instead */
             }}
