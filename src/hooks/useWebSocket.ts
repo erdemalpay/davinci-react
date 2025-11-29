@@ -207,7 +207,112 @@ export function useWebSocket() {
       );
     });
 
+    socket.on("gameplayCreated", (data) => {
+      // Only update cache for other users' actions
+      if (data?.user?._id === user?._id) return;
 
+      const gameplay = data.gameplay;
+      const table = data.table;
+      const locationId = table?.location;
+      const date = table?.date;
+
+      if (!gameplay || !table || !locationId || !date) return;
+
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          const prev = old ?? {};
+          const prevForLocation = prev[locationId] ?? [];
+
+          const updatedTables = prevForLocation.map((t) => {
+            if (t._id === table._id) {
+              return {
+                ...t,
+                gameplays: [...t.gameplays, gameplay],
+              };
+            }
+            return t;
+          });
+
+          return {
+            ...prev,
+            [locationId]: updatedTables,
+          };
+        }
+      );
+    });
+
+    socket.on("gameplayDeleted", (data) => {
+      // Only update cache for other users' actions
+      if (data?.user?._id === user?._id) return;
+
+      const gameplayId = data.gameplayId;
+      const table = data.table;
+      const locationId = table?.location;
+      const date = table?.date;
+
+      if (!gameplayId || !table || !locationId || !date) return;
+
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          const prev = old ?? {};
+          const prevForLocation = prev[locationId] ?? [];
+
+          const updatedTables = prevForLocation.map((t) => {
+            if (t._id === table._id) {
+              return {
+                ...t,
+                gameplays: t.gameplays.filter((g) => g._id !== gameplayId),
+              };
+            }
+            return t;
+          });
+
+          return {
+            ...prev,
+            [locationId]: updatedTables,
+          };
+        }
+      );
+    });
+
+    socket.on("gameplayUpdated", (data) => {
+      // Only update cache for other users' actions
+      if (data?.user?._id === user?._id) return;
+
+      const gameplay = data.gameplay;
+      const table = data.table;
+      const locationId = table?.location;
+      const date = table?.date;
+
+      if (!gameplay || !table || !locationId || !date) return;
+
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          const prev = old ?? {};
+          const prevForLocation = prev[locationId] ?? [];
+
+          const updatedTables = prevForLocation.map((t) => {
+            if (t._id === table._id) {
+              return {
+                ...t,
+                gameplays: t.gameplays.map((g) =>
+                  g._id === gameplay._id ? gameplay : g
+                ),
+              };
+            }
+            return t;
+          });
+
+          return {
+            ...prev,
+            [locationId]: updatedTables,
+          };
+        }
+      );
+    });
 
     socket.on("tableChanged", (data) => {
   const locationId = data.table.location;

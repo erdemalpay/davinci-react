@@ -310,7 +310,6 @@ export function useCreateGameplayMutation() {
         const previousByLocation = context.previousByLocation;
         const locationId = selectedLocationId;
         const prevForLocation = previousByLocation?.[locationId];
-        console.log(data)
         if (prevForLocation) {
           const previousTable = prevForLocation.find(
             (table) => table._id === variables.table
@@ -349,64 +348,132 @@ export function useCreateGameplayMutation() {
 export function useUpdateGameplayMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const queryKey = [BASE_URL_TABLES, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
+
+  const tablesQueryKey: QueryKey = [Paths.Tables, selectedDate];
+
   return useMutation(updateGameplay, {
-    // We are updating tables query data with new gameplay
+    // We are updating tables query data with updated gameplay
     onMutate: async ({ tableId, id, updates }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey: tablesQueryKey });
 
       // Snapshot the previous value
-      const previousTables = queryClient.getQueryData<Table[]>(queryKey);
-      const gameplaysTable = previousTables?.find(
+      const previousByLocation =
+        queryClient.getQueryData<TablesByLocation>(tablesQueryKey);
+
+      const locationId = selectedLocationId;
+      const prevForLocation = previousByLocation?.[locationId];
+
+      if (!previousByLocation || !prevForLocation) {
+        return { previousByLocation };
+      }
+
+      const previousTable = prevForLocation.find(
         (table) => table._id === tableId
       );
-      if (!gameplaysTable) return { previousTables };
-      const updatedGameplay = gameplaysTable.gameplays.find(
+
+      if (!previousTable) {
+        return { previousByLocation };
+      }
+
+      const updatedGameplay = previousTable.gameplays.find(
         (gameplay) => gameplay._id === id
       );
-      if (!updatedGameplay) return { previousTables };
 
-      const updatedTables: Table[] = [
-        ...(previousTables?.filter(
-          (table) => table._id !== gameplaysTable._id
-        ) || []),
-        {
-          ...gameplaysTable,
-          gameplays: [
-            ...gameplaysTable.gameplays.filter(
-              (gameplay) => gameplay._id !== id
-            ),
-            {
-              ...updatedGameplay,
-              ...updates,
-            },
-          ],
-        },
-      ];
-      updatedTables.sort(sortTable);
+      if (!updatedGameplay) {
+        return { previousByLocation };
+      }
 
-      // Optimistically update to the new value
-      queryClient.setQueryData(queryKey, updatedTables);
+      const updatedTable: Table = {
+        ...previousTable,
+        gameplays: [
+          ...previousTable.gameplays.filter((gameplay) => gameplay._id !== id),
+          {
+            ...updatedGameplay,
+            ...updates,
+          },
+        ],
+      };
 
-      // Return a context object with the snapshotted value
-      return { previousTables };
+      const updatedTablesForLocation = [
+        ...prevForLocation.filter((table) => table._id !== previousTable._id),
+        updatedTable,
+      ].sort(sortTable);
+
+      const updatedByLocation: TablesByLocation = {
+        ...previousByLocation,
+        [locationId]: updatedTablesForLocation,
+      };
+
+      queryClient.setQueryData<TablesByLocation>(
+        tablesQueryKey,
+        updatedByLocation
+      );
+
+      return { previousByLocation };
     },
+
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err: any, _newGameplay, context) => {
-      const previousTableContext = context as { previousTables: Table[] };
-      if (previousTableContext?.previousTables) {
-        const { previousTables } = previousTableContext;
-        queryClient.setQueryData<Table[]>(queryKey, previousTables);
+    onError: (_err: any, _variables, context) => {
+      if (context?.previousByLocation) {
+        queryClient.setQueryData<TablesByLocation>(
+          tablesQueryKey,
+          context.previousByLocation
+        );
       }
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
-    // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+
+    // Update with server response on success
+    onSettled: (
+      data: Gameplay | undefined,
+      error: unknown,
+      variables: UpdateGameplayPayload,
+      context: { previousByLocation: TablesByLocation | undefined } | undefined
+    ) => {
+      if (!error && data && context?.previousByLocation) {
+        const previousByLocation = context.previousByLocation;
+        const locationId = selectedLocationId;
+        const prevForLocation = previousByLocation?.[locationId];
+
+        if (prevForLocation) {
+          const previousTable = prevForLocation.find(
+            (table) => table._id === variables.tableId
+          );
+
+          if (previousTable) {
+            const updatedTable: Table = {
+              ...previousTable,
+              gameplays: [
+                ...previousTable.gameplays.filter(
+                  (gameplay) => gameplay._id !== variables.id
+                ),
+                data,
+              ],
+            };
+
+            const updatedTablesForLocation = [
+              ...prevForLocation.filter(
+                (table) => table._id !== previousTable._id
+              ),
+              updatedTable,
+            ].sort(sortTable);
+
+            const updatedByLocation: TablesByLocation = {
+              ...previousByLocation,
+              [locationId]: updatedTablesForLocation,
+            };
+
+            queryClient.setQueryData<TablesByLocation>(
+              tablesQueryKey,
+              updatedByLocation
+            );
+          }
+        }
+      }
     },
   });
 }
@@ -415,56 +482,70 @@ export function useDeleteGameplayMutation() {
   const queryClient = useQueryClient();
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const queryKey = [BASE_URL_TABLES, selectedLocationId, selectedDate];
+
+  const tablesQueryKey: QueryKey = [Paths.Tables, selectedDate];
+
   return useMutation(deleteGameplay, {
-    // We are updating tables query data with delete gameplay
+    // We are updating tables query data with deleted gameplay
     onMutate: async ({ tableId, id }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey: tablesQueryKey });
 
       // Snapshot the previous value
-      const previousTables = queryClient.getQueryData<Table[]>(queryKey);
-      const gameplaysTable = previousTables?.find(
+      const previousByLocation =
+        queryClient.getQueryData<TablesByLocation>(tablesQueryKey);
+
+      const locationId = selectedLocationId;
+      const prevForLocation = previousByLocation?.[locationId];
+
+      if (!previousByLocation || !prevForLocation) {
+        return { previousByLocation };
+      }
+
+      const previousTable = prevForLocation.find(
         (table) => table._id === tableId
       );
-      if (!gameplaysTable) return { previousTables };
 
-      const updatedTables = [
-        ...(previousTables?.filter(
-          (table) => table._id !== gameplaysTable._id
-        ) || []),
-        {
-          ...gameplaysTable,
-          gameplays: [
-            ...gameplaysTable.gameplays.filter(
-              (gameplay) => gameplay._id !== id
-            ),
-          ],
-        },
-      ];
+      if (!previousTable) {
+        return { previousByLocation };
+      }
 
-      updatedTables.sort(sortTable);
+      const updatedTable: Table = {
+        ...previousTable,
+        gameplays: previousTable.gameplays.filter(
+          (gameplay) => gameplay._id !== id
+        ),
+      };
 
-      // Optimistically update to the new value
-      queryClient.setQueryData(queryKey, updatedTables);
+      const updatedTablesForLocation = [
+        ...prevForLocation.filter((table) => table._id !== previousTable._id),
+        updatedTable,
+      ].sort(sortTable);
 
-      // Return a context object with the snapshotted value
-      return { previousTables };
+      const updatedByLocation: TablesByLocation = {
+        ...previousByLocation,
+        [locationId]: updatedTablesForLocation,
+      };
+
+      queryClient.setQueryData<TablesByLocation>(
+        tablesQueryKey,
+        updatedByLocation
+      );
+
+      return { previousByLocation };
     },
+
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err: any, _newGameplay, context) => {
-      const previousTableContext = context as { previousTables: Table[] };
-      if (previousTableContext?.previousTables) {
-        const { previousTables } = previousTableContext;
-        queryClient.setQueryData<Table[]>(queryKey, previousTables);
+    onError: (_err: any, _variables, context) => {
+      if (context?.previousByLocation) {
+        queryClient.setQueryData<TablesByLocation>(
+          tablesQueryKey,
+          context.previousByLocation
+        );
       }
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-    },
-    // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
     },
   });
 }
