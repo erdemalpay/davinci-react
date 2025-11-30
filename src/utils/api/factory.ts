@@ -72,7 +72,8 @@ export function useGet<T>(
     () => get<T>({ path }),
     {
       staleTime: isStaleTimeZero ? 0 : Infinity,
-      ...(options || {}),
+      refetchOnWindowFocus: false, // default
+      ...options, // spread options after to allow overriding
     }
   );
 

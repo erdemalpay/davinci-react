@@ -364,7 +364,7 @@ export function useGetTableOrders(tableId: number) {
   return useGetList<Order>(
     `${baseUrl}/table/${tableId}`,
     [`${Paths.Order}/table`, tableId],
-    true, // or false if you don't want staleTime = 0
+    true,
     {
       onSuccess: (tableOrders) => {
         // keep todayOrders in sync with this table
@@ -623,10 +623,14 @@ export function useCancelOrderForDiscountMutation() {
 
 export function useGetTodayOrders() {
   const { selectedDate } = useDateContext();
-  return useGetList<Order>(`${baseUrl}/today?after=${selectedDate}`, [
-    `${baseUrl}/today`,
-    selectedDate,
-  ]);
+  return useGetList<Order>(
+    `${baseUrl}/today?after=${selectedDate}`, 
+    [`${baseUrl}/today`, selectedDate],
+    false, // isStaleTimeZero - keep staleTime as Infinity
+    {
+      refetchOnWindowFocus: true,
+    }
+  );
 }
 
 export function useGetDailySummary(date: string, location: number) {
