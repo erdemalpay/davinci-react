@@ -1114,7 +1114,7 @@ export function TableCard({
           }}
           cancelButtonLabel={t("Close")}
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
-          anotherPanel={<OrderListForPanel table={table} />}
+          anotherPanel={<OrderListForPanel table={table} tableOrdersProp={tableOrdersProp} />}
           additionalButtons={[
             {
               label: t("Add"),
