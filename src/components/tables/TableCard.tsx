@@ -1247,7 +1247,7 @@ export function TableCard({
             resetOrderContext();
             setIsOrderPaymentModalOpen(false);
           }}
-          tableOrdersProp={tableOrders}
+          // tableOrdersProp={tableOrders}
         />
       )}
       {isTableCombineOpen && (
