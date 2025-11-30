@@ -133,6 +133,7 @@ export function useWebSocket() {
           ? data?.order?.table
           : data?.order?.table._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
+      queryClient.invalidateQueries([`${Paths.Order}/today`]);
     });
 
     socket.on("collectionChanged", (data) => {
