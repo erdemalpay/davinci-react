@@ -133,7 +133,6 @@ export function useWebSocket() {
           ? data?.order?.table
           : data?.order?.table._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
-      queryClient.invalidateQueries([`${Paths.Order}/today`]);
     });
 
     socket.on("collectionChanged", (data) => {
@@ -208,8 +207,6 @@ export function useWebSocket() {
     });
 
     socket.on("gameplayCreated", (data) => {
-      console.log("gameplayCreated", data);
-      console.log(data.gameplay)
       // Only update cache for other users' actions
       if (data?.user?._id === user?._id) return;
 
