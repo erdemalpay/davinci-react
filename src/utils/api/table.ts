@@ -247,7 +247,7 @@ export function useGetTables() {
     queryKey,
     queryFn,
     staleTime: Infinity,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
