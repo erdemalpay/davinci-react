@@ -43,8 +43,7 @@ import {
   unlockBodyScroll,
 } from "../../../utils/bodyScrollLock";
 import { formatDate } from "../../../utils/dateUtil";
-import { getItem } from "../../../utils/getItem";
-import { getMenuItemSubText } from "../../../utils/getMenuItemSubText";
+import { getItem, getMenuItemSubText } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
 import Loading from "../../common/Loading";

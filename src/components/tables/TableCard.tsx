@@ -51,8 +51,7 @@ import {
 } from "../../utils/api/table";
 import { useGetUser } from "../../utils/api/user";
 import { formatDate } from "../../utils/dateUtil";
-import { getItem } from "../../utils/getItem";
-import { getMenuItemSubText } from "../../utils/getMenuItemSubText";
+import { getItem, getMenuItemSubText } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";

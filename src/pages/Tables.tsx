@@ -68,8 +68,7 @@ import { useGetTables, useTableMutations } from "../utils/api/table";
 import { MinimalUser, useGetUser, useGetUsersMinimal } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
-import { getItem } from "../utils/getItem";
-import { getMenuItemSubText } from "../utils/getMenuItemSubText";
+import { getItem, getMenuItemSubText } from "../utils/getItem";
 import { LocationInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
 
