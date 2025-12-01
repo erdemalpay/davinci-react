@@ -44,6 +44,7 @@ const AssignNotification = () => {
       return {
         ...notification,
         createdByForRowKey: getItem(notification?.createdBy, users)?.name ?? "",
+        eventLabel: notification.event ? t(notification.event) : "",
         formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
         typeForRowKey: t(notification.type),
       };
@@ -68,7 +69,7 @@ const AssignNotification = () => {
     () => [
       { key: "createdByForRowKey" },
       { key: "formattedDate" },
-      { key: "event" },
+      { key: "eventLabel" },
       { key: "typeForRowKey" },
       { key: "message" },
       {
