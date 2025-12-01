@@ -220,7 +220,7 @@ const TabInputScreen = ({
                     <div className="flex flex-col gap-0.5 text-xs text-gray-500 text-center mt-1 w-full">
                       {opt.subText.split("|||").map((subProduct, idx) => (
                         <div key={idx} className="text-xs">
-                          • {subProduct}
+                          {subProduct}
                         </div>
                       ))}
                     </div>
