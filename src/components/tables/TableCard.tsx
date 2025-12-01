@@ -52,6 +52,7 @@ import {
 import { useGetUser } from "../../utils/api/user";
 import { formatDate } from "../../utils/dateUtil";
 import { getItem } from "../../utils/getItem";
+import { getMenuItemSubText } from "../../utils/getMenuItemSubText";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -234,6 +235,9 @@ export function TableCard({
         return true;
       })
       .map((menuItem) => {
+        const category = getItem(menuItem.category, categories);
+        const subText = getMenuItemSubText(menuItem, category, menuItems);
+
         return {
           value: menuItem?._id,
           label:
@@ -249,9 +253,10 @@ export function TableCard({
             menuItem?.name,
             ...(menuItem?.sku ? [menuItem.sku] : []),
             ...(menuItem?.barcode ? [menuItem.barcode] : []),
-            getItem(menuItem?.category, categories)?.name || "",
+            category?.name || "",
           ],
           triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
+          subText,
         };
       });
   }, [

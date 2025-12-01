@@ -12,6 +12,7 @@ export type TabOption = {
   imageUrl?: string;
   keywords?: string[];
   triggerExtraModal?: boolean;
+  subText?: string;
 };
 
 interface Props {
@@ -206,7 +207,7 @@ const TabInputScreen = ({
                   }
                 `}
               >
-                <div className="flex flex-col items-center justify-center gap-2">
+                <div className="flex flex-col items-center justify-center gap-2 w-full">
                   {opt?.imageUrl && isLargeScreen && (
                     <img
                       src={opt.imageUrl}
@@ -215,6 +216,15 @@ const TabInputScreen = ({
                     />
                   )}
                   <span className="text-gray-800 text-center">{opt.label}</span>
+                  {opt.subText && (
+                    <div className="flex flex-col gap-0.5 text-xs text-gray-500 text-center mt-1 w-full">
+                      {opt.subText.split("|||").map((subProduct, idx) => (
+                        <div key={idx} className="text-xs">
+                          • {subProduct}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </GenericButton>
             );

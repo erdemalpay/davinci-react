@@ -69,6 +69,7 @@ import { MinimalUser, useGetUser, useGetUsersMinimal } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
+import { getMenuItemSubText } from "../utils/getMenuItemSubText";
 import { LocationInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
 
@@ -277,6 +278,9 @@ const Tables = () => {
         return true;
       })
       .map((menuItem) => {
+        const category = getItem(menuItem.category, categories);
+        const subText = getMenuItemSubText(menuItem, category, menuItems);
+
         return {
           value: menuItem?._id,
           label:
@@ -292,9 +296,10 @@ const Tables = () => {
             menuItem?.name,
             ...(menuItem?.sku ? [menuItem.sku] : []),
             ...(menuItem?.barcode ? [menuItem.barcode] : []),
-            getItem(menuItem?.category, categories)?.name || "",
+            category?.name || "",
           ],
           triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
+          subText,
         };
       });
   }, [
@@ -440,10 +445,14 @@ const Tables = () => {
             return true;
           })
           .map((menuItem) => {
+            const category = getItem(menuItem.category, categories);
+            const subText = getMenuItemSubText(menuItem, category, menuItems);
+
             return {
               value: menuItem?._id,
               label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
               imageUrl: menuItem?.imageUrl,
+              subText,
             };
           });
       },
@@ -459,6 +468,8 @@ const Tables = () => {
           label: option.label,
           imageUrl: option?.imageUrl,
           keywords: option?.keywords,
+          subText: option?.subText,
+          triggerExtraModal: option?.triggerExtraModal,
         };
       }),
       invalidateKeys: [
