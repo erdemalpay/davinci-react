@@ -1888,6 +1888,9 @@ export enum NotificationEventType {
   KITCHENDEACTIVATED = "KITCHENDEACTIVATED",
   KITCHENNOTCONFIRMED = "KITCHENNOTCONFIRMED",
   UNFINISHEDVISIT = "UNFINISHEDVISIT",
+  SHIFTCHANGEREQUESTED = "SHIFTCHANGEREQUESTED",
+  SHIFTCHANGEAPPROVED = "SHIFTCHANGEAPPROVED",
+  SHIFTCHANGEREJECTED = "SHIFTCHANGEREJECTED",
 }
 export const notificationEventsOptions = [
   {
@@ -1945,6 +1948,18 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.UNFINISHEDVISIT,
     label: "Unfinished Visit",
+  },
+  {
+    value: NotificationEventType.SHIFTCHANGEREQUESTED,
+    label: NotificationEventType.SHIFTCHANGEREQUESTED,
+  },
+  {
+    value: NotificationEventType.SHIFTCHANGEAPPROVED,
+    label: NotificationEventType.SHIFTCHANGEAPPROVED,
+  },
+  {
+    value: NotificationEventType.SHIFTCHANGEREJECTED,
+    label: NotificationEventType.SHIFTCHANGEREJECTED,
   },
 ];
 
