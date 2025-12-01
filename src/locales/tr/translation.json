@@ -1119,5 +1119,6 @@
   "You called {{name}} ({{phone}})." : "{{name}} ({{phone}}) kişisini aradınız.",
   "Not coming" : "Gelmeyecek",
   "Not responded" : "Cevap vermedi",
-  "Coming" : "Gelecek"
+  "Coming" : "Gelecek",
+  "Show Sub Products" : "Alt Ürünleri Göster"
 }

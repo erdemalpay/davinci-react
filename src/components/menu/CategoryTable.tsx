@@ -142,6 +142,14 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       isTopFlexRow: true,
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "showItemProductionOnMenu",
+      label: t("Show Sub Products"),
+      placeholder: t("Show Sub Products"),
+      required: true,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
       label: t("Image"),
@@ -180,6 +188,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isKitchenMenu", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isLimitedTime", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "showItemProductionOnMenu", type: FormKeyTypeEnum.BOOLEAN },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
@@ -199,6 +208,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           { key: t("Online Order"), isSortable: false },
           { key: t("Has Kitchen Menu"), isSortable: false },
           { key: t("Limited Time"), isSortable: false },
+          { key: t("Show Sub Products"), isSortable: false },
         ]),
   ];
   const rowKeys = [
@@ -280,6 +290,15 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
             key: "isLimitedTime",
             node: (row: MenuCategory) =>
               row?.isLimitedTime ? (
+                <IoCheckmark className="text-blue-500 text-2xl " />
+              ) : (
+                <IoCloseOutline className="text-red-800 text-2xl " />
+              ),
+          },
+          {
+            key: "showItemProductionOnMenu",
+            node: (row: MenuCategory) =>
+              row?.showItemProductionOnMenu ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
               ) : (
                 <IoCloseOutline className="text-red-800 text-2xl " />

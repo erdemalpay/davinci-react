@@ -614,6 +614,7 @@ export type MenuCategory = {
   active: boolean;
   orderCategoryOrder: number;
   isLimitedTime?: boolean;
+  showItemProductionOnMenu: boolean;
 };
 
 export type UpperCategory = {
