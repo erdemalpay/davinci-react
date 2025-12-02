@@ -107,15 +107,38 @@ const Login = () => {
         >
           {/* Card background image */}
           <div
-            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            className="absolute inset-0 pointer-events-none"
             style={{
-              backgroundImage: `url('/src/assets/login/davinci.png')`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'left center',
-              backgroundSize: 'contain',
-              transform: 'scaleX(-1)',
+              opacity: 0.06,
+              transform: showPassword
+                ? 'scaleX(-1) translateX(-12px)'
+                : 'scaleX(-1) translateX(0px)',
+              transition: 'transform 0.8s ease',
             }}
-          />
+          >
+            <div
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                showPassword ? 'opacity-0' : 'opacity-100'
+              }`}
+              style={{
+                backgroundImage: `url('/src/assets/login/davinci.png')`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: '-80px center',
+                backgroundSize: 'contain',
+              }}
+            />
+            <div
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                showPassword ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                backgroundImage: `url('/src/assets/login/davinci2.png')`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: '-80px center',
+                backgroundSize: 'contain',
+              }}
+            />
+          </div>
           <div className="flex flex-col mb-2 relative z-10">
             <h2
               className="text-4xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900 leading-tight font-bold text-center sm:text-left cursor-default select-none drop-shadow-sm"
