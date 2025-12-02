@@ -30,9 +30,8 @@ function App() {
   const { isSidebarOpen } = useGeneralContext();
   const { user } = useUserContext();
 
-  // webSocket connection
   useWebSocket();
-  // when page visibility gone invalidate queries
+
   useEffect(() => {
     if (!isVisible) {
       queryClient.clear();
@@ -43,7 +42,7 @@ function App() {
     <div className="App">
       {isMutating ? <Loading /> : null}
       <Sidebar />
-      {/* Content wrapper - sidebar durumuna göre dinamik margin */}
+
       <div
         className={`transition-all duration-300 ${
           user ? (isSidebarOpen ? "lg:ml-64" : "lg:ml-16") : ""
@@ -63,7 +62,6 @@ function App() {
   );
 }
 
-// We are wrapping the App component to be able to use isMutating hooks in it
 function Wrapper() {
   const queryClient = new QueryClient();
   return (
