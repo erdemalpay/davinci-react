@@ -15,10 +15,6 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Visits}`],
   },
   {
-    event: "orderUpdated",
-    invalidateKeys: [`${Paths.Order}/today`],
-  },
-  {
     event: "userChanged",
     invalidateKeys: [`${Paths.Users}`, `${Paths.Users}/minimal`],
   },

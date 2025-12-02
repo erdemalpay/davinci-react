@@ -60,7 +60,6 @@ import {
   useGetTodayOrders,
   useOrderMutations,
 } from "../utils/api/order/order";
-import { useGetTodayCollections } from "../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { useGetReservations } from "../utils/api/reservations";
@@ -108,7 +107,7 @@ const Tables = () => {
   const locations = useGetStoreLocations();
   const allLocations = useGetAllLocations();
   const navigate = useNavigate();
-  const todayCollections = useGetTodayCollections();
+  // const todayCollections = useGetTodayCollections();
   const visits = useGetVisits();
   const stockLocations = useGetStockLocations();
   const products = useGetAllAccountProducts();
@@ -1565,10 +1564,10 @@ const Tables = () => {
                       tableOrdersProp={todayOrders?.filter(
                         (order) => (order.table as Table)?._id === table?._id
                       )}
-                      tableCollectionsProp={todayCollections?.filter(
-                        (collection) =>
-                          (collection.table as Table)?._id === table?._id
-                      )}
+                      // tableCollectionsProp={todayCollections?.filter(
+                      //   (collection) =>
+                      //     (collection.table as Table)?._id === table?._id
+                      // )}
                     />
                   </div>
                 );
@@ -1592,10 +1591,10 @@ const Tables = () => {
                 tableOrdersProp={todayOrders?.filter(
                   (order) => (order.table as Table)?._id === table?._id
                 )}
-                tableCollectionsProp={todayCollections?.filter(
-                  (collection) =>
-                    (collection.table as Table)?._id === table?._id
-                )}
+                // tableCollectionsProp={todayCollections?.filter(
+                //   (collection) =>
+                //     (collection.table as Table)?._id === table?._id
+                // )}
               />
             </div>
           ))}
