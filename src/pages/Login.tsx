@@ -217,7 +217,7 @@ const Login = () => {
               )}
             </div>
             {error && (
-              <div className="flex text-red-600 text-sm mt-3 animate-shake bg-red-50 px-4 py-2 rounded-lg border-2 border-red-300">
+              <div className="flex text-red-600 text-sm mt-3 bg-red-50 px-4 py-2 rounded-lg border-2 border-red-300">
                 <h5> {t("Username or password is invalid")}</h5>
               </div>
             )}
