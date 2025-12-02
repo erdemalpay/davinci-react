@@ -11,7 +11,6 @@ import {
   MenuItem,
   OptionType,
   Order,
-  OrderCollection,
   OrderCollectionStatus,
   OrderStatus,
   TURKISHLIRA,
@@ -69,7 +68,6 @@ type Props = {
   tables: Table[];
   isAddOrderActive?: boolean;
   tableOrdersProp?: Order[];
-  tableCollectionsProp?: OrderCollection[];
 };
 type ButtonType = {
   label: string;
@@ -82,7 +80,6 @@ const OrderPaymentModal = ({
   tables,
   isAddOrderActive = true,
   tableOrdersProp,
-  tableCollectionsProp,
 }: Props) => {
   const { t } = useTranslation();
   const user = useGetUser();
@@ -140,8 +137,7 @@ const OrderPaymentModal = ({
   };
   const table = getTable(tableId) as Table;
   const categories = useGetAllCategories();
-  const hookCollections = useGetTableCollections(tableId);
-  const collections = tableCollectionsProp ?? hookCollections;
+  const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [
     isPaymentModalCreateOrderDialogOpen,
