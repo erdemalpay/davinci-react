@@ -111,8 +111,8 @@ const Login = () => {
             style={{
               opacity: 0.06,
               transform: showPassword
-                ? 'scaleX(-1) translateX(-12px)'
-                : 'scaleX(-1) translateX(0px)',
+                ? 'scaleX(-1) translate(-12px, -8px)'
+                : 'scaleX(-1) translate(0px, 0px)',
               transition: 'transform 0.8s ease',
             }}
           >
