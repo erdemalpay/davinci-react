@@ -97,10 +97,10 @@ const Login = () => {
       <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-gray-200/20 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-lg mx-auto px-4 flex items-start justify-center min-h-screen">
+      <div className="relative z-10 w-full max-w-lg mx-auto px-4 flex items-center justify-center min-h-screen">
         <form
           id="login"
-          className="w-full text-gray-800 bg-white rounded-3xl p-8 py-12 shadow-2xl border border-gray-100 transition-all duration-300 relative overflow-hidden mt-[20vh]"
+          className="w-full text-gray-800 bg-white rounded-3xl p-8 py-12 shadow-2xl border border-gray-100 transition-all duration-300 relative overflow-hidden"
           onSubmit={handleSubmit}
           style={{
             animation: 'slideUp 0.6s ease-out',
