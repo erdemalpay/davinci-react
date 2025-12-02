@@ -80,7 +80,7 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#f5f5f0] via-[#e8e8dd] to-[#f5f5f0] relative flex items-center justify-center overflow-hidden">
       {/* Animated background pattern */}
       <div
-        className="absolute inset-0 opacity-[0.02] pointer-events-none animate-pulse"
+        className="absolute inset-0 opacity-[0.04] pointer-events-none animate-pulse"
         style={{
           backgroundImage: `url('/src/assets/login/logo.png')`,
           backgroundRepeat: 'repeat',
@@ -96,10 +96,10 @@ const Login = () => {
       <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-gray-200/20 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-lg mx-auto px-4">
+      <div className="relative z-10 w-full max-w-lg mx-auto px-4 flex items-start justify-center min-h-screen">
         <form
           id="login"
-          className="w-full text-gray-800 bg-white rounded-3xl p-8 py-12 shadow-2xl border border-gray-100 transition-all duration-500 relative overflow-hidden"
+          className="w-full text-gray-800 bg-white rounded-3xl p-8 py-12 shadow-2xl border border-gray-100 transition-all duration-300 relative overflow-hidden mt-[20vh]"
           onSubmit={handleSubmit}
           style={{
             animation: 'slideUp 0.6s ease-out',
@@ -107,35 +107,39 @@ const Login = () => {
         >
           {/* Card background image */}
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute pointer-events-none"
             style={{
-              opacity: 0.06,
+              opacity: 0.15,
               transform: showPassword
                 ? 'scaleX(-1) translate(-12px, -8px)'
                 : 'scaleX(-1) translate(0px, 0px)',
-              transition: 'transform 0.8s ease',
+              transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+              top: '-10px',
+              left: 0,
+              right: 0,
+              height: '500px',
             }}
           >
             <div
-              className={`absolute inset-0 transition-opacity duration-700 ${
-                showPassword ? 'opacity-0' : 'opacity-100'
-              }`}
+              className="absolute inset-0"
               style={{
                 backgroundImage: `url('/src/assets/login/davinci.png')`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: '-80px center',
                 backgroundSize: 'contain',
+                opacity: showPassword ? 0 : 1,
+                transition: 'opacity 0.4s ease-in-out',
               }}
             />
             <div
-              className={`absolute inset-0 transition-opacity duration-700 ${
-                showPassword ? 'opacity-100' : 'opacity-0'
-              }`}
+              className="absolute inset-0"
               style={{
                 backgroundImage: `url('/src/assets/login/davinci2.png')`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: '-80px center',
                 backgroundSize: 'contain',
+                opacity: showPassword ? 1 : 0,
+                transition: 'opacity 0.4s ease-in-out',
               }}
             />
           </div>
@@ -207,13 +211,13 @@ const Login = () => {
               </div>
               {capsLockOn && (
                 <div className="text-red-600 text-sm mt-2 bg-red-50 px-3 py-1 rounded-lg border border-red-200">
-                  <span>⚠️ {t("Caps Lock is on")}</span>
+                  <span> {t("Caps Lock is on")}</span>
                 </div>
               )}
             </div>
             {error && (
               <div className="flex text-red-600 text-sm mt-3 animate-shake bg-red-50 px-4 py-2 rounded-lg border-2 border-red-300">
-                <h5>❌ {t("Username or password is invalid")}</h5>
+                <h5> {t("Username or password is invalid")}</h5>
               </div>
             )}
           </div>
