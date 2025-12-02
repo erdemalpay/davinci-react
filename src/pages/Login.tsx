@@ -167,9 +167,9 @@ const Login = () => {
                 required
                 name="username"
                 id="username"
-                className={`h-12 px-4 w-full rounded-xl mt-2 text-gray-700 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:bg-white ${
+                className={`h-12 px-4 w-full rounded-xl mt-2 text-gray-700 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-gray-800 ${
                   error ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"
-                } border-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5`}
+                } border-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-gray-800`}
                 type="text"
                 style={{ animation: 'fadeInUp 0.6s ease-out 0.4s both' }}
               />
@@ -186,9 +186,9 @@ const Login = () => {
                   required
                   name="password"
                   id="password"
-                  className={`h-12 px-4 pr-12 w-full rounded-xl mt-2 text-gray-700 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:bg-white ${
+                  className={`h-12 px-4 pr-12 w-full rounded-xl mt-2 text-gray-700 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-gray-800 ${
                     error ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"
-                  } border-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5`}
+                  } border-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-gray-800`}
                   type={showPassword ? "text" : "password"}
                   onKeyDown={(e) => {
                     setCapsLockOn(e.getModifierState("CapsLock"));
