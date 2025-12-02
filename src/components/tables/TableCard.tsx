@@ -19,7 +19,6 @@ import {
   Gameplay,
   MenuItem,
   Order,
-  OrderCollection,
   OrderDiscountStatus,
   OrderStatus,
   TURKISHLIRA,
@@ -75,7 +74,7 @@ export interface TableCardProps {
   showServedOrders?: boolean;
   tables: Table[];
   tableOrdersProp?: Order[];
-  tableCollectionsProp?: OrderCollection[];
+  // tableCollectionsProp?: OrderCollection[];
 }
 
 export function TableCard({
@@ -86,8 +85,8 @@ export function TableCard({
   showServedOrders = false,
   tables,
   tableOrdersProp,
-  tableCollectionsProp,
-}: TableCardProps) {
+}: // tableCollectionsProp,
+TableCardProps) {
   const { t } = useTranslation();
   const games = useGetGamesMinimal();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -1260,7 +1259,7 @@ export function TableCard({
             resetOrderContext();
             setIsOrderPaymentModalOpen(false);
           }}
-          tableOrdersProp={tableOrders}
+          // tableOrdersProp={tableOrders}
           // tableCollectionsProp={tableCollectionsProp}
         />
       )}

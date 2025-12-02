@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { patch, post, UpdatePayload } from "..";
-import { useDateContext } from "../../../context/Date.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { Order, OrderCollection, OrderCollectionStatus } from "../../../types";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
@@ -95,17 +94,17 @@ export function useGetSummaryCollectionTotal() {
     )}`
   );
 }
-export function useGetTodayCollections() {
-  const { selectedDate } = useDateContext();
-  return useGetList<OrderCollection>(
-    `${Paths.Order}/collection/today?after=${selectedDate}`,
-    [`${Paths.Order}/collection/today`, selectedDate],
-    false, // isStaleTimeZero - keep staleTime as Infinity
-    {
-      refetchOnWindowFocus: true,
-    }
-  );
-}
+// export function useGetTodayCollections() {
+//   const { selectedDate } = useDateContext();
+//   return useGetList<OrderCollection>(
+//     `${Paths.Order}/collection/today?after=${selectedDate}`,
+//     [`${Paths.Order}/collection/today`, selectedDate],
+//     false, // isStaleTimeZero - keep staleTime as Infinity
+//     {
+//       refetchOnWindowFocus: true,
+//     }
+//   );
+// }
 function createRequest(
   itemDetails: Partial<OrderCollection>
 ): Promise<OrderCollection> {

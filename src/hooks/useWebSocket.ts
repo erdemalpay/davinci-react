@@ -123,6 +123,14 @@ export function useWebSocket() {
       }
     });
 
+    socket.on("orderUpdated", (data) => {
+      const tableId =
+        typeof data?.order?.table === "number"
+          ? data?.order?.table
+          : data?.order?.table._id;
+      queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
+    });
+
     socket.on("collectionChanged", (data) => {
       // queryClient.invalidateQueries([`${Paths.Order}/collection/today`]);
       queryClient.invalidateQueries([
