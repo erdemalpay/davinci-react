@@ -52,6 +52,7 @@ export const Sidebar = () => {
     setTimeout(() => localStorage.removeItem("loggedOut"), 500);
     Cookies.remove("jwt");
     setUser(undefined);
+    setIsSidebarOpen(false);
     queryClient.clear();
     navigate("/login");
   };

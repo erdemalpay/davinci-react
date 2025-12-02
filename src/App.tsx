@@ -18,7 +18,7 @@ import {
 import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { ShiftContextProvider } from "./context/Shift.context";
-import { UserContextProvider } from "./context/User.context";
+import { UserContextProvider, useUserContext } from "./context/User.context";
 import { usePageVisibility } from "./hooks/usePageVisibility";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
@@ -28,6 +28,7 @@ function App() {
   const isVisible = usePageVisibility();
   const queryClient = useQueryClient();
   const { isSidebarOpen } = useGeneralContext();
+  const { user } = useUserContext();
 
   // webSocket connection
   useWebSocket();
@@ -45,7 +46,7 @@ function App() {
       {/* Content wrapper - sidebar durumuna göre dinamik margin */}
       <div
         className={`transition-all duration-300 ${
-          isSidebarOpen ? "lg:ml-64" : "lg:ml-16"
+          user ? (isSidebarOpen ? "lg:ml-64" : "lg:ml-16") : ""
         }`}
       >
         <RouterContainer />

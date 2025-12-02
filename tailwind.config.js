@@ -24,6 +24,15 @@ module.exports = withMT({
           900: "#111827",
         },
       },
+      fontFamily: {
+        sans: [
+          "__Plus_Jakarta_Sans_a182b8",
+          "__Plus_Jakarta_Sans_Fallback_a182b8",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
+      },
     },
     namedGroups: ["tooltip"],
   },
