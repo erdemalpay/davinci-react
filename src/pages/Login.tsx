@@ -80,11 +80,12 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#f5f5f0] via-[#e8e8dd] to-[#f5f5f0] relative flex items-center justify-center overflow-hidden">
       {/* Animated background pattern */}
       <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none animate-pulse"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none animate-pulse"
         style={{
           backgroundImage: `url('/src/assets/login/logo.png')`,
           backgroundRepeat: 'repeat',
-          backgroundSize: '200px auto',
+          backgroundSize: '250px auto',
+          backgroundPosition: '-25px 0',
           filter: 'grayscale(1) brightness(0.5)',
           animation: 'float 20s ease-in-out infinite',
         }}
@@ -109,7 +110,7 @@ const Login = () => {
           <div
             className="absolute pointer-events-none"
             style={{
-              opacity: 0.15,
+              opacity: 0.2,
               transform: showPassword
                 ? 'scaleX(-1) translate(-12px, -8px)'
                 : 'scaleX(-1) translate(0px, 0px)',
