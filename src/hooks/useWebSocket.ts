@@ -85,11 +85,6 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", (data) => {
-      const tableId =
-        typeof data?.order?.table === "number"
-          ? data?.order?.table
-          : data?.order?.table?._id;
-      queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       if (
         data?.order?.createdBy === user?._id ||
@@ -129,6 +124,7 @@ export function useWebSocket() {
     });
 
     socket.on("collectionChanged", (data) => {
+      // queryClient.invalidateQueries([`${Paths.Order}/collection/today`]);
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
         data.collection.table,
@@ -318,7 +314,6 @@ export function useWebSocket() {
     });
 
     socket.on("createMultipleOrder", (data) => {
-      queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
 
       if (

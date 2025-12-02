@@ -46,7 +46,6 @@ import {
   useConsumptStockMutation,
   useGetAccountStocks,
 } from "../utils/api/account/stock";
-import { useGetGamesMinimal } from "../utils/api/game";
 import {
   useGetAllLocations,
   useGetStockLocations,
@@ -61,6 +60,7 @@ import {
   useGetTodayOrders,
   useOrderMutations,
 } from "../utils/api/order/order";
+import { useGetTodayCollections } from "../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { useGetReservations } from "../utils/api/reservations";
@@ -108,7 +108,7 @@ const Tables = () => {
   const locations = useGetStoreLocations();
   const allLocations = useGetAllLocations();
   const navigate = useNavigate();
-  const games = useGetGamesMinimal();
+  const todayCollections = useGetTodayCollections();
   const visits = useGetVisits();
   const stockLocations = useGetStockLocations();
   const products = useGetAllAccountProducts();
@@ -1550,23 +1550,29 @@ const Tables = () => {
           {tableColumns?.map((tablesColumns, idx) => (
             <div key={idx + "tablecolumns"}>
               {tablesColumns.map((table) => {
-
                 return (
-                <div
-                  id={`table-large-${table?._id}`}
-                  key={table?._id || table?.startHour}
-                >
-                  <TableCard
-                    table={table}
-                    mentors={mentors}
-                    showAllGameplays={showAllGameplays}
-                    showAllOrders={showAllOrders}
-                    showServedOrders={showServedOrders}
-                    tables={tables}
-                    tableOrdersProp={todayOrders?.filter((order) => (order.table as Table)?._id === table?._id)}
-                  />
-                </div>
-                )})}
+                  <div
+                    id={`table-large-${table?._id}`}
+                    key={table?._id || table?.startHour}
+                  >
+                    <TableCard
+                      table={table}
+                      mentors={mentors}
+                      showAllGameplays={showAllGameplays}
+                      showAllOrders={showAllOrders}
+                      showServedOrders={showServedOrders}
+                      tables={tables}
+                      tableOrdersProp={todayOrders?.filter(
+                        (order) => (order.table as Table)?._id === table?._id
+                      )}
+                      tableCollectionsProp={todayCollections?.filter(
+                        (collection) =>
+                          (collection.table as Table)?._id === table?._id
+                      )}
+                    />
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -1583,7 +1589,13 @@ const Tables = () => {
                 showAllOrders={showAllOrders}
                 showServedOrders={showServedOrders}
                 tables={tables}
-                tableOrdersProp={todayOrders?.filter((order) => (order.table as Table)?._id === table?._id)}
+                tableOrdersProp={todayOrders?.filter(
+                  (order) => (order.table as Table)?._id === table?._id
+                )}
+                tableCollectionsProp={todayCollections?.filter(
+                  (collection) =>
+                    (collection.table as Table)?._id === table?._id
+                )}
               />
             </div>
           ))}
@@ -1848,7 +1860,9 @@ const Tables = () => {
       {isTableOrderPaymentModalOpen && tableOrderPaymentTableId && (
         <OrderPaymentModal
           tableId={tableOrderPaymentTableId}
-          tableOrdersProp={todayOrders?.filter((order) => order.table === tableOrderPaymentTableId)}
+          tableOrdersProp={todayOrders?.filter(
+            (order) => order.table === tableOrderPaymentTableId
+          )}
           tables={tables}
           close={() => {
             setExpandedRows({});
@@ -1856,6 +1870,10 @@ const Tables = () => {
             setIsTableOrderPaymentModalOpen(false);
             setTableOrderPaymentTableId(null);
           }}
+          // tableCollectionsProp={todayCollections?.filter(
+          //   (collection) =>
+          //     (collection.table as Table)?._id === tableOrderPaymentTableId
+          // )}
         />
       )}
 
@@ -1966,7 +1984,9 @@ const Tables = () => {
       )}
       {isTakeAwayPaymentModalOpen && takeawayTableId !== 0 && (
         <OrderPaymentModal
-          tableOrdersProp={todayOrders?.filter((order) => order.table === takeawayTableId)}
+          tableOrdersProp={todayOrders?.filter(
+            (order) => order.table === takeawayTableId
+          )}
           tableId={takeawayTableId}
           tables={tables}
           close={() => {
