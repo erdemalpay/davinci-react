@@ -128,15 +128,6 @@ export function useWebSocket() {
       }
     });
 
-    socket.on("orderUpdated", (data) => {
-      const tableId =
-        typeof data?.order?.table === "number"
-          ? data?.order?.table
-          : data?.order?.table._id;
-      queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
-      queryClient.invalidateQueries([`${Paths.Order}/today`]);
-    });
-
     socket.on("collectionChanged", (data) => {
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
@@ -165,22 +156,22 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
 
- socket.on("tableCreated", (data) => {
-  const locationId = data.table.location;
-  const date = data.table.date;
-  queryClient.setQueryData<TablesByLocation>(
-    [Paths.Tables, date],
-    (old) => {
-      const prev = old ?? {};
-      const prevForLocation = prev[locationId] ?? [];
-      const newTable = data.table; 
-      return {
-        ...prev,
-        [locationId]: [...prevForLocation, newTable], 
-      };
-    }
-  );
-});
+    socket.on("tableCreated", (data) => {
+      const locationId = data.table.location;
+      const date = data.table.date;
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          const prev = old ?? {};
+          const prevForLocation = prev[locationId] ?? [];
+          const newTable = data.table;
+          return {
+            ...prev,
+            [locationId]: [...prevForLocation, newTable],
+          };
+        }
+      );
+    });
 
     socket.on("tableClosed", (data) => {
       const locationId = data.table.location;
@@ -215,8 +206,8 @@ export function useWebSocket() {
       const gameplay = data.gameplay;
       const locationId = gameplay.location;
       const date = gameplay.date;
-      const table=data.table
-      if (!gameplay ||  !locationId || !date) return;
+      const table = data.table;
+      if (!gameplay || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
@@ -249,7 +240,7 @@ export function useWebSocket() {
       const gameplayId = data.gameplay._id;
       const locationId = data.gameplay.location;
       const date = data.gameplay.date;
-      const table=data.table
+      const table = data.table;
       if (!gameplayId || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -283,7 +274,7 @@ export function useWebSocket() {
       const gameplay = data.gameplay;
       const locationId = gameplay.location;
       const date = gameplay.date;
-      const table=data.table
+      const table = data.table;
       if (!gameplay || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -313,19 +304,18 @@ export function useWebSocket() {
     });
 
     socket.on("tableChanged", (data) => {
-  const locationId = data.table.location;
-  const date = data.table.date;
-  queryClient.setQueryData<TablesByLocation>(
-    [Paths.Tables, date],
-    (old) => {
-      if (!old) return old;
-      const { [locationId]: _, ...rest } = old;
-      return rest;    
-    }
-  );
-  queryClient.invalidateQueries({ queryKey: [Paths.Tables, date] });
-});
-
+      const locationId = data.table.location;
+      const date = data.table.date;
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          if (!old) return old;
+          const { [locationId]: _, ...rest } = old;
+          return rest;
+        }
+      );
+      queryClient.invalidateQueries({ queryKey: [Paths.Tables, date] });
+    });
 
     socket.on("createMultipleOrder", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
@@ -376,15 +366,15 @@ export function useWebSocket() {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === "visible") {
         // Force invalidate and refetch specific queries even with staleTime: Infinity
-        await queryClient.invalidateQueries({ 
+        await queryClient.invalidateQueries({
           queryKey: [Paths.Tables],
-          refetchType: 'active'
+          refetchType: "active",
         });
-        await queryClient.invalidateQueries({ 
+        await queryClient.invalidateQueries({
           queryKey: [`${Paths.Order}/today`],
-          refetchType: 'active'
+          refetchType: "active",
         });
-        
+
         // Reconnect if not connected
         if (!socket.connected) {
           setConnectTrigger((prev) => prev + 1);
