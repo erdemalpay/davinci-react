@@ -447,17 +447,38 @@ export function useCancelIkasOrderMutation() {
 export function useCreateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
+
   return useMutation(createMultipleOrder, {
-    onMutate: async () => {
+    onMutate: async (payload: CreateMultipleOrderPayload) => {
       await queryClient.cancelQueries(queryKey);
+
+      // Snapshot previous value
+      const previousOrders = queryClient.getQueryData<Order[]>(queryKey);
+
+      // Optimistically add new orders
+      if (previousOrders && payload.orders) {
+        const newOrders = payload.orders.map((order, index) => ({
+          ...order,
+          _id: -Date.now() - index, // Temporary negative ID
+          table: payload.table._id,
+          createdAt: new Date(),
+        })) as Order[];
+
+        queryClient.setQueryData<Order[]>(queryKey, [...previousOrders, ...newOrders]);
+      }
+
+      return { previousOrders };
     },
-    // onSettled: () => {
-    //   queryClient.invalidateQueries(queryKey);
-    // },
-    onError: (_err: any) => {
-      const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+    onError: (_err: any, _payload, context) => {
+      // Rollback on error
+      if (context?.previousOrders) {
+        queryClient.setQueryData<Order[]>(queryKey, context.previousOrders);
+      }
+      const errorMessage = _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
     },
   });
 }
@@ -465,17 +486,36 @@ export function useCreateMultipleOrderMutation() {
 export function useUpdateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
+
   return useMutation(updateMultipleOrders, {
-    onMutate: async () => {
+    onMutate: async (payload: UpdateMultipleOrder) => {
       await queryClient.cancelQueries(queryKey);
+
+      // Snapshot previous value
+      const previousOrders = queryClient.getQueryData<Order[]>(queryKey);
+
+      // Optimistically update
+      if (previousOrders) {
+        const updatedOrders = previousOrders.map((order) =>
+          payload.ids.includes(order._id)
+            ? { ...order, ...payload.updates }
+            : order
+        );
+        queryClient.setQueryData<Order[]>(queryKey, updatedOrders);
+      }
+
+      return { previousOrders };
     },
-    // onSettled: () => {
-    //   queryClient.invalidateQueries(queryKey);
-    // },
-    onError: (_err: any) => {
-      const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+    onError: (_err: any, _payload, context) => {
+      // Rollback on error
+      if (context?.previousOrders) {
+        queryClient.setQueryData<Order[]>(queryKey, context.previousOrders);
+      }
+      const errorMessage = _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
     },
   });
 }
