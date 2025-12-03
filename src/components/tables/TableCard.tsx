@@ -25,7 +25,7 @@ import {
   Table,
   TableStatus,
   TableTypes,
-  User
+  User,
 } from "../../types";
 import { useGetAllAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
@@ -74,7 +74,7 @@ export interface TableCardProps {
   showServedOrders?: boolean;
   tables: Table[];
   tableOrdersProp?: Order[];
-
+  // tableCollectionsProp?: OrderCollection[];
 }
 
 export function TableCard({
@@ -85,9 +85,10 @@ export function TableCard({
   showServedOrders = false,
   tables,
   tableOrdersProp,
-}: TableCardProps) {
+}: // tableCollectionsProp,
+TableCardProps) {
   const { t } = useTranslation();
- const games = useGetGamesMinimal(); 
+  const games = useGetGamesMinimal();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [
     isTableNameEditConfirmationDialogOpen,
@@ -97,7 +98,7 @@ export function TableCard({
     useState(false);
   let tableOrders: Order[] = [];
   if (table?._id) {
-    tableOrders = tableOrdersProp??useGetTableOrders(table?._id);
+    tableOrders = tableOrdersProp ?? useGetTableOrders(table?._id);
   }
   const categories = useGetAllCategories();
   const kitchens = useGetKitchens();
@@ -1110,7 +1111,9 @@ export function TableCard({
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
-          allowOptionalSubmitForActivityTable={table.type === TableTypes.ACTIVITY}
+          allowOptionalSubmitForActivityTable={
+            table.type === TableTypes.ACTIVITY
+          }
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
@@ -1118,7 +1121,12 @@ export function TableCard({
           }}
           cancelButtonLabel={t("Close")}
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
-          anotherPanel={<OrderListForPanel table={table} tableOrdersProp={tableOrdersProp} />}
+          anotherPanel={
+            <OrderListForPanel
+              table={table}
+              tableOrdersProp={tableOrdersProp}
+            />
+          }
           additionalButtons={[
             {
               label: t("Add"),
@@ -1252,6 +1260,7 @@ export function TableCard({
             setIsOrderPaymentModalOpen(false);
           }}
           // tableOrdersProp={tableOrders}
+          // tableCollectionsProp={tableCollectionsProp}
         />
       )}
       {isTableCombineOpen && (

@@ -16,7 +16,7 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "userChanged",
-    invalidateKeys: [`${Paths.Users}`,`${Paths.Users}/minimal`],
+    invalidateKeys: [`${Paths.Users}`, `${Paths.Users}/minimal`],
   },
   {
     event: "itemChanged",
@@ -65,7 +65,7 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "gameChanged",
-    invalidateKeys: [`${Paths.Games}`,`${Paths.Games}/minimal`],
+    invalidateKeys: [`${Paths.Games}`, `${Paths.Games}/minimal`],
   },
   {
     event: "pageChanged",

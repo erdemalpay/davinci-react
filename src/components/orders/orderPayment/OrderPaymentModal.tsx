@@ -15,7 +15,7 @@ import {
   OrderStatus,
   TURKISHLIRA,
   Table,
-  TableTypes
+  TableTypes,
 } from "../../../types";
 import { useGetAllAccountProducts } from "../../../utils/api/account/product";
 import { useGetAccountStocks } from "../../../utils/api/account/stock";
@@ -36,7 +36,11 @@ import {
   useCloseTableMutation,
   useReopenTableMutation,
 } from "../../../utils/api/table";
-import { MinimalUser, useGetUser, useGetUsersMinimal } from "../../../utils/api/user";
+import {
+  MinimalUser,
+  useGetUser,
+  useGetUsersMinimal,
+} from "../../../utils/api/user";
 import { useGetVisits } from "../../../utils/api/visit";
 import {
   lockBodyScroll,
@@ -81,7 +85,7 @@ const OrderPaymentModal = ({
   const user = useGetUser();
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
-  const orders =tableOrdersProp??useGetTableOrders(tableId);
+  const orders = tableOrdersProp ?? useGetTableOrders(tableId);
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
@@ -441,7 +445,10 @@ const OrderPaymentModal = ({
 
     return items
       .filter((menuItem) => {
-        if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
+        if (
+          orderForm.category &&
+          menuItem.category !== Number(orderForm.category)
+        ) {
           return false;
         }
 
@@ -453,7 +460,10 @@ const OrderPaymentModal = ({
           return false;
         }
 
-        if (table?.isOnlineSale && !getItem(menuItem.category, categories)?.isOnlineOrder) {
+        if (
+          table?.isOnlineSale &&
+          !getItem(menuItem.category, categories)?.isOnlineOrder
+        ) {
           return false;
         }
 
@@ -575,7 +585,10 @@ const OrderPaymentModal = ({
               return false;
             }
 
-            if (table?.isOnlineSale && !getItem(menuItem.category, categories)?.isOnlineOrder) {
+            if (
+              table?.isOnlineSale &&
+              !getItem(menuItem.category, categories)?.isOnlineOrder
+            ) {
               return false;
             }
 
@@ -937,7 +950,9 @@ const OrderPaymentModal = ({
         )}
         cancelButtonLabel="Close"
         anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
-        anotherPanel={<OrderListForPanel table={table} tableOrdersProp={tableOrdersProp} />}
+        anotherPanel={
+          <OrderListForPanel table={table} tableOrdersProp={tableOrdersProp} />
+        }
         additionalButtons={[
           {
             label: "Add",

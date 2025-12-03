@@ -94,7 +94,17 @@ export function useGetSummaryCollectionTotal() {
     )}`
   );
 }
-
+// export function useGetTodayCollections() {
+//   const { selectedDate } = useDateContext();
+//   return useGetList<OrderCollection>(
+//     `${Paths.Order}/collection/today?after=${selectedDate}`,
+//     [`${Paths.Order}/collection/today`, selectedDate],
+//     false, // isStaleTimeZero - keep staleTime as Infinity
+//     {
+//       refetchOnWindowFocus: true,
+//     }
+//   );
+// }
 function createRequest(
   itemDetails: Partial<OrderCollection>
 ): Promise<OrderCollection> {
