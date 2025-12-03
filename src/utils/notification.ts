@@ -6,7 +6,6 @@ export const getNotificationLanguageMessage = (
   notification: Notification
 ) => {
   const lang = userLang === "tr-TR" ? "tr" : "en";
-  console.log("notification.message", notification.message, userLang);
   if (typeof notification.message === "string") {
     return notification.message;
   }
