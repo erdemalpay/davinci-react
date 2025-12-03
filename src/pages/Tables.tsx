@@ -1859,9 +1859,6 @@ const Tables = () => {
       {isTableOrderPaymentModalOpen && tableOrderPaymentTableId && (
         <OrderPaymentModal
           tableId={tableOrderPaymentTableId}
-          tableOrdersProp={todayOrders?.filter(
-            (order) => order.table === tableOrderPaymentTableId
-          )}
           tables={tables}
           close={() => {
             setExpandedRows({});
@@ -1983,9 +1980,6 @@ const Tables = () => {
       )}
       {isTakeAwayPaymentModalOpen && takeawayTableId !== 0 && (
         <OrderPaymentModal
-          tableOrdersProp={todayOrders?.filter(
-            (order) => order.table === takeawayTableId
-          )}
           tableId={takeawayTableId}
           tables={tables}
           close={() => {
