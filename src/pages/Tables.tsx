@@ -1859,9 +1859,6 @@ const Tables = () => {
       {isTableOrderPaymentModalOpen && tableOrderPaymentTableId && (
         <OrderPaymentModal
           tableId={tableOrderPaymentTableId}
-          tableOrdersProp={todayOrders?.filter(
-            (order) => order.table === tableOrderPaymentTableId
-          )}
           tables={tables}
           close={() => {
             setExpandedRows({});
