@@ -138,7 +138,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       formKey: "isLimitedTime",
       label: t("Limited Time"),
       placeholder: t("Limited Time"),
-      required: true,
+      required: false,
       isTopFlexRow: true,
     },
     {
@@ -146,7 +146,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       formKey: "showItemProductionOnMenu",
       label: t("Show Sub Products"),
       placeholder: t("Show Sub Products"),
-      required: true,
+      required: false,
       isTopFlexRow: true,
     },
     {
