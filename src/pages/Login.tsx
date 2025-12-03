@@ -8,6 +8,9 @@ import { LoginCredentials, useLogin } from "../utils/api/auth";
 import { ACCESS_TOKEN } from "../utils/api/axiosClient";
 import { Paths } from "../utils/api/factory";
 import { getUserWithToken } from "../utils/api/user";
+import logoImage from "../assets/login/logo.png";
+import davinciImage from "../assets/login/davinci.png";
+import davinci2Image from "../assets/login/davinci2.png";
 
 interface FormElements extends HTMLFormControlsCollection {
   username: HTMLInputElement;
@@ -82,7 +85,7 @@ const Login = () => {
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none animate-pulse"
         style={{
-          backgroundImage: `url('/src/assets/login/logo.png')`,
+          backgroundImage: `url(${logoImage})`,
           backgroundRepeat: 'repeat',
           backgroundSize: '250px auto',
           backgroundPosition: '-25px 0',
@@ -124,7 +127,7 @@ const Login = () => {
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: `url('/src/assets/login/davinci.png')`,
+                backgroundImage: `url(${davinciImage})`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: '-80px center',
                 backgroundSize: 'contain',
@@ -135,7 +138,7 @@ const Login = () => {
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: `url('/src/assets/login/davinci2.png')`,
+                backgroundImage: `url(${davinci2Image})`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: '-80px center',
                 backgroundSize: 'contain',
@@ -204,9 +207,9 @@ const Login = () => {
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="w-5 h-5" />
+                    <EyeSlashIcon className="w-7 h-7" />
                   ) : (
-                    <EyeIcon className="w-5 h-5" />
+                    <EyeIcon className="w-7 h-7" />
                   )}
                 </button>
               </div>
