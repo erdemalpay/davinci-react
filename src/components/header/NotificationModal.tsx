@@ -2,6 +2,7 @@ import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoNavigate } from "react-icons/io5";
 import {
   MdCheckBox,
   MdCheckCircle,
@@ -27,6 +28,7 @@ import {
 import { useGetUser } from "../../utils/api/user";
 import { getNotificationLanguageMessage } from "../../utils/notification";
 import Loading from "../common/Loading";
+
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -162,13 +164,32 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
         <div className="flex flex-col gap-2 justify-center">
           {notification.event && (
             <div
-              className="inline-flex  items-center self-start px-2 py-0.5 rounded font-medium text-[11px] sm:text-xs"
+              className="inline-flex justify-between  w-fit gap-4 items-center self-start px-2 py-0.5 rounded font-medium text-[11px] sm:text-xs"
               style={{
                 backgroundColor: solidColor,
                 color: "white",
               }}
             >
-              {t(notification.event)}
+              <span>{t(notification.event)}</span>
+              {typeof notification?.message === "object" &&
+                notification.message.params?.navigate && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      if (
+                        typeof notification?.message === "object" &&
+                        notification.message.params?.navigate
+                      ) {
+                        navigate(notification.message.params.navigate);
+                      } else {
+                        console.warn("Navigate path is undefined or invalid.");
+                      }
+                    }}
+                  >
+                    <IoNavigate className="text-lg sm:text-xl text-blue-500" />
+                  </button>
+                )}
             </div>
           )}
 
