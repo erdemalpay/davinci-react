@@ -1983,9 +1983,6 @@ const Tables = () => {
       )}
       {isTakeAwayPaymentModalOpen && takeawayTableId !== 0 && (
         <OrderPaymentModal
-          tableOrdersProp={todayOrders?.filter(
-            (order) => order.table === takeawayTableId
-          )}
           tableId={takeawayTableId}
           tables={tables}
           close={() => {
