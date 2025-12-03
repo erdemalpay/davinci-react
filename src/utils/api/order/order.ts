@@ -127,12 +127,15 @@ interface CancelIkasOrder {
 
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
+  const { todaysOrderDate } = useOrderContext();
   const { updateItem: updateOrder, createItem: createOrder } =
     useMutationApi<Order>({
       baseQuery: baseUrl,
+      isAdditionalInvalidate: true,
       additionalInvalidates: [
         [`${Paths.Order}/query`],
         [`${Paths.Order}/collection/query`],
+        [`${Paths.Order}/today`, todaysOrderDate],
       ],
     });
 
@@ -445,15 +448,18 @@ export function useCancelIkasOrderMutation() {
 }
 
 export function useCreateMultipleOrderMutation() {
-  const queryKey = [`${Paths.Order}/today`];
+  const { todaysOrderDate } = useOrderContext();
+  const { selectedDate } = useDateContext();
   const queryClient = useQueryClient();
   return useMutation(createMultipleOrder, {
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries([`${Paths.Order}/today`, selectedDate]);
+      await queryClient.cancelQueries([`${Paths.Order}/today`, todaysOrderDate]);
     },
-    // onSettled: () => {
-    //   queryClient.invalidateQueries(queryKey);
-    // },
+    onSettled: () => {
+      queryClient.invalidateQueries([`${Paths.Order}/today`, selectedDate]);
+      queryClient.invalidateQueries([`${Paths.Order}/today`, todaysOrderDate]);
+    },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
@@ -463,19 +469,38 @@ export function useCreateMultipleOrderMutation() {
 }
 
 export function useUpdateMultipleOrderMutation() {
-  const queryKey = [`${Paths.Order}/today`];
+  const { todaysOrderDate } = useOrderContext();
+  const queryKey = [`${Paths.Order}/today`, todaysOrderDate];
   const queryClient = useQueryClient();
   return useMutation(updateMultipleOrders, {
-    onMutate: async () => {
+    onMutate: async (payload: UpdateMultipleOrder) => {
       await queryClient.cancelQueries(queryKey);
+
+      // Snapshot the previous value
+      const previousOrders = queryClient.getQueryData<Order[]>(queryKey) || [];
+
+      // Optimistically update the orders
+      const updatedOrders = previousOrders.map((order) =>
+        payload.ids.includes(order._id)
+          ? { ...order, ...payload.updates }
+          : order
+      );
+
+      queryClient.setQueryData<Order[]>(queryKey, updatedOrders);
+
+      return { previousOrders };
     },
-    // onSettled: () => {
-    //   queryClient.invalidateQueries(queryKey);
-    // },
-    onError: (_err: any) => {
+    onError: (_err: any, _payload, context) => {
+      // Rollback to previous value on error
+      if (context?.previousOrders) {
+        queryClient.setQueryData<Order[]>(queryKey, context.previousOrders);
+      }
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
     },
   });
 }
