@@ -513,6 +513,8 @@ const ServiceInvoice = () => {
       },
       { key: t("Is After Count"), isSortable: true },
       { key: t("Unit Price"), isSortable: false },
+      { key: t("Vat") + "%", isSortable: true },
+      { key: t("Discount") + "%", isSortable: true },
       {
         key: t("Total Expense"),
         isSortable: true,
@@ -664,6 +666,8 @@ const ServiceInvoice = () => {
         );
       },
     },
+    { key: "vat", className: "min-w-32 pr-2" },
+    { key: "discount", className: "min-w-32 pr-2" },
     {
       key: "totalExpense",
       node: (row: any) => {
@@ -701,7 +705,7 @@ const ServiceInvoice = () => {
             },
             {
               type: InputTypes.NUMBER,
-              formKey: "kdv",
+              formKey: "vat",
               label: t("Vat") + "%",
               placeholder: t("Vat") + "%",
               required: true,
@@ -717,25 +721,26 @@ const ServiceInvoice = () => {
           formKeys={[
             ...formKeys,
             { key: "price", type: FormKeyTypeEnum.NUMBER },
-            { key: "kdv", type: FormKeyTypeEnum.NUMBER },
+            { key: "vat", type: FormKeyTypeEnum.NUMBER },
           ]}
           submitFunction={() => {
-            serviceExpenseForm?.price &&
-              serviceExpenseForm?.kdv &&
-              createAccountExpense({
-                ...serviceExpenseForm,
-                type: ExpenseTypes.NONSTOCKABLE,
-                paymentMethod:
-                  serviceExpenseForm?.paymentMethod === NOTPAID
-                    ? ""
-                    : serviceExpenseForm?.paymentMethod,
-                isPaid:
-                  serviceExpenseForm?.paymentMethod === NOTPAID ? false : true,
-                totalExpense:
-                  Number(serviceExpenseForm?.price) +
-                  Number(serviceExpenseForm?.kdv) *
-                    (Number(serviceExpenseForm?.price) / 100),
-              });
+            const discountedPrice =
+              Number(serviceExpenseForm.price) -
+              (Number(serviceExpenseForm.discount) / 100) *
+                Number(serviceExpenseForm.price);
+            createAccountExpense({
+              ...serviceExpenseForm,
+              type: ExpenseTypes.NONSTOCKABLE,
+              paymentMethod:
+                serviceExpenseForm?.paymentMethod === NOTPAID
+                  ? ""
+                  : serviceExpenseForm?.paymentMethod,
+              isPaid:
+                serviceExpenseForm?.paymentMethod === NOTPAID ? false : true,
+              totalExpense:
+                discountedPrice +
+                Number(serviceExpenseForm?.vat) * (discountedPrice / 100),
+            });
             setServiceExpenseForm({});
           }}
           submitItem={createAccountExpense as any}

@@ -24,7 +24,8 @@ export interface CreateMultipleExpense {
   paymentMethod: string;
   quantity: number;
   price: number;
-  kdv: number;
+  vat?: number;
+  discount?: number;
   isStockIncrement: boolean;
   note?: string;
 }

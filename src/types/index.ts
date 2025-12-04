@@ -375,11 +375,12 @@ export type AccountOverallExpense = {
   note?: string;
   location: number;
   price?: number;
-  kdv?: number;
+  vat?: number;
   service: string;
   type: string;
   paymentMethod: string;
   createdAt?: Date;
+  discount?: number;
 };
 
 export type AccountExpense = {
@@ -396,12 +397,13 @@ export type AccountExpense = {
   note?: string;
   location: number;
   price?: number;
-  kdv?: number;
+  vat?: number;
   paymentMethod: string;
   isPaid: boolean;
   isStockIncrement?: boolean;
   createdAt?: Date;
   isAfterCount: boolean;
+  discount?: number;
 };
 
 export type AccountStock = {
@@ -535,7 +537,7 @@ export enum DisabledConditionEnum {
   ACCOUNTING_ORDERNOTES = "ordernotes",
   ACCOUNTING_ACTIONS = "actions",
   MENU = "menu",
-  MENU_CATEGORIES = "menu_categories"
+  MENU_CATEGORIES = "menu_categories",
 }
 
 export enum ActionEnum {
@@ -582,7 +584,6 @@ export enum ActionEnum {
   SHOW_ON_MENU = "show_on_menu",
   SHOW_IKAS_CATEGORIES = "show_ikas_categories",
   POPULARIZE = "popularize",
-
 }
 
 export type Membership = {
