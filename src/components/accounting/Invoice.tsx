@@ -614,6 +614,8 @@ const Invoice = () => {
       { key: t("Is After Count"), isSortable: true },
       { key: t("Stock Increment"), isSortable: true },
       { key: t("Unit Price"), isSortable: false },
+      { key: t("Vat") + "%", isSortable: true },
+      { key: t("Discount") + "%", isSortable: true },
       {
         key: t("Total Expense"),
         isSortable: true,
@@ -797,6 +799,8 @@ const Invoice = () => {
         isParseFloat: true,
         className: "min-w-32",
       },
+      { key: "vat", className: "min-w-32 pr-2" },
+      { key: "discount", className: "min-w-32 pr-2" },
       {
         key: "totalExpense",
         isParseFloat: true,
@@ -827,9 +831,16 @@ const Invoice = () => {
             },
             {
               type: InputTypes.NUMBER,
-              formKey: "kdv",
+              formKey: "vat",
               label: t("Vat") + "%",
               placeholder: t("Vat") + "%",
+              required: true,
+            },
+            {
+              type: InputTypes.NUMBER,
+              formKey: "discount",
+              label: t("Discount") + "%",
+              placeholder: t("Discount") + "%",
               required: true,
             },
             {
@@ -843,28 +854,30 @@ const Invoice = () => {
           formKeys={[
             ...formKeys,
             { key: "price", type: FormKeyTypeEnum.NUMBER },
-            { key: "kdv", type: FormKeyTypeEnum.NUMBER },
+            { key: "vat", type: FormKeyTypeEnum.NUMBER },
+            { key: "discount", type: FormKeyTypeEnum.NUMBER },
           ]}
           additionalCancelFunction={() => {
             setProductExpenseForm({});
           }}
           submitFunction={() => {
-            productExpenseForm.price &&
-              productExpenseForm.kdv &&
-              createAccountExpense({
-                ...productExpenseForm,
-                paymentMethod:
-                  productExpenseForm.paymentMethod === NOTPAID
-                    ? ""
-                    : productExpenseForm.paymentMethod,
-                isPaid:
-                  productExpenseForm.paymentMethod === NOTPAID ? false : true,
-                type: ExpenseTypes.STOCKABLE,
-                totalExpense:
-                  Number(productExpenseForm.price) +
-                  Number(productExpenseForm.kdv) *
-                    (Number(productExpenseForm.price) / 100),
-              });
+            const discountedPrice =
+              Number(productExpenseForm.price) -
+              (Number(productExpenseForm.discount) / 100) *
+                Number(productExpenseForm.price);
+            createAccountExpense({
+              ...productExpenseForm,
+              paymentMethod:
+                productExpenseForm.paymentMethod === NOTPAID
+                  ? ""
+                  : productExpenseForm.paymentMethod,
+              isPaid:
+                productExpenseForm.paymentMethod === NOTPAID ? false : true,
+              type: ExpenseTypes.STOCKABLE,
+              totalExpense:
+                discountedPrice +
+                Number(productExpenseForm.vat) * (discountedPrice / 100),
+            });
             setProductExpenseForm({});
           }}
           submitItem={createAccountExpense as any}

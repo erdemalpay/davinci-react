@@ -553,6 +553,8 @@ const AllExpenses = () => {
         correspondingKey: "isAfterCount",
       },
       { key: t("Unit Price"), isSortable: false },
+      { key: t("Vat") + "%", isSortable: true },
+      { key: t("Discount") + "%", isSortable: true },
       {
         key: t("Total Expense"),
         isSortable: true,
@@ -662,6 +664,8 @@ const AllExpenses = () => {
           );
         },
       },
+      { key: "vat", className: "min-w-32 pr-2" },
+      { key: "discount", className: "min-w-32 pr-2" },
       {
         key: "totalExpense",
         node: (row: any) => {
@@ -702,9 +706,16 @@ const AllExpenses = () => {
             },
             {
               type: InputTypes.NUMBER,
-              formKey: "kdv",
+              formKey: "vat",
               label: t("Vat") + "%",
               placeholder: t("Vat") + "%",
+              required: true,
+            },
+            {
+              type: InputTypes.NUMBER,
+              formKey: "discount",
+              label: t("Discount") + "%",
+              placeholder: t("Discount") + "%",
               required: true,
             },
             {
@@ -718,25 +729,26 @@ const AllExpenses = () => {
           formKeys={[
             ...formKeys,
             { key: "price", type: FormKeyTypeEnum.NUMBER },
-            { key: "kdv", type: FormKeyTypeEnum.NUMBER },
+            { key: "vat", type: FormKeyTypeEnum.NUMBER },
+            { key: "discount", type: FormKeyTypeEnum.NUMBER },
           ]}
           submitFunction={() => {
-            allExpenseForm.price &&
-              allExpenseForm.kdv &&
-              allExpenseForm.quantity &&
-              createAccountExpense({
-                ...allExpenseForm,
-                paymentMethod:
-                  allExpenseForm.paymentMethod === NOTPAID
-                    ? ""
-                    : allExpenseForm.paymentMethod,
-                isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
-                quantity: Number(allExpenseForm.quantity),
-                totalExpense:
-                  Number(allExpenseForm.price) +
-                  Number(allExpenseForm.kdv) *
-                    (Number(allExpenseForm.price) / 100),
-              });
+            const discountedPrice =
+              Number(allExpenseForm.price) -
+              (Number(allExpenseForm.discount) / 100) *
+                Number(allExpenseForm.price);
+            createAccountExpense({
+              ...allExpenseForm,
+              paymentMethod:
+                allExpenseForm.paymentMethod === NOTPAID
+                  ? ""
+                  : allExpenseForm.paymentMethod,
+              isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
+              quantity: Number(allExpenseForm.quantity),
+              totalExpense:
+                Number(discountedPrice) +
+                Number(allExpenseForm.vat) * (Number(discountedPrice) / 100),
+            });
             setAllExpenseForm({});
           }}
           additionalCancelFunction={() => {
