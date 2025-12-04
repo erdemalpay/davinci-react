@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
 import { TableTypes } from "../types";
 import { Paths } from "../utils/api/factory";
@@ -23,7 +23,6 @@ type TablesByLocation = Record<string, Table[]>;
 
 export function useWebSocket() {
   const queryClient = useQueryClient();
-  const [connectTrigger, setConnectTrigger] = useState(0);
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const {
@@ -366,29 +365,5 @@ export function useWebSocket() {
     socket.on("disconnect", () => {
       console.log("Disconnected from WebSocket");
     });
-
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === "visible") {
-        // Force invalidate and refetch specific queries even with staleTime: Infinity
-        await queryClient.invalidateQueries({
-          queryKey: [Paths.Tables],
-          refetchType: "active",
-        });
-        await queryClient.invalidateQueries({
-          queryKey: [`${Paths.Order}/today`],
-          refetchType: "active",
-        });
-
-        // Reconnect if not connected
-        if (!socket.connected) {
-          setConnectTrigger((prev) => prev + 1);
-        }
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      socket.disconnect();
-    };
-  }, [queryClient, user, selectedLocationId, connectTrigger]);
+  }, [queryClient, user, selectedLocationId]);
 }
