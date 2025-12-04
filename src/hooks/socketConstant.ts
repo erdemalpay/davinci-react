@@ -37,6 +37,7 @@ export const socketEventListeners: SocketEventType[] = [
       `${Paths.MenuItems}`,
       `${Paths.MenuPopular}`,
       `${Paths.Menu}/categories-all`,
+      `${Paths.MenuItems}/all`,
     ],
   },
   {
