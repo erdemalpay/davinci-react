@@ -323,6 +323,7 @@ const FilterContext = createContext<FilterContextType>({
     asc: 1,
     vendor: "",
     brand: "",
+    search:""
   },
   initialFilterPanelServiceInvoiceFormElements: {
     product: [],
@@ -373,6 +374,7 @@ const FilterContext = createContext<FilterContextType>({
     asc: 1,
     vendor: "",
     brand: "",
+    search: "",
   },
   setFilterLossProductPanelFormElements: () => {},
   showProductStockHistoryFilters: false,
@@ -388,6 +390,7 @@ const FilterContext = createContext<FilterContextType>({
     asc: 1,
     vendor: "",
     brand: "",
+    search: "",
   },
   setFilterProductStockHistoryPanelFormElements: () => {},
   showPointHistoryFilters: false,
@@ -808,6 +811,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     asc: 1,
     vendor: "",
     brand: "",
+    search: "",
   });
   const [showProductStockHistoryFilters, setShowProductStockHistoryFilters] =
     useState(false);
@@ -857,6 +861,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     asc: 1,
     vendor: "",
     brand: "",
+    search: "",
   });
   const [
     filtershowGameStockLocationFiltersPanelFormElements,
@@ -889,6 +894,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     asc: 1,
     vendor: "",
     brand: "",
+    search:""
   });
   const [
     filterBaseQuantityPanelFormElements,

@@ -318,6 +318,14 @@ const ProductStockHistory = () => {
     ]
   );
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterProductStockHistoryPanelFormElements,
+      setFilterPanelFormElements: setFilterProductStockHistoryPanelFormElements,
+    };
+  }, [t, filterProductStockHistoryPanelFormElements, setFilterProductStockHistoryPanelFormElements]);
+
   useMemo(() => {
     setCurrentPage(1);
   }, [filterProductStockHistoryPanelFormElements, setCurrentPage]);
@@ -332,6 +340,7 @@ const ProductStockHistory = () => {
           filterPanel={filterPanel}
           filters={filters}
           isSearch={false}
+          outsideSearchProps={outsideSearchProps}
           title={t("Product Stock History")}
           isActionsActive={false}
           outsideSortProps={outsideSort}

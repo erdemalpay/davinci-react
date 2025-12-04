@@ -450,6 +450,14 @@ const EnterConsumption = () => {
     ]
   );
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterEnterConsumptionPanelFormElements,
+      setFilterPanelFormElements: setFilterEnterConsumptionPanelFormElements,
+    };
+  }, [t, filterEnterConsumptionPanelFormElements, setFilterEnterConsumptionPanelFormElements]);
+
   const actions = useMemo(
     () => [
       {
@@ -510,6 +518,7 @@ const EnterConsumption = () => {
           rowKeys={rowKeys}
           columns={columns}
           outsideSortProps={outsideSort}
+          outsideSearchProps={outsideSearchProps}
           rows={rows ?? []}
           filterPanel={filterPanel}
           filters={filters}
