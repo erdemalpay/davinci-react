@@ -214,6 +214,8 @@ export default function DateInput({
                   onMonthChange={setMonth}
                   captionLayout="dropdown"
                   locale={tr}
+                  fromYear={2000}
+                  toYear={dayjs().year() + 10}
                 />
               </div>
             )}
