@@ -365,5 +365,9 @@ export function useWebSocket() {
     socket.on("disconnect", () => {
       console.log("Disconnected from WebSocket");
     });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [queryClient, user, selectedLocationId]);
 }
