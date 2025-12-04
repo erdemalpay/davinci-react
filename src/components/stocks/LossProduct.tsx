@@ -559,6 +559,15 @@ const LossProduct = () => {
     }),
     [filterLossProductPanelFormElements, setFilterLossProductPanelFormElements]
   );
+
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterLossProductPanelFormElements,
+      setFilterPanelFormElements: setFilterLossProductPanelFormElements,
+    };
+  }, [t, filterLossProductPanelFormElements, setFilterLossProductPanelFormElements]);
+
   const actions = useMemo(
     () => [
       {
@@ -619,6 +628,7 @@ const LossProduct = () => {
           rowKeys={rowKeys}
           columns={columns}
           outsideSortProps={outsideSort}
+          outsideSearchProps={outsideSearchProps}
           rows={rows ?? []}
           filterPanel={filterPanel}
           filters={filters}

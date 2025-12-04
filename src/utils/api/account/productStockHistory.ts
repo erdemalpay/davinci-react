@@ -40,6 +40,7 @@ export function useGetAccountProductStockHistorys(
     filters.asc !== undefined && `asc=${filters.asc}`,
     filters.vendor && `vendor=${filters.vendor}`,
     filters.brand && `brand=${filters.brand}`,
+    filters.search && `search=${filters.search.trim()}`,
   ];
   const queryString = parts.filter(Boolean).join("&");
   return useGet<StockHistoryPayload>(
