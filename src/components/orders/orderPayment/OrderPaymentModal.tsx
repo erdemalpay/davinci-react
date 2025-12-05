@@ -112,8 +112,9 @@ const OrderPaymentModal = ({
     setSelectedNewOrders,
     selectedNewOrders,
   } = useOrderContext();
-  if (!orders || !users || !user) return <Loading />;
-  const [selectedUser, setSelectedUser] = useState<MinimalUser>(user);
+  const [selectedUser, setSelectedUser] = useState<MinimalUser | null>(
+    user || null
+  );
   const userOptions = activeUsers
     .map((user) => {
       const foundUser = users?.find((u) => u?._id === user);
@@ -188,8 +189,7 @@ const OrderPaymentModal = ({
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
-  if (!user || !orders || !collections) return null;
-
+  if (!orders || !users || !user || !selectedUser) return <Loading />;
   const allTableOrders = useMemo(
     () =>
       orders?.filter(
