@@ -57,26 +57,26 @@ const OrderTotal = ({
           ?.sort((a, b) => a.item - b.item)
           ?.map((order) => {
             const tempOrder = temporaryOrders.find(
-              (tempOrder) => tempOrder.order._id === order._id
+              (tempOrder) => tempOrder.order?._id === order?._id
             );
             const isOrderPaid = (tempOrder?.quantity ?? 0) !== 0;
             if (!isOrderPaid) return null;
             return (
               <div
-                key={order._id}
+                key={order?._id}
                 className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  hover:bg-gray-100 cursor-pointer"
                 onClick={() => {
                   if (!tempOrder) return;
                   if (tempOrder.quantity === 1 && !order?.division) {
                     setTemporaryOrders(
                       temporaryOrders.filter(
-                        (tempOrder) => tempOrder.order._id !== order._id
+                        (tempOrder) => tempOrder.order?._id !== order?._id
                       )
                     );
                   } else {
                     setTemporaryOrders(
                       temporaryOrders.map((tempOrder) => {
-                        if (tempOrder.order._id === order._id) {
+                        if (tempOrder.order?._id === order?._id) {
                           const newQuantity = order?.division
                             ? tempOrder.quantity -
                               order.quantity / order.division
@@ -140,11 +140,11 @@ const OrderTotal = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         const tempOrder = temporaryOrders.find(
-                          (tOrder) => tOrder.order._id === order._id
+                          (tOrder) => tOrder.order?._id === order?._id
                         );
                         setTemporaryOrders(
                           temporaryOrders.filter(
-                            (tOrder) => tOrder.order._id !== order._id
+                            (tOrder) => tOrder.order?._id !== order?._id
                           )
                         );
                         const newPaymentAmount =

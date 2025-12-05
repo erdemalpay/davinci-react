@@ -182,12 +182,12 @@ const OrderLists = ({
         }
         if (isProductDivideOpen) {
           createOrderForDivide({
-            tableId: table._id,
+            tableId: table?._id,
             orders: selectedOrders.map((selectedOrder) => {
               return {
                 totalQuantity: selectedOrder.totalQuantity,
                 selectedQuantity: selectedOrder.selectedQuantity,
-                orderId: selectedOrder.order._id,
+                orderId: selectedOrder.order?._id,
               };
             }),
           });
@@ -197,10 +197,10 @@ const OrderLists = ({
               return {
                 totalQuantity: selectedOrder.totalQuantity,
                 selectedQuantity: selectedOrder.selectedQuantity,
-                orderId: selectedOrder.order._id,
+                orderId: selectedOrder.order?._id,
               };
             }),
-            discount: selectedDiscount._id,
+            discount: selectedDiscount?._id,
             ...(selectedDiscount.percentage && {
               discountPercentage: selectedDiscount.percentage,
             }),
@@ -223,7 +223,7 @@ const OrderLists = ({
               return {
                 totalQuantity: selectedOrder.totalQuantity,
                 selectedQuantity: selectedOrder.selectedQuantity,
-                orderId: selectedOrder.order._id,
+                orderId: selectedOrder.order?._id,
               };
             }),
             transferredTableId: selectedTableTransfer,
