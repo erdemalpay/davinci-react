@@ -18,6 +18,7 @@ import { useOrderContext } from "../../context/Order.context";
 import {
   Gameplay,
   MenuItem,
+  OnlineLocationId,
   Order,
   OrderDiscountStatus,
   OrderStatus,
@@ -148,7 +149,7 @@ TableCardProps) {
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    location: table?.isOnlineSale ? 4 : selectedLocationId,
+    location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
     stockLocation: selectedLocationId,
     activityTableName: "",
     activityPlayer: "",
@@ -793,7 +794,7 @@ TableCardProps) {
         ...orderForm,
         createdAt: new Date(),
         location: table?.isOnlineSale
-          ? 4
+          ? OnlineLocationId
           : orderForm?.location ?? selectedLocationId,
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
@@ -816,7 +817,7 @@ TableCardProps) {
       return {
         ...orderForm,
         location: table?.isOnlineSale
-          ? 4
+          ? OnlineLocationId
           : orderForm?.location ?? selectedLocationId,
         table: table._id,
         status: isOrderConfirmationRequired
@@ -1117,7 +1118,9 @@ TableCardProps) {
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-            location: table?.isOnlineSale ? 4 : selectedLocationId,
+            location: table?.isOnlineSale
+              ? OnlineLocationId
+              : selectedLocationId,
           }}
           cancelButtonLabel={t("Close")}
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "

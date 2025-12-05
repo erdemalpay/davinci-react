@@ -2023,3 +2023,5 @@ export type PaginatedResponse<T> = {
   page: number;
   limit: number;
 };
+
+export const OnlineLocationId = 4; //TODO: bu moduler yapiya uygun degil
