@@ -69,6 +69,7 @@ export function useGet<T>(
 
   const { data } = useQuery<T>(fetchQueryKey, () => get<T>({ path }), {
     staleTime: isStaleTimeZero ? 0 : 1000 * 60 * 60, // 1 hour
+    cacheTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false, // default
     ...options, // spread options after to allow overriding
   });
