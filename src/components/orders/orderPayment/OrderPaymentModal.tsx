@@ -116,7 +116,7 @@ const OrderPaymentModal = ({
   const [selectedUser, setSelectedUser] = useState<MinimalUser>(user);
   const userOptions = activeUsers
     .map((user) => {
-      const foundUser = users?.find((u) => u._id === user);
+      const foundUser = users?.find((u) => u?._id === user);
       if (foundUser) {
         return {
           value: user,
@@ -173,7 +173,7 @@ const OrderPaymentModal = ({
           category.kitchen &&
           kitchens.some(
             (k) =>
-              k._id === category.kitchen &&
+              k?._id === category.kitchen &&
               k?.selectedUsers &&
               k?.selectedUsers?.length > 0
           )
@@ -181,7 +181,7 @@ const OrderPaymentModal = ({
     );
   }, [inactiveCategories, kitchens]);
   const inactiveCategoriesIds = useMemo(() => {
-    return inactiveCategories.map((c) => c._id);
+    return inactiveCategories.map((c) => c?._id);
   }, [inactiveCategories]);
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -533,7 +533,7 @@ const OrderPaymentModal = ({
   );
   const MEMBERDISCOUNTID = 8;
   const memberDiscount = useMemo(() => {
-    return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
+    return discounts?.find((discount) => discount?._id === MEMBERDISCOUNTID);
   }, [discounts]);
   const orderInputs = [
     {
@@ -549,7 +549,7 @@ const OrderPaymentModal = ({
         ?.sort((a, b) => a.orderCategoryOrder - b.orderCategoryOrder)
         ?.map((category) => {
           return {
-            value: category._id,
+            value: category?._id,
             label: category.name,
             imageUrl: category?.imageUrl,
           };
@@ -670,12 +670,12 @@ const OrderPaymentModal = ({
         ? filteredDiscounts
             .filter((discount) => {
               const menuItem = items?.find(
-                (item) => item._id === orderForm.item
+                (item) => item?._id === orderForm.item
               );
               return getItem(
                 menuItem?.category,
                 categories
-              )?.discounts?.includes(discount._id);
+              )?.discounts?.includes(discount?._id);
             })
             ?.map((option) => {
               return {
@@ -692,7 +692,7 @@ const OrderPaymentModal = ({
                 value: discountId as any,
                 label:
                   filteredDiscounts?.find(
-                    (discount) => discount._id === discountId
+                    (discount) => discount?._id === discountId
                   )?.name || "",
               })
             )
@@ -709,20 +709,21 @@ const OrderPaymentModal = ({
       label: t("Discount Note"),
       placeholder:
         orderForm?.discount &&
-        discounts?.find((discount) => discount._id === orderForm.discount)?.note
-          ? discounts?.find((discount) => discount._id === orderForm.discount)
+        discounts?.find((discount) => discount?._id === orderForm.discount)
+          ?.note
+          ? discounts?.find((discount) => discount?._id === orderForm.discount)
               ?.note
           : t("What is the reason for the discount?"),
       required:
         (orderForm?.discount &&
           orderForm?.discount !== MEMBERDISCOUNTID &&
-          discounts?.find((discount) => discount._id === orderForm.discount)
+          discounts?.find((discount) => discount?._id === orderForm.discount)
             ?.isNoteRequired) ??
         false,
       isDisabled:
         (orderForm?.discount === MEMBERDISCOUNTID ||
           (orderForm?.discount &&
-            !discounts?.find((discount) => discount._id === orderForm.discount)
+            !discounts?.find((discount) => discount?._id === orderForm.discount)
               ?.isNoteRequired)) ??
         true,
     },
@@ -750,13 +751,13 @@ const OrderPaymentModal = ({
         const menuItem = getItem(orderForm.item, items);
         const foundProduct = getItem(menuItem?.matchedProduct, products);
         const stockQuantity = menuItem
-          ? menuItemStockQuantity(menuItem, input._id)
+          ? menuItemStockQuantity(menuItem, input?._id)
           : null;
         const shelfInfo = foundProduct?.shelfInfo?.find(
-          (shelf) => shelf.location === input._id
+          (shelf) => shelf.location === input?._id
         );
         return {
-          value: input._id,
+          value: input?._id,
           label:
             input.name +
             (menuItem?.itemProduction && menuItem.itemProduction.length > 0
@@ -858,7 +859,7 @@ const OrderPaymentModal = ({
     ) {
       return {
         ...orderForm,
-        createdBy: selectedUser._id,
+        createdBy: selectedUser?._id,
         createdAt: new Date(),
         location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
@@ -880,7 +881,7 @@ const OrderPaymentModal = ({
       return {
         ...orderForm,
         createdAt: new Date(),
-        createdBy: selectedUser._id,
+        createdBy: selectedUser?._id,
         location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
         status: isOrderConfirmationRequired
@@ -932,9 +933,9 @@ const OrderPaymentModal = ({
           location: table?.isOnlineSale ? 4 : selectedLocationId,
         }}
         isConfirmationDialogRequired={() => {
-          const menuItem = items?.find((item) => item._id === orderForm.item);
+          const menuItem = items?.find((item) => item?._id === orderForm.item);
           const category = categories?.find(
-            (category) => category._id === menuItem?.category
+            (category) => category?._id === menuItem?.category
           );
           const stockQuantity = menuItem
             ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
@@ -989,7 +990,7 @@ const OrderPaymentModal = ({
                       return {
                         ...orderCreateBulkItem,
                         tableDate: table ? new Date(table?.date) : new Date(),
-                        createdBy: selectedUser._id,
+                        createdBy: selectedUser?._id,
                       };
                     }),
                     orderObject,
@@ -1009,7 +1010,7 @@ const OrderPaymentModal = ({
                   return {
                     ...orderCreateBulkItem,
                     tableDate: table ? new Date(table?.date) : new Date(),
-                    createdBy: selectedUser._id,
+                    createdBy: selectedUser?._id,
                   };
                 }),
               ],
@@ -1145,10 +1146,10 @@ const OrderPaymentModal = ({
                           if (!foundUser) return null;
                           return (
                             <a
-                              key={foundUser._id}
+                              key={foundUser?._id}
                               onClick={() => setSelectedUser(foundUser)}
                               className={`  px-4 py-2 rounded-lg focus:outline-none cursor-pointer  font-medium ${
-                                foundUser._id === selectedUser._id
+                                foundUser?._id === selectedUser?._id
                                   ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
                                   : "bg-white hover:bg-gray-200 text-gray-600 hover:text-red-500"
                               } `}

@@ -19,7 +19,7 @@ import {
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
-  TableTypes
+  TableTypes,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
@@ -90,7 +90,7 @@ const OrderPaymentTypes = ({
     return <Loading />;
   }
   function getPaymentMethodName(paymentType: string) {
-    return paymentMethods.find((method) => method._id === paymentType);
+    return paymentMethods.find((method) => method?._id === paymentType);
   }
   const tableNotCancelledCollections = givenDateCollections.filter(
     (collection) =>
@@ -121,12 +121,12 @@ const OrderPaymentTypes = ({
           ?.filter((order) => order.paidQuantity !== order.quantity)
           ?.map((order) => {
             return {
-              order: order._id,
+              order: order?._id,
               paidQuantity: order.quantity - order.paidQuantity,
             };
           })
       : temporaryOrders?.map((order) => ({
-          order: order.order._id,
+          order: order.order?._id,
           paidQuantity: order.quantity,
         }));
   if (allTotalMoneySpend >= allTotalAmount - allDiscountAmount) {
@@ -134,7 +134,7 @@ const OrderPaymentTypes = ({
       ?.filter((order) => order.paidQuantity !== order.quantity)
       ?.map((order) => {
         return {
-          order: order._id,
+          order: order?._id,
           paidQuantity: order.quantity - order.paidQuantity,
         };
       });
@@ -177,7 +177,7 @@ const OrderPaymentTypes = ({
       } else {
         newOrders = tableOrders?.map((order) => {
           const temporaryOrder = temporaryOrders.find(
-            (temporaryOrder) => temporaryOrder.order._id === order._id
+            (temporaryOrder) => temporaryOrder.order?._id === order?._id
           );
           if (!temporaryOrder) {
             return order;
@@ -203,12 +203,12 @@ const OrderPaymentTypes = ({
     const createdCollection = {
       table: table?._id,
       location: table?.type === TableTypes.ONLINE ? 4 : selectedLocationId,
-      paymentMethod: paymentMethod._id,
+      paymentMethod: paymentMethod?._id,
       amount: actualAmount,
       status: OrderCollectionStatus.PAID,
       orders: finalCollectionOrders,
       ...(finalNewOrders.length > 0 && { newOrders: finalNewOrders }),
-      createdBy: user._id,
+      createdBy: user?._id,
       tableDate: table ? new Date(table.date) : new Date(),
       activityPlayer: selectedActivityUser,
       ...(pointUser && { pointUser: pointUser }),
@@ -222,7 +222,7 @@ const OrderPaymentTypes = ({
     if (table && !table?.finishHour && table.type === TableTypes.TAKEOUT) {
       if (totalMoney === totalAmount - discountAmount) {
         closeTable({
-          id: table._id,
+          id: table?._id,
           updates: { finishHour: format(new Date(), "HH:mm") },
         });
       }
@@ -257,7 +257,7 @@ const OrderPaymentTypes = ({
       <div className="grid grid-cols-3 gap-2 h-[13rem] overflow-auto">
         {filteredPaymentTypes?.map((paymentType) => (
           <div
-            key={paymentType._id}
+            key={paymentType?._id}
             onClick={() => {
               if (isMutating) {
                 return;
@@ -292,7 +292,7 @@ const OrderPaymentTypes = ({
           >
             <img
               className="w-12 h-12"
-              src={paymentTypeImage(paymentType._id)}
+              src={paymentTypeImage(paymentType?._id)}
               alt={paymentType.name}
             />
             <p className="font-medium text-center">{t(paymentType.name)}</p>
@@ -332,7 +332,7 @@ const OrderPaymentTypes = ({
       <div className="flex flex-col h-[20rem] gap-1 overflow-auto">
         {tableNotCancelledCollections?.map((collection) => (
           <div
-            key={collection._id + "collection summary"}
+            key={collection?._id + "collection summary"}
             className="flex flex-col gap-1"
           >
             <div className="flex flex-row justify-between px-4 border-b text-sm font-medium pb-1">
@@ -342,14 +342,14 @@ const OrderPaymentTypes = ({
                   <div
                     onClick={() => {
                       setExpandedCollections((prev) =>
-                        prev.includes(collection._id)
-                          ? prev.filter((id) => id !== collection._id)
-                          : [...prev, collection._id]
+                        prev.includes(collection?._id)
+                          ? prev.filter((id) => id !== collection?._id)
+                          : [...prev, collection?._id]
                       );
                     }}
                     className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full"
                   >
-                    {expandedCollections.includes(collection._id) ? (
+                    {expandedCollections.includes(collection?._id) ? (
                       <FaChevronUp />
                     ) : (
                       <FaChevronDown />
@@ -392,7 +392,7 @@ const OrderPaymentTypes = ({
                         ?.map((orderCollectionItem: OrderCollectionItem) => {
                           const order = givenDateOrders?.find(
                             (orderItem) =>
-                              orderItem._id === orderCollectionItem?.order
+                              orderItem?._id === orderCollectionItem?.order
                           );
                           if (order !== undefined) {
                             return {
@@ -422,10 +422,10 @@ const OrderPaymentTypes = ({
                       });
                     }
                     updateOrderCollection({
-                      id: collection._id,
+                      id: collection?._id,
                       updates: {
                         cancelledAt: new Date(),
-                        cancelledBy: user._id,
+                        cancelledBy: user?._id,
                         status: OrderCollectionStatus.CANCELLED,
                         ...(newOrders && { newOrders: newOrders }),
                         table: table?._id,
@@ -437,13 +437,13 @@ const OrderPaymentTypes = ({
               )}
             </div>
             {/* expanded part */}
-            {expandedCollections.includes(collection._id) &&
+            {expandedCollections.includes(collection?._id) &&
               collection?.orders?.length !== 0 && (
                 <div className="flex flex-col gap-1 px-4">
                   {collection?.orders?.map((orderCollectionItem) => {
                     const order = givenDateOrders?.find(
                       (orderItem) =>
-                        orderItem._id === orderCollectionItem?.order
+                        orderItem?._id === orderCollectionItem?.order
                     );
                     if (!order) return null;
                     const item = getItem(order.item, items);
