@@ -177,6 +177,25 @@ export function useWebSocket() {
       );
     });
 
+    socket.on("tableDeleted", (data) => {
+      const locationId = data.table.location;
+      const date = data.table.date;
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          const prev = old ?? {};
+          const prevForLocation = prev[locationId] ?? [];
+          const updatedTables = prevForLocation.filter(
+            (table) => table._id !== data.table._id
+          );
+          return {
+            ...prev,
+            [locationId]: updatedTables,
+          };
+        }
+      );
+    });
+
     socket.on("tableClosed", (data) => {
       const locationId = data.table.location;
       const date = data.table.date;
