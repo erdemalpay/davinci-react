@@ -57,7 +57,7 @@ const EnterConsumption = () => {
   stockHistoriesPayload as StockHistoryPayload;
   const products = useGetAccountProducts();
   const { user } = useUserContext();
-  const users = useGetUsersMinimal(); 
+  const users = useGetUsersMinimal();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
   const disabledConditions = useGetDisabledConditions();
@@ -355,6 +355,7 @@ const EnterConsumption = () => {
             {
               key: "productCost",
               className: "min-w-32 pr-1",
+              isParseFloat: true,
             },
             {
               key: "currentAmount",
@@ -456,7 +457,11 @@ const EnterConsumption = () => {
       filterPanelFormElements: filterEnterConsumptionPanelFormElements,
       setFilterPanelFormElements: setFilterEnterConsumptionPanelFormElements,
     };
-  }, [t, filterEnterConsumptionPanelFormElements, setFilterEnterConsumptionPanelFormElements]);
+  }, [
+    t,
+    filterEnterConsumptionPanelFormElements,
+    setFilterEnterConsumptionPanelFormElements,
+  ]);
 
   const actions = useMemo(
     () => [
