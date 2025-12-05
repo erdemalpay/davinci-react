@@ -111,9 +111,10 @@ const OrderPaymentModal = ({
     setSelectedNewOrders,
     selectedNewOrders,
   } = useOrderContext();
-  const [selectedUser, setSelectedUser] = useState<MinimalUser | null>(
-    user || null
-  );
+  const [selectedUser, setSelectedUser] = useState<MinimalUser | null>(null);
+
+  // Use user as fallback if selectedUser is not set
+  const currentUser = selectedUser || user;
   const userOptions = activeUsers
     .map((user) => {
       const foundUser = users?.find((u) => u?._id === user);
@@ -857,7 +858,7 @@ const OrderPaymentModal = ({
     ) {
       return {
         ...orderForm,
-        createdBy: selectedUser?._id,
+        createdBy: currentUser?._id,
         createdAt: new Date(),
         location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
@@ -879,7 +880,7 @@ const OrderPaymentModal = ({
       return {
         ...orderForm,
         createdAt: new Date(),
-        createdBy: selectedUser?._id,
+        createdBy: currentUser?._id,
         location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
         status: isOrderConfirmationRequired
@@ -988,7 +989,7 @@ const OrderPaymentModal = ({
                       return {
                         ...orderCreateBulkItem,
                         tableDate: table ? new Date(table?.date) : new Date(),
-                        createdBy: selectedUser?._id,
+                        createdBy: currentUser?._id,
                       };
                     }),
                     orderObject,
@@ -1008,7 +1009,7 @@ const OrderPaymentModal = ({
                   return {
                     ...orderCreateBulkItem,
                     tableDate: table ? new Date(table?.date) : new Date(),
-                    createdBy: selectedUser?._id,
+                    createdBy: currentUser?._id,
                   };
                 }),
               ],
@@ -1147,7 +1148,7 @@ const OrderPaymentModal = ({
                               key={foundUser?._id}
                               onClick={() => setSelectedUser(foundUser)}
                               className={`  px-4 py-2 rounded-lg focus:outline-none cursor-pointer  font-medium ${
-                                foundUser?._id === selectedUser?._id
+                                foundUser?._id === currentUser?._id
                                   ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
                                   : "bg-white hover:bg-gray-200 text-gray-600 hover:text-red-500"
                               } `}
@@ -1198,7 +1199,7 @@ const OrderPaymentModal = ({
                   refundAmount={refundAmount}
                   unpaidAmount={unpaidAmount}
                 />
-                {selectedUser && (
+                {currentUser && (
                   <OrderPaymentTypes
                     table={table}
                     tableOrders={tableOrders}
@@ -1206,7 +1207,7 @@ const OrderPaymentModal = ({
                     selectedActivityUser={selectedActivityUser}
                     givenDateOrders={orders ?? []}
                     givenDateCollections={collections ?? []}
-                    user={selectedUser}
+                    user={currentUser}
                     allCollectionsTotalAmount={allCollectionsTotalAmount}
                     allTotalAmount={allTotalAmount}
                     allTableOrders={allTableOrders}
