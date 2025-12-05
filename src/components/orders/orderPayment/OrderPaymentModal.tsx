@@ -50,7 +50,6 @@ import { formatDate } from "../../../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
-import Loading from "../../common/Loading";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
@@ -189,7 +188,6 @@ const OrderPaymentModal = ({
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
-  if (!orders || !users || !user || !selectedUser) return <Loading />;
   const allTableOrders = useMemo(
     () =>
       orders?.filter(
@@ -1159,7 +1157,7 @@ const OrderPaymentModal = ({
                           );
                         })
                       ) : (
-                        <h1 className="font-medium">{user.name}</h1>
+                        <h1 className="font-medium">{user?.name}</h1>
                       )}
                     </div>
                   </div>
@@ -1200,25 +1198,27 @@ const OrderPaymentModal = ({
                   refundAmount={refundAmount}
                   unpaidAmount={unpaidAmount}
                 />
-                <OrderPaymentTypes
-                  table={table}
-                  tableOrders={tableOrders}
-                  collectionsTotalAmount={collectionsTotalAmount}
-                  selectedActivityUser={selectedActivityUser}
-                  givenDateOrders={orders ?? []}
-                  givenDateCollections={collections ?? []}
-                  user={selectedUser}
-                  allCollectionsTotalAmount={allCollectionsTotalAmount}
-                  allTotalAmount={allTotalAmount}
-                  allTableOrders={allTableOrders}
-                  isTableItemsPaid={isTableItemsPaid}
-                  totalMoneySpend={totalMoneySpend}
-                  totalAmount={totalAmount}
-                  discountAmount={discountAmount}
-                  allTotalMoneySpend={allTotalMoneySpend}
-                  allDiscountAmount={allDiscountAmount}
-                  refundAmount={refundAmount}
-                />
+                {selectedUser && (
+                  <OrderPaymentTypes
+                    table={table}
+                    tableOrders={tableOrders}
+                    collectionsTotalAmount={collectionsTotalAmount}
+                    selectedActivityUser={selectedActivityUser}
+                    givenDateOrders={orders ?? []}
+                    givenDateCollections={collections ?? []}
+                    user={selectedUser}
+                    allCollectionsTotalAmount={allCollectionsTotalAmount}
+                    allTotalAmount={allTotalAmount}
+                    allTableOrders={allTableOrders}
+                    isTableItemsPaid={isTableItemsPaid}
+                    totalMoneySpend={totalMoneySpend}
+                    totalAmount={totalAmount}
+                    discountAmount={discountAmount}
+                    allTotalMoneySpend={allTotalMoneySpend}
+                    allDiscountAmount={allDiscountAmount}
+                    refundAmount={refundAmount}
+                  />
+                )}
               </div>
             </div>
           </div>
