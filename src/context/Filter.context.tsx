@@ -242,6 +242,7 @@ const FilterContext = createContext<FilterContextType>({
     before: dateRanges.thisMonth().before,
     sort: "",
     asc: 1,
+    search: "",
   },
   setFilterServicePanelFormElements: () => {},
   showStockFilters: false,
@@ -403,6 +404,7 @@ const FilterContext = createContext<FilterContextType>({
     after: "",
     sort: "",
     asc: 1,
+    search: "",
   },
   setFilterPointHistoryPanelFormElements: () => {},
   showUserPointHistoryFilters: false,
@@ -413,6 +415,7 @@ const FilterContext = createContext<FilterContextType>({
     after: "",
     sort: "",
     asc: 1,
+    search: "",
   },
   setFilterUserPointHistoryPanelFormElements: () => {},
   filterActivityFormElements: {
@@ -423,6 +426,7 @@ const FilterContext = createContext<FilterContextType>({
     type: "",
     sort: "",
     asc: 1,
+    search: "",
   },
   setFilterActivityFormElements: () => {},
   isGameEnableEdit: false,
@@ -669,6 +673,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     before: dateRanges.thisMonth().before,
     sort: "",
     asc: 1,
+    search: "",
   };
   const [filterActivityFormElements, setFilterActivityFormElements] =
     useState<FormElementsState>(initialFilterActivityFormElements);
@@ -826,6 +831,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     after: "",
     sort: "",
     asc: 1,
+    search: "",
   });
   const [showPointHistoryFilters, setShowPointHistoryFilters] = useState(false);
   const [
@@ -837,6 +843,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     after: "",
     sort: "",
     asc: 1,
+    search: "",
   });
   const [showUserPointHistoryFilters, setShowUserPointHistoryFilters] =
     useState(false);

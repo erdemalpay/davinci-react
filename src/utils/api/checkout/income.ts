@@ -55,6 +55,7 @@ export function useGetPaginatedQueryIncomes(
     filters.after && `after=${filters.after}`,
     filters.sort && `sort=${filters.sort}`,
     filters.asc !== undefined && `asc=${filters.asc}`,
+    filters.search && `search=${filters.search.trim()}`,
   ];
   const queryString = parts.filter(Boolean).join("&");
   const url = `${Paths.Checkout}/income/paginated/query?${queryString}`;

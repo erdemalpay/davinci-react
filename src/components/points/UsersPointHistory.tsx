@@ -240,6 +240,14 @@ const UsersPointHistoryComponent = () => {
     ]
   );
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterPointHistoryPanelFormElements,
+      setFilterPanelFormElements: setFilterPointHistoryPanelFormElements,
+    };
+  }, [t, filterPointHistoryPanelFormElements, setFilterPointHistoryPanelFormElements]);
+
   const outsideSort = useMemo(
     () => ({
       filterPanelFormElements: filterPointHistoryPanelFormElements,
@@ -267,6 +275,7 @@ const UsersPointHistoryComponent = () => {
         title={t("Users Point History")}
         isActionsActive={false}
         outsideSortProps={outsideSort}
+        outsideSearchProps={outsideSearchProps}
         {...(pagination && { pagination })}
       />
     </div>

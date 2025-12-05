@@ -47,6 +47,7 @@ export default function ButtonCalls() {
     type: [],
     sort: "",
     asc: 1,
+    search: "",
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
@@ -345,6 +346,14 @@ export default function ButtonCalls() {
     ]
   );
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterPanelFormElements,
+      setFilterPanelFormElements: setFilterPanelFormElements,
+    };
+  }, [t, filterPanelFormElements, setFilterPanelFormElements]);
+
   const outsideSort = useMemo(
     () => ({
       filterPanelFormElements: filterPanelFormElements,
@@ -377,6 +386,8 @@ export default function ButtonCalls() {
           columns={columns}
           filterPanel={filterPanel}
           rows={rows ?? []}
+          outsideSearchProps={outsideSearchProps}
+          isSearch={false}
           title={t("Button Calls")}
           actions={actions}
           isActionsActive={isButtonCallEnableEdit}

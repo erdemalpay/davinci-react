@@ -35,6 +35,7 @@ export default function NewGameplays() {
       location: "",
       startDate: "",
       endDate: "",
+      search: "",
     });
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [showFilters, setShowFilters] = useState(false);
@@ -213,6 +214,14 @@ export default function NewGameplays() {
     [t, showFilters]
   );
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterPanelFormElements,
+      setFilterPanelFormElements: setFilterPanelFormElements,
+    };
+  }, [t, filterPanelFormElements, setFilterPanelFormElements]);
+
   const outsideSort = useMemo(
     () => ({
       filterPanelFormElements: filterPanelFormElements,
@@ -244,6 +253,8 @@ export default function NewGameplays() {
           rowKeys={rowKeys}
           isActionsActive={false}
           columns={columns}
+          outsideSearchProps={outsideSearchProps}
+          isSearch={false}
           title={t("GamePlays")}
           filterPanel={filterPanel}
           filters={filters}

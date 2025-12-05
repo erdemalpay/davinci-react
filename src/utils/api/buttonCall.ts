@@ -65,6 +65,7 @@ export function useGetQueryButtonCalls(
     filters.type.length > 0 && `type=${filters.type.join(",")}`,
     filters.sort && `sort=${filters.sort}`,
     filters.asc !== undefined && `asc=${filters.asc}`,
+    filters.search && `search=${filters.search.trim()}`,
   ];
 
   const queryString = parts.filter(Boolean).join("&");

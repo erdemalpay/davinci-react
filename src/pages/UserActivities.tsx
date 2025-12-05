@@ -244,6 +244,14 @@ const UserActivities = () => {
       : null;
   }, [activitiesPayload]);
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterActivityFormElements,
+      setFilterPanelFormElements: setFilterActivityFormElements,
+    };
+  }, [t, filterActivityFormElements, setFilterActivityFormElements]);
+
   const outsideSort = useMemo(
     () => ({
       filterPanelFormElements: filterActivityFormElements,
@@ -265,6 +273,7 @@ const UserActivities = () => {
           rowsPerPageOptions={USER_ACTIVITIES_ROWS_PER_PAGE_OPTIONS}
           rows={rows ?? []}
           filterPanel={filterPanel}
+          outsideSearchProps={outsideSearchProps}
           filters={filters}
           isSearch={false}
           title={t("User Activities")}
