@@ -126,7 +126,7 @@ export function useWebSocket() {
       const tableId =
         typeof data?.order?.table === "number"
           ? data?.order?.table
-          : data?.order?.table._id;
+          : data?.order?.table?._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
     });
@@ -152,7 +152,7 @@ export function useWebSocket() {
     });
 
     socket.on("singleTableChanged", (data) => {
-      queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
+      queryClient.invalidateQueries([`${Paths.Order}/table`, data.table?._id]);
     });
 
     socket.on("stockChanged", (data) => {
@@ -186,7 +186,7 @@ export function useWebSocket() {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.filter(
-            (table) => table._id !== data.table._id
+            (table) => table?._id !== data.table?._id
           );
           return {
             ...prev,
@@ -205,7 +205,7 @@ export function useWebSocket() {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.map((table) => {
-            if (table._id === data.table._id) {
+            if (table?._id === data.table?._id) {
               return {
                 ...table,
                 finishHour: data.table.finishHour,
@@ -239,7 +239,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === table._id) {
+            if (t?._id === table?._id) {
               return {
                 ...t,
                 gameplays: [...t.gameplays, gameplay],
@@ -260,7 +260,7 @@ export function useWebSocket() {
       // Only update cache for other users' actions
       if (data?.user?._id === user?._id) return;
 
-      const gameplayId = data.gameplay._id;
+      const gameplayId = data.gameplay?._id;
       const locationId = data.gameplay.location;
       const date = data.gameplay.date;
       const table = data.table;
@@ -273,10 +273,10 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === table._id) {
+            if (t?._id === table?._id) {
               return {
                 ...t,
-                gameplays: t.gameplays.filter((g) => g._id !== gameplayId),
+                gameplays: t.gameplays.filter((g) => g?._id !== gameplayId),
               };
             }
             return t;
@@ -307,11 +307,11 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t._id === table._id) {
+            if (t?._id === table?._id) {
               return {
                 ...t,
                 gameplays: t.gameplays.map((g) =>
-                  g._id === gameplay._id ? gameplay : g
+                  g?._id === gameplay?._id ? gameplay : g
                 ),
               };
             }
@@ -345,15 +345,15 @@ export function useWebSocket() {
 
       if (
         data?.table?.type === TableTypes.TAKEOUT &&
-        data?.user._id === user?._id
+        data?.user?._id === user?._id
       ) {
         setIsTakeAwayPaymentModalOpen(true);
-        setTakeawayTableId(data.table._id);
+        setTakeawayTableId(data.table?._id);
         setOrderCreateBulk([]);
         setSelectedNewOrders([]);
       }
 
-      if (data.user._id === user?._id) return;
+      if (data.user?._id === user?._id) return;
 
       if (
         data?.soundRoles?.includes(user?.role?._id) &&
