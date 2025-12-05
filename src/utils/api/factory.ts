@@ -67,15 +67,11 @@ export function useGet<T>(
 ) {
   const fetchQueryKey = queryKey || [path];
 
-  const { data } = useQuery<T>(
-    fetchQueryKey,
-    () => get<T>({ path }),
-    {
-      staleTime: isStaleTimeZero ? 0 : Infinity,
-      refetchOnWindowFocus: false, // default
-      ...options, // spread options after to allow overriding
-    }
-  );
+  const { data } = useQuery<T>(fetchQueryKey, () => get<T>({ path }), {
+    staleTime: isStaleTimeZero ? 0 : 1000 * 60 * 60, // 1 hour
+    refetchOnWindowFocus: false, // default
+    ...options, // spread options after to allow overriding
+  });
 
   return data;
 }
