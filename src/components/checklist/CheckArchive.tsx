@@ -38,6 +38,7 @@ const CheckArchive = () => {
       before: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const checksPayload = useGetQueryChecks(
@@ -350,6 +351,15 @@ const CheckArchive = () => {
       updateCheck,
     ]
   );
+
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterPanelFormElements,
+      setFilterPanelFormElements: setFilterPanelFormElements,
+    };
+  }, [t, filterPanelFormElements, setFilterPanelFormElements]);
+
   const outsideSort = useMemo(
     () => ({
       filterPanelFormElements: filterPanelFormElements,
@@ -380,6 +390,8 @@ const CheckArchive = () => {
           rows={rows}
           title={t("Check Archive")}
           filterPanel={filterPanel}
+          outsideSearchProps={outsideSearchProps}
+          isSearch={false}
           filters={filters}
           actions={actions}
           isActionsActive={!isDisabledCondition}

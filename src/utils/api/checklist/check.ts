@@ -42,6 +42,7 @@ export function useGetQueryChecks(
     filters.before && `before=${filters.before}`,
     filters.sort && `sort=${filters.sort}`,
     filters.asc !== undefined && `asc=${filters.asc}`,
+    filters.search && `search=${filters.search.trim()}`,
   ];
 
   const queryString = parts.filter(Boolean).join("&");

@@ -39,7 +39,7 @@ export function useGetQueryNotifications(
     filters.event && `event=${filters.event}`,
     filters.sort && `sort=${filters.sort}`,
     filters.asc !== undefined && `asc=${filters.asc}`,
-    filters.search && `search=${filters.search}`,
+    filters.search && `search=${filters.search.trim()}`,
   ];
 
   const queryString = parts.filter(Boolean).join("&");

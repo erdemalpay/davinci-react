@@ -166,18 +166,19 @@ export function useGetGameplays(
   limit: number,
   filters: FormElementsState
 ) {
-  const { startDate, endDate, game, mentor, location, sort, asc } = filters;
+
 
   const parts = [
     `page=${page}`,
     `limit=${limit}`,
-    startDate && `startDate=${startDate}`,
-    endDate && `endDate=${endDate}`,
-    game && `game=${game}`,
-    mentor && `mentor=${mentor}`,
-    location && `location=${location}`,
-    sort && `sort=${sort}`,
-    asc !== undefined && `asc=${asc}`,
+    filters.startDate && `startDate=${filters.startDate}`,
+    filters.endDate && `endDate=${filters.endDate}`,
+    filters.game && `game=${filters.game}`,
+    filters.mentor && `mentor=${filters.mentor}`,
+    filters.location && `location=${filters.location}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
+    filters.search && `search=${filters.search.trim()}`,
   ];
 
   const queryString = parts.filter(Boolean).join("&");

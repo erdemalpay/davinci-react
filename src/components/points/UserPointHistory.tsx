@@ -229,6 +229,14 @@ const UserPointHistory = () => {
     ]
   );
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterUserPointHistoryPanelFormElements,
+      setFilterPanelFormElements: setFilterUserPointHistoryPanelFormElements,
+    };
+  }, [t, filterUserPointHistoryPanelFormElements, setFilterUserPointHistoryPanelFormElements]);
+
   const outsideSort = useMemo(
     () => ({
       filterPanelFormElements: filterUserPointHistoryPanelFormElements,
@@ -252,6 +260,7 @@ const UserPointHistory = () => {
         rows={rows ?? []}
         filterPanel={filterPanel}
         filters={filters}
+        outsideSearchProps={outsideSearchProps}
         isSearch={false}
         title={t("My Point History")}
         isActionsActive={false}
