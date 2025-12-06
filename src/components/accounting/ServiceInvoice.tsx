@@ -708,7 +708,14 @@ const ServiceInvoice = () => {
               formKey: "vat",
               label: t("Vat") + "%",
               placeholder: t("Vat") + "%",
-              required: true,
+              required: false,
+            },
+            {
+              type: InputTypes.NUMBER,
+              formKey: "discount",
+              label: t("Discount") + "%",
+              placeholder: t("Discount") + "%",
+              required: false,
             },
             {
               type: InputTypes.TEXTAREA,
@@ -722,6 +729,7 @@ const ServiceInvoice = () => {
             ...formKeys,
             { key: "price", type: FormKeyTypeEnum.NUMBER },
             { key: "vat", type: FormKeyTypeEnum.NUMBER },
+            { key: "discount", type: FormKeyTypeEnum.NUMBER },
           ]}
           submitFunction={() => {
             const discountedPrice =

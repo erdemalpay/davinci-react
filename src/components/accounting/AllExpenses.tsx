@@ -709,14 +709,14 @@ const AllExpenses = () => {
               formKey: "vat",
               label: t("Vat") + "%",
               placeholder: t("Vat") + "%",
-              required: true,
+              required: false,
             },
             {
               type: InputTypes.NUMBER,
               formKey: "discount",
               label: t("Discount") + "%",
               placeholder: t("Discount") + "%",
-              required: true,
+              required: false,
             },
             {
               type: InputTypes.TEXTAREA,
