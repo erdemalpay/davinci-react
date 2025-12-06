@@ -6,12 +6,12 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-    ActionEnum,
-    DateRangeKey,
-    DisabledConditionEnum,
-    OrderCollectionStatus,
-    TURKISHLIRA,
-    commonDateOptions,
+  ActionEnum,
+  DateRangeKey,
+  DisabledConditionEnum,
+  OrderCollectionStatus,
+  TURKISHLIRA,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -21,7 +21,6 @@ import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -51,11 +50,8 @@ const DailyIncome = () => {
     );
   }, [disabledConditions]);
 
-  if (!collections || !sellLocations || !paymentMethods) {
-    return <Loading />;
-  }
-
   const rows = useMemo(() => {
+    if (!collections || !sellLocations || !paymentMethods) return [];
     const allRows = collections
       ?.filter(
         (collection) => collection.status !== OrderCollectionStatus.CANCELLED

@@ -30,7 +30,6 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
-import Loading from "../common/Loading";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -73,11 +72,10 @@ const IkasOrders = () => {
     );
   }, [disabledConditions]);
 
-  if (!orders || !sellLocations || !users || !discounts) {
-    return <Loading />;
-  }
-
   const rows = useMemo(() => {
+    if (!orders || !sellLocations || !users || !discounts) {
+      return [];
+    }
     const allRows = orders
       ?.filter((order) => {
         if (
@@ -170,7 +168,7 @@ const IkasOrders = () => {
       ),
       formattedDate: "Total",
     };
- allRows?.unshift(totalRow as any);
+    allRows?.unshift(totalRow as any);
     return allRows;
   }, [
     orders,
@@ -410,9 +408,9 @@ const IkasOrders = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users.map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
@@ -421,9 +419,9 @@ const IkasOrders = () => {
         formKey: "preparedBy",
         label: t("Prepared By"),
         options: users.map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Prepared By"),
         required: true,
       },
@@ -432,9 +430,9 @@ const IkasOrders = () => {
         formKey: "deliveredBy",
         label: t("Delivered By"),
         options: users.map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Delivered By"),
         required: true,
       },
@@ -443,9 +441,9 @@ const IkasOrders = () => {
         formKey: "cancelledBy",
         label: t("Cancelled By"),
         options: users.map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Cancelled By"),
         required: true,
       },

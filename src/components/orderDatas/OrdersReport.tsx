@@ -30,7 +30,6 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import Loading from "../common/Loading";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -72,10 +71,6 @@ const OrdersReport = () => {
     return getItem(DisabledConditionEnum.ORDERDATAS_ORDERS, disabledConditions);
   }, [disabledConditions]);
 
-  if (!orders || !sellLocations || !users || !discounts) {
-    return <Loading />;
-  }
-
   const returnOrderInputs = useMemo(
     () => [
       {
@@ -98,6 +93,9 @@ const OrdersReport = () => {
   );
 
   const rows = useMemo(() => {
+    if (!orders || !sellLocations || !users || !discounts) {
+      return [];
+    }
     const allRows = orders
       ?.filter(
         (order) =>
@@ -183,7 +181,7 @@ const OrdersReport = () => {
       ),
       formattedDate: "Total",
     };
- allRows?.unshift(totalRow as any);
+    allRows?.unshift(totalRow as any);
     return allRows;
   }, [orders, users, discounts, items, sellLocations, t]);
 

@@ -2,19 +2,15 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../../context/General.context";
-import { useUserContext } from "../../context/User.context";
 import { Order, OrderStatus, Table } from "../../types";
-import Loading from "../common/Loading";
 import NewOrderListPanel from "./NewOrderListPanel";
 import OrderListForPanelTab from "./OrderListForPanelTab";
 
-type Props = { table: Table,tableOrdersProp?:Order[] };
+type Props = { table: Table; tableOrdersProp?: Order[] };
 
-const OrderListForPanel = ({ table,tableOrdersProp }: Props) => {
-  const { user } = useUserContext();
+const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
   const { isTabInputScreenOpen } = useGeneralContext();
   const [activeTab, setActiveTab] = useState(0);
-  if (!table || !user) return <Loading />;
   const { t } = useTranslation();
   const tabs = [
     {
@@ -28,7 +24,7 @@ const OrderListForPanel = ({ table,tableOrdersProp }: Props) => {
       label: "Waiting",
       content: (
         <OrderListForPanelTab
-          tableId={table._id}
+          tableId={table?._id}
           tableOrdersProp={tableOrdersProp}
           orderStatus={[
             OrderStatus.PENDING,
@@ -45,7 +41,7 @@ const OrderListForPanel = ({ table,tableOrdersProp }: Props) => {
       content: (
         <OrderListForPanelTab
           orderStatus={[OrderStatus.SERVED, OrderStatus.AUTOSERVED]}
-          tableId={table._id}
+          tableId={table?._id}
           tableOrdersProp={tableOrdersProp}
         />
       ),
@@ -61,7 +57,7 @@ const OrderListForPanel = ({ table,tableOrdersProp }: Props) => {
       <div className="flex flex-col gap-2 px-4 py-6 ">
         {/* header */}
         <h1 className="font-medium">
-          {t("Table")}: {table.name}
+          {t("Table")}: {table?.name}
         </h1>
         {/* orders */}
         <UnifiedTabPanel
