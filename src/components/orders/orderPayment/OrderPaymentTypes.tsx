@@ -27,7 +27,6 @@ import { useOrderCollectionMutations } from "../../../utils/api/order/orderColle
 import { closeTable } from "../../../utils/api/table";
 import { MinimalUser } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
-import Loading from "../../common/Loading";
 import PointUserSelectionModal from "./PointUserSelectionModal";
 
 type Props = {
@@ -80,23 +79,14 @@ const OrderPaymentTypes = ({
   const [isPointModalOpen, setIsPointModalOpen] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<AccountPaymentMethod | null>(null);
-  if (
-    !selectedLocationId ||
-    !givenDateCollections ||
-    !paymentTypes ||
-    !givenDateOrders ||
-    !user
-  ) {
-    return <Loading />;
-  }
   function getPaymentMethodName(paymentType: string) {
     return paymentMethods.find((method) => method?._id === paymentType);
   }
-  const tableNotCancelledCollections = givenDateCollections.filter(
+  const tableNotCancelledCollections = givenDateCollections?.filter(
     (collection) =>
-      ((collection.table as Table)?._id === table?._id ||
-        collection.table === table?._id) &&
-      collection.status !== OrderCollectionStatus.CANCELLED &&
+      ((collection?.table as Table)?._id === table?._id ||
+        collection?.table === table?._id) &&
+      collection?.status !== OrderCollectionStatus.CANCELLED &&
       (selectedActivityUser === "" ||
         collection?.activityPlayer === selectedActivityUser)
   );
@@ -118,31 +108,31 @@ const OrderPaymentTypes = ({
   let collectionOrders =
     totalMoneySpend >= totalAmount - discountAmount
       ? tableOrders
-          ?.filter((order) => order.paidQuantity !== order.quantity)
+          ?.filter((order) => order?.paidQuantity !== order?.quantity)
           ?.map((order) => {
             return {
               order: order?._id,
-              paidQuantity: order.quantity - order.paidQuantity,
+              paidQuantity: order?.quantity - order?.paidQuantity,
             };
           })
       : temporaryOrders?.map((order) => ({
-          order: order.order?._id,
-          paidQuantity: order.quantity,
+          order: order?.order?._id,
+          paidQuantity: order?.quantity,
         }));
   if (allTotalMoneySpend >= allTotalAmount - allDiscountAmount) {
     collectionOrders = allTableOrders
-      ?.filter((order) => order.paidQuantity !== order.quantity)
+      ?.filter((order) => order?.paidQuantity !== order?.quantity)
       ?.map((order) => {
         return {
           order: order?._id,
-          paidQuantity: order.quantity - order.paidQuantity,
+          paidQuantity: order?.quantity - order?.paidQuantity,
         };
       });
   }
   const { createOrderCollection, updateOrderCollection } =
     useOrderCollectionMutations(table?._id);
 
-  const filteredPaymentTypes = paymentTypes.filter((paymentType) =>
+  const filteredPaymentTypes = paymentTypes?.filter((paymentType) =>
     table?.isOnlineSale
       ? paymentType?.isOnlineOrder
       : !paymentType?.isOnlineOrder
@@ -157,26 +147,26 @@ const OrderPaymentTypes = ({
     // Prepare new orders
     let newOrders: Order[] = [];
     if (
-      temporaryOrders.length !== 0 ||
+      temporaryOrders?.length !== 0 ||
       totalMoneySpend >= totalAmount - discountAmount
     ) {
       if (allTotalMoneySpend >= allTotalAmount - allDiscountAmount) {
         newOrders = allTableOrders?.map((order) => {
           return {
             ...order,
-            paidQuantity: order.quantity,
+            paidQuantity: order?.quantity,
           };
         });
       } else if (totalMoneySpend >= totalAmount - discountAmount) {
         newOrders = tableOrders?.map((order) => {
           return {
             ...order,
-            paidQuantity: order.quantity,
+            paidQuantity: order?.quantity,
           };
         });
       } else {
         newOrders = tableOrders?.map((order) => {
-          const temporaryOrder = temporaryOrders.find(
+          const temporaryOrder = temporaryOrders?.find(
             (temporaryOrder) => temporaryOrder.order?._id === order?._id
           );
           if (!temporaryOrder) {
@@ -184,7 +174,7 @@ const OrderPaymentTypes = ({
           }
           return {
             ...order,
-            paidQuantity: order.paidQuantity + temporaryOrder.quantity,
+            paidQuantity: order?.paidQuantity + temporaryOrder.quantity,
           };
         });
       }
@@ -209,7 +199,7 @@ const OrderPaymentTypes = ({
       orders: finalCollectionOrders,
       ...(finalNewOrders.length > 0 && { newOrders: finalNewOrders }),
       createdBy: user?._id,
-      tableDate: table ? new Date(table.date) : new Date(),
+      tableDate: table ? new Date(table?.date) : new Date(),
       activityPlayer: selectedActivityUser,
       ...(pointUser && { pointUser: pointUser }),
       ...(pointConsumer && { pointConsumer: pointConsumer }),
@@ -219,7 +209,7 @@ const OrderPaymentTypes = ({
 
     const totalMoney = collectionsTotalAmount + actualAmount;
 
-    if (table && !table?.finishHour && table.type === TableTypes.TAKEOUT) {
+    if (table && !table?.finishHour && table?.type === TableTypes.TAKEOUT) {
       if (totalMoney === totalAmount - discountAmount) {
         closeTable({
           id: table?._id,
@@ -269,7 +259,7 @@ const OrderPaymentTypes = ({
               }
               // if payment amount is empty
               if (
-                temporaryOrders.length === 0 &&
+                temporaryOrders?.length === 0 &&
                 (paymentAmount === "" || paymentAmount === "0")
               ) {
                 toast.error(
@@ -279,7 +269,7 @@ const OrderPaymentTypes = ({
               }
 
               // Check if this is a point payment method
-              if (paymentType.isPointPayment) {
+              if (paymentType?.isPointPayment) {
                 setSelectedPaymentMethod(paymentType);
                 setIsPointModalOpen(true);
                 return;
@@ -293,9 +283,9 @@ const OrderPaymentTypes = ({
             <img
               className="w-12 h-12"
               src={paymentTypeImage(paymentType?._id)}
-              alt={paymentType.name}
+              alt={paymentType?.name}
             />
-            <p className="font-medium text-center">{t(paymentType.name)}</p>
+            <p className="font-medium text-center">{t(paymentType?.name)}</p>
           </div>
         ))}
       </div>
@@ -358,11 +348,11 @@ const OrderPaymentTypes = ({
                 )}
 
                 <div className="flex flex-row gap-2 justify-center items-center">
-                  <p className="min-w-9">{collection.amount.toFixed(2)} ₺</p>
+                  <p className="min-w-9">{collection?.amount.toFixed(2)} ₺</p>
                   <p>
-                    {collection.paymentMethod
+                    {collection?.paymentMethod
                       ? t(
-                          getPaymentMethodName(collection.paymentMethod)
+                          getPaymentMethodName(collection?.paymentMethod)
                             ?.name || ""
                         )
                       : ""}
@@ -398,11 +388,11 @@ const OrderPaymentTypes = ({
                             return {
                               ...order,
                               paidQuantity:
-                                order.paidQuantity -
+                                order?.paidQuantity -
                                   orderCollectionItem?.paidQuantity <
                                 1e-6
                                   ? 0
-                                  : order.paidQuantity -
+                                  : order?.paidQuantity -
                                     orderCollectionItem?.paidQuantity,
                             };
                           }
@@ -411,7 +401,7 @@ const OrderPaymentTypes = ({
                         ?.filter((item): item is Order => item !== null);
                     }
                     if (
-                      collection.amount === totalMoneySpend &&
+                      collection?.amount === totalMoneySpend &&
                       collection?.table
                     ) {
                       newOrders = tableOrders?.map((tableOrder) => {
@@ -446,7 +436,7 @@ const OrderPaymentTypes = ({
                         orderItem?._id === orderCollectionItem?.order
                     );
                     if (!order) return null;
-                    const item = getItem(order.item, items);
+                    const item = getItem(order?.item, items);
                     return (
                       <div
                         key={

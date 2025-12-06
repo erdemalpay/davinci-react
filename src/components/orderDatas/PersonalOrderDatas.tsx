@@ -24,7 +24,6 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
 import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
-import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -103,11 +102,10 @@ const PersonalOrderDatas = () => {
     );
   }, [disabledConditions]);
 
-  if (!gameplayDatas || !users || !tableCreateDatas || !personalOrderDatas) {
-    return <Loading />;
-  }
-
   const allRows = useMemo(() => {
+    if (!gameplayDatas || !users || !tableCreateDatas || !personalOrderDatas) {
+      return [];
+    }
     return personalOrderDatas.map((personalOrderData) => {
       const foundTableData = tableCreateDatas.find(
         (tableData) => tableData.createdBy === personalOrderData.user

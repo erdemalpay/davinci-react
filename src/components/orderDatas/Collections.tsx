@@ -7,13 +7,13 @@ import { FiEdit } from "react-icons/fi";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-    ActionEnum,
-    DateRangeKey,
-    DisabledConditionEnum,
-    OrderCollection,
-    OrderCollectionStatus,
-    Table,
-    commonDateOptions,
+  ActionEnum,
+  DateRangeKey,
+  DisabledConditionEnum,
+  OrderCollection,
+  OrderCollectionStatus,
+  Table,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -22,15 +22,14 @@ import { useGetSellLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import {
-    useCollectionMutation,
-    useGetAllOrderCollections,
+  useCollectionMutation,
+  useGetAllOrderCollections,
 } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
-import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -38,7 +37,10 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 // Extended type for table rows
-type CollectionRow = Omit<OrderCollection, '_id' | 'cancelledAt' | 'paymentMethod'> & {
+type CollectionRow = Omit<
+  OrderCollection,
+  "_id" | "cancelledAt" | "paymentMethod"
+> & {
   _id: number | string; // Override: number -> number | string (for "total" row)
   cashier?: string;
   cancelledBy?: string;
@@ -97,10 +99,6 @@ const Collections = () => {
     );
   }, [disabledConditions]);
 
-  if (!collections || !orders || !sellLocations || !users || !paymentMethods) {
-    return <Loading />;
-  }
-
   const collectionStatus = useMemo(
     () => [
       {
@@ -123,53 +121,66 @@ const Collections = () => {
   );
 
   const allRows = useMemo((): CollectionRow[] => {
-    return collections
-      ?.map((collection): CollectionRow | null => {
-        if (!collection?.createdAt) {
-          return null;
-        }
-        const paymentMethod = paymentMethods.find(
-          (method) => method._id === collection?.paymentMethod
-        );
-        const zonedTime = toZonedTime(collection.createdAt, "UTC");
-        const collectionDate = new Date(zonedTime);
-        return {
-          ...collection,
-          cashier: getItem(collection?.createdBy, users)?.name,
-          cancelledBy: getItem(collection?.cancelledBy, users)?.name,
-          cancelledById: collection?.cancelledBy,
-          date: format(collectionDate, "yyyy-MM-dd"),
-          formattedDate: formatAsLocalDate(
-            format(collectionDate, "yyyy-MM-dd")
-          ),
-          cancelledAt: collection?.cancelledAt
-            ? format(collection?.cancelledAt, "HH:mm")
-            : "",
-          hour: format(collectionDate, "HH:mm"),
-          paymentMethod: paymentMethod ? t(paymentMethod.name) : "",
-          paymentMethodId: collection?.paymentMethod,
-          tableId: (collection?.table as Table)?._id,
-          tableName: (collection?.table as Table)?.name,
-          locationName: getItem(collection?.location, sellLocations)?.name,
-          collapsible: {
-            collapsibleHeader: t("Orders"),
-            collapsibleColumns: [
-              { key: t("Product"), isSortable: true },
-              { key: t("Quantity"), isSortable: true },
-            ],
-            collapsibleRows: collection?.orders?.map((orderCollectionItem) => ({
-              product: getItem(
-                orders?.find((order) => order._id === orderCollectionItem.order)
-                  ?.item,
-                items
-              )?.name,
-              quantity: orderCollectionItem?.paidQuantity ?? 0,
-            })) || [],
-            collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
-          },
-        };
-      })
-      ?.filter((item): item is CollectionRow => item !== null) || [];
+    if (
+      !collections ||
+      !orders ||
+      !sellLocations ||
+      !users ||
+      !paymentMethods
+    ) {
+      return [];
+    }
+    return (
+      collections
+        ?.map((collection): CollectionRow | null => {
+          if (!collection?.createdAt) {
+            return null;
+          }
+          const paymentMethod = paymentMethods.find(
+            (method) => method._id === collection?.paymentMethod
+          );
+          const zonedTime = toZonedTime(collection.createdAt, "UTC");
+          const collectionDate = new Date(zonedTime);
+          return {
+            ...collection,
+            cashier: getItem(collection?.createdBy, users)?.name,
+            cancelledBy: getItem(collection?.cancelledBy, users)?.name,
+            cancelledById: collection?.cancelledBy,
+            date: format(collectionDate, "yyyy-MM-dd"),
+            formattedDate: formatAsLocalDate(
+              format(collectionDate, "yyyy-MM-dd")
+            ),
+            cancelledAt: collection?.cancelledAt
+              ? format(collection?.cancelledAt, "HH:mm")
+              : "",
+            hour: format(collectionDate, "HH:mm"),
+            paymentMethod: paymentMethod ? t(paymentMethod.name) : "",
+            paymentMethodId: collection?.paymentMethod,
+            tableId: (collection?.table as Table)?._id,
+            tableName: (collection?.table as Table)?.name,
+            locationName: getItem(collection?.location, sellLocations)?.name,
+            collapsible: {
+              collapsibleHeader: t("Orders"),
+              collapsibleColumns: [
+                { key: t("Product"), isSortable: true },
+                { key: t("Quantity"), isSortable: true },
+              ],
+              collapsibleRows:
+                collection?.orders?.map((orderCollectionItem) => ({
+                  product: getItem(
+                    orders?.find(
+                      (order) => order._id === orderCollectionItem.order
+                    )?.item,
+                    items
+                  )?.name,
+                  quantity: orderCollectionItem?.paidQuantity ?? 0,
+                })) || [],
+              collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+            },
+          };
+        })
+        ?.filter((item): item is CollectionRow => item !== null) || []
+    );
   }, [collections, paymentMethods, users, sellLocations, t, orders, items]);
 
   const rows = useMemo((): CollectionRow[] => {
@@ -372,11 +383,10 @@ const Collections = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
@@ -384,11 +394,10 @@ const Collections = () => {
         type: InputTypes.SELECT,
         formKey: "cancelledBy",
         label: t("Cancelled By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Cancelled By"),
         required: true,
       },

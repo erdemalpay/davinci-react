@@ -27,7 +27,6 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
-import Loading from "../common/Loading";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -88,11 +87,8 @@ const DiscountBasedSales = () => {
     );
   }, [disabledConditions]);
 
-  if (!orders || !sellLocations || !discounts || !items || !tables) {
-    return <Loading />;
-  }
-
   const rows = useMemo(() => {
+    if (!orders || !sellLocations || !discounts || !items || !tables) return [];
     const allRows = orders
       ?.filter(
         (order) =>
@@ -470,11 +466,10 @@ const DiscountBasedSales = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
@@ -482,11 +477,10 @@ const DiscountBasedSales = () => {
         type: InputTypes.SELECT,
         formKey: "preparedBy",
         label: t("Prepared By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Prepared By"),
         required: true,
       },
@@ -494,11 +488,10 @@ const DiscountBasedSales = () => {
         type: InputTypes.SELECT,
         formKey: "deliveredBy",
         label: t("Delivered By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Delivered By"),
         required: true,
       },
@@ -506,11 +499,10 @@ const DiscountBasedSales = () => {
         type: InputTypes.SELECT,
         formKey: "cancelledBy",
         label: t("Cancelled By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Cancelled By"),
         required: true,
       },

@@ -8,7 +8,6 @@ import {
   TURKISHLIRA,
 } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
-import Loading from "../../../common/Loading";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
@@ -27,7 +26,7 @@ const normalizeText = (text: string) =>
     .replace(/ö/g, "o")
     .replace(/ç/g, "c");
 
-const DiscountScreen = ({ tableOrders, table }: Props) => {
+const DiscountScreen = ({ table }: Props) => {
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -37,7 +36,6 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
     setSelectedDiscount,
     setIsDiscountNoteOpen,
   } = useOrderContext();
-  if (!discounts || !tableOrders) return <Loading />;
   const handleDiscountClick = (discount: OrderDiscount) => {
     setSelectedDiscount(discount);
     if (discount?.isNoteRequired) {
@@ -53,10 +51,10 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
   const searchFilteredDiscounts = filteredDiscounts?.filter((discount) => {
     const searchValue = normalizeText(searchTerm);
     return (
-      normalizeText(discount.name).includes(searchValue) ||
-      (discount.percentage &&
-        discount.percentage.toString().includes(searchTerm)) ||
-      (discount.amount && discount.amount.toString().includes(searchTerm))
+      normalizeText(discount?.name).includes(searchValue) ||
+      (discount?.percentage &&
+        discount?.percentage.toString().includes(searchTerm)) ||
+      (discount?.amount && discount?.amount.toString().includes(searchTerm))
     );
   });
 
@@ -81,7 +79,7 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
             {searchFilteredDiscounts?.map((discount) => {
               return (
                 <div
-                  key={discount._id}
+                  key={discount?._id}
                   className="flex flex-col justify-start items-center px-2 py-1  pb-2 border rounded-md border-gray-200 hover:bg-gray-100 cursor-pointer h-24 overflow-hidden"
                   onClick={() => {
                     handleDiscountClick(discount);
@@ -89,11 +87,11 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
                 >
                   <p className="text-red-600 p-2 items-center justify-center  font-medium">
                     {discount?.percentage
-                      ? discount.percentage + "%"
-                      : discount.amount + " " + TURKISHLIRA}
+                      ? discount?.percentage + "%"
+                      : discount?.amount + " " + TURKISHLIRA}
                   </p>
                   <p className="flex flex-row gap-1 text-sm font-medium py-0.5 text-center">
-                    {discount.name}
+                    {discount?.name}
                   </p>
                 </div>
               );

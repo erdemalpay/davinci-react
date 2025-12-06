@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-    ActionEnum,
-    DateRangeKey,
-    DisabledConditionEnum,
-    OrderStatus,
-    TURKISHLIRA,
-    commonDateOptions,
-    orderFilterStatusOptions,
+  ActionEnum,
+  DateRangeKey,
+  DisabledConditionEnum,
+  OrderStatus,
+  TURKISHLIRA,
+  commonDateOptions,
+  orderFilterStatusOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
@@ -24,7 +24,6 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
-import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -80,11 +79,8 @@ const GroupedProductSalesReport = () => {
     );
   }, [disabledConditions]);
 
-  if (!orders || !categories || !sellLocations) {
-    return <Loading />;
-  }
-
   const rows = useMemo(() => {
+    if (!orders || !categories || !sellLocations) return [];
     const allRows = orders
       ?.filter((order) => order.status !== OrderStatus.CANCELLED)
       ?.reduce((acc, order) => {
@@ -448,11 +444,10 @@ const GroupedProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
@@ -460,11 +455,10 @@ const GroupedProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "preparedBy",
         label: t("Prepared By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Prepared By"),
         required: true,
       },
@@ -472,11 +466,10 @@ const GroupedProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "deliveredBy",
         label: t("Delivered By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Delivered By"),
         required: true,
       },
@@ -484,11 +477,10 @@ const GroupedProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "cancelledBy",
         label: t("Cancelled By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Cancelled By"),
         required: true,
       },

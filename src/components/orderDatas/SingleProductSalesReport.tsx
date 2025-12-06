@@ -24,7 +24,6 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
-import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -74,11 +73,10 @@ const SingleProductSalesReport = () => {
     );
   }, [disabledConditions]);
 
-  if (!orders || !categories || !sellLocations) {
-    return <Loading />;
-  }
-
   const rows = useMemo(() => {
+    if (!orders || !categories || !sellLocations) {
+      return [];
+    }
     const allRows = orders
       ?.filter((order) => order.status !== OrderStatus.CANCELLED)
       ?.reduce((acc, order) => {
@@ -146,7 +144,7 @@ const SingleProductSalesReport = () => {
       });
     }
     return allRows;
-  }, [orders, categories, items, t]);
+  }, [orders, categories, items, t, sellLocations]);
 
   const columns = useMemo(
     () => [

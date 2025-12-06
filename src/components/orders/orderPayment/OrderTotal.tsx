@@ -4,7 +4,6 @@ import { useOrderContext } from "../../../context/Order.context";
 import { Order, Table } from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { getItem } from "../../../utils/getItem";
-import Loading from "../../common/Loading";
 import Keypad from "./KeyPad";
 
 type Props = {
@@ -23,9 +22,6 @@ const OrderTotal = ({
 }: Props) => {
   const { t } = useTranslation();
   const items = useGetMenuItems();
-  if (!tableOrders || !items) {
-    return <Loading />;
-  }
   const {
     setPaymentAmount,
     setTemporaryOrders,
@@ -36,16 +32,16 @@ const OrderTotal = ({
     if (order?.discount) {
       return (
         (order?.discountPercentage
-          ? order.unitPrice *
+          ? order?.unitPrice *
             (100 - (order?.discountPercentage ?? 0)) *
             (1 / 100)
-          : order.unitPrice - (order?.discountAmount ?? 0)) *
-        (order?.division ? order.quantity / order.division : 1)
+          : order?.unitPrice - (order?.discountAmount ?? 0)) *
+        (order?.division ? order?.quantity / order?.division : 1)
       );
     } else {
       return (
-        order.unitPrice *
-        (order?.division ? order.quantity / order.division : 1)
+        order?.unitPrice *
+        (order?.division ? order?.quantity / order?.division : 1)
       );
     }
   };
@@ -56,8 +52,8 @@ const OrderTotal = ({
         {tableOrders
           ?.sort((a, b) => a.item - b.item)
           ?.map((order) => {
-            const tempOrder = temporaryOrders.find(
-              (tempOrder) => tempOrder.order?._id === order?._id
+            const tempOrder = temporaryOrders?.find(
+              (tempOrder) => tempOrder?.order?._id === order?._id
             );
             const isOrderPaid = (tempOrder?.quantity ?? 0) !== 0;
             if (!isOrderPaid) return null;
@@ -67,21 +63,21 @@ const OrderTotal = ({
                 className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  hover:bg-gray-100 cursor-pointer"
                 onClick={() => {
                   if (!tempOrder) return;
-                  if (tempOrder.quantity === 1 && !order?.division) {
+                  if (tempOrder?.quantity === 1 && !order?.division) {
                     setTemporaryOrders(
-                      temporaryOrders.filter(
-                        (tempOrder) => tempOrder.order?._id !== order?._id
+                      temporaryOrders?.filter(
+                        (tempOrder) => tempOrder?.order?._id !== order?._id
                       )
                     );
                   } else {
                     setTemporaryOrders(
-                      temporaryOrders.map((tempOrder) => {
-                        if (tempOrder.order?._id === order?._id) {
+                      temporaryOrders?.map((tempOrder) => {
+                        if (tempOrder?.order?._id === order?._id) {
                           const newQuantity = order?.division
-                            ? tempOrder.quantity -
-                              order.quantity / order.division
-                            : tempOrder.quantity -
-                              Math.min(tempOrder.quantity, 1);
+                            ? tempOrder?.quantity -
+                              order?.quantity / order?.division
+                            : tempOrder?.quantity -
+                              Math.min(tempOrder?.quantity, 1);
                           const roundedQuantity =
                             Math.abs(newQuantity) < 1e-6 ? 0 : newQuantity;
 
@@ -124,13 +120,13 @@ const OrderTotal = ({
                 <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
                   <p>
                     {(
-                      (order.discount
+                      (order?.discount
                         ? order?.discountPercentage
-                          ? order.unitPrice *
+                          ? order?.unitPrice *
                             (100 - (order?.discountPercentage ?? 0)) *
                             (1 / 100)
-                          : order.unitPrice - (order?.discountAmount ?? 0)
-                        : order.unitPrice) * (tempOrder?.quantity ?? 0)
+                          : order?.unitPrice - (order?.discountAmount ?? 0)
+                        : order?.unitPrice) * (tempOrder?.quantity ?? 0)
                     ).toFixed(2)}
                     ₺
                   </p>
@@ -139,11 +135,11 @@ const OrderTotal = ({
                       className="cursor-pointer text-red-600 text-lg hover:text-red-900"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const tempOrder = temporaryOrders.find(
+                        const tempOrder = temporaryOrders?.find(
                           (tOrder) => tOrder.order?._id === order?._id
                         );
                         setTemporaryOrders(
-                          temporaryOrders.filter(
+                          temporaryOrders?.filter(
                             (tOrder) => tOrder.order?._id !== order?._id
                           )
                         );
@@ -152,7 +148,7 @@ const OrderTotal = ({
                           handlePaymentAmount(order) *
                             ((tempOrder?.quantity ?? 1) *
                               (order?.division
-                                ? order.division / order.quantity
+                                ? order?.division / order?.quantity
                                 : 1));
                         if (newPaymentAmount < 1e-6) {
                           setPaymentAmount("");
