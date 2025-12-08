@@ -1,3 +1,5 @@
+import { debounce } from "lodash";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OptionType, OrderDiscount } from "../../types";
 import { useGetMemberships } from "../../utils/api/membership";
@@ -27,6 +29,28 @@ const SharedDiscountNoteScreen = ({
   const members = useGetMemberships();
   const MEMBERDISCOUNTID = 8;
 
+  const [localNote, setLocalNote] = useState(
+    typeof discountNote === "string" ? discountNote : ""
+  );
+
+  // Sync when discount changes
+  useEffect(() => {
+    if (typeof discountNote === "string") {
+      setLocalNote(discountNote);
+    }
+  }, [discountNote]);
+
+  // Debounced context update
+  const debouncedSetDiscountNote = useMemo(
+    () => debounce((value: string) => setDiscountNote(value), 300),
+    [setDiscountNote]
+  );
+
+  const handleNoteChange = (value: string) => {
+    setLocalNote(value);
+    debouncedSetDiscountNote(value);
+  };
+
   const memberOptions =
     members
       ?.filter((membership) => membership.endDate >= formatDate(new Date()))
@@ -44,9 +68,9 @@ const SharedDiscountNoteScreen = ({
           <>
             <H6 className="min-w-10">{t("Discount Note")}</H6>
             <textarea
-              value={discountNote}
+              value={localNote}
               placeholder={t("Enter discount note")}
-              onChange={(e) => setDiscountNote(e.target.value)}
+              onChange={(e) => handleNoteChange(e.target.value)}
               className="border text-base border-gray-300 rounded-md p-2 w-full h-32"
             />
           </>
