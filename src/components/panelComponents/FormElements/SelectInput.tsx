@@ -57,14 +57,14 @@ interface SelectInputProps {
 
 const normalizeText = (text: string) => {
   return text
-    .toLowerCase()
-    .replace(/ı/g, "i")
-    .replace(/i̇/g, "i")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c");
+    ?.toLowerCase()
+    ?.replace(/ı/g, "i")
+    ?.replace(/i̇/g, "i")
+    ?.replace(/ğ/g, "g")
+    ?.replace(/ü/g, "u")
+    ?.replace(/ş/g, "s")
+    ?.replace(/ö/g, "o")
+    ?.replace(/ç/g, "c");
 };
 
 const customFilterOption = (
@@ -106,7 +106,7 @@ const SelectInput = ({
   isTopFlexRow = false,
   isSortDisabled = false,
   suggestedOption,
-  customControlBackgroundColor
+  customControlBackgroundColor,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -125,7 +125,9 @@ const SelectInput = ({
       borderRadius: "4px",
       fontSize: "16px",
       height: "auto",
-      ...(customControlBackgroundColor && { backgroundColor: customControlBackgroundColor }),
+      ...(customControlBackgroundColor && {
+        backgroundColor: customControlBackgroundColor,
+      }),
     }),
     menu: (base: any) => ({
       ...base,
@@ -161,10 +163,10 @@ const SelectInput = ({
     const sorted = isSortDisabled
       ? options
       : options.sort((a, b) => {
-          const aStartsWith = normalizeText(a.label).startsWith(
+          const aStartsWith = normalizeText(a.label)?.startsWith(
             normalizeText(searchInput)
           );
-          const bStartsWith = normalizeText(b.label).startsWith(
+          const bStartsWith = normalizeText(b.label)?.startsWith(
             normalizeText(searchInput)
           );
           if (aStartsWith && !bStartsWith) return -1;
