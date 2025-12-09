@@ -30,7 +30,10 @@ export function LocationSelector({ allowedLocations }: Props) {
       {showedLocations?.map((location) => (
         <button
           key={location._id}
-          onClick={() => setSelectedLocationId(location._id)}
+          onClick={() => {
+            setSelectedLocationId(location._id);
+            window.scrollTo({ top: 0, behavior: "auto" });
+          }}
           className={`text-sm ${
             selectedLocationId === location._id ? "border-2" : "border-0"
           }  px-2 py-1 rounded-lg  text-white`}
