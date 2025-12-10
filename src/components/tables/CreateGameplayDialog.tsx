@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Gameplay, Table, User } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -24,7 +25,7 @@ export function CreateGameplayDialog({
 }) {
   const { t } = useTranslation();
   const [data, setData] = useState<Partial<Gameplay>>(gameplay);
-
+  const users = useGetUsersMinimal();
   const { mutate: createGameplay } = useCreateGameplayMutation();
 
   function handleCreate() {
@@ -73,10 +74,18 @@ export function CreateGameplayDialog({
         formKey: "mentor",
         label: t("Mentor"),
         placeholder: t("Mentor"),
-        options: mentors.map((mentor) => ({
-          value: mentor._id,
-          label: mentor.name,
-        })),
+        options: mentors
+          .map((mentor) => {
+            const foundUser = users?.find((user) => user._id === mentor._id);
+            if (foundUser) {
+              return {
+                value: foundUser._id,
+                label: `${foundUser.name}`,
+              };
+            }
+            return null;
+          })
+          .filter(Boolean),
         required: true,
       },
       {
@@ -105,7 +114,7 @@ export function CreateGameplayDialog({
         required: false,
       },
     ],
-    [mentors, games, t]
+    [mentors, games, t, users]
   );
 
   const gameplayFormKeys = [

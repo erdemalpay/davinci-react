@@ -1,4 +1,9 @@
-import { QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -92,14 +97,15 @@ export function createGameplay({
   });
 }
 
-export function updateGameplay({
+export async function updateGameplay({
   id,
   updates,
 }: UpdateGameplayPayload): Promise<Gameplay> {
-  return patch<Partial<Gameplay>, Gameplay>({
+  const response: any = await patch<Partial<Gameplay>, Gameplay>({
     path: `/gameplays/${id}`,
     payload: updates,
   });
+  return response.data;
 }
 
 export function deleteGameplay({
@@ -166,8 +172,6 @@ export function useGetGameplays(
   limit: number,
   filters: FormElementsState
 ) {
-
-
   const parts = [
     `page=${page}`,
     `limit=${limit}`,
@@ -291,7 +295,6 @@ export function useCreateGameplayMutation() {
       return { previousByLocation };
     },
 
-   
     onError: (_error, _variables, context) => {
       if (context?.previousByLocation) {
         queryClient.setQueryData<TablesByLocation>(
@@ -342,8 +345,6 @@ export function useCreateGameplayMutation() {
         }
       }
     },
-
-
   });
 }
 export function useUpdateGameplayMutation() {
@@ -378,25 +379,18 @@ export function useUpdateGameplayMutation() {
         return { previousByLocation };
       }
 
-      const updatedGameplay = previousTable.gameplays.find(
-        (gameplay) => gameplay._id === id
-      );
-
-      if (!updatedGameplay) {
-        return { previousByLocation };
-      }
-
+      // Use .map() to update in place, preserving order
       const updatedTable: Table = {
         ...previousTable,
-        gameplays: [
-          ...previousTable.gameplays.filter((gameplay) => gameplay._id !== id),
-          {
-            ...updatedGameplay,
-            ...updates,
-          },
-        ],
+        gameplays: previousTable.gameplays.map((gameplay) =>
+          gameplay._id === id
+            ? {
+                ...gameplay,
+                ...updates,
+              }
+            : gameplay
+        ),
       };
-
       const updatedTablesForLocation = [
         ...prevForLocation.filter((table) => table._id !== previousTable._id),
         updatedTable,
@@ -446,14 +440,12 @@ export function useUpdateGameplayMutation() {
           );
 
           if (previousTable) {
+            // Use .map() to update in place, preserving order
             const updatedTable: Table = {
               ...previousTable,
-              gameplays: [
-                ...previousTable.gameplays.filter(
-                  (gameplay) => gameplay._id !== variables.id
-                ),
-                data,
-              ],
+              gameplays: previousTable.gameplays.map((gameplay) =>
+                gameplay._id === variables.id ? data : gameplay
+              ),
             };
 
             const updatedTablesForLocation = [
