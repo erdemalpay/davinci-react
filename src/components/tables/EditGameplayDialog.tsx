@@ -80,7 +80,7 @@ export function EditGameplayDialog({
 
   const selectedGame = games.find((game) => game._id === gameplay.game);
   const selectedMentor =
-    mentors.find((mentor) => mentor._id === gameplay.mentor?._id) ||
+    mentors.find((mentor) => mentor._id === gameplay.mentor) ||
     mentors.find((mentor) => mentor._id === "dv");
 
   return (
@@ -107,7 +107,9 @@ export function EditGameplayDialog({
             <div className="flex items-center justify-center h-full w-full">
               <div className="bg-white rounded-md shadow fixed overflow-y-auto sm:h-auto w-10/12 md:w-8/12 lg:w-1/2 2xl:w-2/5">
                 <div className="bg-gray-100 rounded-tl-md rounded-tr-md px-4 md:px-8 md:py-4 py-7 flex items-center justify-between">
-                  <p className="text-base font-semibold">{t("Update Gameplay")}</p>
+                  <p className="text-base font-semibold">
+                    {t("Update Gameplay")}
+                  </p>
                   <div className="flex flex-row justify-end gap-4">
                     <GenericButton
                       onClick={() => setIsConfirmationDialogOpen(true)}

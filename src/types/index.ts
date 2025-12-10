@@ -5,7 +5,7 @@ export type Gameplay = {
   finishHour?: string;
   playerCount: number;
   game?: Game | number;
-  mentor: User;
+  mentor: User | string;
   location: number;
   createdBy: User;
 };
