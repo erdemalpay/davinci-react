@@ -1,4 +1,5 @@
 import { Gameplay } from "../../types";
+import { useGetUsersMinimal } from "../../utils/api/user";
 type Props = {
   gameplay: Gameplay;
   editGameplay: (gameplay: Gameplay) => void;
@@ -12,6 +13,8 @@ const GameplayCard = ({
   getGameName,
   getDuration,
 }: Props) => {
+  const users = useGetUsersMinimal();
+  const foundMentor = users?.find((user) => user._id === gameplay.mentor);
   return (
     <div
       key={gameplay._id || gameplay.startHour}
@@ -24,9 +27,9 @@ const GameplayCard = ({
         </div>
         <h1 className="text-xs">({gameplay.playerCount})</h1>
         <div className="flex gap-2">
-          {gameplay.mentor?._id !== "dv" ? (
+          {foundMentor?._id !== "dv" ? (
             <div className="bg-gray-300 rounded-full px-2 mr-1 whitespace-nowrap">
-              {gameplay.mentor?.name}
+              {foundMentor?.name}
             </div>
           ) : (
             <></>

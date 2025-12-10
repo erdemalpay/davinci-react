@@ -51,10 +51,11 @@ export default function NewGameplays() {
   const rows = useMemo(() => {
     const allRows = gameplaysPayload?.data?.map((gameplay) => {
       const foundLocation = getItem(gameplay.location, locations);
+      const foundMentor = getItem(gameplay.mentor, users);
       return {
         _id: gameplay?._id || 0,
         game: (gameplay?.game as Game)?.name,
-        mentor: gameplay?.mentor?.name,
+        mentor: foundMentor?.name || "",
         playerCount: gameplay?.playerCount,
         locationName: foundLocation?.name || "",
         startHour: gameplay?.startHour || "",
@@ -137,11 +138,10 @@ export default function NewGameplays() {
         type: InputTypes.SELECT,
         formKey: "mentor",
         label: t("Game Mentor"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Game Mentor"),
         required: true,
       },
