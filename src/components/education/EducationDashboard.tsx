@@ -12,11 +12,10 @@ import {
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
-import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ImageModal from "../panelComponents/Modals/ImageModal";
 import { H5 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
-import ImageModal from "../panelComponents/Modals/ImageModal";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { Education, RoleEnum } from "./../../types/index";
@@ -78,14 +77,10 @@ const EducationDashboard = () => {
   const [selectedUpdateHistory, setSelectedUpdateHistory] = useState<any>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
-  if (!user || !educations || !roles) {
-    return <Loading />;
-  }
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const disabledUsers = ![
-    RoleEnum.MANAGER,
-    RoleEnum.OPERATIONSASISTANT,
-  ].includes(user?.role?._id);
+  const disabledUsers = user?.role?._id
+    ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+    : true;
   const isDisabledCondition = isEnableEdit && user ? disabledUsers : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
@@ -107,9 +102,14 @@ const EducationDashboard = () => {
     useState(false);
   const [isUpdateSubHeaderModalOpen, setIsUpdateSubHeaderModalOpen] =
     useState(false);
+  const userRoleId = user?.role?._id;
   const filteredEducations: Education[] =
     educations?.filter((edu: Education) =>
-      isEnableEdit ? true : edu?.permissionRoles?.includes(user?.role?._id)
+      isEnableEdit
+        ? true
+        : userRoleId
+        ? edu?.permissionRoles?.includes(userRoleId)
+        : false
     ) || [];
   filteredEducations.sort((a, b) => a.order - b.order);
   const [headerForm, setHeaderForm] = useState({
@@ -321,9 +321,13 @@ const EducationDashboard = () => {
       {/* Main content area showing education details */}
       <div className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full relative">
         {/* Placeholder to prevent layout shift */}
-        <div className={`h-12 mb-4 ${disabledUsers ? 'hidden' : ''}`}></div>
+        <div className={`h-12 mb-4 ${disabledUsers ? "hidden" : ""}`}></div>
         {/* Fixed switch button */}
-        <div className={`fixed top-20 right-4 z-50 bg-white shadow-md rounded-lg px-4 py-2 flex flex-row gap-2 items-center ${disabledUsers ? 'hidden' : ''}`}>
+        <div
+          className={`fixed top-20 right-4 z-50 bg-white shadow-md rounded-lg px-4 py-2 flex flex-row gap-2 items-center ${
+            disabledUsers ? "hidden" : ""
+          }`}
+        >
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
           <H5 className="w-fit">{t("Enable Edit")}</H5>
         </div>

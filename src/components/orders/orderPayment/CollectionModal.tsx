@@ -17,7 +17,6 @@ import { useOrderCollectionMutations } from "../../../utils/api/order/orderColle
 import { useGetUsersMinimal } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
 import { GenericButton } from "../../common/GenericButton";
-import Loading from "../../common/Loading";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import {
@@ -51,48 +50,46 @@ const CollectionModal = ({
   const [inputForm, setInputForm] = useState({
     note: "",
   });
-  if (!collections || !orders || !user) {
-    return <Loading />;
-  }
-  const allRows = collections
-    .filter((collection) => (collection?.table as Table)?._id === table._id)
-    .map((collection) => {
-      const paymentMethod = paymentMethods.find(
-        (method) => method._id === collection.paymentMethod
-      );
-      return {
-        _id: collection._id,
-        table: (collection?.table as Table)?._id,
-        cashier: getItem(collection?.createdBy, users)?.name,
-        orders: collection.orders,
-        cancelledBy: getItem(collection?.cancelledBy, users)?.name,
-        cancelledAt: collection?.cancelledAt
-          ? format(collection.cancelledAt, "HH:mm")
-          : "",
-        hour: format(collection.createdAt, "HH:mm"),
-        paymentMethod: paymentMethod?.name,
-        amount: collection.amount.toFixed(2),
-        cancelNote: collection.cancelNote ?? "",
-        status: collection.status,
-        collapsible: {
-          collapsibleHeader: t("Orders"),
-          collapsibleColumns: [
-            { key: t("Product"), isSortable: true },
-            { key: t("Quantity"), isSortable: true },
-          ],
-          collapsibleRows: collection?.orders?.map((orderCollectionItem) => ({
-            product: getItem(
-              orders?.find((order) => order._id === orderCollectionItem.order)
-                ?.item,
-              items
-            )?.name,
-            quantity: orderCollectionItem.paidQuantity.toFixed(2),
-          })),
-          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
-        },
-      };
-    })
-    ?.filter((item) => item !== null);
+  const allRows =
+    collections
+      ?.filter((collection) => (collection?.table as Table)?._id === table._id)
+      .map((collection) => {
+        const paymentMethod = paymentMethods?.find(
+          (method) => method._id === collection.paymentMethod
+        );
+        return {
+          _id: collection._id,
+          table: (collection?.table as Table)?._id,
+          cashier: getItem(collection?.createdBy, users ?? [])?.name,
+          orders: collection.orders,
+          cancelledBy: getItem(collection?.cancelledBy, users ?? [])?.name,
+          cancelledAt: collection?.cancelledAt
+            ? format(collection.cancelledAt, "HH:mm")
+            : "",
+          hour: format(collection.createdAt, "HH:mm"),
+          paymentMethod: paymentMethod?.name,
+          amount: collection.amount.toFixed(2),
+          cancelNote: collection.cancelNote ?? "",
+          status: collection.status,
+          collapsible: {
+            collapsibleHeader: t("Orders"),
+            collapsibleColumns: [
+              { key: t("Product"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+            ],
+            collapsibleRows: collection?.orders?.map((orderCollectionItem) => ({
+              product: getItem(
+                orders?.find((order) => order._id === orderCollectionItem.order)
+                  ?.item,
+                items ?? []
+              )?.name,
+              quantity: orderCollectionItem.paidQuantity.toFixed(2),
+            })),
+            collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+          },
+        };
+      })
+      ?.filter((item) => item !== null) ?? [];
 
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -218,7 +215,7 @@ const CollectionModal = ({
               updates: {
                 cancelNote: inputForm.note,
                 cancelledAt: new Date(),
-                cancelledBy: user._id,
+                cancelledBy: user?._id,
                 status: OrderCollectionStatus.CANCELLED,
                 ...(newOrders && { newOrders: newOrders }),
               },
@@ -250,7 +247,7 @@ const CollectionModal = ({
             <h1 className="font-medium">
               <span className="font-semibold">{t("Table")}</span>: {table?.name}
             </h1>
-            <h1 className="font-medium">{user.name}</h1>
+            <h1 className="font-medium">{user?.name}</h1>
           </div>
         </div>
         <div className="bg-white rounded-b-md shadow overflow-y-auto sm:h-full items-center ">

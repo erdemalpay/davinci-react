@@ -7,7 +7,6 @@ import {
   MdPayments,
 } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
@@ -72,9 +71,6 @@ export default function Vendor() {
   const currentPageId = "vendor";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
-  if (!user || !pages || !vendors || !currentVendor) {
-    return <Loading />;
-  }
   const pageNavigations = [
     {
       name: t("Constants"),
@@ -90,17 +86,19 @@ export default function Vendor() {
       canBeClicked: false,
     },
   ];
-  const currentPageTabs = pages.find(
+  const currentPageTabs = pages?.find(
     (page) => page._id === currentPageId
   )?.tabs;
   const tabs = VendorPageTabs.map((tab) => {
     return {
       ...tab,
-      isDisabled: currentPageTabs
-        ?.find((item) => item.name === tab.label)
-        ?.permissionRoles?.includes(user.role._id)
-        ? false
-        : true,
+      isDisabled:
+        user?.role?._id &&
+        currentPageTabs
+          ?.find((item) => item.name === tab.label)
+          ?.permissionRoles?.includes(user.role._id)
+          ? false
+          : true,
     };
   });
 
@@ -119,10 +117,12 @@ export default function Vendor() {
                       value: selectedVendor._id,
                       label: selectedVendor.name,
                     }
-                  : {
+                  : currentVendor
+                  ? {
                       value: currentVendor._id,
                       label: currentVendor.name,
                     }
+                  : null
               }
               onChange={(selectedOption) => {
                 setSelectedVendor(

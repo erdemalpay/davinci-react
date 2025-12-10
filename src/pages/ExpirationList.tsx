@@ -7,7 +7,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -81,26 +80,18 @@ const ExpirationList = () => {
   });
   const countLocationInputs = [
     StockLocationInput({
-      locations: locations.filter((l) =>
-        expirationLists
-          .find((row) => row._id === expirationListId)
-          ?.locations?.includes(l._id)
-      ),
+      locations:
+        locations?.filter((l) =>
+          expirationLists
+            ?.find((row) => row._id === expirationListId)
+            ?.locations?.includes(l._id)
+        ) ?? [],
     }),
   ];
   const countLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  if (
-    !expirationLists ||
-    !locations ||
-    !user ||
-    !products ||
-    !expirationListId
-  ) {
-    return <Loading />;
-  }
-  const currentExpirationList = expirationLists.find(
+  const currentExpirationList = expirationLists?.find(
     (item) => item._id === expirationListId
   );
   function handleLocationUpdate(row: any, changedLocationId: number) {
@@ -112,7 +103,7 @@ const ExpirationList = () => {
       ...(currentExpirationList.products?.filter(
         (p) =>
           p.product !==
-          (products.find((it) => it.name === row.product)?._id ?? "")
+          (products?.find((it) => it.name === row.product)?._id ?? "")
       ) || []),
 
       {
@@ -134,12 +125,12 @@ const ExpirationList = () => {
   }
   const rows = () => {
     let productRows = [];
-    const currentExpirationList = expirationLists.find(
+    const currentExpirationList = expirationLists?.find(
       (item) => item._id === expirationListId
     );
     if (currentExpirationList && currentExpirationList.products) {
       for (const item of currentExpirationList.products) {
-        const product = products.find((it) => it._id === item.product);
+        const product = products?.find((it) => it._id === item.product);
         if (product) {
           const locationEntries = locations?.reduce<LocationEntries>(
             (acc, location) => {
@@ -173,21 +164,22 @@ const ExpirationList = () => {
       type: InputTypes.SELECT,
       formKey: "product",
       label: t("Product"),
-      options: products
-        .filter((item) => {
-          const expirationList = expirationLists?.find(
-            (item) => item._id === expirationListId
-          );
-          return !expirationList?.products?.some(
-            (pro) => pro.product === item._id
-          );
-        })
-        .map((product) => {
-          return {
-            value: product._id,
-            label: product.name,
-          };
-        }),
+      options:
+        products
+          ?.filter((item) => {
+            const expirationList = expirationLists?.find(
+              (item) => item._id === expirationListId
+            );
+            return !expirationList?.products?.some(
+              (pro) => pro.product === item._id
+            );
+          })
+          .map((product) => {
+            return {
+              value: product._id,
+              label: product.name,
+            };
+          }) ?? [],
       isMultiple: true,
       placeholder: t("Product"),
       required: true,
@@ -215,7 +207,7 @@ const ExpirationList = () => {
   });
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -240,12 +232,12 @@ const ExpirationList = () => {
           const expirationListProducts = () => {
             let productRows = [];
             const products =
-              expirationLists.find((item) => item._id === expirationListId)
+              expirationLists?.find((item) => item._id === expirationListId)
                 ?.products || [];
             const newProducts = form.product?.map((item) => ({
               product: item,
               locations:
-                expirationLists.find((item) => item._id === expirationListId)
+                expirationLists?.find((item) => item._id === expirationListId)
                   ?.locations ?? [],
             }));
             productRows = [...products, ...newProducts];
@@ -277,7 +269,7 @@ const ExpirationList = () => {
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
             if (expirationListId && rowToAction) {
-              const currentExpirationList = expirationLists.find(
+              const currentExpirationList = expirationLists?.find(
                 (item) => item._id === expirationListId
               );
               const newProducts = currentExpirationList?.products?.filter(
@@ -340,10 +332,10 @@ const ExpirationList = () => {
     },
   ];
   // adjust columns and rowkeys  according to locations deletes if neccessary
-  locations.forEach((location) => {
+  locations?.forEach((location) => {
     if (
       !expirationLists
-        .find((item) => item._id === expirationListId)
+        ?.find((item) => item._id === expirationListId)
         ?.locations.includes(location._id)
     ) {
       const columnIndex = columns.findIndex(
@@ -401,12 +393,14 @@ const ExpirationList = () => {
                       value: selectedExpirationList._id,
                       label: selectedExpirationList.name,
                     }
-                  : {
+                  : expirationListId
+                  ? {
                       value: expirationListId,
                       label:
-                        getItem(expirationListId, expirationLists)?.name ||
-                        t("Select a expiration list"),
+                        getItem(expirationListId, expirationLists ?? [])
+                          ?.name || t("Select a expiration list"),
                     }
+                  : null
               }
               onChange={(selectedOption) => {
                 setSelectedExpirationList(
@@ -426,14 +420,18 @@ const ExpirationList = () => {
             columns={columns}
             rows={rows()}
             actions={
-              [RoleEnum.MANAGER].includes(user.role._id) ? actions : undefined
+              user && [RoleEnum.MANAGER].includes(user.role._id)
+                ? actions
+                : undefined
             }
             addButton={
-              [RoleEnum.MANAGER].includes(user.role._id) ? addButton : undefined
+              user && [RoleEnum.MANAGER].includes(user.role._id)
+                ? addButton
+                : undefined
             }
             filters={filters}
             title={
-              expirationLists.find((row) => row._id === expirationListId)?.name
+              expirationLists?.find((row) => row._id === expirationListId)?.name
             }
             isActionsActive={true}
           />
