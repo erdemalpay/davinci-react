@@ -15,6 +15,7 @@ import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetPopularItems } from "../utils/api/menu/popular";
 import { getItem } from "../utils/getItem";
+import OrderCategoryOrder from "./OrderCategoryOrder";
 export interface ItemGroup {
   category: MenuCategory;
   order: number;
@@ -131,6 +132,15 @@ export default function Menu() {
           icon: null,
           content: (
             <CategoryTable handleCategoryChange={handleCategoryChange} />
+          ),
+          isDisabled: false,
+        },
+        {
+          number: itemCategories?.length + emptyCategories?.length + 3,
+          label: t("Order Categories Order"),
+          icon: null,
+          content: (
+           <OrderCategoryOrder />
           ),
           isDisabled: false,
         },

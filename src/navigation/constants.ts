@@ -30,7 +30,6 @@ import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import MenuPrice from "../pages/MenuPrice";
 import OnlineSales from "../pages/OnlineSales";
-import OrderCategoryOrder from "../pages/OrderCategoryOrder";
 import OrderDatas from "../pages/OrderDatas";
 import Orders from "../pages/Orders";
 import OrdersSummary from "../pages/OrdersSummary";
@@ -124,7 +123,6 @@ export enum Routes {
   Activities = "/activities",
   DailySummary = "/daily-summary",
   IkasPickUp = "/ikas-pickup",
-  orderCategoryOrder = "/order-category-order",
   Points = "/points",
   Consumers = "/consumers",
 }
@@ -577,12 +575,6 @@ export const allRoutes: {
         element: BulkProductAdding,
         isOnSidebar: true,
       },
-      {
-        name: "Order Categories Order",
-        path: Routes.orderCategoryOrder,
-        element: OrderCategoryOrder,
-        isOnSidebar: true,
-      },
     ],
   },
   {
@@ -601,12 +593,6 @@ export const allRoutes: {
     name: "Bulk Product Adding",
     path: Routes.BulkProductAdding,
     element: BulkProductAdding,
-    isOnSidebar: false,
-  },
-  {
-    name: "Order Categories Order",
-    path: Routes.orderCategoryOrder,
-    element: OrderCategoryOrder,
     isOnSidebar: false,
   },
   {
