@@ -5,7 +5,6 @@ import { MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import BrandExpenses from "../components/brand/BrandExpenses";
 import BrandProducts from "../components/brand/BrandProducts";
-import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
@@ -51,7 +50,6 @@ export default function Brand() {
       label: i.name,
     };
   });
-  if (!user || !pages || !currentBrand || !brands) return <Loading />;
 
   const pageNavigations = [
     {
@@ -72,17 +70,19 @@ export default function Brand() {
     },
   ];
   const currentPageId = "brand";
-  const currentPageTabs = pages.find(
+  const currentPageTabs = pages?.find(
     (page) => page._id === currentPageId
   )?.tabs;
   const tabs = BrandPageTabs.map((tab) => {
     return {
       ...tab,
-      isDisabled: currentPageTabs
-        ?.find((item) => item.name === tab.label)
-        ?.permissionRoles?.includes(user.role._id)
-        ? false
-        : true,
+      isDisabled:
+        user?.role?._id &&
+        currentPageTabs
+          ?.find((item) => item.name === tab.label)
+          ?.permissionRoles?.includes(user.role._id)
+          ? false
+          : true,
     };
   });
   return (
@@ -100,10 +100,12 @@ export default function Brand() {
                       value: selectedBrand._id,
                       label: selectedBrand.name,
                     }
-                  : {
+                  : currentBrand
+                  ? {
                       value: currentBrand._id,
                       label: currentBrand.name,
                     }
+                  : null
               }
               onChange={(selectedOption) => {
                 setSelectedBrand(

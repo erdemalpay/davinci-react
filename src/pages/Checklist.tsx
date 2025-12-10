@@ -8,7 +8,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -63,8 +62,6 @@ const Checklist = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { updateChecklist } = useChecklistMutations();
   const [selectedChecklist, setSelectedChecklist] = useState<ChecklistType>();
-  if (!user || !checklists || !checklistId || !locations || !checks)
-    return <Loading />;
 
   function handleLocationUpdate(row: any, changedLocationId: number) {
     const currentChecklist = checklists?.find(
@@ -138,6 +135,7 @@ const Checklist = () => {
       }
       return item;
     });
+    if (!checklistId) return;
     updateChecklist({
       id: checklistId,
       updates: { duties: newDuties },
@@ -168,11 +166,12 @@ const Checklist = () => {
   });
   const checkLocationInputs = [
     LocationInput({
-      locations: locations.filter((l) =>
-        checklists
-          ?.find((row) => row._id === checklistId)
-          ?.locations?.includes(l._id)
-      ),
+      locations:
+        locations?.filter((l) =>
+          checklists
+            ?.find((row) => row._id === checklistId)
+            ?.locations?.includes(l._id)
+        ) ?? [],
     }),
   ];
   const checkLocationFormKeys = [
@@ -183,7 +182,7 @@ const Checklist = () => {
     { key: t("Description"), isSortable: false },
   ];
   const rowKeys: RowKeyType<any>[] = [{ key: "duty" }, { key: "description" }];
-  locations.forEach((item) => {
+  locations?.forEach((item) => {
     columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
       key: String(item._id),
@@ -239,6 +238,7 @@ const Checklist = () => {
             dutyRows = [...duties, newDuty];
             return dutyRows;
           };
+          if (!checklistId) return;
           updateChecklist({
             id: checklistId,
             updates: {
@@ -263,18 +263,17 @@ const Checklist = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            if (checklistId && rowToAction) {
-              const currentChecklist = getItem(checklistId, checklists);
-              const newDuties = currentChecklist?.duties?.filter(
-                (item) => item.duty !== rowToAction.duty
-              );
-              updateChecklist({
-                id: checklistId,
-                updates: {
-                  duties: newDuties,
-                },
-              });
-            }
+            if (!checklistId || !rowToAction) return;
+            const currentChecklist = getItem(checklistId, checklists ?? []);
+            const newDuties = currentChecklist?.duties?.filter(
+              (item) => item.duty !== rowToAction.duty
+            );
+            updateChecklist({
+              id: checklistId,
+              updates: {
+                duties: newDuties,
+              },
+            });
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Task")}
@@ -312,7 +311,7 @@ const Checklist = () => {
           handleUpdate={() => {
             const checklistDuties = () => {
               let dutyRows = [];
-              const currentChecklist = getItem(checklistId, checklists);
+              const currentChecklist = getItem(checklistId, checklists ?? []);
               const filteredDuties = currentChecklist?.duties?.filter(
                 (item) => item.duty !== rowToAction.duty
               );
@@ -395,12 +394,14 @@ const Checklist = () => {
                       value: selectedChecklist._id,
                       label: selectedChecklist.name,
                     }
-                  : {
+                  : checklistId
+                  ? {
                       value: checklistId,
                       label:
-                        getItem(checklistId, checklists)?.name ??
+                        getItem(checklistId, checklists ?? [])?.name ??
                         t("Select a checklist"),
                     }
+                  : null
               }
               onChange={(selectedOption) => {
                 setSelectedChecklist(

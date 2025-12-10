@@ -7,7 +7,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -77,26 +76,24 @@ const CountList = () => {
     product: string;
   };
 
-  if (!countLists || !locations || !user || !products || !countListId) {
-    return <Loading />;
-  }
   const counts = useGetAccountCounts();
   const [countLocationForm, setCountLocationForm] = useState({
     location: 0,
   });
   const countLocationInputs = [
     StockLocationInput({
-      locations: locations.filter((l) =>
-        countLists
-          .find((row) => row._id === countListId)
-          ?.locations?.includes(l._id)
-      ),
+      locations:
+        locations?.filter((l) =>
+          countLists
+            ?.find((row) => row._id === countListId)
+            ?.locations?.includes(l._id)
+        ) ?? [],
     }),
   ];
   const countLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  const currentCountList = countLists.find((item) => item._id === countListId);
+  const currentCountList = countLists?.find((item) => item._id === countListId);
   function handleLocationUpdate(row: any, changedLocationId: number) {
     if (!currentCountList) return;
     const currentLocations = currentCountList?.products?.find(
@@ -106,7 +103,7 @@ const CountList = () => {
       ...(currentCountList.products?.filter(
         (p) =>
           p.product !==
-          (products.find((it) => it.name === row.product)?._id ?? "")
+          (products?.find((it) => it.name === row.product)?._id ?? "")
       ) || []),
 
       {
@@ -128,12 +125,12 @@ const CountList = () => {
   }
   const rows = () => {
     let productRows = [];
-    const currentCountList = countLists.find(
+    const currentCountList = countLists?.find(
       (item) => item._id === countListId
     );
     if (currentCountList && currentCountList.products) {
       for (const item of currentCountList.products) {
-        const product = products.find((it) => it._id === item.product);
+        const product = products?.find((it) => it._id === item.product);
         if (product) {
           const locationEntries = locations?.reduce<LocationEntries>(
             (acc, location) => {
@@ -167,19 +164,22 @@ const CountList = () => {
       type: InputTypes.SELECT,
       formKey: "product",
       label: t("Product"),
-      options: products
-        .filter((item) => {
-          const countList = countLists?.find(
-            (item) => item._id === countListId
-          );
-          return !countList?.products?.some((pro) => pro.product === item._id);
-        })
-        .map((product) => {
-          return {
-            value: product._id,
-            label: product.name,
-          };
-        }),
+      options:
+        products
+          ?.filter((item) => {
+            const countList = countLists?.find(
+              (item) => item._id === countListId
+            );
+            return !countList?.products?.some(
+              (pro) => pro.product === item._id
+            );
+          })
+          .map((product) => {
+            return {
+              value: product._id,
+              label: product.name,
+            };
+          }) ?? [],
       isMultiple: true,
       placeholder: t("Product"),
       required: true,
@@ -387,12 +387,14 @@ const CountList = () => {
                       value: selectedCountList._id,
                       label: selectedCountList.name,
                     }
-                  : {
+                  : countListId
+                  ? {
                       value: countListId,
                       label:
                         getItem(countListId, countLists)?.name ||
                         t("Select a count list"),
                     }
+                  : null
               }
               onChange={(selectedOption) => {
                 setSelectedCountList(
@@ -412,13 +414,17 @@ const CountList = () => {
             columns={columns}
             rows={rows()}
             actions={
-              [RoleEnum.MANAGER].includes(user.role._id) ? actions : undefined
+              user && [RoleEnum.MANAGER].includes(user.role._id)
+                ? actions
+                : undefined
             }
             addButton={
-              [RoleEnum.MANAGER].includes(user.role._id) ? addButton : undefined
+              user && [RoleEnum.MANAGER].includes(user.role._id)
+                ? addButton
+                : undefined
             }
             filters={filters}
-            title={countLists.find((row) => row._id === countListId)?.name}
+            title={countLists?.find((row) => row._id === countListId)?.name}
             isActionsActive={true}
           />
           {isCountLocationModalOpen && (

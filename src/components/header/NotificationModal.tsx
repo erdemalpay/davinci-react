@@ -27,7 +27,6 @@ import {
 } from "../../utils/api/notification";
 import { useGetUser } from "../../utils/api/user";
 import { getNotificationLanguageMessage } from "../../utils/notification";
-import Loading from "../common/Loading";
 
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
@@ -40,10 +39,10 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   useEffect(() => {
-    if (notifications.length === 0) {
+    if ((notifications?.length ?? 0) === 0) {
       setSelectedIds([]);
     }
-  }, [notifications.length]);
+  }, [notifications?.length]);
 
   const handleMarkSelectedAsRead = () => {
     if (selectedIds.length === 0) return;
@@ -55,14 +54,14 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   };
 
   const handleSelectAll = () => {
-    if (notifications.length === 0) return;
+    if ((notifications?.length ?? 0) === 0) return;
     setSelectedIds([-1]);
   };
 
   const toggleSelection = (notificationId: number) => {
     setSelectedIds((prev) => {
       if (prev.includes(-1)) {
-        const allIds = notifications.map((n) => n._id);
+        const allIds = notifications?.map((n) => n._id) ?? [];
         return allIds.filter((id) => id !== notificationId);
       }
 
@@ -239,8 +238,6 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
     </div>
   );
 
-  if (!notifications) return <Loading />;
-
   return (
     <div
       ref={modalRef}
@@ -250,13 +247,13 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
         <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2 min-w-0 flex-shrink">
           <span>🔔</span>
           <span className="truncate">{t("Notifications")}</span>
-          {notifications.length > 0 && (
+          {(notifications?.length ?? 0) > 0 && (
             <span className="text-xs sm:text-sm font-semibold text-gray-600 flex-shrink-0">
-              ({notifications.length})
+              ({notifications?.length ?? 0})
             </span>
           )}
         </h3>
-        {notifications.length > 0 && (
+        {(notifications?.length ?? 0) > 0 && (
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {selectedIds.length === 0 ? (
               <>
@@ -285,7 +282,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
                 >
                   {t("Mark as read")} (
                   {selectedIds.includes(-1)
-                    ? notifications.length
+                    ? notifications?.length ?? 0
                     : selectedIds.length}
                   )
                 </button>
@@ -302,7 +299,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
       </div>
 
       <div className="flex flex-col gap-3 overflow-y-auto no-scrollbar pr-1">
-        {notifications.length === 0 ? (
+        {(notifications?.length ?? 0) === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
             <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">🔔</div>
             <p className="text-sm sm:text-base font-semibold text-gray-700 mb-1">

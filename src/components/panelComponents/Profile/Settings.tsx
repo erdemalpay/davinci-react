@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../../context/General.context";
 import { languageOptions, RowPerPageEnum } from "../../../types";
 import { useGetUser, useUserMutations } from "../../../utils/api/user";
-import Loading from "../../common/Loading";
 import CommonSelectInput from "../../common/SelectInput";
 import TextInput from "../FormElements/TextInput";
 import { InputTypes } from "../shared/types";
@@ -13,18 +12,15 @@ const Settings = () => {
   const { updateUser } = useUserMutations();
   const { setRowsPerPage } = useGeneralContext();
   const user = useGetUser();
-  if (!user) {
-    return <Loading />;
-  }
   return (
     <div className="w-5/6 sm:w-1/2 flex flex-col gap-2 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">
       <CommonSelectInput
         label={t("Language")}
         value={{
-          value: user.language ?? languageOptions[0].code,
+          value: user?.language ?? languageOptions[0].code,
           label:
             languageOptions.find(
-              (languageOption) => languageOption.code === user.language
+              (languageOption) => languageOption.code === user?.language
             )?.label ?? languageOptions[0].label,
         }}
         options={languageOptions.map((languageOption) => {
@@ -35,6 +31,7 @@ const Settings = () => {
         })}
         placeholder={t("Language")}
         onChange={(selectedOption) => {
+          if (!user?._id) return;
           updateUser({
             id: user._id,
             updates: {
@@ -64,7 +61,7 @@ const Settings = () => {
             };
           })}
         onChange={(selectedOption) => {
-          if (!selectedOption?.value) return;
+          if (!selectedOption?.value || !user?._id) return;
           updateUser({
             id: user._id,
             updates: {
@@ -79,6 +76,7 @@ const Settings = () => {
         value={user?.settings?.orderCategoryOn ?? false}
         label={t("Order Category On")}
         onChange={(val) => {
+          if (!user?._id) return;
           updateUser({
             id: user._id,
             updates: {

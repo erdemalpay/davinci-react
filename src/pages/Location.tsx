@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { FaPhoenixFramework } from "react-icons/fa";
 import { MdOutlineTableRestaurant } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import Shifts from "../components/location/Shifts";
@@ -38,7 +37,6 @@ export default function LocationPage() {
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState<Location>();
   const { locationId } = useParams();
-  if (!locationId) return <Loading />;
   const locations = useGetStoreLocations();
   const currentLocation = locations?.find(
     (location) => location._id.toString() === locationId
@@ -67,11 +65,8 @@ export default function LocationPage() {
   });
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
-  if (!locations || !pages || !user || !currentLocation) {
-    return <Loading />;
-  }
   const currentPageId = "location";
-  const currentPageTabs = pages.find(
+  const currentPageTabs = pages?.find(
     (page) => page._id === currentPageId
   )?.tabs;
   const tabs = LocationPageTabs.map((tab) => {
@@ -79,30 +74,36 @@ export default function LocationPage() {
       return {
         ...tab,
         content: <TableNames locationId={Number(locationId)} />,
-        isDisabled: currentPageTabs
-          ?.find((item) => item.name === tab.label)
-          ?.permissionRoles?.includes(user.role._id)
-          ? false
-          : true,
+        isDisabled:
+          user?.role?._id &&
+          currentPageTabs
+            ?.find((item) => item.name === tab.label)
+            ?.permissionRoles?.includes(user.role._id)
+            ? false
+            : true,
       };
     } else if (tab.number === LocationPageTabEnum.SHIFTS) {
       return {
         ...tab,
         content: <Shifts locationId={Number(locationId)} />,
-        isDisabled: currentPageTabs
-          ?.find((item) => item.name === tab.label)
-          ?.permissionRoles?.includes(user.role._id)
-          ? false
-          : true,
+        isDisabled:
+          user?.role?._id &&
+          currentPageTabs
+            ?.find((item) => item.name === tab.label)
+            ?.permissionRoles?.includes(user.role._id)
+            ? false
+            : true,
       };
     } else {
       return {
         ...tab,
-        isDisabled: currentPageTabs
-          ?.find((item) => item.name === tab.label)
-          ?.permissionRoles?.includes(user.role._id)
-          ? false
-          : true,
+        isDisabled:
+          user?.role?._id &&
+          currentPageTabs
+            ?.find((item) => item.name === tab.label)
+            ?.permissionRoles?.includes(user.role._id)
+            ? false
+            : true,
       };
     }
   });
@@ -121,10 +122,12 @@ export default function LocationPage() {
                       value: selectedLocation._id.toString(),
                       label: selectedLocation.name,
                     }
-                  : {
+                  : currentLocation
+                  ? {
                       value: currentLocation._id.toString(),
                       label: currentLocation.name,
                     }
+                  : null
               }
               onChange={(selectedOption) => {
                 setSelectedLocation(

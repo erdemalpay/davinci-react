@@ -8,7 +8,6 @@ import { useGetStoreLocations } from "../../../utils/api/location";
 import { useGetUserShifts } from "../../../utils/api/shift";
 import { useGetUser, useGetUsersMinimal } from "../../../utils/api/user";
 import { convertDateFormat } from "../../../utils/format";
-import Loading from "../../common/Loading";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
@@ -20,7 +19,6 @@ const UserShifts = () => {
   const locations = useGetStoreLocations();
   const { selectedLocationId } = useLocationContext();
   const user = useGetUser();
-  if (!user) return <Loading />;
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -73,7 +71,7 @@ const UserShifts = () => {
       key: location?._id.toString(),
       node: (row: any) => {
         return row?.[location?._id.toString()]
-          ?.filter((shift: any) => shift.user?.includes(user._id))
+          ?.filter((shift: any) => shift.user?.includes(user?._id))
           ?.map(
             (shiftItem: any) =>
               `${shiftItem.shift}${
@@ -165,7 +163,7 @@ const UserShifts = () => {
         rows={rows}
         isActionsActive={false}
         filters={filters}
-        title={user.name + " " + t("Shifts")}
+        title={(user?.name ?? "") + " " + t("Shifts")}
         filterPanel={filterPanel as any}
       />
     </div>
