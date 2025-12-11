@@ -94,6 +94,17 @@ export function useGetSummaryCollectionTotal() {
     )}`
   );
 }
+
+export function useGetSummaryDiscountTotal() {
+  const { filterSummaryFormElements } = useOrderContext();
+  return useGet<{ totalDiscounts: number }>(
+    `${Paths.Order}/discount/summary/query?after=${
+      filterSummaryFormElements.after
+    }&before=${filterSummaryFormElements.before}&location=${Number(
+      filterSummaryFormElements.location
+    )}`
+  );
+}
 // export function useGetTodayCollections() {
 //   const { selectedDate } = useDateContext();
 //   return useGetList<OrderCollection>(

@@ -1,4 +1,5 @@
 import {
+  differenceInDays,
   endOfDay,
   endOfISOWeek,
   endOfMonth,
@@ -7,6 +8,7 @@ import {
   startOfDay,
   startOfISOWeek,
   startOfMonth,
+  subDays,
   subMonths,
   subWeeks,
 } from "date-fns";
@@ -58,4 +60,53 @@ export function getStartEndDates(filter: string) {
     // Do nothing
   }
   return { startDate, endDate };
+}
+
+/**
+ * Seçilen dönem uzunluğuna göre bir önceki eşit uzunlukta dönemi hesaplar
+ * @param primaryAfter Başlangıç tarihi (YYYY-MM-DD)
+ * @param primaryBefore Bitiş tarihi (YYYY-MM-DD)
+ * @returns Önceki dönemin başlangıç ve bitiş tarihleri
+ */
+export function calculatePreviousPeriod(
+  primaryAfter: string,
+  primaryBefore: string
+): { secondaryAfter: string; secondaryBefore: string } {
+  const afterDate = parseDate(primaryAfter);
+  const beforeDate = parseDate(primaryBefore);
+
+  // Dönem uzunluğunu hesapla (gün cinsinden)
+  const periodLength = differenceInDays(beforeDate, afterDate) + 1;
+
+  // Önceki dönemi hesapla: primaryAfter'den periodLength gün öncesinden başla
+  const secondaryBefore = subDays(afterDate, 1);
+  const secondaryAfter = subDays(secondaryBefore, periodLength - 1);
+
+  return {
+    secondaryAfter: formatDate(secondaryAfter),
+    secondaryBefore: formatDate(secondaryBefore),
+  };
+}
+
+/**
+ * Tarih aralığı uzunluğuna göre granularity tahmini (backend zaten belirliyor, bu opsiyonel)
+ * @param after Başlangıç tarihi (YYYY-MM-DD)
+ * @param before Bitiş tarihi (YYYY-MM-DD)
+ * @returns Tahmin edilen granularity
+ */
+export function estimateGranularity(
+  after: string,
+  before: string
+): "daily" | "weekly" | "monthly" {
+  const afterDate = parseDate(after);
+  const beforeDate = parseDate(before);
+  const days = differenceInDays(beforeDate, afterDate) + 1;
+
+  if (days <= 7) {
+    return "daily";
+  } else if (days <= 60) {
+    return "weekly";
+  } else {
+    return "monthly";
+  }
 }
