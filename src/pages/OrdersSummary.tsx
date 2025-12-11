@@ -241,65 +241,63 @@ const OrdersSummary = () => {
           })}
         </div>
         <div key={componentKey} className="flex flex-col gap-4">
-          {/* summary cards - Ortalanmış ve responsive */}
-          <div className="w-full flex justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl w-full">
-              <SummaryCard
-                header={t("Total Income")}
-                firstSubHeader={getDateRange()}
-                firstSubHeaderValue={
-                  totalIncome
-                    ? totalIncome.toLocaleString("tr-TR") + " " + TURKISHLIRA
-                    : "0 " + TURKISHLIRA
-                }
-                sideColor={"#1D4ED8"}
-              />
-              <SummaryCard
-                header={t("Total Stock Value")}
-                firstSubHeader={formatAsLocalDate(
-                  filterSummaryFormElements?.after
-                )}
-                firstSubHeaderValue={
-                  stockData?.afterTotalValue
-                    ? stockData.afterTotalValue.toLocaleString("tr-TR") +
-                      " " +
-                      TURKISHLIRA
-                    : "0 " + TURKISHLIRA
-                }
-                secondSubHeader={formatAsLocalDate(
-                  filterSummaryFormElements?.before
-                )}
-                secondSubHeaderValue={
-                  stockData?.beforeTotalValue
-                    ? stockData.beforeTotalValue.toLocaleString("tr-TR") +
-                      " " +
-                      TURKISHLIRA
-                    : "0 " + TURKISHLIRA
-                }
-                difference={
-                  (stockData?.beforeTotalValue ?? 0) -
-                  (stockData?.afterTotalValue ?? 0)
-                    ? (
-                        (stockData?.beforeTotalValue ?? 0) -
-                        (stockData?.afterTotalValue ?? 0)
-                      ).toLocaleString("tr-TR")
-                    : "0"
-                }
-                sideColor={"#d8521d"}
-              />
-              <SummaryCard
-                header={t("Total Discounts")}
-                firstSubHeader={getDateRange()}
-                firstSubHeaderValue={
-                  discountData?.totalDiscounts
-                    ? discountData.totalDiscounts.toLocaleString("tr-TR") +
-                      " " +
-                      TURKISHLIRA
-                    : "0 " + TURKISHLIRA
-                }
-                sideColor={"#10B981"}
-              />
-            </div>
+          {/* summary cards - Responsive */}
+          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+            <SummaryCard
+              header={t("Total Income")}
+              firstSubHeader={getDateRange()}
+              firstSubHeaderValue={
+                totalIncome
+                  ? totalIncome.toLocaleString("tr-TR") + " " + TURKISHLIRA
+                  : "0 " + TURKISHLIRA
+              }
+              sideColor={"#1D4ED8"}
+            />
+            <SummaryCard
+              header={t("Total Stock Value")}
+              firstSubHeader={formatAsLocalDate(
+                filterSummaryFormElements?.after
+              )}
+              firstSubHeaderValue={
+                stockData?.afterTotalValue
+                  ? stockData.afterTotalValue.toLocaleString("tr-TR") +
+                    " " +
+                    TURKISHLIRA
+                  : "0 " + TURKISHLIRA
+              }
+              secondSubHeader={formatAsLocalDate(
+                filterSummaryFormElements?.before
+              )}
+              secondSubHeaderValue={
+                stockData?.beforeTotalValue
+                  ? stockData.beforeTotalValue.toLocaleString("tr-TR") +
+                    " " +
+                    TURKISHLIRA
+                  : "0 " + TURKISHLIRA
+              }
+              difference={
+                (stockData?.beforeTotalValue ?? 0) -
+                (stockData?.afterTotalValue ?? 0)
+                  ? (
+                      (stockData?.beforeTotalValue ?? 0) -
+                      (stockData?.afterTotalValue ?? 0)
+                    ).toLocaleString("tr-TR")
+                  : "0"
+              }
+              sideColor={"#d8521d"}
+            />
+            <SummaryCard
+              header={t("Total Discounts")}
+              firstSubHeader={getDateRange()}
+              firstSubHeaderValue={
+                discountData?.totalDiscounts
+                  ? discountData.totalDiscounts.toLocaleString("tr-TR") +
+                    " " +
+                    TURKISHLIRA
+                  : "0 " + TURKISHLIRA
+              }
+              sideColor={"#10B981"}
+            />
           </div>
           {/* category summary chart */}
           <div className="w-full">
