@@ -22,7 +22,11 @@ import TextInput from "../panelComponents/FormElements/TextInput";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import {
+  ColumnType,
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../panelComponents/shared/types";
 
 interface Quantities {
   [key: string]: any;
@@ -169,26 +173,47 @@ const BaseQuantityByLocation = () => {
   );
 
   const columns = useMemo(() => {
-    const cols = [
-      { key: t("Name"), isSortable: true, correspondingKey: "name" },
+    const cols: ColumnType[] = [
+      {
+        key: t("Name"),
+        isSortable: true,
+        correspondingKey: "name",
+        className: "font-semibold",
+      },
     ];
 
-    locations?.forEach((location, index) => {
-      cols.push(
-        {
-          key: location.name + "Min",
-          isSortable: true,
-          correspondingKey: `${location._id}min`,
-        },
-        {
-          key: location.name + "Max",
-          isSortable: true,
-          correspondingKey: `${location._id}max`,
-        }
-      );
-    });
+    locations
+      ?.filter((location) => location.isVisibleInBaseQuantity !== false)
+      ?.forEach((location) => {
+        cols.push({
+          key: location.name,
+          isSortable: false,
+          correspondingKey: `${location._id}combined`,
+          className: "min-w-[220px]",
+          node: () => (
+            <th
+              key={`header-${location._id}`}
+              className="sticky top-0 z-10 bg-gray-50 border-b-2 border-gray-200 min-w-[220px]"
+            >
+              <div className="flex flex-col items-center py-3 px-3 gap-2">
+                <div className="text-sm font-bold text-gray-900 mb-1">
+                  {location.name}
+                </div>
+                <div className="flex gap-3 w-full">
+                  <div className="flex-1 flex items-center justify-center text-blue-600 px-2 py-1  text-xs font-bold ">
+                    Min
+                  </div>
+                  <div className="flex-1 flex items-center justify-center text-orange-600 px-2 py-1 text-xs font-bold ">
+                    Max
+                  </div>
+                </div>
+              </div>
+            </th>
+          ),
+        });
+      });
 
-    cols.push({ key: t("Actions"), isSortable: false } as any);
+    cols.push({ key: t("Actions"), isSortable: false });
     return cols;
   }, [t, locations]);
 
@@ -197,15 +222,16 @@ const BaseQuantityByLocation = () => {
       {
         key: "name",
         node: (row: any) => {
-          return <p>{row.name}</p>;
+          return <p className="font-medium text-gray-800">{row.name}</p>;
         },
       },
     ];
 
-    locations?.forEach((location, index) => {
-      keys.push(
-        {
-          key: `${location._id}min`,
+    locations
+      ?.filter((location) => location.isVisibleInBaseQuantity !== false)
+      ?.forEach((location) => {
+        keys.push({
+          key: `${location._id}combined`,
           node: (row: any) => {
             const isUpdateDisabled =
               baseQuantityPageDisabledCondition?.actions?.some(
@@ -214,106 +240,86 @@ const BaseQuantityByLocation = () => {
                   user?.role?._id &&
                   !ac?.permissionsRoles?.includes(user?.role?._id)
               );
+
             return (
-              <div>
-                <TextInput
-                  key={`${location._id}min`}
-                  type={"number"}
-                  isDebounce={true}
-                  className={"text-center w-20 h-10"}
-                  inputWidth="w-32 md:w-32  mx-8"
-                  value={row?.[`${location._id}min`] ?? 0}
-                  label={""}
-                  placeholder={""}
-                  disabled={isUpdateDisabled}
-                  onChange={(value) => {
-                    if (value === "") {
-                      return;
-                    }
-                    const newBaseQuantities = locations.map((l) => {
-                      return {
+              <div className="flex gap-2 items-center justify-center py-2 px-1">
+                <div className="flex items-center gap-1">
+                  <TextInput
+                    key={`${location._id}min`}
+                    type={"number"}
+                    isDebounce={true}
+                    isCompactStyle={true}
+                    className="text-center w-14 h-9 px-1 text-sm font-bold border-2 !border-blue-400 focus:!border-blue-400 active:!border-blue-400 focus:outline-none rounded-md bg-white shadow-sm"
+                    inputWidth="w-auto"
+                    value={row?.[`${location._id}min`] ?? 0}
+                    label={""}
+                    placeholder={"0"}
+                    disabled={isUpdateDisabled}
+                    onChange={(value) => {
+                      if (value === "") return;
+                      const newBaseQuantities = locations.map((l) => ({
                         location: l._id,
                         minQuantity:
                           Number(l._id) === Number(location._id)
                             ? Number(value)
                             : Number(row[`${l._id}min`]),
                         maxQuantity: Number(row[`${l._id}max`]),
-                      };
-                    });
-                    updateAccountProduct({
-                      id: row._id,
-                      updates: {
-                        baseQuantities: newBaseQuantities,
-                      },
-                    });
-                  }}
-                  isOnClearActive={true}
-                  isNumberButtonsActive={true}
-                  isDateInitiallyOpen={false}
-                  isTopFlexRow={false}
-                  minNumber={0}
-                  isMinNumber={true}
-                />
-              </div>
-            );
-          },
-        },
-        {
-          key: `${location._id}max`,
-          node: (row: any) => {
-            const isUpdateDisabled =
-              baseQuantityPageDisabledCondition?.actions?.some(
-                (ac) =>
-                  ac.action === ActionEnum.UPDATE &&
-                  user?.role?._id &&
-                  !ac?.permissionsRoles?.includes(user?.role?._id)
-              );
-            return (
-              <div>
-                <TextInput
-                  key={`${location._id}max`}
-                  type={"number"}
-                  value={row?.[`${location._id}max`] ?? 0}
-                  className={"text-center w-20 h-10"}
-                  inputWidth="w-32 md:w-32  mx-8"
-                  label={""}
-                  placeholder={""}
-                  disabled={isUpdateDisabled}
-                  onChange={(value) => {
-                    if (value === "") {
-                      return;
-                    }
-                    const newBaseQuantities = locations.map((l) => {
-                      return {
+                      }));
+                      updateAccountProduct({
+                        id: row._id,
+                        updates: { baseQuantities: newBaseQuantities },
+                      });
+                    }}
+                    isOnClearActive={false}
+                    isNumberButtonsActive={true}
+                    isDateInitiallyOpen={false}
+                    isTopFlexRow={false}
+                    minNumber={0}
+                    isMinNumber={true}
+                  />
+                </div>
+
+                {/* Max Input */}
+                <div className="flex items-center gap-1">
+                  <TextInput
+                    key={`${location._id}max`}
+                    type={"number"}
+                    value={row?.[`${location._id}max`] ?? 0}
+                    isCompactStyle={true}
+                    className="text-center w-14 h-9 px-1 text-sm font-bold border-2 !border-orange-400 focus:!border-orange-400 active:!border-orange-400 focus:outline-none rounded-md bg-white shadow-sm"
+                    inputWidth="w-auto"
+                    label={""}
+                    placeholder={"0"}
+                    disabled={isUpdateDisabled}
+                    onChange={(value) => {
+                      if (value === "") return;
+                      const newBaseQuantities = locations.map((l) => ({
                         location: l._id,
                         minQuantity: Number(row[`${l._id}min`]),
                         maxQuantity:
                           Number(l._id) === Number(location._id)
                             ? Number(value)
                             : Number(row[`${l._id}max`]),
-                      };
-                    });
-                    updateAccountProduct({
-                      id: row._id,
-                      updates: {
-                        baseQuantities: newBaseQuantities,
-                      },
-                    });
-                  }}
-                  isDebounce={true}
-                  isOnClearActive={true}
-                  isNumberButtonsActive={true}
-                  isDateInitiallyOpen={false}
-                  isTopFlexRow={false}
-                  minNumber={0}
-                  isMinNumber={true}
-                />
+                      }));
+                      updateAccountProduct({
+                        id: row._id,
+                        updates: { baseQuantities: newBaseQuantities },
+                      });
+                    }}
+                    isDebounce={true}
+                    isOnClearActive={false}
+                    isNumberButtonsActive={true}
+                    isDateInitiallyOpen={false}
+                    isTopFlexRow={false}
+                    minNumber={0}
+                    isMinNumber={true}
+                  />
+                </div>
               </div>
             );
           },
-        }
-      );
-    });
+        });
+      });
 
     return keys;
   }, [

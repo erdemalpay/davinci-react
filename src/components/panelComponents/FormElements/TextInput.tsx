@@ -32,6 +32,7 @@ type TextInputProps = {
   isDebounce?: boolean;
   isDatePickerLabel?: boolean;
   isReadOnly?: boolean;
+  isCompactStyle?: boolean;
 };
 
 const TextInput = ({
@@ -51,6 +52,7 @@ const TextInput = ({
   requiredField = false,
   isDebounce = false,
   isReadOnly = false,
+  isCompactStyle = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
@@ -143,7 +145,7 @@ const TextInput = ({
   };
 
   const inputClassName = `${className} ${
-    inputWidth ? "border-gray-200" : ""
+    !isCompactStyle ? "border-gray-200" : "" // ✅ Compact style değilse border-gray-200 ekle
   } w-full text-sm ${
     type === "number" ? "inputHideNumberArrows" : ""
   } text-base`;
@@ -235,10 +237,26 @@ const TextInput = ({
         )}
       </H6>
       <div
-        className={`flex items-center justify-end ${
-          isNumberButtonsActive ? "gap-4" : "gap-2"
+        className={`flex items-center ${
+          isCompactStyle
+            ? isNumberButtonsActive
+              ? "gap-1"
+              : "gap-2"
+            : isNumberButtonsActive
+            ? "gap-4 justify-end"
+            : "gap-2"
         } ${inputWidth ? inputWidth : "w-full"}`}
       >
+        {isNumberButtonsActive && isCompactStyle && (
+          <button
+            type="button"
+            onClick={handleDecrement}
+            disabled={disabled || isReadOnly}
+            className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-red-500 hover:text-red-700 transition-all duration-150 hover:scale-125 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+          >
+            <FiMinusCircle className="w-5 h-5" />
+          </button>
+        )}
         <input
           id={"number-input"}
           ref={inputRef}
@@ -254,17 +272,28 @@ const TextInput = ({
           {...(isMinNumber && (type === "number" ? { min: minNumber } : {}))}
           onWheel={type === "number" ? handleWheel : undefined}
         />
-        {isNumberButtonsActive && (
-          <FiMinusCircle
-            className="w-8 h-8 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
-            onClick={handleDecrement}
-          />
+
+        {isNumberButtonsActive && !isCompactStyle && (
+          <>
+            <FiMinusCircle
+              className="w-8 h-8 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
+              onClick={handleDecrement}
+            />
+            <GoPlusCircle
+              className="w-8 h-8 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
+              onClick={handleIncrement}
+            />
+          </>
         )}
-        {isNumberButtonsActive && (
-          <GoPlusCircle
-            className="w-8 h-8 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
+        {isNumberButtonsActive && isCompactStyle && (
+          <button
+            type="button"
             onClick={handleIncrement}
-          />
+            disabled={disabled || isReadOnly}
+            className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-green-500 hover:text-green-700 transition-all duration-150 hover:scale-125 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+          >
+            <GoPlusCircle className="w-5 h-5" />
+          </button>
         )}
         {onClear && isOnClearActive && (
           <GenericButton
@@ -273,9 +302,13 @@ const TextInput = ({
               onClear();
             }}
             variant="icon"
-            className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
+            className={
+              isCompactStyle
+                ? "w-6 h-6 my-auto text-xl text-gray-400 hover:text-red-600 transition-colors duration-150" // ✅ Compact
+                : "w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
+            }
           >
-            <IoIosClose size={28} />
+            <IoIosClose size={isCompactStyle ? 24 : 28} />
           </GenericButton>
         )}
       </div>
