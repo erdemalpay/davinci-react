@@ -8,7 +8,6 @@ import {
   startOfDay,
   startOfISOWeek,
   startOfMonth,
-  subDays,
   subMonths,
   subWeeks,
 } from "date-fns";
@@ -64,6 +63,7 @@ export function getStartEndDates(filter: string) {
 
 /**
  * Seçilen dönem uzunluğuna göre bir önceki eşit uzunlukta dönemi hesaplar
+ * Aynı haftanın günlerini karşılaştırır (Pazartesi vs Pazartesi, Salı vs Salı, vb.)
  * @param primaryAfter Başlangıç tarihi (YYYY-MM-DD)
  * @param primaryBefore Bitiş tarihi (YYYY-MM-DD)
  * @returns Önceki dönemin başlangıç ve bitiş tarihleri
@@ -78,14 +78,38 @@ export function calculatePreviousPeriod(
   // Dönem uzunluğunu hesapla (gün cinsinden)
   const periodLength = differenceInDays(beforeDate, afterDate) + 1;
 
-  // Önceki dönemi hesapla: primaryAfter'den periodLength gün öncesinden başla
-  const secondaryBefore = subDays(afterDate, 1);
-  const secondaryAfter = subDays(secondaryBefore, periodLength - 1);
+  // Haftalık karşılaştırma için 7 gün geriye git
+  // Böylece aynı haftanın günleri karşılaştırılır (Pzt vs Pzt, Sal vs Sal)
+  if (periodLength <= 7) {
+    // Haftalık veya daha kısa dönemler için tam 1 hafta geriye git
+    const secondaryAfter = subWeeks(afterDate, 1);
+    const secondaryBefore = subWeeks(beforeDate, 1);
 
-  return {
-    secondaryAfter: formatDate(secondaryAfter),
-    secondaryBefore: formatDate(secondaryBefore),
-  };
+    return {
+      secondaryAfter: formatDate(secondaryAfter),
+      secondaryBefore: formatDate(secondaryBefore),
+    };
+  } else if (periodLength <= 60) {
+    // Aylık dönemler için tam ay sayısı kadar geriye git
+    const weeksCount = Math.ceil(periodLength / 7);
+    const secondaryAfter = subWeeks(afterDate, weeksCount);
+    const secondaryBefore = subWeeks(beforeDate, weeksCount);
+
+    return {
+      secondaryAfter: formatDate(secondaryAfter),
+      secondaryBefore: formatDate(secondaryBefore),
+    };
+  } else {
+    // Uzun dönemler için aylık karşılaştırma
+    const monthsCount = Math.ceil(periodLength / 30);
+    const secondaryAfter = subMonths(afterDate, monthsCount);
+    const secondaryBefore = subMonths(beforeDate, monthsCount);
+
+    return {
+      secondaryAfter: formatDate(secondaryAfter),
+      secondaryBefore: formatDate(secondaryBefore),
+    };
+  }
 }
 
 /**

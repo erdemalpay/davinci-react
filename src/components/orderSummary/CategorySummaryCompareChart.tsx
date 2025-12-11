@@ -148,8 +148,106 @@ export default function CategorySummaryCompareChart({
           secondaryValue !== 0 ? (difference / secondaryValue) * 100 : 0;
         const percentageChange = percentageChangeNum.toFixed(1);
 
+        // Her dönem için spesifik tarih bilgisi oluştur
+        let primaryDateLabel = "";
+        let secondaryDateLabel = "";
+
+        if (periodGranularity === "daily") {
+          // Günlük için: tarih bilgisi
+          if (primaryDataPoint.date) {
+            try {
+              const date = parse(
+                primaryDataPoint.date,
+                "yyyy-MM-dd",
+                new Date()
+              );
+              primaryDateLabel = format(date, "dd MMM", { locale: tr });
+            } catch {
+              primaryDateLabel = primaryDataPoint.date;
+            }
+          }
+          if (secondaryDataPoint.date) {
+            try {
+              const date = parse(
+                secondaryDataPoint.date,
+                "yyyy-MM-dd",
+                new Date()
+              );
+              secondaryDateLabel = format(date, "dd MMM", { locale: tr });
+            } catch {
+              secondaryDateLabel = secondaryDataPoint.date;
+            }
+          }
+        } else if (periodGranularity === "weekly") {
+          // Haftalık için: hafta aralığı
+          if (primaryDataPoint.weekStart && primaryDataPoint.weekEnd) {
+            try {
+              const start = parse(
+                primaryDataPoint.weekStart,
+                "yyyy-MM-dd",
+                new Date()
+              );
+              const end = parse(
+                primaryDataPoint.weekEnd,
+                "yyyy-MM-dd",
+                new Date()
+              );
+              primaryDateLabel = `${format(start, "dd MMM", {
+                locale: tr,
+              })} - ${format(end, "dd MMM", { locale: tr })}`;
+            } catch {
+              primaryDateLabel = `${primaryDataPoint.weekStart} - ${primaryDataPoint.weekEnd}`;
+            }
+          }
+          if (secondaryDataPoint.weekStart && secondaryDataPoint.weekEnd) {
+            try {
+              const start = parse(
+                secondaryDataPoint.weekStart,
+                "yyyy-MM-dd",
+                new Date()
+              );
+              const end = parse(
+                secondaryDataPoint.weekEnd,
+                "yyyy-MM-dd",
+                new Date()
+              );
+              secondaryDateLabel = `${format(start, "dd MMM", {
+                locale: tr,
+              })} - ${format(end, "dd MMM", { locale: tr })}`;
+            } catch {
+              secondaryDateLabel = `${secondaryDataPoint.weekStart} - ${secondaryDataPoint.weekEnd}`;
+            }
+          }
+        } else if (periodGranularity === "monthly") {
+          // Aylık için: ay adı
+          if (primaryDataPoint.month) {
+            try {
+              const date = parse(
+                primaryDataPoint.month + "-01",
+                "yyyy-MM-dd",
+                new Date()
+              );
+              primaryDateLabel = format(date, "MMMM", { locale: tr });
+            } catch {
+              primaryDateLabel = primaryDataPoint.month;
+            }
+          }
+          if (secondaryDataPoint.month) {
+            try {
+              const date = parse(
+                secondaryDataPoint.month + "-01",
+                "yyyy-MM-dd",
+                new Date()
+              );
+              secondaryDateLabel = format(date, "MMMM", { locale: tr });
+            } catch {
+              secondaryDateLabel = secondaryDataPoint.month;
+            }
+          }
+        }
+
         return `
-          <div style="padding: 12px; background: #1f2937; border-radius: 6px; min-width: 220px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+          <div style="padding: 12px; background: #1f2937; border-radius: 6px; min-width: 240px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
             <!-- Tarih Başlığı -->
             <div style="font-weight: 700; margin-bottom: 10px; color: #fff; font-size: 14px; border-bottom: 1px solid #374151; padding-bottom: 8px;">
               ${detailedDateInfo}
@@ -162,7 +260,7 @@ export default function CategorySummaryCompareChart({
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <div style="width: 12px; height: 12px; background: #8B5CF6; border-radius: 2px;"></div>
                   <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${
-                    primaryPeriod.label
+                    primaryDateLabel || primaryPeriod.label
                   }</span>
                 </div>
                 <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${formatPrice(
@@ -175,7 +273,7 @@ export default function CategorySummaryCompareChart({
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <div style="width: 12px; height: 12px; background: #FB923C; border-radius: 2px;"></div>
                   <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${
-                    secondaryPeriod.label
+                    secondaryDateLabel || secondaryPeriod.label
                   }</span>
                 </div>
                 <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${formatPrice(
