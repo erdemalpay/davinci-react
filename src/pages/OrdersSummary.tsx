@@ -179,21 +179,12 @@ const OrdersSummary = () => {
       ? `${afterDate} - ${beforeDate}`
       : `${afterDate} - ${currentDate}`;
   }
+  // componentKey useEffect kaldırıldı - sonsuz döngüye sebep oluyordu
   useEffect(() => {
-    setComponentKey((prev) => prev + 1);
-  }, [
-    totalIncome,
-    filterSummaryFormElements,
-    locations,
-    stockData,
-    categories,
-    upperCategories,
-  ]);
-  useEffect(() => {
-    if (!selectedCategory) {
+    if (!selectedCategory && upperCategories && upperCategories.length > 0) {
       setSelectedUpperCategory(upperCategories[0]);
     }
-  }, [upperCategories]);
+  }, [upperCategories, selectedCategory]);
   return (
     <>
       <Header showLocationSelector={false} />
