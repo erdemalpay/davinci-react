@@ -44,9 +44,9 @@ const SharedDiscountNoteScreen = ({
           <>
             <H6 className="min-w-10">{t("Discount Note")}</H6>
             <textarea
-              value={discountNote}
+              defaultValue={typeof discountNote === "string" ? discountNote : ""}
               placeholder={t("Enter discount note")}
-              onChange={(e) => setDiscountNote(e.target.value)}
+              onBlur={(e) => setDiscountNote(e.target.value)}
               className="border text-base border-gray-300 rounded-md p-2 w-full h-32"
             />
           </>
