@@ -7,7 +7,13 @@ import {
   Switch,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AccountProduct, MenuCategory, UpperCategory } from "../../../types";
 
 type Props = {
@@ -66,79 +72,145 @@ const PriceChart = ({
     }
 
     const container = chartContainerRef.current;
+    const listeners: Array<{ element: Element; enter: EventListener; leave: EventListener }> = [];
+    let observer: MutationObserver | null = null;
+
     const checkAndAttachListeners = () => {
       const svgElement = container.querySelector('svg');
       if (!svgElement) {
-        return;
+        return false;
       }
 
       const markers = svgElement.querySelectorAll('.apexcharts-marker');
-      const seriesCount = chartConfig?.series?.length || 1;
-      console.log('📍 Found markers:', markers.length, 'seriesCount:', seriesCount);
+      if (markers.length === 0) {
+        return false;
+      }
+
+      const categories = Array.isArray(chartConfig?.options?.xaxis?.categories)
+        ? (chartConfig.options.xaxis.categories as string[])
+        : [];
+
+      // Cleanup eski listener'ları
+      listeners.forEach(({ element, enter, leave }) => {
+        element.removeEventListener('mouseenter', enter);
+        element.removeEventListener('mouseleave', leave);
+      });
+      listeners.length = 0;
 
       markers.forEach((marker, index) => {
         const handleMouseEnter = (e: Event) => {
-          console.log('🎯 Marker hover detected', index);
-          const categories = Array.isArray(chartConfig?.options?.xaxis?.categories)
-            ? (chartConfig.options.xaxis.categories as string[])
-            : [];
           const tooltipOptions = chartConfig?.options?.tooltip || {};
 
           // Her serinin kendi marker'ları var, index'i kategoriye çevir
-          const dataPointIndex = Math.floor(index / seriesCount);
-          console.log('📊 Calculated dataPointIndex:', dataPointIndex, 'for marker index:', index);
+          const dataPointIndex = index % categories.length;
 
-          handleRadarPointHover(
-            e as any,
-            { opts: chartConfig?.options, w: { globals: { colors: chartConfig?.options?.colors } } },
-            { dataPointIndex },
-            categories,
-            tooltipOptions,
-            chartConfig
-          );
+          // Tooltip state'ini direkt burada güncelle
+          const label = categories?.[dataPointIndex] ?? "";
+          const series = chartConfig?.series || [];
+
+          const rows = series
+            ?.map((serie: any, idx: number) => {
+              const value = serie?.data?.[dataPointIndex];
+              if (typeof value === "undefined" || value === null) {
+                return null;
+              }
+
+              const tooltipY = tooltipOptions?.y;
+              const formatter = Array.isArray(tooltipY)
+                ? tooltipY?.[idx]?.formatter
+                : tooltipY?.formatter;
+
+              const formattedValue =
+                typeof formatter === "function"
+                  ? formatter(value, { seriesIndex: idx, dataPointIndex, w: {} })
+                  : typeof value === "number"
+                  ? value.toLocaleString("tr-TR")
+                  : value;
+
+              const color = chartConfig?.options?.colors?.[idx] || "#6B7280";
+              const name = serie?.name ?? `Series ${idx + 1}`;
+
+              return { name, color, value: formattedValue };
+            })
+            .filter(Boolean) ?? [];
+
+          const mouseEvent = e as MouseEvent;
+          const bounds = container.getBoundingClientRect();
+          const relativeX = mouseEvent.clientX - bounds.left;
+          const relativeY = mouseEvent.clientY - bounds.top;
+
+          setRadarTooltip({
+            visible: true,
+            x: relativeX,
+            y: relativeY,
+            label,
+            rows: rows as RadarTooltipRow[],
+          });
         };
 
         const handleMouseLeave = () => {
-          console.log('👋 Marker leave detected', index);
-          hideRadarTooltip();
+          setRadarTooltip({
+            visible: false,
+            x: 0,
+            y: 0,
+            label: "",
+            rows: [],
+          });
         };
 
         marker.addEventListener('mouseenter', handleMouseEnter);
         marker.addEventListener('mouseleave', handleMouseLeave);
+
+        listeners.push({ element: marker, enter: handleMouseEnter, leave: handleMouseLeave });
       });
+
+      return true;
     };
 
-    // Chart render olduktan sonra listener'ları ekle
-    const timeoutId = setTimeout(checkAndAttachListeners, 500);
+    // İlk deneme
+    if (!checkAndAttachListeners()) {
+      // Başarısız olursa MutationObserver ile bekle
+      observer = new MutationObserver(() => {
+        if (checkAndAttachListeners()) {
+          observer?.disconnect();
+        }
+      });
+
+      observer.observe(container, {
+        childList: true,
+        subtree: true,
+      });
+    }
 
     return () => {
-      clearTimeout(timeoutId);
+      observer?.disconnect();
+      // Cleanup: tüm event listener'ları kaldır
+      listeners.forEach(({ element, enter, leave }) => {
+        element.removeEventListener('mouseenter', enter);
+        element.removeEventListener('mouseleave', leave);
+      });
     };
   }, [isRadarChart, chartConfig]);
 
-  const getValueFormatter = (tooltipOptions: any, seriesIndex: number) => {
+  const getValueFormatter = useCallback((tooltipOptions: any, seriesIndex: number) => {
     const tooltipY = tooltipOptions?.y;
     if (Array.isArray(tooltipY)) {
       return tooltipY?.[seriesIndex]?.formatter;
     }
     return tooltipY?.formatter;
-  };
+  }, []);
 
-  const hideRadarTooltip = () => {
-    setRadarTooltip((prev) =>
-      prev.visible
-        ? {
-            visible: false,
-            x: prev.x,
-            y: prev.y,
-            label: "",
-            rows: [],
-          }
-        : prev
-    );
-  };
+  const hideRadarTooltip = useCallback(() => {
+    setRadarTooltip({
+      visible: false,
+      x: 0,
+      y: 0,
+      label: "",
+      rows: [],
+    });
+  }, []);
 
-  const handleRadarPointHover = (
+  const handleRadarPointHover = useCallback((
     event: any,
     chartContext: any,
     config: any,
@@ -146,10 +218,8 @@ const PriceChart = ({
     tooltipOptions: any,
     sourceChartConfig?: any
   ) => {
-    console.log("🎯 handleRadarPointHover triggered", { event, config, dataPointIndex: config?.dataPointIndex });
     const container = chartContainerRef.current;
     if (!container || typeof config?.dataPointIndex !== "number") {
-      console.log("❌ Early return", { container: !!container, dataPointIndex: config?.dataPointIndex });
       return;
     }
     const dataPointIndex = config.dataPointIndex;
@@ -158,15 +228,12 @@ const PriceChart = ({
       chartContext?.opts?.xaxis?.categories?.[dataPointIndex] ??
       "";
 
-    console.log('🔍 Processing data:', { dataPointIndex, label, categories, series: sourceChartConfig?.series });
-
     // chartConfig.series'den data'yı al
     const series = sourceChartConfig?.series || chartContext?.opts?.series || [];
     const rows =
       series
         ?.map((serie: any, idx: number) => {
           const value = serie?.data?.[dataPointIndex];
-          console.log(`  Series ${idx} (${serie?.name}):`, value);
           if (typeof value === "undefined" || value === null) {
             return null;
           }
@@ -201,16 +268,14 @@ const PriceChart = ({
     const relativeX = mouseX - bounds.left;
     const relativeY = mouseY - bounds.top;
 
-    const newTooltipState = {
+    setRadarTooltip({
       visible: true,
       x: relativeX,
       y: relativeY,
       label,
       rows: rows as RadarTooltipRow[],
-    };
-    console.log("✅ Setting tooltip state", newTooltipState);
-    setRadarTooltip(newTooltipState);
-  };
+    });
+  }, [getValueFormatter]);
 
   const getRadarTooltipStyle = () => {
     const padding = 12;
@@ -245,8 +310,11 @@ const PriceChart = ({
     };
   };
 
-  // Radar chart için konfigürasyonu dönüştür
-  const getRadarConfig = () => {
+  const radarDisplayConfig = useMemo(() => {
+    if (!chartConfig) {
+      return chartConfig;
+    }
+
     const categories = Array.isArray(
       chartConfig?.options?.xaxis?.categories
     )
@@ -292,7 +360,7 @@ const PriceChart = ({
     return {
       ...chartConfig,
       type: "radar",
-      height: 400, // Radar için daha yüksek grafik
+      height: 400,
       options: {
         ...chartConfig.options,
         labels: categories,
@@ -306,10 +374,10 @@ const PriceChart = ({
             enabled: false,
           },
           selection: {
-            enabled: false, // Tıklama-sürükleme seçimini devre dışı bırak
+            enabled: false,
           },
           zoom: {
-            enabled: false, // Zoom'u devre dışı bırak
+            enabled: false,
           },
           events: radarEvents,
         },
@@ -398,11 +466,9 @@ const PriceChart = ({
         },
       },
     };
-  };
+  }, [chartConfig, handleRadarPointHover, hideRadarTooltip]);
 
-  const displayConfig = isRadarChart ? getRadarConfig() : chartConfig;
-
-  console.log("🔄 Render - isRadarChart:", isRadarChart, "tooltip:", radarTooltip);
+  const displayConfig = isRadarChart ? radarDisplayConfig : chartConfig;
 
   return (
     <Card className="shadow-none">
@@ -439,7 +505,12 @@ const PriceChart = ({
         </div>
       </CardHeader>
       <CardBody className={isRadarChart ? "px-2 py-8" : "px-2 pb-0"}>
-        <div ref={chartContainerRef} className="relative" style={{ position: 'relative', zIndex: 1 }}>
+        <div
+          ref={chartContainerRef}
+          className="relative"
+          style={{ position: "relative", zIndex: 1 }}
+          onMouseLeave={hideRadarTooltip}
+        >
           <Chart {...(displayConfig as any)} />
           {isRadarChart && radarTooltip.visible && radarTooltip.rows.length > 0 && (
             <div
