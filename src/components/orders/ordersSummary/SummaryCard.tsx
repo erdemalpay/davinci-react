@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { IoIosArrowRoundDown, IoIosArrowRoundUp } from "react-icons/io";
 
 type Props = {
   header: string;
@@ -51,36 +50,28 @@ const SummaryCard = ({
               </p>
               {difference && (
                 <p
-                  className={`px-2 py-0.5 bg-opacity-50 font-bold rounded-lg flex items-center text-xs whitespace-nowrap ${
+                  className={`px-2 py-0.5 bg-opacity-50 font-bold rounded-lg text-xs whitespace-nowrap ${
                     Number(difference) > 0
                       ? "bg-green-500 text-green-600"
                       : "bg-red-500 text-red-800"
                   }`}
                 >
-                  {Number(difference) > 0 ? (
-                    <IoIosArrowRoundUp className="text-lg" />
-                  ) : (
-                    <IoIosArrowRoundDown className="text-lg" />
-                  )}
                   <span className="truncate max-w-[80px]">{difference}</span>
                 </p>
               )}
+
               {percentage && (
                 <p
-                  className={`px-2 py-0.5 bg-opacity-50 font-bold rounded-lg flex items-center text-xs whitespace-nowrap ${
+                  className={`px-2 py-0.5 bg-opacity-50 font-bold rounded-lg text-xs whitespace-nowrap ${
                     percentage > 0
                       ? "bg-green-500 text-green-600"
                       : "bg-red-500 text-red-800"
                   }`}
                 >
-                  {percentage > 0 ? (
-                    <IoIosArrowRoundUp className="text-lg" />
-                  ) : (
-                    <IoIosArrowRoundDown className="text-lg" />
-                  )}
                   {percentage} %
                 </p>
               )}
+
             </div>
           )}
         </div>

@@ -278,11 +278,11 @@ const OrdersSummary = () => {
               difference={
                 (stockData?.beforeTotalValue ?? 0) -
                 (stockData?.afterTotalValue ?? 0)
-                  ? (
+                  ? TURKISHLIRA +(
                       (stockData?.beforeTotalValue ?? 0) -
                       (stockData?.afterTotalValue ?? 0)
                     ).toLocaleString("tr-TR")
-                  : "0"
+                  : TURKISHLIRA + "0"
               }
               sideColor={"#d8521d"}
             />
