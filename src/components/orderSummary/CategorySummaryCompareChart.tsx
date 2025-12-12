@@ -2,7 +2,7 @@ import { format, parse } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MenuCategory, UpperCategory } from "../../types";
+import { DailyData, MenuCategory, MonthlyData, UpperCategory } from "../../types";
 import { useGetCategorySummaryCompare } from "../../utils/api/order/order";
 import {
   calculatePreviousPeriod,
@@ -10,6 +10,15 @@ import {
 } from "../../utils/dateUtil";
 import { formatPrice } from "../../utils/formatPrice";
 import PriceChart from "../analytics/accounting/PriceChart";
+
+// Type guard functions
+function isDailyData(data: any): data is DailyData {
+  return data && typeof data.date === "string";
+}
+
+function isMonthlyData(data: any): data is MonthlyData {
+  return data && typeof data.month === "string";
+}
 
 type Props = {
   location?: number;
@@ -84,7 +93,7 @@ export default function CategorySummaryCompareChart({
         const periodGranularity = primaryPeriod.granularity || granularity;
         let detailedDateInfo = "";
 
-        if (periodGranularity === "monthly" && primaryDataPoint.month) {
+        if (periodGranularity === "monthly" && isMonthlyData(primaryDataPoint)) {
           try {
             // Aylık: Sadece ay ismini göster (yıl gereksiz, zaten dönem label'ında var)
             const date = parse(
@@ -96,7 +105,7 @@ export default function CategorySummaryCompareChart({
           } catch {
             detailedDateInfo = primaryDataPoint.label || primaryDataPoint.month;
           }
-        } else if (periodGranularity === "daily" && primaryDataPoint.date) {
+        } else if (periodGranularity === "daily" && isDailyData(primaryDataPoint)) {
           try {
             // Günlük: Kısa tarih formatı
             const date = parse(primaryDataPoint.date, "yyyy-MM-dd", new Date());
@@ -131,7 +140,7 @@ export default function CategorySummaryCompareChart({
 
         if (periodGranularity === "daily") {
           // Günlük için: tarih bilgisi
-          if (primaryDataPoint.date) {
+          if (isDailyData(primaryDataPoint)) {
             try {
               const date = parse(
                 primaryDataPoint.date,
@@ -143,7 +152,7 @@ export default function CategorySummaryCompareChart({
               primaryDateLabel = primaryDataPoint.date;
             }
           }
-          if (secondaryDataPoint.date) {
+          if (isDailyData(secondaryDataPoint)) {
             try {
               const date = parse(
                 secondaryDataPoint.date,
@@ -157,7 +166,7 @@ export default function CategorySummaryCompareChart({
           }
         } else if (periodGranularity === "monthly") {
           // Aylık için: ay adı
-          if (primaryDataPoint.month) {
+          if (isMonthlyData(primaryDataPoint)) {
             try {
               const date = parse(
                 primaryDataPoint.month + "-01",
@@ -169,7 +178,7 @@ export default function CategorySummaryCompareChart({
               primaryDateLabel = primaryDataPoint.month;
             }
           }
-          if (secondaryDataPoint.month) {
+          if (isMonthlyData(secondaryDataPoint)) {
             try {
               const date = parse(
                 secondaryDataPoint.month + "-01",

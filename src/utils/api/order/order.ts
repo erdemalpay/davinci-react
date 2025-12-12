@@ -1,6 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
 import { toast } from "react-toastify";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
@@ -9,8 +7,6 @@ import { useLocationContext } from "./../../../context/Location.context";
 import { useOrderContext } from "./../../../context/Order.context";
 import {
   CategorySummaryCompareResponse,
-  DailyData,
-  MonthlyData,
   Order,
   PersonalOrderDataType,
   PopularDiscounts,
@@ -743,198 +739,6 @@ export function useGetCategorySummary(
   );
 }
 
-// Deterministik random generator (seed-based)
-function seededRandom(seed: number): number {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-}
-
-// Mock data generator
-function generateMockCompareData(
-  granularity: "daily" | "monthly",
-  primaryAfter: string,
-  primaryBefore: string,
-  secondaryAfter: string,
-  secondaryBefore: string
-): CategorySummaryCompareResponse {
-  // Seed olarak tarih string'ini kullan (deterministik)
-  const seed =
-    primaryAfter.split("-").join("") + primaryBefore.split("-").join("");
-  let seedCounter = 0;
-
-  if (granularity === "daily") {
-    // Son 7 gün için mock data
-    const primaryData: DailyData[] = [];
-    const secondaryData: DailyData[] = [];
-    const primaryDate = new Date(primaryAfter);
-    const secondaryDate = new Date(secondaryAfter);
-    const days = Math.ceil(
-      (new Date(primaryBefore).getTime() - primaryDate.getTime()) /
-        (1000 * 60 * 60 * 24)
-    );
-
-    for (let i = 0; i <= days; i++) {
-      const currentPrimaryDate = new Date(primaryDate);
-      currentPrimaryDate.setDate(primaryDate.getDate() + i);
-      const currentSecondaryDate = new Date(secondaryDate);
-      currentSecondaryDate.setDate(secondaryDate.getDate() + i);
-
-      const dayLabels = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
-      const dayLabel =
-        dayLabels[currentPrimaryDate.getDay()] ||
-        dayLabels[currentPrimaryDate.getDay()];
-
-      // Deterministik random değerler
-      const primarySeed = parseInt(seed) + i;
-      const secondarySeed = parseInt(seed) + i + 1000;
-
-      primaryData.push({
-        date: currentPrimaryDate.toISOString().split("T")[0],
-        label: dayLabel,
-        total: 35000 + seededRandom(primarySeed) * 20000,
-      });
-
-      secondaryData.push({
-        date: currentSecondaryDate.toISOString().split("T")[0],
-        label: dayLabel,
-        total: 30000 + seededRandom(secondarySeed) * 15000,
-      });
-    }
-
-    const primaryTotal = primaryData.reduce((sum, d) => sum + d.total, 0);
-    const secondaryTotal = secondaryData.reduce((sum, d) => sum + d.total, 0);
-
-    // Label formatını düzelt (backend requirements'a göre)
-    const formatPeriodLabel = (start: string, end: string) => {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      const startFormatted = format(startDate, "dd MMM", { locale: tr });
-      const endFormatted = format(endDate, "dd MMM", { locale: tr });
-      return `${startFormatted} - ${endFormatted}`;
-    };
-
-    return {
-      primaryPeriod: {
-        granularity: "daily",
-        label: formatPeriodLabel(primaryAfter, primaryBefore),
-        startDate: primaryAfter,
-        endDate: primaryBefore,
-        data: primaryData,
-        totalRevenue: primaryTotal,
-      },
-      secondaryPeriod: {
-        granularity: "daily",
-        label: formatPeriodLabel(secondaryAfter, secondaryBefore),
-        startDate: secondaryAfter,
-        endDate: secondaryBefore,
-        data: secondaryData,
-        totalRevenue: secondaryTotal,
-      },
-      comparisonMetrics: {
-        percentageChange:
-          ((primaryTotal - secondaryTotal) / secondaryTotal) * 100,
-        absoluteChange: primaryTotal - secondaryTotal,
-      },
-    };
-  } else {
-    // Aylık mock data
-    const months = [
-      "Ocak",
-      "Şubat",
-      "Mart",
-      "Nisan",
-      "Mayıs",
-      "Haziran",
-      "Temmuz",
-      "Ağustos",
-      "Eylül",
-      "Ekim",
-      "Kasım",
-      "Aralık",
-    ];
-    const primaryData: MonthlyData[] = [];
-    const secondaryData: MonthlyData[] = [];
-
-    // Gerçek tarih aralığına göre ay sayısını hesapla
-    const primaryStart = new Date(primaryAfter);
-    const primaryEnd = new Date(primaryBefore);
-    const secondaryStart = new Date(secondaryAfter);
-
-    const startMonth = primaryStart.getMonth(); // 0-11
-    const startYear = primaryStart.getFullYear();
-    const endMonth = primaryEnd.getMonth();
-    const endYear = primaryEnd.getFullYear();
-
-    // Kaç ay var hesapla
-    const monthCount = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
-
-    for (let i = 0; i < monthCount; i++) {
-      const currentMonth = (startMonth + i) % 12;
-      const currentYear = startYear + Math.floor((startMonth + i) / 12);
-      const monthNum = String(currentMonth + 1).padStart(2, "0");
-
-      // Secondary için de aynı mantık
-      const secondaryMonth = (secondaryStart.getMonth() + i) % 12;
-      const secondaryYear =
-        secondaryStart.getFullYear() +
-        Math.floor((secondaryStart.getMonth() + i) / 12);
-      const secondaryMonthNum = String(secondaryMonth + 1).padStart(2, "0");
-
-      // Deterministik random değerler
-      const primarySeed = parseInt(seed) + i;
-      const secondarySeed = parseInt(seed) + i + 1000;
-
-      primaryData.push({
-        month: `${currentYear}-${monthNum}`,
-        label: months[currentMonth],
-        total: 1200000 + seededRandom(primarySeed) * 300000,
-      });
-
-      secondaryData.push({
-        month: `${secondaryYear}-${secondaryMonthNum}`,
-        label: months[secondaryMonth],
-        total: 1000000 + seededRandom(secondarySeed) * 250000,
-      });
-    }
-
-    const primaryTotal = primaryData.reduce((sum, d) => sum + d.total, 0);
-    const secondaryTotal = secondaryData.reduce((sum, d) => sum + d.total, 0);
-
-    // Label formatını düzelt (aylık için farklı format)
-    const formatPeriodLabel = (start: string, end: string) => {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      const startFormatted = format(startDate, "dd MMM", { locale: tr });
-      const endFormatted = format(endDate, "dd MMM yyyy", { locale: tr });
-      return `${startFormatted} - ${endFormatted}`;
-    };
-
-    return {
-      primaryPeriod: {
-        granularity: "monthly",
-        label: formatPeriodLabel(primaryAfter, primaryBefore),
-        startDate: primaryAfter,
-        endDate: primaryBefore,
-        data: primaryData,
-        totalRevenue: primaryTotal,
-      },
-      secondaryPeriod: {
-        granularity: "monthly",
-        label: formatPeriodLabel(secondaryAfter, secondaryBefore),
-        startDate: secondaryAfter,
-        endDate: secondaryBefore,
-        data: secondaryData,
-        totalRevenue: secondaryTotal,
-      },
-      comparisonMetrics: {
-        percentageChange:
-          ((primaryTotal - secondaryTotal) / secondaryTotal) * 100,
-        absoluteChange: primaryTotal - secondaryTotal,
-      },
-    };
-  }
-}
-
 export function useGetCategorySummaryCompare(
   primaryAfter: string,
   primaryBefore: string,
@@ -957,7 +761,7 @@ export function useGetCategorySummaryCompare(
     url = url.concat(`&category=${category}`);
   }
 
-  const realData = useGet<CategorySummaryCompareResponse>(
+  return useGet<CategorySummaryCompareResponse>(
     url,
     [
       `${Paths.Order}/category_summary/compare`,
@@ -972,21 +776,6 @@ export function useGetCategorySummaryCompare(
     ],
     true
   );
-
-  // Mock data kullan (backend hazır olana kadar)
-  // TODO: Backend hazır olduğunda bu satırı kaldır ve sadece realData döndür
-  // Seed-based deterministik random kullanıldığı için aynı parametreler için aynı data üretilir
-  // Bu sayede sürekli render sorunu çözülür
-  const mockData = generateMockCompareData(
-    granularity,
-    primaryAfter,
-    primaryBefore,
-    secondaryAfter,
-    secondaryBefore
-  );
-
-  // Backend'den veri gelirse onu kullan, yoksa mock data kullan
-  return realData || (mockData as any);
 }
 export function useGetPopularDiscounts() {
   return useGetList<PopularDiscounts>(`${baseUrl}/popular-discounts`, [
