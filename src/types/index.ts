@@ -135,6 +135,7 @@ export type Location = {
   }[];
   tableNames?: string[];
   isShelfInfoRequired?: boolean;
+  isVisibleInBaseQuantity?: boolean;
   seenInOrdersSummaryPage?: boolean;
   phoneNumber?: string;
   googleMapsUrl?: string;

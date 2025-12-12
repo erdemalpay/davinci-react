@@ -73,11 +73,12 @@ const LocationPage = () => {
       { key: t("Opening Hours"), isSortable: false },
       { key: t("Shelf Info"), isSortable: false },
       { key: t("Show on Orders Summary"), isSortable: false },
+      { key: t("Show in Base Quantity"), isSortable: false },
       { key: t("Active"), isSortable: false },
       { key: t("Activity Note"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
-      { key: t("Actions"), isSortable: false }
+      { key: t("Actions"), isSortable: false },
     ];
     return cols;
   }, [t]);
@@ -148,21 +149,32 @@ const LocationPage = () => {
         node: (row: any) => {
           if (!row.dailyHours || row.dailyHours.length === 0) return null;
 
-          const daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-          const sortedHours = [...row.dailyHours].sort((a, b) =>
-            daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
+          const daysOrder = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ];
+          const sortedHours = [...row.dailyHours].sort(
+            (a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
           );
 
           return (
             <div className="flex flex-col gap-1 max-w-64">
               {sortedHours.map((dayHour: any, index: number) => (
                 <div key={index} className="flex flex-row gap-1 text-sm">
-                  <span className="font-medium min-w-20">{t(dayHour.day)}:</span>
+                  <span className="font-medium min-w-20">
+                    {t(dayHour.day)}:
+                  </span>
                   <span className="text-gray-600">
                     {dayHour.isClosed
                       ? t("Closed")
-                      : `${dayHour.openingTime || "--"} - ${dayHour.closingTime || "--"}`
-                    }
+                      : `${dayHour.openingTime || "--"} - ${
+                          dayHour.closingTime || "--"
+                        }`}
                   </span>
                 </div>
               ))}
@@ -193,6 +205,37 @@ const LocationPage = () => {
                     id: row._id,
                     updates: {
                       isShelfInfoRequired: !row?.isShelfInfoRequired,
+                    },
+                  });
+                }}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        key: "isVisibleInBaseQuantity",
+        node: (row: any) => {
+          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return (
+            <div
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
+            >
+              <SwitchButton
+                checked={row?.isVisibleInBaseQuantity ?? true}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  updateLocation({
+                    id: row._id,
+                    updates: {
+                      isVisibleInBaseQuantity: !row?.isVisibleInBaseQuantity,
                     },
                   });
                 }}
@@ -336,7 +379,7 @@ const LocationPage = () => {
         label: t("Background Color"),
         placeholder: t("Background Color"),
         required: !!form?.type?.includes(1),
-      }
+      },
     ],
     [t, isAddModalOpen, form?.type]
   );
@@ -400,7 +443,7 @@ const LocationPage = () => {
         label: t("Activity Note"),
         placeholder: t("Activity Note"),
         required: false,
-      }
+      },
     ],
     [t, form?.type]
   );
