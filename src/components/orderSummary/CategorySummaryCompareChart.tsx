@@ -2,13 +2,18 @@ import { format, parse } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DailyData, MenuCategory, MonthlyData, UpperCategory } from "../../types";
+import {
+  DailyData,
+  MenuCategory,
+  MonthlyData,
+  TURKISHLIRA,
+  UpperCategory,
+} from "../../types";
 import { useGetCategorySummaryCompare } from "../../utils/api/order/order";
 import {
   calculatePreviousPeriod,
   estimateGranularity,
 } from "../../utils/dateUtil";
-import { formatPrice } from "../../utils/formatPrice";
 import PriceChart from "../analytics/accounting/PriceChart";
 
 // Type guard functions
@@ -93,7 +98,10 @@ export default function CategorySummaryCompareChart({
         const periodGranularity = primaryPeriod.granularity || granularity;
         let detailedDateInfo = "";
 
-        if (periodGranularity === "monthly" && isMonthlyData(primaryDataPoint)) {
+        if (
+          periodGranularity === "monthly" &&
+          isMonthlyData(primaryDataPoint)
+        ) {
           try {
             // Aylık: Sadece ay ismini göster (yıl gereksiz, zaten dönem label'ında var)
             const date = parse(
@@ -105,7 +113,10 @@ export default function CategorySummaryCompareChart({
           } catch {
             detailedDateInfo = primaryDataPoint.label || primaryDataPoint.month;
           }
-        } else if (periodGranularity === "daily" && isDailyData(primaryDataPoint)) {
+        } else if (
+          periodGranularity === "daily" &&
+          isDailyData(primaryDataPoint)
+        ) {
           try {
             // Günlük: Kısa tarih formatı
             const date = parse(primaryDataPoint.date, "yyyy-MM-dd", new Date());
@@ -139,7 +150,7 @@ export default function CategorySummaryCompareChart({
         let secondaryDateLabel = "";
 
         if (periodGranularity === "daily") {
-          // Günlük için: tarih bilgisi
+          // Günlük için: tarih bilgisi + YIL
           if (isDailyData(primaryDataPoint)) {
             try {
               const date = parse(
@@ -147,7 +158,7 @@ export default function CategorySummaryCompareChart({
                 "yyyy-MM-dd",
                 new Date()
               );
-              primaryDateLabel = format(date, "dd MMM", { locale: tr });
+              primaryDateLabel = format(date, "dd MMM yyyy", { locale: tr });
             } catch {
               primaryDateLabel = primaryDataPoint.date;
             }
@@ -159,13 +170,13 @@ export default function CategorySummaryCompareChart({
                 "yyyy-MM-dd",
                 new Date()
               );
-              secondaryDateLabel = format(date, "dd MMM", { locale: tr });
+              secondaryDateLabel = format(date, "dd MMM yyyy", { locale: tr });
             } catch {
               secondaryDateLabel = secondaryDataPoint.date;
             }
           }
         } else if (periodGranularity === "monthly") {
-          // Aylık için: ay adı
+          // Aylık için: ay adı + YIL
           if (isMonthlyData(primaryDataPoint)) {
             try {
               const date = parse(
@@ -173,7 +184,7 @@ export default function CategorySummaryCompareChart({
                 "yyyy-MM-dd",
                 new Date()
               );
-              primaryDateLabel = format(date, "MMMM", { locale: tr });
+              primaryDateLabel = format(date, "MMMM yyyy", { locale: tr });
             } catch {
               primaryDateLabel = primaryDataPoint.month;
             }
@@ -185,7 +196,7 @@ export default function CategorySummaryCompareChart({
                 "yyyy-MM-dd",
                 new Date()
               );
-              secondaryDateLabel = format(date, "MMMM", { locale: tr });
+              secondaryDateLabel = format(date, "MMMM yyyy", { locale: tr });
             } catch {
               secondaryDateLabel = secondaryDataPoint.month;
             }
@@ -209,9 +220,9 @@ export default function CategorySummaryCompareChart({
                     primaryDateLabel || primaryPeriod.label
                   }</span>
                 </div>
-                <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${formatPrice(
-                  primaryValue
-                )}</span>
+                <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${primaryValue.toLocaleString(
+                  "tr-TR"
+                )} ${TURKISHLIRA}</span>
               </div>
               
               <!-- Secondary Period (Turuncu - Karşılaştırma Dönemi) -->
@@ -222,9 +233,9 @@ export default function CategorySummaryCompareChart({
                     secondaryDateLabel || secondaryPeriod.label
                   }</span>
                 </div>
-                <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${formatPrice(
-                  secondaryValue
-                )}</span>
+                <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${secondaryValue.toLocaleString(
+                  "tr-TR"
+                )} ${TURKISHLIRA}</span>
               </div>
               
               <!-- Fark Gösterimi (sadece 0 değilse) -->
@@ -238,7 +249,9 @@ export default function CategorySummaryCompareChart({
                     <div style="color: ${
                       difference > 0 ? "#10b981" : "#ef4444"
                     }; font-weight: 700; font-size: 14px;">
-                      ${difference > 0 ? "+" : ""}${formatPrice(difference)}
+                      ${difference > 0 ? "+" : ""}${Math.abs(
+                      difference
+                    ).toLocaleString("tr-TR")} ${TURKISHLIRA}
                     </div>
                     <div style="color: ${
                       difference > 0 ? "#10b981" : "#ef4444"
@@ -318,7 +331,8 @@ export default function CategorySummaryCompareChart({
             fontFamily: "inherit",
             fontWeight: 400,
           },
-          formatter: (value: number) => formatPrice(value),
+          formatter: (value: number) =>
+            `${value.toLocaleString("tr-TR")} ${TURKISHLIRA}`,
         },
       },
       grid: {
@@ -438,7 +452,10 @@ export default function CategorySummaryCompareChart({
         </span>
         <span className="text-sm text-gray-500">
           ({compareData.comparisonMetrics.absoluteChange > 0 ? "+" : ""}
-          {formatPrice(compareData.comparisonMetrics.absoluteChange)})
+          {Math.abs(
+            compareData.comparisonMetrics.absoluteChange
+          ).toLocaleString("tr-TR")}{" "}
+          {TURKISHLIRA})
         </span>
       </div>
       <PriceChart
