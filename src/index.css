@@ -173,6 +173,18 @@ body {
   @apply bg-blue-500 text-white;
 }
 
+.apexcharts-radar-series .apexcharts-marker {
+  transition: transform 150ms ease, r 150ms ease;
+  transform-origin: center;
+  transform-box: fill-box;
+  pointer-events: auto;
+}
+
+.apexcharts-radar-series .apexcharts-marker:hover {
+  transform: scale(1.7);
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.25));
+}
+
 /* cyrillic-ext */
 @font-face {
   font-family: "__Plus_Jakarta_Sans_a182b8";

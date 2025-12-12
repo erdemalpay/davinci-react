@@ -25,14 +25,103 @@ const PriceChart = ({
 }: Props) => {
   const [isRadarChart, setIsRadarChart] = useState(false);
 
+  const getRadarTooltipFallback = (
+    categories: string[],
+    tooltipOptions: any
+  ) => {
+    const getFormatter = (seriesIndex: number) => {
+      const tooltipY = tooltipOptions?.y;
+      if (Array.isArray(tooltipY)) {
+        return tooltipY?.[seriesIndex]?.formatter;
+      }
+      return tooltipY?.formatter;
+    };
+
+    return ({ series, dataPointIndex, w }: any) => {
+      if (!Array.isArray(series) || !series.length) {
+        return "";
+      }
+
+      const label =
+        categories?.[dataPointIndex] ??
+        w?.config?.xaxis?.categories?.[dataPointIndex] ??
+        "";
+
+      const rows =
+        w?.config?.series
+          ?.map((serie: any, idx: number) => {
+            const value = series?.[idx]?.[dataPointIndex];
+            if (typeof value === "undefined" || value === null) {
+              return null;
+            }
+            const formatter = getFormatter(idx);
+            const formattedValue =
+              typeof formatter === "function"
+                ? formatter(value, {
+                    seriesIndex: idx,
+                    dataPointIndex,
+                    w,
+                  })
+                : typeof value === "number"
+                ? value.toLocaleString("tr-TR")
+                : value;
+            const color = w?.globals?.colors?.[idx] || "#6B7280";
+            const name = serie?.name ?? "";
+
+            return `
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:6px;">
+                <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#d1d5db;">
+                  <span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;"></span>
+                  ${name}
+                </span>
+                <span style="color:#f9fafb;font-weight:600;">${formattedValue}</span>
+              </div>
+            `;
+          })
+          .filter(Boolean)
+          .join("") ?? "";
+
+      return `
+        <div style="padding:12px;border-radius:8px;background:#111827;min-width:180px;">
+          <div style="font-size:12px;font-weight:600;color:#f3f4f6;">${label}</div>
+          ${rows}
+        </div>
+      `;
+    };
+  };
+
   // Radar chart için konfigürasyonu dönüştür
   const getRadarConfig = () => {
+    const categories = Array.isArray(
+      chartConfig?.options?.xaxis?.categories
+    )
+      ? (chartConfig.options.xaxis.categories as string[])
+      : [];
+    const tooltipOptions = chartConfig?.options?.tooltip || {};
+    const radarShared =
+      typeof tooltipOptions.shared === "boolean"
+        ? tooltipOptions.shared
+        : true;
+    const radarIntersect =
+      typeof tooltipOptions.intersect === "boolean"
+        ? tooltipOptions.intersect
+        : false;
+    const radarFollowCursor =
+      typeof tooltipOptions.followCursor === "boolean"
+        ? tooltipOptions.followCursor
+        : true;
+    const tooltipCustom =
+      typeof tooltipOptions.custom === "function"
+        ? tooltipOptions.custom
+        : getRadarTooltipFallback(categories, tooltipOptions);
+
     return {
       ...chartConfig,
       type: "radar",
       height: 400, // Radar için daha yüksek grafik
       options: {
         ...chartConfig.options,
+        labels: categories,
         chart: {
           ...chartConfig.options?.chart,
           type: "radar",
@@ -109,9 +198,12 @@ const PriceChart = ({
           horizontalAlign: "right",
         },
         tooltip: {
+          ...tooltipOptions,
           enabled: true,
-          shared: true,
-          custom: chartConfig.options?.tooltip?.custom,
+          shared: radarShared,
+          intersect: radarIntersect,
+          followCursor: radarFollowCursor,
+          custom: tooltipCustom,
         },
         stroke: {
           show: true,
