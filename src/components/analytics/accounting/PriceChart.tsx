@@ -7,7 +7,7 @@ import {
   Switch,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AccountProduct, MenuCategory, UpperCategory } from "../../../types";
 
 type Props = {
@@ -17,6 +17,20 @@ type Props = {
   selectedUpperCategory?: UpperCategory;
 };
 
+type RadarTooltipRow = {
+  name: string;
+  color: string;
+  value: string | number;
+};
+
+type RadarTooltipState = {
+  visible: boolean;
+  x: number;
+  y: number;
+  label: string;
+  rows: RadarTooltipRow[];
+};
+
 const PriceChart = ({
   chartConfig,
   selectedProduct,
@@ -24,69 +38,210 @@ const PriceChart = ({
   selectedUpperCategory,
 }: Props) => {
   const [isRadarChart, setIsRadarChart] = useState(false);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [radarTooltip, setRadarTooltip] = useState<RadarTooltipState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    label: "",
+    rows: [],
+  });
 
-  const getRadarTooltipFallback = (
-    categories: string[],
-    tooltipOptions: any
-  ) => {
-    const getFormatter = (seriesIndex: number) => {
-      const tooltipY = tooltipOptions?.y;
-      if (Array.isArray(tooltipY)) {
-        return tooltipY?.[seriesIndex]?.formatter;
+  useEffect(() => {
+    if (!isRadarChart && radarTooltip.visible) {
+      setRadarTooltip((prev) => ({
+        visible: false,
+        x: prev.x,
+        y: prev.y,
+        label: "",
+        rows: [],
+      }));
+    }
+  }, [isRadarChart, radarTooltip.visible]);
+
+  // SVG üzerinde manuel event listener ekle
+  useEffect(() => {
+    if (!isRadarChart || !chartContainerRef.current) {
+      return;
+    }
+
+    const container = chartContainerRef.current;
+    const checkAndAttachListeners = () => {
+      const svgElement = container.querySelector('svg');
+      if (!svgElement) {
+        return;
       }
-      return tooltipY?.formatter;
+
+      const markers = svgElement.querySelectorAll('.apexcharts-marker');
+      const seriesCount = chartConfig?.series?.length || 1;
+      console.log('📍 Found markers:', markers.length, 'seriesCount:', seriesCount);
+
+      markers.forEach((marker, index) => {
+        const handleMouseEnter = (e: Event) => {
+          console.log('🎯 Marker hover detected', index);
+          const categories = Array.isArray(chartConfig?.options?.xaxis?.categories)
+            ? (chartConfig.options.xaxis.categories as string[])
+            : [];
+          const tooltipOptions = chartConfig?.options?.tooltip || {};
+
+          // Her serinin kendi marker'ları var, index'i kategoriye çevir
+          const dataPointIndex = Math.floor(index / seriesCount);
+          console.log('📊 Calculated dataPointIndex:', dataPointIndex, 'for marker index:', index);
+
+          handleRadarPointHover(
+            e as any,
+            { opts: chartConfig?.options, w: { globals: { colors: chartConfig?.options?.colors } } },
+            { dataPointIndex },
+            categories,
+            tooltipOptions,
+            chartConfig
+          );
+        };
+
+        const handleMouseLeave = () => {
+          console.log('👋 Marker leave detected', index);
+          hideRadarTooltip();
+        };
+
+        marker.addEventListener('mouseenter', handleMouseEnter);
+        marker.addEventListener('mouseleave', handleMouseLeave);
+      });
     };
 
-    return ({ series, dataPointIndex, w }: any) => {
-      if (!Array.isArray(series) || !series.length) {
-        return "";
+    // Chart render olduktan sonra listener'ları ekle
+    const timeoutId = setTimeout(checkAndAttachListeners, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [isRadarChart, chartConfig]);
+
+  const getValueFormatter = (tooltipOptions: any, seriesIndex: number) => {
+    const tooltipY = tooltipOptions?.y;
+    if (Array.isArray(tooltipY)) {
+      return tooltipY?.[seriesIndex]?.formatter;
+    }
+    return tooltipY?.formatter;
+  };
+
+  const hideRadarTooltip = () => {
+    setRadarTooltip((prev) =>
+      prev.visible
+        ? {
+            visible: false,
+            x: prev.x,
+            y: prev.y,
+            label: "",
+            rows: [],
+          }
+        : prev
+    );
+  };
+
+  const handleRadarPointHover = (
+    event: any,
+    chartContext: any,
+    config: any,
+    categories: string[],
+    tooltipOptions: any,
+    sourceChartConfig?: any
+  ) => {
+    console.log("🎯 handleRadarPointHover triggered", { event, config, dataPointIndex: config?.dataPointIndex });
+    const container = chartContainerRef.current;
+    if (!container || typeof config?.dataPointIndex !== "number") {
+      console.log("❌ Early return", { container: !!container, dataPointIndex: config?.dataPointIndex });
+      return;
+    }
+    const dataPointIndex = config.dataPointIndex;
+    const label =
+      categories?.[dataPointIndex] ??
+      chartContext?.opts?.xaxis?.categories?.[dataPointIndex] ??
+      "";
+
+    console.log('🔍 Processing data:', { dataPointIndex, label, categories, series: sourceChartConfig?.series });
+
+    // chartConfig.series'den data'yı al
+    const series = sourceChartConfig?.series || chartContext?.opts?.series || [];
+    const rows =
+      series
+        ?.map((serie: any, idx: number) => {
+          const value = serie?.data?.[dataPointIndex];
+          console.log(`  Series ${idx} (${serie?.name}):`, value);
+          if (typeof value === "undefined" || value === null) {
+            return null;
+          }
+          const formatter = getValueFormatter(tooltipOptions, idx);
+          const formattedValue =
+            typeof formatter === "function"
+              ? formatter(value, {
+                  seriesIndex: idx,
+                  dataPointIndex,
+                  w: chartContext?.w,
+                })
+              : typeof value === "number"
+              ? value.toLocaleString("tr-TR")
+              : value;
+          const color =
+            chartContext?.w?.globals?.colors?.[idx] ||
+            sourceChartConfig?.options?.colors?.[idx] ||
+            "#6B7280";
+          const name = serie?.name ?? `Series ${idx + 1}`;
+          return {
+            name,
+            color,
+            value: formattedValue,
+          };
+        })
+        .filter(Boolean) ?? [];
+
+    const bounds = container.getBoundingClientRect();
+    const mouseEvent = event as MouseEvent;
+    const mouseX = mouseEvent?.clientX ?? 0;
+    const mouseY = mouseEvent?.clientY ?? 0;
+    const relativeX = mouseX - bounds.left;
+    const relativeY = mouseY - bounds.top;
+
+    const newTooltipState = {
+      visible: true,
+      x: relativeX,
+      y: relativeY,
+      label,
+      rows: rows as RadarTooltipRow[],
+    };
+    console.log("✅ Setting tooltip state", newTooltipState);
+    setRadarTooltip(newTooltipState);
+  };
+
+  const getRadarTooltipStyle = () => {
+    const padding = 12;
+    const tooltipWidth = 220;
+    const rowHeight = 22;
+    const tooltipHeight =
+      48 + radarTooltip.rows.length * rowHeight;
+    const container = chartContainerRef.current;
+    let left = radarTooltip.x + padding;
+    let top = radarTooltip.y + padding;
+
+    if (container) {
+      if (left + tooltipWidth > container.clientWidth) {
+        left = radarTooltip.x - tooltipWidth - padding;
+      }
+      if (left < 0) {
+        left = padding;
       }
 
-      const label =
-        categories?.[dataPointIndex] ??
-        w?.config?.xaxis?.categories?.[dataPointIndex] ??
-        "";
+      if (top + tooltipHeight > container.clientHeight) {
+        top = radarTooltip.y - tooltipHeight - padding;
+      }
+      if (top < 0) {
+        top = padding;
+      }
+    }
 
-      const rows =
-        w?.config?.series
-          ?.map((serie: any, idx: number) => {
-            const value = series?.[idx]?.[dataPointIndex];
-            if (typeof value === "undefined" || value === null) {
-              return null;
-            }
-            const formatter = getFormatter(idx);
-            const formattedValue =
-              typeof formatter === "function"
-                ? formatter(value, {
-                    seriesIndex: idx,
-                    dataPointIndex,
-                    w,
-                  })
-                : typeof value === "number"
-                ? value.toLocaleString("tr-TR")
-                : value;
-            const color = w?.globals?.colors?.[idx] || "#6B7280";
-            const name = serie?.name ?? "";
-
-            return `
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:6px;">
-                <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#d1d5db;">
-                  <span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;"></span>
-                  ${name}
-                </span>
-                <span style="color:#f9fafb;font-weight:600;">${formattedValue}</span>
-              </div>
-            `;
-          })
-          .filter(Boolean)
-          .join("") ?? "";
-
-      return `
-        <div style="padding:12px;border-radius:8px;background:#111827;min-width:180px;">
-          <div style="font-size:12px;font-weight:600;color:#f3f4f6;">${label}</div>
-          ${rows}
-        </div>
-      `;
+    return {
+      left,
+      top,
+      width: tooltipWidth,
     };
   };
 
@@ -110,10 +265,29 @@ const PriceChart = ({
       typeof tooltipOptions.followCursor === "boolean"
         ? tooltipOptions.followCursor
         : true;
-    const tooltipCustom =
-      typeof tooltipOptions.custom === "function"
-        ? tooltipOptions.custom
-        : getRadarTooltipFallback(categories, tooltipOptions);
+    const baseChartEvents = chartConfig?.options?.chart?.events || {};
+    const radarEvents = {
+      ...baseChartEvents,
+      dataPointMouseEnter: (event: any, chartCtx: any, config: any) => {
+        if (typeof baseChartEvents.dataPointMouseEnter === "function") {
+          baseChartEvents.dataPointMouseEnter(event, chartCtx, config);
+        }
+        handleRadarPointHover(
+          event?.detail?.event ?? event,
+          chartCtx,
+          config,
+          categories,
+          tooltipOptions,
+          chartConfig
+        );
+      },
+      dataPointMouseLeave: (event: any, chartCtx: any, config: any) => {
+        if (typeof baseChartEvents.dataPointMouseLeave === "function") {
+          baseChartEvents.dataPointMouseLeave(event, chartCtx, config);
+        }
+        hideRadarTooltip();
+      },
+    };
 
     return {
       ...chartConfig,
@@ -137,9 +311,7 @@ const PriceChart = ({
           zoom: {
             enabled: false, // Zoom'u devre dışı bırak
           },
-          events: {
-            ...chartConfig.options?.chart?.events,
-          },
+          events: radarEvents,
         },
         xaxis: {
           ...chartConfig.options?.xaxis,
@@ -182,9 +354,10 @@ const PriceChart = ({
           strokeColors: "#fff",
           strokeWidth: 2,
           hover: {
-            size: 8, // Hover'da daha da büyüt
+            size: 10, // Hover'da daha da büyüt
             sizeOffset: 3,
           },
+          discrete: [],
         },
         fill: {
           opacity: 0.25,
@@ -199,25 +372,27 @@ const PriceChart = ({
         },
         tooltip: {
           ...tooltipOptions,
-          enabled: true,
+          enabled: false,
           shared: radarShared,
           intersect: radarIntersect,
           followCursor: radarFollowCursor,
-          custom: tooltipCustom,
         },
         stroke: {
           show: true,
           width: 2,
+          curve: 'straight',
         },
         states: {
           hover: {
             filter: {
-              type: "none", // Hover efektlerini devre dışı bırak
+              type: "lighten",
+              value: 0.15,
             },
           },
           active: {
             filter: {
-              type: "none",
+              type: "darken",
+              value: 0.15,
             },
           },
         },
@@ -226,6 +401,8 @@ const PriceChart = ({
   };
 
   const displayConfig = isRadarChart ? getRadarConfig() : chartConfig;
+
+  console.log("🔄 Render - isRadarChart:", isRadarChart, "tooltip:", radarTooltip);
 
   return (
     <Card className="shadow-none">
@@ -262,7 +439,40 @@ const PriceChart = ({
         </div>
       </CardHeader>
       <CardBody className={isRadarChart ? "px-2 py-8" : "px-2 pb-0"}>
-        <Chart {...(displayConfig as any)} />
+        <div ref={chartContainerRef} className="relative" style={{ position: 'relative', zIndex: 1 }}>
+          <Chart {...(displayConfig as any)} />
+          {isRadarChart && radarTooltip.visible && radarTooltip.rows.length > 0 && (
+            <div
+              className="pointer-events-none absolute rounded-lg bg-gray-900/95 px-3 py-2 text-xs text-gray-100 shadow-2xl backdrop-blur border border-gray-700"
+              style={{ ...getRadarTooltipStyle(), zIndex: 9999 }}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-200">
+                {radarTooltip.label}
+              </div>
+              <div className="mt-2 flex flex-col gap-1">
+                {radarTooltip.rows.map((row) => (
+                  <div
+                    key={row.name}
+                    className="flex items-center justify-between gap-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: row.color }}
+                      />
+                      <span className="text-[11px] text-gray-300">
+                        {row.name}
+                      </span>
+                    </div>
+                    <span className="text-[12px] font-semibold text-gray-50">
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </CardBody>
     </Card>
   );
