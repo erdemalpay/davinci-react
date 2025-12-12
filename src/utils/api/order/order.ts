@@ -15,7 +15,6 @@ import {
   PersonalOrderDataType,
   PopularDiscounts,
   Table,
-  WeeklyData,
 } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
@@ -752,7 +751,7 @@ function seededRandom(seed: number): number {
 
 // Mock data generator
 function generateMockCompareData(
-  granularity: "daily" | "weekly" | "monthly",
+  granularity: "daily" | "monthly",
   primaryAfter: string,
   primaryBefore: string,
   secondaryAfter: string,
@@ -825,99 +824,6 @@ function generateMockCompareData(
       },
       secondaryPeriod: {
         granularity: "daily",
-        label: formatPeriodLabel(secondaryAfter, secondaryBefore),
-        startDate: secondaryAfter,
-        endDate: secondaryBefore,
-        data: secondaryData,
-        totalRevenue: secondaryTotal,
-      },
-      comparisonMetrics: {
-        percentageChange:
-          ((primaryTotal - secondaryTotal) / secondaryTotal) * 100,
-        absoluteChange: primaryTotal - secondaryTotal,
-      },
-    };
-  } else if (granularity === "weekly") {
-    // Haftalık mock data
-    const primaryData: WeeklyData[] = [];
-    const secondaryData: WeeklyData[] = [];
-
-    // Primary period için haftaları hesapla
-    const primaryStart = new Date(primaryAfter);
-    const primaryEnd = new Date(primaryBefore);
-    const secondaryStart = new Date(secondaryAfter);
-    const secondaryEnd = new Date(secondaryBefore);
-
-    // Hafta sayısını hesapla
-    const weeks =
-      Math.ceil(
-        (primaryEnd.getTime() - primaryStart.getTime()) /
-          (1000 * 60 * 60 * 24 * 7)
-      ) || 4;
-
-    for (let i = 0; i < weeks; i++) {
-      const weekStartPrimary = new Date(primaryStart);
-      weekStartPrimary.setDate(primaryStart.getDate() + i * 7);
-      const weekEndPrimary = new Date(weekStartPrimary);
-      weekEndPrimary.setDate(weekStartPrimary.getDate() + 6);
-
-      // Eğer weekEndPrimary primaryEnd'den büyükse, primaryEnd'i kullan
-      if (weekEndPrimary > primaryEnd) {
-        weekEndPrimary.setTime(primaryEnd.getTime());
-      }
-
-      const weekStartSecondary = new Date(secondaryStart);
-      weekStartSecondary.setDate(secondaryStart.getDate() + i * 7);
-      const weekEndSecondary = new Date(weekStartSecondary);
-      weekEndSecondary.setDate(weekStartSecondary.getDate() + 6);
-
-      // Eğer weekEndSecondary secondaryEnd'den büyükse, secondaryEnd'i kullan
-      if (weekEndSecondary > secondaryEnd) {
-        weekEndSecondary.setTime(secondaryEnd.getTime());
-      }
-
-      // Deterministik random değerler
-      const primarySeed = parseInt(seed) + i;
-      const secondarySeed = parseInt(seed) + i + 1000;
-
-      primaryData.push({
-        weekStart: weekStartPrimary.toISOString().split("T")[0],
-        weekEnd: weekEndPrimary.toISOString().split("T")[0],
-        label: `Hafta ${i + 1}`,
-        total: 250000 + seededRandom(primarySeed) * 100000,
-      });
-
-      secondaryData.push({
-        weekStart: weekStartSecondary.toISOString().split("T")[0],
-        weekEnd: weekEndSecondary.toISOString().split("T")[0],
-        label: `Hafta ${i + 1}`,
-        total: 200000 + seededRandom(secondarySeed) * 80000,
-      });
-    }
-
-    const primaryTotal = primaryData.reduce((sum, d) => sum + d.total, 0);
-    const secondaryTotal = secondaryData.reduce((sum, d) => sum + d.total, 0);
-
-    // Label formatını düzelt
-    const formatPeriodLabel = (start: string, end: string) => {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      const startFormatted = format(startDate, "dd MMM", { locale: tr });
-      const endFormatted = format(endDate, "dd MMM", { locale: tr });
-      return `${startFormatted} - ${endFormatted}`;
-    };
-
-    return {
-      primaryPeriod: {
-        granularity: "weekly",
-        label: formatPeriodLabel(primaryAfter, primaryBefore),
-        startDate: primaryAfter,
-        endDate: primaryBefore,
-        data: primaryData,
-        totalRevenue: primaryTotal,
-      },
-      secondaryPeriod: {
-        granularity: "weekly",
         label: formatPeriodLabel(secondaryAfter, secondaryBefore),
         startDate: secondaryAfter,
         endDate: secondaryBefore,
@@ -1011,7 +917,7 @@ export function useGetCategorySummaryCompare(
   primaryBefore: string,
   secondaryAfter: string,
   secondaryBefore: string,
-  granularity: "daily" | "weekly" | "monthly",
+  granularity: "daily" | "monthly",
   location?: number,
   upperCategory?: number,
   category?: number

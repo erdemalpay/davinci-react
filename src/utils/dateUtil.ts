@@ -126,6 +126,7 @@ export function calculatePreviousPeriod(
 
 /**
  * Tarih aralığı uzunluğuna göre granularity tahmini (backend zaten belirliyor, bu opsiyonel)
+ * NOT: Weekly kaldırıldı, sadece daily ve monthly kullanılıyor
  * @param after Başlangıç tarihi (YYYY-MM-DD)
  * @param before Bitiş tarihi (YYYY-MM-DD)
  * @returns Tahmin edilen granularity
@@ -133,15 +134,15 @@ export function calculatePreviousPeriod(
 export function estimateGranularity(
   after: string,
   before: string
-): "daily" | "weekly" | "monthly" {
+): "daily" | "monthly" {
   const afterDate = parseDate(after);
   const beforeDate = parseDate(before);
   const days = differenceInDays(beforeDate, afterDate) + 1;
 
-  if (days <= 7) {
+  // 35 güne kadar: Günlük
+  // 35 günden fazla: Aylık
+  if (days <= 35) {
     return "daily";
-  } else if (days <= 60) {
-    return "weekly";
   } else {
     return "monthly";
   }

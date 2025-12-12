@@ -46,7 +46,6 @@ const OrdersSummary = () => {
   const [useCompareChart, setUseCompareChart] = useState(true);
 
   const ordersSummaryDateOptions = [
-    { value: "today", label: "Today" },
     { value: "thisWeek", label: "This Week" },
     { value: "lastWeek", label: "Last Week" },
     { value: "thisMonth", label: "This Month" },

@@ -104,29 +104,6 @@ export default function CategorySummaryCompareChart({
           } catch {
             detailedDateInfo = primaryDataPoint.label || primaryDataPoint.date;
           }
-        } else if (
-          periodGranularity === "weekly" &&
-          primaryDataPoint.weekStart &&
-          primaryDataPoint.weekEnd
-        ) {
-          try {
-            // Haftalık: Tarih aralığı
-            const startDate = parse(
-              primaryDataPoint.weekStart,
-              "yyyy-MM-dd",
-              new Date()
-            );
-            const endDate = parse(
-              primaryDataPoint.weekEnd,
-              "yyyy-MM-dd",
-              new Date()
-            );
-            detailedDateInfo = `${format(startDate, "dd MMM", {
-              locale: tr,
-            })} - ${format(endDate, "dd MMM", { locale: tr })}`;
-          } catch {
-            detailedDateInfo = `${primaryDataPoint.weekStart} - ${primaryDataPoint.weekEnd}`;
-          }
         } else {
           detailedDateInfo = xAxisLabel;
         }
@@ -176,46 +153,6 @@ export default function CategorySummaryCompareChart({
               secondaryDateLabel = format(date, "dd MMM", { locale: tr });
             } catch {
               secondaryDateLabel = secondaryDataPoint.date;
-            }
-          }
-        } else if (periodGranularity === "weekly") {
-          // Haftalık için: hafta aralığı
-          if (primaryDataPoint.weekStart && primaryDataPoint.weekEnd) {
-            try {
-              const start = parse(
-                primaryDataPoint.weekStart,
-                "yyyy-MM-dd",
-                new Date()
-              );
-              const end = parse(
-                primaryDataPoint.weekEnd,
-                "yyyy-MM-dd",
-                new Date()
-              );
-              primaryDateLabel = `${format(start, "dd MMM", {
-                locale: tr,
-              })} - ${format(end, "dd MMM", { locale: tr })}`;
-            } catch {
-              primaryDateLabel = `${primaryDataPoint.weekStart} - ${primaryDataPoint.weekEnd}`;
-            }
-          }
-          if (secondaryDataPoint.weekStart && secondaryDataPoint.weekEnd) {
-            try {
-              const start = parse(
-                secondaryDataPoint.weekStart,
-                "yyyy-MM-dd",
-                new Date()
-              );
-              const end = parse(
-                secondaryDataPoint.weekEnd,
-                "yyyy-MM-dd",
-                new Date()
-              );
-              secondaryDateLabel = `${format(start, "dd MMM", {
-                locale: tr,
-              })} - ${format(end, "dd MMM", { locale: tr })}`;
-            } catch {
-              secondaryDateLabel = `${secondaryDataPoint.weekStart} - ${secondaryDataPoint.weekEnd}`;
             }
           }
         } else if (periodGranularity === "monthly") {

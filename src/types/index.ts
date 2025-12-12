@@ -1773,7 +1773,7 @@ export type DateRangeKey =
   | "last6Months"
   | "customDate";
 
-export type Granularity = "daily" | "weekly" | "monthly";
+export type Granularity = "daily" | "monthly";
 
 export type DailyData = {
   date: string;
