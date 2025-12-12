@@ -1777,26 +1777,22 @@ export type Granularity = "daily" | "monthly";
 
 export type DailyData = {
   date: string;
-  label: string;
   total: number;
 };
 
 export type WeeklyData = {
   weekStart: string;
   weekEnd: string;
-  label: string;
   total: number;
 };
 
 export type MonthlyData = {
   month: string;
-  label: string;
   total: number;
 };
 
 export type PeriodData<T = DailyData | WeeklyData | MonthlyData> = {
   granularity: Granularity;
-  label: string;
   startDate: string;
   endDate: string;
   data: T[];

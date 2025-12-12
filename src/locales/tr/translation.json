@@ -1135,5 +1135,16 @@
   "Absolute Change": "Mutlak Değişim",
   "Loading...": "Yükleniyor...",
   "Total Discounts": "Toplam İndirimler",
-  "Show on Orders Summary" : "Sipariş Özeti Sayfasında Göster"
+  "Show on Orders Summary": "Sipariş Özeti Sayfasında Göster",
+  "Jan": "Oca",
+  "Feb": "Şub",
+  "Mar": "Mar",
+  "Apr": "Nis",
+  "Jun": "Haz",
+  "Jul": "Tem",
+  "Aug": "Ağu",
+  "Sep": "Eyl",
+  "Oct": "Eki",
+  "Nov": "Kas",
+  "Dec": "Ara"
 }

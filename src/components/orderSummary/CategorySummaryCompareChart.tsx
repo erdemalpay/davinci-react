@@ -25,6 +25,35 @@ function isMonthlyData(data: any): data is MonthlyData {
   return data && typeof data.month === "string";
 }
 
+// Helper: Label generation functions
+function getDayLabel(dateStr: string, t: any): string {
+  const date = parse(dateStr, "yyyy-MM-dd", new Date());
+  const dayIndex = date.getDay();
+  const dayKeys = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  return t(dayKeys[dayIndex]);
+}
+
+function getMonthLabel(monthStr: string, t: any): string {
+  const date = parse(monthStr + "-01", "yyyy-MM-dd", new Date());
+  const monthIndex = date.getMonth();
+  const monthKeys = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  return t(monthKeys[monthIndex]);
+}
+
+function formatPeriodLabel(start: string, end: string, granularity: "daily" | "monthly", t: any): string {
+  const startDate = parse(start, "yyyy-MM-dd", new Date());
+  const endDate = parse(end, "yyyy-MM-dd", new Date());
+
+  if (granularity === "daily") {
+    return `${format(startDate, "dd")} ${t(format(startDate, "MMM"))} - ${format(endDate, "dd")} ${t(format(endDate, "MMM"))}`;
+  } else {
+    return `${format(startDate, "dd")} ${t(format(startDate, "MMM"))} ${format(startDate, "yyyy")} - ${format(endDate, "dd")} ${t(format(endDate, "MMM"))} ${format(endDate, "yyyy")}`;
+  }
+}
+
 type Props = {
   location?: number;
   category?: MenuCategory;
@@ -85,16 +114,15 @@ export default function CategorySummaryCompareChart({
           return "";
         }
 
-        // X ekseni label'ını al (grafikte gösterilen kısa label)
-        // Bu sadece kısa gösterim için: "Mayıs", "Pzt", "Hafta 1" gibi
+        // X ekseni label'ını oluştur
         let xAxisLabel = "";
-        if (w?.config?.xaxis?.categories?.[dataPointIndex]) {
-          xAxisLabel = w.config.xaxis.categories[dataPointIndex];
-        } else {
-          xAxisLabel = primaryDataPoint.label || "";
+        if (isDailyData(primaryDataPoint)) {
+          xAxisLabel = getDayLabel(primaryDataPoint.date, t);
+        } else if (isMonthlyData(primaryDataPoint)) {
+          xAxisLabel = getMonthLabel(primaryDataPoint.month, t);
         }
 
-        // Tooltip için detaylı tarih bilgisi - sadece referans için göster
+        // Tooltip için detaylı tarih bilgisi
         const periodGranularity = primaryPeriod.granularity || granularity;
         let detailedDateInfo = "";
 
@@ -102,28 +130,17 @@ export default function CategorySummaryCompareChart({
           periodGranularity === "monthly" &&
           isMonthlyData(primaryDataPoint)
         ) {
-          try {
-            // Aylık: Sadece ay ismini göster (yıl gereksiz, zaten dönem label'ında var)
-            const date = parse(
-              primaryDataPoint.month + "-01",
-              "yyyy-MM-dd",
-              new Date()
-            );
-            detailedDateInfo = format(date, "MMMM", { locale: tr }); // "Mayıs"
-          } catch {
-            detailedDateInfo = primaryDataPoint.label || primaryDataPoint.month;
-          }
+          // Aylık: Ay ismini göster
+          detailedDateInfo = getMonthLabel(primaryDataPoint.month, t);
         } else if (
           periodGranularity === "daily" &&
           isDailyData(primaryDataPoint)
         ) {
-          try {
-            // Günlük: Kısa tarih formatı
-            const date = parse(primaryDataPoint.date, "yyyy-MM-dd", new Date());
-            detailedDateInfo = format(date, "dd MMM, EEEE", { locale: tr }); // "11 Ara, Perşembe"
-          } catch {
-            detailedDateInfo = primaryDataPoint.label || primaryDataPoint.date;
-          }
+          // Günlük: Tarih formatı
+          const date = parse(primaryDataPoint.date, "yyyy-MM-dd", new Date());
+          const dayLabel = getDayLabel(primaryDataPoint.date, t);
+          const monthLabel = t(format(date, "MMM"));
+          detailedDateInfo = `${format(date, "dd")} ${monthLabel}, ${dayLabel}`;
         } else {
           detailedDateInfo = xAxisLabel;
         }
@@ -152,54 +169,26 @@ export default function CategorySummaryCompareChart({
         if (periodGranularity === "daily") {
           // Günlük için: tarih bilgisi + YIL
           if (isDailyData(primaryDataPoint)) {
-            try {
-              const date = parse(
-                primaryDataPoint.date,
-                "yyyy-MM-dd",
-                new Date()
-              );
-              primaryDateLabel = format(date, "dd MMM yyyy", { locale: tr });
-            } catch {
-              primaryDateLabel = primaryDataPoint.date;
-            }
+            const date = parse(primaryDataPoint.date, "yyyy-MM-dd", new Date());
+            const monthLabel = t(format(date, "MMM"));
+            primaryDateLabel = `${format(date, "dd")} ${monthLabel} ${format(date, "yyyy")}`;
           }
           if (isDailyData(secondaryDataPoint)) {
-            try {
-              const date = parse(
-                secondaryDataPoint.date,
-                "yyyy-MM-dd",
-                new Date()
-              );
-              secondaryDateLabel = format(date, "dd MMM yyyy", { locale: tr });
-            } catch {
-              secondaryDateLabel = secondaryDataPoint.date;
-            }
+            const date = parse(secondaryDataPoint.date, "yyyy-MM-dd", new Date());
+            const monthLabel = t(format(date, "MMM"));
+            secondaryDateLabel = `${format(date, "dd")} ${monthLabel} ${format(date, "yyyy")}`;
           }
         } else if (periodGranularity === "monthly") {
           // Aylık için: ay adı + YIL
           if (isMonthlyData(primaryDataPoint)) {
-            try {
-              const date = parse(
-                primaryDataPoint.month + "-01",
-                "yyyy-MM-dd",
-                new Date()
-              );
-              primaryDateLabel = format(date, "MMMM yyyy", { locale: tr });
-            } catch {
-              primaryDateLabel = primaryDataPoint.month;
-            }
+            const date = parse(primaryDataPoint.month + "-01", "yyyy-MM-dd", new Date());
+            const monthLabel = getMonthLabel(primaryDataPoint.month, t);
+            primaryDateLabel = `${monthLabel} ${format(date, "yyyy")}`;
           }
           if (isMonthlyData(secondaryDataPoint)) {
-            try {
-              const date = parse(
-                secondaryDataPoint.month + "-01",
-                "yyyy-MM-dd",
-                new Date()
-              );
-              secondaryDateLabel = format(date, "MMMM yyyy", { locale: tr });
-            } catch {
-              secondaryDateLabel = secondaryDataPoint.month;
-            }
+            const date = parse(secondaryDataPoint.month + "-01", "yyyy-MM-dd", new Date());
+            const monthLabel = getMonthLabel(secondaryDataPoint.month, t);
+            secondaryDateLabel = `${monthLabel} ${format(date, "yyyy")}`;
           }
         }
 
@@ -216,22 +205,18 @@ export default function CategorySummaryCompareChart({
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <div style="width: 12px; height: 12px; background: #8B5CF6; border-radius: 2px;"></div>
-                  <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${
-                    primaryDateLabel || primaryPeriod.label
-                  }</span>
+                  <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${primaryDateLabel}</span>
                 </div>
                 <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${primaryValue.toLocaleString(
                   "tr-TR"
                 )} ${TURKISHLIRA}</span>
               </div>
-              
+
               <!-- Secondary Period (Turuncu - Karşılaştırma Dönemi) -->
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <div style="width: 12px; height: 12px; background: #FB923C; border-radius: 2px;"></div>
-                  <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${
-                    secondaryDateLabel || secondaryPeriod.label
-                  }</span>
+                  <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${secondaryDateLabel}</span>
                 </div>
                 <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${secondaryValue.toLocaleString(
                   "tr-TR"
@@ -384,8 +369,15 @@ export default function CategorySummaryCompareChart({
     const primaryPeriod = compareData.primaryPeriod;
     const secondaryPeriod = compareData.secondaryPeriod;
 
-    // X ekseni kategorileri (label'lar)
-    const categories = primaryPeriod.data.map((item: any) => item.label);
+    // X ekseni kategorileri (label'ları frontend'de oluştur)
+    const categories = primaryPeriod.data.map((item: any) => {
+      if (isDailyData(item)) {
+        return getDayLabel(item.date, t);
+      } else if (isMonthlyData(item)) {
+        return getMonthLabel(item.month, t);
+      }
+      return "";
+    });
 
     // Y ekseni değerleri
     const primaryValues = primaryPeriod.data.map((item: any) =>
@@ -395,15 +387,19 @@ export default function CategorySummaryCompareChart({
       parseFloat(item.total.toFixed(2))
     );
 
+    // Period label'ları oluştur
+    const primaryLabel = formatPeriodLabel(primaryPeriod.startDate, primaryPeriod.endDate, primaryPeriod.granularity, t);
+    const secondaryLabel = formatPeriodLabel(secondaryPeriod.startDate, secondaryPeriod.endDate, secondaryPeriod.granularity, t);
+
     return {
       ...chartConfig,
       series: [
         {
-          name: primaryPeriod.label,
+          name: primaryLabel,
           data: primaryValues,
         },
         {
-          name: secondaryPeriod.label,
+          name: secondaryLabel,
           data: secondaryValues,
         },
       ],
@@ -429,6 +425,17 @@ export default function CategorySummaryCompareChart({
     };
   }, [compareData, granularity, customTooltip, chartConfig]);
 
+  // Secondary period label - MUST be before any early returns
+  const secondaryPeriodLabel = useMemo(() => {
+    if (!compareData?.secondaryPeriod) return "";
+    return formatPeriodLabel(
+      compareData.secondaryPeriod.startDate,
+      compareData.secondaryPeriod.endDate,
+      compareData.secondaryPeriod.granularity,
+      t
+    );
+  }, [compareData, t]);
+
   if (!compareData) {
     return (
       <div className="flex flex-col gap-4 mx-auto w-full">
@@ -444,7 +451,7 @@ export default function CategorySummaryCompareChart({
       {/* Karşılaştırma metrikleri */}
       <div className="flex gap-2 items-center flex-wrap">
         <span className="text-sm text-gray-600">
-          {t("Compare Period")} {compareData.secondaryPeriod.label}
+          {t("Compare Period")} {secondaryPeriodLabel}
         </span>
         <span className="text-sm font-semibold text-green-600">
           {compareData.comparisonMetrics.percentageChange > 0 ? "+" : ""}
