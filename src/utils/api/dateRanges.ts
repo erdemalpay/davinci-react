@@ -49,7 +49,7 @@ export const dateRanges: {
   }),
   thisMonth: () => ({
     after: formatDate(startOfMonth(new Date())),
-    before: formatDate(endOfMonth(new Date())),
+    before: formatDate(new Date()), // Bugüne kadar
     date: "thisMonth",
   }),
   lastMonth: () => ({

@@ -855,21 +855,44 @@ function generateMockCompareData(
     const primaryData: MonthlyData[] = [];
     const secondaryData: MonthlyData[] = [];
 
-    for (let i = 0; i < 12; i++) {
-      const monthNum = String(i + 1).padStart(2, "0");
+    // Gerçek tarih aralığına göre ay sayısını hesapla
+    const primaryStart = new Date(primaryAfter);
+    const primaryEnd = new Date(primaryBefore);
+    const secondaryStart = new Date(secondaryAfter);
+
+    const startMonth = primaryStart.getMonth(); // 0-11
+    const startYear = primaryStart.getFullYear();
+    const endMonth = primaryEnd.getMonth();
+    const endYear = primaryEnd.getFullYear();
+
+    // Kaç ay var hesapla
+    const monthCount = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+
+    for (let i = 0; i < monthCount; i++) {
+      const currentMonth = (startMonth + i) % 12;
+      const currentYear = startYear + Math.floor((startMonth + i) / 12);
+      const monthNum = String(currentMonth + 1).padStart(2, "0");
+
+      // Secondary için de aynı mantık
+      const secondaryMonth = (secondaryStart.getMonth() + i) % 12;
+      const secondaryYear =
+        secondaryStart.getFullYear() +
+        Math.floor((secondaryStart.getMonth() + i) / 12);
+      const secondaryMonthNum = String(secondaryMonth + 1).padStart(2, "0");
+
       // Deterministik random değerler
       const primarySeed = parseInt(seed) + i;
       const secondarySeed = parseInt(seed) + i + 1000;
 
       primaryData.push({
-        month: `2024-${monthNum}`,
-        label: months[i],
+        month: `${currentYear}-${monthNum}`,
+        label: months[currentMonth],
         total: 1200000 + seededRandom(primarySeed) * 300000,
       });
 
       secondaryData.push({
-        month: `2023-${monthNum}`,
-        label: months[i],
+        month: `${secondaryYear}-${secondaryMonthNum}`,
+        label: months[secondaryMonth],
         total: 1000000 + seededRandom(secondarySeed) * 250000,
       });
     }

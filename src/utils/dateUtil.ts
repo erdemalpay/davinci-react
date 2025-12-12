@@ -125,8 +125,8 @@ export function calculatePreviousPeriod(
 }
 
 /**
- * Tarih aralığı uzunluğuna göre granularity tahmini (backend zaten belirliyor, bu opsiyonel)
- * NOT: Weekly kaldırıldı, sadece daily ve monthly kullanılıyor
+ * Tarih aralığı uzunluğuna göre granularity tahmini
+ * Akıllı granularity belirleme: Kullanıcının seçim tipine göre uygun gösterim
  * @param after Başlangıç tarihi (YYYY-MM-DD)
  * @param before Bitiş tarihi (YYYY-MM-DD)
  * @returns Tahmin edilen granularity
@@ -139,11 +139,62 @@ export function estimateGranularity(
   const beforeDate = parseDate(before);
   const days = differenceInDays(beforeDate, afterDate) + 1;
 
-  // 35 güne kadar: Günlük
-  // 35 günden fazla: Aylık
-  if (days <= 35) {
-    return "daily";
-  } else {
-    return "monthly";
+  // Tarih aralığı analizi
+  const afterDay = afterDate.getDate();
+  const beforeDay = beforeDate.getDate();
+  const afterMonth = afterDate.getMonth();
+  const beforeMonth = beforeDate.getMonth();
+  const afterYear = afterDate.getFullYear();
+  const beforeYear = beforeDate.getFullYear();
+
+  // Yıl seçimi kontrolü (1 yıldan fazla)
+  if (days > 365) {
+    return "monthly"; // Birden fazla yıl → Aylık göster
   }
+
+  // Tam yıl seçimi kontrolü (örn: 01.01.2024 - 31.12.2024)
+  if (
+    afterDay === 1 &&
+    afterMonth === 0 && // Ocak
+    beforeDay === 31 &&
+    beforeMonth === 11 && // Aralık
+    days >= 365
+  ) {
+    return "monthly"; // Tam yıl → Aylık göster
+  }
+
+  // Birkaç ay seçimi kontrolü (2 aydan fazla)
+  if (days > 60) {
+    return "monthly"; // 2+ ay → Aylık göster
+  }
+
+  // Tam ay seçimi kontrolü (örn: 01.03.2025 - 31.03.2025)
+  const isFullMonth =
+    afterDay === 1 &&
+    afterMonth === beforeMonth &&
+    beforeDay >= 28 && // Şubat için 28, diğerleri için 30-31
+    days >= 28 &&
+    days <= 31;
+
+  if (isFullMonth && days >= 28) {
+    return "daily"; // Tek tam ay → Günlük göster
+  }
+
+  // Hafta seçimi kontrolü (5-10 gün arası)
+  if (days >= 5 && days <= 10) {
+    return "daily"; // Haftalık seçim → Günlük göster
+  }
+
+  // Kısa seçimler (1-4 gün)
+  if (days <= 4) {
+    return "daily"; // Çok kısa → Günlük göster
+  }
+
+  // Orta uzunluk seçimler (11-60 gün)
+  if (days <= 60) {
+    return "daily"; // 2 aya kadar → Günlük göster
+  }
+
+  // Default: Günlük
+  return "daily";
 }
