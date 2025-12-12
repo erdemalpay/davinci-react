@@ -72,7 +72,6 @@ const LocationPage = () => {
       { key: t("Map Location"), isSortable: false },
       { key: t("Opening Hours"), isSortable: false },
       { key: t("Shelf Info"), isSortable: false },
-
       { key: t("Show in Base Quantity"), isSortable: false },
       { key: t("Show on Orders Summary"), isSortable: false },
       { key: t("Active"), isSortable: false },
