@@ -11,7 +11,6 @@ import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
 import {
-  commonDateOptions,
   DateRangeKey,
   MenuCategory,
   OptionType,
@@ -45,6 +44,17 @@ const OrdersSummary = () => {
   const [selectedDateRange, setSelectedDateRange] =
     useState<DateRangeKey>("thisMonth");
   const [useCompareChart, setUseCompareChart] = useState(true);
+
+  const ordersSummaryDateOptions = [
+    { value: "today", label: "Today" },
+    { value: "thisWeek", label: "This Week" },
+    { value: "lastWeek", label: "Last Week" },
+    { value: "thisMonth", label: "This Month" },
+    { value: "lastMonth", label: "Last Month" },
+    { value: "thisYear", label: "This Year" },
+    { value: "lastYear", label: "Last Year" },
+    { value: "customDate", label: "Custom Date" },
+  ];
   const categoryOptions = categories?.map((category) => {
     return {
       value: String(category._id),
@@ -97,7 +107,7 @@ const OrdersSummary = () => {
       type: InputTypes.SELECT,
       formKey: "dateRange",
       label: t("Date Range"),
-      options: commonDateOptions.map((option) => ({
+      options: ordersSummaryDateOptions.map((option) => ({
         value: option.value,
         label: t(option.label),
       })),
@@ -278,7 +288,8 @@ const OrdersSummary = () => {
               difference={
                 (stockData?.beforeTotalValue ?? 0) -
                 (stockData?.afterTotalValue ?? 0)
-                  ? TURKISHLIRA +(
+                  ? TURKISHLIRA +
+                    (
                       (stockData?.beforeTotalValue ?? 0) -
                       (stockData?.afterTotalValue ?? 0)
                     ).toLocaleString("tr-TR")

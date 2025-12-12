@@ -62,8 +62,8 @@ export function getStartEndDates(filter: string) {
 }
 
 /**
- * Seçilen dönem uzunluğuna göre bir önceki eşit uzunlukta dönemi hesaplar
- * Aynı haftanın günlerini karşılaştırır (Pazartesi vs Pazartesi, Salı vs Salı, vb.)
+ * Seçilen dönem ile aynı uzunlukta geçmiş dönemi hesaplar
+ * Örnek: 1 Kas - 29 Kas seçilirse → 1 Eki - 29 Eki döndürür
  * @param primaryAfter Başlangıç tarihi (YYYY-MM-DD)
  * @param primaryBefore Bitiş tarihi (YYYY-MM-DD)
  * @returns Önceki dönemin başlangıç ve bitiş tarihleri
@@ -78,10 +78,14 @@ export function calculatePreviousPeriod(
   // Dönem uzunluğunu hesapla (gün cinsinden)
   const periodLength = differenceInDays(beforeDate, afterDate) + 1;
 
-  // Haftalık karşılaştırma için 7 gün geriye git
-  // Böylece aynı haftanın günleri karşılaştırılır (Pzt vs Pzt, Sal vs Sal)
+  // Akıllı periyot belirleme
+  // 1-7 gün: Haftalık (7 gün geriye)
+  // 8-35 gün: Aylık (1 ay geriye)
+  // 36-60 gün: 2 Aylık (2 ay geriye)
+  // 60+ gün: Yıllık (1 yıl geriye)
+
   if (periodLength <= 7) {
-    // Haftalık veya daha kısa dönemler için tam 1 hafta geriye git
+    // 7 gün veya daha az: 1 hafta geriye git
     const secondaryAfter = subWeeks(afterDate, 1);
     const secondaryBefore = subWeeks(beforeDate, 1);
 
@@ -89,21 +93,29 @@ export function calculatePreviousPeriod(
       secondaryAfter: formatDate(secondaryAfter),
       secondaryBefore: formatDate(secondaryBefore),
     };
+  } else if (periodLength <= 35) {
+    // 8-35 gün arası: 1 ay geriye git
+    const secondaryAfter = subMonths(afterDate, 1);
+    const secondaryBefore = subMonths(beforeDate, 1);
+
+    return {
+      secondaryAfter: formatDate(secondaryAfter),
+      secondaryBefore: formatDate(secondaryBefore),
+    };
   } else if (periodLength <= 60) {
-    // Aylık dönemler için tam ay sayısı kadar geriye git
-    const weeksCount = Math.ceil(periodLength / 7);
-    const secondaryAfter = subWeeks(afterDate, weeksCount);
-    const secondaryBefore = subWeeks(beforeDate, weeksCount);
+    // 36-60 gün arası: 2 ay geriye git
+    const secondaryAfter = subMonths(afterDate, 2);
+    const secondaryBefore = subMonths(beforeDate, 2);
 
     return {
       secondaryAfter: formatDate(secondaryAfter),
       secondaryBefore: formatDate(secondaryBefore),
     };
   } else {
-    // Uzun dönemler için aylık karşılaştırma
-    const monthsCount = Math.ceil(periodLength / 30);
-    const secondaryAfter = subMonths(afterDate, monthsCount);
-    const secondaryBefore = subMonths(beforeDate, monthsCount);
+    // 60+ gün: Yıllık karşılaştırma yapmak daha mantıklı
+    // Aylık hesaplama yerine 1 yıl geriye git
+    const secondaryAfter = subMonths(afterDate, 12);
+    const secondaryBefore = subMonths(beforeDate, 12);
 
     return {
       secondaryAfter: formatDate(secondaryAfter),
