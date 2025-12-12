@@ -13,6 +13,11 @@ export function useGetStoreLocations() {
   return useGetList<Location>(baseUrl);
 }
 
+export function useGetOrdersSummaryLocations() {
+  const url = `${Paths.Location}/orders-summary`;
+  return useGetList<Location>(url);
+}
+
 export function useGetStockLocations() {
   const url = `${Paths.Location}/stock`;
   return useGetList<Location>(url);

@@ -20,7 +20,7 @@ import {
 } from "../types";
 import { useGetSummaryStockTotal } from "../utils/api/account/stock";
 import { dateRanges } from "../utils/api/dateRanges";
-import { useGetStoreLocations } from "../utils/api/location";
+import { useGetOrdersSummaryLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetUpperCategories } from "../utils/api/menu/upperCategory";
 import {
@@ -32,7 +32,7 @@ import { formatAsLocalDate } from "../utils/format";
 const OrdersSummary = () => {
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
-  const locations = useGetStoreLocations();
+  const locations = useGetOrdersSummaryLocations();
   const stockData = useGetSummaryStockTotal();
   const discountData = useGetSummaryDiscountTotal();
   const categories = useGetCategories();
