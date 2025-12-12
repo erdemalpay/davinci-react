@@ -198,7 +198,7 @@ const OrdersSummary = () => {
       <Header showLocationSelector={false} />
       <div className="w-full px-4 flex flex-col gap-4 my-10">
         {/* filter */}
-        <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto   ">
+        <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto relative z-40">
           {filterInputs.map((input: any) => {
             if (input.type === InputTypes.DATE) {
               return (
@@ -313,9 +313,9 @@ const OrdersSummary = () => {
           <div className="w-full">
             <div className="w-full flex flex-col gap-4">
               {/* selections */}
-              <div className="flex flex-col sm:flex-row gap-2 ">
+              <div className="flex flex-col sm:flex-row gap-2 relative z-20">
                 {/* upper category  selection*/}
-                <div className="sm:w-1/4 px-4 ">
+                <div className="sm:w-1/4 px-4 relative z-30">
                   <SelectInput
                     label={t("Upper Category")}
                     options={upperCategoryOptions}
@@ -346,7 +346,7 @@ const OrdersSummary = () => {
                   />
                 </div>
                 {/* category selection */}
-                <div className="sm:w-1/4 px-4">
+                <div className="sm:w-1/4 px-4 relative z-20">
                   <SelectInput
                     label={t("Category")}
                     options={categoryOptions}
@@ -381,7 +381,7 @@ const OrdersSummary = () => {
               {useCompareChart &&
                 filterSummaryFormElements.after &&
                 filterSummaryFormElements.before && (
-                  <>
+                  <div className="relative z-10">
                     {selectedCategory && (
                       <CategorySummaryCompareChart
                         location={
@@ -406,7 +406,7 @@ const OrdersSummary = () => {
                         primaryBefore={filterSummaryFormElements.before}
                       />
                     )}
-                  </>
+                  </div>
                 )}
               {!useCompareChart && (
                 <>
