@@ -1,3 +1,5 @@
+import { ResponsiveCalendar } from "@nivo/calendar";
+import { addDays, format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaGamepad } from "react-icons/fa";
@@ -19,6 +21,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGames } from "../../utils/api/game";
 import {
+  useGetGameplayCountsByDate,
   useGetPersonalGameplayCreateData,
   useGetPersonalGameplayMentoredData,
 } from "../../utils/api/gameplay";
@@ -70,6 +73,7 @@ const GameMasterSummary = ({ userId }: Props) => {
     userId
   );
   const locations = useGetStoreLocations();
+  const gameplayCountsByDate = useGetGameplayCountsByDate(userId);
   let fullTimeAttendance = 0;
   let partTimeAttendance = 0;
   let unknownAttendance = 0;
@@ -397,27 +401,63 @@ const GameMasterSummary = ({ userId }: Props) => {
     locations,
   ]);
   return (
-    <div
-      key={tableKey}
-      className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"
-    >
-      <div className="border p-2 rounded-lg border-gray-200 bg-white col-span-1">
-        <GenericTable
-          key={tableKey}
-          columns={columns}
-          filterPanel={filterPanel}
-          filters={filters}
-          rows={rows}
-          rowKeys={rowKeys}
-          title={t("Learned Games")}
-          isActionsActive={false}
-        />
+    <div className="w-full flex flex-col gap-4">
+      <div
+        key={tableKey}
+        className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
+        <div className="border p-2 rounded-lg border-gray-200 bg-white col-span-1">
+          <GenericTable
+            key={tableKey}
+            columns={columns}
+            filterPanel={filterPanel}
+            filters={filters}
+            rows={rows}
+            rowKeys={rowKeys}
+            title={t("Learned Games")}
+            isActionsActive={false}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2 h-fit">
+          {userInfoCards.map((card, index) => (
+            <InfoCard key={index} {...card} />
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2 h-fit">
-        {userInfoCards.map((card, index) => (
-          <InfoCard key={index} {...card} />
-        ))}
-      </div>
+      {/* Calendar Chart */}
+      {gameplayCountsByDate?.data && gameplayCountsByDate?.data?.length > 0 && (
+        <div className="border p-4 rounded-lg border-gray-200 bg-white w-full">
+          <h3 className="text-lg font-semibold ">
+            {t("Gameplay Activity Calendar")}
+          </h3>
+          <div style={{ height: "400px" }}>
+            <ResponsiveCalendar
+              data={gameplayCountsByDate?.data}
+              from={format(addDays(startOfYear(new Date()), 1), "yyyy-MM-dd")}
+              to={format(new Date(), "yyyy-MM-dd")}
+              emptyColor="#eeeeee"
+              colors={["#61cdbb", "#97e3d5", "#e8c1a0", "#f47560"]}
+              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+              yearSpacing={40}
+              monthBorderColor="#ffffff"
+              dayBorderWidth={2}
+              dayBorderColor="#ffffff"
+              legends={[
+                {
+                  anchor: "bottom-right",
+                  direction: "row",
+                  translateY: 36,
+                  itemCount: 4,
+                  itemWidth: 42,
+                  itemHeight: 36,
+                  itemsSpacing: 14,
+                  itemDirection: "right-to-left",
+                },
+              ]}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
