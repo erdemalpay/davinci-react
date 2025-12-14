@@ -87,6 +87,11 @@ export interface GameplayGroupFilter {
   location?: string;
 }
 
+export interface GameplayCountByDate {
+  value: number;
+  day: string;
+}
+
 export function createGameplay({
   table,
   payload,
@@ -231,6 +236,24 @@ export function useGetGamePlaysGroupByLocation() {
       path: `${BASE_URL_GAMEPLAYS}/group-game-mentor-location`,
     })
   );
+  return {
+    isLoading,
+    error,
+    data,
+    isFetching,
+  };
+}
+
+export function useGetGameplayCountsByDate(mentorId: string) {
+  const url = `${BASE_URL_GAMEPLAYS}/counts-by-date?mentorId=${mentorId}`;
+  const queryKey = [BASE_URL_GAMEPLAYS, "counts-by-date", mentorId];
+
+  const { isLoading, error, data, isFetching } = useQuery(
+    queryKey,
+    () => get<GameplayCountByDate[]>({ path: url }),
+    { refetchOnWindowFocus: false }
+  );
+
   return {
     isLoading,
     error,
