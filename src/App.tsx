@@ -1,7 +1,6 @@
 import {
   QueryClient,
   QueryClientProvider,
-  useIsMutating,
   useQueryClient,
 } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -23,7 +22,6 @@ import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
 
 function App() {
-  const isMutating = useIsMutating();
   const isVisible = usePageVisibility();
   const queryClient = useQueryClient();
   const { isSidebarOpen } = useGeneralContext();
@@ -40,7 +38,6 @@ function App() {
   return (
     <div className="App">
       <Sidebar />
-
       <div
         className={`transition-all duration-300 ${
           user ? (isSidebarOpen ? "lg:ml-64" : "lg:ml-16") : ""
