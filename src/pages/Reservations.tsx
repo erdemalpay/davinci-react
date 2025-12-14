@@ -36,6 +36,7 @@ import {
   useReservationMutations,
   useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
+import { useGetTables } from "../utils/api/table";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
@@ -63,17 +64,27 @@ export default function Reservations() {
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(30);
   const [selectedTableNumber, setSelectedTableNumber] = useState<string>("");
-
+  const tables = useGetTables();
   const tableOptions = useMemo(() => {
-    const location = locations.find((loc) => loc._id === selectedLocationId);
-    if (!location?.tableCount) return [];
-
-    const options = [];
-    for (let i = 1; i <= location.tableCount; i++) {
-      options.push({ value: String(i), label: String(i) });
-    }
-    return options;
-  }, [locations, selectedLocationId]);
+    return (
+      locations
+        .find((location) => location._id === selectedLocationId)
+        ?.tableNames?.filter((t) => {
+          return !tables.find(
+            (table) =>
+              (table.name === t || table?.tables?.includes(t)) &&
+              !table?.finishHour
+          );
+        })
+        ?.sort((a, b) => Number(a) - Number(b))
+        ?.map((t) => {
+          return {
+            value: t,
+            label: t,
+          };
+        }) || []
+    );
+  }, [locations, selectedLocationId, tables]);
 
   const reservationsDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.RESERVATIONS, disabledConditions);
@@ -205,7 +216,7 @@ export default function Reservations() {
         required: false,
       },
     ],
-    [t,users]
+    [t, users]
   );
 
   const formKeys = useMemo(
@@ -593,6 +604,7 @@ export default function Reservations() {
                 formKey: "tableNumber",
                 label: t("Table Number"),
                 options: tableOptions,
+                isSortDisabled: true,
                 placeholder: t("Select Table"),
                 required: true,
               },
