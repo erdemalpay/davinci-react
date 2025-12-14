@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { NO_IMAGE_URL } from "../navigation/constants";
 import { MenuCategory } from "../types";
@@ -47,7 +46,6 @@ const OrderCategoryOrder = () => {
 
   return (
     <>
-      <Header showLocationSelector={false} />
       <div className="w-[95%] mx-auto my-10 flex flex-col gap-6 ">
         <GenericTable
           rowKeys={rowKeys}
