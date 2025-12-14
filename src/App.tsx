@@ -7,7 +7,6 @@ import {
 import { useEffect } from "react";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loading from "./components/common/Loading";
 import { Sidebar } from "./components/common/Sidebar";
 import { DateContextProvider } from "./context/Date.context";
 import { FilterContextProvider } from "./context/Filter.context";
@@ -40,7 +39,6 @@ function App() {
 
   return (
     <div className="App">
-      {isMutating ? <Loading /> : null}
       <Sidebar />
 
       <div
