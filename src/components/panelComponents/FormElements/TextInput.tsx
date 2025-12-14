@@ -84,7 +84,7 @@ const TextInput = ({
       }
       const timer = setTimeout(() => {
         onChange(newValue);
-      }, 1000);
+      }, 500);
       setDebounceTimer(timer);
     } else {
       onChange(newValue);
@@ -103,7 +103,7 @@ const TextInput = ({
         }
         const timer = setTimeout(() => {
           onChange(newValueStr);
-        }, 1000);
+        }, 500);
         setDebounceTimer(timer);
       } else {
         onChange(newValueStr);
