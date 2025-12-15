@@ -25,13 +25,19 @@ interface CopyShiftIntervalPayload {
   selectedUsers?: string[];
 }
 
-export function useShiftMutations() {
+export function useShiftMutations(
+  after?: string,
+  before?: string,
+  location?: number
+) {
   const {
     deleteItem: deleteShift,
     updateItem: updateShift,
     createItem: createShift,
   } = useMutationApi<Shift>({
     baseQuery: Paths.Shift,
+    queryKey: [Paths.Shift, after, before, location],
+    isInvalidate: true,
   });
 
   return { deleteShift, updateShift, createShift };
