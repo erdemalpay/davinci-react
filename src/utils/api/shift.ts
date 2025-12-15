@@ -25,13 +25,20 @@ interface CopyShiftIntervalPayload {
   selectedUsers?: string[];
 }
 
-export function useShiftMutations() {
+export function useShiftMutations(
+  after?: string,
+  before?: string,
+  location?: number
+) {
+  const queryKey = [Paths.Shift, after, before, location];
   const {
     deleteItem: deleteShift,
     updateItem: updateShift,
     createItem: createShift,
   } = useMutationApi<Shift>({
     baseQuery: Paths.Shift,
+    queryKey,
+    isInvalidate: true,
   });
 
   return { deleteShift, updateShift, createShift };
@@ -127,6 +134,9 @@ export function useCopyShiftMutation() {
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Shift}`] });
+    },
   });
 }
 
@@ -141,6 +151,9 @@ export function useAddShiftMutation() {
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Shift}`] });
+    },
   });
 }
 
@@ -154,6 +167,9 @@ export function useCopyShiftIntervalMutation() {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Shift}`] });
     },
   });
 }
