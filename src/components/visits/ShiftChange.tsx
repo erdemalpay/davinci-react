@@ -174,9 +174,14 @@ const ShiftChange = () => {
     selectedLocationId
   );
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const oneYearLater = new Date(today);
+  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
   const modalShifts = useGetShifts(
-    filterPanelFormElements?.after,
-    filterPanelFormElements?.before,
+    today.toISOString().split('T')[0],
+    oneYearLater.toISOString().split('T')[0],
     -1
   );
   const { user } = useUserContext();
