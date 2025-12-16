@@ -297,9 +297,9 @@ const LocationPage = () => {
                     return newSet
                   })
                 }
-                className="flex items-center gap-1 text-gray-700 hover:text-gray-900"
+                className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
               >
-                {isOpen ? <IoChevronDown/> : <IoChevronUp/> }
+                {isOpen ? <IoChevronUp/> : <IoChevronDown/> }
               </button>
               {isOpen && (
                 <div className="flex flex-row gap-2 max-w-64 flex-wrap">
