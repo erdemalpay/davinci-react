@@ -4,6 +4,7 @@ import { Socket, io } from "socket.io-client";
 import { TableTypes } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
+import { useDateContext } from "./../context/Date.context";
 import { useLocationContext } from "./../context/Location.context";
 import { useOrderContext } from "./../context/Order.context";
 import { useUserContext } from "./../context/User.context";
@@ -25,6 +26,7 @@ export function useWebSocket() {
   const queryClient = useQueryClient();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const {
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -84,7 +86,26 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", (data) => {
-      queryClient.invalidateQueries([`${Paths.Order}/today`]);
+      queryClient.setQueryData<any[]>(
+        [`${Paths.Order}/today`, selectedDate],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          const normalizedOrder = {
+            ...data?.order,
+            item:
+              typeof data?.order?.item === "object"
+                ? data?.order?.item?._id
+                : data?.order?.item,
+            kitchen:
+              typeof data?.order?.kitchen === "object"
+                ? data?.order?.kitchen?._id
+                : data?.order?.kitchen,
+          };
+          return [...oldData, normalizedOrder];
+        }
+      );
+
       if (
         data?.order?.createdBy === user?._id ||
         [
@@ -128,15 +149,120 @@ export function useWebSocket() {
           ? data?.order?.table
           : data?.order?.table?._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
-      queryClient.invalidateQueries([`${Paths.Order}/today`]);
+      queryClient.setQueryData<any[]>(
+        [`${Paths.Order}/today`, selectedDate],
+        (oldData) => {
+          if (!oldData) {
+            queryClient.invalidateQueries([`${Paths.Order}/today`]);
+            return oldData;
+          }
+          const normalizedOrder = { ...data?.order };
+          if (typeof data?.order?.table === "number") {
+            const tablesData = queryClient.getQueryData<TablesByLocation>([
+              Paths.Tables,
+              selectedDate,
+            ]);
+
+            if (tablesData) {
+              let foundTable = null;
+              for (const locationTables of Object.values(tablesData)) {
+                foundTable = locationTables.find(
+                  (t) => t?._id === data?.order?.table
+                );
+                if (foundTable) break;
+              }
+
+              if (foundTable) {
+                normalizedOrder.table = foundTable;
+              } else {
+                queryClient.invalidateQueries([`${Paths.Order}/today`]);
+                return oldData;
+              }
+            } else {
+              queryClient.invalidateQueries([`${Paths.Order}/today`]);
+              return oldData;
+            }
+          }
+          if (typeof data?.order?.item === "object" && data?.order?.item?._id) {
+            normalizedOrder.item = data?.order?.item._id;
+          }
+          if (
+            typeof data?.order?.kitchen === "object" &&
+            data?.order?.kitchen?._id
+          ) {
+            normalizedOrder.kitchen = data?.order?.kitchen._id;
+          }
+          return oldData.map((order) =>
+            order._id === normalizedOrder._id ? normalizedOrder : order
+          );
+        }
+      );
     });
 
     socket.on("collectionChanged", (data) => {
-      // queryClient.invalidateQueries([`${Paths.Order}/collection/today`]);
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
         data.collection.table,
       ]);
+
+      // Update today collections cache with populated table data
+      queryClient.setQueryData<any[]>(
+        [`${Paths.Order}/collection/today`, selectedDate],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          const collection = data.collection;
+
+          // If table is just an ID, fetch the full table object from tables cache
+          if (typeof collection.table === "number") {
+            const tablesData = queryClient.getQueryData<TablesByLocation>([
+              Paths.Tables,
+              selectedDate,
+            ]);
+
+            if (tablesData) {
+              let foundTable = null;
+              for (const locationTables of Object.values(tablesData)) {
+                foundTable = locationTables.find(
+                  (t) => t?._id === collection.table
+                );
+                if (foundTable) break;
+              }
+
+              if (foundTable) {
+                collection.table = foundTable;
+              } else {
+                // If table not found, invalidate and return
+                queryClient.invalidateQueries([
+                  `${Paths.Order}/collection/today`,
+                ]);
+                return oldData;
+              }
+            } else {
+              // If no tables data, invalidate and return
+              queryClient.invalidateQueries([
+                `${Paths.Order}/collection/today`,
+              ]);
+              return oldData;
+            }
+          }
+
+          // Update or add the collection in the cache
+          const existingIndex = oldData.findIndex(
+            (c) => c._id === collection._id
+          );
+
+          if (existingIndex !== -1) {
+            // Update existing collection
+            return oldData.map((c) =>
+              c._id === collection._id ? collection : c
+            );
+          } else {
+            // Add new collection
+            return [...oldData, collection];
+          }
+        }
+      );
     });
 
     socket.on("notificationChanged", (data) => {
@@ -152,7 +278,25 @@ export function useWebSocket() {
     });
 
     socket.on("singleTableChanged", (data) => {
-      queryClient.invalidateQueries([`${Paths.Order}/table`, data.table?._id]);
+      const locationId = data.table.location;
+      const date = data.table.date;
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, date],
+        (old) => {
+          const prev = old ?? {};
+          const prevForLocation = prev[locationId] ?? [];
+          const updatedTables = prevForLocation.map((table) => {
+            if (table?._id === data.table?._id) {
+              return data.table;
+            }
+            return table;
+          });
+          return {
+            ...prev,
+            [locationId]: updatedTables,
+          };
+        }
+      );
     });
 
     socket.on("stockChanged", (data) => {

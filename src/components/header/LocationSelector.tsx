@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocationContext } from "../../context/Location.context";
 import { Location } from "../../types";
-import { useGetStoreLocations } from "../../utils/api/location";
 
 interface Props {
   allowedLocations?: number[];
 }
 export function LocationSelector({ allowedLocations }: Props) {
-  const { selectedLocationId } = useLocationContext();
-  const { setSelectedLocationId } = useLocationContext();
-  const locations = useGetStoreLocations();
+  const { selectedLocationId, setSelectedLocationId, locations } =
+    useLocationContext();
   const [showedLocations, setShowedLocations] = useState<Location[]>([]);
 
   useEffect(() => {
@@ -20,10 +18,16 @@ export function LocationSelector({ allowedLocations }: Props) {
     } else {
       setShowedLocations(locations);
     }
-    if (allowedLocations?.length === 1) {
+  }, [locations, allowedLocations]);
+
+  useEffect(() => {
+    if (
+      allowedLocations?.length === 1 &&
+      selectedLocationId !== allowedLocations[0]
+    ) {
       setSelectedLocationId(allowedLocations[0]);
     }
-  }, [locations, allowedLocations]);
+  }, [allowedLocations, selectedLocationId, setSelectedLocationId]);
 
   return (
     <>

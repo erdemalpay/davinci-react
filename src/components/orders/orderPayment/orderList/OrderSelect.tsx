@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { GrCheckbox, GrCheckboxSelected } from "react-icons/gr";
 import { useOrderContext } from "../../../../context/Order.context";
@@ -29,7 +30,27 @@ const OrderSelect = ({ tableOrders }: Props) => {
     isProductDivideOpen,
     isTransferProductOpen,
   } = useOrderContext();
-  let filteredOrders = tableOrders?.filter((order) => isTransferProductOpen || !order.discount);
+
+  // Create Maps for O(1) lookup instead of O(n) find operations
+  const temporaryOrdersMap = useMemo(() => {
+    const map = new Map();
+    temporaryOrders.forEach((tempOrder) => {
+      map.set(tempOrder.order._id, tempOrder);
+    });
+    return map;
+  }, [temporaryOrders]);
+
+  const selectedOrdersMap = useMemo(() => {
+    const map = new Map();
+    selectedOrders.forEach((selectedOrder) => {
+      map.set(selectedOrder.order._id, selectedOrder);
+    });
+    return map;
+  }, [selectedOrders]);
+
+  let filteredOrders = tableOrders?.filter(
+    (order) => isTransferProductOpen || !order.discount
+  );
   if (selectedDiscount) {
     filteredOrders = filteredOrders.filter((order) =>
       categories
@@ -77,9 +98,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
       {filteredOrders?.map((order) => {
         const isAllPaid = order.paidQuantity === order.quantity;
         if (isAllPaid) return null;
-        const tempOrder = temporaryOrders.find(
-          (tempOrder) => tempOrder.order._id === order._id
-        );
+        const tempOrder = temporaryOrdersMap.get(order._id);
         const isAllPaidWithTempOrder =
           order.paidQuantity + (tempOrder?.quantity ?? 0) === order.quantity;
         if (isAllPaidWithTempOrder) return null;
@@ -88,9 +107,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
             key={order._id}
             className="flex  flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
             onClick={() => {
-              const foundOrder = selectedOrders.find(
-                (item) => item.order._id === order._id
-              );
+              const foundOrder = selectedOrdersMap.get(order._id);
               if (foundOrder) {
                 if (isProductDivideOpen) {
                   if (
@@ -162,9 +179,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (isProductDivideOpen) return;
-                  const foundSelectedOrder = selectedOrders.find(
-                    (item) => item.order._id === order._id
-                  );
+                  const foundSelectedOrder = selectedOrdersMap.get(order._id);
                   if (
                     foundSelectedOrder?.selectedQuantity ===
                     (order?.quantity ?? 0) - (order?.paidQuantity ?? 0)
@@ -189,8 +204,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
                   }
                 }}
               >
-                {selectedOrders.find((item) => item.order._id === order._id)
-                  ?.selectedQuantity ?? ""}
+                {selectedOrdersMap.get(order._id)?.selectedQuantity ?? ""}
               </p>
               <p>
                 {"("}
@@ -217,17 +231,23 @@ const OrderSelect = ({ tableOrders }: Props) => {
             {/* prices */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
               {(() => {
-                const remainingQuantity = order?.quantity - (order?.paidQuantity + (tempOrder?.quantity ?? 0));
-                const originalPrice = (order?.unitPrice * remainingQuantity).toFixed(2);
+                const remainingQuantity =
+                  order?.quantity -
+                  (order?.paidQuantity + (tempOrder?.quantity ?? 0));
+                const originalPrice = (
+                  order?.unitPrice * remainingQuantity
+                ).toFixed(2);
 
                 if (!order?.discount) {
                   return <p>{originalPrice}₺</p>;
                 }
 
                 const discountedUnitPrice = order?.discountPercentage
-                  ? order?.unitPrice * (100 - order.discountPercentage) / 100
+                  ? (order?.unitPrice * (100 - order.discountPercentage)) / 100
                   : order?.unitPrice - (order?.discountAmount ?? 0);
-                const discountedPrice = (discountedUnitPrice * remainingQuantity).toFixed(2);
+                const discountedPrice = (
+                  discountedUnitPrice * remainingQuantity
+                ).toFixed(2);
 
                 return (
                   <div className="flex flex-col ml-auto justify-center items-center">

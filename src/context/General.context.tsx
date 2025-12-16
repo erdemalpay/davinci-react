@@ -1,7 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { TabOption } from "../components/panelComponents/FormElements/TabInputScreen";
 import { ColumnType } from "../components/panelComponents/shared/types";
-import { CountListOptions, countListOptions } from "../pages/CountLists";
+import { CountListOptions, countListOptions } from "../constants/countList";
 import {
   AccountExpense,
   AccountOverallExpense,
