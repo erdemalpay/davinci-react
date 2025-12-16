@@ -60,6 +60,7 @@ import {
   useGetTodayOrders,
   useOrderMutations,
 } from "../utils/api/order/order";
+import { useGetTodayCollections } from "../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { useGetReservations } from "../utils/api/reservations";
@@ -70,7 +71,6 @@ import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../utils/getItem";
 import { LocationInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
-
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -107,7 +107,7 @@ const Tables = () => {
   const locations = useGetStoreLocations();
   const allLocations = useGetAllLocations();
   const navigate = useNavigate();
-  // const todayCollections = useGetTodayCollections();
+  const todayCollections = useGetTodayCollections();
   const visits = useGetVisits();
   const stockLocations = useGetStockLocations();
   const products = useGetAllAccountProducts();
@@ -1564,10 +1564,6 @@ const Tables = () => {
                       tableOrdersProp={todayOrders?.filter(
                         (order) => (order.table as Table)?._id === table?._id
                       )}
-                      // tableCollectionsProp={todayCollections?.filter(
-                      //   (collection) =>
-                      //     (collection.table as Table)?._id === table?._id
-                      // )}
                     />
                   </div>
                 );
@@ -1591,10 +1587,6 @@ const Tables = () => {
                 tableOrdersProp={todayOrders?.filter(
                   (order) => (order.table as Table)?._id === table?._id
                 )}
-                // tableCollectionsProp={todayCollections?.filter(
-                //   (collection) =>
-                //     (collection.table as Table)?._id === table?._id
-                // )}
               />
             </div>
           ))}
@@ -1866,10 +1858,10 @@ const Tables = () => {
             setIsTableOrderPaymentModalOpen(false);
             setTableOrderPaymentTableId(null);
           }}
-          // tableCollectionsProp={todayCollections?.filter(
-          //   (collection) =>
-          //     (collection.table as Table)?._id === tableOrderPaymentTableId
-          // )}
+          tableCollectionsProp={todayCollections?.filter(
+            (collection) =>
+              (collection.table as Table)?._id === tableOrderPaymentTableId
+          )}
         />
       )}
 
@@ -1987,6 +1979,9 @@ const Tables = () => {
             setTakeawayTableId(0);
             setIsTabInputScreenOpen(false);
           }}
+          tableCollectionsProp={todayCollections?.filter(
+            (collection) => (collection.table as Table)?._id === takeawayTableId
+          )}
         />
       )}
     </>

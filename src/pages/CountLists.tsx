@@ -1,23 +1,8 @@
 import { useTranslation } from "react-i18next";
 import CommonSelectInput from "../components/common/SelectInput";
-import CountListMenu from "../components/countLists/CountListMenu";
 import { Header } from "../components/header/Header";
+import { countListOptions } from "../constants/countList";
 import { useGeneralContext } from "../context/General.context";
-
-export type CountListOptions = {
-  id: string;
-  label: string;
-  component: JSX.Element;
-  isDisabled: boolean;
-};
-export const countListOptions: CountListOptions[] = [
-  {
-    id: "0",
-    label: "Product Count List",
-    component: <CountListMenu />,
-    isDisabled: false,
-  },
-];
 export default function CountLists() {
   const { t } = useTranslation();
 
@@ -52,7 +37,7 @@ export default function CountLists() {
                   setCountListOption(
                     countListOptions.find(
                       (option) => option.id === countListOption?.value
-                    ) as CountListOptions
+                    ) as any
                   );
                 }}
                 placeholder={t("Select a count list  type")}
