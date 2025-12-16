@@ -108,6 +108,7 @@ export function useGetTodayCollections() {
     false,
     {
       refetchOnWindowFocus: true,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     }
   );
 }
