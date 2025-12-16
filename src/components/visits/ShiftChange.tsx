@@ -18,6 +18,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { endOfYear, format } from "date-fns";
 
 type ShiftChangeFormState = {
   type: "SWAP" | "TRANSFER";
@@ -174,14 +175,9 @@ const ShiftChange = () => {
     selectedLocationId
   );
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const oneYearLater = new Date(today);
-  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
-
   const modalShifts = useGetShifts(
-    today.toISOString().split('T')[0],
-    oneYearLater.toISOString().split('T')[0],
+    filterPanelFormElements?.after,
+    format(endOfYear(new Date()), "yyyy-MM-dd"),
     -1
   );
   const { user } = useUserContext();
