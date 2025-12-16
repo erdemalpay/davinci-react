@@ -103,7 +103,11 @@ const Shifts = () => {
       ].includes(user?.role?._id)
     : true;
   const [rowToAction, setRowToAction] = useState<any>();
-  const { updateShift, createShift, deleteShift } = useShiftMutations();
+  const { updateShift, createShift, deleteShift } = useShiftMutations(
+    filterPanelFormElements?.after,
+    filterPanelFormElements?.before,
+    selectedLocationId
+  );
   const {
     showShiftsFilters,
     setShowShiftsFilters,
