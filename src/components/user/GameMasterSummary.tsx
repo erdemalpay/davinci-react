@@ -12,6 +12,7 @@ import { SiPointy } from "react-icons/si";
 import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
+import useIsSmallScreen from "../../hooks/useIsSmallScreen";
 import {
   DateRangeKey,
   LocationShiftType,
@@ -44,6 +45,7 @@ type Props = {
 
 const GameMasterSummary = ({ userId }: Props) => {
   const { t } = useTranslation();
+  const isSmallScreen = useIsSmallScreen();
   const personalOrderDatas = useGetPersonalOrderDatas();
   const navigate = useNavigate();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
@@ -424,37 +426,64 @@ const GameMasterSummary = ({ userId }: Props) => {
           ))}
         </div>
       </div>
-      {/* Calendar Chart */}
       {gameplayCountsByDate?.data && gameplayCountsByDate?.data?.length > 0 && (
-        <div className="border p-4 rounded-lg border-gray-200 bg-white w-full">
-          <h3 className="text-lg font-semibold ">
+        <div className="border p-2 sm:p-4 rounded-lg border-gray-200 bg-white w-full">
+          <h3 className="text-base sm:text-lg font-semibold mb-2">
             {t("Gameplay Activity Calendar")}
           </h3>
-          <div style={{ height: "400px" }}>
-            <ResponsiveCalendar
-              data={gameplayCountsByDate?.data}
-              from={format(addDays(startOfYear(new Date()), 1), "yyyy-MM-dd")}
-              to={format(new Date(), "yyyy-MM-dd")}
-              emptyColor="#eeeeee"
-              colors={["#61cdbb", "#97e3d5", "#e8c1a0", "#f47560"]}
-              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-              yearSpacing={40}
-              monthBorderColor="#ffffff"
-              dayBorderWidth={2}
-              dayBorderColor="#ffffff"
-              legends={[
-                {
-                  anchor: "bottom-right",
-                  direction: "row",
-                  translateY: 36,
-                  itemCount: 4,
-                  itemWidth: 42,
-                  itemHeight: 36,
-                  itemsSpacing: 14,
-                  itemDirection: "right-to-left",
-                },
-              ]}
-            />
+          <div className="w-full overflow-x-auto">
+            <div
+              style={{
+                height: isSmallScreen ? "37.5rem" : "31.25rem",
+                minWidth: isSmallScreen ? "56.25rem" : "100%",
+              }}
+            >
+              <ResponsiveCalendar
+                data={gameplayCountsByDate?.data}
+                from={format(addDays(startOfYear(new Date()), 1), "yyyy-MM-dd")}
+                to={format(new Date(), "yyyy-MM-dd")}
+                emptyColor="#eeeeee"
+                colors={["#61cdbb", "#97e3d5", "#e8c1a0", "#f47560"]}
+                margin={
+                  isSmallScreen
+                    ? { top: 20, right: 10, bottom: 50, left: 30 }
+                    : { top: 40, right: 40, bottom: 60, left: 50 }
+                }
+                yearSpacing={isSmallScreen ? 30 : 40}
+                monthBorderColor="#ffffff"
+                dayBorderWidth={isSmallScreen ? 1.5 : 2}
+                dayBorderColor="#ffffff"
+                monthSpacing={isSmallScreen ? 10 : 15}
+                legends={[]}
+              />
+            </div>
+          </div>
+          {/* Custom Legend */}
+          <div className="flex items-center justify-center gap-2 mt-4 text-xs sm:text-sm">
+            <span className="text-gray-600">{t("Less")}</span>
+            <div className="flex gap-1">
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#eeeeee" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#61cdbb" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#97e3d5" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#e8c1a0" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#f47560" }}
+              ></div>
+            </div>
+            <span className="text-gray-600">{t("More")}</span>
           </div>
         </div>
       )}
