@@ -7,7 +7,12 @@ import { IoStorefrontSharp } from "react-icons/io5";
 import { MdEditNote, MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
-import { TbBrandBlogger, TbCategoryPlus, TbZoomMoney } from "react-icons/tb";
+import {
+  TbBrandBlogger,
+  TbCategoryPlus,
+  TbCircleLetterR,
+  TbZoomMoney,
+} from "react-icons/tb";
 import Actions from "../components/accounting/Actions";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
@@ -18,6 +23,7 @@ import OrderNotes from "../components/accounting/OrderNotes";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
 import ProductCategoriesPage from "../components/accounting/ProductCategories";
+import Roles from "../components/accounting/Roles";
 import Service from "../components/accounting/Service";
 import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
@@ -111,6 +117,13 @@ export const AccountingPageTabs = [
     label: "Order Notes",
     icon: <MdEditNote className="text-lg font-thin" />,
     content: <OrderNotes />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.ROLES,
+    label: "Roles",
+    icon: <TbCircleLetterR className="text-lg font-thin" />,
+    content: <Roles />,
     isDisabled: false,
   },
   {

@@ -1132,6 +1132,7 @@ export enum AccountingPageTabEnum {
   LOCATIONS,
   UPPERCATEGORIES,
   ORDERNOTES,
+  ROLES,
   ACTIONS,
 }
 export enum CheclistPageTabEnum {
