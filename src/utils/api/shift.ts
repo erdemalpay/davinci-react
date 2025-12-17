@@ -78,6 +78,10 @@ export function useGetUserShifts(
   }
   return useGetList<Shift>(url, [`${Paths.Shift}`, after, before, user], true);
 }
+export function useGetUsersFutureShifts(after?: string) {
+  const url = `${Paths.Shift}/users-future-shifts/${after}`;
+  return useGetList<Shift>(url, [`${Paths.Shift}`, "users-future-shifts", after], true);
+}
 export function useGetLocationShifts(location: number) {
   const { filterPanelFormElements } = useShiftContext();
   let url = `${Paths.Shift}?after=${filterPanelFormElements.after}&location=${location}`;
