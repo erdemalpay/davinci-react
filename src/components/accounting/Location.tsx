@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
+import { IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -26,6 +27,7 @@ const LocationPage = () => {
   const locations = useGetAllLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isShiftHoursCollapsibleOpen, setIsShiftHoursCollapsibleOpen] = useState(new Set());
   const [rowToAction, setRowToAction] = useState<Location>();
   const initialForm = {
     type: [],
@@ -284,19 +286,36 @@ const LocationPage = () => {
       {
         key: "shifts",
         node: (row: any) => {
+          const isOpen = isShiftHoursCollapsibleOpen.has(row._id);
           return (
-            <div className="flex flex-row gap-2 max-w-64 flex-wrap ">
-              {row?.shifts?.map((shift: any, index: number) => (
-                <div
-                  key={index}
-                  className="flex flex-row px-1 py-0.5 bg-red-400 rounded-md text-white"
-                >
-                  <p>
-                    {shift.shift}
-                    {shift.shiftEndHour && ` - ${shift.shiftEndHour}`}
-                  </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() =>
+                  setIsShiftHoursCollapsibleOpen((prev) => {
+                    const newSet = new Set(prev)
+                    isOpen ? newSet.delete(row._id) : newSet.add(row._id)
+                    return newSet
+                  })
+                }
+                className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
+              >
+                {isOpen ? <IoChevronUp/> : <IoChevronDown/> }
+              </button>
+              {isOpen && (
+                <div className="flex flex-row gap-2 max-w-64 flex-wrap">
+                  {row?.shifts?.map((shift: any, index: number) => (
+                    <div
+                      key={index}
+                      className="flex flex-row px-1 py-0.5 bg-red-400 rounded-md text-white"
+                    >
+                      <p>
+                        {shift.shift}
+                        {shift.shiftEndHour && ` - ${shift.shiftEndHour}`}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           );
         },
@@ -314,6 +333,7 @@ const LocationPage = () => {
       getRowTypeName,
       updateLocation,
       t,
+      isShiftHoursCollapsibleOpen,
     ]
   );
 

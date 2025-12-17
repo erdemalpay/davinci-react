@@ -44,6 +44,7 @@ import {
   useTransferTableMutations,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
+import { useGetTodayCollections } from "../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../../utils/api/order/orderNotes";
 import {
@@ -118,6 +119,12 @@ TableCardProps) {
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
   const products = useGetAllAccountProducts();
+  const collections = useGetTodayCollections();
+  const tableCollections = useMemo(() => {
+    return collections?.filter(
+      (collection) => (collection?.table as Table)?._id === table._id
+    );
+  }, [collections, table._id]);
   const inactiveCategories = useMemo(() => {
     return categories?.filter((category) => !category.active) || [];
   }, [categories]);
@@ -950,7 +957,7 @@ TableCardProps) {
               name="playerCount"
               label={t("Player Count")}
               type="number"
-              defaultValue={table.playerCount}
+              value={table.playerCount}
               onChange={updateTableHandler}
             />
           </div>
@@ -1262,8 +1269,8 @@ TableCardProps) {
             resetOrderContext();
             setIsOrderPaymentModalOpen(false);
           }}
-          // tableOrdersProp={tableOrders}
-          // tableCollectionsProp={tableCollectionsProp}
+          tableOrdersProp={tableOrders}
+          tableCollectionsProp={tableCollections}
         />
       )}
       {isTableCombineOpen && (
