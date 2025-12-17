@@ -236,6 +236,7 @@ export const socketEventListeners: SocketEventType[] = [
     ],
   },
   { event: "feedbackChanged", invalidateKeys: [`${Paths.Tables}/feedback`] },
+  { event: "todayOrderChanged", invalidateKeys: [`${Paths.Order}/today`] },
   {
     event: "disabledConditionChanged",
     invalidateKeys: [`${Paths.PanelControl}/disabled-conditions`],
