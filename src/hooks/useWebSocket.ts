@@ -199,6 +199,56 @@ export function useWebSocket() {
       );
     });
 
+    socket.on("orderDeleted", (data) => {
+      const tableId =
+        typeof data?.order?.table === "number"
+          ? data?.order?.table
+          : data?.order?.table?._id;
+
+      // Remove order from table orders cache
+      queryClient.setQueryData<any[]>(
+        [`${Paths.Order}/table`, tableId],
+        (oldData) => {
+          if (!oldData) return oldData;
+          return oldData.filter((order) => order._id !== data?.order?._id);
+        }
+      );
+
+      // Remove order from today orders cache
+      queryClient.setQueryData<any[]>(
+        [`${Paths.Order}/today`, selectedDate],
+        (oldData) => {
+          if (!oldData) return oldData;
+          return oldData.filter((order) => order._id !== data?.order?._id);
+        }
+      );
+
+      // Remove order from tables data orders array
+      queryClient.setQueryData<TablesByLocation>(
+        [Paths.Tables, selectedDate],
+        (old) => {
+          if (!old) return old;
+
+          const updatedTables: TablesByLocation = {};
+          for (const [locationId, tables] of Object.entries(old)) {
+            updatedTables[locationId] = tables.map((table) => {
+              if (table?._id === tableId) {
+                return {
+                  ...table,
+                  orders:
+                    table.orders?.filter(
+                      (orderId) => orderId !== data?.order?._id
+                    ) || [],
+                };
+              }
+              return table;
+            });
+          }
+          return updatedTables;
+        }
+      );
+    });
+
     socket.on("collectionChanged", (data) => {
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
