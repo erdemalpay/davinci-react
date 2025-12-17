@@ -957,7 +957,7 @@ TableCardProps) {
               name="playerCount"
               label={t("Player Count")}
               type="number"
-              defaultValue={table.playerCount}
+              value={table.playerCount}
               onChange={updateTableHandler}
             />
           </div>
