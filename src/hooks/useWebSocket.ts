@@ -287,7 +287,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.map((table) => {
             if (table?._id === data.table?._id) {
-              return data.table;
+              return {...table, ...data.table};
             }
             return table;
           });
