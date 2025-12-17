@@ -219,7 +219,7 @@ export function useWebSocket() {
               Paths.Tables,
               selectedDate,
             ]);
-
+            console.log(tablesData);
             if (tablesData) {
               let foundTable = null;
               for (const locationTables of Object.values(tablesData)) {
@@ -228,7 +228,7 @@ export function useWebSocket() {
                 );
                 if (foundTable) break;
               }
-
+              console.log(foundTable);
               if (foundTable) {
                 collection.table = foundTable;
               } else {
@@ -287,7 +287,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.map((table) => {
             if (table?._id === data.table?._id) {
-              return {...table, ...data.table};
+              return { ...table, ...data.table };
             }
             return table;
           });
