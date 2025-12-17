@@ -39,11 +39,14 @@ export function ActiveVisitList({
   const { selectedLocationId } = useLocationContext();
   const isDisabledCondition =
     panelSettings?.isVisitEntryDisabled && user?.role?._id !== RoleEnum.MANAGER;
-  const [filteredSuggestions, setFilteredSuggestions] = useState<MinimalUser[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<MinimalUser[]>(
+    []
+  );
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
-  const [closedVisitFinishHour, setClosedVisitFinishHour] = useState<string>("");
+  const [closedVisitFinishHour, setClosedVisitFinishHour] =
+    useState<string>("");
   function handleChipClose(userId: string) {
     if (!isUserActive(userId)) {
       return;
@@ -115,7 +118,7 @@ export function ActiveVisitList({
           finishVisit({
             id: closedVisitId,
             finishHour: closedVisitFinishHour,
-            visitFinishSource: VisitSource.PANEL
+            visitFinishSource: VisitSource.PANEL,
           });
           setIsConfirmationDialogOpen(false);
         }}
@@ -138,10 +141,10 @@ export function ActiveVisitList({
         {uniqueVisits.map((visit) => (
           <Tooltip
             key={visit?.user}
-            content={getItem(visit?.user, users)?.role?.name}
+            content={getItem(visit?.user, users)?.role?.name ?? ""}
           >
             <Chip
-              value={getItem(visit?.user, users)?.name}
+              value={getItem(visit?.user, users)?.name ?? ""}
               style={{
                 backgroundColor: isUserActive(visit.user)
                   ? getItem(visit?.user, users)?.role?.color
@@ -149,7 +152,9 @@ export function ActiveVisitList({
                 height: "fit-content",
               }}
               color="gray"
-              {...(!isDisabledCondition && isUserActive(visit.user) && visit.user === user?._id
+              {...(!isDisabledCondition &&
+              isUserActive(visit.user) &&
+              visit.user === user?._id
                 ? { onClose: () => handleChipClose(visit.user) }
                 : {})}
             />
