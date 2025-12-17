@@ -181,12 +181,13 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
                         notification.message.params?.navigate
                       ) {
                         navigate(notification.message.params.navigate);
+                        onClose();
                       } else {
                         console.warn("Navigate path is undefined or invalid.");
                       }
                     }}
                   >
-                    <IoNavigate className="text-lg sm:text-xl text-blue-500" />
+                    <IoNavigate className="text-lg sm:text-xl text-blue-500 " />
                   </button>
                 )}
             </div>
