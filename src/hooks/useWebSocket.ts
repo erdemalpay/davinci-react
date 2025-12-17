@@ -299,7 +299,7 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("stockChanged", (data) => {
+    socket.on("stockChanged", () => {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
@@ -518,7 +518,7 @@ export function useWebSocket() {
     });
 
     socketEventListeners.forEach((eventConfig) => {
-      socket.on(eventConfig.event, (user?: any, payload?: any) => {
+      socket.on(eventConfig.event, () => {
         eventConfig.invalidateKeys.forEach((key) => {
           queryClient.invalidateQueries([key]);
         });
