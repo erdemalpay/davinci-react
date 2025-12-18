@@ -156,7 +156,7 @@ export type Table = {
   type?: string;
   date: string;
   playerCount: number;
-  location?: number;
+  location: number;
   startHour: string;
   finishHour?: string;
   orders?: number[];
