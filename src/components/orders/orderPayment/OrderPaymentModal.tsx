@@ -997,7 +997,7 @@ const OrderPaymentModal = ({
                     }),
                     orderObject,
                   ],
-                  table: table,
+                  table,
                 });
                 setOrderForm(initialOrderForm);
                 setOrderCreateBulk([]);
