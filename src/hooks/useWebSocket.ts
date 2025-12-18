@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
-import { TableTypes } from "../types";
+import { Gameplay, MenuItem, Notification, Order, OrderCollection, TableTypes, User } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useDateContext } from "./../context/Date.context";
@@ -85,51 +85,39 @@ export function useWebSocket() {
       console.log("Connected to WebSocket.");
     });
 
-    socket.on("orderCreated", (data) => {
+    socket.on("orderCreated", ({order}: {order: Order}) => {
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/today`, selectedDate],
         (oldData) => {
           if (!oldData) return oldData;
-
-          const normalizedOrder = {
-            ...data?.order,
-            item:
-              typeof data?.order?.item === "object"
-                ? data?.order?.item?._id
-                : data?.order?.item,
-            kitchen:
-              typeof data?.order?.kitchen === "object"
-                ? data?.order?.kitchen?._id
-                : data?.order?.kitchen,
-          };
-          return [...oldData, normalizedOrder];
+          return [...oldData, order];
         }
       );
 
       if (
-        data?.order?.createdBy === user?._id ||
+        order.createdBy === user?._id ||
         [
           OrderStatus.WASTED,
           OrderStatus.CANCELLED,
           OrderStatus.RETURNED,
-        ].includes(data?.order?.status as OrderStatus) ||
-        data?.order?.location !== selectedLocationId
+        ].includes(order.status as OrderStatus) ||
+        order.location !== selectedLocationId
       ) {
         return;
       }
 
       const foundCategory = getItem(
-        (data?.order?.item as any)?.category,
+        (order.item as unknown as MenuItem)?.category,
         categories
       );
       if (
         !foundCategory?.isAutoServed &&
-        data?.order?.status !== OrderStatus.CANCELLED &&
-        (data?.order?.kitchen as any)?.soundRoles?.includes(user?.role?._id)
+        order.status !== OrderStatus.CANCELLED &&
+        (order.kitchen as any)?.soundRoles?.includes(user?.role?._id)
       ) {
         if (
-          (data?.order?.kitchen as any)?.selectedRoles?.length > 0 &&
-          !(data?.order?.kitchen as any)?.selectedRoles?.includes(
+          (order.kitchen as any)?.selectedRoles?.length > 0 &&
+          !(order.kitchen as any)?.selectedRoles?.includes(
             user?.role?._id
           )
         ) {
@@ -143,11 +131,11 @@ export function useWebSocket() {
       }
     });
 
-    socket.on("orderUpdated", (data) => {
+    socket.on("orderUpdated", ({orders}: {orders: Order[]}) => {
       const tableId =
-        typeof data?.orders[0]?.table === "number"
-          ? data?.orders[0]?.table
-          : data?.orders[0]?.table?._id;
+        typeof orders[0]?.table === "number"
+          ? orders[0]?.table
+          : orders[0]?.table?._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/today`, selectedDate],
@@ -156,7 +144,7 @@ export function useWebSocket() {
             queryClient.invalidateQueries([`${Paths.Order}/today`]);
             return oldData;
           }
-          for (const order of data?.orders) {
+          for (const order of orders) {
             const normalizedOrder = order;
             if (typeof order.table === "number") {
               const tablesData = queryClient.getQueryData<TablesByLocation>([
@@ -184,15 +172,6 @@ export function useWebSocket() {
                 continue;
               }
             }
-            if (typeof order.item === "object" && order.item?._id) {
-              normalizedOrder.item = order.item._id;
-            }
-            if (
-              typeof order.kitchen === "object" &&
-              order.kitchen?._id
-            ) {
-              normalizedOrder.kitchen = order.kitchen._id;
-            }
             oldData = oldData.map((order) =>
               order._id === normalizedOrder._id ? normalizedOrder : order
             );
@@ -202,18 +181,18 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("orderDeleted", (data) => {
+    socket.on("orderDeleted", ({order}: {order: Order}) => {
       const tableId =
-        typeof data?.order?.table === "number"
-          ? data?.order?.table
-          : data?.order?.table?._id;
+        typeof order.table === "number"
+          ? order.table
+          : order.table?._id;
 
       // Remove order from table orders cache
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/table`, tableId],
         (oldData) => {
           if (!oldData) return oldData;
-          return oldData.filter((order) => order._id !== data?.order?._id);
+          return oldData.filter((order) => order._id !== order._id);
         }
       );
 
@@ -222,7 +201,7 @@ export function useWebSocket() {
         [`${Paths.Order}/today`, selectedDate],
         (oldData) => {
           if (!oldData) return oldData;
-          return oldData.filter((order) => order._id !== data?.order?._id);
+          return oldData.filter((order) => order._id !== order._id);
         }
       );
 
@@ -240,7 +219,7 @@ export function useWebSocket() {
                   ...table,
                   orders:
                     table.orders?.filter(
-                      (orderId) => orderId !== data?.order?._id
+                      (orderId) => orderId !== order._id
                     ) || [],
                 };
               }
@@ -252,10 +231,10 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("collectionChanged", (data) => {
+    socket.on("collectionChanged", ({collection}: {collection: OrderCollection}) => {
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
-        data.collection.table,
+        collection.table,
       ]);
 
       // Update today collections cache with populated table data
@@ -263,8 +242,6 @@ export function useWebSocket() {
         [`${Paths.Order}/collection/today`, selectedDate],
         (oldData) => {
           if (!oldData) return oldData;
-
-          const collection = data.collection;
 
           // If table is just an ID, fetch the full table object from tables cache
           if (typeof collection.table === "number") {
@@ -318,11 +295,14 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("notificationChanged", (data) => {
-      if (
-        data?.selectedUsers?.includes(user?._id) ||
-        (data?.selectedRoles?.includes(user?.role?._id) &&
-          !data?.notification?.seenUsers?.includes(user?._id))
+    socket.on("notificationChanged", ({notifications}: {notifications: Notification[]}) => {
+      if (!user) return;
+      if ( 
+        notifications.some((notification) =>
+          notification.selectedUsers?.includes(user._id) ||
+          (notification.selectedRoles?.includes(user.role?._id) &&
+            !notification.seenBy?.includes(user._id))
+        )
       ) {
         queryClient.invalidateQueries([`${Paths.Notification}/new`]);
         queryClient.invalidateQueries([`${Paths.Notification}/all`]);
@@ -330,19 +310,19 @@ export function useWebSocket() {
       }
     });
 
-    socket.on("singleTableChanged", (data) => {
-      const locationId = data.table.location;
-      const date = data.table.date;
+    socket.on("singleTableChanged", ({table}: {table: Table}) => {
+      const locationId = table.location;
+      const date = table.date;
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
         (old) => {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
-          const updatedTables = prevForLocation.map((table) => {
-            if (table?._id === data.table?._id) {
-              return { ...table, ...data.table };
+          const updatedTables = prevForLocation.map((prevTable) => {
+            if (prevTable?._id === table._id) {
+              return { ...prevTable, ...table };
             }
-            return table;
+            return prevTable;
           });
           return {
             ...prev,
@@ -352,38 +332,37 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("stockChanged", (data) => {
+    socket.on("stockChanged", () => {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
 
-    socket.on("tableCreated", (data) => {
-      const locationId = data.table.location;
-      const date = data.table.date;
+    socket.on("tableCreated", ({table}: {table: Table}) => {
+      const locationId = table.location;
+      const date = table.date;
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
         (old) => {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
-          const newTable = data.table;
           return {
             ...prev,
-            [locationId]: [...prevForLocation, newTable],
+            [locationId]: [...prevForLocation, table],
           };
         }
       );
     });
 
-    socket.on("tableDeleted", (data) => {
-      const locationId = data.table.location;
-      const date = data.table.date;
+    socket.on("tableDeleted", ({table}: {table: Table}) => {
+      const locationId = table.location;
+      const date = table.date;
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
         (old) => {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.filter(
-            (table) => table?._id !== data.table?._id
+            (table) => table?._id !== table?._id
           );
           return {
             ...prev,
@@ -393,19 +372,19 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("tableClosed", (data) => {
-      const locationId = data.table.location;
-      const date = data.table.date;
+    socket.on("tableClosed", ({table}: {table: Table}) => {
+      const locationId = table.location;
+      const date = table.date;
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
         (old) => {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.map((table) => {
-            if (table?._id === data.table?._id) {
+            if (table?._id === table?._id) {
               return {
                 ...table,
-                finishHour: data.table.finishHour,
+                finishHour: table.finishHour,
               };
             }
             return table;
@@ -419,14 +398,12 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("gameplayCreated", (data) => {
+    socket.on("gameplayCreated", ({gameplay, user: creatingUser, table}: {gameplay: Gameplay, user: User, table: Table}) => {
       // Only update cache for other users' actions
-      if (data?.user?._id === user?._id) return;
+      if (creatingUser._id === user?._id) return;
 
-      const gameplay = data.gameplay;
       const locationId = gameplay.location;
       const date = gameplay.date;
-      const table = data.table;
       if (!gameplay || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -453,14 +430,13 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("gameplayDeleted", (data) => {
+    socket.on("gameplayDeleted", ({gameplay, user: deletingUser, tableId}: {gameplay: Gameplay, user: User, tableId: number}) => {
       // Only update cache for other users' actions
-      if (data?.user?._id === user?._id) return;
+      if (deletingUser._id === user?._id) return;
 
-      const gameplayId = data.gameplay?._id;
-      const locationId = data.gameplay.location;
-      const date = data.gameplay.date;
-      const table = data.table;
+      const gameplayId = gameplay?._id;
+      const locationId = gameplay.location;
+      const date = gameplay.date;
       if (!gameplayId || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -470,7 +446,7 @@ export function useWebSocket() {
           const prevForLocation = prev[locationId] ?? [];
 
           const updatedTables = prevForLocation.map((t) => {
-            if (t?._id === table?._id) {
+            if (t?._id === tableId) {
               return {
                 ...t,
                 gameplays: t.gameplays.filter((g) => g?._id !== gameplayId),
@@ -487,14 +463,12 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("gameplayUpdated", (data) => {
+    socket.on("gameplayUpdated", ({gameplay, user: updatingUser, table}: {gameplay: Gameplay, user: User, table: Table}) => {
       // Only update cache for other users' actions
-      if (data?.user?._id === user?._id) return;
+      if (updatingUser._id === user?._id) return;
 
-      const gameplay = data.gameplay;
       const locationId = gameplay.location;
       const date = gameplay.date;
-      const table = data.table;
       if (!gameplay || !locationId || !date) return;
 
       queryClient.setQueryData<TablesByLocation>(
@@ -523,9 +497,9 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("tableChanged", (data) => {
-      const locationId = data.table.location;
-      const date = data.table.date;
+    socket.on("tableChanged", ({table}: {table: Table}) => {
+      const locationId = table.location;
+      const date = table.date;
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
         (old) => {
@@ -537,28 +511,33 @@ export function useWebSocket() {
       queryClient.invalidateQueries({ queryKey: [Paths.Tables, date] });
     });
 
-    socket.on("createMultipleOrder", (data) => {
+    socket.on("createMultipleOrder", ({table, user: creatingUser, soundRoles, selectedUsers, locationId}: {table: Table, user: User, soundRoles: number[], selectedUsers: string[], locationId: number  }) => {
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
 
+      if (!user) {
+        console.log("User not found in createMultipleOrder");
+        return;
+      };
+      
       if (
-        data?.table?.type === TableTypes.TAKEOUT &&
-        data?.user?._id === user?._id
+        table?.type === TableTypes.TAKEOUT &&
+        creatingUser._id === user?._id
       ) {
         setIsTakeAwayPaymentModalOpen(true);
-        setTakeawayTableId(data.table?._id);
+        setTakeawayTableId(table?._id);
         setOrderCreateBulk([]);
         setSelectedNewOrders([]);
       }
 
-      if (data.user?._id === user?._id) return;
+      if (creatingUser._id === user._id) return;
 
       if (
-        data?.soundRoles?.includes(user?.role?._id) &&
-        data.location === selectedLocationId
+        soundRoles?.includes(user.role?._id) &&
+        locationId === selectedLocationId
       ) {
         if (
-          data?.selectedRoles?.length > 0 &&
-          !data?.selectedRoles?.includes(user?.role?._id)
+          selectedUsers?.length > 0 &&
+          !selectedUsers?.includes(user._id)
         ) {
           return;
         }
@@ -571,7 +550,7 @@ export function useWebSocket() {
     });
 
     socketEventListeners.forEach((eventConfig) => {
-      socket.on(eventConfig.event, (user?: any, payload?: any) => {
+      socket.on(eventConfig.event, () => {
         eventConfig.invalidateKeys.forEach((key) => {
           queryClient.invalidateQueries([key]);
         });
