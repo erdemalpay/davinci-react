@@ -194,6 +194,7 @@ const AllNotifications = () => {
         placeholder: t("Triggered Event"),
         required: false,
         isAutoFill: false,
+        isMultiple: true
       },
       {
         type: InputTypes.SELECT,
