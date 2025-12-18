@@ -66,6 +66,13 @@ const DiscountScreen = ({ table }: Props) => {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            // Prevent Enter and other keys from bubbling up and triggering parent actions
+            if (e.key === "Enter" || e.key === "Escape") {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }}
           autoFocus
           placeholder="İndirim ara..."
           className="w-full border border-gray-300 rounded px-3 py-2"
