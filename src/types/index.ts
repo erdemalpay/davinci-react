@@ -814,7 +814,7 @@ export type Order = {
   isOnlinePrice?: boolean;
   discountNote?: string | string[];
   stockLocation?: number;
-  // [key: string]: any;
+  [key: string]: any;
   kitchen?: string;
   stockNote?: string;
   ikasId?: string;
