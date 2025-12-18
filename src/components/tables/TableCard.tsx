@@ -886,29 +886,21 @@ TableCardProps) {
           </Tooltip>
 
           {!table.finishHour &&
-            tableOrders?.some((tableOrder) => {
-              return (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
+            tableOrders.some((tableOrder) => {
+              return tableOrder.status === OrderStatus.READYTOSERVE;
             }) && (
               <Tooltip content={t("Served")}>
                 <span>
                   <CardAction
                     onClick={() => {
-                      if (!tableOrders || !user) return;
-                      const tableReadyToServeOrders = tableOrders
-                        ?.filter(
-                          (tableOrder) =>
-                            (tableOrder as Order)?.status ===
-                            OrderStatus.READYTOSERVE
-                        )
-                        .map((tableOrder) => tableOrder?._id);
-                      if (
-                        tableReadyToServeOrders?.length === 0 ||
-                        !tableReadyToServeOrders
-                      )
-                        return;
-
+                      if (!user) return;
+                      const tableReadyToServeOrders = tableOrders.filter(
+                        (tableOrder) =>
+                          tableOrder.status === OrderStatus.READYTOSERVE
+                      ).map((tableOrder) => tableOrder._id);
+                      if (tableReadyToServeOrders.length === 0) return;
                       updateMultipleOrders({
-                        ids: tableReadyToServeOrders as number[],
+                        ids: tableReadyToServeOrders,
                         updates: {
                           status: OrderStatus.SERVED,
                           deliveredAt: new Date(),

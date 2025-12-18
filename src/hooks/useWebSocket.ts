@@ -145,9 +145,9 @@ export function useWebSocket() {
 
     socket.on("orderUpdated", (data) => {
       const tableId =
-        typeof data?.order?.table === "number"
-          ? data?.order?.table
-          : data?.order?.table?._id;
+        typeof data?.orders[0]?.table === "number"
+          ? data?.orders[0]?.table
+          : data?.orders[0]?.table?._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/today`, selectedDate],
@@ -156,45 +156,48 @@ export function useWebSocket() {
             queryClient.invalidateQueries([`${Paths.Order}/today`]);
             return oldData;
           }
-          const normalizedOrder = { ...data?.order };
-          if (typeof data?.order?.table === "number") {
-            const tablesData = queryClient.getQueryData<TablesByLocation>([
-              Paths.Tables,
-              selectedDate,
-            ]);
+          for (const order of data?.orders) {
+            const normalizedOrder = order;
+            if (typeof order.table === "number") {
+              const tablesData = queryClient.getQueryData<TablesByLocation>([
+                Paths.Tables,
+                selectedDate,
+              ]);
 
-            if (tablesData) {
-              let foundTable = null;
-              for (const locationTables of Object.values(tablesData)) {
-                foundTable = locationTables.find(
-                  (t) => t?._id === data?.order?.table
-                );
-                if (foundTable) break;
-              }
+              if (tablesData) {
+                let foundTable = null;
+                for (const locationTables of Object.values(tablesData)) {
+                  foundTable = locationTables.find(
+                    (t) => t?._id === order.table
+                  );
+                  if (foundTable) break;
+                }
 
-              if (foundTable) {
-                normalizedOrder.table = foundTable;
+                if (foundTable) {
+                  normalizedOrder.table = foundTable;
+                } else {
+                  queryClient.invalidateQueries([`${Paths.Order}/today`]);
+                  continue;
+                }
               } else {
                 queryClient.invalidateQueries([`${Paths.Order}/today`]);
-                return oldData;
+                continue;
               }
-            } else {
-              queryClient.invalidateQueries([`${Paths.Order}/today`]);
-              return oldData;
             }
+            if (typeof order.item === "object" && order.item?._id) {
+              normalizedOrder.item = order.item._id;
+            }
+            if (
+              typeof order.kitchen === "object" &&
+              order.kitchen?._id
+            ) {
+              normalizedOrder.kitchen = order.kitchen._id;
+            }
+            oldData = oldData.map((order) =>
+              order._id === normalizedOrder._id ? normalizedOrder : order
+            );
           }
-          if (typeof data?.order?.item === "object" && data?.order?.item?._id) {
-            normalizedOrder.item = data?.order?.item._id;
-          }
-          if (
-            typeof data?.order?.kitchen === "object" &&
-            data?.order?.kitchen?._id
-          ) {
-            normalizedOrder.kitchen = data?.order?.kitchen._id;
-          }
-          return oldData.map((order) =>
-            order._id === normalizedOrder._id ? normalizedOrder : order
-          );
+          return oldData;
         }
       );
     });
