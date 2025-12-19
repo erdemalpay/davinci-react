@@ -31,9 +31,10 @@ export function createMultipleBrand(items: { name: string }[]) {
 export function useCreateMultipleBrandMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(createMultipleBrand, {
+  return useMutation({
+    mutationFn: createMultipleBrand,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =

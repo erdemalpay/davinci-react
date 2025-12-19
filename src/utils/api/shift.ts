@@ -128,9 +128,10 @@ function copyShiftInterval(payload: CopyShiftIntervalPayload) {
 
 export function useCopyShiftMutation() {
   const queryClient = useQueryClient();
-  return useMutation(copyShift, {
+  return useMutation({
+    mutationFn: copyShift,
     onMutate: async () => {
-      await queryClient.cancelQueries([`${Paths.Shift}`]);
+      await queryClient.cancelQueries({ queryKey: [`${Paths.Shift}`] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -142,9 +143,10 @@ export function useCopyShiftMutation() {
 
 export function useAddShiftMutation() {
   const queryClient = useQueryClient();
-  return useMutation(addShift, {
+  return useMutation({
+    mutationFn: addShift,
     onMutate: async () => {
-      await queryClient.cancelQueries([`${Paths.Shift}`]);
+      await queryClient.cancelQueries({ queryKey: [`${Paths.Shift}`] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -156,9 +158,10 @@ export function useAddShiftMutation() {
 
 export function useCopyShiftIntervalMutation() {
   const queryClient = useQueryClient();
-  return useMutation(copyShiftInterval, {
+  return useMutation({
+    mutationFn: copyShiftInterval,
     onMutate: async () => {
-      await queryClient.cancelQueries([`${Paths.Shift}`]);
+      await queryClient.cancelQueries({ queryKey: [`${Paths.Shift}`] });
     },
     onError: (_err: any) => {
       const errorMessage =

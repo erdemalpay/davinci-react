@@ -182,8 +182,8 @@ const GenericAddEditPanel = <T,>({
     setIsExtraModalOpen?.(false);
     close?.();
   };
-  const uploadImageMutation = useMutation(
-    async ({ file, filename }: { file: File; filename: string }) => {
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
@@ -198,15 +198,13 @@ const GenericAddEditPanel = <T,>({
       });
       return res;
     },
-    {
-      onSuccess: (data) => {
-        setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
-      },
-      onError: (error) => {
-        console.error("Error uploading file:", error);
-      },
-    }
-  );
+    onSuccess: (data) => {
+      setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
+    },
+    onError: (error) => {
+      console.error("Error uploading file:", error);
+    },
+  });
   const triggerOnTriggerTabInput = () => {
     if (!onOpenTriggerTabInputFormKey) return;
     const input = inputs.find(

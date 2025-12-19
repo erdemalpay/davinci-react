@@ -52,16 +52,17 @@ export function updateReservationsOrder({
 export function useUpdateReservationsOrderMutation() {
   const queryKey = [`${Paths.Reservations}`];
   const queryClient = useQueryClient();
-  return useMutation(updateReservationsOrder, {
+  return useMutation({
+    mutationFn: updateReservationsOrder,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }

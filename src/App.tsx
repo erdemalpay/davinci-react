@@ -3,6 +3,7 @@ import {
   QueryClientProvider,
   useQueryClient,
 } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect } from "react";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,6 +21,8 @@ import { UserContextProvider, useUserContext } from "./context/User.context";
 import { usePageVisibility } from "./hooks/usePageVisibility";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
+
+
 
 function App() {
   const isVisible = usePageVisibility();
@@ -76,6 +79,7 @@ function Wrapper() {
           </UserContextProvider>
         </LocationContextProvider>
       </DateContextProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

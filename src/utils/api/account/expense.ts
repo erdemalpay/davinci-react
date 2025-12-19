@@ -100,9 +100,10 @@ export function useCreateMultipleExpenseMutation() {
   const queryKey = [`${Paths.Accounting}/expenses/create-multiple`];
   const queryClient = useQueryClient();
   const { setErrorDataForCreateMultipleExpense } = useGeneralContext();
-  return useMutation(createMultipleExpense, {
+  return useMutation({
+    mutationFn: createMultipleExpense,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: (response) => {
       if (response) {

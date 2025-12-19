@@ -87,12 +87,13 @@ export function updateIkasStocks() {
 export function useUpdateIkasStocksMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(updateIkasStocks, {
+  return useMutation({
+    mutationFn: updateIkasStocks,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -110,12 +111,13 @@ export function updateProductBaseStocks() {
 export function useUpdateProductBaseStocks() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(updateProductBaseStocks, {
+  return useMutation({
+    mutationFn: updateProductBaseStocks,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -127,12 +129,13 @@ export function useUpdateProductBaseStocks() {
 export function useConsumptStockMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(consumptStock, {
+  return useMutation({
+    mutationFn: consumptStock,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -145,12 +148,15 @@ export function useStockTransferMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   const { filterStockPanelFormElements } = useFilterContext();
-  return useMutation(stockTransfer, {
+  return useMutation({
+    mutationFn: stockTransfer,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
-      await queryClient.cancelQueries([
-        `${Paths.Accounting}/stocks/query?after=${filterStockPanelFormElements.after}`,
-      ]);
+      await queryClient.cancelQueries({ queryKey });
+      await queryClient.cancelQueries({
+        queryKey: [
+          `${Paths.Accounting}/stocks/query?after=${filterStockPanelFormElements.after}`,
+        ],
+      });
     },
 
     onError: (_err: any) => {

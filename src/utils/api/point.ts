@@ -29,16 +29,15 @@ export const usePointMutations = () => {
   });
 
   // Custom create mutation with optimistic update
-  const createPointMutation = useMutation(
-    (payload: Partial<Point>) =>
+  const createPointMutation = useMutation({
+    mutationFn: (payload: Partial<Point>) =>
       post<Partial<Point>, Point>({
         path: pointBaseUrl,
         payload,
       }),
-    {
-      onMutate: async (newPoint: Partial<Point>) => {
-        // Cancel any outgoing refetches
-        await queryClient.cancelQueries([pointBaseUrl]);
+    onMutate: async (newPoint: Partial<Point>) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: [pointBaseUrl] });
 
         // Snapshot the previous value
         const previousPoints =
@@ -89,23 +88,22 @@ export const usePointMutations = () => {
       },
       onSuccess: () => {
         // Invalidate and refetch to get the real data from server
-        queryClient.invalidateQueries([pointBaseUrl]);
+        queryClient.invalidateQueries({ queryKey: [pointBaseUrl] });
         toast.success("Points added successfully");
       },
     }
   );
 
   // Custom delete mutation that sets amount to 0 with optimistic update
-  const deletePointMutation = useMutation(
-    (id: number) =>
+  const deletePointMutation = useMutation({
+    mutationFn: (id: number) =>
       patch<Partial<Point>, Point>({
         path: `${pointBaseUrl}/${id}`,
         payload: { amount: 0 },
       }),
-    {
       onMutate: async (id: number) => {
         // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-        await queryClient.cancelQueries([pointBaseUrl]);
+        await queryClient.cancelQueries({ queryKey: [pointBaseUrl] });
 
         // Snapshot the previous value
         const previousPoints =
@@ -132,7 +130,7 @@ export const usePointMutations = () => {
         toast.error(errorMessage);
       },
       onSuccess: () => {
-        queryClient.invalidateQueries([pointBaseUrl]);
+        queryClient.invalidateQueries({ queryKey: [pointBaseUrl] });
         toast.success("All points removed successfully");
       },
     }

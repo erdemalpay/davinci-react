@@ -28,8 +28,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     UploadResponse,
     Error,
     { file: File; filename: string; foldername: string }
-  >(
-    async ({
+  >({
+    mutationFn: async ({
       file,
       filename: testname,
       foldername,
@@ -54,18 +54,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       });
       return res;
     },
-    {
-      onSuccess: (data) => {
-        // Assuming the response contains the URL to the uploaded image
-        setImageUrl(data.url);
-        onSuccessCallback(data.url);
-      },
-      onError: (error) => {
-        console.log({ error });
-        console.error("Error uploading file:", error);
-      },
-    }
-  );
+    onSuccess: (data) => {
+      // Assuming the response contains the URL to the uploaded image
+      setImageUrl(data.url);
+      onSuccessCallback(data.url);
+    },
+    onError: (error) => {
+      console.log({ error });
+      console.error("Error uploading file:", error);
+    },
+  });
 
   // function startEditing(publicId: string) {
   //   const myEditor = cloudinary.mediaEditor();
@@ -113,7 +111,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       />
 
       {/* Display upload status */}
-      {uploadImageMutation.isLoading && <p>Uploading...</p>}
+      {uploadImageMutation.isPending && <p>Uploading...</p>}
       {uploadImageMutation.isError && <p>Error uploading image.</p>}
       {uploadImageMutation.isSuccess && <p>Upload successful!</p>}
     </div>

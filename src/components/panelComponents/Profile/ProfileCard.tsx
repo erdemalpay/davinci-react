@@ -15,8 +15,8 @@ export default function ProfileCard() {
   const { updateUser } = useUserMutations();
   const user = useGetUser();
 
-  const uploadImageMutation = useMutation(
-    async ({ file, filename }: { file: File; filename: string }) => {
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
@@ -31,21 +31,19 @@ export default function ProfileCard() {
       });
       return res;
     },
-    {
-      onSuccess: (data) => {
-        setImageUrl(data.url);
-        if (!user) return;
-        updateUser({
-          id: user._id,
-          updates: { imageUrl: data.url },
-        });
-        toast.success(`User ${user.name} updated`);
-      },
-      onError: (error) => {
-        console.error("Error uploading file:", error);
-      },
-    }
-  );
+    onSuccess: (data) => {
+      setImageUrl(data.url);
+      if (!user) return;
+      updateUser({
+        id: user._id,
+        updates: { imageUrl: data.url },
+      });
+      toast.success(`User ${user.name} updated`);
+    },
+    onError: (error) => {
+      console.error("Error uploading file:", error);
+    },
+  });
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {

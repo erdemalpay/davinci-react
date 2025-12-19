@@ -38,18 +38,19 @@ export function updateKitchenCategory({
 export function useUpdateKitchenCategoryMutation() {
   const queryKey = [`${Paths.MenuCategories}`];
   const queryClient = useQueryClient();
-  return useMutation(updateKitchenCategory, {
+  return useMutation({
+    mutationFn: updateKitchenCategory,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -69,16 +70,17 @@ export function updateCategoriesOrder({
 export function useUpdateCategoriesOrderMutation() {
   const queryKey = [`${Paths.MenuCategories}`];
   const queryClient = useQueryClient();
-  return useMutation(updateCategoriesOrder, {
+  return useMutation({
+    mutationFn: updateCategoriesOrder,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -98,16 +100,17 @@ export function updateOrderCategoriesOrder({
 export function useUpdateOrderCategoriesOrderMutation() {
   const queryKey = [`${Paths.MenuCategories}`];
   const queryClient = useQueryClient();
-  return useMutation(updateOrderCategoriesOrder, {
+  return useMutation({
+    mutationFn: updateOrderCategoriesOrder,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }

@@ -96,15 +96,14 @@ export function useMarkAsReadMutation() {
   const queryKey = [notificationBaseUrl];
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (ids: number[]) => {
+  return useMutation({
+    mutationFn: async (ids: number[]) => {
       // Call API to mark notification as read
       await markAsRead(ids);
       return ids; // Return the id so `onSuccess` knows which notification was read
     },
-    {
-      onMutate: async (ids: number[]) => {
-        await queryClient.cancelQueries(queryKey); // Cancel outgoing queries
+    onMutate: async (ids: number[]) => {
+        await queryClient.cancelQueries({ queryKey }); // Cancel outgoing queries
 
         // Get the current notifications from cache
         const previousNotifications =
@@ -143,8 +142,7 @@ export function useMarkAsReadMutation() {
       },
       onSuccess: () => {
         // Only refetch when the mutation is successful
-        queryClient.invalidateQueries(queryKey);
+        queryClient.invalidateQueries({ queryKey });
       },
-    }
-  );
+  });
 }

@@ -70,7 +70,7 @@ export function GameAnalyticChart() {
   }, [dateFilter]);
 
   useEffect(() => {
-    queryClient.invalidateQueries([Paths.Gameplays, "query"]);
+    queryClient.invalidateQueries({ queryKey: [Paths.Gameplays, "query"] });
   }, [startDate, endDate, itemLimit, queryClient]);
 
   return (

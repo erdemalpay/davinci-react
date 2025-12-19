@@ -164,12 +164,12 @@ export function useWebSocket() {
         typeof orders[0]?.table === "number"
           ? orders[0]?.table
           : orders[0]?.table?._id;
-      queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/table`, tableId] });
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/today`, selectedDate],
         (oldData) => {
           if (!oldData) {
-            queryClient.invalidateQueries([`${Paths.Order}/today`]);
+            queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
             return oldData;
           }
           for (const order of orders) {
@@ -192,11 +192,11 @@ export function useWebSocket() {
                 if (foundTable) {
                   normalizedOrder.table = foundTable;
                 } else {
-                  queryClient.invalidateQueries([`${Paths.Order}/today`]);
+                  queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
                   continue;
                 }
               } else {
-                queryClient.invalidateQueries([`${Paths.Order}/today`]);
+                queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
                 continue;
               }
             }
@@ -259,10 +259,12 @@ export function useWebSocket() {
     socket.on(
       "collectionChanged",
       ({ collection }: { collection: OrderCollection }) => {
-        queryClient.invalidateQueries([
-          `${Paths.Order}/collection/table`,
-          collection.table,
-        ]);
+        queryClient.invalidateQueries({
+          queryKey: [
+            `${Paths.Order}/collection/table`,
+            collection.table,
+          ],
+        });
 
         // Update today collections cache with populated table data
         queryClient.setQueryData<any[]>(
@@ -288,16 +290,20 @@ export function useWebSocket() {
                   collection.table = foundTable;
                 } else {
                   // If table not found, invalidate and return
-                  queryClient.invalidateQueries([
-                    `${Paths.Order}/collection/today`,
-                  ]);
+                  queryClient.invalidateQueries({
+                    queryKey: [
+                      `${Paths.Order}/collection/today`,
+                    ],
+                  });
                   return oldData;
                 }
               } else {
                 // If no tables data, invalidate and return
-                queryClient.invalidateQueries([
-                  `${Paths.Order}/collection/today`,
-                ]);
+                queryClient.invalidateQueries({
+                  queryKey: [
+                    `${Paths.Order}/collection/today`,
+                  ],
+                });
                 return oldData;
               }
             }
@@ -333,9 +339,9 @@ export function useWebSocket() {
                 !notification.seenBy?.includes(user._id))
           )
         ) {
-          queryClient.invalidateQueries([`${Paths.Notification}/new`]);
-          queryClient.invalidateQueries([`${Paths.Notification}/all`]);
-          queryClient.invalidateQueries([`${Paths.Notification}/event`]);
+          queryClient.invalidateQueries({ queryKey: [`${Paths.Notification}/new`] });
+          queryClient.invalidateQueries({ queryKey: [`${Paths.Notification}/all`] });
+          queryClient.invalidateQueries({ queryKey: [`${Paths.Notification}/event`] });
         }
       }
     );
@@ -363,8 +369,8 @@ export function useWebSocket() {
     });
 
     socket.on("stockChanged", () => {
-      queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
-      queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Accounting}/stocks`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Accounting}/stocks/query`] });
     });
 
     socket.on("tableCreated", ({ table }: { table: Table }) => {
@@ -589,7 +595,7 @@ export function useWebSocket() {
         selectedUsers: string[];
         locationId: number;
       }) => {
-        queryClient.invalidateQueries([`${Paths.Order}/today`]);
+        queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
         if (!user) {
           console.log("User not found in createMultipleOrder");
@@ -627,7 +633,7 @@ export function useWebSocket() {
     socketEventListeners.forEach((eventConfig) => {
       socket.on(eventConfig.event, () => {
         eventConfig.invalidateKeys.forEach((key) => {
-          queryClient.invalidateQueries([key]);
+          queryClient.invalidateQueries({ queryKey: [key] });
         });
       });
     });
