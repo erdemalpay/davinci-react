@@ -82,10 +82,10 @@ export function useGetGivenDateVisits(date: string) {
 export function useGetMonthlyVisits(location: number, date: string) {
   const query = `${Paths.Visits}/monthly?location=${location}&date=${date}`;
 
-  const { isLoading, error, data, isFetching } = useQuery(
-    [Paths.Visits, "monthly", location, date],
-    () => get<Visit[]>({ path: query })
-  );
+  const { isLoading, error, data, isFetching } = useQuery({
+    queryKey: [Paths.Visits, "monthly", location, date],
+    queryFn: () => get<Visit[]>({ path: query }),
+  });
   return {
     isLoading,
     error,

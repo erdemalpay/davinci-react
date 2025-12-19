@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
@@ -367,32 +368,35 @@ export function useGetTableOrders(tableId: number) {
   const queryClient = useQueryClient();
   const { selectedDate } = useDateContext();
 
-  return useGetList<Order>(
+  const tableOrders = useGetList<Order>(
     `${baseUrl}/table/${tableId}`,
     [`${Paths.Order}/table`, tableId],
-    true,
-    {
-      onSuccess: (tableOrders) => {
-        // keep todayOrders in sync with this table
-        queryClient.setQueryData<Order[]>(
-          [`${baseUrl}/today`, selectedDate],
-          (oldTodayOrders) => {
-            const current = oldTodayOrders ?? [];
-            if (selectedDate === (tableOrders[0]?.table as Table)?.date) {
-              // 1. remove existing orders for this table
-              const withoutThisTable = current.filter(
-                (order) => (order.table as Table)?._id !== tableId
-              );
-
-              // 2. add fresh table orders
-              return [...withoutThisTable, ...tableOrders];
-            }
-            return current;
-          }
-        );
-      },
-    }
+    true
   );
+
+  useEffect(() => {
+    if (!tableOrders || tableOrders.length === 0) return;
+    
+    // keep todayOrders in sync with this table
+    queryClient.setQueryData<Order[]>(
+      [`${baseUrl}/today`, selectedDate],
+      (oldTodayOrders) => {
+        const current = oldTodayOrders ?? [];
+        if (selectedDate === (tableOrders[0]?.table as Table)?.date) {
+          // 1. remove existing orders for this table
+          const withoutThisTable = current.filter(
+            (order) => (order.table as Table)?._id !== tableId
+          );
+
+          // 2. add fresh table orders
+          return [...withoutThisTable, ...tableOrders];
+        }
+        return current;
+      }
+    );
+  }, [tableOrders, selectedDate, tableId, queryClient]);
+
+  return tableOrders;
 }
 
 export function useGetPersonalOrderDatas() {
@@ -712,7 +716,7 @@ export function useCreateOrderForDivideMutation() {
     },
     onSettled: (_data, _error, _payload, context) => {
       if (context?.queryKey) {
-        void queryClient.invalidateQueries(context.queryKey);
+        void queryClient.invalidateQueries({ queryKey: context.queryKey });
       }
     },
     onError: (_err: unknown, _payload, context) => {
