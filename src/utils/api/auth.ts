@@ -43,7 +43,8 @@ export function useLogin(
     LoginResponse,
     LoginError,
     LoginCredentials
-  >(loginMethod, {
+  >({
+    mutationFn: loginMethod,
     // We are updating tables query data with new item
     onSuccess: async (response) => {
       const { token, user } = response;

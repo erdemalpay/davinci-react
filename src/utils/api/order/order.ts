@@ -194,11 +194,12 @@ export function updateOrderForCancel(payload: {
 }
 export function useUpdateOrderForCancelMutation() {
   const queryClient = useQueryClient();
-  return useMutation(updateOrderForCancel, {
+  return useMutation({
+    mutationFn: updateOrderForCancel,
     onMutate: async (payload) => {
       const queryKey = [`${Paths.Order}/table`, payload.tableId];
       // Cancel any outgoing refetches to prevent overwriting the optimistic update
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
       // Snapshot the previous value
       const previousTableOrders =
         queryClient.getQueryData<Order[]>(queryKey) || [];
@@ -229,9 +230,10 @@ export function useUpdateOrderForCancelMutation() {
 export function useTransferTableMutations() {
   const queryKey = [`${Paths.Tables}`];
   const queryClient = useQueryClient();
-  return useMutation(transferTable, {
+  return useMutation({
+    mutationFn: transferTable,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -247,14 +249,15 @@ export function useCombineTableMutation() {
   const queryKey = [tableBaseUrl, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
 
-  return useMutation(combineTable, {
+  return useMutation({
+    mutationFn: combineTable,
     onMutate: async ({
       orders,
       oldTableId,
       transferredTableId,
     }: CombineTablePayload) => {
       // Cancel any outgoing refetches to prevent overwriting the optimistic update
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
       const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
@@ -304,7 +307,7 @@ export function useCombineTableMutation() {
       setTimeout(() => toast.error(errorMessage), 200);
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -315,7 +318,8 @@ export function selectedOrderTransfer(payload: SelectedOrderTransferPayload) {
   });
 }
 export function useSelectedOrderTransferMutation() {
-  return useMutation(selectedOrderTransfer, {
+  return useMutation({
+    mutationFn: selectedOrderTransfer,
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
@@ -327,9 +331,10 @@ export function useSelectedOrderTransferMutation() {
 export function useUpdateOrdersMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
-  return useMutation(updateOrders, {
+  return useMutation({
+    mutationFn: updateOrders,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
@@ -341,14 +346,15 @@ export function useUpdateOrdersMutation() {
 }
 export function useReturnOrdersMutation() {
   const queryClient = useQueryClient();
-  return useMutation(returnOrder, {
+  return useMutation({
+    mutationFn: returnOrder,
     onMutate: async () => {
-      queryClient.invalidateQueries([`${Paths.Order}/query`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
     },
     onSettled: () => {
-      queryClient.invalidateQueries([`${Paths.Order}/query`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -423,14 +429,15 @@ export function cancelIkasOrder(payload: CancelIkasOrder) {
 }
 export function useCancelIkasOrderMutation() {
   const queryClient = useQueryClient();
-  return useMutation(cancelIkasOrder, {
+  return useMutation({
+    mutationFn: cancelIkasOrder,
     onMutate: async () => {
-      queryClient.invalidateQueries([`${Paths.Order}/query`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
     },
     onSettled: () => {
-      queryClient.invalidateQueries([`${Paths.Order}/query`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -443,9 +450,10 @@ export function useCancelIkasOrderMutation() {
 export function useCreateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
-  return useMutation(createMultipleOrder, {
+  return useMutation({
+    mutationFn: createMultipleOrder,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     // onSettled: () => {
     //   queryClient.invalidateQueries(queryKey);
@@ -461,9 +469,10 @@ export function useCreateMultipleOrderMutation() {
 export function useUpdateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
-  return useMutation(updateMultipleOrders, {
+  return useMutation({
+    mutationFn: updateMultipleOrders,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     // onSettled: () => {
     //   queryClient.invalidateQueries(queryKey);
@@ -579,12 +588,13 @@ export function createOrderForDiscount(payload: CreateOrderForDiscount) {
 export function useCreateOrderForDiscountMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(createOrderForDiscount, {
+  return useMutation({
+    mutationFn: createOrderForDiscount,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -602,12 +612,13 @@ export function cancelOrderForDiscount(payload: CancelOrderForDiscount) {
 export function useCancelOrderForDiscountMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(cancelOrderForDiscount, {
+  return useMutation({
+    mutationFn: cancelOrderForDiscount,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -654,13 +665,14 @@ export function createOrderForDivide(payload: CreateOrderForDivide) {
 }
 export function useCreateOrderForDivideMutation() {
   const queryClient = useQueryClient();
-  return useMutation(createOrderForDivide, {
+  return useMutation({
+    mutationFn: createOrderForDivide,
     onMutate: async (payload) => {
       if (!payload.tableId) {
         return;
       }
       const queryKey = [`${Paths.Order}/table`, payload.tableId];
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
       const previousTableOrders =
         queryClient.getQueryData<Order[]>(queryKey) || [];
       const finalTableOrders: Order[] = [];

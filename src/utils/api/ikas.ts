@@ -32,9 +32,10 @@ export function updateIkasProductImage(payload: UpdateIkasProductImage) {
 export function useUpdateIkasProductStockMutation() {
   const queryKey = [`${Paths.Ikas}/product-stock`];
   const queryClient = useQueryClient();
-  return useMutation(updateIkasProductStock, {
+  return useMutation({
+    mutationFn: updateIkasProductStock,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
@@ -47,9 +48,10 @@ export function useUpdateIkasProductStockMutation() {
 export function useUpdateIkasProductImageMutation() {
   const queryKey = [`${Paths.Ikas}/product-image`];
   const queryClient = useQueryClient();
-  return useMutation(updateIkasProductImage, {
+  return useMutation({
+    mutationFn: updateIkasProductImage,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {

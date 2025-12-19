@@ -149,9 +149,10 @@ export function useGetGameplayAnalytics(
     endDate,
     mentor,
   ];
-  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
-    get<GameplayAnalytic[]>({ path: query })
-  );
+  const { isLoading, error, data, isFetching } = useQuery({
+    queryKey,
+    queryFn: () => get<GameplayAnalytic[]>({ path: query }),
+  });
   return {
     isLoading,
     error,
@@ -162,9 +163,10 @@ export function useGetGameplayAnalytics(
 export function useGetMentorGamePlays(mentorId: string) {
   const query = `${BASE_URL_GAMEPLAYS}/mentor/${mentorId}`;
   const queryKey = [BASE_URL_GAMEPLAYS, "mentor", mentorId];
-  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
-    get<Gameplay[]>({ path: query })
-  );
+  const { isLoading, error, data, isFetching } = useQuery({
+    queryKey,
+    queryFn: () => get<Gameplay[]>({ path: query }),
+  });
   return {
     isLoading,
     error,
@@ -217,11 +219,11 @@ export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
     location,
   ];
 
-  const { isLoading, error, data, isFetching } = useQuery(
+  const { isLoading, error, data, isFetching } = useQuery({
     queryKey,
-    () => get<GameplayGroupQueryResult[]>({ path: query }),
-    { refetchOnWindowFocus: false }
-  );
+    queryFn: () => get<GameplayGroupQueryResult[]>({ path: query }),
+    refetchOnWindowFocus: false,
+  });
   return {
     isLoading,
     error,
@@ -231,11 +233,13 @@ export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
 }
 export function useGetGamePlaysGroupByLocation() {
   const queryKey = [BASE_URL_GAMEPLAYS, "group-game-mentor-location"];
-  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
-    get<GameplayGroupQueryResult[]>({
-      path: `${BASE_URL_GAMEPLAYS}/group-game-mentor-location`,
-    })
-  );
+  const { isLoading, error, data, isFetching } = useQuery({
+    queryKey,
+    queryFn: () =>
+      get<GameplayGroupQueryResult[]>({
+        path: `${BASE_URL_GAMEPLAYS}/group-game-mentor-location`,
+      }),
+  });
   return {
     isLoading,
     error,
@@ -248,11 +252,11 @@ export function useGetGameplayCountsByDate(mentorId: string) {
   const url = `${BASE_URL_GAMEPLAYS}/counts-by-date?mentorId=${mentorId}`;
   const queryKey = [BASE_URL_GAMEPLAYS, "counts-by-date", mentorId];
 
-  const { isLoading, error, data, isFetching } = useQuery(
+  const { isLoading, error, data, isFetching } = useQuery({
     queryKey,
-    () => get<GameplayCountByDate[]>({ path: url }),
-    { refetchOnWindowFocus: false }
-  );
+    queryFn: () => get<GameplayCountByDate[]>({ path: url }),
+    refetchOnWindowFocus: false,
+  });
 
   return {
     isLoading,
@@ -269,7 +273,8 @@ export function useCreateGameplayMutation() {
 
   const tablesQueryKey: QueryKey = [Paths.Tables, selectedDate];
 
-  return useMutation(createGameplay, {
+  return useMutation({
+    mutationFn: createGameplay,
     onMutate: async (newGameplay) => {
       await queryClient.cancelQueries({ queryKey: tablesQueryKey });
       const previousByLocation =
@@ -377,7 +382,8 @@ export function useUpdateGameplayMutation() {
 
   const tablesQueryKey: QueryKey = [Paths.Tables, selectedDate];
 
-  return useMutation(updateGameplay, {
+  return useMutation({
+    mutationFn: updateGameplay,
     // We are updating tables query data with updated gameplay
     onMutate: async ({ tableId, id, updates }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
@@ -501,7 +507,8 @@ export function useDeleteGameplayMutation() {
 
   const tablesQueryKey: QueryKey = [Paths.Tables, selectedDate];
 
-  return useMutation(deleteGameplay, {
+  return useMutation({
+    mutationFn: deleteGameplay,
     // We are updating tables query data with deleted gameplay
     onMutate: async ({ tableId, id }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)

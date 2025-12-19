@@ -38,16 +38,17 @@ export function useCreateShiftChangeRequest() {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  return useMutation(createShiftChangeRequest, {
+  return useMutation({
+    mutationFn: createShiftChangeRequest,
     onMutate: async () => {
-      await queryClient.cancelQueries([Paths.ShiftChangeRequest]);
+      await queryClient.cancelQueries({ queryKey: [Paths.ShiftChangeRequest] });
     },
     onSuccess: () => {
       setTimeout(
         () => toast.success(t("Shift change request sent successfully")),
         200
       );
-      queryClient.invalidateQueries([Paths.Shift]);
+      queryClient.invalidateQueries({ queryKey: [Paths.Shift] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -80,11 +81,11 @@ export function useGetShiftChangeRequests(params: {
   limit?: number;
 }) {
   const path = buildQuery(params || {});
-  return useQuery<PaginatedResponse<ShiftChangeRequestType>>(
-    [path],
-    () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
-    { staleTime: 0 }
-  );
+  return useQuery<PaginatedResponse<ShiftChangeRequestType>>({
+    queryKey: [path],
+    queryFn: () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
+    staleTime: 0,
+  });
 }
 
 export function useGetMyShiftChangeRequests(params?: {
@@ -108,29 +109,28 @@ export function useGetMyShiftChangeRequests(params?: {
   };
 
   const path = buildMyRequestsQuery();
-  return useQuery<PaginatedResponse<ShiftChangeRequestType>>(
-    [path],
-    () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
-    { staleTime: 0 }
-  );
+  return useQuery<PaginatedResponse<ShiftChangeRequestType>>({
+    queryKey: [path],
+    queryFn: () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
+    staleTime: 0,
+  });
 }
 
 // Manager approve
 export function useManagerApproveShiftChangeRequest() {
   const client = useQueryClient();
   const { t } = useTranslation();
-  return useMutation(
-    ({ id, managerNote }: { id: number; managerNote?: string }) =>
+  return useMutation({
+    mutationFn: ({ id, managerNote }: { id: number; managerNote?: string }) =>
       patch({
         path: `${Paths.ShiftChangeRequest}/${id}/manager-approve`,
         payload: { managerNote },
       }),
-    {
-      onSuccess: () => {
-        setTimeout(() => toast.success(t("Request approved")), 200);
-        client.invalidateQueries([Paths.ShiftChangeRequest]);
-        client.invalidateQueries([Paths.Shift]);
-      },
+    onSuccess: () => {
+      setTimeout(() => toast.success(t("Request approved")), 200);
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ queryKey: [Paths.Shift] });
+    },
       onError: (err: any) => {
         const msg =
           err?.response?.data?.message || "An unexpected error occurred";
@@ -144,17 +144,16 @@ export function useManagerApproveShiftChangeRequest() {
 export function useManagerRejectShiftChangeRequest() {
   const client = useQueryClient();
   const { t } = useTranslation();
-  return useMutation(
-    ({ id, managerNote }: { id: number; managerNote?: string }) =>
+  return useMutation({
+    mutationFn: ({ id, managerNote }: { id: number; managerNote?: string }) =>
       patch({
         path: `${Paths.ShiftChangeRequest}/${id}/manager-reject`,
         payload: { managerNote },
       }),
-    {
-      onSuccess: () => {
-        setTimeout(() => toast.warning(t("Request rejected")), 200);
-        client.invalidateQueries([Paths.ShiftChangeRequest]);
-      },
+    onSuccess: () => {
+      setTimeout(() => toast.warning(t("Request rejected")), 200);
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+    },
       onError: (err: any) => {
         const msg =
           err?.response?.data?.message || "An unexpected error occurred";
@@ -168,18 +167,17 @@ export function useManagerRejectShiftChangeRequest() {
 export function useTargetApproveShiftChangeRequest() {
   const client = useQueryClient();
   const { t } = useTranslation();
-  return useMutation(
-    ({ id }: { id: number }) =>
+  return useMutation({
+    mutationFn: ({ id }: { id: number }) =>
       patch({
         path: `${Paths.ShiftChangeRequest}/${id}/target-approve`,
         payload: {},
       }),
-    {
-      onSuccess: () => {
-        setTimeout(() => toast.success(t("Request approved")), 200);
-        client.invalidateQueries([Paths.ShiftChangeRequest]);
-        client.invalidateQueries([Paths.Shift]);
-      },
+    onSuccess: () => {
+      setTimeout(() => toast.success(t("Request approved")), 200);
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ queryKey: [Paths.Shift] });
+    },
       onError: (err: any) => {
         const msg =
           err?.response?.data?.message || "An unexpected error occurred";
@@ -193,17 +191,16 @@ export function useTargetApproveShiftChangeRequest() {
 export function useTargetRejectShiftChangeRequest() {
   const client = useQueryClient();
   const { t } = useTranslation();
-  return useMutation(
-    ({ id, managerNote }: { id: number; managerNote?: string }) =>
+  return useMutation({
+    mutationFn: ({ id, managerNote }: { id: number; managerNote?: string }) =>
       patch({
         path: `${Paths.ShiftChangeRequest}/${id}/target-reject`,
         payload: { managerNote },
       }),
-    {
-      onSuccess: () => {
-        setTimeout(() => toast.warning(t("Request rejected")), 200);
-        client.invalidateQueries([Paths.ShiftChangeRequest]);
-      },
+    onSuccess: () => {
+      setTimeout(() => toast.warning(t("Request rejected")), 200);
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+    },
       onError: (err: any) => {
         const msg =
           err?.response?.data?.message || "An unexpected error occurred";
@@ -217,18 +214,17 @@ export function useTargetRejectShiftChangeRequest() {
 export function useCancelShiftChangeRequest() {
   const client = useQueryClient();
   const { t } = useTranslation();
-  return useMutation(
-    ({ id }: { id: number }) =>
+  return useMutation({
+    mutationFn: ({ id }: { id: number }) =>
       patch({
         path: `${Paths.ShiftChangeRequest}/${id}/cancel`,
         payload: {},
       }),
-    {
-      onSuccess: () => {
-        setTimeout(() => toast.success(t("Request cancelled")), 200);
-        client.invalidateQueries([Paths.ShiftChangeRequest]);
-        client.invalidateQueries([Paths.Shift]);
-      },
+    onSuccess: () => {
+      setTimeout(() => toast.success(t("Request cancelled")), 200);
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ queryKey: [Paths.Shift] });
+    },
       onError: (err: any) => {
         const msg =
           err?.response?.data?.message || "An unexpected error occurred";

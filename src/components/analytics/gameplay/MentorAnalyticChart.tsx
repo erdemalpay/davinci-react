@@ -12,8 +12,8 @@ import {
   YAxis,
 } from "recharts";
 import { DateRangeKey, FormElementsState } from "../../../types";
-import { Paths } from "../../../utils/api/factory";
 import { dateRanges } from "../../../utils/api/dateRanges";
+import { Paths } from "../../../utils/api/factory";
 import { useGetGameplayAnalytics } from "../../../utils/api/gameplay";
 import { useGetUsers } from "../../../utils/api/user";
 import { colors } from "../../../utils/color";
@@ -113,7 +113,7 @@ export function MentorAnalyticChart({
   }, [dateFilter]);
 
   useEffect(() => {
-    queryClient.invalidateQueries([Paths.Gameplays, "query"]);
+    queryClient.invalidateQueries({ queryKey: [Paths.Gameplays, "query"] });
   }, [startDate, endDate, itemLimit, queryClient]);
 
   useEffect(() => {

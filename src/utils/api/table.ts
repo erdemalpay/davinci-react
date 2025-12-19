@@ -60,11 +60,12 @@ export function useCloseTableMutation() {
   const queryKey = [BASE_URL, selectedLocationId, selectedDate];
 
   const queryClient = useQueryClient();
-  return useMutation(closeTable, {
+  return useMutation({
+    mutationFn: closeTable,
     // We are updating tables query data with new table
     onMutate: async ({ id, updates }: UpdateTablePayload) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
       const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
@@ -96,7 +97,7 @@ export function useCloseTableMutation() {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -107,9 +108,10 @@ export function useCloseAllTableMutation() {
 
   const queryClient = useQueryClient();
 
-  return useMutation(closeAllTable, {
+  return useMutation({
+    mutationFn: closeAllTable,
     onMutate: async ({ ids, finishHour }: CloseAllTablePayload) => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
       const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
 
       // Optimistically update tables to reflect they're closed
@@ -138,7 +140,7 @@ export function useCloseAllTableMutation() {
     },
     onSettled: () => {
       // Invalidate queries to refetch the table list
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -148,11 +150,12 @@ export function useReopenTableMutation() {
   const { selectedDate } = useDateContext();
   const queryKey = [BASE_URL, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
-  return useMutation(reopenTable, {
+  return useMutation({
+    mutationFn: reopenTable,
     // We are updating tables query data with new table
     onMutate: async ({ id }: TablePayloadWithId) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
       const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
@@ -184,7 +187,7 @@ export function useReopenTableMutation() {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }

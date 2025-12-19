@@ -32,12 +32,13 @@ export function createMultiplePage(
 export function useCreateMultiplePageMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(createMultiplePage, {
+  return useMutation({
+    mutationFn: createMultiplePage,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { patch, post, UpdatePayload } from "..";
+import { UpdatePayload, patch, post } from "..";
 import { useDateContext } from "../../../context/Date.context";
 import { useOrderContext } from "../../../context/Order.context";
 import {
@@ -143,14 +143,15 @@ export function useCreateOrderCollectionMutation(tableId: number) {
     selectedDate,
   ];
 
-  return useMutation(createRequest, {
+  return useMutation({
+    mutationFn: createRequest,
     // We are updating tables query data with new table
     onMutate: async (createdCollection: Partial<OrderCollection>) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(collectionQueryKey);
-      await queryClient.cancelQueries(orderQueryKey);
-      await queryClient.cancelQueries(todayOrdersQueryKey);
-      await queryClient.cancelQueries(todayCollectionsQueryKey);
+      await queryClient.cancelQueries({ queryKey: collectionQueryKey });
+      await queryClient.cancelQueries({ queryKey: orderQueryKey });
+      await queryClient.cancelQueries({ queryKey: todayOrdersQueryKey });
+      await queryClient.cancelQueries({ queryKey: todayCollectionsQueryKey });
 
       // Snapshot the previous value
       const previousCollections =
@@ -347,15 +348,16 @@ export function useUpdateOrderCollectionMutation(tableId: number) {
     selectedDate,
   ];
 
-  return useMutation(updateRequest, {
+  return useMutation({
+    mutationFn: updateRequest,
     // We are updating tables query data with new table
     onMutate: async ({ id, updates }: UpdatePayload<OrderCollection>) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(collectionQueryKey);
-      await queryClient.cancelQueries(orderQueryKey);
-      await queryClient.cancelQueries(tableOrderQueryKey);
-      await queryClient.cancelQueries(todayOrdersQueryKey);
-      await queryClient.cancelQueries(todayCollectionsQueryKey);
+      await queryClient.cancelQueries({ queryKey: collectionQueryKey });
+      await queryClient.cancelQueries({ queryKey: orderQueryKey });
+      await queryClient.cancelQueries({ queryKey: tableOrderQueryKey });
+      await queryClient.cancelQueries({ queryKey: todayOrdersQueryKey });
+      await queryClient.cancelQueries({ queryKey: todayCollectionsQueryKey });
 
       const previousTableOrders =
         queryClient.getQueryData<Order[]>(tableOrderQueryKey) || [];
