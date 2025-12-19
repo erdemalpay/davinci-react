@@ -1,7 +1,14 @@
 import { LockOpenIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { BsWrenchAdjustableCircle } from "react-icons/bs";
 import { IoCloseOutline, IoReceipt } from "react-icons/io5";
@@ -740,18 +747,31 @@ TableCardProps) {
     };
   }, [table.date, table.location, table.playerCount, mentors]);
 
-  const updateTableHandler = useCallback(
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleInputChange = useCallback(
     (event: FormEvent<HTMLInputElement>) => {
       const target = event.target as HTMLInputElement;
-      if (!target.value) return;
+      const { name, value } = target;
 
-      updateTable({
-        id: table._id,
-        updates: { [target.name]: target.value },
-      });
-      toast.success(
-        t("Table {{tableName}} updated", { tableName: table.name })
-      );
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        if (!value) {
+          return;
+        }
+
+        updateTable({
+          id: table._id,
+          updates: { [name]: value },
+        });
+
+        toast.success(
+          t("Table {{tableName}} updated", { tableName: table.name })
+        );
+      }, 800);
     },
     [updateTable, table, t]
   );
@@ -894,10 +914,12 @@ TableCardProps) {
                   <CardAction
                     onClick={() => {
                       if (!user) return;
-                      const tableReadyToServeOrders = tableOrders.filter(
-                        (tableOrder) =>
-                          tableOrder.status === OrderStatus.READYTOSERVE
-                      ).map((tableOrder) => tableOrder._id);
+                      const tableReadyToServeOrders = tableOrders
+                        .filter(
+                          (tableOrder) =>
+                            tableOrder.status === OrderStatus.READYTOSERVE
+                        )
+                        .map((tableOrder) => tableOrder._id);
                       if (tableReadyToServeOrders.length === 0) return;
                       updateMultipleOrders({
                         ids: tableReadyToServeOrders,
@@ -934,14 +956,14 @@ TableCardProps) {
               label={t("Start Time")}
               type="time"
               value={table.startHour}
-              onChange={updateTableHandler}
+              onChange={handleInputChange}
             />
             <InputWithLabel
               name="finishHour"
               label={t("End Time")}
               type="time"
               value={table.finishHour}
-              onChange={updateTableHandler}
+              onChange={handleInputChange}
             />
           </div>
           <div className="flex flex-col gap-4">
@@ -950,7 +972,7 @@ TableCardProps) {
               label={t("Player Count")}
               type="number"
               value={table.playerCount}
-              onChange={updateTableHandler}
+              onChange={handleInputChange}
             />
           </div>
         </div>
