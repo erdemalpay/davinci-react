@@ -23,6 +23,7 @@ import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import ShiftList from "../components/tables/ShiftList";
 import { TableCard } from "../components/tables/TableCard";
+import { useDataContext } from "../context/Data.context";
 import { useDateContext } from "../context/Date.context";
 import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
@@ -41,31 +42,19 @@ import {
   TableTypes,
   User,
 } from "../types";
-import { useGetAllAccountProducts } from "../utils/api/account/product";
 import {
   useConsumptStockMutation,
-  useGetAccountStocks,
 } from "../utils/api/account/stock";
 import {
   useGetAllLocations,
-  useGetStockLocations,
-  useGetStoreLocations,
 } from "../utils/api/location";
-import { useGetMemberships } from "../utils/api/membership";
-import { useGetCategories } from "../utils/api/menu/category";
-import { useGetKitchens } from "../utils/api/menu/kitchen";
-import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import {
   useCreateMultipleOrderMutation,
-  useGetTodayOrders,
   useOrderMutations,
 } from "../utils/api/order/order";
-import { useGetTodayCollections } from "../utils/api/order/orderCollection";
-import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
-import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
-import { MinimalUser, useGetUser, useGetUsersMinimal } from "../utils/api/user";
+import { MinimalUser } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../utils/getItem";
@@ -75,16 +64,28 @@ const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
-  const stocks = useGetAccountStocks();
+  const { 
+    todayOrders, 
+    todayCollections, 
+    menuItems, 
+    categories,
+    games,
+    kitchens,
+    products,
+    discounts,
+    stockLocations,
+    storeLocations,
+    orderNotes,
+    memberships,
+    stocks,
+    users,
+    user,
+  } = useDataContext();
   const [showAllTables, setShowAllTables] = useState(true);
-  const orderNotes = useGetOrderNotes();
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [tableOrderPaymentTableId, setTableOrderPaymentTableId] = useState<
     number | null
   >(null);
-
-  const members = useGetMemberships();
-  const user = useGetUser();
   const reservations = useGetReservations();
   const [isTableOrderPaymentModalOpen, setIsTableOrderPaymentModalOpen] =
     useState(false);
@@ -99,20 +100,13 @@ const Tables = () => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
-  const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
   const { setIsTabInputScreenOpen } = useGeneralContext();
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
-  const locations = useGetStoreLocations();
   const allLocations = useGetAllLocations();
   const navigate = useNavigate();
-  const todayCollections = useGetTodayCollections();
   const visits = useGetVisits();
-  const stockLocations = useGetStockLocations();
-  const products = useGetAllAccountProducts();
-  const kitchens = useGetKitchens();
-  const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
 
@@ -135,6 +129,7 @@ const Tables = () => {
     return categories?.filter((category) => !category.active) || [];
   }, [categories]);
   const inactiveCategoriesWithKitchens = useMemo(() => {
+    if (!kitchens) return [];
     return (
       inactiveCategories?.filter(
         (category) =>
@@ -159,12 +154,10 @@ const Tables = () => {
     setSelectedNewOrders,
     selectedNewOrders,
   } = useOrderContext();
-  const menuItems = useGetMenuItems();
   const tables = useGetTables()
     .filter((table) => !table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
 
-  const users = useGetUsersMinimal();
   const initialOrderForm = {
     item: 0,
     quantity: 0,
@@ -185,9 +178,6 @@ const Tables = () => {
     isOnlineSale: false,
     tables: [],
   });
-  const discounts = useGetOrderDiscounts()?.filter(
-    (discount) => discount?.status !== OrderDiscountStatus.DELETED
-  );
   const tableTypeOptions = Object.values(TableTypes)
     .filter((value) => [TableTypes.ACTIVITY, TableTypes.NORMAL].includes(value))
     .map((value) => ({
@@ -264,7 +254,7 @@ const Tables = () => {
           return false;
         }
 
-        const category = getItem(menuItem.category, categories);
+        const category = categories ? getItem(menuItem.category, categories) : undefined;
         if (category?.isLimitedTime && menuItem.endDate) {
           const today = new Date();
           const endDate = new Date(menuItem.endDate);
@@ -276,7 +266,7 @@ const Tables = () => {
         return true;
       })
       .map((menuItem) => {
-        const category = getItem(menuItem.category, categories);
+        const category = categories ? getItem(menuItem.category, categories) : undefined;
         const subText = getMenuItemSubText(menuItem, category, menuItems);
 
         return {
@@ -374,10 +364,12 @@ const Tables = () => {
   }, [discounts]);
 
   const filteredDiscounts = useMemo(() => {
-    return discounts?.filter((discount) =>
-      selectedTable?.isOnlineSale
+    if (!discounts) return [];
+    return discounts.filter((discount) =>
+      discount?.status !== OrderDiscountStatus.DELETED &&
+      (selectedTable?.isOnlineSale
         ? discount?.isOnlineOrder
-        : discount?.isStoreOrder
+        : discount?.isStoreOrder)
     );
   }, [discounts, selectedTable?.isOnlineSale]);
 
@@ -431,7 +423,7 @@ const Tables = () => {
               return false;
             }
 
-            const category = getItem(menuItem.category, categories);
+            const category = categories ? getItem(menuItem.category, categories) : undefined;
             if (category?.isLimitedTime && menuItem.endDate) {
               const today = new Date();
               const endDate = new Date(menuItem.endDate);
@@ -443,7 +435,7 @@ const Tables = () => {
             return true;
           })
           .map((menuItem) => {
-            const category = getItem(menuItem.category, categories);
+            const category = categories ? getItem(menuItem.category, categories) : undefined;
             const subText = getMenuItemSubText(menuItem, category, menuItems);
 
             return {
@@ -493,16 +485,15 @@ const Tables = () => {
       type: InputTypes.TAB,
       formKey: "discount",
       label: t("Discount"),
-      options: orderForm?.item
+      options: orderForm?.item && filteredDiscounts
         ? filteredDiscounts
             .filter((discount) => {
               const menuItem = menuItems?.find(
                 (item) => item._id === orderForm.item
               );
-              return getItem(
-                menuItem?.category,
-                categories
-              )?.discounts?.includes(discount._id);
+              return categories
+                ? getItem(menuItem?.category, categories)?.discounts?.includes(discount._id)
+                : false;
             })
             ?.map((option) => {
               return {
@@ -511,7 +502,7 @@ const Tables = () => {
               };
             })
         : [],
-      suggestedOption: orderForm?.item
+      suggestedOption: orderForm?.item && menuItems
         ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
           ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
               (discountId: number) => ({
@@ -559,7 +550,7 @@ const Tables = () => {
       formKey: "discountNote",
       label: t("Discount Note"),
       placeholder: memberDiscount?.note,
-      options: members
+      options: memberships
         ?.filter((membership) => membership.endDate >= formatDate(new Date()))
         ?.map((membership) => ({
           value: membership.name,
@@ -575,7 +566,7 @@ const Tables = () => {
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: stockLocations?.map((input) => {
-        const menuItem = getItem(orderForm?.item, menuItems);
+        const menuItem = menuItems ? getItem(orderForm?.item, menuItems) : undefined;
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -590,9 +581,9 @@ const Tables = () => {
       }),
       placeholder: t("Stock Location"),
       required:
-        (getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+        (menuItems ? getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0,
       isDisabled: !(
-        getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0 > 0
+        (menuItems ? getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0
       ),
     },
     {
@@ -602,16 +593,16 @@ const Tables = () => {
       placeholder: t("Note"),
       required: false,
       options:
-        orderNotes
-          ?.filter((note) => {
-            const foundItem = getItem(orderForm.item, menuItems);
-            return (
-              note?.categories?.includes(Number(orderForm?.category)) ||
-              note?.items?.includes(Number(orderForm?.item)) ||
-              (foundItem &&
-                note?.categories?.includes(Number(foundItem?.category)))
-            );
-          })
+          orderNotes
+            ?.filter((note) => {
+              const foundItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
+              return (
+                note?.categories?.includes(Number(orderForm?.category)) ||
+                note?.items?.includes(Number(orderForm?.item)) ||
+                (foundItem &&
+                  note?.categories?.includes(Number(foundItem?.category)))
+              );
+            })
           ?.map((note) => ({
             value: note.note,
             label: note.note,
@@ -651,6 +642,7 @@ const Tables = () => {
     { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
   ];
   const isOnlinePrice = () => {
+    if (!categories) return false;
     const menuItem = menuItems?.find((item) => item._id === orderForm.item);
     if (getItem(menuItem?.category, categories)?.isOnlineOrder) {
       return true;
@@ -708,7 +700,7 @@ const Tables = () => {
               return false;
             }
 
-            const category = getItem(menuItem.category, categories);
+            const category = categories ? getItem(menuItem.category, categories) : undefined;
             if (category?.isLimitedTime && menuItem.endDate) {
               const today = new Date();
               const endDate = new Date(menuItem.endDate);
@@ -782,16 +774,15 @@ const Tables = () => {
       type: InputTypes.TAB,
       formKey: "discount",
       label: t("Discount"),
-      options: orderForm?.item
+      options: orderForm?.item && discounts
         ? discounts
             .filter((discount) => {
               const menuItem = menuItems?.find(
                 (item) => item._id === orderForm.item
               );
-              return getItem(
-                menuItem?.category,
-                categories
-              )?.discounts?.includes(discount._id);
+              return categories
+                ? getItem(menuItem?.category, categories)?.discounts?.includes(discount._id)
+                : false;
             })
             ?.map((option) => {
               return {
@@ -800,7 +791,7 @@ const Tables = () => {
               };
             })
         : [],
-      suggestedOption: orderForm?.item
+      suggestedOption: orderForm?.item && menuItems
         ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
           ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
               (discountId: number) => ({
@@ -846,7 +837,7 @@ const Tables = () => {
       formKey: "discountNote",
       label: t("Discount Note"),
       placeholder: memberDiscount?.note,
-      options: members
+      options: memberships
         ?.filter((membership) => membership.endDate >= formatDate(new Date()))
         ?.map((membership) => ({
           value: membership.name,
@@ -862,8 +853,8 @@ const Tables = () => {
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: stockLocations?.map((input) => {
-        const menuItem = getItem(orderForm.item, menuItems);
-        const foundProduct = getItem(menuItem?.matchedProduct, products);
+        const menuItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
+        const foundProduct = products ? getItem(menuItem?.matchedProduct, products) : undefined;
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -882,9 +873,9 @@ const Tables = () => {
       }),
       placeholder: t("Stock Location"),
       required:
-        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+        (menuItems ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0,
       isDisabled: !(
-        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+        (menuItems ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0
       ),
     },
     {
@@ -903,16 +894,16 @@ const Tables = () => {
       placeholder: t("Note"),
       required: false,
       options:
-        orderNotes
-          ?.filter((note) => {
-            const foundItem = getItem(orderForm.item, menuItems);
-            return (
-              note?.categories?.includes(Number(orderForm?.category)) ||
-              note?.items?.includes(Number(orderForm?.item)) ||
-              (foundItem &&
-                note?.categories?.includes(Number(foundItem?.category)))
-            );
-          })
+          orderNotes
+            ?.filter((note) => {
+              const foundItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
+              return (
+                note?.categories?.includes(Number(orderForm?.category)) ||
+                note?.items?.includes(Number(orderForm?.item)) ||
+                (foundItem &&
+                  note?.categories?.includes(Number(foundItem?.category)))
+              );
+            })
           ?.map((note) => ({
             value: note.note,
             label: note.note,
@@ -930,7 +921,7 @@ const Tables = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   tables.sort(sortTable);
-  users.sort((a: MinimalUser, b: MinimalUser) => {
+  users?.sort((a: MinimalUser, b: MinimalUser) => {
     if (a.name > b.name) {
       return 1;
     } else if (a.name < b.name) {
@@ -940,6 +931,7 @@ const Tables = () => {
     }
   });
   visits?.sort((a, b) => {
+    if (!users) return 0;
     const aUser = getItem(a.user, users);
     const bUser = getItem(b.user, users);
     const aUserRole = aUser?.role?.name as string;
@@ -956,7 +948,7 @@ const Tables = () => {
       return 0;
     }
   });
-  const defaultUser: User = users.find((user) => user._id === "dv") as User;
+  const defaultUser: User | undefined = users?.find((user) => user._id === "dv") as User | undefined;
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
   );
@@ -979,10 +971,10 @@ const Tables = () => {
     (reservation) => reservation.status === ReservationStatusEnum.COMING
   )?.length;
   const emptyTableCount =
-    (getItem(selectedLocationId, locations)?.tableCount ?? 0) -
+    (storeLocations ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0 : 0) -
     activeTableCount;
   const totalTableCount =
-    getItem(selectedLocationId, locations)?.tableCount ?? 0;
+    storeLocations ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0 : 0;
 
   const activeCustomerCount =
     activeTables?.reduce((prev: number, curr: Table) => {
@@ -999,6 +991,7 @@ const Tables = () => {
   useEffect(() => {
     const newMentors = defaultUser ? [defaultUser] : [];
     if (visits) {
+      if (!users) return;
       visits.forEach((visit) => {
         const user = getItem(visit.user, users) as User;
         if (user && !visit?.finishHour && !newMentors.includes(user)) {
@@ -1027,15 +1020,16 @@ const Tables = () => {
     setSelectedDate(formatDate(newDate));
   };
   const handleOrderObject = () => {
+    if (!menuItems || !categories) return null;
     const selectedMenuItem = getItem(orderForm?.item, menuItems);
     const selectedMenuItemCategory = getItem(
       selectedMenuItem?.category,
       categories
     );
-    const selectedItemKitchen = getItem(
+    const selectedItemKitchen = kitchens ? getItem(
       selectedMenuItemCategory?.kitchen,
       kitchens
-    );
+    ) : undefined;
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
     if ((user && selectedMenuItem && selectedMenuItemCategory)?.isAutoServed) {
@@ -1209,8 +1203,8 @@ const Tables = () => {
           type: InputTypes.SELECT,
           formKey: "name",
           label: t("Name"),
-          options: locations
-            .find((location) => location._id === selectedLocationId)
+          options: storeLocations
+            ?.find((location) => location._id === selectedLocationId)
             ?.tableNames?.filter((t) => {
               return !tables.find(
                 (table) =>
@@ -1268,8 +1262,8 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "tables",
       label: t("Tables"),
-      options: locations
-        .find((location) => location._id === selectedLocationId)
+      options: storeLocations
+        ?.find((location) => location._id === selectedLocationId)
         ?.tableNames?.filter((t) => {
           return !tables.find(
             (table) =>
@@ -1342,7 +1336,7 @@ const Tables = () => {
                   key={selectedLocationId + "tables-small"}
                   className="flex gap-2 flex-wrap"
                 >
-                  {locations
+                  {storeLocations
                     ?.find((location) => location._id === selectedLocationId)
                     ?.tableNames?.map((tableName, index) => {
                       const table = tables?.find(
@@ -1424,7 +1418,7 @@ const Tables = () => {
             <div className="flex flex-row gap-2">
               {/* inactive tables */}
               <div className="flex gap-2 flex-wrap">
-                {locations
+                {storeLocations
                   ?.find((location) => location._id === selectedLocationId)
                   ?.tableNames?.map((tableName) => {
                     const table = tables?.find(
@@ -1517,7 +1511,7 @@ const Tables = () => {
               {selectedDate && isToday(selectedDate) ? (
                 <div className="flex flex-col gap-2">
                   <ActiveVisitList
-                    suggestions={users}
+                    suggestions={users || []}
                     name="employees"
                     label={t("Who's at cafe?")}
                     visits={visits}
@@ -1561,9 +1555,6 @@ const Tables = () => {
                       showAllOrders={showAllOrders}
                       showServedOrders={showServedOrders}
                       tables={tables}
-                      tableOrdersProp={todayOrders?.filter(
-                        (order) => (order.table as Table)?._id === table?._id
-                      )}
                     />
                   </div>
                 );
@@ -1584,9 +1575,6 @@ const Tables = () => {
                 showAllOrders={showAllOrders}
                 showServedOrders={showServedOrders}
                 tables={tables}
-                tableOrdersProp={todayOrders?.filter(
-                  (order) => (order.table as Table)?._id === table?._id
-                )}
               />
             </div>
           ))}
@@ -1824,6 +1812,7 @@ const Tables = () => {
           }}
           cancelButtonLabel="Close"
           submitFunction={() => {
+            if (!menuItems || !categories) return;
             const selectedMenuItem = getItem(orderForm?.item, menuItems);
             const selectedMenuItemCategory = getItem(
               selectedMenuItem?.category,

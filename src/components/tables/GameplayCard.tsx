@@ -1,5 +1,5 @@
+import { useDataContext } from "../../context/Data.context";
 import { Gameplay } from "../../types";
-import { useGetUsersMinimal } from "../../utils/api/user";
 type Props = {
   gameplay: Gameplay;
   editGameplay: (gameplay: Gameplay) => void;
@@ -13,7 +13,7 @@ const GameplayCard = ({
   getGameName,
   getDuration,
 }: Props) => {
-  const users = useGetUsersMinimal();
+  const { users } = useDataContext();
   const foundMentor = users?.find((user) => user._id === gameplay.mentor);
   return (
     <div

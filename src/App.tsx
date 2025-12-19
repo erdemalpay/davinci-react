@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Sidebar } from "./components/common/Sidebar";
+import { DataContextProvider } from "./context/Data.context";
 import { DateContextProvider } from "./context/Date.context";
 import { FilterContextProvider } from "./context/Filter.context";
 import {
@@ -71,7 +72,9 @@ function Wrapper() {
               <OrderContextProvider>
                 <ShiftContextProvider>
                   <FilterContextProvider>
-                    <App />
+                    <DataContextProvider>
+                      <App />
+                    </DataContextProvider>
                   </FilterContextProvider>
                 </ShiftContextProvider>
               </OrderContextProvider>

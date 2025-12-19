@@ -2,11 +2,12 @@ import { Chip, Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, Visit, VisitSource } from "../../types";
 import { useGetPanelSettings } from "../../utils/api/panelControl/panelSettings";
-import { MinimalUser, useGetUsersMinimal } from "../../utils/api/user";
+import { MinimalUser } from "../../utils/api/user";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
@@ -33,7 +34,7 @@ export function ActiveVisitList({
   const { t } = useTranslation();
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
-  const users = useGetUsersMinimal();
+  const { users = [] } = useDataContext();
   const { user } = useUserContext();
   const panelSettings = useGetPanelSettings();
   const { selectedLocationId } = useLocationContext();

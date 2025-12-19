@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
+import { useDataContext } from "../../context/Data.context";
 import { useUserContext } from "../../context/User.context";
 import { Order, OrderStatus, Table } from "../../types";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useOrderMutations } from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -28,9 +28,9 @@ export const orderBgColor = (order: Order, defaultBgColor?: string) => {
 const OrderCard = ({ order, table }: Props) => {
   const { t } = useTranslation();
   const { updateOrder } = useOrderMutations();
-  const items = useGetMenuItems();
+  const { menuItems } = useDataContext();
   const { user } = useUserContext();
-  if (!user || !items) return <></>;
+  if (!user || !menuItems) return <></>;
 
   const orderWaitTime = () => {
     const orderTime = new Date(order?.createdAt).getTime();
@@ -62,7 +62,7 @@ const OrderCard = ({ order, table }: Props) => {
       )}`}
     >
       <div className="flex w-4/6 gap-1">
-        <p>{getItem(order?.item, items)?.name} </p>
+        <p>{getItem(order?.item, menuItems)?.name} </p>
         <h1 className="text-xs">({order?.quantity})</h1>
       </div>
 

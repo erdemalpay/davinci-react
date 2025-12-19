@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../context/Data.context";
 import { Gameplay, Table, User } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
-import { useGetUsersMinimal } from "../../utils/api/user";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -25,7 +25,7 @@ export function CreateGameplayDialog({
 }) {
   const { t } = useTranslation();
   const [data, setData] = useState<Partial<Gameplay>>(gameplay);
-  const users = useGetUsersMinimal();
+  const { users } = useDataContext();
   const { mutate: createGameplay } = useCreateGameplayMutation();
 
   function handleCreate() {

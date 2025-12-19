@@ -1,7 +1,7 @@
 import { Chip, Tooltip } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useDataContext } from "../../context/Data.context";
 import { Visit } from "../../types";
-import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 
 interface PreviousVisitListProps {
@@ -14,7 +14,7 @@ export function PreviousVisitList({
   isLabel = true,
 }: PreviousVisitListProps) {
   const { t } = useTranslation();
-  const users = useGetUsersMinimal();
+  const { users = [] } = useDataContext();
   const usersVisits = visits.reduce((acc, visit) => {
     if (!acc[visit.user]) {
       acc[visit.user] = [];
