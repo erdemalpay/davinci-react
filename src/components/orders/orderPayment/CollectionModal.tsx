@@ -14,7 +14,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
-import { useGetUsersMinimal } from "../../../utils/api/user";
+import { useDataContext } from "../../../context/Data.context";
 import { getItem } from "../../../utils/getItem";
 import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -42,7 +42,7 @@ const CollectionModal = ({
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const paymentMethods = useGetAccountPaymentMethods();
-  const users = useGetUsersMinimal();
+  const { users } = useDataContext();
   const items = useGetAllMenuItems();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();

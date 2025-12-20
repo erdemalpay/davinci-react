@@ -23,8 +23,6 @@ import { useGetAccountStocks } from "../../../utils/api/account/stock";
 import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetMemberships } from "../../../utils/api/membership";
 import { useGetAllCategories } from "../../../utils/api/menu/category";
-import { useGetKitchens } from "../../../utils/api/menu/kitchen";
-import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import {
   useCreateMultipleOrderMutation,
   useGetTableOrders,
@@ -40,8 +38,8 @@ import {
 import {
   MinimalUser,
   useGetUser,
-  useGetUsersMinimal,
 } from "../../../utils/api/user";
+import { useDataContext } from "../../../context/Data.context";
 import { useGetVisits } from "../../../utils/api/visit";
 import {
   lockBodyScroll,
@@ -86,14 +84,14 @@ const OrderPaymentModal = ({
   const { t } = useTranslation();
   const user = useGetUser();
   const isMutating = useIsMutating();
-  const items = useGetMenuItems();
+  const { menuItems: items, kitchens } = useDataContext();
   const orders = tableOrdersProp || useGetTableOrders(tableId);
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
   const members = useGetMemberships();
   const { setIsTabInputScreenOpen } = useGeneralContext();
-  const users = useGetUsersMinimal();
+  const { users } = useDataContext();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();
   useEffect(() => {
@@ -148,7 +146,6 @@ const OrderPaymentModal = ({
     setIsPaymentModalCreateOrderDialogOpen,
   ] = useState(false);
   const discounts = useGetOrderDiscounts();
-  const kitchens = useGetKitchens();
   const products = useGetAllAccountProducts();
   const { paymentAmount } = useOrderContext();
   const [selectedActivityUser, setSelectedActivityUser] = useState<string>("");

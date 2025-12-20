@@ -8,6 +8,7 @@ import { Header } from "../components/header/Header";
 import KitchenMenuPage from "../components/menu/KitchenMenuPage";
 import SingleOrdersPage from "../components/orders/SingleOrdersPage";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
+import { useDataContext } from "../context/Data.context";
 import { useGeneralContext } from "../context/General.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
@@ -15,7 +16,6 @@ import {
   useGetAllCategories,
   useUpdateKitchenCategoryMutation,
 } from "../utils/api/menu/category";
-import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { formatDate, parseDate } from "../utils/dateUtil";
@@ -37,7 +37,7 @@ function Orders() {
   const { t } = useTranslation();
   const currentPageId = "orders";
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const kitchens = useGetKitchens();
+  const { kitchens } = useDataContext();
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
   const { mutate: updateKitchenCategory } = useUpdateKitchenCategoryMutation();
