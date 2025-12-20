@@ -12,6 +12,7 @@ import {
 	OrderDiscount,
 	OrderNote,
 	User,
+	Visit,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useGetAccountStocks } from "../utils/api/account/stock";
@@ -26,6 +27,7 @@ import { useGetTodayCollections } from "../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { MinimalUser, useGetUser, useGetUsersMinimal } from "../utils/api/user";
+import { useGetVisits } from "../utils/api/visit";
 
 type DataContextType = {
   menuItems?: MenuItem[];
@@ -43,6 +45,7 @@ type DataContextType = {
   stocks?: AccountStock[];
   users?: MinimalUser[];
   user?: User;
+  visits?: Visit[];
 };
 
 const DataContext = createContext<DataContextType>({
@@ -61,6 +64,7 @@ const DataContext = createContext<DataContextType>({
   stocks: undefined,
   users: undefined,
   user: undefined,
+  visits: undefined,
 });
 
 export const DataContextProvider = ({ children }: PropsWithChildren) => {
@@ -80,6 +84,7 @@ export const DataContextProvider = ({ children }: PropsWithChildren) => {
   const stocks = useGetAccountStocks();
   const users = useGetUsersMinimal();
   const user = useGetUser();
+  const visits = useGetVisits();
 
   return (
     <DataContext.Provider
@@ -99,6 +104,7 @@ export const DataContextProvider = ({ children }: PropsWithChildren) => {
         stocks,
         users,
         user,
+        visits,
       }}
     >
       {children}

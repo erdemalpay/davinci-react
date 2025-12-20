@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../../context/Data.context";
 import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
@@ -39,8 +40,6 @@ import {
   MinimalUser,
   useGetUser,
 } from "../../../utils/api/user";
-import { useDataContext } from "../../../context/Data.context";
-import { useGetVisits } from "../../../utils/api/visit";
 import {
   lockBodyScroll,
   unlockBodyScroll,
@@ -84,15 +83,13 @@ const OrderPaymentModal = ({
   const { t } = useTranslation();
   const user = useGetUser();
   const isMutating = useIsMutating();
-  const { menuItems: items, kitchens } = useDataContext();
+  const { menuItems: items = [], kitchens = [], users = [], visits = [] } = useDataContext();
   const orders = tableOrdersProp || useGetTableOrders(tableId);
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
   const members = useGetMemberships();
   const { setIsTabInputScreenOpen } = useGeneralContext();
-  const { users } = useDataContext();
-  const visits = useGetVisits();
   const stocks = useGetAccountStocks();
   useEffect(() => {
     lockBodyScroll();
@@ -105,7 +102,7 @@ const OrderPaymentModal = ({
     ?.filter(
       (visit) => !visit?.finishHour && visit.location === selectedLocationId
     )
-    ?.map((visit) => visit.user);
+    .map((visit) => visit.user);
   const {
     isCollectionModalOpen,
     setIsCollectionModalOpen,

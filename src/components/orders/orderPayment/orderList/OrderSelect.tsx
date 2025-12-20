@@ -15,7 +15,7 @@ type Props = {
 const OrderSelect = ({ tableOrders }: Props) => {
   const { t } = useTranslation();
   const categories = useGetCategories();
-  const { menuItems: items } = useDataContext();
+  const { menuItems: items = [] } = useDataContext();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );

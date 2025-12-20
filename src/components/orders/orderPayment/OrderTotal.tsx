@@ -21,7 +21,7 @@ const OrderTotal = ({
   unpaidAmount,
 }: Props) => {
   const { t } = useTranslation();
-  const { menuItems: items } = useDataContext();
+  const { menuItems: items = [] } = useDataContext();
   const {
     setPaymentAmount,
     setTemporaryOrders,

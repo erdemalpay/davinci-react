@@ -29,7 +29,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
-  const { menuItems: items } = useDataContext();
+  const { menuItems: items = [] } = useDataContext();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
