@@ -1,10 +1,10 @@
 import { Chip, Tooltip } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useDataContext } from "../../context/Data.context";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Visit } from "../../types";
 import { useGetShifts } from "../../utils/api/shift";
-import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 
 export type ShiftValue = {
@@ -34,7 +34,7 @@ const ShiftList = ({ visits }: Props) => {
   const { selectedDate } = useDateContext();
   const { selectedLocationId } = useLocationContext();
 
-  const users = useGetUsersMinimal();
+  const { users = [] } = useDataContext();
   const shifts = useGetShifts(
     selectedDate,
     selectedDate,
