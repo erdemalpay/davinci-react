@@ -74,8 +74,8 @@ const SingleOrderCard = ({ order, user }: Props) => {
   }, [order?.status, user?.role?._id]);
 
   return (
-    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  max-h-28 __className_a182b8  overflow-scroll no-scrollbar">
-      <div className="flex flex-row gap-4  px-2 mt-1  ">
+    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm __className_a182b8">
+      <div className="flex flex-row gap-4 px-2 mt-1">
         {/* img & time */}
         <div className="flex flex-col gap-1 h-16  items-center ">
           {order?.status !== OrderStatus.SERVED && (
@@ -88,8 +88,8 @@ const SingleOrderCard = ({ order, user }: Props) => {
           />
         </div>
         {/* itemName,quantity & orderNote */}
-        <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
-          <div className="flex flex-row justify-between w-full pr-2 items-center ">
+        <div className="flex flex-col gap-2 justify-center items-center w-full">
+          <div className="flex flex-row justify-between w-full pr-2 items-center">
             <p>{getItem(order?.item, items)?.name}</p>
             {order?.quantity === 1 && (
               <p className="border px-2 py-0.5 border-gray-300 rounded-md">
@@ -122,7 +122,11 @@ const SingleOrderCard = ({ order, user }: Props) => {
               />
             )}
           </div>
-          <p className="text-xs mr-auto">{order?.note}</p>
+          {order?.note && (
+            <p className="text-xs text-left w-full max-w-full break-words overflow-hidden hyphens-auto">
+              {order?.note}
+            </p>
+          )}
         </div>
       </div>
       {/* createdBy and buttons */}
