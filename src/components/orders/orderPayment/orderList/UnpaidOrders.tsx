@@ -71,7 +71,18 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
       <OrderScreenHeader header="Unpaid Orders" />
       {/* orders */}
       {tableOrders
-        ?.sort((a, b) => a.item - b.item)
+        ?.sort((a, b) => {
+          if (a.activityPlayer && b.activityPlayer) {
+            return Number(a.activityPlayer) - Number(b.activityPlayer);
+          }
+          if (a.activityPlayer && !b.activityPlayer) {
+            return -1;
+          }
+          if (!a.activityPlayer && b.activityPlayer) {
+            return 1;
+          }
+          return a.item - b.item;
+        })
         .map((order) => {
           const isAllPaid = order?.paidQuantity === order?.quantity;
           if (!order || isAllPaid) return null;
@@ -338,9 +349,11 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             ?.isVisibleOnPaymentScreen &&
                           order?.discountNote && (
                             <p className="text-xs text-gray-600">
-                              ({Array.isArray(order.discountNote)
+                              (
+                              {Array.isArray(order.discountNote)
                                 ? order.discountNote.join(", ")
-                                : order.discountNote})
+                                : order.discountNote}
+                              )
                             </p>
                           )}
                       </div>
