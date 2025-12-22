@@ -639,7 +639,7 @@ const Expenses = () => {
           ...allExpenseForm,
           location: selectedLocationId,
           isAfterCount: true,
-
+          isStockIncrement: true,
           isPaid: true,
         }}
       />
