@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useEffect } from "react";
+import { useRef } from "react";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Sidebar } from "./components/common/Sidebar";
@@ -27,18 +27,19 @@ const queryClient = new QueryClient();
 
 function App() {
   const isVisible = usePageVisibility();
-  console.log("isVisible", isVisible);
   const queryClient = useQueryClient();
   const { isSidebarOpen } = useGeneralContext();
   const { user } = useUserContext();
+  const prevVisibleRef = useRef(isVisible);
 
   useWebSocket();
 
-  useEffect(() => {
-    if (!isVisible) {
-      queryClient.clear();
-    }
-  }, [isVisible, queryClient]);
+  // useEffect(() => {
+  //   if (prevVisibleRef.current === false && isVisible === true) {
+  //     queryClient.clear();
+  //   }
+  //   prevVisibleRef.current = isVisible;
+  // }, [isVisible, queryClient]);
 
   return (
     <div className="App">
