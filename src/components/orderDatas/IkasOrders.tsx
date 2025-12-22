@@ -104,6 +104,7 @@ const IkasOrders = () => {
           date: format(order.createdAt, "yyyy-MM-dd"),
           formattedDate: format(order.createdAt, "dd-MM-yyyy"),
           createdBy: getItem(order?.createdBy, users)?.name ?? "",
+          createdHour: format(order.createdAt, "HH:mm") ?? "",
           createdByUserId: order?.createdBy ?? "",
           createdAt: format(order.createdAt, "HH:mm") ?? "",
           preparedBy: getItem(order?.preparedBy, users)?.name ?? "",
@@ -183,6 +184,7 @@ const IkasOrders = () => {
   const columns = useMemo(
     () => [
       { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
+      { key: t("Hour"), isSortable: true, correspondingKey: "createdHour" },
       {
         key: t("Ikas Order Number"),
         isSortable: true,
@@ -225,6 +227,7 @@ const IkasOrders = () => {
           );
         },
       },
+      { key: "createdHour", className: "min-w-40 pr-2" },
       { key: "ikasOrderNumber", className: "min-w-40 pr-2" },
       { key: "paymentMethod", className: "min-w-40 pr-2" },
       { key: "item", className: "min-w-40 pr-2" },
@@ -489,11 +492,11 @@ const IkasOrders = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
               queryClient.invalidateQueries({
-                queryKey: [
-                  `${Paths.Order}/collection/query`,
-                ],
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
               });
             }}
           />
