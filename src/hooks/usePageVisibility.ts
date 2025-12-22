@@ -4,7 +4,7 @@ function getVisibility() {
   if (typeof document === "undefined") return true;
 
   if (window.innerWidth > 768) return true;
-  return document.visibilityState;
+  return document.visibilityState === "visible";
 }
 
 export function usePageVisibility() {
@@ -12,7 +12,8 @@ export function usePageVisibility() {
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      setIsVisible(getVisibility() === "visible");
+      console.log("Visibility changed:", getVisibility());
+      setIsVisible(getVisibility());
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
