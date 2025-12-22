@@ -651,6 +651,7 @@ export type MenuItem = {
   category: number;
   suggestedDiscount?: number[];
   order: number;
+  isAutoServed?: boolean;
   itemProduction?: {
     product: string;
     quantity: number;
