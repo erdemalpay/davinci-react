@@ -1,8 +1,8 @@
 import { Tooltip } from "@material-tailwind/react";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { MdOutlineOnlinePrediction } from "react-icons/md";
+import { useDataContext } from "../../../../context/Data.context";
 import { Order, OrderDiscountStatus, OrderStatus } from "../../../../types";
-import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
 import { useOrderMutations } from "../../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
@@ -17,7 +17,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
   const { updateOrder } = useOrderMutations();
-  const items = useGetMenuItems();
+  const { menuItems: items } = useDataContext();
   if (!discounts || !items) return null;
   const renderPayment = (order: Order) => {
     if (order?.discount) {

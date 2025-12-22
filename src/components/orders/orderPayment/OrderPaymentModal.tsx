@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../../context/Data.context";
 import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
@@ -23,8 +24,6 @@ import { useGetAccountStocks } from "../../../utils/api/account/stock";
 import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetMemberships } from "../../../utils/api/membership";
 import { useGetAllCategories } from "../../../utils/api/menu/category";
-import { useGetKitchens } from "../../../utils/api/menu/kitchen";
-import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import {
   useCreateMultipleOrderMutation,
   useGetTableOrders,
@@ -40,9 +39,7 @@ import {
 import {
   MinimalUser,
   useGetUser,
-  useGetUsersMinimal,
 } from "../../../utils/api/user";
-import { useGetVisits } from "../../../utils/api/visit";
 import {
   lockBodyScroll,
   unlockBodyScroll,
@@ -86,15 +83,13 @@ const OrderPaymentModal = ({
   const { t } = useTranslation();
   const user = useGetUser();
   const isMutating = useIsMutating();
-  const items = useGetMenuItems();
+  const { menuItems: items = [], kitchens = [], users = [], visits = [] } = useDataContext();
   const orders = tableOrdersProp || useGetTableOrders(tableId);
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
   const members = useGetMemberships();
   const { setIsTabInputScreenOpen } = useGeneralContext();
-  const users = useGetUsersMinimal();
-  const visits = useGetVisits();
   const stocks = useGetAccountStocks();
   useEffect(() => {
     lockBodyScroll();
@@ -107,7 +102,7 @@ const OrderPaymentModal = ({
     ?.filter(
       (visit) => !visit?.finishHour && visit.location === selectedLocationId
     )
-    ?.map((visit) => visit.user);
+    .map((visit) => visit.user);
   const {
     isCollectionModalOpen,
     setIsCollectionModalOpen,
@@ -148,7 +143,6 @@ const OrderPaymentModal = ({
     setIsPaymentModalCreateOrderDialogOpen,
   ] = useState(false);
   const discounts = useGetOrderDiscounts();
-  const kitchens = useGetKitchens();
   const products = useGetAllAccountProducts();
   const { paymentAmount } = useOrderContext();
   const [selectedActivityUser, setSelectedActivityUser] = useState<string>("");

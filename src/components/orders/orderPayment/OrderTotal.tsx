@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { PiArrowArcLeftBold } from "react-icons/pi";
+import { useDataContext } from "../../../context/Data.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { Order, Table } from "../../../types";
-import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { getItem } from "../../../utils/getItem";
 import Keypad from "./KeyPad";
 
@@ -21,7 +21,7 @@ const OrderTotal = ({
   unpaidAmount,
 }: Props) => {
   const { t } = useTranslation();
-  const items = useGetMenuItems();
+  const { menuItems: items = [] } = useDataContext();
   const {
     setPaymentAmount,
     setTemporaryOrders,

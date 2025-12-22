@@ -2,10 +2,10 @@ import { Dialog, Transition } from "@headlessui/react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MultiValue, SingleValue } from "react-select";
+import { useDataContext } from "../../../context/Data.context";
 import { OptionType, Point } from "../../../types";
 import { useGetConsumersWithFullNames } from "../../../utils/api/consumer";
 import { useGetPoints } from "../../../utils/api/point";
-import { useGetUsersMinimal } from "../../../utils/api/user";
 import { GenericButton } from "../../common/GenericButton";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
 type Props = {
@@ -26,7 +26,7 @@ const PointUserSelectionModal = ({
   requiredAmount,
 }: Props) => {
   const { t } = useTranslation();
-  const users = useGetUsersMinimal();
+  const { users } = useDataContext();
   const consumers=useGetConsumersWithFullNames();
   const points = useGetPoints();
   const [selectedUser, setSelectedUser] = useState<string>("");

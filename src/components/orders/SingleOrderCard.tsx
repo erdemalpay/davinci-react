@@ -1,14 +1,12 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useDataContext } from "../../context/Data.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { Order, OrderStatus, User } from "../../types";
-import { useGetKitchens } from "../../utils/api/menu/kitchen";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCreateOrderForDivideMutation,
   useOrderMutations,
 } from "../../utils/api/order/order";
-import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { GenericButton } from "../common/GenericButton";
 import CommonSelectInput from "../common/SelectInput";
@@ -24,9 +22,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
 
-  const users = useGetUsersMinimal();
-  const items = useGetMenuItems();
-  const kitchens = useGetKitchens();
+  const { users = [], menuItems: items, kitchens = [] } = useDataContext();
   const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
   // const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
   orderCreatedSound.volume = 1;

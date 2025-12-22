@@ -55,7 +55,6 @@ import {
 import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { MinimalUser } from "../utils/api/user";
-import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../utils/getItem";
 import { LocationInput } from "../utils/panelInputs";
@@ -80,6 +79,7 @@ const Tables = () => {
     stocks,
     users,
     user,
+    visits = [],
   } = useDataContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
@@ -106,7 +106,6 @@ const Tables = () => {
   const { createTable } = useTableMutations();
   const allLocations = useGetAllLocations();
   const navigate = useNavigate();
-  const visits = useGetVisits();
   const { createOrder } = useOrderMutations();
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
 

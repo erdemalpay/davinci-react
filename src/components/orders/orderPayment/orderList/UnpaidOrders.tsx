@@ -6,9 +6,9 @@ import {
   MdOutlineTouchApp,
 } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../../../context/Data.context";
 import { useOrderContext } from "../../../../context/Order.context";
 import { Order, OrderDiscountStatus, OrderStatus } from "../../../../types";
-import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
@@ -29,7 +29,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
-  const items = useGetMenuItems();
+  const { menuItems: items = [] } = useDataContext();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
