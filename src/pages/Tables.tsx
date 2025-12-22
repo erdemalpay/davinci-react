@@ -644,7 +644,7 @@ const Tables = () => {
       formKey: "activityPlayer",
       label: t("Player Number"),
       placeholder: t("Player Number"),
-      required: false,
+      required: selectedTable?.type === TableTypes.ACTIVITY,
       isDisabled: selectedTable?.type !== TableTypes.ACTIVITY,
       isOnClearActive: true,
     },
