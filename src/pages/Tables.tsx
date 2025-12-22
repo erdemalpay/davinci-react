@@ -42,12 +42,8 @@ import {
   TableTypes,
   User,
 } from "../types";
-import {
-  useConsumptStockMutation,
-} from "../utils/api/account/stock";
-import {
-  useGetAllLocations,
-} from "../utils/api/location";
+import { useConsumptStockMutation } from "../utils/api/account/stock";
+import { useGetAllLocations } from "../utils/api/location";
 import {
   useCreateMultipleOrderMutation,
   useOrderMutations,
@@ -63,10 +59,10 @@ const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
-  const { 
-    todayOrders, 
-    todayCollections, 
-    menuItems, 
+  const {
+    todayOrders,
+    todayCollections,
+    menuItems,
     categories,
     games,
     kitchens,
@@ -253,7 +249,9 @@ const Tables = () => {
           return false;
         }
 
-        const category = categories ? getItem(menuItem.category, categories) : undefined;
+        const category = categories
+          ? getItem(menuItem.category, categories)
+          : undefined;
         if (category?.isLimitedTime && menuItem.endDate) {
           const today = new Date();
           const endDate = new Date(menuItem.endDate);
@@ -265,7 +263,9 @@ const Tables = () => {
         return true;
       })
       .map((menuItem) => {
-        const category = categories ? getItem(menuItem.category, categories) : undefined;
+        const category = categories
+          ? getItem(menuItem.category, categories)
+          : undefined;
         const subText = getMenuItemSubText(menuItem, category, menuItems);
 
         return {
@@ -364,11 +364,12 @@ const Tables = () => {
 
   const filteredDiscounts = useMemo(() => {
     if (!discounts) return [];
-    return discounts.filter((discount) =>
-      discount?.status !== OrderDiscountStatus.DELETED &&
-      (selectedTable?.isOnlineSale
-        ? discount?.isOnlineOrder
-        : discount?.isStoreOrder)
+    return discounts.filter(
+      (discount) =>
+        discount?.status !== OrderDiscountStatus.DELETED &&
+        (selectedTable?.isOnlineSale
+          ? discount?.isOnlineOrder
+          : discount?.isStoreOrder)
     );
   }, [discounts, selectedTable?.isOnlineSale]);
 
@@ -422,7 +423,9 @@ const Tables = () => {
               return false;
             }
 
-            const category = categories ? getItem(menuItem.category, categories) : undefined;
+            const category = categories
+              ? getItem(menuItem.category, categories)
+              : undefined;
             if (category?.isLimitedTime && menuItem.endDate) {
               const today = new Date();
               const endDate = new Date(menuItem.endDate);
@@ -434,7 +437,9 @@ const Tables = () => {
             return true;
           })
           .map((menuItem) => {
-            const category = categories ? getItem(menuItem.category, categories) : undefined;
+            const category = categories
+              ? getItem(menuItem.category, categories)
+              : undefined;
             const subText = getMenuItemSubText(menuItem, category, menuItems);
 
             return {
@@ -484,36 +489,41 @@ const Tables = () => {
       type: InputTypes.TAB,
       formKey: "discount",
       label: t("Discount"),
-      options: orderForm?.item && filteredDiscounts
-        ? filteredDiscounts
-            .filter((discount) => {
-              const menuItem = menuItems?.find(
-                (item) => item._id === orderForm.item
-              );
-              return categories
-                ? getItem(menuItem?.category, categories)?.discounts?.includes(discount._id)
-                : false;
-            })
-            ?.map((option) => {
-              return {
-                value: option?._id,
-                label: option?.name,
-              };
-            })
-        : [],
-      suggestedOption: orderForm?.item && menuItems
-        ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
-          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
-              (discountId: number) => ({
-                value: discountId as any,
-                label:
-                  filteredDiscounts?.find(
-                    (discount) => discount._id === discountId
-                  )?.name || "",
+      options:
+        orderForm?.item && filteredDiscounts
+          ? filteredDiscounts
+              .filter((discount) => {
+                const menuItem = menuItems?.find(
+                  (item) => item._id === orderForm.item
+                );
+                return categories
+                  ? getItem(
+                      menuItem?.category,
+                      categories
+                    )?.discounts?.includes(discount._id)
+                  : false;
               })
-            )
-          : []
-        : [],
+              ?.map((option) => {
+                return {
+                  value: option?._id,
+                  label: option?.name,
+                };
+              })
+          : [],
+      suggestedOption:
+        orderForm?.item && menuItems
+          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
+            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
+                (discountId: number) => ({
+                  value: discountId as any,
+                  label:
+                    filteredDiscounts?.find(
+                      (discount) => discount._id === discountId
+                    )?.name || "",
+                })
+              )
+            : []
+          : [],
       invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
       placeholder: t("Discount"),
       isAutoFill: false,
@@ -565,7 +575,9 @@ const Tables = () => {
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: stockLocations?.map((input) => {
-        const menuItem = menuItems ? getItem(orderForm?.item, menuItems) : undefined;
+        const menuItem = menuItems
+          ? getItem(orderForm?.item, menuItems)
+          : undefined;
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -580,9 +592,13 @@ const Tables = () => {
       }),
       placeholder: t("Stock Location"),
       required:
-        (menuItems ? getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0,
+        (menuItems
+          ? getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0
+          : 0) > 0,
       isDisabled: !(
-        (menuItems ? getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0
+        (menuItems
+          ? getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0
+          : 0) > 0
       ),
     },
     {
@@ -592,16 +608,18 @@ const Tables = () => {
       placeholder: t("Note"),
       required: false,
       options:
-          orderNotes
-            ?.filter((note) => {
-              const foundItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
-              return (
-                note?.categories?.includes(Number(orderForm?.category)) ||
-                note?.items?.includes(Number(orderForm?.item)) ||
-                (foundItem &&
-                  note?.categories?.includes(Number(foundItem?.category)))
-              );
-            })
+        orderNotes
+          ?.filter((note) => {
+            const foundItem = menuItems
+              ? getItem(orderForm.item, menuItems)
+              : undefined;
+            return (
+              note?.categories?.includes(Number(orderForm?.category)) ||
+              note?.items?.includes(Number(orderForm?.item)) ||
+              (foundItem &&
+                note?.categories?.includes(Number(foundItem?.category)))
+            );
+          })
           ?.map((note) => ({
             value: note.note,
             label: note.note,
@@ -699,7 +717,9 @@ const Tables = () => {
               return false;
             }
 
-            const category = categories ? getItem(menuItem.category, categories) : undefined;
+            const category = categories
+              ? getItem(menuItem.category, categories)
+              : undefined;
             if (category?.isLimitedTime && menuItem.endDate) {
               const today = new Date();
               const endDate = new Date(menuItem.endDate);
@@ -773,35 +793,40 @@ const Tables = () => {
       type: InputTypes.TAB,
       formKey: "discount",
       label: t("Discount"),
-      options: orderForm?.item && discounts
-        ? discounts
-            .filter((discount) => {
-              const menuItem = menuItems?.find(
-                (item) => item._id === orderForm.item
-              );
-              return categories
-                ? getItem(menuItem?.category, categories)?.discounts?.includes(discount._id)
-                : false;
-            })
-            ?.map((option) => {
-              return {
-                value: option?._id,
-                label: option?.name,
-              };
-            })
-        : [],
-      suggestedOption: orderForm?.item && menuItems
-        ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
-          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
-              (discountId: number) => ({
-                value: discountId as any,
-                label:
-                  discounts?.find((discount) => discount._id === discountId)
-                    ?.name || "",
+      options:
+        orderForm?.item && discounts
+          ? discounts
+              .filter((discount) => {
+                const menuItem = menuItems?.find(
+                  (item) => item._id === orderForm.item
+                );
+                return categories
+                  ? getItem(
+                      menuItem?.category,
+                      categories
+                    )?.discounts?.includes(discount._id)
+                  : false;
               })
-            )
-          : []
-        : [],
+              ?.map((option) => {
+                return {
+                  value: option?._id,
+                  label: option?.name,
+                };
+              })
+          : [],
+      suggestedOption:
+        orderForm?.item && menuItems
+          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
+            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
+                (discountId: number) => ({
+                  value: discountId as any,
+                  label:
+                    discounts?.find((discount) => discount._id === discountId)
+                      ?.name || "",
+                })
+              )
+            : []
+          : [],
       invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
       placeholder: t("Discount"),
       isAutoFill: false,
@@ -852,8 +877,12 @@ const Tables = () => {
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: stockLocations?.map((input) => {
-        const menuItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
-        const foundProduct = products ? getItem(menuItem?.matchedProduct, products) : undefined;
+        const menuItem = menuItems
+          ? getItem(orderForm.item, menuItems)
+          : undefined;
+        const foundProduct = products
+          ? getItem(menuItem?.matchedProduct, products)
+          : undefined;
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -872,9 +901,13 @@ const Tables = () => {
       }),
       placeholder: t("Stock Location"),
       required:
-        (menuItems ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0,
+        (menuItems
+          ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0
+          : 0) > 0,
       isDisabled: !(
-        (menuItems ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0
+        (menuItems
+          ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0
+          : 0) > 0
       ),
     },
     {
@@ -893,16 +926,18 @@ const Tables = () => {
       placeholder: t("Note"),
       required: false,
       options:
-          orderNotes
-            ?.filter((note) => {
-              const foundItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
-              return (
-                note?.categories?.includes(Number(orderForm?.category)) ||
-                note?.items?.includes(Number(orderForm?.item)) ||
-                (foundItem &&
-                  note?.categories?.includes(Number(foundItem?.category)))
-              );
-            })
+        orderNotes
+          ?.filter((note) => {
+            const foundItem = menuItems
+              ? getItem(orderForm.item, menuItems)
+              : undefined;
+            return (
+              note?.categories?.includes(Number(orderForm?.category)) ||
+              note?.items?.includes(Number(orderForm?.item)) ||
+              (foundItem &&
+                note?.categories?.includes(Number(foundItem?.category)))
+            );
+          })
           ?.map((note) => ({
             value: note.note,
             label: note.note,
@@ -947,7 +982,9 @@ const Tables = () => {
       return 0;
     }
   });
-  const defaultUser: User | undefined = users?.find((user) => user._id === "dv") as User | undefined;
+  const defaultUser: User | undefined = users?.find(
+    (user) => user._id === "dv"
+  ) as User | undefined;
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
   );
@@ -970,10 +1007,12 @@ const Tables = () => {
     (reservation) => reservation.status === ReservationStatusEnum.COMING
   )?.length;
   const emptyTableCount =
-    (storeLocations ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0 : 0) -
-    activeTableCount;
-  const totalTableCount =
-    storeLocations ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0 : 0;
+    (storeLocations
+      ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0
+      : 0) - activeTableCount;
+  const totalTableCount = storeLocations
+    ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0
+    : 0;
 
   const activeCustomerCount =
     activeTables?.reduce((prev: number, curr: Table) => {
@@ -1025,10 +1064,9 @@ const Tables = () => {
       selectedMenuItem?.category,
       categories
     );
-    const selectedItemKitchen = kitchens ? getItem(
-      selectedMenuItemCategory?.kitchen,
-      kitchens
-    ) : undefined;
+    const selectedItemKitchen = kitchens
+      ? getItem(selectedMenuItemCategory?.kitchen, kitchens)
+      : undefined;
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
     if ((user && selectedMenuItem && selectedMenuItemCategory)?.isAutoServed) {
@@ -1123,6 +1161,32 @@ const Tables = () => {
     )
       ? "bg-orange-200"
       : "bg-red-300";
+  };
+  const bgColorForUpperButtons = (table: Table, tableName?: string) => {
+    const tableOrders = todayOrders?.filter(
+      (order) => (order.table as Table)?._id === table?._id
+    );
+    if (table.type === TableTypes.ACTIVITY && tableName) {
+      const hasReadyToServeForTable = tableOrders?.some((tableOrder) => {
+        const isReadyToServe =
+          (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
+        const matchesTableName =
+          (tableOrder as Order)?.activityTableName === tableName;
+        return isReadyToServe && matchesTableName;
+      });
+      const result = hasReadyToServeForTable ? "bg-orange-200" : "bg-red-300";
+      return result;
+    } else if (table.type !== TableTypes.ACTIVITY) {
+      return tableOrders?.some(
+        (tableOrder) =>
+          (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
+      )
+        ? "bg-orange-200"
+        : "bg-red-300";
+    }
+
+    // Default return for activity tables without tableName or other cases
+    return "bg-red-300";
   };
 
   const reservedTableClass = "bg-purple-400 text-white hover:bg-purple-500";
@@ -1347,8 +1411,9 @@ const Tables = () => {
                         return (
                           <a
                             key={`${table._id}-${tableName}-tableselector-small`}
-                            className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
-                              table
+                            className={`px-4 py-2 rounded-lg focus:outline-none hover:bg-red-500 text-white font-medium ${bgColorForUpperButtons(
+                              table,
+                              tableName
                             )}`}
                             {...makePressHandlers(
                               table._id,
@@ -1429,8 +1494,9 @@ const Tables = () => {
                       return (
                         <a
                           key={`${table._id}-${tableName}-tableselector-large`}
-                          className={`bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none hover:bg-red-500 text-white font-medium ${bgColor(
-                            table
+                          className={`px-4 py-2 rounded-lg cursor-pointer focus:outline-none hover:bg-red-500 text-white font-medium ${bgColorForUpperButtons(
+                            table,
+                            tableName
                           )}`}
                           {...makePressHandlers(
                             table._id,
