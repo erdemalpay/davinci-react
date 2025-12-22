@@ -36,10 +36,7 @@ import {
   useCloseTableMutation,
   useReopenTableMutation,
 } from "../../../utils/api/table";
-import {
-  MinimalUser,
-  useGetUser,
-} from "../../../utils/api/user";
+import { MinimalUser, useGetUser } from "../../../utils/api/user";
 import {
   lockBodyScroll,
   unlockBodyScroll,
@@ -83,7 +80,12 @@ const OrderPaymentModal = ({
   const { t } = useTranslation();
   const user = useGetUser();
   const isMutating = useIsMutating();
-  const { menuItems: items = [], kitchens = [], users = [], visits = [] } = useDataContext();
+  const {
+    menuItems: items = [],
+    kitchens = [],
+    users = [],
+    visits = [],
+  } = useDataContext();
   const orders = tableOrdersProp || useGetTableOrders(tableId);
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
@@ -797,7 +799,7 @@ const OrderPaymentModal = ({
       formKey: "activityPlayer",
       label: t("Player Number"),
       placeholder: t("Player Number"),
-      required: false,
+      required: table?.type === TableTypes.ACTIVITY,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
       isOnClearActive: true,
     },

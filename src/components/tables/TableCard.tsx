@@ -34,7 +34,7 @@ import {
   Table,
   TableStatus,
   TableTypes,
-  User
+  User,
 } from "../../types";
 import {
   useCombineTableMutation,
@@ -80,10 +80,10 @@ export function TableCard({
   showServedOrders = false,
   tables,
 }: TableCardProps) {
-  const { 
-    menuItems, 
-    todayOrders, 
-    todayCollections, 
+  const {
+    menuItems,
+    todayOrders,
+    todayCollections,
     categories,
     games,
     kitchens,
@@ -225,12 +225,16 @@ export function TableCard({
 
         if (
           table?.isOnlineSale &&
-          !(categories ? getItem(menuItem.category, categories)?.isOnlineOrder : false)
+          !(categories
+            ? getItem(menuItem.category, categories)?.isOnlineOrder
+            : false)
         ) {
           return false;
         }
 
-        const category = categories ? getItem(menuItem.category, categories) : undefined;
+        const category = categories
+          ? getItem(menuItem.category, categories)
+          : undefined;
         if (category?.isLimitedTime && menuItem.endDate) {
           const today = new Date();
           const endDate = new Date(menuItem.endDate);
@@ -242,7 +246,9 @@ export function TableCard({
         return true;
       })
       .map((menuItem) => {
-        const category = categories ? getItem(menuItem.category, categories) : undefined;
+        const category = categories
+          ? getItem(menuItem.category, categories)
+          : undefined;
         const subText = getMenuItemSubText(menuItem, category, menuItems);
 
         return {
@@ -290,9 +296,10 @@ export function TableCard({
   }, [storeLocations, selectedLocationId, activeTables]);
   const filteredDiscounts = useMemo(() => {
     if (!discounts) return [];
-    return discounts.filter((discount) =>
-      discount?.status !== OrderDiscountStatus.DELETED &&
-      (table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder)
+    return discounts.filter(
+      (discount) =>
+        discount?.status !== OrderDiscountStatus.DELETED &&
+        (table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder)
     );
   }, [discounts, table?.isOnlineSale]);
   const isOnlinePrice = useMemo(() => {
@@ -392,12 +399,16 @@ export function TableCard({
 
               if (
                 table?.isOnlineSale &&
-                !(categories ? getItem(menuItem.category, categories)?.isOnlineOrder : false)
+                !(categories
+                  ? getItem(menuItem.category, categories)?.isOnlineOrder
+                  : false)
               ) {
                 return false;
               }
 
-              const category = categories ? getItem(menuItem.category, categories) : undefined;
+              const category = categories
+                ? getItem(menuItem.category, categories)
+                : undefined;
               if (category?.isLimitedTime && menuItem.endDate) {
                 const today = new Date();
                 const endDate = new Date(menuItem.endDate);
@@ -471,9 +482,12 @@ export function TableCard({
                 const menuItem = menuItems?.find(
                   (item) => item._id === orderForm.item
                 );
-              return categories
-                ? getItem(menuItem?.category, categories)?.discounts?.includes(discount._id)
-                : false;
+                return categories
+                  ? getItem(
+                      menuItem?.category,
+                      categories
+                    )?.discounts?.includes(discount._id)
+                  : false;
               })
               ?.map((option) => {
                 return {
@@ -482,19 +496,20 @@ export function TableCard({
                 };
               })
           : [],
-        suggestedOption: orderForm?.item && menuItems
-          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
-            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
-                (discountId: number) => ({
-                  value: discountId as any,
-                  label:
-                    filteredDiscounts?.find(
-                      (discount) => discount._id === discountId
-                    )?.name || "",
-                })
-              )
-            : []
-          : [],
+        suggestedOption:
+          orderForm?.item && menuItems
+            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
+              ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
+                  (discountId: number) => ({
+                    value: discountId as any,
+                    label:
+                      filteredDiscounts?.find(
+                        (discount) => discount._id === discountId
+                      )?.name || "",
+                  })
+                )
+              : []
+            : [],
         invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
         placeholder: t("Discount"),
         isAutoFill: false,
@@ -548,8 +563,12 @@ export function TableCard({
         formKey: "stockLocation",
         label: t("Stock Location"),
         options: stockLocations?.map((input) => {
-          const menuItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
-          const foundProduct = products ? getItem(menuItem?.matchedProduct, products) : undefined;
+          const menuItem = menuItems
+            ? getItem(orderForm.item, menuItems)
+            : undefined;
+          const foundProduct = products
+            ? getItem(menuItem?.matchedProduct, products)
+            : undefined;
           const stockQuantity = menuItem
             ? menuItemStockQuantity(menuItem, input._id)
             : null;
@@ -568,9 +587,13 @@ export function TableCard({
         }),
         placeholder: t("Stock Location"),
         required:
-          (menuItems ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0,
+          (menuItems
+            ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0
+            : 0) > 0,
         isDisabled: !(
-          (menuItems ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 : 0) > 0
+          (menuItems
+            ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0
+            : 0) > 0
         ),
       },
       {
@@ -601,7 +624,7 @@ export function TableCard({
         formKey: "activityPlayer",
         label: t("Player Number"),
         placeholder: t("Player Number"),
-        required: false,
+        required: table?.type === TableTypes.ACTIVITY,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
         isOnClearActive: true,
       },
@@ -614,7 +637,9 @@ export function TableCard({
         options:
           orderNotes
             ?.filter((note) => {
-              const foundItem = menuItems ? getItem(orderForm.item, menuItems) : undefined;
+              const foundItem = menuItems
+                ? getItem(orderForm.item, menuItems)
+                : undefined;
               return (
                 note?.categories?.includes(Number(orderForm?.category)) ||
                 note?.items?.includes(Number(orderForm?.item)) ||
@@ -804,10 +829,9 @@ export function TableCard({
       selectedMenuItem?.category,
       categories
     );
-    const selectedItemKitchen = kitchens ? getItem(
-      selectedMenuItemCategory?.kitchen,
-      kitchens
-    ) : undefined;
+    const selectedItemKitchen = kitchens
+      ? getItem(selectedMenuItemCategory?.kitchen, kitchens)
+      : undefined;
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
     if (
@@ -1143,10 +1167,7 @@ export function TableCard({
           cancelButtonLabel={t("Close")}
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={
-            <OrderListForPanel
-              table={table}
-              tableOrdersProp={tableOrders}
-            />
+            <OrderListForPanel table={table} tableOrdersProp={tableOrders} />
           }
           additionalButtons={[
             {
