@@ -35,7 +35,7 @@ export function InputWithLabel({
         id={id}
         min={min}
         {...props}
-        value={value ?? ""}
+        defaultValue={value ?? ""}
         type={type}
         className={`${bgColor} w-full text-gray-600 border-0 border-b-[1px] focus:outline-none font-normal h-10 text-base border-gray-300`}
         placeholder=""
