@@ -164,12 +164,16 @@ export function useWebSocket() {
         typeof orders[0]?.table === "number"
           ? orders[0]?.table
           : orders[0]?.table?._id;
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/table`, tableId] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/table`, tableId],
+      });
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/today`, selectedDate],
         (oldData) => {
           if (!oldData) {
-            queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
+            queryClient.invalidateQueries({
+              queryKey: [`${Paths.Order}/today`],
+            });
             return oldData;
           }
           for (const order of orders) {
@@ -192,11 +196,15 @@ export function useWebSocket() {
                 if (foundTable) {
                   normalizedOrder.table = foundTable;
                 } else {
-                  queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
+                  queryClient.invalidateQueries({
+                    queryKey: [`${Paths.Order}/today`],
+                  });
                   continue;
                 }
               } else {
-                queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
+                queryClient.invalidateQueries({
+                  queryKey: [`${Paths.Order}/today`],
+                });
                 continue;
               }
             }
@@ -260,10 +268,7 @@ export function useWebSocket() {
       "collectionChanged",
       ({ collection }: { collection: OrderCollection }) => {
         queryClient.invalidateQueries({
-          queryKey: [
-            `${Paths.Order}/collection/table`,
-            collection.table,
-          ],
+          queryKey: [`${Paths.Order}/collection/table`, collection.table],
         });
 
         // Update today collections cache with populated table data
@@ -291,18 +296,14 @@ export function useWebSocket() {
                 } else {
                   // If table not found, invalidate and return
                   queryClient.invalidateQueries({
-                    queryKey: [
-                      `${Paths.Order}/collection/today`,
-                    ],
+                    queryKey: [`${Paths.Order}/collection/today`],
                   });
                   return oldData;
                 }
               } else {
                 // If no tables data, invalidate and return
                 queryClient.invalidateQueries({
-                  queryKey: [
-                    `${Paths.Order}/collection/today`,
-                  ],
+                  queryKey: [`${Paths.Order}/collection/today`],
                 });
                 return oldData;
               }
@@ -339,9 +340,15 @@ export function useWebSocket() {
                 !notification.seenBy?.includes(user._id))
           )
         ) {
-          queryClient.invalidateQueries({ queryKey: [`${Paths.Notification}/new`] });
-          queryClient.invalidateQueries({ queryKey: [`${Paths.Notification}/all`] });
-          queryClient.invalidateQueries({ queryKey: [`${Paths.Notification}/event`] });
+          queryClient.invalidateQueries({
+            queryKey: [`${Paths.Notification}/new`],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${Paths.Notification}/all`],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${Paths.Notification}/event`],
+          });
         }
       }
     );
@@ -369,8 +376,12 @@ export function useWebSocket() {
     });
 
     socket.on("stockChanged", () => {
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Accounting}/stocks`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Accounting}/stocks/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Accounting}/stocks`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Accounting}/stocks/query`],
+      });
     });
 
     socket.on("tableCreated", ({ table }: { table: Table }) => {
@@ -389,16 +400,17 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("tableDeleted", ({ table }: { table: Table }) => {
-      const locationId = table.location;
-      const date = table.date;
+    socket.on("tableDeleted", ({ table: deletedTable }: { table: Table }) => {
+      console.log("tableDeleted", deletedTable);
+      const locationId = deletedTable.location;
+      const date = deletedTable.date;
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
         (old) => {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.filter(
-            (table) => table?._id !== table?._id
+            (table) => table?._id !== deletedTable?._id
           );
           return {
             ...prev,
@@ -408,19 +420,19 @@ export function useWebSocket() {
       );
     });
 
-    socket.on("tableClosed", ({ table }: { table: Table }) => {
-      const locationId = table.location;
-      const date = table.date;
+    socket.on("tableClosed", ({ table: closedTable }: { table: Table }) => {
+      const locationId = closedTable.location;
+      const date = closedTable.date;
       queryClient.setQueryData<TablesByLocation>(
         [Paths.Tables, date],
         (old) => {
           const prev = old ?? {};
           const prevForLocation = prev[locationId] ?? [];
           const updatedTables = prevForLocation.map((table) => {
-            if (table?._id === table?._id) {
+            if (table?._id === closedTable?._id) {
               return {
                 ...table,
-                finishHour: table.finishHour,
+                finishHour: closedTable.finishHour,
               };
             }
             return table;
