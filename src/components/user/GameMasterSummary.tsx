@@ -431,7 +431,7 @@ const GameMasterSummary = ({ userId }: Props) => {
           <h3 className="text-base sm:text-lg font-semibold mb-2">
             {t("Gameplay Activity Calendar")}
           </h3>
-          <div className="w-full overflow-x-auto">
+          <div className="w-full overflow-x-scroll">
             <div
               style={{
                 height: isSmallScreen ? "15rem" : "18rem",
