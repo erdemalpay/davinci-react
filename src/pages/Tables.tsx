@@ -1152,21 +1152,22 @@ const Tables = () => {
     },
   ];
 
-  const bgColor = (table: Table) => {
-    const tableOrders = todayOrders?.filter(
-      (order) => (order.table as Table)?._id === table?._id
-    );
-    return tableOrders?.some(
-      (tableOrder) => (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
-    )
-      ? "bg-orange-200"
-      : "bg-red-300";
-  };
   const bgColorForUpperButtons = (table: Table, tableName?: string) => {
     const tableOrders = todayOrders?.filter(
       (order) => (order.table as Table)?._id === table?._id
     );
+
     if (table.type === TableTypes.ACTIVITY && tableName) {
+      const ordersWithoutActivityTable = tableOrders?.some(
+        (tableOrder) =>
+          (tableOrder as Order)?.status === OrderStatus.READYTOSERVE &&
+          !(tableOrder as Order)?.activityTableName
+      );
+
+      if (ordersWithoutActivityTable) {
+        return "bg-orange-200";
+      }
+
       const hasReadyToServeForTable = tableOrders?.some((tableOrder) => {
         const isReadyToServe =
           (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
@@ -1174,8 +1175,8 @@ const Tables = () => {
           (tableOrder as Order)?.activityTableName === tableName;
         return isReadyToServe && matchesTableName;
       });
-      const result = hasReadyToServeForTable ? "bg-orange-200" : "bg-red-300";
-      return result;
+
+      return hasReadyToServeForTable ? "bg-orange-200" : "bg-red-300";
     } else if (table.type !== TableTypes.ACTIVITY) {
       return tableOrders?.some(
         (tableOrder) =>
@@ -1184,8 +1185,6 @@ const Tables = () => {
         ? "bg-orange-200"
         : "bg-red-300";
     }
-
-    // Default return for activity tables without tableName or other cases
     return "bg-red-300";
   };
 
