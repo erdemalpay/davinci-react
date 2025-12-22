@@ -1069,7 +1069,11 @@ const Tables = () => {
       : undefined;
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
-    if ((user && selectedMenuItem && selectedMenuItemCategory)?.isAutoServed) {
+    if (
+      user &&
+      selectedMenuItem &&
+      (selectedMenuItemCategory?.isAutoServed || selectedMenuItem?.isAutoServed)
+    ) {
       return {
         ...orderForm,
         createdAt: new Date(),

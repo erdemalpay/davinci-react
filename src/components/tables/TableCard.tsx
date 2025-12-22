@@ -835,8 +835,9 @@ export function TableCard({
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
     if (
-      (user && selectedMenuItem && table && selectedMenuItemCategory)
-        ?.isAutoServed
+      user &&
+      selectedMenuItem &&
+      (selectedMenuItemCategory?.isAutoServed || selectedMenuItem?.isAutoServed)
     ) {
       return {
         ...orderForm,
