@@ -43,6 +43,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     isMenuCategoryLocationEdit,
     setIsMenuCategoryLocationEdit,
   } = useGeneralContext();
+  const [isCategoryTableEnableEdit, setIsCategoryTableEnableEdit] = useState(false);
   const locations = useGetStoreLocations();
   const allCategories = useGetAllCategories();
   const [showInactiveCategories, setShowInactiveCategories] = useState(false);
@@ -150,6 +151,14 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       isTopFlexRow: true,
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "disableWhenOutOfStock",
+      label: t("Disable When Out Of Stock"),
+      placeholder: t("Disable When Out Of Stock"),
+      required: false,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
       label: t("Image"),
@@ -180,6 +189,17 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     });
     toast.success(`${t("Category updated successfully")}`);
   }
+
+  function handleCategoryFieldUpdate(
+    row: MenuCategory,
+    field: keyof MenuCategory
+  ) {
+    updateCategory({
+      id: row._id,
+      updates: { [field]: !row[field] },
+    });
+    toast.success(`${t("Category updated successfully")}`);
+  }
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "kitchen", type: FormKeyTypeEnum.STRING },
@@ -189,6 +209,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     { key: "isKitchenMenu", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isLimitedTime", type: FormKeyTypeEnum.BOOLEAN },
     { key: "showItemProductionOnMenu", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "disableWhenOutOfStock", type: FormKeyTypeEnum.BOOLEAN },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
@@ -209,6 +230,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           { key: t("Has Kitchen Menu"), isSortable: false },
           { key: t("Limited Time"), isSortable: false },
           { key: t("Show Sub Products"), isSortable: false },
+          { key: t("Disable When Out Of Stock"), isSortable: false },
         ]),
   ];
   const rowKeys = [
@@ -262,7 +284,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isAutoServed",
             node: (row: MenuCategory) =>
-              row.isAutoServed ? (
+              isCategoryTableEnableEdit ? (
+                <CheckSwitch
+                  checked={row.isAutoServed}
+                  onChange={() => handleCategoryFieldUpdate(row, "isAutoServed")}
+                />
+              ) : row.isAutoServed ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
               ) : (
                 <IoCloseOutline className="text-red-800 text-2xl " />
@@ -271,7 +298,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isOnlineOrder",
             node: (row: MenuCategory) =>
-              row?.isOnlineOrder ? (
+              isCategoryTableEnableEdit ? (
+                <CheckSwitch
+                  checked={row?.isOnlineOrder ?? false}
+                  onChange={() => handleCategoryFieldUpdate(row, "isOnlineOrder")}
+                />
+              ) : row?.isOnlineOrder ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
               ) : (
                 <IoCloseOutline className="text-red-800 text-2xl " />
@@ -280,7 +312,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isKitchenMenu",
             node: (row: MenuCategory) =>
-              row?.isKitchenMenu ? (
+              isCategoryTableEnableEdit ? (
+                <CheckSwitch
+                  checked={row?.isKitchenMenu ?? false}
+                  onChange={() => handleCategoryFieldUpdate(row, "isKitchenMenu")}
+                />
+              ) : row?.isKitchenMenu ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
               ) : (
                 <IoCloseOutline className="text-red-800 text-2xl " />
@@ -289,7 +326,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isLimitedTime",
             node: (row: MenuCategory) =>
-              row?.isLimitedTime ? (
+              isCategoryTableEnableEdit ? (
+                <CheckSwitch
+                  checked={row?.isLimitedTime ?? false}
+                  onChange={() => handleCategoryFieldUpdate(row, "isLimitedTime")}
+                />
+              ) : row?.isLimitedTime ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
               ) : (
                 <IoCloseOutline className="text-red-800 text-2xl " />
@@ -298,7 +340,30 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "showItemProductionOnMenu",
             node: (row: MenuCategory) =>
-              row?.showItemProductionOnMenu ? (
+              isCategoryTableEnableEdit ? (
+                <CheckSwitch
+                  checked={row?.showItemProductionOnMenu ?? false}
+                  onChange={() =>
+                    handleCategoryFieldUpdate(row, "showItemProductionOnMenu")
+                  }
+                />
+              ) : row?.showItemProductionOnMenu ? (
+                <IoCheckmark className="text-blue-500 text-2xl " />
+              ) : (
+                <IoCloseOutline className="text-red-800 text-2xl " />
+              ),
+          },
+          {
+            key: "disableWhenOutOfStock",
+            node: (row: MenuCategory) =>
+              isCategoryTableEnableEdit ? (
+                <CheckSwitch
+                  checked={row?.disableWhenOutOfStock ?? false}
+                  onChange={() =>
+                    handleCategoryFieldUpdate(row, "disableWhenOutOfStock")
+                  }
+                />
+              ) : row?.disableWhenOutOfStock ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
               ) : (
                 <IoCloseOutline className="text-red-800 text-2xl " />
@@ -451,6 +516,22 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     },
   ];
   const filters = [
+    {
+      label: t("Enable Edit"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={isCategoryTableEnableEdit}
+          onChange={setIsCategoryTableEnableEdit}
+        />
+      ),
+      isDisabled: menuPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
+    },
     {
       label: t("Location Edit"),
       isUpperSide: false,

@@ -617,6 +617,7 @@ export type MenuCategory = {
   orderCategoryOrder: number;
   isLimitedTime?: boolean;
   showItemProductionOnMenu: boolean;
+  disableWhenOutOfStock?: boolean;
 };
 
 export type UpperCategory = {
