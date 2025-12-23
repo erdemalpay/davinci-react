@@ -43,7 +43,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     isMenuCategoryLocationEdit,
     setIsMenuCategoryLocationEdit,
   } = useGeneralContext();
-  const [isCategoryTableEnableEdit, setIsCategoryTableEnableEdit] = useState(false);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const locations = useGetStoreLocations();
   const allCategories = useGetAllCategories();
   const [showInactiveCategories, setShowInactiveCategories] = useState(false);
@@ -284,7 +284,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isAutoServed",
             node: (row: MenuCategory) =>
-              isCategoryTableEnableEdit ? (
+              isEnableEdit ? (
                 <CheckSwitch
                   checked={row.isAutoServed}
                   onChange={() => handleCategoryFieldUpdate(row, "isAutoServed")}
@@ -298,7 +298,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isOnlineOrder",
             node: (row: MenuCategory) =>
-              isCategoryTableEnableEdit ? (
+              isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.isOnlineOrder ?? false}
                   onChange={() => handleCategoryFieldUpdate(row, "isOnlineOrder")}
@@ -312,7 +312,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isKitchenMenu",
             node: (row: MenuCategory) =>
-              isCategoryTableEnableEdit ? (
+              isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.isKitchenMenu ?? false}
                   onChange={() => handleCategoryFieldUpdate(row, "isKitchenMenu")}
@@ -326,7 +326,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "isLimitedTime",
             node: (row: MenuCategory) =>
-              isCategoryTableEnableEdit ? (
+              isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.isLimitedTime ?? false}
                   onChange={() => handleCategoryFieldUpdate(row, "isLimitedTime")}
@@ -340,7 +340,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "showItemProductionOnMenu",
             node: (row: MenuCategory) =>
-              isCategoryTableEnableEdit ? (
+              isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.showItemProductionOnMenu ?? false}
                   onChange={() =>
@@ -356,7 +356,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           {
             key: "disableWhenOutOfStock",
             node: (row: MenuCategory) =>
-              isCategoryTableEnableEdit ? (
+              isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.disableWhenOutOfStock ?? false}
                   onChange={() =>
@@ -521,8 +521,8 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       isUpperSide: true,
       node: (
         <SwitchButton
-          checked={isCategoryTableEnableEdit}
-          onChange={setIsCategoryTableEnableEdit}
+          checked={isEnableEdit}
+          onChange={setIsEnableEdit}
         />
       ),
       isDisabled: menuPageDisabledCondition?.actions?.some(
