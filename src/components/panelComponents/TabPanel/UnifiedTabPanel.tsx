@@ -39,14 +39,15 @@ type Props = {
   isLanguageChange?: boolean;
   sideClassName?: string;
   allowOrientationToggle?: boolean;
-  // Sadece bazı ekranlarda (örn. Orders) toggle'ı TabPanel filtrelerine enjekte etmek için
   injectOrientationToggleToFilters?: boolean;
+  disableLanguageChange?: boolean;
 };
 
 const UnifiedTabPanel: React.FC<Props> = ({
   allowOrientationToggle = false,
   filters,
   injectOrientationToggleToFilters = false,
+  disableLanguageChange = false,
   ...props
 }) => {
   const { tabOrientation, setTabOrientation } = useGeneralContext();
@@ -86,7 +87,11 @@ const UnifiedTabPanel: React.FC<Props> = ({
 
   return (
     <TabPanelProvider allowOrientationToggle={allowOrientationToggle}>
-      <TabComponent {...props} filters={enhancedFilters} />
+      <TabComponent
+        {...props}
+        filters={enhancedFilters}
+        isLanguageChange={disableLanguageChange ? false : props.isLanguageChange}
+      />
     </TabPanelProvider>
   );
 };

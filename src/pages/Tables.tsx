@@ -1668,7 +1668,7 @@ const Tables = () => {
             tableForm?.type !== TableTypes.ACTIVITY
               ? [
                   {
-                    label: t("Create Without Entry"),
+                    label: "Create Without Entry",
                     isInputRequirementCheck: true,
                     isInputNeedToBeReset: false,
                     onClick: () => {
@@ -1773,12 +1773,12 @@ const Tables = () => {
             stockLocation: selectedTable?.isOnlineSale ? 6 : selectedLocationId,
             location: selectedTable?.isOnlineSale ? 4 : selectedLocationId,
           }}
-          cancelButtonLabel={t("Close")}
+          cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={<OrderListForPanel table={selectedTable} />}
           additionalButtons={[
             {
-              label: t("Add"),
+              label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
               preservedKeys: ["activityTableName", "activityPlayer"],

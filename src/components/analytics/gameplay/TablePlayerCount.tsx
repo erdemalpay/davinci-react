@@ -153,7 +153,7 @@ const TablePlayerCount = () => {
               !ac?.permissionsRoles?.includes(user?.role?._id)
           )
         }
-        excelFileName={t("TablePlayerCounts.xlsx")}
+        excelFileName="TablePlayerCounts.xlsx"
         title={t("Table Player Counts")}
       />
     </div>

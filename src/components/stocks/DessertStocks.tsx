@@ -705,7 +705,7 @@ const DessertStock = () => {
                 !ac?.permissionsRoles?.includes(user?.role?._id)
             )
           }
-          excelFileName={t("TatliStok.xlsx")}
+          excelFileName="TatliStok.xlsx"
         />
       </div>
     </>

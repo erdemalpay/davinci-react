@@ -52,7 +52,7 @@ const AddVendorPayment = () => {
       options: paymentMethods?.map((paymentMethod) => {
         return {
           value: paymentMethod._id,
-          label: t(paymentMethod.name),
+          label: paymentMethod.name,
         };
       }),
       placeholder: t("Payment Method"),

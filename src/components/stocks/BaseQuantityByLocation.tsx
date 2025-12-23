@@ -571,7 +571,7 @@ const BaseQuantityByLocation = () => {
           }
           filterPanel={filterPanel}
           isToolTipEnabled={false}
-          excelFileName={t("BaseQuantityByLocation.xlsx")}
+          excelFileName="BaseQuantityByLocation.xlsx"
         />
       </div>
     </>

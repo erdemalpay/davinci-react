@@ -159,7 +159,7 @@ export function CreateGameplayDialog({
         submitItem={handleCreate}
         submitFunction={handleCreate}
         buttonName={t("Create")}
-        cancelButtonLabel={t("Cancel")}
+        cancelButtonLabel="Cancel"
         topClassName="flex flex-col gap-2 [&>div]:grid [&>div]:grid-cols-1 sm:[&>div]:grid-cols-2 [&>div]:gap-4 [&>div>div]:col-span-1 sm:[&>div>div:not(:nth-child(5)):not(:nth-child(6))]:col-span-2"
         generalClassName="shadow-none"
       />

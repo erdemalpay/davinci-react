@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBill1Wave } from "react-icons/fa6";
 import { GiStorkDelivery } from "react-icons/gi";
@@ -54,7 +53,6 @@ const ServicePersonalSummary = ({ userId }: Props) => {
     userId
   );
   const locations = useGetStoreLocations();
-  const [tableKey, setTableKey] = useState(0);
   let fullTimeAttendance = 0;
   let partTimeAttendance = 0;
   let unknownAttendance = 0;
@@ -224,9 +222,6 @@ const ServicePersonalSummary = ({ userId }: Props) => {
       isOnClearActive: false,
     },
   ];
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-  }, [personalOrderDatas, personalCollectionDatas, shifts, visits, locations]);
   const filterPanel = {
     isFilterPanelActive: showPersonalSummaryFilters,
     inputs: filterPanelInputs,
@@ -239,7 +234,7 @@ const ServicePersonalSummary = ({ userId }: Props) => {
     },
   };
   return (
-    <div key={tableKey} className="w-full  flex flex-row gap-6">
+    <div className="w-full  flex flex-row gap-6">
       <FilterPanel {...filterPanel} />
       <div className=" grid grid-cols-1 md:grid-cols-3 gap-4 h-32 ">
         {userInfoCards.map((card, index) => (

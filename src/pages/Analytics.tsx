@@ -19,7 +19,7 @@ export default function Analytics() {
   const analyticOptions: AnalyticOption[] = [
     {
       id: "0",
-      label: "Gameplay",
+      label: t("Gameplays"),
       component: <GameplayAnalytics />,
       isDisabled: user
         ? (user.role as Role)._id === RoleEnum.OPERATIONSASISTANT
@@ -27,7 +27,7 @@ export default function Analytics() {
     },
     {
       id: "1",
-      label: "Accounting",
+      label: t("Accounting"),
       component: <AccountingAnalytics />,
       isDisabled: user
         ? ![RoleEnum.MANAGER].includes((user.role as Role)._id)

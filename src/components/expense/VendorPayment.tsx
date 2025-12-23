@@ -59,9 +59,9 @@ const VendorPayment = () => {
           formattedDate: formatAsLocalDate(payment?.date),
           usr: getItem(payment?.user, users)?.name,
           userId: payment?.user,
-          pymntMthd: t(
+          pymntMthd:
             getItem(payment?.paymentMethod, paymentMethods)?.name ?? ""
-          ),
+          ,
           pymntMthdId: payment?.paymentMethod,
           lctn: getItem(payment?.location, locations)?.name,
           lctnId: payment?.location,
@@ -215,7 +215,7 @@ const VendorPayment = () => {
         label: t("Payment Method"),
         options: paymentMethods.map((paymentMethod) => ({
           value: paymentMethod._id,
-          label: t(paymentMethod.name),
+          label: paymentMethod.name,
         })),
         placeholder: t("Payment Method"),
         required: true,

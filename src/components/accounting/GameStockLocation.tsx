@@ -509,7 +509,7 @@ const GameStockLocation = () => {
                 !ac?.permissionsRoles?.includes(user?.role?._id)
             )
           }
-          excelFileName={t("GamesByLocation.xlsx")}
+          excelFileName="GamesByLocation.xlsx"
         />
       </div>
     </>

@@ -155,7 +155,7 @@ const GenericAddEditPanel = <T,>({
           defaultValue = "#ffffff";
           break;
         case FormKeyTypeEnum.NUMBER:
-          defaultValue = null;
+          defaultValue = "";
           break;
         case FormKeyTypeEnum.BOOLEAN:
           defaultValue = false;
