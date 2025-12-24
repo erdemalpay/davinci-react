@@ -616,7 +616,7 @@ export type MenuCategory = {
   active: boolean;
   orderCategoryOrder: number;
   isLimitedTime?: boolean;
-  showItemProductionOnMenu: boolean;
+  showItemProductionOnMenu?: boolean;
   disableWhenOutOfStock?: boolean;
 };
 
