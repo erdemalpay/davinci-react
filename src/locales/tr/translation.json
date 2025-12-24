@@ -1131,5 +1131,6 @@
   "Show Sub Products": "Alt Ürünleri Göster",
   "Gameplay Activity Calendar": "Oyun Anlatım Takvimi",
   "Less": "Az",
-  "More": "Çok"
+  "More": "Çok",
+  "Disable When Out Of Stock" : "Stok Bitimi Oto. Kapat"
 }
