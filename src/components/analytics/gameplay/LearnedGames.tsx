@@ -106,7 +106,7 @@ const LearnedGames = () => {
         label: t("Game"),
         options: games.map((game) => ({
           value: game._id,
-          label: t(game.name),
+          label: game.name,
         })),
         placeholder: t("Game"),
         required: true,

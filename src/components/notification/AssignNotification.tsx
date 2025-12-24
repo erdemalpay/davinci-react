@@ -41,10 +41,13 @@ const AssignNotification = () => {
 
   const rows = useMemo(() => {
     return notifications.map((notification) => {
+      const eventOption = notificationEventsOptions.find(
+        (opt) => opt.value === notification.event
+      );
       return {
         ...notification,
         createdByForRowKey: getItem(notification?.createdBy, users)?.name ?? "",
-        eventLabel: notification.event ? t(notification.event) : "",
+        eventLabel: eventOption ? t(eventOption.label) : "",
         formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
         typeForRowKey: t(notification.type),
       };

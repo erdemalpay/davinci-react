@@ -177,7 +177,7 @@ const AllExpenses = () => {
             ?.filter((pm) => pm?.isUsedAtExpense)
             ?.map((input) => ({
               value: input._id,
-              label: t(input.name),
+              label: input.name,
             })) || [],
         placeholder: t("Payment Method"),
         isMultiple: true,
@@ -430,7 +430,7 @@ const AllExpenses = () => {
             ?.filter((pm) => pm?.isUsedAtExpense)
             ?.map((input) => ({
               value: input._id,
-              label: t(input.name),
+              label: input.name,
             })) || [],
         placeholder: t("Payment Method"),
         required: true,

@@ -178,6 +178,7 @@ function Orders() {
         }}
         allowOrientationToggle={true}
         injectOrientationToggleToFilters={true}
+        disableLanguageChange={true}
       />
     </>
   );

@@ -319,7 +319,7 @@ const BulkProductAdding = () => {
           isPagination={errorDataForProductBulkCreation?.length > 0}
           isRowsPerPage={errorDataForProductBulkCreation?.length > 0}
           filters={filters}
-          excelFileName={t("BulkProductAdding.xlsx")}
+          excelFileName="BulkProductAdding.xlsx"
         />
         {errorDataForProductBulkCreation?.length === 0 && (
           <p className="indent-2 text-sm">

@@ -258,7 +258,7 @@ const ProductShelfInfo = () => {
           }
           isToolTipEnabled={false}
           filterPanel={filterPanel}
-          excelFileName={t("ProductShelfInfo.xlsx")}
+          excelFileName="ProductShelfInfo.xlsx"
         />
       </div>
     </>

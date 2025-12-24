@@ -285,7 +285,7 @@ const OrderPaymentTypes = ({
               src={paymentTypeImage(paymentType?._id)}
               alt={paymentType?.name}
             />
-            <p className="font-medium text-center">{t(paymentType?.name)}</p>
+            <p className="font-medium text-center">{paymentType?.name}</p>
           </div>
         ))}
       </div>
@@ -351,10 +351,8 @@ const OrderPaymentTypes = ({
                   <p className="min-w-9">{collection?.amount.toFixed(2)} ₺</p>
                   <p>
                     {collection?.paymentMethod
-                      ? t(
-                          getPaymentMethodName(collection?.paymentMethod)
-                            ?.name || ""
-                        )
+                      ? getPaymentMethodName(collection?.paymentMethod)
+                          ?.name || ""
                       : ""}
                   </p>
                   {collection?.activityPlayer && (
