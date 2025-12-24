@@ -194,11 +194,17 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     row: MenuCategory,
     field: keyof MenuCategory
   ) {
-    updateCategory({
-      id: row._id,
-      updates: { [field]: !row[field] },
-    });
-    toast.success(`${t("Category updated successfully")}`);
+    updateCategory(
+      {
+        id: row._id,
+        updates: { [field]: !row[field] },
+      },
+      {
+        onSuccess: () => {
+          toast.success(`${t("Category updated successfully")}`);
+        },
+      }
+    );
   }
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
