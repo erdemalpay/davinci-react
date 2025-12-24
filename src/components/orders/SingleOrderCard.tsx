@@ -30,7 +30,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
   const gainNode = audioContext.createGain();
 
   // Set the gain to 2 (double the volume)
-  gainNode.gain.value = 2;
+  gainNode.gain.value = 12;
   const source = audioContext.createMediaElementSource(orderCreatedSound);
 
   // Connect the source to the gain node, and the gain node to the destination
@@ -65,7 +65,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         orderCreatedSound
           .play()
           .catch((error) => console.error("Error playing sound:", error));
-      }, 10000);
+      }, 5000);
     }
 
     return () => {
