@@ -56,7 +56,7 @@ export function useWebSocket() {
 
     audioContextRef.current = new AudioContext();
     gainNodeRef.current = audioContextRef.current.createGain();
-    gainNodeRef.current.gain.value = 2;
+    gainNodeRef.current.gain.value = 12;
 
     const source = audioContextRef.current.createMediaElementSource(
       audioRef.current
