@@ -1,10 +1,8 @@
 import {
   QueryClient,
-  QueryClientProvider,
-  useQueryClient,
+  QueryClientProvider
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useRef } from "react";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Sidebar } from "./components/common/Sidebar";
@@ -19,18 +17,17 @@ import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { ShiftContextProvider } from "./context/Shift.context";
 import { UserContextProvider, useUserContext } from "./context/User.context";
-import { usePageVisibility } from "./hooks/usePageVisibility";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
 
 const queryClient = new QueryClient();
 
 function App() {
-  const isVisible = usePageVisibility();
-  const queryClient = useQueryClient();
+  // const isVisible = usePageVisibility();
+  // const queryClient = useQueryClient();
   const { isSidebarOpen } = useGeneralContext();
   const { user } = useUserContext();
-  const prevVisibleRef = useRef(isVisible);
+  // const prevVisibleRef = useRef(isVisible);
 
   useWebSocket();
 
