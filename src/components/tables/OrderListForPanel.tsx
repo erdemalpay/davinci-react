@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../../context/General.context";
+import { useOrderContext } from "../../context/Order.context";
 import { Order, OrderStatus, Table } from "../../types";
 import NewOrderListPanel from "./NewOrderListPanel";
 import OrderListForPanelTab from "./OrderListForPanelTab";
@@ -11,10 +12,11 @@ type Props = { table: Table; tableOrdersProp?: Order[] };
 
 const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
   const { isTabInputScreenOpen } = useGeneralContext();
+  const { orderCreateBulk } = useOrderContext();
   const [activeTab, setActiveTab] = useState(0);
   const [expandedSections, setExpandedSections] = useState<{
     [key: number]: boolean;
-  }>({ 0: true, 1: false, 2: false });
+  }>({ 0: false, 1: false, 2: false });
   const { t } = useTranslation();
 
   const toggleSection = (index: number) => {
@@ -23,6 +25,31 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
       [index]: !prev[index],
     }));
   };
+
+  // Calculate counts for each section
+  const orderCounts = useMemo(() => {
+    const newOrdersCount = orderCreateBulk?.length || 0;
+
+    const waitingCount = tableOrdersProp?.filter((order) =>
+      [
+        OrderStatus.PENDING,
+        OrderStatus.READYTOSERVE,
+        OrderStatus.CONFIRMATIONREQ,
+      ].includes(order.status as OrderStatus)
+    )?.length || 0;
+
+    const servedCount = tableOrdersProp?.filter((order) =>
+      [OrderStatus.SERVED, OrderStatus.AUTOSERVED].includes(
+        order.status as OrderStatus
+      )
+    )?.length || 0;
+
+    return {
+      newOrders: newOrdersCount,
+      waiting: waitingCount,
+      served: servedCount,
+    };
+  }, [orderCreateBulk, tableOrdersProp]);
 
   const tabs = [
     {
@@ -66,7 +93,7 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
         isTabInputScreenOpen && "hidden sm:block"
       } `}
     >
-      <div className="flex flex-col gap-2 px-4 py-6 ">
+      <div className="flex flex-col sm:gap-2 gap-1.5 px-4 py-6 sm:pb-6 pb-2">
         {/* header */}
         <h1 className="font-medium">
           {t("Table")}: {table?.name}
@@ -84,14 +111,19 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
         </div>
 
         {/* Mobile: Collapsible Sections */}
-        <div className="sm:hidden flex flex-col gap-2 max-h-[50vh] overflow-y-auto">
+        <div className="sm:hidden flex flex-col gap-1.5 max-h-[50vh] overflow-y-auto">
           {tabs.map((tab) => (
             <div key={tab.number} className="border border-gray-300 rounded-md">
               <button
                 onClick={() => toggleSection(tab.number)}
                 className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors rounded-t-md"
               >
-                <span className="font-medium text-sm">{t(tab.label)}</span>
+                <span className="font-medium text-sm">
+                  {t(tab.label)}
+                  <span className="ml-1 text-gray-600">
+                    ({tab.number === 0 ? orderCounts.newOrders : tab.number === 1 ? orderCounts.waiting : orderCounts.served})
+                  </span>
+                </span>
                 {expandedSections[tab.number] ? (
                   <FaChevronUp className="text-gray-600" />
                 ) : (
