@@ -406,7 +406,7 @@ const GenericAddEditPanel = <T,>({
               topClassName
                 ? topClassName
                 : "grid grid-cols-1 md:grid-cols-2 gap-4 "
-            } pb-20 sm:pb-0`}
+            }`}
           >
             <div>
               {/* Image inputs */}
@@ -789,7 +789,7 @@ const GenericAddEditPanel = <T,>({
               })}
             </div>
           </div>
-          <div className="sm:ml-auto mx-auto sm:mx-0 flex flex-row gap-4 mt-auto sm:relative fixed bottom-0 left-0 right-0 bg-white p-4 sm:p-0 border-t sm:border-t-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:shadow-none z-10 justify-center sm:justify-start">
+          <div className="sm:ml-auto mx-auto sm:mx-0 flex flex-row gap-4 mt-auto relative justify-center sm:justify-start">
             <GenericButton
               variant="danger"
               size="md"
