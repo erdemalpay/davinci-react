@@ -225,7 +225,7 @@ const TextInput = ({
 
   return (
     <div
-      className={` flex ${isTopFlexRow ? "flex-row gap-2 " : "flex-col gap-2"}`}
+      className={` flex ${isTopFlexRow ? "flex-row gap-1 " : "flex-col gap-2"}`}
       onClick={handleDivClick}
     >
       <H6 className={`${isTopFlexRow ? "w-28 flex-shrink-0" : "min-w-10"} my-auto`}>
