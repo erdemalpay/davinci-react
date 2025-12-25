@@ -1462,7 +1462,7 @@ const Tables = () => {
                   onClick={button.onClick}
                   variant="ghost"
                   className={`min-w-fit transition duration-150 ease-in-out hover:translate-y-0.5 active:translate-y-1 rounded-lg border border-gray-800 text-gray-800 hover:text-gray-800 px-4 py-2 text-sm ${
-                    button.hideOnMobile ? "hidden md:block" : ""
+                    button.hideOnMobile ? "hidden md:block" : "w-full md:w-auto"
                   }`}
                 >
                   {button.label}
