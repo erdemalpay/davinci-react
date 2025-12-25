@@ -226,7 +226,7 @@ const SelectInput = ({
           : "flex-col"
       } gap-2 __className_a182b8 `}
     >
-      <H6 className="flex items-center gap-2">
+      <H6 className={`flex items-center gap-2 ${isTopFlexRow ? "w-28 flex-shrink-0" : ""}`}>
         <span>{label}</span>
         {requiredField && <span className="text-red-400">*</span>}
 
