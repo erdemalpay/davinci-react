@@ -51,7 +51,7 @@ export default function GameplayAnalytics() {
     },
     {
       number: GameplayAnalyticsTabEnum.UNIQUEGAMEPLAYBYGAMEMENTORS,
-      label: t("Unique Gameplay By Game Mentors"),
+      label: "Unique Gameplay By Game Mentors",
       icon: <SiWegame className="text-lg font-thin" />,
       content: (
         <MentorAnalyticChart
@@ -72,42 +72,42 @@ export default function GameplayAnalytics() {
     },
     {
       number: GameplayAnalyticsTabEnum.TABLEPLAYERCOUNTS,
-      label: t("Table Player Counts"),
+      label: "Table Player Counts",
       icon: <GiAmericanFootballPlayer className="text-lg font-thin" />,
       content: <TablePlayerCount />,
       isDisabled: false,
     },
     {
       number: GameplayAnalyticsTabEnum.GAMEPLAYSBYMENTORSDETAILS,
-      label: t("Gameplays By Mentors Details"),
+      label: "Gameplays By Mentors Details",
       icon: <TbPlayCard className="text-lg font-thin" />,
       content: <GameplaysByMentor />,
       isDisabled: false,
     },
     {
       number: GameplayAnalyticsTabEnum.GAMEPLAYSBYGAMES,
-      label: t("Gameplays By Games"),
+      label: "Gameplays By Games",
       icon: <PiGooglePlayLogo className="text-lg font-thin" />,
       content: <GameplaysByGames />,
       isDisabled: false,
     },
     {
       number: GameplayAnalyticsTabEnum.KNOWNGAMESCOUNT,
-      label: t("Known Games Count"),
+      label: "Known Games Count",
       icon: <SiLegacygames className="text-lg font-thin" />,
       content: <KnownGamesCount />,
       isDisabled: false,
     },
     {
       number: GameplayAnalyticsTabEnum.WHOKNOWS,
-      label: t("Who Knows?"),
+      label: "Who Knows?",
       icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
       content: <WhoKnows />,
       isDisabled: false,
     },
     {
       number: GameplayAnalyticsTabEnum.LEARNEDGAMES,
-      label: t("Learned Games"),
+      label: "Learned Games",
       icon: <FaBookReader className="text-lg font-thin" />,
       content: <LearnedGames />,
       isDisabled: false,

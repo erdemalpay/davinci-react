@@ -120,7 +120,7 @@ const IkasStockComparision = () => {
         ),
       },
       {
-        name: t("Update Ikas Stock"),
+        name: t("Update Ikas Stocks"),
         icon: <TbTransferOut />,
         className: " cursor-pointer text-2xl",
         onClick: (row: any) => {

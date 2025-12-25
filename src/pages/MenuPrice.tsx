@@ -162,7 +162,7 @@ const MenuPrice = () => {
           isExcel={true}
           title={t("Menu Price")}
           filters={filters}
-          excelFileName={t("MenuPrice.xlsx")}
+          excelFileName="MenuPrice.xlsx"
         />
       </div>
     </>

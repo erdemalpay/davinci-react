@@ -98,7 +98,7 @@ const AllNotifications = () => {
       {
         key: "type",
         node: (row: any) => {
-          return t(row?.type);
+          return row?.type;
         },
       },
       {

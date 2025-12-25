@@ -258,7 +258,7 @@ export default function NewGameplays() {
           columns={columns}
           outsideSearchProps={outsideSearchProps}
           isSearch={false}
-          title={t("GamePlays")}
+          title={t("Gameplays")}
           filterPanel={filterPanel}
           filters={filters}
           outsideSortProps={outsideSort}

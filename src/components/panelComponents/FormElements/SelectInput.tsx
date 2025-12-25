@@ -215,7 +215,7 @@ const SelectInput = ({
       onChange(options[0], actionMeta);
       onChangeTrigger && onChangeTrigger(options[0], actionMeta);
     }
-  }, [options, value, onChange]);
+  }, [options, value, isAutoFill]);
 
   return (
     <div
