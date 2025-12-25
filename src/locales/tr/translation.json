@@ -1149,5 +1149,6 @@
   "Email" : "E-posta",
   "Birth Date" : "Doğum Tarihi",
   "Inactive" : "Pasif",
-  "Header" : "Başlık"
+  "Header" : "Başlık",
+  "Disable When Out Of Stock" : "Stok Bitimi Oto. Kapat"
 }

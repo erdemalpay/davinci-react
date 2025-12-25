@@ -1143,5 +1143,6 @@
   "Email" : "Email",
   "Birth Date" : "Birth Date",
   "Inactive" : "Inactive",
-  "Header" : "Header"
+  "Header" : "Header",
+  "Disable When Out Of Stock" : "Disable When Out Of Stock"
 }
