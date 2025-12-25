@@ -1244,7 +1244,7 @@ export function TableCard({
             user?.settings?.orderCategoryOn ? "category" : "item"
           }
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
-          topClassName="flex flex-col gap-2  "
+          topClassName="flex flex-col gap-0  "
         />
       )}
 
