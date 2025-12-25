@@ -347,6 +347,17 @@ export function TableCard({
 
   const orderInputs = useMemo(
     () => [
+
+      {
+        type: InputTypes.TEXT,
+        formKey: "activityPlayer",
+        label: t("Player Number"),
+        placeholder: t("Player Number"),
+        required: table?.type === TableTypes.ACTIVITY,
+        isDisabled: table?.type !== TableTypes.ACTIVITY,
+        isTopFlexRow: window.innerWidth <= 768,
+        isOnClearActive: true,
+      },
       {
         type: InputTypes.TAB,
         formKey: "category",
@@ -620,18 +631,8 @@ export function TableCard({
         isDisabled: table?.type !== TableTypes.ACTIVITY,
       },
       {
-        type: InputTypes.TEXT,
-        formKey: "activityPlayer",
-        label: t("Player Number"),
-        placeholder: t("Player Number"),
-        required: table?.type === TableTypes.ACTIVITY,
-        isDisabled: table?.type !== TableTypes.ACTIVITY,
-        isOnClearActive: true,
-      },
-      {
         type: InputTypes.TEXTAREA,
         formKey: "note",
-        label: t("Note"),
         placeholder: t("Note"),
         required: false,
         options:
