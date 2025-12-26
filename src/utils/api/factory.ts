@@ -49,6 +49,7 @@ export const Paths = {
   Expiration: "/expiration",
   Point: "/point",
   Consumers: "/consumers",
+  Anomaly: "/anomaly",
 };
 
 interface Props<T> {

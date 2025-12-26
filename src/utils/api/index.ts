@@ -22,12 +22,17 @@ export interface UpdatePayload<P> {
 
 // P = payload, R = ResponseType
 export async function get<R>({ path }: BaseRequest): Promise<R> {
+  try {
   const headers: HeadersInit = { "Content-Type": "application/json" };
   const { data } = await axiosClient.get<R>(`${path}`, {
-    headers,
-  });
+      headers,
+    });
 
-  return data;
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
 // P = payload, R = ResponseType

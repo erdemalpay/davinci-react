@@ -3,8 +3,10 @@ import { GrConfigure } from "react-icons/gr";
 import { IoIosSettings } from "react-icons/io";
 import { MdManageAccounts, MdSchool } from "react-icons/md";
 import { SiGnuprivacyguard } from "react-icons/si";
+import { MdWarning } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
+import AnomaliesPage from "../components/panelControl/Anomalies";
 import DisabledConditions from "../components/panelControl/DisabledConditions";
 import EducationPermissions from "../components/panelControl/EducationPermissions";
 import PagePermissions from "../components/panelControl/PagePermissions";
@@ -61,6 +63,13 @@ const PanelControl = () => {
       label: "Panel Settings",
       icon: <IoIosSettings className="text-lg font-thin" />,
       content: <PanelSettings />,
+      isDisabled: false,
+    },
+    {
+      number: PanelControlPageTabEnum.ANOMALIES,
+      label: "Anomalies",
+      icon: <MdWarning className="text-lg font-thin" />,
+      content: <AnomaliesPage />,
       isDisabled: false,
     },
   ];

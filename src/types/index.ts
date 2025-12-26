@@ -1117,6 +1117,7 @@ export enum PanelControlPageTabEnum {
   CHECKOUTCASH,
   PANELSETTINGS,
   USERACTIVITIES,
+  ANOMALIES,
 }
 export enum PageDetailsPageTabEnum {
   PAGETABPERMISSIONS,
