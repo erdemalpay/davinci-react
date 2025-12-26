@@ -57,7 +57,8 @@ const DailyIncome = () => {
         (collection) => collection.status !== OrderCollectionStatus.CANCELLED
       )
       ?.reduce((acc, collection) => {
-        const zonedTime = toZonedTime(collection.createdAt, "UTC");
+        if (!collection?.tableDate) return acc;
+        const zonedTime = toZonedTime(collection.tableDate, "UTC");
         const tableDate = format(zonedTime, "yyyy-MM-dd");
         if (!collection || !tableDate) return acc;
         const foundPaymentMethod = getItem(
