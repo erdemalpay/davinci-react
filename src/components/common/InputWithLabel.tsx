@@ -28,10 +28,12 @@ export function InputWithLabel({
   ...props
 }: InputWithLabelProps) {
 
-  const [localValue, setLocalValue] = useState(value);
+  const [localValue, setLocalValue] = useState(value ?? "");
 
   useEffect(() => {
-    setLocalValue(value ?? "");
+    if (value !== undefined) {
+      setLocalValue(value);
+    }
   }, [value]);
 
   return (
