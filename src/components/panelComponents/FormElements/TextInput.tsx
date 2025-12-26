@@ -225,10 +225,10 @@ const TextInput = ({
 
   return (
     <div
-      className={` flex ${isTopFlexRow ? "flex-row gap-4 " : "flex-col gap-2"}`}
+      className={` flex ${isTopFlexRow ? "flex-row gap-1 " : "flex-col gap-2"}`}
       onClick={handleDivClick}
     >
-      <H6 className={`${isTopFlexRow ? "min-w-20 " : "min-w-10"} my-auto`}>
+      <H6 className={`${isTopFlexRow ? "w-28 flex-shrink-0" : "min-w-10"} my-auto`}>
         {label}
         {requiredField && (
           <>
@@ -243,7 +243,9 @@ const TextInput = ({
               ? "gap-1"
               : "gap-2"
             : isNumberButtonsActive
-            ? "gap-4 justify-end"
+            ? isTopFlexRow
+              ? "gap-2"
+              : "gap-4 justify-end"
             : "gap-2"
         } ${inputWidth ? inputWidth : "w-full"}`}
       >

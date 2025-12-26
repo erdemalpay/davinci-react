@@ -53,7 +53,7 @@ export function Header({
                 alt="profile"
                 className="w-10 h-10 rounded-full"
               />
-              <span className="text-white">{user?.name}</span>
+              <span className="text-white hidden sm:inline">{user?.name}</span>
             </Link>
             {showLocationSelector && (
               <LocationSelector allowedLocations={allowedLocations} />

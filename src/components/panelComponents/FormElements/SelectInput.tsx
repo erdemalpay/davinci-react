@@ -222,11 +222,11 @@ const SelectInput = ({
       ref={selectRef}
       className={`flex ${
         isTopFlexRow
-          ? "flex-row items-center sm:flex-col sm:items-baseline "
-          : "flex-col"
-      } gap-2 __className_a182b8 `}
+          ? "flex-row items-center sm:flex-col sm:items-baseline gap-1 sm:gap-2"
+          : "flex-col gap-2"
+      } __className_a182b8 `}
     >
-      <H6 className="flex items-center gap-2">
+      <H6 className={`flex items-center gap-2 ${isTopFlexRow ? "w-28 flex-shrink-0" : ""}`}>
         <span>{label}</span>
         {requiredField && <span className="text-red-400">*</span>}
 

@@ -347,6 +347,17 @@ export function TableCard({
 
   const orderInputs = useMemo(
     () => [
+
+      {
+        type: InputTypes.TEXT,
+        formKey: "activityPlayer",
+        label: t("Player Number"),
+        placeholder: t("Player Number"),
+        required: table?.type === TableTypes.ACTIVITY,
+        isDisabled: table?.type !== TableTypes.ACTIVITY,
+        isTopFlexRow: window.innerWidth <= 768,
+        isOnClearActive: true,
+      },
       {
         type: InputTypes.TAB,
         formKey: "category",
@@ -618,20 +629,11 @@ export function TableCard({
         placeholder: t("Table"),
         required: false,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
-      },
-      {
-        type: InputTypes.TEXT,
-        formKey: "activityPlayer",
-        label: t("Player Number"),
-        placeholder: t("Player Number"),
-        required: table?.type === TableTypes.ACTIVITY,
-        isDisabled: table?.type !== TableTypes.ACTIVITY,
-        isOnClearActive: true,
+        isTopFlexRow: useIsMobile(),
       },
       {
         type: InputTypes.TEXTAREA,
         formKey: "note",
-        label: t("Note"),
         placeholder: t("Note"),
         required: false,
         options:
@@ -1243,7 +1245,7 @@ export function TableCard({
             user?.settings?.orderCategoryOn ? "category" : "item"
           }
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
-          topClassName="flex flex-col gap-2  "
+          topClassName="flex flex-col gap-0  "
         />
       )}
 

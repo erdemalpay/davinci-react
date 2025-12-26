@@ -169,23 +169,23 @@ const TabInputScreen = ({
     return <>{node}</>;
   }
   return (
-    <div className={`${topClassName} bg-white rounded-lg shadow-lg p-2`}>
+    <div className={`${topClassName} bg-white rounded-lg shadow-lg overflow-hidden flex flex-col`}>
       {/* header: search + close */}
-      <div className="w-full px-2 flex justify-between items-center">
+      <div className="sticky top-0 z-10 bg-white w-full px-2 py-2 flex justify-between items-center border-b border-gray-200">
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           autoFocus={sortedFiltered.length > 0}
           placeholder="Search..."
-          className="flex-1 border border-gray-300 rounded px-3 py-2 mr-2 mt-2"
+          className="flex-1 border border-gray-300 rounded px-3 py-2 mr-2"
         />
         <GenericButton onClick={handleClose} variant="icon">
           <IoIosClose className="w-8 h-8 p-1 cursor-pointer hover:bg-gray-50 hover:rounded-full" />
         </GenericButton>
       </div>
 
-      <div ref={listRef} className="p-2 overflow-y-auto no-scrollbar ">
+      <div ref={listRef} className="p-2 overflow-y-auto no-scrollbar flex-1">
         <div className="grid grid-cols-2 gap-4">
           {sortedFiltered.map((opt) => {
             const isSelected = formElements[tabInputFormKey] === opt.value;
