@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -145,8 +146,7 @@ export function CreateGameplayDialog({
           date: gameplay.date || table.date,
           location: gameplay.location || table.location,
           playerCount: gameplay.playerCount,
-          startHour: gameplay.startHour,
-          finishHour: gameplay.finishHour || "",
+          startHour: format(new Date(), "HH:mm"),
           mentor:
             typeof gameplay.mentor === "object"
               ? gameplay.mentor?._id
