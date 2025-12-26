@@ -451,11 +451,11 @@ export function useWebSocket() {
       ({
         gameplay,
         user: creatingUser,
-        table,
+        tableId,
       }: {
         gameplay: Gameplay;
         user: User;
-        table: Table;
+        tableId: number;
       }) => {
         // Only update cache for other users' actions
         if (creatingUser._id === user?._id) return;
@@ -471,7 +471,7 @@ export function useWebSocket() {
             const prevForLocation = prev[locationId] ?? [];
 
             const updatedTables = prevForLocation.map((t) => {
-              if (t?._id === table?._id) {
+              if (t?._id === Number(tableId)) {
                 return {
                   ...t,
                   gameplays: [...t.gameplays, gameplay],
@@ -515,7 +515,7 @@ export function useWebSocket() {
             const prevForLocation = prev[locationId] ?? [];
 
             const updatedTables = prevForLocation.map((t) => {
-              if (t?._id === tableId) {
+              if (t?._id === Number(tableId)) {
                 return {
                   ...t,
                   gameplays: t.gameplays.filter((g) => g?._id !== gameplayId),
