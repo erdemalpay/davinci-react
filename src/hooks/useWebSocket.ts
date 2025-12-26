@@ -542,11 +542,9 @@ export function useWebSocket() {
       ({
         gameplay,
         user: updatingUser,
-        table,
       }: {
         gameplay: Gameplay;
         user: User;
-        table: Table;
       }) => {
         // Only update cache for other users' actions
         if (updatingUser._id === user?._id) return;
@@ -562,7 +560,7 @@ export function useWebSocket() {
             const prevForLocation = prev[locationId] ?? [];
 
             const updatedTables = prevForLocation.map((t) => {
-              if (t?._id === table?._id) {
+              if (t?.gameplays.some(g => g._id === gameplay._id)) {
                 return {
                   ...t,
                   gameplays: t.gameplays.map((g) =>
@@ -602,12 +600,12 @@ export function useWebSocket() {
         table,
         user: creatingUser,
         locationId,
-        kitchenId,
+        kitchenIds,
       }: {
         table: Table;
         user: User;
         locationId: number;
-        kitchenId: string;
+        kitchenIds: string[];
       }) => {
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
@@ -627,22 +625,21 @@ export function useWebSocket() {
         }
 
         if (creatingUser._id === user._id) return;
-        const foundKitchen = getItem(kitchenId, kitchens ?? []);
-        const { soundRoles, selectedUsers } = foundKitchen ?? {};
-
-        if (
-          soundRoles?.includes(user.role?._id) &&
-          locationId === selectedLocationId
-        ) {
-          if (selectedUsers && selectedUsers.length > 0 && !selectedUsers?.includes(user._id)) {
-            return;
+        const foundKitchens = kitchenIds.map((kitchenId) => getItem(kitchenId, kitchens ?? []));
+        foundKitchens.forEach((foundKitchen) => {
+          const { soundRoles, selectedUsers } = foundKitchen ?? {};
+          if (soundRoles?.includes(user.role?._id) && locationId === selectedLocationId) {
+            if (selectedUsers && selectedUsers.length > 0 && !selectedUsers?.includes(user._id)) {
+              return;
+            }
+            if (audioReadyRef && audioRef.current) {
+              audioRef.current
+                .play()
+                .catch((error) => console.error("Error playing sound:", error));
+              return;
+            }
           }
-          if (audioReadyRef && audioRef.current) {
-            audioRef.current
-              .play()
-              .catch((error) => console.error("Error playing sound:", error));
-          }
-        }
+        });
       }
     );
 
