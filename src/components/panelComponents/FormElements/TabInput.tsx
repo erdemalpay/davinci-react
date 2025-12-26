@@ -1,8 +1,8 @@
 import React from "react";
 import { IoIosClose } from "react-icons/io";
-import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, OptionType } from "../../../types";
+import { GenericButton } from "../../common/GenericButton";
 import { H6 } from "../Typography";
 
 interface TabInputProps {
@@ -79,42 +79,50 @@ const TabInput: React.FC<TabInputProps> = ({
   };
   return (
     <div
-      className={`flex ${
+      className={`flex  ${
         isTopFlexRow
           ? "flex-row items-center sm:flex-col sm:items-baseline gap-1 sm:gap-2"
           : "flex-col gap-2"
       } `}
     >
-      <H6 className={`flex items-center gap-2 ${isTopFlexRow ? "w-28 flex-shrink-0" : ""}`}>
-        <span>{label}</span>
-        {requiredField && <span className="text-red-400">*</span>}
+      {label && (
+        <H6
+          className={`flex items-center  border-transparent gap-2 ${
+            isTopFlexRow ? "w-28 flex-shrink-0" : ""
+          }`}
+        >
+          {<span>{label}</span>}
+          {requiredField && <span className="text-red-400">*</span>}
 
-        {Array.isArray(suggestedOption) &&
-          suggestedOption.map((opt) =>
-            options.some((o) => o.value === opt.value) &&
-            value?.value !== opt.value ? (
-              <GenericButton
-                key={opt.value}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelect(opt);
-                }}
-                variant="outline"
-                className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full"
-                title={`Use suggested: ${opt.label}`}
-              >
-                {opt.label}
-              </GenericButton>
-            ) : null
-          )}
-      </H6>
+          {Array.isArray(suggestedOption) &&
+            suggestedOption.map((opt) =>
+              options.some((o) => o.value === opt.value) &&
+              value?.value !== opt.value ? (
+                <GenericButton
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelect(opt);
+                  }}
+                  variant="outline"
+                  className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full"
+                  title={`Use suggested: ${opt.label}`}
+                >
+                  {opt.label}
+                </GenericButton>
+              ) : null
+            )}
+        </H6>
+      )}
 
       <div className="w-full flex items-center gap-2">
         {value ? (
           <div
             onClick={openTabScreen}
-            className="flex items-center gap-2 border border-gray-300 rounded px-3 py-2 w-full"
+            className={`flex items-center gap-2 border ${
+              !label && requiredField ? "border-red-300" : "border-gray-300"
+            } rounded px-3 py-2 w-full`}
           >
             <span className="flex-1 text-gray-800">{value.label}</span>
             {!isReadOnly && onClear && (

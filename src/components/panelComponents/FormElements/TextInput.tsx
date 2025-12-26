@@ -144,11 +144,16 @@ const TextInput = ({
     }
   };
 
-  const inputClassName = `${className} ${
-    !isCompactStyle ? "border-gray-200" : "" // ✅ Compact style değilse border-gray-200 ekle
-  } w-full text-sm ${
-    type === "number" ? "inputHideNumberArrows" : ""
-  } text-base`;
+  const inputClassName = `${className}  w-full text-sm
+  ${
+    !isCompactStyle
+      ? !label && requiredField
+        ? "border-red-300"
+        : "border-gray-300"
+      : ""
+  } 
+
+  ${type === "number" ? "inputHideNumberArrows" : ""} text-base`;
 
   const handleWheel = () => {
     if (document.activeElement instanceof HTMLElement) {
@@ -163,14 +168,16 @@ const TextInput = ({
           isTopFlexRow ? "flex-row sm:flex-col" : "flex-col"
         } gap-2  w-full items-center`}
       >
-        <H6 className="min-w-10">
-          {label}
-          {requiredField && (
-            <>
-              <span className="text-red-400">* </span>
-            </>
-          )}
-        </H6>
+        {label && (
+          <H6 className="min-w-10">
+            {label}
+            {requiredField && (
+              <>
+                <span className="text-red-400">* </span>
+              </>
+            )}
+          </H6>
+        )}
         <div className=" flex flex-row gap-2 ">
           <SketchPicker
             color={value}
@@ -197,10 +204,12 @@ const TextInput = ({
     return (
       <div className="flex justify-between items-center w-full">
         {/* Label on the left */}
-        <H6 className="my-auto">
-          {label}
-          {requiredField && <span className="text-red-400">*</span>}
-        </H6>
+        {label && (
+          <H6 className="my-auto">
+            {label}
+            {requiredField && <span className="text-red-400">*</span>}
+          </H6>
+        )}
 
         {/* Icon on the right */}
         <GenericButton
@@ -228,14 +237,20 @@ const TextInput = ({
       className={` flex ${isTopFlexRow ? "flex-row gap-1 " : "flex-col gap-2"}`}
       onClick={handleDivClick}
     >
-      <H6 className={`${isTopFlexRow ? "w-28 flex-shrink-0" : "min-w-10"} my-auto`}>
-        {label}
-        {requiredField && (
-          <>
-            <span className="text-red-400">* </span>
-          </>
-        )}
-      </H6>
+      {label && (
+        <H6
+          className={`${
+            isTopFlexRow ? "w-28 flex-shrink-0" : "min-w-10"
+          } my-auto`}
+        >
+          {label}
+          {requiredField && (
+            <>
+              <span className="text-red-400">* </span>
+            </>
+          )}
+        </H6>
+      )}
       <div
         className={`flex items-center ${
           isCompactStyle

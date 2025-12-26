@@ -377,7 +377,6 @@ const Tables = () => {
     {
       type: InputTypes.TAB,
       formKey: "category",
-      label: t("Category"),
       options: categories
         ?.filter((category) => {
           return (
@@ -455,7 +454,6 @@ const Tables = () => {
     {
       type: InputTypes.TAB,
       formKey: "item",
-      label: t("Product"),
       options: menuItemOptions?.map((option) => {
         return {
           value: option.value,
@@ -478,7 +476,6 @@ const Tables = () => {
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
-      label: t("Quantity"),
       placeholder: t("Quantity"),
       minNumber: 0,
       required: true,
@@ -488,7 +485,6 @@ const Tables = () => {
     {
       type: InputTypes.TAB,
       formKey: "discount",
-      label: t("Discount"),
       options:
         orderForm?.item && filteredDiscounts
           ? filteredDiscounts
@@ -573,7 +569,6 @@ const Tables = () => {
     {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
-      label: t("Stock Location"),
       options: stockLocations?.map((input) => {
         const menuItem = menuItems
           ? getItem(orderForm?.item, menuItems)
@@ -671,7 +666,6 @@ const Tables = () => {
     {
       type: InputTypes.TAB,
       formKey: "category",
-      label: t("Category"),
       options: categories
         ?.filter((category) => {
           return (
@@ -750,7 +744,6 @@ const Tables = () => {
     {
       type: InputTypes.TAB,
       formKey: "item",
-      label: t("Product"),
       options: menuItemOptions,
       invalidateKeys: [
         { key: "discount", defaultValue: undefined },
@@ -781,7 +774,6 @@ const Tables = () => {
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
-      label: t("Quantity"),
       placeholder: t("Quantity"),
       minNumber: 0,
       required: true,
@@ -792,7 +784,6 @@ const Tables = () => {
     {
       type: InputTypes.TAB,
       formKey: "discount",
-      label: t("Discount"),
       options:
         orderForm?.item && discounts
           ? discounts
@@ -875,7 +866,6 @@ const Tables = () => {
     {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
-      label: t("Stock Location"),
       options: stockLocations?.map((input) => {
         const menuItem = menuItems
           ? getItem(orderForm.item, menuItems)

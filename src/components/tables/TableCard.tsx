@@ -344,23 +344,22 @@ export function TableCard({
   const memberDiscount = useMemo(() => {
     return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
   }, [discounts]);
+  const isMobile = useMemo(() => window.innerWidth <= 768, []);
 
   const orderInputs = useMemo(
     () => [
       {
         type: InputTypes.TEXT,
         formKey: "activityPlayer",
-        label: t("Player Number"),
         placeholder: t("Player Number"),
         required: table?.type === TableTypes.ACTIVITY,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
-        isTopFlexRow: window.innerWidth <= 768,
+        isTopFlexRow: isMobile,
         isOnClearActive: true,
       },
       {
         type: InputTypes.TAB,
         formKey: "category",
-        label: t("Category"),
         options: categories
           ?.filter((category) => {
             return (
@@ -443,7 +442,6 @@ export function TableCard({
       {
         type: InputTypes.TAB,
         formKey: "item",
-        label: t("Product"),
         options: menuItemOptions,
         invalidateKeys: [
           { key: "discount", defaultValue: undefined },
@@ -474,7 +472,6 @@ export function TableCard({
       {
         type: InputTypes.NUMBER,
         formKey: "quantity",
-        label: t("Quantity"),
         placeholder: t("Quantity"),
         minNumber: 0,
         required: true,
@@ -485,7 +482,7 @@ export function TableCard({
       {
         type: InputTypes.TAB,
         formKey: "discount",
-        label: t("Discount"),
+        placeholder: t("Discount"),
         options: orderForm?.item
           ? filteredDiscounts
               .filter((discount) => {
@@ -521,7 +518,6 @@ export function TableCard({
               : []
             : [],
         invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
-        placeholder: t("Discount"),
         isAutoFill: false,
         required: false,
         isTopFlexRow: true,
@@ -571,7 +567,6 @@ export function TableCard({
       {
         type: InputTypes.SELECT,
         formKey: "stockLocation",
-        label: t("Stock Location"),
         options: stockLocations?.map((input) => {
           const menuItem = menuItems
             ? getItem(orderForm.item, menuItems)
@@ -628,7 +623,7 @@ export function TableCard({
         placeholder: t("Table"),
         required: false,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
-        isTopFlexRow: window.innerWidth <= 768,
+        isTopFlexRow: isMobile,
       },
       {
         type: InputTypes.TEXTAREA,
