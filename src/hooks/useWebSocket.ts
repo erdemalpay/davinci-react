@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
+import { useDataContext } from "../context/Data.context";
 import {
   Gameplay,
   MenuItem,
@@ -35,6 +36,7 @@ export function useWebSocket() {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
+  const { kitchens } = useDataContext();
   const {
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -140,10 +142,12 @@ export function useWebSocket() {
         (order.item as unknown as MenuItem)?.category,
         categories
       );
+      const foundKitchen = getItem(order.kitchen as string, kitchens ?? []);
       if (
+        user?.role &&
         !foundCategory?.isAutoServed &&
         order.status !== OrderStatus.CANCELLED &&
-        (order.kitchen as any)?.soundRoles?.includes(user?.role?._id)
+        foundKitchen?.soundRoles?.includes(user.role._id)
       ) {
         if (
           (order.kitchen as any)?.selectedRoles?.length > 0 &&
@@ -597,15 +601,13 @@ export function useWebSocket() {
       ({
         table,
         user: creatingUser,
-        soundRoles,
-        selectedUsers,
         locationId,
+        kitchenId,
       }: {
         table: Table;
         user: User;
-        soundRoles: number[];
-        selectedUsers: string[];
         locationId: number;
+        kitchenId: string;
       }) => {
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
@@ -625,12 +627,14 @@ export function useWebSocket() {
         }
 
         if (creatingUser._id === user._id) return;
+        const foundKitchen = getItem(kitchenId, kitchens ?? []);
+        const { soundRoles, selectedUsers } = foundKitchen ?? {};
 
         if (
           soundRoles?.includes(user.role?._id) &&
           locationId === selectedLocationId
         ) {
-          if (selectedUsers?.length > 0 && !selectedUsers?.includes(user._id)) {
+          if (selectedUsers && selectedUsers.length > 0 && !selectedUsers?.includes(user._id)) {
             return;
           }
           if (audioReadyRef && audioRef.current) {
