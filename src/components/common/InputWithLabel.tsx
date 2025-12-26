@@ -32,7 +32,7 @@ export function InputWithLabel({
 
   useEffect(() => {
     if (value !== undefined) {
-      setLocalValue(value);
+      setLocalValue(value ?? "");
     }
   }, [value]);
 
