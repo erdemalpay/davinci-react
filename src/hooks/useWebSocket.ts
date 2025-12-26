@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
+import { useDataContext } from "../context/Data.context";
 import {
   Gameplay,
   MenuItem,
@@ -35,6 +36,7 @@ export function useWebSocket() {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
+  const { kitchens } = useDataContext();
   const {
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -140,10 +142,12 @@ export function useWebSocket() {
         (order.item as unknown as MenuItem)?.category,
         categories
       );
+      const foundKitchen = getItem(order.kitchen as string, kitchens ?? []);
       if (
+        user?.role &&
         !foundCategory?.isAutoServed &&
         order.status !== OrderStatus.CANCELLED &&
-        (order.kitchen as any)?.soundRoles?.includes(user?.role?._id)
+        foundKitchen?.soundRoles?.includes(user.role._id)
       ) {
         if (
           (order.kitchen as any)?.selectedRoles?.length > 0 &&
@@ -451,11 +455,11 @@ export function useWebSocket() {
       ({
         gameplay,
         user: creatingUser,
-        table,
+        tableId,
       }: {
         gameplay: Gameplay;
         user: User;
-        table: Table;
+        tableId: number;
       }) => {
         // Only update cache for other users' actions
         if (creatingUser._id === user?._id) return;
@@ -471,7 +475,7 @@ export function useWebSocket() {
             const prevForLocation = prev[locationId] ?? [];
 
             const updatedTables = prevForLocation.map((t) => {
-              if (t?._id === table?._id) {
+              if (t?._id === Number(tableId)) {
                 return {
                   ...t,
                   gameplays: [...t.gameplays, gameplay],
@@ -515,7 +519,7 @@ export function useWebSocket() {
             const prevForLocation = prev[locationId] ?? [];
 
             const updatedTables = prevForLocation.map((t) => {
-              if (t?._id === tableId) {
+              if (t?._id === Number(tableId)) {
                 return {
                   ...t,
                   gameplays: t.gameplays.filter((g) => g?._id !== gameplayId),
@@ -538,11 +542,9 @@ export function useWebSocket() {
       ({
         gameplay,
         user: updatingUser,
-        table,
       }: {
         gameplay: Gameplay;
         user: User;
-        table: Table;
       }) => {
         // Only update cache for other users' actions
         if (updatingUser._id === user?._id) return;
@@ -558,7 +560,7 @@ export function useWebSocket() {
             const prevForLocation = prev[locationId] ?? [];
 
             const updatedTables = prevForLocation.map((t) => {
-              if (t?._id === table?._id) {
+              if (t?.gameplays.some(g => g._id === gameplay._id)) {
                 return {
                   ...t,
                   gameplays: t.gameplays.map((g) =>
@@ -597,15 +599,13 @@ export function useWebSocket() {
       ({
         table,
         user: creatingUser,
-        soundRoles,
-        selectedUsers,
         locationId,
+        kitchenIds,
       }: {
         table: Table;
         user: User;
-        soundRoles: number[];
-        selectedUsers: string[];
         locationId: number;
+        kitchenIds: string[];
       }) => {
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
@@ -625,20 +625,21 @@ export function useWebSocket() {
         }
 
         if (creatingUser._id === user._id) return;
-
-        if (
-          soundRoles?.includes(user.role?._id) &&
-          locationId === selectedLocationId
-        ) {
-          if (selectedUsers?.length > 0 && !selectedUsers?.includes(user._id)) {
-            return;
+        const foundKitchens = kitchenIds.map((kitchenId) => getItem(kitchenId, kitchens ?? []));
+        foundKitchens.forEach((foundKitchen) => {
+          const { soundRoles, selectedUsers } = foundKitchen ?? {};
+          if (soundRoles?.includes(user.role?._id) && locationId === selectedLocationId) {
+            if (selectedUsers && selectedUsers.length > 0 && !selectedUsers?.includes(user._id)) {
+              return;
+            }
+            if (audioReadyRef && audioRef.current) {
+              audioRef.current
+                .play()
+                .catch((error) => console.error("Error playing sound:", error));
+              return;
+            }
           }
-          if (audioReadyRef && audioRef.current) {
-            audioRef.current
-              .play()
-              .catch((error) => console.error("Error playing sound:", error));
-          }
-        }
+        });
       }
     );
 

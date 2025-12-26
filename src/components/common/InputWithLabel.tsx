@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 export type InputType = "date" | "autocomplete" | "text" | "number" | "time";
 
 export interface InputWithLabelProps {
@@ -25,6 +27,15 @@ export function InputWithLabel({
   value,
   ...props
 }: InputWithLabelProps) {
+
+  const [localValue, setLocalValue] = useState(value ?? "");
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
   return (
     <div
       className={`relative mt-4 w-full ${
@@ -35,11 +46,14 @@ export function InputWithLabel({
         id={id}
         min={min}
         {...props}
-        defaultValue={value ?? ""}
+        value={localValue}
         type={type}
         className={`${bgColor} w-full text-gray-600 border-0 border-b-[1px] focus:outline-none font-normal h-10 text-base border-gray-300`}
         placeholder=""
-        onChange={onChange}
+        onChange={(event) => {
+          setLocalValue(event.target.value);
+          onChange?.(event);
+        }}
       />
       <label
         htmlFor={id}
