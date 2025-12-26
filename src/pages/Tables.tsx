@@ -1367,7 +1367,7 @@ const Tables = () => {
   return (
     <>
       <Header />
-      <div className="container relative h-full py-4 px-2 lg:px-12 ">
+      <div className=" py-4 px-2 lg:px-6 w-[95%] sm:w-[90%] mx-auto">
         <div className="h-full flex w-full flex-wrap flex-col">
           <div className="flex lg:justify-between justify-center flex-col lg:flex-row">
             <div className="flex flex-row items-center w-full text-3xl">
