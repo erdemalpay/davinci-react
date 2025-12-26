@@ -537,7 +537,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.TAB,
       formKey: "category",
-      label: t("Category"),
       options: categories
         ?.filter((category) => {
           return (
@@ -621,7 +620,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.TAB,
       formKey: "item",
-      label: t("Product"),
       options: menuItemOptions,
       invalidateKeys: [
         { key: "discount", defaultValue: undefined },
@@ -652,7 +650,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
-      label: t("Quantity"),
       placeholder: t("Quantity"),
       minNumber: 0,
       required: true,
@@ -744,7 +741,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
-      label: t("Stock Location"),
       options: locations?.map((input) => {
         const menuItem = getItem(orderForm.item, items);
         const foundProduct = getItem(menuItem?.matchedProduct, products);

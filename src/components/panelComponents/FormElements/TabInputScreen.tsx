@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import { IoIosClose } from "react-icons/io";
-import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import useIsLargeScreen from "../../../hooks/useIsLargeScreen";
 import { FormElementsState } from "../../../types";
+import { GenericButton } from "../../common/GenericButton";
 import { GenericInputType, InputTypes } from "../shared/types";
 
 export type TabOption = {
@@ -169,7 +169,9 @@ const TabInputScreen = ({
     return <>{node}</>;
   }
   return (
-    <div className={`${topClassName} bg-white rounded-lg shadow-lg overflow-hidden flex flex-col`}>
+    <div
+      className={`${topClassName} bg-white rounded-lg shadow-lg overflow-hidden flex flex-col`}
+    >
       {/* header: search + close */}
       <div className="sticky top-0 z-10 bg-white w-full px-2 py-2 flex justify-between items-center border-b border-gray-200">
         <input

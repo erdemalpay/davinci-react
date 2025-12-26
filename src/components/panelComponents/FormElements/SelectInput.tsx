@@ -121,7 +121,9 @@ const SelectInput = ({
   const customStyles = {
     control: (base: any) => ({
       ...base,
-      border: "1px solid #E2E8F0",
+      border: `1px solid #E2E8F0 ${
+        requiredField && !label ? "#ee5954" : "#E2E8F0"
+      }`,
       borderRadius: "4px",
       fontSize: "16px",
       height: "auto",
@@ -226,57 +228,63 @@ const SelectInput = ({
           : "flex-col gap-2"
       } __className_a182b8 `}
     >
-      <H6 className={`flex items-center gap-2 ${isTopFlexRow ? "w-28 flex-shrink-0" : ""}`}>
-        <span>{label}</span>
-        {requiredField && <span className="text-red-400">*</span>}
+      {label && (
+        <H6
+          className={`flex items-center gap-2 ${
+            isTopFlexRow ? "w-28 flex-shrink-0" : ""
+          }`}
+        >
+          <span>{label}</span>
+          {requiredField && <span className="text-red-400">*</span>}
 
-        {Array.isArray(suggestedOption) &&
-          suggestedOption
-            // only keep suggestions that exist in the available options
-            .filter((opt) => options.some((o) => o.value === opt.value))
-            // exclude already selected ones
-            .filter((opt) => {
-              if (isMultiple) {
-                const curr = (value as MultiValue<OptionType>) || [];
-                return !curr.some((v) => v.value === opt.value);
-              } else {
-                const curr = value as SingleValue<OptionType> | null;
-                return (curr?.value ?? null) !== opt.value;
-              }
-            })
-            // render a button per remaining suggestion
-            .map((opt) => (
-              <GenericButton
-                key={opt.value}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
+          {Array.isArray(suggestedOption) &&
+            suggestedOption
+              // only keep suggestions that exist in the available options
+              .filter((opt) => options.some((o) => o.value === opt.value))
+              // exclude already selected ones
+              .filter((opt) => {
+                if (isMultiple) {
+                  const curr = (value as MultiValue<OptionType>) || [];
+                  return !curr.some((v) => v.value === opt.value);
+                } else {
+                  const curr = value as SingleValue<OptionType> | null;
+                  return (curr?.value ?? null) !== opt.value;
+                }
+              })
+              // render a button per remaining suggestion
+              .map((opt) => (
+                <GenericButton
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
 
-                  const candidate = opt as OptionType;
-                  const actionMeta: ActionMeta<OptionType> = {
-                    action: "select-option",
-                    option: candidate,
-                  };
+                    const candidate = opt as OptionType;
+                    const actionMeta: ActionMeta<OptionType> = {
+                      action: "select-option",
+                      option: candidate,
+                    };
 
-                  if (isMultiple) {
-                    const curr = (value as MultiValue<OptionType>) || [];
-                    const next = [...curr, candidate];
-                    onChange(next, actionMeta);
-                    onChangeTrigger && onChangeTrigger(next, actionMeta);
-                  } else {
-                    onChange(candidate, actionMeta);
-                    onChangeTrigger && onChangeTrigger(candidate, actionMeta);
-                  }
-                }}
-                variant="outline"
-                size="sm"
-                className="ml-2 text-xs sm:text-sm rounded-full"
-                title={`Use suggested: ${opt.label}`}
-              >
-                {opt.label}
-              </GenericButton>
-            ))}
-      </H6>
+                    if (isMultiple) {
+                      const curr = (value as MultiValue<OptionType>) || [];
+                      const next = [...curr, candidate];
+                      onChange(next, actionMeta);
+                      onChangeTrigger && onChangeTrigger(next, actionMeta);
+                    } else {
+                      onChange(candidate, actionMeta);
+                      onChangeTrigger && onChangeTrigger(candidate, actionMeta);
+                    }
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="ml-2 text-xs sm:text-sm rounded-full"
+                  title={`Use suggested: ${opt.label}`}
+                >
+                  {opt.label}
+                </GenericButton>
+              ))}
+        </H6>
+      )}
 
       <div className="flex flex-row gap-2 w-full ">
         <div className="w-full ">
