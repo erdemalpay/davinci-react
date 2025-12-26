@@ -629,7 +629,7 @@ export function TableCard({
         placeholder: t("Table"),
         required: false,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
-        isTopFlexRow: window.innerWidth <= 768,
+        isTopFlexRow: useIsMobile(),
       },
       {
         type: InputTypes.TEXTAREA,
