@@ -347,7 +347,6 @@ export function TableCard({
 
   const orderInputs = useMemo(
     () => [
-
       {
         type: InputTypes.TEXT,
         formKey: "activityPlayer",
@@ -629,7 +628,7 @@ export function TableCard({
         placeholder: t("Table"),
         required: false,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
-        isTopFlexRow: useIsMobile(),
+        isTopFlexRow: window.innerWidth <= 768,
       },
       {
         type: InputTypes.TEXTAREA,
