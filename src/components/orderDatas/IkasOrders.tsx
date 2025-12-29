@@ -403,6 +403,7 @@ const IkasOrders = () => {
             label: discount.name,
           };
         }),
+        isMultiple: true,
         placeholder: t("Discount"),
         required: true,
       },
