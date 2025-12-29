@@ -9,7 +9,7 @@ import {
 } from "../../types";
 import { useGetBreaks } from "../../utils/api/break";
 import { dateRanges } from "../../utils/api/dateRanges";
-import { useGetAllLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -37,21 +37,48 @@ const AllBreaks = () => {
     filterPanelFormElements
   );
   const [showFilters, setShowFilters] = useState(false);
-  const locations = useGetAllLocations();
+  const locations = useGetStoreLocations();
 
   const rows = useMemo(() => {
     return (
       breakData?.map((breakRecord) => {
+        const calculateDuration = () => {
+          if (!breakRecord.startHour) return t("Active");
+
+          const startTime = new Date();
+          const [startHour, startMinute] = breakRecord.startHour
+            .split(":")
+            .map(Number);
+          startTime.setHours(startHour, startMinute, 0, 0);
+
+          const endTime = new Date();
+          if (breakRecord.finishHour) {
+            const [endHour, endMinute] = breakRecord.finishHour
+              .split(":")
+              .map(Number);
+            endTime.setHours(endHour, endMinute, 0, 0);
+          }
+
+          if (!breakRecord.finishHour) return t("Active");
+
+          const diffMs = endTime.getTime() - startTime.getTime();
+          const diffMinutes = Math.floor(diffMs / (1000 * 60));
+          const hours = Math.floor(diffMinutes / 60);
+          const minutes = diffMinutes % 60;
+
+          if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+          }
+          return `${minutes}m`;
+        };
+
         return {
           ...breakRecord,
           userDisplayName: getItem(breakRecord?.user, users)?.name ?? "",
           locationDisplayName:
             getItem(breakRecord?.location, locations)?.name ?? "",
           formattedDate: format(new Date(breakRecord.date), "dd-MM-yyyy"),
-          duration:
-            breakRecord.finishHour && breakRecord.startHour
-              ? `${breakRecord.startHour} - ${breakRecord.finishHour}`
-              : t("Active"),
+          duration: calculateDuration(),
           status: breakRecord.finishHour ? t("Completed") : t("Active"),
         };
       }) ?? []
