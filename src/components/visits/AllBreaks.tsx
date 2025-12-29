@@ -11,6 +11,7 @@ import { useGetBreaks } from "../../utils/api/break";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -41,7 +42,7 @@ const AllBreaks = () => {
 
   const rows = useMemo(() => {
     return (
-      breakData?.map((breakRecord) => {
+      breakData?.data?.map((breakRecord) => {
         const calculateDuration = () => {
           if (!breakRecord.startHour) return t("Active");
 
@@ -77,7 +78,7 @@ const AllBreaks = () => {
           userDisplayName: getItem(breakRecord?.user, users)?.name ?? "",
           locationDisplayName:
             getItem(breakRecord?.location, locations)?.name ?? "",
-          formattedDate: format(new Date(breakRecord.date), "dd-MM-yyyy"),
+          formattedDate: formatAsLocalDate(breakRecord.date),
           duration: calculateDuration(),
           status: breakRecord.finishHour ? t("Completed") : t("Active"),
         };
@@ -245,7 +246,14 @@ const AllBreaks = () => {
     }),
     [filterPanelFormElements]
   );
-
+  const pagination = useMemo(() => {
+    return breakData
+      ? {
+          totalPages: breakData.totalPages,
+          totalRows: breakData.totalNumber,
+        }
+      : null;
+  }, [breakData]);
   useMemo(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements, setCurrentPage]);
@@ -272,6 +280,7 @@ const AllBreaks = () => {
           isSearch={false}
           outsideSortProps={outsideSort}
           outsideSearchProps={outsideSearchProps}
+          {...(pagination && { pagination })}
         />
       </div>
     </>
