@@ -1,4 +1,4 @@
-import { Tooltip } from "@material-tailwind/react";
+import { Chip, Tooltip } from "@material-tailwind/react";
 import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useMemo, useState } from "react";
@@ -30,6 +30,7 @@ import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
 import { Routes } from "../navigation/constants";
 import {
+  Break,
   MenuItem,
   Order,
   OrderDiscountStatus,
@@ -43,6 +44,7 @@ import {
   User,
 } from "../types";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
+import { useGetBreaksByDate } from "../utils/api/break";
 import { useGetAllLocations } from "../utils/api/location";
 import {
   useCreateMultipleOrderMutation,
@@ -104,6 +106,21 @@ const Tables = () => {
   const navigate = useNavigate();
   const { createOrder } = useOrderMutations();
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
+
+  // Get breaks for the selected date, only if selectedDate exists
+  const todayBreaks = useGetBreaksByDate(
+    selectedDate || formatDate(new Date())
+  );
+
+  // Get users currently on break at selected location (for counting)
+  const usersOnBreak = useMemo(() => {
+    if (!todayBreaks || !selectedLocationId) return [];
+
+    return todayBreaks.filter(
+      (breakItem: Break) =>
+        breakItem.location === selectedLocationId && !breakItem.finishHour // Only active breaks (no finish time)
+    );
+  }, [todayBreaks, selectedLocationId]);
 
   const comingReservedTableNames = useMemo(() => {
     if (!reservations || !selectedLocationId) return new Set<string>();
@@ -1574,6 +1591,52 @@ const Tables = () => {
                     label={t("Who's at cafe?")}
                     visits={visits}
                   />
+                  {/* Break List - Only show when there are active breaks */}
+                  {usersOnBreak.length > 0 && (
+                    <div className="flex flex-col w-full">
+                      <div className="flex flex-col lg:flex-row w-full">
+                        <label className="text-sm font-medium text-gray-700 mb-1">
+                          {t("On Break")}
+                        </label>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2 justify-start items-center">
+                        {todayBreaks
+                          ?.filter(
+                            (breakItem) =>
+                              breakItem.location === selectedLocationId &&
+                              !breakItem.finishHour
+                          )
+                          .map((breakItem) => {
+                            const userId =
+                              typeof breakItem.user === "string"
+                                ? breakItem.user
+                                : breakItem.user._id;
+                            const foundUser = users?.find(
+                              (u) => u._id === userId
+                            );
+                            if (!foundUser) return null;
+                            return (
+                              <Tooltip
+                                key={breakItem._id}
+                                content={`${t("Started at")} ${
+                                  breakItem.startHour
+                                }`}
+                              >
+                                <Chip
+                                  value={foundUser.name}
+                                  style={{
+                                    backgroundColor:
+                                      foundUser.role?.color || "gray",
+                                    height: "fit-content",
+                                  }}
+                                  color="gray"
+                                />
+                              </Tooltip>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  )}
                   <ShiftList
                     key={selectedDate + selectedLocationId + "active"}
                     visits={visits}
