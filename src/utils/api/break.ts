@@ -41,7 +41,7 @@ export const useGetBreaks = (
     filters?.asc !== undefined && `asc=${filters.asc}`,
   ];
   const queryString = parts.filter(Boolean).join("&");
-  return useGet<Break[]>(
+  return useGet<BreakPayload>(
     `${breakBaseUrl}?${queryString}`,
     [breakBaseUrl, page, limit, filters],
     true
