@@ -3,24 +3,20 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdStop } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import { Break } from "../../types";
-import {
-  useBreakMutations,
-  useGetBreaksByLocation,
-} from "../../utils/api/break";
+import { useBreakMutations, useGetBreaksByDate } from "../../utils/api/break";
 
 export const BreakOverlay = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const { selectedLocationId } = useLocationContext();
   const { updateBreak } = useBreakMutations();
   const [currentBreak, setCurrentBreak] = useState<Break | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Get active breaks for current location
-  const activeBreaks = useGetBreaksByLocation(selectedLocationId || 0);
+  // Get active breaks for today's date
+  const todayDate = format(new Date(), "yyyy-MM-dd");
+  const activeBreaks = useGetBreaksByDate(todayDate);
 
   // Update current time every minute for real-time duration
   useEffect(() => {
@@ -32,8 +28,8 @@ export const BreakOverlay = () => {
   }, []);
 
   useEffect(() => {
-    if (activeBreaks && user && selectedLocationId) {
-      // Find if current user has an active break
+    if (activeBreaks && user) {
+      // Find if current user has an active break for today
       const userActiveBreak = activeBreaks.find(
         (breakRecord) =>
           (typeof breakRecord.user === "string"
@@ -43,7 +39,7 @@ export const BreakOverlay = () => {
 
       setCurrentBreak(userActiveBreak || null);
     }
-  }, [activeBreaks, user, selectedLocationId]);
+  }, [activeBreaks, user]);
 
   const handleEndBreak = () => {
     if (!currentBreak) return;
