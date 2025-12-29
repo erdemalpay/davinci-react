@@ -437,6 +437,7 @@ const CategoryBasedSalesReport = () => {
             label: discount.name,
           };
         }),
+        isMultiple: true,
         placeholder: t("Discount"),
         required: true,
       },
@@ -528,11 +529,11 @@ const CategoryBasedSalesReport = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
               queryClient.invalidateQueries({
-                queryKey: [
-                  `${Paths.Order}/collection/query`,
-                ],
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
               });
             }}
           />
