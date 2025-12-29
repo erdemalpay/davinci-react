@@ -1094,6 +1094,7 @@ export enum VisitPageTabEnum {
   SHIFTCHANGE,
   CHANGEREQUESTMANAGEMENT,
   USERCHANGEREQUESTTAB,
+  ALLBREAKS,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,

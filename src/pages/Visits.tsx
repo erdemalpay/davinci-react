@@ -3,6 +3,7 @@ import { FaPhoenixFramework } from "react-icons/fa";
 import { GiEgyptianWalk } from "react-icons/gi";
 import {
   MdChangeCircle,
+  MdFreeBreakfast,
   MdOutlineAdminPanelSettings,
   MdOutlinePerson,
   MdOutlineSchedule,
@@ -10,6 +11,7 @@ import {
 import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
+import AllBreaks from "../components/visits/AllBreaks";
 import AllVisits from "../components/visits/AllVisits";
 import ChangeRequestManagement from "../components/visits/ChangeRequestManagement";
 import DailyVisit from "../components/visits/DailyVisit";
@@ -79,6 +81,13 @@ export const VisitPageTabs = [
     label: "ChangeRequestManagement",
     icon: <MdOutlineAdminPanelSettings className="text-lg font-thin" />,
     content: <ChangeRequestManagement />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.ALLBREAKS,
+    label: "All Breaks",
+    icon: <MdFreeBreakfast className="text-lg font-thin" />,
+    content: <AllBreaks />,
     isDisabled: false,
   },
 ];
