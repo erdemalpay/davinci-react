@@ -25,6 +25,7 @@ interface DraggableHeaderItemProps {
   education: Education;
   onDragEnter: (dragged: Education, target: Education) => void;
   onSelect: (id: number) => void;
+  isSelected?: boolean;
 }
 enum ComponentTypeEnum {
   UPIMAGE = "UPIMAGE",
@@ -37,6 +38,7 @@ const DraggableHeaderItem: React.FC<DraggableHeaderItemProps> = ({
   education,
   onDragEnter,
   onSelect,
+  isSelected = false,
 }) => {
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("education", JSON.stringify(education));
@@ -62,7 +64,11 @@ const DraggableHeaderItem: React.FC<DraggableHeaderItemProps> = ({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={() => onSelect(education._id)}
-      className="cursor-pointer p-2 border-l-4 border-transparent hover:border-blue-500 hover:bg-gray-100 transition-colors"
+      className={`cursor-pointer p-2 border-l-4 transition-colors ${
+        isSelected
+          ? "border-blue-500 bg-blue-50 text-blue-700"
+          : "border-transparent hover:border-blue-500 hover:bg-gray-100"
+      }`}
     >
       {education.header}
     </div>
@@ -102,6 +108,10 @@ const EducationDashboard = () => {
     useState(false);
   const [isUpdateSubHeaderModalOpen, setIsUpdateSubHeaderModalOpen] =
     useState(false);
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [expandedHeaders, setExpandedHeaders] = useState<Set<number>>(
+    new Set()
+  );
   const userRoleId = user?.role?._id;
   const filteredEducations: Education[] =
     educations?.filter((edu: Education) =>
@@ -198,13 +208,53 @@ const EducationDashboard = () => {
     });
   };
 
+  const toggleHeaderExpansion = (headerId: number) => {
+    setExpandedHeaders((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(headerId)) {
+        newSet.delete(headerId);
+      } else {
+        newSet.add(headerId);
+      }
+      return newSet;
+    });
+  };
+
   // Scroll smoothly to the education section on header click.
-  const handleSelect = (id: number) => {
-    const element = document.getElementById(`edu-${id}`);
+  const handleSelect = (id: number, subIndex?: number) => {
+    const elementId =
+      subIndex !== undefined ? `edu-${id}-sub-${subIndex}` : `edu-${id}`;
+    const element = document.getElementById(elementId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+      setSelectedSection(elementId);
     }
   };
+
+  // Track scroll position to highlight current section
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('[id^="edu-"]');
+      let current = "";
+
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
+          current = section.id;
+        }
+      });
+
+      if (current) {
+        setSelectedSection(current);
+      }
+    };
+
+    const contentArea = document.getElementById("education-content-area");
+    if (contentArea) {
+      contentArea.addEventListener("scroll", handleScroll);
+      return () => contentArea.removeEventListener("scroll", handleScroll);
+    }
+  }, [filteredEducations]);
   useEffect(() => {
     setComponentKey((prevKey) => prevKey + 1);
   }, [educations, user, roles]);
@@ -257,54 +307,88 @@ const EducationDashboard = () => {
       {/* Sidebar with draggable headers that stays fixed */}
       <div className="hidden sm:block w-1/4 border-r border-gray-300 p-4 sticky top-[104px]  h-full overflow-y-auto ">
         {filteredEducations.map((edu, index) => (
-          <div
-            key={edu._id}
-            className="flex flex-row justify-between items-center"
-          >
-            <DraggableHeaderItem
-              education={edu}
-              onDragEnter={handleDragEnter}
-              onSelect={handleSelect}
-            />
-            <div className="flex flex-row items-center gap-2">
-              {edu?.updateHistory && (
-                <span
-                  onClick={() => {
-                    if (disabledUsers) return;
-                    setSelectedUpdateHistory(edu?.updateHistory);
-                    setIsUpdateHistoryOpen(true);
-                  }}
-                  className={`text-xs text-gray-500 whitespace-nowrap ${
-                    !disabledUsers && "cursor-pointer hover:text-blue-500"
-                  }`}
-                >
-                  {edu.updateHistory.length > 0
-                    ? format(
-                        new Date(
-                          edu.updateHistory.reduce((latest, curr) =>
-                            new Date(curr.updatedAt) >
-                            new Date(latest.updatedAt)
-                              ? curr
-                              : latest
-                          ).updatedAt
-                        ),
-                        "dd-MM-yyyy"
-                      )
-                    : edu?.createdAt
-                    ? format(edu?.createdAt, "dd-MM-yyyy")
-                    : ""}
-                </span>
-              )}
-              {!isDisabledCondition && (
-                <HiOutlineTrash
-                  className="text-red-500 cursor-pointer text-xl  "
-                  onClick={() => {
-                    setHeaderToAction(edu);
-                    setIsDeleteConfirmationDialogOpen(true);
-                  }}
-                />
-              )}
+          <div key={edu._id} className="mb-2">
+            <div className="flex flex-row justify-between items-center">
+              <DraggableHeaderItem
+                education={edu}
+                onDragEnter={handleDragEnter}
+                onSelect={handleSelect}
+                isSelected={selectedSection === `edu-${edu._id}`}
+              />
+              <div className="flex flex-row items-center gap-2">
+                {edu?.updateHistory && (
+                  <span
+                    onClick={() => {
+                      if (disabledUsers) return;
+                      setSelectedUpdateHistory(edu?.updateHistory);
+                      setIsUpdateHistoryOpen(true);
+                    }}
+                    className={`text-xs text-gray-500 whitespace-nowrap ${
+                      !disabledUsers && "cursor-pointer hover:text-blue-500"
+                    }`}
+                  >
+                    {edu.updateHistory.length > 0
+                      ? format(
+                          new Date(
+                            edu.updateHistory.reduce((latest, curr) =>
+                              new Date(curr.updatedAt) >
+                              new Date(latest.updatedAt)
+                                ? curr
+                                : latest
+                            ).updatedAt
+                          ),
+                          "dd-MM-yyyy"
+                        )
+                      : edu?.createdAt
+                      ? format(edu?.createdAt, "dd-MM-yyyy")
+                      : ""}
+                  </span>
+                )}
+                {edu.subheaders && edu.subheaders.length > 0 && (
+                  <CiCircleChevDown
+                    className={`text-gray-500 cursor-pointer text-xl transition-transform ${
+                      expandedHeaders.has(edu._id) ? "rotate-180" : ""
+                    }`}
+                    onClick={() => toggleHeaderExpansion(edu._id)}
+                  />
+                )}
+                {!isDisabledCondition && (
+                  <HiOutlineTrash
+                    className="text-red-500 cursor-pointer text-xl  "
+                    onClick={() => {
+                      setHeaderToAction(edu);
+                      setIsDeleteConfirmationDialogOpen(true);
+                    }}
+                  />
+                )}
+              </div>
             </div>
+            {/* Subheaders list */}
+            {edu.subheaders &&
+              edu.subheaders.length > 0 &&
+              expandedHeaders.has(edu._id) && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {edu.subheaders
+                    .sort((a, b) => a.order - b.order)
+                    .map(
+                      (sub, subIndex) =>
+                        sub.subHeader && (
+                          <div
+                            key={subIndex}
+                            onClick={() => handleSelect(edu._id, subIndex)}
+                            className={`cursor-pointer p-1 pl-2 text-sm rounded transition-colors ${
+                              selectedSection ===
+                              `edu-${edu._id}-sub-${subIndex}`
+                                ? "bg-blue-100 text-blue-700 border-l-2 border-blue-500"
+                                : "hover:bg-gray-100 text-gray-600 border-l-2 border-transparent"
+                            }`}
+                          >
+                            {sub.subHeader}
+                          </div>
+                        )
+                    )}
+                </div>
+              )}
           </div>
         ))}
         {!isDisabledCondition && (
@@ -319,7 +403,10 @@ const EducationDashboard = () => {
       </div>
 
       {/* Main content area showing education details */}
-      <div className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full relative">
+      <div
+        id="education-content-area"
+        className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full relative"
+      >
         {/* Placeholder to prevent layout shift */}
         <div className={`h-12 mb-4 ${disabledUsers ? "hidden" : ""}`}></div>
         {/* Fixed switch button */}
@@ -383,7 +470,11 @@ const EducationDashboard = () => {
             {edu.subheaders
               ?.sort((a, b) => a.order - b.order)
               ?.map((sub, index) => (
-                <div key={index} className="mb-4">
+                <div
+                  key={index}
+                  id={`edu-${edu._id}-sub-${index}`}
+                  className="mb-4 scroll-mt-16"
+                >
                   <div className="flex flex-row gap-1 items-center w-fit">
                     {!isDisabledCondition && index !== 0 && (
                       <CiCircleChevUp
