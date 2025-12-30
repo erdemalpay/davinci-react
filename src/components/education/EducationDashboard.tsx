@@ -344,14 +344,18 @@ const EducationDashboard = () => {
                       : ""}
                   </span>
                 )}
-                {edu.subheaders && edu.subheaders.length > 0 && (
-                  <CiCircleChevDown
-                    className={`text-gray-500 cursor-pointer text-xl transition-transform ${
-                      expandedHeaders.has(edu._id) ? "rotate-180" : ""
-                    }`}
-                    onClick={() => toggleHeaderExpansion(edu._id)}
-                  />
-                )}
+                <div className="w-5 flex items-center justify-center">
+                  {edu.subheaders &&
+                    edu.subheaders.length > 0 &&
+                    edu.subheaders.some((sub) => sub.subHeader) && (
+                      <CiCircleChevDown
+                        className={`text-gray-500 cursor-pointer text-xl transition-transform ${
+                          expandedHeaders.has(edu._id) ? "rotate-180" : ""
+                        }`}
+                        onClick={() => toggleHeaderExpansion(edu._id)}
+                      />
+                    )}
+                </div>
                 {!isDisabledCondition && (
                   <HiOutlineTrash
                     className="text-red-500 cursor-pointer text-xl  "
