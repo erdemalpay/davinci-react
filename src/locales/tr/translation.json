@@ -1150,5 +1150,6 @@
   "Birth Date" : "Doğum Tarihi",
   "Inactive" : "Pasif",
   "Header" : "Başlık",
-  "Disable When Out Of Stock" : "Stok Bitimi Oto. Kapat"
+  "Disable When Out Of Stock" : "Stok Bitimi Oto. Kapat",
+  "Fallback Location" : "Yedek Stok Deposu"
 }

@@ -79,6 +79,7 @@ const LocationPage = () => {
       { key: t("Activity Note"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
+      { key: t("Fallback Location"), isSortable: false },
       { key: t("Actions"), isSortable: false },
     ];
     return cols;
@@ -324,6 +325,18 @@ const LocationPage = () => {
         key: "ikasId",
         className: "min-w-32 pr-1",
       },
+      {
+        key: "fallbackStockLocation",
+        className: "min-w-32 pr-1",
+        node: (row: Location) => {
+          const fallbackLocation = locations.find(
+            (loc) => loc._id === row.fallbackStockLocation
+          );
+          return (
+            <p>{fallbackLocation?.name || "-"}</p>
+          );
+        },
+      },
     ],
     [
       user,
@@ -334,6 +347,7 @@ const LocationPage = () => {
       updateLocation,
       t,
       isShiftHoursCollapsibleOpen,
+      locations,
     ]
   );
 
@@ -432,6 +446,17 @@ const LocationPage = () => {
         placeholder: t("Activity Note"),
         required: false,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "fallbackStockLocation",
+        label: t("Fallback Location"),
+        placeholder: t("Fallback Location"),
+        required: false,
+        options: locations.map((loc) => ({
+          value: loc._id,
+          label: loc.name,
+        })),
+      },
     ],
     [t, form?.type]
   );
@@ -446,6 +471,7 @@ const LocationPage = () => {
       { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
       { key: "dailyHours", type: FormKeyTypeEnum.STRING },
       { key: "activityNote", type: FormKeyTypeEnum.STRING },
+      { key: "fallbackStockLocation", type: FormKeyTypeEnum.NUMBER },
     ],
     []
   );
