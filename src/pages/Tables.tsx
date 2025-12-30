@@ -1590,53 +1590,8 @@ const Tables = () => {
                     name="employees"
                     label={t("Who's at cafe?")}
                     visits={visits}
+                    breaks={todayBreaks}
                   />
-                  {/* Break List - Only show when there are active breaks */}
-                  {usersOnBreak.length > 0 && (
-                    <div className="flex flex-col w-full">
-                      <div className="flex flex-col lg:flex-row w-full">
-                        <label className="text-sm font-medium text-gray-700 mb-1">
-                          {t("On Break")}
-                        </label>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2 justify-start items-center">
-                        {todayBreaks
-                          ?.filter(
-                            (breakItem) =>
-                              breakItem.location === selectedLocationId &&
-                              !breakItem.finishHour
-                          )
-                          .map((breakItem) => {
-                            const userId =
-                              typeof breakItem.user === "string"
-                                ? breakItem.user
-                                : breakItem.user._id;
-                            const foundUser = users?.find(
-                              (u) => u._id === userId
-                            );
-                            if (!foundUser) return null;
-                            return (
-                              <Tooltip
-                                key={breakItem._id}
-                                content={`${t("Started at")} ${
-                                  breakItem.startHour
-                                }`}
-                              >
-                                <Chip
-                                  value={foundUser.name}
-                                  style={{
-                                    backgroundColor:
-                                      foundUser.role?.color || "gray",
-                                    height: "fit-content",
-                                  }}
-                                  color="gray"
-                                />
-                              </Tooltip>
-                            );
-                          })}
-                      </div>
-                    </div>
-                  )}
                   <ShiftList
                     key={selectedDate + selectedLocationId + "active"}
                     visits={visits}

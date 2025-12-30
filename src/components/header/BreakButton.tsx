@@ -9,6 +9,7 @@ import {
   useBreakMutations,
   useGetBreaksByLocation,
 } from "../../utils/api/break";
+import { CreateBreakDto } from "../../types";
 
 interface BreakButtonProps {
   onBreakStart?: () => void;
@@ -51,7 +52,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     }
 
     // Start break
-    const breakData = {
+    const breakData : CreateBreakDto = {
       user: user._id,
       location: selectedLocationId,
       date: format(new Date(), "yyyy-MM-dd"),
