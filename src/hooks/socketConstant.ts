@@ -269,4 +269,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "consumerChanged",
     invalidateKeys: [`${Paths.Consumers}`, `${Paths.Consumers}/full-names`],
   },
+  {
+    event: "breakChanged",
+    invalidateKeys: [`${Paths.Breaks}`],
+  },
 ];

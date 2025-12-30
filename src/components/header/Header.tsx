@@ -5,6 +5,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { Routes } from "../../navigation/constants";
 import { useGetUserNewNotifications } from "../../utils/api/notification";
 import { useGetUser } from "../../utils/api/user";
+import { BreakButton } from "./BreakButton";
 import { LocationSelector } from "./LocationSelector";
 import logo from "./logo.svg";
 import NotificationModal from "./NotificationModal";
@@ -58,6 +59,7 @@ export function Header({
             {showLocationSelector && (
               <LocationSelector allowedLocations={allowedLocations} />
             )}
+            <BreakButton />
             <div
               onClick={(e) => {
                 e.stopPropagation();

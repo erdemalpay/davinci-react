@@ -1,10 +1,8 @@
-import {
-  QueryClient,
-  QueryClientProvider
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BreakOverlay } from "./components/common/BreakOverlay";
 import { Sidebar } from "./components/common/Sidebar";
 import { DataContextProvider } from "./context/Data.context";
 import { DateContextProvider } from "./context/Date.context";
@@ -48,6 +46,7 @@ function App() {
       >
         <RouterContainer />
       </div>
+      <BreakOverlay />
       <ToastContainer
         autoClose={2000}
         hideProgressBar={true}

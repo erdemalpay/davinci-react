@@ -441,6 +441,32 @@ export type Visit = {
   visitFinishSource?: VisitSource;
 };
 
+export type Break = {
+  _id: number;
+  user: User | string;
+  location: number;
+  date: string;
+  startHour: string;
+  finishHour?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export type CreateBreakDto = {
+  user: string;
+  location: number;
+  date: string;
+  startHour: string;
+};
+
+export type UpdateBreakDto = {
+  finishHour?: string;
+  startHour?: string;
+  date?: string;
+  user?: string;
+  location?: number;
+};
+
 export enum ButtonCallTypeEnum {
   TABLECALL = "TABLECALL",
   GAMEMASTERCALL = "GAMEMASTERCALL",
@@ -1069,6 +1095,7 @@ export enum VisitPageTabEnum {
   SHIFTCHANGE,
   CHANGEREQUESTMANAGEMENT,
   USERCHANGEREQUESTTAB,
+  ALLBREAKS,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,

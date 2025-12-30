@@ -49,6 +49,7 @@ export const Paths = {
   Expiration: "/expiration",
   Point: "/point",
   Consumers: "/consumers",
+  Breaks: "/breaks",
 };
 
 interface Props<T> {
@@ -63,7 +64,7 @@ export function useGet<T>(
   path: string,
   queryKey?: QueryKey,
   isStaleTimeZero?: boolean,
-  options?: Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">
 ) {
   const fetchQueryKey = queryKey || [path];
 
@@ -83,7 +84,7 @@ export function useGetList<T>(
   path: string,
   queryKey?: QueryKey,
   isStaleTimeZero?: boolean,
-  options?: Omit<UseQueryOptions<T[]>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<T[]>, "queryKey" | "queryFn">
 ) {
   return useGet<T[]>(path, queryKey, isStaleTimeZero, options) || [];
 }
