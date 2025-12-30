@@ -154,9 +154,14 @@ export function ActiveVisitList({
       </div>
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
         {uniqueVisits.map((visit) => {
+          const userOnVisit = getItem(visit?.user, users);
+          if (!userOnVisit) {
+            return null;
+          }
+
           const userBreak = isUserOnBreak(visit.user);
-          const userName = getItem(visit?.user, users)?.name ?? "";
-          const userRole = getItem(visit?.user, users)?.role?.name ?? "";
+          const userName = userOnVisit.name ?? "";
+          const userRole = userOnVisit.role?.name ?? "";
 
           const tooltipContent = userBreak
             ? `${userRole}  •  ${t("On Break")}`
@@ -169,9 +174,9 @@ export function ActiveVisitList({
                   value={userName}
                   style={{
                     backgroundColor: isUserActive(visit.user)
-                      ? getItem(visit?.user, users)?.role?.color
+                      ? userOnVisit.role?.color
                       : "gray",
-                    height: "fit-content",
+                    height: "fit-content"
                   }}
                   color="gray"
                   {...(!isDisabledCondition &&
