@@ -274,7 +274,7 @@ const EducationDashboard = () => {
                     setSelectedUpdateHistory(edu?.updateHistory);
                     setIsUpdateHistoryOpen(true);
                   }}
-                  className={`text-xs text-gray-500 ${
+                  className={`text-xs text-gray-500 whitespace-nowrap ${
                     !disabledUsers && "cursor-pointer hover:text-blue-500"
                   }`}
                 >
