@@ -4,11 +4,9 @@ import {
   CardBody,
   CardHeader,
   Typography,
-  Switch,
 } from "@material-tailwind/react";
 import { ResponsiveLine } from "@nivo/line";
-import { ResponsiveRadar } from "@nivo/radar";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { AccountProduct, MenuCategory, UpperCategory, TURKISHLIRA } from "../../../types";
 import { format, parse } from "date-fns";
 
@@ -32,8 +30,6 @@ const PriceChart = ({
   selectedCategory,
   selectedUpperCategory,
 }: Props) => {
-  const [isRadarChart, setIsRadarChart] = useState(false);
-
   // Nivo için data formatını dönüştür
   const nivoLineData = useMemo(() => {
     if (!chartConfig?.series || !chartConfig?.options?.xaxis?.categories) {
@@ -47,30 +43,6 @@ const PriceChart = ({
         y: serie.data[idx] || 0,
       })),
     }));
-  }, [chartConfig]);
-
-  // Nivo Radar için data formatını dönüştür
-  const nivoRadarData = useMemo(() => {
-    if (!chartConfig?.options?.xaxis?.categories || !chartConfig?.series) {
-      return [];
-    }
-
-    const categories = chartConfig.options.xaxis.categories;
-    const series = chartConfig.series;
-
-    return categories.map((category: string, idx: number) => {
-      const dataPoint: any = { category };
-      series.forEach((serie: any) => {
-        dataPoint[serie.name] = serie.data[idx] || 0;
-      });
-      return dataPoint;
-    });
-  }, [chartConfig]);
-
-  // Radar chart için keys (series names)
-  const radarKeys = useMemo(() => {
-    if (!chartConfig?.series) return [];
-    return chartConfig.series.map((serie: any) => serie.name);
   }, [chartConfig]);
 
   // Renk paleti
@@ -90,7 +62,7 @@ const PriceChart = ({
         floated={false}
         shadow={false}
         color="transparent"
-        className="flex flex-row gap-4 rounded-none items-center justify-between"
+        className="flex flex-row gap-4 rounded-none items-center"
       >
         <div className="flex flex-row gap-4 items-center">
           <div className="w-max rounded-lg bg-gray-900 p-5 text-white">
@@ -104,24 +76,10 @@ const PriceChart = ({
             </Typography>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Typography variant="small" color="blue-gray">
-            Çizgi
-          </Typography>
-          <Switch
-            checked={isRadarChart}
-            onChange={() => setIsRadarChart(!isRadarChart)}
-            crossOrigin={undefined}
-          />
-          <Typography variant="small" color="blue-gray">
-            Radar
-          </Typography>
-        </div>
       </CardHeader>
-      <CardBody className={isRadarChart ? "px-2 py-8" : "px-2 pb-0"}>
-        <div style={{ height: isRadarChart ? "400px" : "240px" }}>
-          {!isRadarChart ? (
-            <ResponsiveLine
+      <CardBody className="px-2 pb-0">
+        <div style={{ height: "240px" }}>
+          <ResponsiveLine
               data={nivoLineData}
               margin={{ top: 20, right: 20, bottom: 60, left: 80 }}
               xScale={{ type: "point" }}
@@ -420,64 +378,6 @@ const PriceChart = ({
                 },
               }}
             />
-          ) : (
-            <ResponsiveRadar
-              data={nivoRadarData}
-              keys={radarKeys}
-              indexBy="category"
-              margin={{ top: 70, right: 80, bottom: 40, left: 80 }}
-              borderColor={{ from: "color" }}
-              gridLabelOffset={16}
-              dotSize={8}
-              dotColor={{ theme: "background" }}
-              dotBorderWidth={2}
-              dotBorderColor={{ from: "color" }}
-              colors={colors}
-              fillOpacity={0.25}
-              blendMode="multiply"
-              motionConfig="wobbly"
-              legends={[
-                {
-                  anchor: "top-left",
-                  direction: "column",
-                  translateX: -50,
-                  translateY: -40,
-                  itemWidth: 80,
-                  itemHeight: 20,
-                  itemTextColor: "#999",
-                  symbolSize: 12,
-                  symbolShape: "circle",
-                },
-              ]}
-              valueFormat={(value: number) => formatTooltipValue(value)}
-              theme={{
-                axis: {
-                  ticks: {
-                    text: {
-                      fill: "#616161",
-                      fontSize: 12,
-                      fontFamily: "inherit",
-                    },
-                  },
-                },
-                grid: {
-                  line: {
-                    stroke: "#e9e9e9",
-                  },
-                },
-                tooltip: {
-                  container: {
-                    background: "#1f2937",
-                    color: "#fff",
-                    fontSize: "12px",
-                    borderRadius: "6px",
-                    boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
-                    padding: "12px",
-                  },
-                },
-              }}
-            />
-          )}
         </div>
       </CardBody>
     </Card>
