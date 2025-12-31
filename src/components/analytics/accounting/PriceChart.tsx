@@ -465,6 +465,16 @@ const PriceChart = ({
                     stroke: "#e9e9e9",
                   },
                 },
+                tooltip: {
+                  container: {
+                    background: "#1f2937",
+                    color: "#fff",
+                    fontSize: "12px",
+                    borderRadius: "6px",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
+                    padding: "12px",
+                  },
+                },
               }}
             />
           )}
