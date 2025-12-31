@@ -28,9 +28,9 @@ function isMonthlyData(data: any): data is MonthlyData {
 // Helper: Label generation functions
 function getDayLabel(dateStr: string, t: any): string {
   const date = parse(dateStr, "yyyy-MM-dd", new Date());
-  const dayIndex = date.getDay();
-  const dayKeys = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  return t(dayKeys[dayIndex]);
+  const day = format(date, "d");
+  const month = format(date, "MMM");
+  return `${day} ${t(month)}`;
 }
 
 function getMonthLabel(monthStr: string, t: any): string {

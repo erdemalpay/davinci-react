@@ -382,7 +382,7 @@ const OrdersSummary = () => {
                 filterSummaryFormElements.after &&
                 filterSummaryFormElements.before && (
                   <div className="relative z-10">
-                    {selectedCategory && (
+                    {selectedCategory ? (
                       <CategorySummaryCompareChart
                         location={
                           filterSummaryFormElements.location
@@ -393,8 +393,7 @@ const OrdersSummary = () => {
                         primaryAfter={filterSummaryFormElements.after}
                         primaryBefore={filterSummaryFormElements.before}
                       />
-                    )}
-                    {selectedUpperCategory && (
+                    ) : selectedUpperCategory ? (
                       <CategorySummaryCompareChart
                         location={
                           filterSummaryFormElements.location
@@ -405,23 +404,22 @@ const OrdersSummary = () => {
                         primaryAfter={filterSummaryFormElements.after}
                         primaryBefore={filterSummaryFormElements.before}
                       />
-                    )}
+                    ) : null}
                   </div>
                 )}
               {!useCompareChart && (
                 <>
-                  {selectedCategory && (
+                  {selectedCategory ? (
                     <CategorySummaryChart
                       location={filterSummaryFormElements.location}
                       category={selectedCategory}
                     />
-                  )}
-                  {selectedUpperCategory && (
+                  ) : selectedUpperCategory ? (
                     <CategorySummaryChart
                       location={filterSummaryFormElements.location}
                       upperCategory={selectedUpperCategory}
                     />
-                  )}
+                  ) : null}
                 </>
               )}
             </div>
