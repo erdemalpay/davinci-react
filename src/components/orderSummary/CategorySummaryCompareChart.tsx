@@ -95,173 +95,7 @@ export default function CategorySummaryCompareChart({
   const granularity =
     compareData?.primaryPeriod?.granularity || estimatedGranularity;
 
-  // Tooltip custom fonksiyonu - useMemo ile memoize et
-  const customTooltip = useMemo(() => {
-    if (!compareData) {
-      return ({ series, seriesIndex, dataPointIndex, w }: any) => "";
-    }
-
-    return ({ series, seriesIndex, dataPointIndex, w }: any) => {
-      try {
-        const primaryPeriod = compareData.primaryPeriod;
-        const secondaryPeriod = compareData.secondaryPeriod;
-
-        // Data point bilgilerini al
-        const primaryDataPoint = primaryPeriod.data[dataPointIndex];
-        const secondaryDataPoint = secondaryPeriod.data[dataPointIndex];
-
-        if (!primaryDataPoint || !secondaryDataPoint) {
-          return "";
-        }
-
-        // X ekseni label'ını oluştur
-        let xAxisLabel = "";
-        if (isDailyData(primaryDataPoint)) {
-          xAxisLabel = getDayLabel(primaryDataPoint.date, t);
-        } else if (isMonthlyData(primaryDataPoint)) {
-          xAxisLabel = getMonthLabel(primaryDataPoint.month, t);
-        }
-
-        // Tooltip için detaylı tarih bilgisi
-        const periodGranularity = primaryPeriod.granularity || granularity;
-        let detailedDateInfo = "";
-
-        if (
-          periodGranularity === "monthly" &&
-          isMonthlyData(primaryDataPoint)
-        ) {
-          // Aylık: Ay ismini göster
-          detailedDateInfo = getMonthLabel(primaryDataPoint.month, t);
-        } else if (
-          periodGranularity === "daily" &&
-          isDailyData(primaryDataPoint)
-        ) {
-          // Günlük: Tarih formatı
-          const date = parse(primaryDataPoint.date, "yyyy-MM-dd", new Date());
-          const dayLabel = getDayLabel(primaryDataPoint.date, t);
-          const monthLabel = t(format(date, "MMM"));
-          detailedDateInfo = `${format(date, "dd")} ${monthLabel}, ${dayLabel}`;
-        } else {
-          detailedDateInfo = xAxisLabel;
-        }
-
-        // Series değerlerini al
-        // ApexCharts'ta shared tooltip kullanırken series yapısı: [[val1, val2, ...], [val1, val2, ...]]
-        const primaryValue =
-          series && series[0]
-            ? series[0][dataPointIndex] ?? primaryDataPoint.total ?? 0
-            : primaryDataPoint.total ?? 0;
-        const secondaryValue =
-          series && series[1]
-            ? series[1][dataPointIndex] ?? secondaryDataPoint.total ?? 0
-            : secondaryDataPoint.total ?? 0;
-
-        // Fark hesapla (isteğe bağlı gösterim için)
-        const difference = primaryValue - secondaryValue;
-        const percentageChangeNum =
-          secondaryValue !== 0 ? (difference / secondaryValue) * 100 : 0;
-        const percentageChange = percentageChangeNum.toFixed(1);
-
-        // Her dönem için spesifik tarih bilgisi oluştur
-        let primaryDateLabel = "";
-        let secondaryDateLabel = "";
-
-        if (periodGranularity === "daily") {
-          // Günlük için: tarih bilgisi + YIL
-          if (isDailyData(primaryDataPoint)) {
-            const date = parse(primaryDataPoint.date, "yyyy-MM-dd", new Date());
-            const monthLabel = t(format(date, "MMM"));
-            primaryDateLabel = `${format(date, "dd")} ${monthLabel} ${format(date, "yyyy")}`;
-          }
-          if (isDailyData(secondaryDataPoint)) {
-            const date = parse(secondaryDataPoint.date, "yyyy-MM-dd", new Date());
-            const monthLabel = t(format(date, "MMM"));
-            secondaryDateLabel = `${format(date, "dd")} ${monthLabel} ${format(date, "yyyy")}`;
-          }
-        } else if (periodGranularity === "monthly") {
-          // Aylık için: ay adı + YIL
-          if (isMonthlyData(primaryDataPoint)) {
-            const date = parse(primaryDataPoint.month + "-01", "yyyy-MM-dd", new Date());
-            const monthLabel = getMonthLabel(primaryDataPoint.month, t);
-            primaryDateLabel = `${monthLabel} ${format(date, "yyyy")}`;
-          }
-          if (isMonthlyData(secondaryDataPoint)) {
-            const date = parse(secondaryDataPoint.month + "-01", "yyyy-MM-dd", new Date());
-            const monthLabel = getMonthLabel(secondaryDataPoint.month, t);
-            secondaryDateLabel = `${monthLabel} ${format(date, "yyyy")}`;
-          }
-        }
-
-        return `
-          <div style="padding: 12px; background: #1f2937; border-radius: 6px; min-width: 240px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <!-- Tarih Başlığı -->
-            <div style="font-weight: 700; margin-bottom: 10px; color: #fff; font-size: 14px; border-bottom: 1px solid #374151; padding-bottom: 8px;">
-              ${detailedDateInfo}
-            </div>
-            
-            <!-- Değerler -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Primary Period (Mor - Seçili Dönem) -->
-              <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="width: 12px; height: 12px; background: #8B5CF6; border-radius: 2px;"></div>
-                  <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${primaryDateLabel}</span>
-                </div>
-                <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${primaryValue.toLocaleString(
-                  "tr-TR"
-                )} ${TURKISHLIRA}</span>
-              </div>
-
-              <!-- Secondary Period (Turuncu - Karşılaştırma Dönemi) -->
-              <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="width: 12px; height: 12px; background: #FB923C; border-radius: 2px;"></div>
-                  <span style="color: #9ca3af; font-size: 11px; font-weight: 500;">${secondaryDateLabel}</span>
-                </div>
-                <span style="color: #fff; font-weight: 700; font-size: 16px; margin-left: 18px;">${secondaryValue.toLocaleString(
-                  "tr-TR"
-                )} ${TURKISHLIRA}</span>
-              </div>
-              
-              <!-- Fark Gösterimi (sadece 0 değilse) -->
-              ${
-                difference !== 0
-                  ? `
-              <div style="margin-top: 4px; padding-top: 8px; border-top: 1px solid #374151;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span style="color: #9ca3af; font-size: 11px;">Fark:</span>
-                  <div style="text-align: right;">
-                    <div style="color: ${
-                      difference > 0 ? "#10b981" : "#ef4444"
-                    }; font-weight: 700; font-size: 14px;">
-                      ${difference > 0 ? "+" : ""}${Math.abs(
-                      difference
-                    ).toLocaleString("tr-TR")} ${TURKISHLIRA}
-                    </div>
-                    <div style="color: ${
-                      difference > 0 ? "#10b981" : "#ef4444"
-                    }; font-size: 11px;">
-                      (${
-                        percentageChangeNum > 0 ? "+" : ""
-                      }${percentageChange}%)
-                    </div>
-                  </div>
-                </div>
-              </div>
-              `
-                  : ""
-              }
-            </div>
-          </div>
-        `;
-      } catch (error) {
-        console.error("Tooltip error:", error);
-        return "";
-      }
-    };
-  }, [compareData, granularity]);
-
-  const [chartConfig, setChartConfig] = useState<any>({
+  const [chartConfig] = useState<any>({
     height: 240,
     type: "line",
     series: [
@@ -409,21 +243,16 @@ export default function CategorySummaryCompareChart({
           ...chartConfig.options.xaxis,
           categories: categories,
         },
-        tooltip: {
-          enabled: true,
-          shared: true,
-          intersect: false,
-          followCursor: false,
-          theme: "dark",
-          custom: customTooltip,
-          style: {
-            fontSize: "12px",
-            fontFamily: "inherit",
-          },
-        },
+      },
+      // Nivo için tooltip metadata
+      tooltipData: {
+        primaryPeriod,
+        secondaryPeriod,
+        granularity,
+        t,
       },
     };
-  }, [compareData, granularity, customTooltip, chartConfig]);
+  }, [compareData, granularity, chartConfig, t]);
 
   // Secondary period label - MUST be before any early returns
   const secondaryPeriodLabel = useMemo(() => {
