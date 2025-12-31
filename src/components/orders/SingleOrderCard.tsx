@@ -1,14 +1,12 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useDataContext } from "../../context/Data.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { Order, OrderStatus, User } from "../../types";
-import { useGetKitchens } from "../../utils/api/menu/kitchen";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCreateOrderForDivideMutation,
   useOrderMutations,
 } from "../../utils/api/order/order";
-import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { GenericButton } from "../common/GenericButton";
 import CommonSelectInput from "../common/SelectInput";
@@ -24,9 +22,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
 
-  const users = useGetUsersMinimal();
-  const items = useGetMenuItems();
-  const kitchens = useGetKitchens();
+  const { users = [], menuItems: items, kitchens = [] } = useDataContext();
   const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
   // const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
   orderCreatedSound.volume = 1;
@@ -34,7 +30,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
   const gainNode = audioContext.createGain();
 
   // Set the gain to 2 (double the volume)
-  gainNode.gain.value = 2;
+  gainNode.gain.value = 12;
   const source = audioContext.createMediaElementSource(orderCreatedSound);
 
   // Connect the source to the gain node, and the gain node to the destination
@@ -69,7 +65,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         orderCreatedSound
           .play()
           .catch((error) => console.error("Error playing sound:", error));
-      }, 10000);
+      }, 5000);
     }
 
     return () => {
@@ -78,8 +74,8 @@ const SingleOrderCard = ({ order, user }: Props) => {
   }, [order?.status, user?.role?._id]);
 
   return (
-    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  max-h-28 __className_a182b8  overflow-scroll no-scrollbar">
-      <div className="flex flex-row gap-4  px-2 mt-1  ">
+    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm __className_a182b8">
+      <div className="flex flex-row gap-4 px-2 mt-1">
         {/* img & time */}
         <div className="flex flex-col gap-1 h-16  items-center ">
           {order?.status !== OrderStatus.SERVED && (
@@ -92,8 +88,8 @@ const SingleOrderCard = ({ order, user }: Props) => {
           />
         </div>
         {/* itemName,quantity & orderNote */}
-        <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
-          <div className="flex flex-row justify-between w-full pr-2 items-center ">
+        <div className="flex flex-col gap-2 justify-center items-center w-full">
+          <div className="flex flex-row justify-between w-full pr-2 items-center">
             <p>{getItem(order?.item, items)?.name}</p>
             {order?.quantity === 1 && (
               <p className="border px-2 py-0.5 border-gray-300 rounded-md">
@@ -126,7 +122,11 @@ const SingleOrderCard = ({ order, user }: Props) => {
               />
             )}
           </div>
-          <p className="text-xs mr-auto">{order?.note}</p>
+          {order?.note && (
+            <p className="text-xs text-left w-full max-w-full break-words overflow-hidden hyphens-auto">
+              {order?.note}
+            </p>
+          )}
         </div>
       </div>
       {/* createdBy and buttons */}

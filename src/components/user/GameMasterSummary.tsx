@@ -1,3 +1,5 @@
+import { ResponsiveCalendar } from "@nivo/calendar";
+import { addDays, format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaGamepad } from "react-icons/fa";
@@ -10,6 +12,7 @@ import { SiPointy } from "react-icons/si";
 import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
+import useIsSmallScreen from "../../hooks/useIsSmallScreen";
 import {
   DateRangeKey,
   LocationShiftType,
@@ -19,6 +22,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGames } from "../../utils/api/game";
 import {
+  useGetGameplayCountsByDate,
   useGetPersonalGameplayCreateData,
   useGetPersonalGameplayMentoredData,
 } from "../../utils/api/gameplay";
@@ -41,6 +45,7 @@ type Props = {
 
 const GameMasterSummary = ({ userId }: Props) => {
   const { t } = useTranslation();
+  const isSmallScreen = useIsSmallScreen();
   const personalOrderDatas = useGetPersonalOrderDatas();
   const navigate = useNavigate();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
@@ -70,6 +75,7 @@ const GameMasterSummary = ({ userId }: Props) => {
     userId
   );
   const locations = useGetStoreLocations();
+  const gameplayCountsByDate = useGetGameplayCountsByDate(userId);
   let fullTimeAttendance = 0;
   let partTimeAttendance = 0;
   let unknownAttendance = 0;
@@ -397,27 +403,90 @@ const GameMasterSummary = ({ userId }: Props) => {
     locations,
   ]);
   return (
-    <div
-      key={tableKey}
-      className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"
-    >
-      <div className="border p-2 rounded-lg border-gray-200 bg-white col-span-1">
-        <GenericTable
-          key={tableKey}
-          columns={columns}
-          filterPanel={filterPanel}
-          filters={filters}
-          rows={rows}
-          rowKeys={rowKeys}
-          title={t("Learned Games")}
-          isActionsActive={false}
-        />
+    <div className="w-full flex flex-col gap-4">
+      <div
+        key={tableKey}
+        className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
+        <div className="border p-2 rounded-lg border-gray-200 bg-white col-span-1">
+          <GenericTable
+            key={tableKey}
+            columns={columns}
+            filterPanel={filterPanel}
+            filters={filters}
+            rows={rows}
+            rowKeys={rowKeys}
+            title={t("Learned Games")}
+            isActionsActive={false}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2 h-fit">
+          {userInfoCards.map((card, index) => (
+            <InfoCard key={index} {...card} />
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2 h-fit">
-        {userInfoCards.map((card, index) => (
-          <InfoCard key={index} {...card} />
-        ))}
-      </div>
+      {gameplayCountsByDate?.data && gameplayCountsByDate?.data?.length > 0 && (
+        <div className="border p-3 rounded-lg border-gray-200 bg-white w-full">
+          <h3 className="text-base sm:text-lg font-semibold mb-2">
+            {t("Gameplay Activity Calendar")}
+          </h3>
+          <div className="w-full overflow-x-scroll">
+            <div
+              style={{
+                height: isSmallScreen ? "15rem" : "18rem",
+                minWidth: isSmallScreen ? "60.25rem" : "100%",
+              }}
+            >
+              <ResponsiveCalendar
+                data={gameplayCountsByDate?.data}
+                from={format(addDays(startOfYear(new Date()), 1), "yyyy-MM-dd")}
+                to={format(new Date(), "yyyy-MM-dd")}
+                emptyColor="#eeeeee"
+                colors={["#61cdbb", "#97e3d5", "#e8c1a0", "#f47560"]}
+                margin={
+                  isSmallScreen
+                    ? { top: 5, right: 5, bottom: 20, left: 25 }
+                    : { top: 5, right: 10, bottom: 20, left: 30 }
+                }
+                yearSpacing={isSmallScreen ? 30 : 40}
+                monthBorderColor="#ffffff"
+                dayBorderWidth={isSmallScreen ? 0.5 : 1}
+                dayBorderColor="#ffffff"
+                monthSpacing={isSmallScreen ? 0.25 : 0.5}
+                legends={[]}
+              />
+            </div>
+          </div>
+          {/* Custom Legend */}
+          <div className="flex items-center justify-center gap-2 mt-2 text-xs sm:text-sm">
+            <span className="text-gray-600">{t("Less")}</span>
+            <div className="flex gap-1">
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#eeeeee" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#61cdbb" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#97e3d5" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#e8c1a0" }}
+              ></div>
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4"
+                style={{ backgroundColor: "#f47560" }}
+              ></div>
+            </div>
+            <span className="text-gray-600">{t("More")}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

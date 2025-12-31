@@ -25,13 +25,19 @@ interface CopyShiftIntervalPayload {
   selectedUsers?: string[];
 }
 
-export function useShiftMutations() {
+export function useShiftMutations(
+  after?: string,
+  before?: string,
+  location?: number
+) {
   const {
     deleteItem: deleteShift,
     updateItem: updateShift,
     createItem: createShift,
   } = useMutationApi<Shift>({
     baseQuery: Paths.Shift,
+    queryKey: [Paths.Shift, after, before, location],
+    isInvalidate: true,
   });
 
   return { deleteShift, updateShift, createShift };
@@ -71,6 +77,10 @@ export function useGetUserShifts(
     url = url.concat(`&location=${location}`);
   }
   return useGetList<Shift>(url, [`${Paths.Shift}`, after, before, user], true);
+}
+export function useGetUsersFutureShifts(after?: string) {
+  const url = `${Paths.Shift}/users-future-shifts/${after}`;
+  return useGetList<Shift>(url, [`${Paths.Shift}`, "users-future-shifts", after], true);
 }
 export function useGetLocationShifts(location: number) {
   const { filterPanelFormElements } = useShiftContext();
@@ -118,9 +128,10 @@ function copyShiftInterval(payload: CopyShiftIntervalPayload) {
 
 export function useCopyShiftMutation() {
   const queryClient = useQueryClient();
-  return useMutation(copyShift, {
+  return useMutation({
+    mutationFn: copyShift,
     onMutate: async () => {
-      await queryClient.cancelQueries([`${Paths.Shift}`]);
+      await queryClient.cancelQueries({ queryKey: [`${Paths.Shift}`] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -132,9 +143,10 @@ export function useCopyShiftMutation() {
 
 export function useAddShiftMutation() {
   const queryClient = useQueryClient();
-  return useMutation(addShift, {
+  return useMutation({
+    mutationFn: addShift,
     onMutate: async () => {
-      await queryClient.cancelQueries([`${Paths.Shift}`]);
+      await queryClient.cancelQueries({ queryKey: [`${Paths.Shift}`] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -146,9 +158,10 @@ export function useAddShiftMutation() {
 
 export function useCopyShiftIntervalMutation() {
   const queryClient = useQueryClient();
-  return useMutation(copyShiftInterval, {
+  return useMutation({
+    mutationFn: copyShiftInterval,
     onMutate: async () => {
-      await queryClient.cancelQueries([`${Paths.Shift}`]);
+      await queryClient.cancelQueries({ queryKey: [`${Paths.Shift}`] });
     },
     onError: (_err: any) => {
       const errorMessage =

@@ -242,7 +242,7 @@ const BulkExpenseCreate = () => {
           isPagination={errorDataForCreateMultipleExpense?.length > 0}
           isRowsPerPage={errorDataForCreateMultipleExpense?.length > 0}
           filters={filters}
-          excelFileName={t("BulkExpenseCreate.xlsx")}
+          excelFileName="BulkExpenseCreate.xlsx"
         />
         {errorDataForCreateMultipleExpense?.length === 0 && (
           <p className="indent-2 text-sm">

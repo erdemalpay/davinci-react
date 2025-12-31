@@ -46,14 +46,15 @@ export const updateStockForStockCount = (payload: UpdateStockPayload) => {
 export function useUpdateStockForStockCountMutation() {
   const queryKey = [`${Paths.Accounting}/stocks`];
   const queryClient = useQueryClient();
-  return useMutation(updateStockForStockCount, {
+  return useMutation({
+    mutationFn: updateStockForStockCount,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
-      await queryClient.cancelQueries([baseUrl]);
+      await queryClient.cancelQueries({ queryKey });
+      await queryClient.cancelQueries({ queryKey: [baseUrl] });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([baseUrl]);
+      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: [baseUrl] });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -75,14 +76,15 @@ export const updateStockForStockCountBulk = (
 export function useUpdateStockForStockCountBulkMutation() {
   const queryKey = [`${Paths.Accounting}/stocks`];
   const queryClient = useQueryClient();
-  return useMutation(updateStockForStockCountBulk, {
+  return useMutation({
+    mutationFn: updateStockForStockCountBulk,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
-      await queryClient.cancelQueries([baseUrl]);
+      await queryClient.cancelQueries({ queryKey });
+      await queryClient.cancelQueries({ queryKey: [baseUrl] });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([baseUrl]);
+      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: [baseUrl] });
     },
     onError: (_err: any) => {
       const errorMessage =

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../../context/Data.context";
 import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
@@ -11,6 +12,7 @@ import {
   MenuItem,
   OptionType,
   Order,
+  OrderCollection,
   OrderCollectionStatus,
   OrderStatus,
   TURKISHLIRA,
@@ -22,8 +24,6 @@ import { useGetAccountStocks } from "../../../utils/api/account/stock";
 import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetMemberships } from "../../../utils/api/membership";
 import { useGetAllCategories } from "../../../utils/api/menu/category";
-import { useGetKitchens } from "../../../utils/api/menu/kitchen";
-import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import {
   useCreateMultipleOrderMutation,
   useGetTableOrders,
@@ -36,12 +36,7 @@ import {
   useCloseTableMutation,
   useReopenTableMutation,
 } from "../../../utils/api/table";
-import {
-  MinimalUser,
-  useGetUser,
-  useGetUsersMinimal,
-} from "../../../utils/api/user";
-import { useGetVisits } from "../../../utils/api/visit";
+import { MinimalUser, useGetUser } from "../../../utils/api/user";
 import {
   lockBodyScroll,
   unlockBodyScroll,
@@ -67,6 +62,7 @@ type Props = {
   tables: Table[];
   isAddOrderActive?: boolean;
   tableOrdersProp?: Order[];
+  tableCollectionsProp?: OrderCollection[];
 };
 type ButtonType = {
   label: string;
@@ -79,19 +75,23 @@ const OrderPaymentModal = ({
   tables,
   isAddOrderActive = true,
   tableOrdersProp,
+  tableCollectionsProp,
 }: Props) => {
   const { t } = useTranslation();
   const user = useGetUser();
   const isMutating = useIsMutating();
-  const items = useGetMenuItems();
-  const orders = useGetTableOrders(tableId);
+  const {
+    menuItems: items = [],
+    kitchens = [],
+    users = [],
+    visits = [],
+  } = useDataContext();
+  const orders = tableOrdersProp || useGetTableOrders(tableId);
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
   const members = useGetMemberships();
   const { setIsTabInputScreenOpen } = useGeneralContext();
-  const users = useGetUsersMinimal();
-  const visits = useGetVisits();
   const stocks = useGetAccountStocks();
   useEffect(() => {
     lockBodyScroll();
@@ -104,7 +104,7 @@ const OrderPaymentModal = ({
     ?.filter(
       (visit) => !visit?.finishHour && visit.location === selectedLocationId
     )
-    ?.map((visit) => visit.user);
+    .map((visit) => visit.user);
   const {
     isCollectionModalOpen,
     setIsCollectionModalOpen,
@@ -138,14 +138,13 @@ const OrderPaymentModal = ({
   };
   const table = getTable(tableId) as Table;
   const categories = useGetAllCategories();
-  const collections = useGetTableCollections(tableId);
+  const collections = tableCollectionsProp ?? useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [
     isPaymentModalCreateOrderDialogOpen,
     setIsPaymentModalCreateOrderDialogOpen,
   ] = useState(false);
   const discounts = useGetOrderDiscounts();
-  const kitchens = useGetKitchens();
   const products = useGetAllAccountProducts();
   const { paymentAmount } = useOrderContext();
   const [selectedActivityUser, setSelectedActivityUser] = useState<string>("");
@@ -538,7 +537,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.TAB,
       formKey: "category",
-      label: t("Category"),
       options: categories
         ?.filter((category) => {
           return (
@@ -622,7 +620,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.TAB,
       formKey: "item",
-      label: t("Product"),
       options: menuItemOptions,
       invalidateKeys: [
         { key: "discount", defaultValue: undefined },
@@ -653,7 +650,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
-      label: t("Quantity"),
       placeholder: t("Quantity"),
       minNumber: 0,
       required: true,
@@ -745,7 +741,6 @@ const OrderPaymentModal = ({
     {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
-      label: t("Stock Location"),
       options: locations?.map((input) => {
         const menuItem = getItem(orderForm.item, items);
         const foundProduct = getItem(menuItem?.matchedProduct, products);
@@ -800,7 +795,7 @@ const OrderPaymentModal = ({
       formKey: "activityPlayer",
       label: t("Player Number"),
       placeholder: t("Player Number"),
-      required: false,
+      required: table?.type === TableTypes.ACTIVITY,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
       isOnClearActive: true,
     },
@@ -853,8 +848,9 @@ const OrderPaymentModal = ({
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
     if (
-      (user && selectedMenuItem && table && selectedMenuItemCategory)
-        ?.isAutoServed
+      user &&
+      selectedMenuItem &&
+      (selectedMenuItemCategory?.isAutoServed || selectedMenuItem?.isAutoServed)
     ) {
       return {
         ...orderForm,
@@ -994,7 +990,7 @@ const OrderPaymentModal = ({
                     }),
                     orderObject,
                   ],
-                  table: table,
+                  table,
                 });
                 setOrderForm(initialOrderForm);
                 setOrderCreateBulk([]);

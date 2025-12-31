@@ -132,7 +132,7 @@ const Invoice = () => {
         brnd: getItem(invoice?.brand, brands),
         vndr: getItem(invoice?.vendor, vendors),
         prdct: getItem(invoice?.product, products),
-        paymentMethodName: t(foundPaymentMethod?.name ?? ""),
+        paymentMethodName: foundPaymentMethod?.name ?? "",
         foundPaymentMethod: foundPaymentMethod,
       };
     });
@@ -203,7 +203,7 @@ const Invoice = () => {
             ?.filter((pm) => pm?.isUsedAtExpense)
             ?.map((input) => ({
               value: input._id,
-              label: t(input.name),
+              label: input.name,
             })) || [],
         placeholder: t("Payment Method"),
         isMultiple: true,
@@ -484,7 +484,7 @@ const Invoice = () => {
             ?.filter((pm) => pm?.isUsedAtExpense)
             ?.map((input) => ({
               value: input._id,
-              label: t(input.name),
+              label: input.name,
             })) || [],
         placeholder: t("Payment Method"),
         required: true,

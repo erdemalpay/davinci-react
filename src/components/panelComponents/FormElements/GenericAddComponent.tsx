@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
-import { GenericButton } from "../../common/GenericButton";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
+import { GenericButton } from "../../common/GenericButton";
 import { H4, H6 } from "../Typography";
 import {
   FormKeyType,
@@ -104,8 +104,8 @@ const GenericAddComponent = <T,>({
     return mergedInitialState;
   });
 
-  const uploadImageMutation = useMutation(
-    async ({ file, filename }: { file: File; filename: string }) => {
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
@@ -120,16 +120,13 @@ const GenericAddComponent = <T,>({
       });
       return res;
     },
-
-    {
-      onSuccess: (data) => {
-        setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
-      },
-      onError: (error) => {
-        console.error("Error uploading file:", error);
-      },
-    }
-  );
+    onSuccess: (data) => {
+      setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
+    },
+    onError: (error) => {
+      console.error("Error uploading file:", error);
+    },
+  });
   useEffect(() => {
     setForm && setForm(formElements as T);
     setAllRequiredFilled(areRequiredFieldsFilled());

@@ -5,7 +5,7 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { FormElementsState, Game } from "../types";
+import { FormElementsState, Game, User } from "../types";
 import { useGetGamesMinimal } from "../utils/api/game";
 import { useGetGameplays } from "../utils/api/gameplay";
 import { useGetStoreLocations } from "../utils/api/location";
@@ -16,7 +16,10 @@ import { getItem } from "../utils/getItem";
 interface GameplayRow {
   _id: number;
   game: string;
-  mentor: string;
+  mentor: {
+    _id: string;
+    name: string;
+  };
   playerCount: number;
   startHour: string;
   finishHour: string;
@@ -44,6 +47,7 @@ export default function NewGameplays() {
     rowsPerPage,
     filterPanelFormElements
   );
+  console.log("gameplaysPayload", gameplaysPayload?.data);
   const games = useGetGamesMinimal();
   const locations = useGetStoreLocations();
   const users = useGetUsersMinimal();
@@ -51,11 +55,10 @@ export default function NewGameplays() {
   const rows = useMemo(() => {
     const allRows = gameplaysPayload?.data?.map((gameplay) => {
       const foundLocation = getItem(gameplay.location, locations);
-      const foundMentor = getItem(gameplay.mentor, users);
       return {
         _id: gameplay?._id || 0,
         game: (gameplay?.game as Game)?.name,
-        mentor: foundMentor?.name || "",
+        mentor: (gameplay?.mentor as User)?.name,
         playerCount: gameplay?.playerCount,
         locationName: foundLocation?.name || "",
         startHour: gameplay?.startHour || "",
@@ -255,7 +258,7 @@ export default function NewGameplays() {
           columns={columns}
           outsideSearchProps={outsideSearchProps}
           isSearch={false}
-          title={t("GamePlays")}
+          title={t("Gameplays")}
           filterPanel={filterPanel}
           filters={filters}
           outsideSortProps={outsideSort}

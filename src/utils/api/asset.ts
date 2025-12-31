@@ -29,9 +29,10 @@ export function deleteImage(url: string) {
 export function useDeleteImageMutation() {
   const queryKey = [`${Paths.Asset}`];
   const queryClient = useQueryClient();
-  return useMutation(deleteImage, {
+  return useMutation({
+    mutationFn: deleteImage,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     // onSettled: () => {
     //   queryClient.invalidateQueries(queryKey);

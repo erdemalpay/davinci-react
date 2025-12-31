@@ -35,7 +35,8 @@ export function updateEducationsOrder({
 export function useUpdateEducationsOrderMutation() {
   const queryKey = [`${Paths.Education}`];
   const queryClient = useQueryClient();
-  return useMutation(updateEducationsOrder, {
+  return useMutation({
+    mutationFn: updateEducationsOrder,
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey });
       const prev = queryClient.getQueryData<Education[]>(queryKey);

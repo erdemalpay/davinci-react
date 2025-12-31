@@ -36,7 +36,8 @@ function updateUserPasswordRequest({
 
 export function useUpdatePasswordMutation() {
   const { t } = useTranslation();
-  const { mutate: updatePassword } = useMutation(updateUserPasswordRequest, {
+  const { mutate: updatePassword } = useMutation({
+    mutationFn: updateUserPasswordRequest,
     onError: (_err: any, _newTable) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
@@ -54,7 +55,9 @@ function resetUserPasswordRequest({ id }: { id: string }) {
 }
 
 export function useResetPasswordMutation() {
-  const { mutate: resetPassword } = useMutation(resetUserPasswordRequest);
+  const { mutate: resetPassword } = useMutation({
+    mutationFn: resetUserPasswordRequest,
+  });
   return { resetPassword };
 }
 function updateUserGames({
@@ -74,9 +77,10 @@ function updateUserGames({
 export function updateUserGamesMutation() {
   const queryClient = useQueryClient();
 
-  const { mutate: updateUserGame } = useMutation(updateUserGames, {
+  const { mutate: updateUserGame } = useMutation({
+    mutationFn: updateUserGames,
     onSuccess: () => {
-      queryClient.invalidateQueries([Paths.Users]);
+      queryClient.invalidateQueries({ queryKey: [Paths.Users] });
     },
   });
 

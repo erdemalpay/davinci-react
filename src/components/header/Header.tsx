@@ -5,6 +5,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { Routes } from "../../navigation/constants";
 import { useGetUserNewNotifications } from "../../utils/api/notification";
 import { useGetUser } from "../../utils/api/user";
+import { BreakButton } from "./BreakButton";
 import { LocationSelector } from "./LocationSelector";
 import logo from "./logo.svg";
 import NotificationModal from "./NotificationModal";
@@ -53,11 +54,12 @@ export function Header({
                 alt="profile"
                 className="w-10 h-10 rounded-full"
               />
-              <span className="text-white">{user?.name}</span>
+              <span className="text-white hidden sm:inline">{user?.name}</span>
             </Link>
             {showLocationSelector && (
               <LocationSelector allowedLocations={allowedLocations} />
             )}
+            <BreakButton />
             <div
               onClick={(e) => {
                 e.stopPropagation();

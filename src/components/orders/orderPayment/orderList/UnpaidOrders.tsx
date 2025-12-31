@@ -6,9 +6,9 @@ import {
   MdOutlineTouchApp,
 } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../../../context/Data.context";
 import { useOrderContext } from "../../../../context/Order.context";
 import { Order, OrderDiscountStatus, OrderStatus } from "../../../../types";
-import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
@@ -29,7 +29,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
-  const items = useGetMenuItems();
+  const { menuItems: items = [] } = useDataContext();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -71,7 +71,18 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
       <OrderScreenHeader header="Unpaid Orders" />
       {/* orders */}
       {tableOrders
-        ?.sort((a, b) => a.item - b.item)
+        ?.sort((a, b) => {
+          if (a.activityPlayer && b.activityPlayer) {
+            return Number(a.activityPlayer) - Number(b.activityPlayer);
+          }
+          if (a.activityPlayer && !b.activityPlayer) {
+            return -1;
+          }
+          if (!a.activityPlayer && b.activityPlayer) {
+            return 1;
+          }
+          return a.item - b.item;
+        })
         .map((order) => {
           const isAllPaid = order?.paidQuantity === order?.quantity;
           if (!order || isAllPaid) return null;
@@ -338,9 +349,11 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             ?.isVisibleOnPaymentScreen &&
                           order?.discountNote && (
                             <p className="text-xs text-gray-600">
-                              ({Array.isArray(order.discountNote)
+                              (
+                              {Array.isArray(order.discountNote)
                                 ? order.discountNote.join(", ")
-                                : order.discountNote})
+                                : order.discountNote}
+                              )
                             </p>
                           )}
                       </div>

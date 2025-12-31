@@ -82,10 +82,10 @@ export function useGetGivenDateVisits(date: string) {
 export function useGetMonthlyVisits(location: number, date: string) {
   const query = `${Paths.Visits}/monthly?location=${location}&date=${date}`;
 
-  const { isLoading, error, data, isFetching } = useQuery(
-    [Paths.Visits, "monthly", location, date],
-    () => get<Visit[]>({ path: query })
-  );
+  const { isLoading, error, data, isFetching } = useQuery({
+    queryKey: [Paths.Visits, "monthly", location, date],
+    queryFn: () => get<Visit[]>({ path: query }),
+  });
   return {
     isLoading,
     error,
@@ -99,11 +99,12 @@ export function useCreateVisitMutation() {
   const { selectedDate } = useDateContext();
   const queryClient = useQueryClient();
   const queryKey = [Paths.Visits, selectedLocationId, selectedDate];
-  return useMutation(createVisit, {
+  return useMutation({
+    mutationFn: createVisit,
     // We are updating visits query data with new visit
     onMutate: async (newVisit) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
       const previousVisits = queryClient.getQueryData<Visit[]>(queryKey);
@@ -129,7 +130,7 @@ export function useCreateVisitMutation() {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -140,11 +141,12 @@ export function useFinishVisitMutation() {
   const queryClient = useQueryClient();
   const queryKey = [Paths.Visits, selectedLocationId, selectedDate];
 
-  return useMutation(finishVisit, {
+  return useMutation({
+    mutationFn: finishVisit,
     // We are updating visits query data with new visit
     onMutate: async ({ id, finishHour, visitFinishSource }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
       const previousVisits = queryClient.getQueryData<Visit[]>(queryKey) || [];
@@ -180,7 +182,7 @@ export function useFinishVisitMutation() {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }

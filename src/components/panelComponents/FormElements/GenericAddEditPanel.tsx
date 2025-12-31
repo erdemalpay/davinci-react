@@ -155,7 +155,7 @@ const GenericAddEditPanel = <T,>({
           defaultValue = "#ffffff";
           break;
         case FormKeyTypeEnum.NUMBER:
-          defaultValue = null;
+          defaultValue = undefined;
           break;
         case FormKeyTypeEnum.BOOLEAN:
           defaultValue = false;
@@ -182,8 +182,8 @@ const GenericAddEditPanel = <T,>({
     setIsExtraModalOpen?.(false);
     close?.();
   };
-  const uploadImageMutation = useMutation(
-    async ({ file, filename }: { file: File; filename: string }) => {
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
@@ -198,15 +198,13 @@ const GenericAddEditPanel = <T,>({
       });
       return res;
     },
-    {
-      onSuccess: (data) => {
-        setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
-      },
-      onError: (error) => {
-        console.error("Error uploading file:", error);
-      },
-    }
-  );
+    onSuccess: (data) => {
+      setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
+    },
+    onError: (error) => {
+      console.error("Error uploading file:", error);
+    },
+  });
   const triggerOnTriggerTabInput = () => {
     if (!onOpenTriggerTabInputFormKey) return;
     const input = inputs.find(
@@ -393,9 +391,9 @@ const GenericAddEditPanel = <T,>({
           anotherPanelTopClassName
             ? ""
             : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
-        }   max-h-[90vh]   ${generalClassName} `}
+        }   max-h-[90vh] overflow-y-auto   ${generalClassName} `}
       >
-        <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between  h-full">
+        <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between">
           {upperMessage?.length && upperMessage?.length > 0 && (
             <div className="flex flex-col px-4 py-2 border-b space-y-1">
               {upperMessage.map((msg, index) => (
@@ -791,7 +789,7 @@ const GenericAddEditPanel = <T,>({
               })}
             </div>
           </div>
-          <div className="ml-auto flex flex-row gap-4 mt-auto ">
+          <div className="sm:ml-auto mx-auto sm:mx-0 flex flex-row gap-4 mt-auto relative justify-center sm:justify-start">
             <GenericButton
               variant="danger"
               size="md"

@@ -49,6 +49,7 @@ export const Paths = {
   Expiration: "/expiration",
   Point: "/point",
   Consumers: "/consumers",
+  Breaks: "/breaks",
 };
 
 interface Props<T> {
@@ -63,13 +64,15 @@ export function useGet<T>(
   path: string,
   queryKey?: QueryKey,
   isStaleTimeZero?: boolean,
-  options?: UseQueryOptions<T>
+  options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">
 ) {
   const fetchQueryKey = queryKey || [path];
 
-  const { data } = useQuery<T>(fetchQueryKey, () => get<T>({ path }), {
+  const { data } = useQuery<T>({
+    queryKey: fetchQueryKey,
+    queryFn: () => get<T>({ path }),
     staleTime: isStaleTimeZero ? 0 : 1000 * 60 * 60, // 1 hour
-    cacheTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false, // default
     ...options, // spread options after to allow overriding
   });
@@ -81,7 +84,7 @@ export function useGetList<T>(
   path: string,
   queryKey?: QueryKey,
   isStaleTimeZero?: boolean,
-  options?: UseQueryOptions<T[]>
+  options?: Omit<UseQueryOptions<T[]>, "queryKey" | "queryFn">
 ) {
   return useGet<T[]>(path, queryKey, isStaleTimeZero, options) || [];
 }
@@ -115,11 +118,12 @@ export function useMutationApi<T extends { _id: number | string }>({
   const { t } = useTranslation();
   function useCreateItemMutation() {
     const queryClient = useQueryClient();
-    return useMutation(createRequest, {
+    return useMutation({
+      mutationFn: createRequest,
       // We are updating tables query data with new item
       onMutate: async (itemDetails) => {
         // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-        await queryClient.cancelQueries(queryKey);
+        await queryClient.cancelQueries({ queryKey });
         // Snapshot the previous value
         const previousItems = queryClient.getQueryData<T[]>(queryKey);
         if (!previousItems) return;
@@ -149,11 +153,11 @@ export function useMutationApi<T extends { _id: number | string }>({
       // Always refetch after error or success:
       onSettled: async () => {
         if (isInvalidate) {
-          queryClient.invalidateQueries(queryKey);
+          queryClient.invalidateQueries({ queryKey });
         }
         if (isAdditionalInvalidate) {
           additionalInvalidates?.forEach((key) => {
-            queryClient.invalidateQueries(key);
+            queryClient.invalidateQueries({ queryKey: key });
           });
         }
       },
@@ -162,11 +166,12 @@ export function useMutationApi<T extends { _id: number | string }>({
   function useDeleteItemMutation() {
     const queryClient = useQueryClient();
 
-    return useMutation(deleteRequest, {
+    return useMutation({
+      mutationFn: deleteRequest,
       // We are updating tables query data with new item
       onMutate: async (id) => {
         // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-        await queryClient.cancelQueries(queryKey);
+        await queryClient.cancelQueries({ queryKey });
 
         // Snapshot the previous value
         const previousItems = queryClient.getQueryData<T[]>(queryKey) || [];
@@ -198,11 +203,11 @@ export function useMutationApi<T extends { _id: number | string }>({
       // Always refetch after error or success:
       onSettled: async () => {
         if (isInvalidate) {
-          queryClient.invalidateQueries(queryKey);
+          queryClient.invalidateQueries({ queryKey });
         }
         if (isAdditionalInvalidate) {
           additionalInvalidates?.forEach((key) => {
-            queryClient.invalidateQueries(key);
+            queryClient.invalidateQueries({ queryKey: key });
           });
         }
       },
@@ -210,11 +215,12 @@ export function useMutationApi<T extends { _id: number | string }>({
   }
   function useUpdateItemMutation() {
     const queryClient = useQueryClient();
-    return useMutation(updateRequest, {
+    return useMutation({
+      mutationFn: updateRequest,
       // We are updating tables query data with new item
       onMutate: async ({ id, updates }: UpdatePayload<T>) => {
         // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-        await queryClient.cancelQueries(queryKey);
+        await queryClient.cancelQueries({ queryKey });
 
         // Snapshot the previous value
         const previousItems = queryClient.getQueryData<T[]>(queryKey) || [];
@@ -253,11 +259,11 @@ export function useMutationApi<T extends { _id: number | string }>({
       // Always refetch after error or success:
       onSettled: async () => {
         if (isInvalidate) {
-          queryClient.invalidateQueries(queryKey);
+          queryClient.invalidateQueries({ queryKey });
         }
         if (isAdditionalInvalidate || additionalInvalidates) {
           additionalInvalidates?.forEach((key) => {
-            queryClient.invalidateQueries(key);
+            queryClient.invalidateQueries({ queryKey: key });
           });
         }
       },

@@ -12,11 +12,11 @@ import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
+import { useDataContext } from "../context/Data.context";
 import { useDateContext } from "../context/Date.context";
 import { Table, TableStatus, TableTypes, User } from "../types";
 import { useGetTables } from "../utils/api/table";
-import { MinimalUser, useGetUsersMinimal } from "../utils/api/user";
-import { useGetVisits } from "../utils/api/visit";
+import { MinimalUser } from "../utils/api/user";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { sortTable } from "../utils/sort";
@@ -28,12 +28,11 @@ const OnlineSales = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
-  const visits = useGetVisits();
+  const { visits = [], users = [] } = useDataContext();
 
   const tables = useGetTables()
     .filter((table) => table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
-  const users = useGetUsersMinimal();
   if (!users) {
     return <></>;
   }

@@ -1,14 +1,10 @@
-import {
-  QueryClient,
-  QueryClientProvider,
-  useIsMutating,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loading from "./components/common/Loading";
+import { BreakOverlay } from "./components/common/BreakOverlay";
 import { Sidebar } from "./components/common/Sidebar";
+import { DataContextProvider } from "./context/Data.context";
 import { DateContextProvider } from "./context/Date.context";
 import { FilterContextProvider } from "./context/Filter.context";
 import {
@@ -19,30 +15,30 @@ import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { ShiftContextProvider } from "./context/Shift.context";
 import { UserContextProvider, useUserContext } from "./context/User.context";
-import { usePageVisibility } from "./hooks/usePageVisibility";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
 
+const queryClient = new QueryClient();
+
 function App() {
-  const isMutating = useIsMutating();
-  const isVisible = usePageVisibility();
-  const queryClient = useQueryClient();
+  // const isVisible = usePageVisibility();
+  // const queryClient = useQueryClient();
   const { isSidebarOpen } = useGeneralContext();
   const { user } = useUserContext();
+  // const prevVisibleRef = useRef(isVisible);
 
   useWebSocket();
 
-  useEffect(() => {
-    if (!isVisible) {
-      queryClient.clear();
-    }
-  }, [isVisible, queryClient]);
+  // useEffect(() => {
+  //   if (prevVisibleRef.current === false && isVisible === true) {
+  //     queryClient.clear();
+  //   }
+  //   prevVisibleRef.current = isVisible;
+  // }, [isVisible, queryClient]);
 
   return (
     <div className="App">
-      {isMutating ? <Loading /> : null}
       <Sidebar />
-
       <div
         className={`transition-all duration-300 ${
           user ? (isSidebarOpen ? "lg:ml-64" : "lg:ml-16") : ""
@@ -50,6 +46,7 @@ function App() {
       >
         <RouterContainer />
       </div>
+      <BreakOverlay />
       <ToastContainer
         autoClose={2000}
         hideProgressBar={true}
@@ -63,7 +60,6 @@ function App() {
 }
 
 function Wrapper() {
-  const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
       <DateContextProvider>
@@ -73,7 +69,9 @@ function Wrapper() {
               <OrderContextProvider>
                 <ShiftContextProvider>
                   <FilterContextProvider>
-                    <App />
+                    <DataContextProvider>
+                      <App />
+                    </DataContextProvider>
                   </FilterContextProvider>
                 </ShiftContextProvider>
               </OrderContextProvider>
@@ -81,6 +79,7 @@ function Wrapper() {
           </UserContextProvider>
         </LocationContextProvider>
       </DateContextProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

@@ -573,16 +573,16 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         placeholder: t("Barcode"),
         required: false,
       },
-        ...(singleItemGroup?.category?.isLimitedTime
-          ? [
-              {
-                type: InputTypes.DATE,
-                formKey: "startDate",
-                label: t("Start Date"),
-                placeholder: t("Start Date"),
-                required: false,
-              },
-              {
+      ...(singleItemGroup?.category?.isLimitedTime
+        ? [
+            {
+              type: InputTypes.DATE,
+              formKey: "startDate",
+              label: t("Start Date"),
+              placeholder: t("Start Date"),
+              required: false,
+            },
+            {
               type: InputTypes.DATE,
               formKey: "endDate",
               label: t("End Date"),
@@ -657,6 +657,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           ]
         : []),
       { key: t("Shown In Menu"), isSortable: false },
+      { key: t("Auto Served"), isSortable: false },
     ];
 
     const keys = [
@@ -769,10 +770,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "suggestedDiscountName" },
       { key: "matchedProductName" },
       ...(singleItemGroup?.category?.isLimitedTime
-        ? [
-            { key: "startDate" },
-            { key: "endDate" },
-          ]
+        ? [{ key: "startDate" }, { key: "endDate" }]
         : []),
       {
         key: "shownInMenu",
@@ -797,6 +795,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             <IoCheckmark className="text-blue-500 text-2xl" />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl" />
+          );
+        },
+      },
+      {
+        key: "isAutoServed",
+        node: (row: MenuItem) => {
+          return (
+            <CheckSwitch
+              checked={row?.isAutoServed ?? false}
+              onChange={() => {
+                updateItem({
+                  id: row._id,
+                  updates: {
+                    ...row,
+                    isAutoServed: !row.isAutoServed,
+                  },
+                });
+              }}
+            />
           );
         },
       },

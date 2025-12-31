@@ -133,13 +133,13 @@ const Collections = () => {
     return (
       collections
         ?.map((collection): CollectionRow | null => {
-          if (!collection?.createdAt) {
+          if (!collection?.createdAt || !collection?.tableDate) {
             return null;
           }
           const paymentMethod = paymentMethods.find(
             (method) => method._id === collection?.paymentMethod
           );
-          const zonedTime = toZonedTime(collection.createdAt, "UTC");
+          const zonedTime = toZonedTime(collection.tableDate, "UTC");
           const collectionDate = new Date(zonedTime);
           return {
             ...collection,
@@ -530,10 +530,12 @@ const Collections = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries([`${Paths.Order}/query`]);
-              queryClient.invalidateQueries([
-                `${Paths.Order}/collection/query`,
-              ]);
+              queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+              queryClient.invalidateQueries({
+                queryKey: [
+                  `${Paths.Order}/collection/query`,
+                ],
+              });
             }}
           />
         ),

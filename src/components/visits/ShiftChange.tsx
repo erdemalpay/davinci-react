@@ -8,7 +8,7 @@ import { useUserContext } from "../../context/User.context";
 import { DateRangeKey, RoleEnum, Shift, ShiftValue, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
-import { useGetShifts } from "../../utils/api/shift";
+import { useGetShifts, useGetUsersFutureShifts } from "../../utils/api/shift";
 import { useCreateShiftChangeRequest } from "../../utils/api/shiftChangeRequest";
 import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
@@ -18,6 +18,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { format, startOfWeek } from "date-fns";
 
 type ShiftChangeFormState = {
   type: "SWAP" | "TRANSFER";
@@ -168,18 +169,17 @@ const ShiftChange = () => {
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useShiftContext();
+  const { user } = useUserContext();
   const shifts = useGetShifts(
     filterPanelFormElements?.after,
     filterPanelFormElements?.before,
     selectedLocationId
   );
 
-  const modalShifts = useGetShifts(
-    filterPanelFormElements?.after,
-    filterPanelFormElements?.before,
-    -1
+  const modalShifts = useGetUsersFutureShifts(
+    format(new Date(), "yyyy-MM-dd")
   );
-  const { user } = useUserContext();
+
   const isDisabledCondition = user
     ? ![
         RoleEnum.MANAGER,

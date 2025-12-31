@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -9,20 +8,19 @@ import MenuItemPriceChart from "./accounting/MenuItemPriceChart";
 import ProductPriceChart from "./accounting/ProductPriceChart";
 
 export default function AccountingAnalytics() {
-  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
   const { setCurrentPage, setSearchQuery } = useGeneralContext();
   const tabs = [
     {
       number: AccountingAnalyticsTabEnum.PRODUCTPRICECHART,
-      label: t("Product Price Chart"),
+      label: "Product Price Chart",
       icon: <RiBarChartFill className="text-lg font-thin" />,
       content: <ProductPriceChart />,
       isDisabled: false,
     },
     {
       number: AccountingAnalyticsTabEnum.MENUITEMPRICECHART,
-      label: t("Menu Item Price Chart"),
+      label: "Menu Item Price Chart",
       icon: <MdOutlineRestaurantMenu className="text-lg font-thin" />,
       content: <MenuItemPriceChart />,
       isDisabled: false,

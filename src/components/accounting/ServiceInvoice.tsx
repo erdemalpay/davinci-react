@@ -114,9 +114,8 @@ const ServiceInvoice = () => {
         expType: getItem(invoice?.expenseType, expenseTypes),
         vndr: getItem(invoice?.vendor, vendors),
         srvc: getItem(invoice?.service, services),
-        paymentMethodName: t(
-          getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-        ),
+        paymentMethodName:
+          getItem(invoice?.paymentMethod, paymentMethods)?.name ?? "",
       };
     });
   }, [invoices, services, expenseTypes, vendors, locations, paymentMethods, t]);
@@ -166,7 +165,7 @@ const ServiceInvoice = () => {
             ?.filter((pm) => pm?.isUsedAtExpense)
             ?.map((input) => ({
               value: input._id,
-              label: t(input.name),
+              label: input.name,
             })) || [],
         placeholder: t("Payment Method"),
         isMultiple: true,
@@ -366,7 +365,7 @@ const ServiceInvoice = () => {
             ?.filter((pm) => pm?.isUsedAtExpense)
             ?.map((input) => ({
               value: input._id,
-              label: t(input.name),
+              label: input.name,
             })) || [],
         placeholder: t("Payment Method"),
         required: true,

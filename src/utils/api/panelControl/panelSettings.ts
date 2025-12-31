@@ -23,9 +23,10 @@ export function resetRedis() {
 export function useResetRedisMutation() {
   const queryKey = [`${Paths.Redis}/clear-cache`];
   const queryClient = useQueryClient();
-  return useMutation(resetRedis, {
+  return useMutation({
+    mutationFn: resetRedis,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
@@ -39,9 +40,10 @@ export function useResetRedisMutation() {
 export function useCreateMultiplePageMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(createPanelSettings, {
+  return useMutation({
+    mutationFn: createPanelSettings,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {

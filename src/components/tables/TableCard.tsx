@@ -1,7 +1,14 @@
 import { LockOpenIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { BsWrenchAdjustableCircle } from "react-icons/bs";
 import { IoCloseOutline, IoReceipt } from "react-icons/io5";
@@ -12,6 +19,7 @@ import {
 } from "react-icons/md";
 import { RiFileTransferFill } from "react-icons/ri";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../context/Data.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
@@ -28,29 +36,17 @@ import {
   TableTypes,
   User,
 } from "../../types";
-import { useGetAllAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountStocks } from "../../utils/api/account/stock";
-import { useGetGamesMinimal } from "../../utils/api/game";
-import { useGetStockLocations } from "../../utils/api/location";
-import { useGetMemberships } from "../../utils/api/membership";
-import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetKitchens } from "../../utils/api/menu/kitchen";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCombineTableMutation,
   useCreateMultipleOrderMutation,
-  useGetTableOrders,
   useOrderMutations,
   useTransferTableMutations,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
-import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
-import { useGetOrderNotes } from "../../utils/api/order/orderNotes";
 import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { useGetUser } from "../../utils/api/user";
 import { formatDate } from "../../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
@@ -74,8 +70,6 @@ export interface TableCardProps {
   showAllOrders?: boolean;
   showServedOrders?: boolean;
   tables: Table[];
-  tableOrdersProp?: Order[];
-  // tableCollectionsProp?: OrderCollection[];
 }
 
 export function TableCard({
@@ -85,11 +79,24 @@ export function TableCard({
   showAllOrders = false,
   showServedOrders = false,
   tables,
-  tableOrdersProp,
-}: // tableCollectionsProp,
-TableCardProps) {
+}: TableCardProps) {
+  const {
+    menuItems,
+    todayOrders,
+    todayCollections,
+    categories,
+    games,
+    kitchens,
+    products,
+    discounts,
+    stockLocations,
+    storeLocations,
+    orderNotes,
+    memberships,
+    stocks,
+    user,
+  } = useDataContext();
   const { t } = useTranslation();
-  const games = useGetGamesMinimal();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [
     isTableNameEditConfirmationDialogOpen,
@@ -97,16 +104,16 @@ TableCardProps) {
   ] = useState(false);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
-  let tableOrders: Order[] = [];
-  if (table?._id) {
-    tableOrders = tableOrdersProp ?? useGetTableOrders(table?._id);
-  }
-  const categories = useGetAllCategories();
-  const kitchens = useGetKitchens();
-  const orderNotes = useGetOrderNotes();
+  const tableOrders = useMemo(() => {
+    if (!table?._id || !todayOrders) {
+      return [];
+    }
+    return todayOrders.filter(
+      (order) => (order.table as Table)?._id === table._id
+    );
+  }, [table?._id, todayOrders]);
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
-  const members = useGetMemberships();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
@@ -117,11 +124,17 @@ TableCardProps) {
   const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
-  const products = useGetAllAccountProducts();
+  const tableCollections = useMemo(() => {
+    if (!todayCollections) return [];
+    return todayCollections.filter(
+      (collection) => (collection?.table as Table)?._id === table._id
+    );
+  }, [todayCollections, table._id]);
   const inactiveCategories = useMemo(() => {
     return categories?.filter((category) => !category.active) || [];
   }, [categories]);
   const inactiveCategoriesWithKitchens = useMemo(() => {
+    if (!kitchens) return [];
     return (
       inactiveCategories?.filter(
         (category) =>
@@ -138,9 +151,6 @@ TableCardProps) {
   const inactiveCategoriesIds = useMemo(() => {
     return inactiveCategories.map((c) => c._id);
   }, [inactiveCategories]);
-  const discounts = useGetOrderDiscounts()?.filter(
-    (discount) => discount?.status !== OrderDiscountStatus.DELETED
-  );
   const initialOrderForm = {
     item: 0,
     quantity: 0,
@@ -154,8 +164,6 @@ TableCardProps) {
     activityTableName: "",
     activityPlayer: "",
   };
-  const locations = useGetStockLocations();
-  const stocks = useGetAccountStocks();
   const [
     isTableCardCreateOrderDialogOpen,
     setIsTableCardCreateOrderDialogOpen,
@@ -167,7 +175,6 @@ TableCardProps) {
     useOrderContext();
   const { setExpandedRows, setIsTabInputScreenOpen, setTabInputScreenOptions } =
     useGeneralContext();
-  const user = useGetUser();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const [tableCombineForm, setTableCombineForm] = useState({
@@ -179,7 +186,6 @@ TableCardProps) {
   const [activityTableForm, setActivityTableForm] = useState({
     name: [],
   });
-  const menuItems = useGetMenuItems();
   const menuItemStockQuantity = useCallback(
     (item: MenuItem, location: number) => {
       if (item?.matchedProduct) {
@@ -219,12 +225,16 @@ TableCardProps) {
 
         if (
           table?.isOnlineSale &&
-          !getItem(menuItem.category, categories)?.isOnlineOrder
+          !(categories
+            ? getItem(menuItem.category, categories)?.isOnlineOrder
+            : false)
         ) {
           return false;
         }
 
-        const category = getItem(menuItem.category, categories);
+        const category = categories
+          ? getItem(menuItem.category, categories)
+          : undefined;
         if (category?.isLimitedTime && menuItem.endDate) {
           const today = new Date();
           const endDate = new Date(menuItem.endDate);
@@ -236,7 +246,9 @@ TableCardProps) {
         return true;
       })
       .map((menuItem) => {
-        const category = getItem(menuItem.category, categories);
+        const category = categories
+          ? getItem(menuItem.category, categories)
+          : undefined;
         const subText = getMenuItemSubText(menuItem, category, menuItems);
 
         return {
@@ -274,19 +286,24 @@ TableCardProps) {
     [tables]
   );
   const inactiveTableInputs = useMemo(() => {
-    const loc = locations.find((l) => l._id === selectedLocationId);
+    if (!storeLocations) return [];
+    const loc = storeLocations.find((l) => l._id === selectedLocationId);
     return (
       loc?.tableNames
         ?.filter((name) => !activeTables.some((t) => t.name === name))
         .map((name) => ({ value: name, label: name })) ?? []
     );
-  }, [locations, selectedLocationId, activeTables]);
+  }, [storeLocations, selectedLocationId, activeTables]);
   const filteredDiscounts = useMemo(() => {
-    return discounts?.filter((discount) =>
-      table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
+    if (!discounts) return [];
+    return discounts.filter(
+      (discount) =>
+        discount?.status !== OrderDiscountStatus.DELETED &&
+        (table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder)
     );
   }, [discounts, table?.isOnlineSale]);
   const isOnlinePrice = useMemo(() => {
+    if (!menuItems || !categories) return false;
     const menuItem = getItem(orderForm.item, menuItems);
     return Boolean(
       menuItem && getItem(menuItem.category, categories)?.isOnlineOrder
@@ -298,8 +315,8 @@ TableCardProps) {
         type: InputTypes.SELECT,
         formKey: "name",
         label: t("Name"),
-        options: locations
-          .find((location) => location._id === selectedLocationId)
+        options: storeLocations
+          ?.find((location) => location._id === selectedLocationId)
           ?.tableNames?.filter((t) => {
             return !tables.find(
               (table) =>
@@ -320,20 +337,29 @@ TableCardProps) {
         required: true,
       },
     ],
-    [locations, selectedLocationId, tables, t]
+    [storeLocations, selectedLocationId, tables, t]
   );
   const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const MEMBERDISCOUNTID = 8;
   const memberDiscount = useMemo(() => {
     return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
   }, [discounts]);
+  const isMobile = useMemo(() => window.innerWidth <= 768, []);
 
   const orderInputs = useMemo(
     () => [
       {
+        type: InputTypes.TEXT,
+        formKey: "activityPlayer",
+        placeholder: t("Player Number"),
+        required: table?.type === TableTypes.ACTIVITY,
+        isDisabled: table?.type !== TableTypes.ACTIVITY,
+        isTopFlexRow: isMobile,
+        isOnClearActive: true,
+      },
+      {
         type: InputTypes.TAB,
         formKey: "category",
-        label: t("Category"),
         options: categories
           ?.filter((category) => {
             return (
@@ -382,12 +408,16 @@ TableCardProps) {
 
               if (
                 table?.isOnlineSale &&
-                !getItem(menuItem.category, categories)?.isOnlineOrder
+                !(categories
+                  ? getItem(menuItem.category, categories)?.isOnlineOrder
+                  : false)
               ) {
                 return false;
               }
 
-              const category = getItem(menuItem.category, categories);
+              const category = categories
+                ? getItem(menuItem.category, categories)
+                : undefined;
               if (category?.isLimitedTime && menuItem.endDate) {
                 const today = new Date();
                 const endDate = new Date(menuItem.endDate);
@@ -412,7 +442,6 @@ TableCardProps) {
       {
         type: InputTypes.TAB,
         formKey: "item",
-        label: t("Product"),
         options: menuItemOptions,
         invalidateKeys: [
           { key: "discount", defaultValue: undefined },
@@ -443,7 +472,6 @@ TableCardProps) {
       {
         type: InputTypes.NUMBER,
         formKey: "quantity",
-        label: t("Quantity"),
         placeholder: t("Quantity"),
         minNumber: 0,
         required: true,
@@ -454,17 +482,19 @@ TableCardProps) {
       {
         type: InputTypes.TAB,
         formKey: "discount",
-        label: t("Discount"),
+        placeholder: t("Discount"),
         options: orderForm?.item
           ? filteredDiscounts
               .filter((discount) => {
                 const menuItem = menuItems?.find(
                   (item) => item._id === orderForm.item
                 );
-                return getItem(
-                  menuItem?.category,
-                  categories
-                )?.discounts?.includes(discount._id);
+                return categories
+                  ? getItem(
+                      menuItem?.category,
+                      categories
+                    )?.discounts?.includes(discount._id)
+                  : false;
               })
               ?.map((option) => {
                 return {
@@ -473,21 +503,21 @@ TableCardProps) {
                 };
               })
           : [],
-        suggestedOption: orderForm?.item
-          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
-            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
-                (discountId: number) => ({
-                  value: discountId as any,
-                  label:
-                    filteredDiscounts?.find(
-                      (discount) => discount._id === discountId
-                    )?.name || "",
-                })
-              )
-            : []
-          : [],
+        suggestedOption:
+          orderForm?.item && menuItems
+            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
+              ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
+                  (discountId: number) => ({
+                    value: discountId as any,
+                    label:
+                      filteredDiscounts?.find(
+                        (discount) => discount._id === discountId
+                      )?.name || "",
+                  })
+                )
+              : []
+            : [],
         invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
-        placeholder: t("Discount"),
         isAutoFill: false,
         required: false,
         isTopFlexRow: true,
@@ -523,7 +553,7 @@ TableCardProps) {
         formKey: "discountNote",
         label: t("Discount Note"),
         placeholder: memberDiscount?.note,
-        options: members
+        options: memberships
           ?.filter((membership) => membership.endDate >= formatDate(new Date()))
           ?.map((membership) => ({
             value: membership.name,
@@ -537,10 +567,13 @@ TableCardProps) {
       {
         type: InputTypes.SELECT,
         formKey: "stockLocation",
-        label: t("Stock Location"),
-        options: locations?.map((input) => {
-          const menuItem = getItem(orderForm.item, menuItems);
-          const foundProduct = getItem(menuItem?.matchedProduct, products);
+        options: stockLocations?.map((input) => {
+          const menuItem = menuItems
+            ? getItem(orderForm.item, menuItems)
+            : undefined;
+          const foundProduct = products
+            ? getItem(menuItem?.matchedProduct, products)
+            : undefined;
           const stockQuantity = menuItem
             ? menuItemStockQuantity(menuItem, input._id)
             : null;
@@ -559,9 +592,13 @@ TableCardProps) {
         }),
         placeholder: t("Stock Location"),
         required:
-          (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+          (menuItems
+            ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0
+            : 0) > 0,
         isDisabled: !(
-          getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+          (menuItems
+            ? getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0
+            : 0) > 0
         ),
       },
       {
@@ -586,26 +623,19 @@ TableCardProps) {
         placeholder: t("Table"),
         required: false,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
-      },
-      {
-        type: InputTypes.TEXT,
-        formKey: "activityPlayer",
-        label: t("Player Number"),
-        placeholder: t("Player Number"),
-        required: false,
-        isDisabled: table?.type !== TableTypes.ACTIVITY,
-        isOnClearActive: true,
+        isTopFlexRow: isMobile,
       },
       {
         type: InputTypes.TEXTAREA,
         formKey: "note",
-        label: t("Note"),
         placeholder: t("Note"),
         required: false,
         options:
           orderNotes
             ?.filter((note) => {
-              const foundItem = getItem(orderForm.item, menuItems);
+              const foundItem = menuItems
+                ? getItem(orderForm.item, menuItems)
+                : undefined;
               return (
                 note?.categories?.includes(Number(orderForm?.category)) ||
                 note?.items?.includes(Number(orderForm?.item)) ||
@@ -628,7 +658,7 @@ TableCardProps) {
       selectedLocationId,
       filteredDiscounts,
       menuItems,
-      locations,
+      storeLocations,
       orderNotes,
       t,
     ]
@@ -704,6 +734,7 @@ TableCardProps) {
 
   const getGameName = useCallback(
     (id: number) => {
+      if (!games) return "";
       const game = games.find((game) => game._id === id);
       return game?.name || "";
     },
@@ -733,18 +764,31 @@ TableCardProps) {
     };
   }, [table.date, table.location, table.playerCount, mentors]);
 
-  const updateTableHandler = useCallback(
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleInputChange = useCallback(
     (event: FormEvent<HTMLInputElement>) => {
       const target = event.target as HTMLInputElement;
-      if (!target.value) return;
+      const { name, value } = target;
 
-      updateTable({
-        id: table._id,
-        updates: { [target.name]: target.value },
-      });
-      toast.success(
-        t("Table {{tableName}} updated", { tableName: table.name })
-      );
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        if (!value) {
+          return;
+        }
+
+        updateTable({
+          id: table._id,
+          updates: { [name]: value },
+        });
+
+        toast.success(
+          t("Table {{tableName}} updated", { tableName: table.name })
+        );
+      }, 800);
     },
     [updateTable, table, t]
   );
@@ -775,20 +819,21 @@ TableCardProps) {
   }, [table._id, tableOrders, updateTable, t]);
 
   const handleOrderObject = () => {
+    if (!menuItems || !categories) return null;
     const selectedMenuItem = getItem(orderForm?.item, menuItems);
     const selectedMenuItemCategory = getItem(
       selectedMenuItem?.category,
       categories
     );
-    const selectedItemKitchen = getItem(
-      selectedMenuItemCategory?.kitchen,
-      kitchens
-    );
+    const selectedItemKitchen = kitchens
+      ? getItem(selectedMenuItemCategory?.kitchen, kitchens)
+      : undefined;
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
     if (
-      (user && selectedMenuItem && table && selectedMenuItemCategory)
-        ?.isAutoServed
+      user &&
+      selectedMenuItem &&
+      (selectedMenuItemCategory?.isAutoServed || selectedMenuItem?.isAutoServed)
     ) {
       return {
         ...orderForm,
@@ -879,29 +924,23 @@ TableCardProps) {
           </Tooltip>
 
           {!table.finishHour &&
-            tableOrders?.some((tableOrder) => {
-              return (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
+            tableOrders.some((tableOrder) => {
+              return tableOrder.status === OrderStatus.READYTOSERVE;
             }) && (
               <Tooltip content={t("Served")}>
                 <span>
                   <CardAction
                     onClick={() => {
-                      if (!tableOrders || !user) return;
+                      if (!user) return;
                       const tableReadyToServeOrders = tableOrders
-                        ?.filter(
+                        .filter(
                           (tableOrder) =>
-                            (tableOrder as Order)?.status ===
-                            OrderStatus.READYTOSERVE
+                            tableOrder.status === OrderStatus.READYTOSERVE
                         )
-                        .map((tableOrder) => tableOrder?._id);
-                      if (
-                        tableReadyToServeOrders?.length === 0 ||
-                        !tableReadyToServeOrders
-                      )
-                        return;
-
+                        .map((tableOrder) => tableOrder._id);
+                      if (tableReadyToServeOrders.length === 0) return;
                       updateMultipleOrders({
-                        ids: tableReadyToServeOrders as number[],
+                        ids: tableReadyToServeOrders,
                         updates: {
                           status: OrderStatus.SERVED,
                           deliveredAt: new Date(),
@@ -935,14 +974,14 @@ TableCardProps) {
               label={t("Start Time")}
               type="time"
               value={table.startHour}
-              onChange={updateTableHandler}
+              onChange={handleInputChange}
             />
             <InputWithLabel
               name="finishHour"
               label={t("End Time")}
               type="time"
               value={table.finishHour}
-              onChange={updateTableHandler}
+              onChange={handleInputChange}
             />
           </div>
           <div className="flex flex-col gap-4">
@@ -950,8 +989,8 @@ TableCardProps) {
               name="playerCount"
               label={t("Player Count")}
               type="number"
-              defaultValue={table.playerCount}
-              onChange={updateTableHandler}
+              value={table.playerCount}
+              onChange={handleInputChange}
             />
           </div>
         </div>
@@ -1045,7 +1084,7 @@ TableCardProps) {
           gameplay={selectedGameplay || gameplayTemplate}
           table={table}
           mentors={mentors}
-          games={games}
+          games={games || []}
         />
       )}
       {selectedGameplay && isEditGameplayDialogOpen && (
@@ -1057,7 +1096,7 @@ TableCardProps) {
           gameplay={selectedGameplay}
           table={table}
           mentors={mentors}
-          games={games}
+          games={games || []}
         />
       )}
       <ConfirmationDialog
@@ -1122,17 +1161,14 @@ TableCardProps) {
               ? OnlineLocationId
               : selectedLocationId,
           }}
-          cancelButtonLabel={t("Close")}
+          cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={
-            <OrderListForPanel
-              table={table}
-              tableOrdersProp={tableOrdersProp}
-            />
+            <OrderListForPanel table={table} tableOrdersProp={tableOrders} />
           }
           additionalButtons={[
             {
-              label: t("Add"),
+              label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
               preservedKeys: ["activityTableName", "activityPlayer"],
@@ -1203,7 +1239,7 @@ TableCardProps) {
             user?.settings?.orderCategoryOn ? "category" : "item"
           }
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
-          topClassName="flex flex-col gap-2  "
+          topClassName="flex flex-col gap-0  "
         />
       )}
 
@@ -1262,8 +1298,8 @@ TableCardProps) {
             resetOrderContext();
             setIsOrderPaymentModalOpen(false);
           }}
-          // tableOrdersProp={tableOrders}
-          // tableCollectionsProp={tableCollectionsProp}
+          tableOrdersProp={tableOrders}
+          tableCollectionsProp={tableCollections}
         />
       )}
       {isTableCombineOpen && (

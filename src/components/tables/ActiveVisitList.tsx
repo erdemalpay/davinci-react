@@ -2,11 +2,12 @@ import { Chip, Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum, Visit, VisitSource } from "../../types";
+import { Break, RoleEnum, Visit, VisitSource } from "../../types";
 import { useGetPanelSettings } from "../../utils/api/panelControl/panelSettings";
-import { MinimalUser, useGetUsersMinimal } from "../../utils/api/user";
+import { MinimalUser } from "../../utils/api/user";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
@@ -19,6 +20,7 @@ import { InputWithLabelProps } from "../common/InputWithLabel";
 interface ActiveMentorListProps extends InputWithLabelProps {
   suggestions: MinimalUser[];
   visits: Visit[];
+  breaks?: Break[];
 }
 interface SeenUsers {
   [key: string]: boolean;
@@ -29,21 +31,25 @@ export function ActiveVisitList({
   label,
   suggestions,
   visits,
+  breaks = [],
 }: ActiveMentorListProps) {
   const { t } = useTranslation();
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
-  const users = useGetUsersMinimal();
+  const { users = [] } = useDataContext();
   const { user } = useUserContext();
   const panelSettings = useGetPanelSettings();
   const { selectedLocationId } = useLocationContext();
   const isDisabledCondition =
     panelSettings?.isVisitEntryDisabled && user?.role?._id !== RoleEnum.MANAGER;
-  const [filteredSuggestions, setFilteredSuggestions] = useState<MinimalUser[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<MinimalUser[]>(
+    []
+  );
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
-  const [closedVisitFinishHour, setClosedVisitFinishHour] = useState<string>("");
+  const [closedVisitFinishHour, setClosedVisitFinishHour] =
+    useState<string>("");
   function handleChipClose(userId: string) {
     if (!isUserActive(userId)) {
       return;
@@ -83,6 +89,18 @@ export function ActiveVisitList({
       .filter((visit) => visit.user === userId)
       .some((visit) => !visit?.finishHour);
   };
+
+  const isUserOnBreak = (userId: string) => {
+    if (!breaks || breaks.length === 0) return null;
+    return breaks.find(
+      (breakItem) =>
+        (typeof breakItem.user === "string"
+          ? breakItem.user
+          : breakItem.user._id) === userId &&
+        breakItem.location === selectedLocationId &&
+        !breakItem.finishHour
+    );
+  };
   useEffect(() => {
     setFilteredSuggestions(
       suggestions.filter(
@@ -115,7 +133,7 @@ export function ActiveVisitList({
           finishVisit({
             id: closedVisitId,
             finishHour: closedVisitFinishHour,
-            visitFinishSource: VisitSource.PANEL
+            visitFinishSource: VisitSource.PANEL,
           });
           setIsConfirmationDialogOpen(false);
         }}
@@ -135,26 +153,42 @@ export function ActiveVisitList({
         />
       </div>
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
-        {uniqueVisits.map((visit) => (
-          <Tooltip
-            key={visit?.user}
-            content={getItem(visit?.user, users)?.role?.name}
-          >
-            <Chip
-              value={getItem(visit?.user, users)?.name}
-              style={{
-                backgroundColor: isUserActive(visit.user)
-                  ? getItem(visit?.user, users)?.role?.color
-                  : "gray",
-                height: "fit-content",
-              }}
-              color="gray"
-              {...(!isDisabledCondition && isUserActive(visit.user) && visit.user === user?._id
-                ? { onClose: () => handleChipClose(visit.user) }
-                : {})}
-            />
-          </Tooltip>
-        ))}
+        {uniqueVisits.map((visit) => {
+          const userOnVisit = getItem(visit?.user, users);
+          if (!userOnVisit) {
+            return null;
+          }
+
+          const userBreak = isUserOnBreak(visit.user);
+          const userName = userOnVisit.name ?? "";
+          const userRole = userOnVisit.role?.name ?? "";
+
+          const tooltipContent = userBreak
+            ? `${userRole}  •  ${t("On Break")}`
+            : userRole;
+
+          return (
+            <Tooltip key={visit?.user} content={tooltipContent}>
+              <div className={userBreak ? "animate-pulse-dark" : ""}>
+                <Chip
+                  value={userName}
+                  style={{
+                    backgroundColor: isUserActive(visit.user)
+                      ? userOnVisit.role?.color
+                      : "gray",
+                    height: "fit-content"
+                  }}
+                  color="gray"
+                  {...(!isDisabledCondition &&
+                  isUserActive(visit.user) &&
+                  visit.user === user?._id
+                    ? { onClose: () => handleChipClose(visit.user) }
+                    : {})}
+                />
+              </div>
+            </Tooltip>
+          );
+        })}
       </div>
     </div>
   );

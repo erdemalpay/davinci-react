@@ -1,10 +1,11 @@
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../context/Data.context";
 import { Gameplay, Table, User } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
-import { useGetUsersMinimal } from "../../utils/api/user";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -25,7 +26,7 @@ export function CreateGameplayDialog({
 }) {
   const { t } = useTranslation();
   const [data, setData] = useState<Partial<Gameplay>>(gameplay);
-  const users = useGetUsersMinimal();
+  const { users } = useDataContext();
   const { mutate: createGameplay } = useCreateGameplayMutation();
 
   function handleCreate() {
@@ -145,8 +146,7 @@ export function CreateGameplayDialog({
           date: gameplay.date || table.date,
           location: gameplay.location || table.location,
           playerCount: gameplay.playerCount,
-          startHour: gameplay.startHour,
-          finishHour: gameplay.finishHour || "",
+          startHour: format(new Date(), "HH:mm"),
           mentor:
             typeof gameplay.mentor === "object"
               ? gameplay.mentor?._id
@@ -159,7 +159,7 @@ export function CreateGameplayDialog({
         submitItem={handleCreate}
         submitFunction={handleCreate}
         buttonName={t("Create")}
-        cancelButtonLabel={t("Cancel")}
+        cancelButtonLabel="Cancel"
         topClassName="flex flex-col gap-2 [&>div]:grid [&>div]:grid-cols-1 sm:[&>div]:grid-cols-2 [&>div]:gap-4 [&>div>div]:col-span-1 sm:[&>div>div:not(:nth-child(5)):not(:nth-child(6))]:col-span-2"
         generalClassName="shadow-none"
       />

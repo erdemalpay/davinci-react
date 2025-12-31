@@ -91,11 +91,12 @@ export function useFinishButtonCallMutation() {
   const queryClient = useQueryClient();
   const queryKey = [Paths.ButtonCalls, selectedLocationId, selectedDate];
 
-  return useMutation(finishButtonCall, {
+  return useMutation({
+    mutationFn: finishButtonCall,
     // We are updating visits query data with new visit
     onMutate: async ({ tableName }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
       const previousButtonCalls =
@@ -132,7 +133,7 @@ export function useFinishButtonCallMutation() {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }

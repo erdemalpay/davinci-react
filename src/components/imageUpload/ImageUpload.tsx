@@ -27,8 +27,8 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
   const [selectedFolder, setSelectedFolder] = useState("");
   if (!folderNames) return <></>;
 
-  const uploadImagesMutation = useMutation<any, Error, FileWithPreview[]>(
-    async (filesWithPreviews) => {
+  const uploadImagesMutation = useMutation<any, Error, FileWithPreview[]>({
+    mutationFn: async (filesWithPreviews) => {
       if ((selectedFolder === "" || !selectedFolder) && !itemId) {
         toast.error(t("Please select a folder to upload images"));
         return;
@@ -50,16 +50,14 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
       });
       return response;
     },
-    {
-      onSuccess: () => {
-        if ((selectedFolder === "" || !selectedFolder) && !itemId) {
-          return;
-        }
-        setFiles([]);
-      },
-      onError: (error) => console.error("Error uploading files:", error),
-    }
-  );
+    onSuccess: () => {
+      if ((selectedFolder === "" || !selectedFolder) && !itemId) {
+        return;
+      }
+      setFiles([]);
+    },
+    onError: (error) => console.error("Error uploading files:", error),
+  });
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const filesWithPreview = acceptedFiles.map((file) =>

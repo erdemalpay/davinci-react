@@ -614,7 +614,7 @@ const Expenses = () => {
         submitFunction={() => {
           const discountedPrice =
             Number(allExpenseForm.price) -
-            (Number(allExpenseForm.discount) / 100) *
+            (Number(allExpenseForm.discount || 0) / 100) *
               Number(allExpenseForm.price);
           createAccountExpense({
             ...allExpenseForm,
@@ -624,7 +624,7 @@ const Expenses = () => {
             quantity: Number(allExpenseForm.quantity),
             totalExpense:
               discountedPrice +
-              Number(allExpenseForm.vat) * (discountedPrice / 100),
+              Number(allExpenseForm.vat || 0) * (discountedPrice / 100),
           });
           setAllExpenseForm({});
         }}
@@ -639,7 +639,7 @@ const Expenses = () => {
           ...allExpenseForm,
           location: selectedLocationId,
           isAfterCount: true,
-
+          isStockIncrement: true,
           isPaid: true,
         }}
       />

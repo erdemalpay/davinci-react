@@ -62,9 +62,10 @@ export function useUpdateMultipleBaseQuantitiesMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   const { setErrorDataForProductBulkCreation } = useGeneralContext();
-  return useMutation(updateMultipleBaseQuantities, {
+  return useMutation({
+    mutationFn: updateMultipleBaseQuantities,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: (response) => {
       // if (response) {
@@ -93,9 +94,10 @@ export function useCreateBulkProductAndMenuItemMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   const { setErrorDataForProductBulkCreation } = useGeneralContext();
-  return useMutation(createBulkProductAndMenuItem, {
+  return useMutation({
+    mutationFn: createBulkProductAndMenuItem,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: (response) => {
       if (response) {
@@ -115,9 +117,10 @@ export function useUpdateMultipleProductMutations() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   const { setErrorDataForProductBulkCreation } = useGeneralContext();
-  return useMutation(updateMultipleProduct, {
+  return useMutation({
+    mutationFn: updateMultipleProduct,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: (response) => {
       if (response) {
@@ -145,12 +148,13 @@ export function joinProducts({
 export function useJoinProductsMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(joinProducts, {
+  return useMutation({
+    mutationFn: joinProducts,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =

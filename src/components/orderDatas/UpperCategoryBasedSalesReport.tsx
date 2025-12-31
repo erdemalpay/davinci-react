@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-    ActionEnum,
-    DateRangeKey,
-    DisabledConditionEnum,
-    OrderStatus,
-    TURKISHLIRA,
-    commonDateOptions,
-    orderFilterStatusOptions,
+  ActionEnum,
+  DateRangeKey,
+  DisabledConditionEnum,
+  OrderStatus,
+  TURKISHLIRA,
+  commonDateOptions,
+  orderFilterStatusOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
@@ -488,6 +488,7 @@ const UpperCategoryBasedSalesReport = () => {
             label: discount.name,
           };
         }),
+        isMultiple: true,
         placeholder: t("Discount"),
         required: true,
       },
@@ -577,10 +578,12 @@ const UpperCategoryBasedSalesReport = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries([`${Paths.Order}/query`]);
-              queryClient.invalidateQueries([
-                `${Paths.Order}/collection/query`,
-              ]);
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
+              });
             }}
           />
         ),

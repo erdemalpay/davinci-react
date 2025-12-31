@@ -475,6 +475,7 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
             label: discount.name,
           };
         }),
+        isMultiple: true,
         placeholder: t("Discount"),
         required: true,
       },
@@ -564,10 +565,12 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries([`${Paths.Order}/query`]);
-              queryClient.invalidateQueries([
-                `${Paths.Order}/collection/query`,
-              ]);
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
+              });
             }}
           />
         ),

@@ -48,15 +48,16 @@ export function createMultipleIkasProduct(itemIds: number[]) {
 export function useCreateMultipleIkasProductMutation() {
   const queryKey = [`${Paths.MenuItems}`];
   const queryClient = useQueryClient();
-  return useMutation(createMultipleIkasProduct, {
+  return useMutation({
+    mutationFn: createMultipleIkasProduct,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -70,12 +71,13 @@ export function updateItems(items: MenuItem[]) {
 export function useUpdateBulkItemsMutation() {
   const queryKey = [`${Paths.MenuItems}`];
   const queryClient = useQueryClient();
-  return useMutation(updateBulkItems, {
+  return useMutation({
+    mutationFn: updateBulkItems,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -88,12 +90,13 @@ export function useUpdateBulkItemsMutation() {
 export function useUpdateItemsSlugsMutation() {
   const queryKey = [`${Paths.MenuItems}`];
   const queryClient = useQueryClient();
-  return useMutation(updateItemsSlugs, {
+  return useMutation({
+    mutationFn: updateItemsSlugs,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -105,18 +108,19 @@ export function useUpdateItemsSlugsMutation() {
 export function useUpdateItemsMutation() {
   const queryKey = [`${Paths.MenuItems}`];
   const queryClient = useQueryClient();
-  return useMutation(updateItems, {
+  return useMutation({
+    mutationFn: updateItems,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -136,16 +140,17 @@ export function updateItemsOrder({
 export function useUpdateItemsOrderMutation() {
   const queryKey = [`${Paths.MenuItems}`];
   const queryClient = useQueryClient();
-  return useMutation(updateItemsOrder, {
+  return useMutation({
+    mutationFn: updateItemsOrder,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -160,16 +165,17 @@ export function createDamagedItem(payload: CreateDamagedItem) {
 export function useCreateDamagedItemMutation() {
   const queryKey = [`${Paths.MenuItems}`];
   const queryClient = useQueryClient();
-  return useMutation(createDamagedItem, {
+  return useMutation({
+    mutationFn: createDamagedItem,
     onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries({ queryKey });
     },
 
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -190,7 +196,8 @@ export function updateIkasPrices() {
   });
 }
 export function useUpdateIkasPricesMutation() {
-  return useMutation(updateIkasPrices, {
+  return useMutation({
+    mutationFn: updateIkasPrices,
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";

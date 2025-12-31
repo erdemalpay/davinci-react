@@ -157,7 +157,7 @@ export type Table = {
   type?: string;
   date: string;
   playerCount: number;
-  location?: number;
+  location: number;
   startHour: string;
   finishHour?: string;
   orders?: number[];
@@ -441,6 +441,32 @@ export type Visit = {
   visitFinishSource?: VisitSource;
 };
 
+export type Break = {
+  _id: number;
+  user: User | string;
+  location: number;
+  date: string;
+  startHour: string;
+  finishHour?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export type CreateBreakDto = {
+  user: string;
+  location: number;
+  date: string;
+  startHour: string;
+};
+
+export type UpdateBreakDto = {
+  finishHour?: string;
+  startHour?: string;
+  date?: string;
+  user?: string;
+  location?: number;
+};
+
 export enum ButtonCallTypeEnum {
   TABLECALL = "TABLECALL",
   GAMEMASTERCALL = "GAMEMASTERCALL",
@@ -617,7 +643,8 @@ export type MenuCategory = {
   active: boolean;
   orderCategoryOrder: number;
   isLimitedTime?: boolean;
-  showItemProductionOnMenu: boolean;
+  showItemProductionOnMenu?: boolean;
+  disableWhenOutOfStock?: boolean;
 };
 
 export type UpperCategory = {
@@ -652,6 +679,7 @@ export type MenuItem = {
   category: number;
   suggestedDiscount?: number[];
   order: number;
+  isAutoServed?: boolean;
   itemProduction?: {
     product: string;
     quantity: number;
@@ -1067,6 +1095,7 @@ export enum VisitPageTabEnum {
   SHIFTCHANGE,
   CHANGEREQUESTMANAGEMENT,
   USERCHANGEREQUESTTAB,
+  ALLBREAKS,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
@@ -1133,6 +1162,7 @@ export enum AccountingPageTabEnum {
   LOCATIONS,
   UPPERCATEGORIES,
   ORDERNOTES,
+  ROLES,
   ACTIONS,
 }
 export enum CheclistPageTabEnum {

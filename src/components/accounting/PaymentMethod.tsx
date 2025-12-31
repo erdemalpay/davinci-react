@@ -72,7 +72,7 @@ const PaymentMethods = () => {
         key: "name",
         className: "min-w-32 pr-1",
         node: (row: AccountPaymentMethod) => {
-          return <p>{t(row.name)}</p>;
+          return <p>{row.name}</p>;
         },
       },
       {
@@ -120,7 +120,7 @@ const PaymentMethods = () => {
       {
         type: InputTypes.TEXT,
         formKey: "name",
-        label: t("Name"),
+        label: "Name",
         placeholder: t("Name"),
         required: true,
       },

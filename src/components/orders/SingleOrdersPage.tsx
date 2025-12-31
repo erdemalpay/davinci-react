@@ -1,10 +1,10 @@
 import { FaRegClock } from "react-icons/fa6";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Kitchen, Order, OrderStatus } from "../../types";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
 import OrderStatusContainer from "../orders/OrderStatusContainer";
 
@@ -15,7 +15,7 @@ type Props = {
 const SingleOrdersPage = ({ kitchen, orders }: Props) => {
   const { selectedLocationId } = useLocationContext();
   const categories = useGetAllCategories();
-  const items = useGetMenuItems();
+  const { menuItems: items } = useDataContext();
   if (!orders || !categories || !items) return <></>;
   const filteredOrders = orders?.filter(
     (order) =>
