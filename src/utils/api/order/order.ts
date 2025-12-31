@@ -398,31 +398,6 @@ export function useGetTableOrders(tableId: number) {
   }, [tableOrders, selectedDate, tableId, queryClient]);
 
   return tableOrders;
-    true,
-    {
-      onSuccess: (tableOrders) => {
-        // keep todayOrders in sync with this table
-        queryClient.setQueryData<Order[]>(
-          [`${baseUrl}/today`, selectedDate],
-          (oldTodayOrders) => {
-            const current = oldTodayOrders ?? [];
-            console.log(selectedDate);
-            console.log((tableOrders[0]?.table as Table)?.date);
-            if (selectedDate === (tableOrders[0]?.table as Table)?.date) {
-              // 1. remove existing orders for this table
-              const withoutThisTable = current.filter(
-                (order) => (order.table as Table)?._id !== tableId
-              );
-
-              // 2. add fresh table orders
-              return [...withoutThisTable, ...tableOrders];
-            }
-            return current;
-          }
-        );
-      },
-    }
-  );
 }
 
 export function useGetPersonalOrderDatas() {
