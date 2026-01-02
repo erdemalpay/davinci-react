@@ -164,22 +164,40 @@ const LocationPage = () => {
             (a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
           );
 
+          const isOpen = isShiftHoursCollapsibleOpen.has(row._id);
+
           return (
-            <div className="flex flex-col gap-1 max-w-64">
-              {sortedHours.map((dayHour: any, index: number) => (
-                <div key={index} className="flex flex-row gap-1 text-sm">
-                  <span className="font-medium min-w-20">
-                    {t(dayHour.day)}:
-                  </span>
-                  <span className="text-gray-600">
-                    {dayHour.isClosed
-                      ? t("Closed")
-                      : `${dayHour.openingTime || "--"} - ${
-                          dayHour.closingTime || "--"
-                        }`}
-                  </span>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() =>
+                  setIsShiftHoursCollapsibleOpen((prev) => {
+                    const newSet = new Set(prev)
+                    isOpen ? newSet.delete(row._id) : newSet.add(row._id)
+                    return newSet
+                  })
+                }
+                className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
+              >
+                {(sortedHours.length > 0) ? (isOpen ? <IoChevronUp/> : <IoChevronDown/>) : null}
+              </button>
+              {isOpen && (
+                <div className="flex flex-col gap-1 max-w-64">
+                  {sortedHours.map((dayHour: any, index: number) => (
+                    <div key={index} className="flex flex-row gap-1 text-sm">
+                      <span className="font-medium min-w-20">
+                        {t(dayHour.day)}:
+                      </span>
+                      <span className="text-gray-600">
+                        {dayHour.isClosed
+                          ? t("Closed")
+                          : `${dayHour.openingTime || "--"} - ${
+                              dayHour.closingTime || "--"
+                            }`}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           );
         },
