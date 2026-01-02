@@ -12,6 +12,7 @@ import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import AllBreaks from "../components/visits/AllBreaks";
+import AllGameplayTime from "../components/visits/AllGameplayTime";
 import AllVisits from "../components/visits/AllVisits";
 import ChangeRequestManagement from "../components/visits/ChangeRequestManagement";
 import DailyVisit from "../components/visits/DailyVisit";
@@ -88,6 +89,13 @@ export const VisitPageTabs = [
     label: "All Breaks",
     icon: <MdFreeBreakfast className="text-lg font-thin" />,
     content: <AllBreaks />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.ALLGAMEPLAYTIME,
+    label: "All Gameplay Time",
+    icon: <MdOutlineSchedule className="text-lg font-thin" />,
+    content: <AllGameplayTime />,
     isDisabled: false,
   },
 ];

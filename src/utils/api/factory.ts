@@ -17,6 +17,7 @@ export const Paths = {
   Games: "/games",
   CafeActivity: "/visits/cafe-activity",
   Gameplays: "/gameplays",
+  GameplayTime: "/gameplaytime",
   Users: "/users",
   User: "/users/me",
   Memberships: "/memberships",
