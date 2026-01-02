@@ -114,6 +114,13 @@ export function CreateGameplayDialog({
         placeholder: t("End Time"),
         required: false,
       },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isGameplayTime",
+        label: t("Is Gameplay Time"),
+        placeholder: t("Is Gameplay Time"),
+        required: false,
+      },
     ],
     [mentors, games, t, users]
   );
@@ -125,6 +132,7 @@ export function CreateGameplayDialog({
     { key: "game", type: FormKeyTypeEnum.NUMBER },
     { key: "startHour", type: FormKeyTypeEnum.STRING },
     { key: "finishHour", type: FormKeyTypeEnum.STRING },
+    { key: "isGameplayTime", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   if (!isOpen) return null;
@@ -155,6 +163,7 @@ export function CreateGameplayDialog({
             typeof gameplay.game === "object"
               ? gameplay.game?._id
               : gameplay.game,
+          isGameplayTime: gameplay.isGameplayTime ?? true,
         }}
         submitItem={handleCreate}
         submitFunction={handleCreate}
