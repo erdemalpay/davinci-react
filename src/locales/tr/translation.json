@@ -1164,5 +1164,6 @@
   "Inactive" : "Pasif",
   "Header" : "Başlık",
   "Disable When Out Of Stock" : "Stok Bitimi Oto. Kapat",
-  "Fallback Location" : "Yedek Stok Deposu"
+  "Fallback Location" : "Menü Stok Deposu",
+  "No Fallback Location" : "Depo Kullanımı Yok"
 }

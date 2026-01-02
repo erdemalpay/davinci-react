@@ -1158,5 +1158,6 @@
   "Inactive" : "Inactive",
   "Header" : "Header",
   "Disable When Out Of Stock" : "Disable When Out Of Stock",
-  "Fallback Location" : "Fallback Location"
+  "Fallback Location" : "Menu Stock Depot",
+  "No Fallback Location" : "No Fallback Location"
 }

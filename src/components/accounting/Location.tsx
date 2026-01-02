@@ -470,10 +470,13 @@ const LocationPage = () => {
         label: t("Fallback Location"),
         placeholder: t("Fallback Location"),
         required: false,
-        options: locations.map((loc) => ({
-          value: loc._id,
-          label: loc.name,
-        })),
+        options: [
+          { value: null, label: t("No Fallback Location") },
+          ...locations.map((loc) => ({
+            value: loc._id,
+            label: loc.name,
+          })),
+        ],
       },
     ],
     [t, form?.type]
