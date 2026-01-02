@@ -80,7 +80,6 @@ const CountArchive = () => {
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
-
   const countArchivePageDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.COUNTARCHIVE, disabledConditions);
   }, [disabledConditions]);
@@ -209,11 +208,10 @@ const CountArchive = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
