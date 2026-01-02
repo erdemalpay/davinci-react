@@ -50,7 +50,47 @@ export function useWebSocket() {
   const audioRef = useRef<HTMLAudioElement>();
   const audioContextRef = useRef<AudioContext>();
   const gainNodeRef = useRef<GainNode>();
+  
+  // Store socket in ref - only create/destroy on mount/unmount
+  const socketRef = useRef<Socket | null>(null);
+  // Track disconnection time
+  const disconnectTimeRef = useRef<number | null>(null);
+  
+  // Store current values in refs (to solve closure issues)
+  const latestValuesRef = useRef({
+    queryClient,
+    user,
+    selectedLocationId,
+    selectedDate,
+    kitchens,
+    categories,
+    setIsTakeAwayPaymentModalOpen,
+    setOrderCreateBulk,
+    setTakeawayTableId,
+    setSelectedNewOrders,
+    audioReadyRef,
+    audioRef,
+  });
 
+  // Update refs
+  useEffect(() => {
+    latestValuesRef.current = {
+      queryClient,
+      user,
+      selectedLocationId,
+      selectedDate,
+      kitchens,
+      categories,
+      setIsTakeAwayPaymentModalOpen,
+      setOrderCreateBulk,
+      setTakeawayTableId,
+      setSelectedNewOrders,
+      audioReadyRef,
+      audioRef,
+    };
+  }, [queryClient, user, selectedLocationId, selectedDate, kitchens, categories, setIsTakeAwayPaymentModalOpen, setOrderCreateBulk, setTakeawayTableId, setSelectedNewOrders]);
+
+  // Create socket connection only once
   useEffect(() => {
     // 1) AUDIO INITIALIZATION (once)
     audioRef.current = new Audio("/sounds/orderCreateSound.mp3");
@@ -85,17 +125,87 @@ export function useWebSocket() {
       })
     );
 
+    // If socket already exists, don't recreate it
+    if (socketRef.current) {
+      return;
+    }
+
+    // Create socket instance - automatically connects on creation
+    // Reconnection is enabled by default with infinite attempts
     const socket: Socket = io(SOCKET_URL, {
       path: "/socket.io",
       transports: ["websocket"],
       withCredentials: true,
     });
 
+    socketRef.current = socket;
+
     socket.on("connect", () => {
-      console.log("Connected to WebSocket.");
+      console.log("✅ WebSocket connection established.");
+      disconnectTimeRef.current = null;
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("❌ WebSocket connection lost:", reason);
+      disconnectTimeRef.current = Date.now();
+      
+      if (reason === "io server disconnect") {
+        // Disconnected by server, manually reconnect
+        socket.connect();
+      }
+      // In other cases, Socket.IO will automatically reconnect
+    });
+
+    socket.on("reconnect", (attemptNumber) => {
+      const { queryClient, selectedDate } = latestValuesRef.current;
+      const disconnectDuration = disconnectTimeRef.current 
+        ? Date.now() - disconnectTimeRef.current 
+        : 0;
+      
+      console.log(`🔄 WebSocket reconnected (attempt: ${attemptNumber}, disconnect duration: ${Math.round(disconnectDuration / 1000)}s)`);
+      
+      // Re-fetch data that was missed during disconnection
+      if (disconnectDuration > 30000) {
+        // If connection was lost for more than 30 seconds, invalidate all queries
+        console.log("⚠️ Connection was lost for a long time, refetching all active queries...");
+        queryClient.invalidateQueries();
+      } else {
+        // Otherwise, only invalidate critical queries
+        const criticalQueries = [
+          [`${Paths.Order}/today`, selectedDate],
+          [Paths.Tables, selectedDate],
+          [`${Paths.Order}/collection/today`, selectedDate],
+          [`${Paths.Notification}/new`],
+          [`${Paths.Notification}/all`],
+          [`${Paths.Accounting}/stocks`],
+          [`${Paths.Accounting}/stocks/query`],
+        ];
+
+        criticalQueries.forEach((queryKey) => {
+          queryClient.invalidateQueries({ queryKey });
+        });
+      }
+    });
+
+    socket.on("reconnect_attempt", (attemptNumber) => {
+      console.log(`🔄 WebSocket reconnection attempt: ${attemptNumber}`);
+    });
+
+    socket.on("reconnect_error", (error: Error) => {
+      console.warn("⚠️ WebSocket reconnection error:", error);
+    });
+
+    socket.on("reconnect_failed", () => {
+      console.error("❌ WebSocket reconnection failed. Please try reconnecting manually.");
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("❌ WebSocket connection error:", error.message);
     });
 
     socket.on("orderCreated", ({ order }: { order: Order }) => {
+      const { queryClient, selectedDate, user, selectedLocationId, categories, kitchens, audioReadyRef, audioRef } = latestValuesRef.current;
+      
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/today`, selectedDate],
         (oldData) => {
@@ -155,7 +265,7 @@ export function useWebSocket() {
         ) {
           return;
         }
-        if (audioReadyRef && audioRef.current) {
+        if (audioReadyRef.current && audioRef.current) {
           audioRef.current
             .play()
             .catch((error) => console.error("Error playing sound:", error));
@@ -164,6 +274,8 @@ export function useWebSocket() {
     });
 
     socket.on("orderUpdated", ({ orders }: { orders: Order[] }) => {
+      const { queryClient, selectedDate } = latestValuesRef.current;
+      
       const tableId =
         typeof orders[0]?.table === "number"
           ? orders[0]?.table
@@ -222,6 +334,8 @@ export function useWebSocket() {
     });
 
     socket.on("orderDeleted", ({ order }: { order: Order }) => {
+      const { queryClient, selectedDate } = latestValuesRef.current;
+      
       const tableId =
         typeof order.table === "number" ? order.table : order.table?._id;
 
@@ -271,6 +385,8 @@ export function useWebSocket() {
     socket.on(
       "collectionChanged",
       ({ collection }: { collection: OrderCollection }) => {
+        const { queryClient, selectedDate } = latestValuesRef.current;
+        
         queryClient.invalidateQueries({
           queryKey: [`${Paths.Order}/collection/table`, collection.table],
         });
@@ -335,6 +451,8 @@ export function useWebSocket() {
     socket.on(
       "notificationChanged",
       ({ notifications }: { notifications: Notification[] }) => {
+        const { queryClient, user } = latestValuesRef.current;
+        
         if (!user) return;
         if (
           notifications.some(
@@ -461,6 +579,8 @@ export function useWebSocket() {
         user: User;
         tableId: number;
       }) => {
+        const { queryClient, user } = latestValuesRef.current;
+        
         // Only update cache for other users' actions
         if (creatingUser._id === user?._id) return;
 
@@ -504,6 +624,8 @@ export function useWebSocket() {
         user: User;
         tableId: number;
       }) => {
+        const { queryClient, user } = latestValuesRef.current;
+        
         // Only update cache for other users' actions
         if (deletingUser._id === user?._id) return;
 
@@ -546,6 +668,8 @@ export function useWebSocket() {
         gameplay: Gameplay;
         user: User;
       }) => {
+        const { queryClient, user } = latestValuesRef.current;
+        
         // Only update cache for other users' actions
         if (updatingUser._id === user?._id) return;
 
@@ -607,6 +731,8 @@ export function useWebSocket() {
         locationId: number;
         kitchenIds: string[];
       }) => {
+        const { queryClient, user, selectedLocationId, kitchens, setIsTakeAwayPaymentModalOpen, setTakeawayTableId, setOrderCreateBulk, setSelectedNewOrders } = latestValuesRef.current;
+        
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
         if (!user) {
@@ -632,7 +758,7 @@ export function useWebSocket() {
             if (selectedUsers && selectedUsers.length > 0 && !selectedUsers?.includes(user._id)) {
               return;
             }
-            if (audioReadyRef && audioRef.current) {
+            if (audioReadyRef.current && audioRef.current) {
               audioRef.current
                 .play()
                 .catch((error) => console.error("Error playing sound:", error));
@@ -645,18 +771,19 @@ export function useWebSocket() {
 
     socketEventListeners.forEach((eventConfig) => {
       socket.on(eventConfig.event, () => {
+        const { queryClient } = latestValuesRef.current;
         eventConfig.invalidateKeys.forEach((key) => {
           queryClient.invalidateQueries({ queryKey: [key] });
         });
       });
     });
 
-    socket.on("disconnect", () => {
-      console.log("Disconnected from WebSocket");
-    });
-
+    // Cleanup: only close socket when component unmounts
     return () => {
-      socket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
     };
-  }, [queryClient, user, selectedLocationId]);
+  }, []); // Empty dependency array - only runs on mount/unmount
 }
