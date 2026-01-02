@@ -38,7 +38,7 @@ const SingleCountArchive = () => {
   const { archiveId } = useParams();
   const { user } = useUserContext();
   const counts = useGetAccountCounts();
-  const items=useGetMenuItems()
+  const items = useGetMenuItems();
   const countLists = useGetAccountCountLists();
   const users = useGetUsersMinimal();
   const { mutate: updateStockForStockCount } =
@@ -59,10 +59,6 @@ const SingleCountArchive = () => {
   const isDisabledCondition = useMemo(() => {
     return isDisabledConditionSingleCountArchive(user);
   }, [user]);
-
-  const foundCount = useMemo(() => {
-    return counts?.find((count) => count._id === archiveId);
-  }, [counts, archiveId]);
 
   const currentCount = useMemo(() => {
     return counts?.find((count) => count._id === archiveId);
@@ -86,12 +82,14 @@ const SingleCountArchive = () => {
       },
       {
         name:
-          getItem(foundCount?.countList, countLists)?.name + " " + t("Countu"),
+          getItem(currentCount?.countList, countLists)?.name +
+          " " +
+          t("Countu"),
         path: `/archive/${archiveId}`,
         canBeClicked: false,
       },
     ],
-    [t, foundCount, countLists, archiveId, resetGeneralContext]
+    [t, currentCount, countLists, archiveId, resetGeneralContext]
   );
 
   const rows = useMemo(() => {
@@ -352,7 +350,7 @@ const SingleCountArchive = () => {
       <Header />
       <PageNavigator navigations={pageNavigations} />
       <div className="w-[95%] mx-auto my-10 ">
-        {foundCount && (
+        {currentCount && (
           <GenericTable
             rowKeys={rowKeys}
             columns={columns}
@@ -361,9 +359,13 @@ const SingleCountArchive = () => {
             isActionsActive={isManager ? true : false}
             rowClassNameFunction={rowClassNameFunction}
             filters={
-              foundCount && !foundCount.isCompleted ? filters : archieveFilters
+              currentCount && !currentCount.isCompleted
+                ? filters
+                : archieveFilters
             }
-            title={`${getItem(foundCount?.user, users)?.name}  ${t("Countu")}`} //date will be added here
+            title={`${getItem(currentCount?.user, users)?.name}  ${t(
+              "Countu"
+            )}`} //date will be added here
           />
         )}
       </div>

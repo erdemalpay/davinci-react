@@ -23,6 +23,7 @@ import { CountListPageTabEnum } from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
+  useUpdateCountQuantityMutation,
 } from "../utils/api/account/count";
 import {
   useAccountCountListMutations,
@@ -41,6 +42,7 @@ const Count = () => {
   const counts = useGetAccountCounts();
   const stocks = useGetAccountStocks();
   const { updateAccountCount, deleteAccountCount } = useAccountCountMutations();
+  const updateCountQuantity = useUpdateCountQuantityMutation();
   const countLists = useGetAccountCountLists();
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -252,22 +254,16 @@ const Count = () => {
                     s?.product === rowProduct?._id &&
                     s?.location === numericLocation
                 );
-                const newProducts = [
-                  ...(currentCount?.products?.filter(
-                    (p: any) => p.product !== rowProduct?._id
-                  ) || []),
-                  {
-                    product: rowProduct?._id,
-                    countQuantity: Number(row?.countQuantity ?? 0) ?? 0,
-                    stockQuantity: productStock?.quantity || 0,
-                    productDeleteRequest: row?.productDeleteRequest
-                      ? ""
-                      : user._id,
-                  },
-                ];
-                updateAccountCount({
-                  id: currentCount?._id,
-                  updates: { products: newProducts },
+
+                updateCountQuantity.mutate({
+                  countId: currentCount._id,
+                  productId: rowProduct._id,
+                  countQuantity: Number(row?.countQuantity ?? 0) ?? 0,
+                  stockQuantity: productStock?.quantity || 0,
+                  productDeleteRequest: row?.productDeleteRequest
+                    ? ""
+                    : user._id,
+                  currentProducts: currentCount.products || [],
                 });
               }}
             >
@@ -289,7 +285,7 @@ const Count = () => {
       user,
       stocks,
       numericLocation,
-      updateAccountCount,
+      updateCountQuantity,
     ]
   );
 
@@ -340,19 +336,13 @@ const Count = () => {
                       s?.product === rowProduct?._id &&
                       s?.location === numericLocation
                   );
-                  const newProducts = [
-                    ...(currentCount?.products?.filter(
-                      (p: any) => p.product !== rowProduct?._id
-                    ) || []),
-                    {
-                      product: rowProduct?._id,
-                      countQuantity: value,
-                      stockQuantity: productStock?.quantity || 0,
-                    },
-                  ];
-                  updateAccountCount({
-                    id: currentCount?._id,
-                    updates: { products: newProducts },
+
+                  updateCountQuantity.mutate({
+                    countId: currentCount._id,
+                    productId: rowProduct._id,
+                    countQuantity: Number(value),
+                    stockQuantity: productStock?.quantity || 0,
+                    currentProducts: currentCount.products || [],
                   });
                 }}
                 isDebounce={true}
@@ -369,7 +359,7 @@ const Count = () => {
         },
       },
     ],
-    [products, currentCount, stocks, numericLocation, updateAccountCount]
+    [products, currentCount, stocks, numericLocation, updateCountQuantity]
   );
 
   const filters = useMemo(
