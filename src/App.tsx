@@ -21,20 +21,9 @@ import RouterContainer from "./navigation/routes";
 const queryClient = new QueryClient();
 
 function App() {
-  // const isVisible = usePageVisibility();
-  // const queryClient = useQueryClient();
   const { isSidebarOpen } = useGeneralContext();
   const { user } = useUserContext();
-  // const prevVisibleRef = useRef(isVisible);
-
   useWebSocket();
-
-  // useEffect(() => {
-  //   if (prevVisibleRef.current === false && isVisible === true) {
-  //     queryClient.clear();
-  //   }
-  //   prevVisibleRef.current = isVisible;
-  // }, [isVisible, queryClient]);
 
   return (
     <div className="App">
