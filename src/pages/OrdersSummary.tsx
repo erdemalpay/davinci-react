@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { Header } from "../components/header/Header";
-import CategorySummaryChart from "../components/orderSummary/CategorySummaryChart";
 import CategorySummaryCompareChart from "../components/orderSummary/CategorySummaryCompareChart";
 import SummaryCard from "../components/orders/ordersSummary/SummaryCard";
 import SelectInput from "../components/panelComponents/FormElements/SelectInput";
@@ -43,7 +42,6 @@ const OrdersSummary = () => {
     useState<UpperCategory | null>(upperCategories[0]);
   const [selectedDateRange, setSelectedDateRange] =
     useState<DateRangeKey>("thisMonth");
-  const [useCompareChart, setUseCompareChart] = useState(true);
 
   const ordersSummaryDateOptions = [
     { value: "thisWeek", label: "This Week" },
@@ -378,8 +376,7 @@ const OrdersSummary = () => {
                 </div>
               </div>
 
-              {useCompareChart &&
-                filterSummaryFormElements.after &&
+              {filterSummaryFormElements.after &&
                 filterSummaryFormElements.before && (
                   <div className="relative z-10">
                     {selectedCategory ? (
@@ -407,21 +404,6 @@ const OrdersSummary = () => {
                     ) : null}
                   </div>
                 )}
-              {!useCompareChart && (
-                <>
-                  {selectedCategory ? (
-                    <CategorySummaryChart
-                      location={filterSummaryFormElements.location}
-                      category={selectedCategory}
-                    />
-                  ) : selectedUpperCategory ? (
-                    <CategorySummaryChart
-                      location={filterSummaryFormElements.location}
-                      upperCategory={selectedUpperCategory}
-                    />
-                  ) : null}
-                </>
-              )}
             </div>
           </div>
         </div>

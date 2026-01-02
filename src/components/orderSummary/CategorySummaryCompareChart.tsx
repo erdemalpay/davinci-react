@@ -1,5 +1,4 @@
 import { format, parse } from "date-fns";
-import { tr } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -37,20 +36,43 @@ function getMonthLabel(monthStr: string, t: any): string {
   const date = parse(monthStr + "-01", "yyyy-MM-dd", new Date());
   const monthIndex = date.getMonth();
   const monthKeys = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   return t(monthKeys[monthIndex]);
 }
 
-function formatPeriodLabel(start: string, end: string, granularity: "daily" | "monthly", t: any): string {
+function formatPeriodLabel(
+  start: string,
+  end: string,
+  granularity: "daily" | "monthly",
+  t: any
+): string {
   const startDate = parse(start, "yyyy-MM-dd", new Date());
   const endDate = parse(end, "yyyy-MM-dd", new Date());
 
   if (granularity === "daily") {
-    return `${format(startDate, "dd")} ${t(format(startDate, "MMM"))} - ${format(endDate, "dd")} ${t(format(endDate, "MMM"))}`;
+    return `${format(startDate, "dd")} ${t(
+      format(startDate, "MMM")
+    )} - ${format(endDate, "dd")} ${t(format(endDate, "MMM"))}`;
   } else {
-    return `${format(startDate, "dd")} ${t(format(startDate, "MMM"))} ${format(startDate, "yyyy")} - ${format(endDate, "dd")} ${t(format(endDate, "MMM"))} ${format(endDate, "yyyy")}`;
+    return `${format(startDate, "dd")} ${t(format(startDate, "MMM"))} ${format(
+      startDate,
+      "yyyy"
+    )} - ${format(endDate, "dd")} ${t(format(endDate, "MMM"))} ${format(
+      endDate,
+      "yyyy"
+    )}`;
   }
 }
 
@@ -222,8 +244,18 @@ export default function CategorySummaryCompareChart({
     );
 
     // Period label'ları oluştur
-    const primaryLabel = formatPeriodLabel(primaryPeriod.startDate, primaryPeriod.endDate, primaryPeriod.granularity, t);
-    const secondaryLabel = formatPeriodLabel(secondaryPeriod.startDate, secondaryPeriod.endDate, secondaryPeriod.granularity, t);
+    const primaryLabel = formatPeriodLabel(
+      primaryPeriod.startDate,
+      primaryPeriod.endDate,
+      primaryPeriod.granularity,
+      t
+    );
+    const secondaryLabel = formatPeriodLabel(
+      secondaryPeriod.startDate,
+      secondaryPeriod.endDate,
+      secondaryPeriod.granularity,
+      t
+    );
 
     return {
       ...chartConfig,
@@ -265,6 +297,29 @@ export default function CategorySummaryCompareChart({
     );
   }, [compareData, t]);
 
+  // Custom legend items for responsive display
+  const customLegendItems = useMemo(() => {
+    if (!compareData?.primaryPeriod || !compareData?.secondaryPeriod) return [];
+
+    const primaryLabel = formatPeriodLabel(
+      compareData.primaryPeriod.startDate,
+      compareData.primaryPeriod.endDate,
+      compareData.primaryPeriod.granularity,
+      t
+    );
+    const secondaryLabel = formatPeriodLabel(
+      compareData.secondaryPeriod.startDate,
+      compareData.secondaryPeriod.endDate,
+      compareData.secondaryPeriod.granularity,
+      t
+    );
+
+    return [
+      { label: primaryLabel, color: "#8B5CF6" },
+      { label: secondaryLabel, color: "#FB923C" },
+    ];
+  }, [compareData, t]);
+
   if (!compareData) {
     return (
       <div className="flex flex-col gap-4 mx-auto w-full">
@@ -277,27 +332,34 @@ export default function CategorySummaryCompareChart({
 
   return (
     <div className="flex flex-col gap-4 mx-auto w-full">
-      {/* Karşılaştırma metrikleri */}
-      <div className="flex gap-2 items-center flex-wrap">
-        <span className="text-sm text-gray-600">
-          {t("Compare Period")} {secondaryPeriodLabel}
-        </span>
-        <span className="text-sm font-semibold text-green-600">
-          {compareData.comparisonMetrics.percentageChange > 0 ? "+" : ""}
-          {compareData.comparisonMetrics.percentageChange.toFixed(2)}%
-        </span>
-        <span className="text-sm text-gray-500">
-          ({compareData.comparisonMetrics.absoluteChange > 0 ? "+" : ""}
-          {Math.abs(
-            compareData.comparisonMetrics.absoluteChange
-          ).toLocaleString("tr-TR")}{" "}
-          {TURKISHLIRA})
-        </span>
+      {/* Karşılaştırma metrikleri - Responsive */}
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-gray-600">{t("Period Change")}:</span>
+          <span
+            className={`text-sm font-semibold px-2 py-0.5 rounded ${
+              compareData.comparisonMetrics.percentageChange >= 0
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {compareData.comparisonMetrics.percentageChange > 0 ? "+" : ""}
+            {compareData.comparisonMetrics.percentageChange.toFixed(1)}%
+          </span>
+          <span className="text-sm text-gray-500">
+            ({compareData.comparisonMetrics.absoluteChange > 0 ? "+" : ""}
+            {Math.abs(
+              compareData.comparisonMetrics.absoluteChange
+            ).toLocaleString("tr-TR")}{" "}
+            {TURKISHLIRA})
+          </span>
+        </div>
       </div>
       <PriceChart
         chartConfig={finalChartConfig}
         {...(category ? { selectedCategory: category } : {})}
         {...(upperCategory ? { selectedUpperCategory: upperCategory } : {})}
+        customLegend={customLegendItems}
       />
     </div>
   );
