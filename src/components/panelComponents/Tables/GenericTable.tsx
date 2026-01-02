@@ -564,7 +564,7 @@ const GenericTable = <T,>({
                   <img
                     src={(row[rowKey.key as keyof T] as string) || imageHolder}
                     alt="img"
-                    className="w-12 h-12 rounded-full cursor-pointer"
+                    className="w-12 h-12 rounded-full cursor-pointer min-w-12"
                     onClick={() => {
                       setImageModalSrc(
                         (row[rowKey.key as keyof T] as string) ?? imageHolder
