@@ -137,6 +137,7 @@ export type Location = {
   isShelfInfoRequired?: boolean;
   isVisibleInBaseQuantity?: boolean;
   phoneNumber?: string;
+  fallbackStockLocation?: number;
   googleMapsUrl?: string;
   dailyHours?: {
     day: string;
