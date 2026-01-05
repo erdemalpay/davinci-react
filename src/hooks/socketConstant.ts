@@ -196,6 +196,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Shift}`],
   },
   {
+    event: "gameplayTimeChanged",
+    invalidateKeys: [`${Paths.GameplayTime}`],
+  },
+  {
     event: "expirationListChanged",
     invalidateKeys: [`${Paths.Expiration}/lists`],
   },

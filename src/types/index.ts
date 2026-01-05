@@ -8,7 +8,28 @@ export type Gameplay = {
   mentor: User | string;
   location: number;
   createdBy: User;
+  isGameplayTime?: boolean;
 };
+
+export type GameplayTime = {
+  _id: number;
+  user: User | string;
+  location: Location | number;
+  gameplay:
+    | {
+        _id: number;
+        mentor: User | string;
+        game: Game | number;
+        playerCount: number;
+      }
+    | number;
+  date: string;
+  startHour?: string;
+  finishHour?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 export type Authorization = {
   _id: number;
   path: string;
@@ -1096,6 +1117,7 @@ export enum VisitPageTabEnum {
   CHANGEREQUESTMANAGEMENT,
   USERCHANGEREQUESTTAB,
   ALLBREAKS,
+  ALLGAMEPLAYTIME,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
