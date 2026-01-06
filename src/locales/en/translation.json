@@ -1160,5 +1160,9 @@
   "Birth Date": "Birth Date",
   "Inactive": "Inactive",
   "Header": "Header",
-  "Disable When Out Of Stock": "Disable When Out Of Stock"
+  "Disable When Out Of Stock": "Disable When Out Of Stock",
+  "Players" : "Players",
+  "End Gameplay Time" : "End Gameplay Time",
+  "You're in a gameplay session" : "You're in a gameplay session",
+  "Hide the modal or end your gameplay" : "Hide the modal or end your gameplay"
 }

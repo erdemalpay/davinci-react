@@ -1166,5 +1166,9 @@
   "Birth Date": "Doğum Tarihi",
   "Inactive": "Pasif",
   "Header": "Başlık",
-  "Disable When Out Of Stock": "Stok Bitimi Oto. Kapat"
+  "Disable When Out Of Stock": "Stok Bitimi Oto. Kapat",
+  "Players" : "Oyuncu Sayısı",
+  "End Gameplay Time" : "Oyun Anlatımını Sonlandır",
+  "You're in a gameplay session" : "Oyun Anlatımındasınız",
+  "Hide the modal or end your gameplay" : "Modalı gizleyin veya oyun anlatımınızı bitirin"
 }
