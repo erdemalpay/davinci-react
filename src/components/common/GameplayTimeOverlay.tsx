@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
 import { MdSportsEsports, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
@@ -164,7 +165,7 @@ export const GameplayTimeOverlay = () => {
         <div className="bg-gradient-to-r from-purple-500 to-purple-700 animate-pulse shadow-sm">
           <div className="px-4 py-1">
             <div className="flex items-center justify-center gap-2">
-              <MdSportsEsports className="text-white text-sm" />
+              <GiPerspectiveDiceSixFacesRandom className="text-white text-sm" />
               <span className="text-white text-sm font-medium">
                 {t("You're in a gameplay session")} - {getGameplayDuration()}{" "}
                 {t("minutes")}
