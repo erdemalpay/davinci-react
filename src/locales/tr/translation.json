@@ -1165,5 +1165,6 @@
   "Players": "Oyuncu Sayısı",
   "You're in a gameplay session": "Oyun Anlatımındasınız",
   "Hide the modal or end your gameplay": "Modalı gizleyin veya oyun anlatımınızı bitirin",
-  "End": "Sonlandır"
+  "End": "Sonlandır",
+  "Is Gameplay Time" : "Oyun Anlatımı Başlat"
 }
