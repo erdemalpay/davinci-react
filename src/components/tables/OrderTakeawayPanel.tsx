@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useGeneralContext } from "../../context/General.context";
@@ -28,6 +28,12 @@ const OrderTakeawayPanel = () => {
       newOrders: newOrdersCount,
     };
   }, [orderCreateBulk]);
+
+  useEffect(() => {
+    if (orderCounts.newOrders > 0) {
+      setExpandedSections((prev) => ({ ...prev, 0: true }));
+    }
+  }, [orderCounts.newOrders]);
 
   const tabs = [
     {

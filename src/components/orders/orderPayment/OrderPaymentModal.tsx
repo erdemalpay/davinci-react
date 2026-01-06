@@ -917,6 +917,7 @@ const OrderPaymentModal = ({
         onOpenTriggerTabInputFormKey={
           user?.settings?.orderCategoryOn ? "category" : "item"
         }
+        stickyFooterButtons={true}
         submitItem={createOrder as any}
         setForm={setOrderForm}
         isCreateCloseActive={false}

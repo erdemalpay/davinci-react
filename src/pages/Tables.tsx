@@ -1950,6 +1950,7 @@ const Tables = () => {
             : {})}
           inputs={orderInputsForTakeAway}
           formKeys={orderFormKeysForTakeAway}
+          stickyFooterButtons={true}
           submitItem={createTable as any}
           setForm={setOrderForm}
           isCreateCloseActive={false}
