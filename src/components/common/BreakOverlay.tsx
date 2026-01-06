@@ -163,13 +163,10 @@ export const BreakOverlay = () => {
             onClick={handleEndBreak}
             className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
           >
-            {t("End Break")}
+            {t("End")}
           </button>
         </div>
 
-        <p className="text-xs text-gray-400 mt-4">
-          {t("Hide the modal or end your break")}
-        </p>
       </div>
     </div>
   );

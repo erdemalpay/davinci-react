@@ -681,7 +681,6 @@
   "All Notifications": "All Notifications",
   "All Breaks": "All Breaks",
   "Start Break": "Start Break",
-  "End Break": "End Break",
   "Break started": "Break started",
   "Break ended": "Break ended",
   "You are already on a break": "You are already on a break",
@@ -693,8 +692,6 @@
   "minutes": "minutes",
   "Hide": "Hide",
   "Click to open": "Click to open",
-  "Hide the modal or end your break": "Hide the modal or end your break",
-  "Click the button above to end your break": "Click the button above to end your break",
   "Please select a location first": "Please select a location first",
   "Mark as read": "Mark as read",
   "Select": "Select",
@@ -1163,7 +1160,7 @@
   "Header": "Header",
   "Disable When Out Of Stock": "Disable When Out Of Stock",
   "Players" : "Players",
-  "End Gameplay Time" : "End Gameplay Time",
   "You're in a gameplay session" : "You're in a gameplay session",
-  "Hide the modal or end your gameplay" : "Hide the modal or end your gameplay"
+  "Hide the modal or end your gameplay" : "Hide the modal or end your gameplay",
+  "End" : "End"
 }

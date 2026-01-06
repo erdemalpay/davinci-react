@@ -746,7 +746,6 @@
   "All Notifications": "Tüm Bildirimler",
   "All Breaks": "Tüm Molalar",
   "Start Break": "Mola Başlat",
-  "End Break": "Mola Bitir",
   "Break started": "Mola başlatıldı",
   "Break ended": "Mola bitirildi",
   "You are already on a break": "Zaten molada bulunuyorsunuz",
@@ -757,9 +756,7 @@
   "Started at": "Başlangıç saati",
   "minutes": "dakika",
   "Hide": "Gizle",
-  "Click to open": "Tıklayın",
-  "Hide the modal or end your break": "Modalı gizleyin veya molanızı bitirin",
-  "Click the button above to end your break": "Molanızı bitirmek için yukarıdaki butona tıklayın",
+  "Click to open": "Açmak için tıklayın",
   "Please select a location first": "Lütfen önce bir konum seçin",
   "Mark as read": "Okundu olarak işaretle",
   "Select": "Seç",
@@ -1165,7 +1162,7 @@
   "Header": "Başlık",
   "Disable When Out Of Stock": "Stok Bitimi Oto. Kapat",
   "Players" : "Oyuncu Sayısı",
-  "End Gameplay Time" : "Oyun Anlatımını Sonlandır",
   "You're in a gameplay session" : "Oyun Anlatımındasınız",
-  "Hide the modal or end your gameplay" : "Modalı gizleyin veya oyun anlatımınızı bitirin"
+  "Hide the modal or end your gameplay" : "Modalı gizleyin veya oyun anlatımınızı bitirin",
+  "End" : "Sonlandır"
 }
