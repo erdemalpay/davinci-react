@@ -1,7 +1,8 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdSportsEsports } from "react-icons/md";
+import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
+import { MdSportsEsports, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { GameplayTime } from "../../types";
@@ -20,6 +21,8 @@ export const GameplayTimeOverlay = () => {
   const [currentGameplayTime, setCurrentGameplayTime] =
     useState<GameplayTime | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isModalHidden, setIsModalHidden] = useState(false);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get active gameplay times for today's date
   const todayDate = format(new Date(), "yyyy-MM-dd");
@@ -49,6 +52,39 @@ export const GameplayTimeOverlay = () => {
       setCurrentGameplayTime(userActiveGameplayTime || null);
     }
   }, [activeGameplayTimes, user]);
+
+  // Cleanup: Reset states when gameplay ends
+  useEffect(() => {
+    if (!currentGameplayTime) {
+      setIsModalHidden(false);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+    }
+
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, [currentGameplayTime]);
+
+  const handleHideModal = () => {
+    setIsModalHidden(true);
+    // Auto-show modal after 1 minute
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsModalHidden(false);
+    }, 60000);
+  };
+
+  const handleShowModal = () => {
+    setIsModalHidden(false);
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  };
 
   const handleEndGameplayTime = () => {
     if (!currentGameplayTime) return;
@@ -112,13 +148,39 @@ export const GameplayTimeOverlay = () => {
     };
   };
 
-  // Only show overlay if user has an active gameplay time
+  // No active gameplay time - don't render anything
   if (!currentGameplayTime) {
     return null;
   }
 
   const details = getGameplayDetails();
 
+  // Modal hidden - show status bar (compact version)
+  if (isModalHidden) {
+    return (
+      <div
+        onClick={handleShowModal}
+        className="fixed top-16 left-0 right-0 z-40 cursor-pointer"
+      >
+        <div className="bg-gradient-to-r from-purple-500 to-purple-700 animate-pulse shadow-sm">
+          <div className="px-4 py-1">
+            <div className="flex items-center justify-center gap-2">
+              <GiPerspectiveDiceSixFacesRandom className="text-white text-sm" />
+              <span className="text-white text-sm font-medium">
+                {t("You're in a gameplay session")} - {getGameplayDuration()}{" "}
+                {t("minutes")}
+              </span>
+              <span className="text-white/70 text-xs">
+                ({t("Click to open")})
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Modal visible - show full overlay
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center">
       <div className="bg-white rounded-2xl p-8 max-w-md w-[90%] mx-4 text-center shadow-2xl">
@@ -170,16 +232,22 @@ export const GameplayTimeOverlay = () => {
           <p className="text-gray-500">{t("minutes")}</p>
         </div>
 
-        <button
-          onClick={handleEndGameplayTime}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
-        >
-          {t("End Gameplay Time")}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleHideModal}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg flex items-center justify-center gap-2"
+          >
+            <MdVisibilityOff className="text-xl" />
+            {t("Hide")}
+          </button>
+          <button
+            onClick={handleEndGameplayTime}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
+          >
+            {t("End")}
+          </button>
+        </div>
 
-        <p className="text-xs text-gray-400 mt-4">
-          {t("Click the button above to end your gameplay session")}
-        </p>
       </div>
     </div>
   );

@@ -2,10 +2,13 @@ import { Chip, Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BiCoffee } from "react-icons/bi";
+import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { Break, RoleEnum, Visit, VisitSource } from "../../types";
+import { Break, GameplayTime, RoleEnum, Visit, VisitSource } from "../../types";
+import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelSettings } from "../../utils/api/panelControl/panelSettings";
 import { MinimalUser } from "../../utils/api/user";
 import {
@@ -42,6 +45,10 @@ export function ActiveVisitList({
   const { selectedLocationId } = useLocationContext();
   const isDisabledCondition =
     panelSettings?.isVisitEntryDisabled && user?.role?._id !== RoleEnum.MANAGER;
+
+  // Get active gameplay times for today
+  const todayDate = format(new Date(), "yyyy-MM-dd");
+  const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const [filteredSuggestions, setFilteredSuggestions] = useState<MinimalUser[]>(
     []
   );
@@ -99,6 +106,18 @@ export function ActiveVisitList({
           : breakItem.user._id) === userId &&
         breakItem.location === selectedLocationId &&
         !breakItem.finishHour
+    );
+  };
+
+  const isUserInGameplayTime = (userId: string): GameplayTime | null => {
+    if (!activeGameplayTimes || activeGameplayTimes.length === 0) return null;
+    return (
+      activeGameplayTimes.find(
+        (gameplayTime) =>
+          (typeof gameplayTime.user === "string"
+            ? gameplayTime.user
+            : gameplayTime.user._id) === userId && !gameplayTime.finishHour
+      ) || null
     );
   };
   useEffect(() => {
@@ -160,23 +179,56 @@ export function ActiveVisitList({
           }
 
           const userBreak = isUserOnBreak(visit.user);
+          const userGameplayTime = isUserInGameplayTime(visit.user);
           const userName = userOnVisit.name ?? "";
           const userRole = userOnVisit.role?.name ?? "";
 
-          const tooltipContent = userBreak
-            ? `${userRole}  •  ${t("On Break")}`
-            : userRole;
+          // Build tooltip content based on user status
+          let tooltipContent = userRole;
+          if (userBreak) {
+            tooltipContent = `${userRole}  •  ${t("On Break")}`;
+          } else if (userGameplayTime) {
+            tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
+          }
+
+          // Determine animation class based on user status
+          const getAnimationClass = () => {
+            if (userBreak) return "animate-pulse-dark";
+            if (userGameplayTime) return "animate-pulse-dark";
+            return "";
+          };
+
+          // Build chip value with icon if user has special status
+          const getChipValue = () => {
+            if (userBreak) {
+              return (
+                <span className="flex items-center gap-1">
+                  <BiCoffee className="text-sm" />
+                  {userName}
+                </span>
+              );
+            }
+            if (userGameplayTime) {
+              return (
+                <span className="flex items-center gap-1">
+                  <GiPerspectiveDiceSixFacesRandom className="text-sm" />
+                  {userName}
+                </span>
+              );
+            }
+            return userName;
+          };
 
           return (
             <Tooltip key={visit?.user} content={tooltipContent}>
-              <div className={userBreak ? "animate-pulse-dark" : ""}>
+              <div className={getAnimationClass()}>
                 <Chip
-                  value={userName}
+                  value={getChipValue()}
                   style={{
                     backgroundColor: isUserActive(visit.user)
                       ? userOnVisit.role?.color
                       : "gray",
-                    height: "fit-content"
+                    height: "fit-content",
                   }}
                   color="gray"
                   {...(!isDisabledCondition &&
