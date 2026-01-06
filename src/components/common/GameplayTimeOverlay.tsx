@@ -118,6 +118,7 @@ export const GameplayTimeOverlay = () => {
   }
 
   const details = getGameplayDetails();
+  console.log(details);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center">
