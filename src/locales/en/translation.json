@@ -687,6 +687,7 @@
   "You're on a break": "You're on a break",
   "On Break": "On Break",
   "In Gameplay": "In Gameplay",
+  "Gameplay time ended": "Gameplay time ended",
   "No one on break": "No one on break",
   "Started at": "Started at",
   "minutes": "minutes",
@@ -1159,8 +1160,8 @@
   "Inactive": "Inactive",
   "Header": "Header",
   "Disable When Out Of Stock": "Disable When Out Of Stock",
-  "Players" : "Players",
-  "You're in a gameplay session" : "You're in a gameplay session",
-  "Hide the modal or end your gameplay" : "Hide the modal or end your gameplay",
-  "End" : "End"
+  "Players": "Players",
+  "You're in a gameplay session": "You're in a gameplay session",
+  "Hide the modal or end your gameplay": "Hide the modal or end your gameplay",
+  "End": "End"
 }

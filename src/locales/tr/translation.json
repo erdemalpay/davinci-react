@@ -752,6 +752,7 @@
   "You're on a break": "Molada bulunuyorsunuz",
   "On Break": "Molada",
   "In Gameplay": "Oyun Anlatımında",
+  "Gameplay time ended": "Oyun anlatımı sona erdi",
   "No one on break": "Kimse molada değil",
   "Started at": "Başlangıç saati",
   "minutes": "dakika",
@@ -1161,8 +1162,8 @@
   "Inactive": "Pasif",
   "Header": "Başlık",
   "Disable When Out Of Stock": "Stok Bitimi Oto. Kapat",
-  "Players" : "Oyuncu Sayısı",
-  "You're in a gameplay session" : "Oyun Anlatımındasınız",
-  "Hide the modal or end your gameplay" : "Modalı gizleyin veya oyun anlatımınızı bitirin",
-  "End" : "Sonlandır"
+  "Players": "Oyuncu Sayısı",
+  "You're in a gameplay session": "Oyun Anlatımındasınız",
+  "Hide the modal or end your gameplay": "Modalı gizleyin veya oyun anlatımınızı bitirin",
+  "End": "Sonlandır"
 }
