@@ -1,8 +1,9 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdFreeBreakfast } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import { CreateBreakDto } from "../../types";
@@ -19,12 +20,19 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
+  const { visits = [] } = useDataContext();
   const { createBreak, updateBreak } = useBreakMutations();
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [currentBreakId, setCurrentBreakId] = useState<number | null>(null);
 
   // Get active breaks for current location
   const activeBreaks = useGetBreaksByLocation(selectedLocationId || 0);
+
+  // Check if current user has an active visit (is at the cafe)
+  const hasActiveVisit = useMemo(() => {
+    if (!user || !visits || visits.length === 0) return false;
+    return visits.some((visit) => visit.user === user._id && !visit.finishHour);
+  }, [visits, user]);
 
   useEffect(() => {
     if (activeBreaks && user && selectedLocationId) {
@@ -83,6 +91,11 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     });
     toast.success(t("Break ended"));
   };
+
+  // Don't show break button if user doesn't have an active visit (not at the cafe)
+  if (!hasActiveVisit) {
+    return null;
+  }
 
   return (
     <div className="relative">

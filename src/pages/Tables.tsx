@@ -45,6 +45,7 @@ import {
 } from "../types";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetBreaksByDate } from "../utils/api/break";
+import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
 import { useGetAllLocations } from "../utils/api/location";
 import {
   useCreateMultipleOrderMutation,
@@ -109,6 +110,11 @@ const Tables = () => {
 
   // Get breaks for the selected date, only if selectedDate exists
   const todayBreaks = useGetBreaksByDate(
+    selectedDate || formatDate(new Date())
+  );
+
+  // Get active gameplay times for today
+  const activeGameplayTimes = useGetGameplayTimesByDate(
     selectedDate || formatDate(new Date())
   );
 
@@ -1037,10 +1043,42 @@ const Tables = () => {
     const newMentors = defaultUser ? [defaultUser] : [];
     if (visits) {
       if (!users) return;
+
+      // Helper: Check if user is on break
+      const isUserOnBreak = (userId: string) => {
+        if (!todayBreaks) return false;
+        return todayBreaks.some(
+          (breakItem) =>
+            (typeof breakItem.user === "string"
+              ? breakItem.user
+              : breakItem.user._id) === userId &&
+            breakItem.location === selectedLocationId &&
+            !breakItem.finishHour
+        );
+      };
+
+      // Helper: Check if user is in active gameplay time
+      const isUserInGameplayTime = (userId: string) => {
+        if (!activeGameplayTimes) return false;
+        return activeGameplayTimes.some(
+          (gameplayTime) =>
+            (typeof gameplayTime.user === "string"
+              ? gameplayTime.user
+              : gameplayTime.user._id) === userId &&
+            (typeof gameplayTime.location === "number"
+              ? gameplayTime.location
+              : gameplayTime.location._id) === selectedLocationId &&
+            !gameplayTime.finishHour
+        );
+      };
+
       visits.forEach((visit) => {
         const user = getItem(visit.user, users) as User;
         if (user && !visit?.finishHour && !newMentors.includes(user)) {
-          newMentors.push(user);
+          // Filter out users who are on break or in gameplay time
+          if (!isUserOnBreak(user._id) && !isUserInGameplayTime(user._id)) {
+            newMentors.push(user);
+          }
         }
       });
     }
@@ -1051,7 +1089,7 @@ const Tables = () => {
         return newMentors;
       }
     });
-  }, [defaultUser, visits]);
+  }, [defaultUser, visits, todayBreaks, activeGameplayTimes, selectedLocationId, users]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
