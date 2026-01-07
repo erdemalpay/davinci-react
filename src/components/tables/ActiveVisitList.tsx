@@ -215,6 +215,15 @@ export function ActiveVisitList({
             return userName;
           };
 
+          const getChipBackgroundColor = () => {
+            if (userGameplayTime) {
+              return "#F97316"
+            }else if(userBreak){
+              return "#255691"
+            }else
+              return "#288809"
+          }
+
           return (
             <Tooltip key={visit?.user} content={tooltipContent}>
               <div>
@@ -222,7 +231,7 @@ export function ActiveVisitList({
                   value={getChipValue()}
                   style={{
                     backgroundColor: isUserActive(visit.user)
-                      ? userOnVisit.role?.color
+                      ? getChipBackgroundColor()
                       : "gray",
                     height: "fit-content",
                   }}
