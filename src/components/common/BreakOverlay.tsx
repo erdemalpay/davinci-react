@@ -1,9 +1,10 @@
 import { format } from "date-fns";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdCoffee, MdStop, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
+import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
 import { Break } from "../../types";
 import { useBreakMutations, useGetBreaksByDate } from "../../utils/api/break";
 
@@ -13,14 +14,12 @@ export const BreakOverlay = () => {
   const { updateBreak } = useBreakMutations();
   const [currentBreak, setCurrentBreak] = useState<Break | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isModalHidden, setIsModalHidden] = useState(false);
-  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { isModalHidden, handleHideModal, handleShowModal } =
+    useTemporarilyHiddenModal(!!currentBreak);
 
-  // Get active breaks for today's date
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeBreaks = useGetBreaksByDate(todayDate);
 
-  // Update current time every minute for real-time duration
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -29,7 +28,6 @@ export const BreakOverlay = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Find active break for current user
   useEffect(() => {
     if (activeBreaks && user) {
       const userActiveBreak = activeBreaks.find(
@@ -43,38 +41,6 @@ export const BreakOverlay = () => {
     }
   }, [activeBreaks, user]);
 
-  // Cleanup: Reset states when break ends
-  useEffect(() => {
-    if (!currentBreak) {
-      setIsModalHidden(false);
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = null;
-      }
-    }
-
-    return () => {
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-    };
-  }, [currentBreak]);
-
-  const handleHideModal = () => {
-    setIsModalHidden(true);
-    // Auto-show modal after 1 minute
-    hideTimeoutRef.current = setTimeout(() => {
-      setIsModalHidden(false);
-    }, 60000);
-  };
-
-  const handleShowModal = () => {
-    setIsModalHidden(false);
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = null;
-    }
-  };
 
   const handleEndBreak = () => {
     if (!currentBreak) return;
@@ -99,12 +65,10 @@ export const BreakOverlay = () => {
     return diffMinutes.toString();
   };
 
-  // No active break - don't render anything
   if (!currentBreak) {
     return null;
   }
 
-  // Modal hidden - show status bar (compact version)
   if (isModalHidden) {
     return (
       <div
@@ -128,7 +92,6 @@ export const BreakOverlay = () => {
     );
   }
 
-  // Modal visible - show full overlay
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center">
       <div className="bg-white rounded-2xl p-8 max-w-md w-[90%] mx-4 text-center shadow-2xl">

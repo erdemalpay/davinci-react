@@ -116,7 +116,11 @@ export function ActiveVisitList({
         (gameplayTime) =>
           (typeof gameplayTime.user === "string"
             ? gameplayTime.user
-            : gameplayTime.user._id) === userId && !gameplayTime.finishHour
+            : gameplayTime.user._id) === userId &&
+          (typeof gameplayTime.location === "number"
+            ? gameplayTime.location
+            : gameplayTime.location._id) === selectedLocationId &&
+          !gameplayTime.finishHour
       ) || null
     );
   };

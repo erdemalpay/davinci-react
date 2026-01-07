@@ -1,10 +1,11 @@
 import { format } from "date-fns";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
 import { MdSportsEsports, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
+import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
 import { GameplayTime } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -21,16 +22,14 @@ export const GameplayTimeOverlay = () => {
   const [currentGameplayTime, setCurrentGameplayTime] =
     useState<GameplayTime | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isModalHidden, setIsModalHidden] = useState(false);
-  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { isModalHidden, handleHideModal, handleShowModal } =
+    useTemporarilyHiddenModal(!!currentGameplayTime);
 
-  // Get active gameplay times for today's date
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const games = useGetGames();
   const users = useGetUsersMinimal();
 
-  // Update current time every minute for real-time duration
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -41,7 +40,6 @@ export const GameplayTimeOverlay = () => {
 
   useEffect(() => {
     if (activeGameplayTimes && user) {
-      // Find if current user has an active gameplay time for today
       const userActiveGameplayTime = activeGameplayTimes.find(
         (gameplayTime) =>
           (typeof gameplayTime.user === "string"
@@ -52,39 +50,6 @@ export const GameplayTimeOverlay = () => {
       setCurrentGameplayTime(userActiveGameplayTime || null);
     }
   }, [activeGameplayTimes, user]);
-
-  // Cleanup: Reset states when gameplay ends
-  useEffect(() => {
-    if (!currentGameplayTime) {
-      setIsModalHidden(false);
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = null;
-      }
-    }
-
-    return () => {
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-    };
-  }, [currentGameplayTime]);
-
-  const handleHideModal = () => {
-    setIsModalHidden(true);
-    // Auto-show modal after 1 minute
-    hideTimeoutRef.current = setTimeout(() => {
-      setIsModalHidden(false);
-    }, 60000);
-  };
-
-  const handleShowModal = () => {
-    setIsModalHidden(false);
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = null;
-    }
-  };
 
   const handleEndGameplayTime = () => {
     if (!currentGameplayTime) return;
@@ -104,7 +69,6 @@ export const GameplayTimeOverlay = () => {
       .split(":")
       .map(Number);
 
-    // Create start time using today's date
     const today = format(new Date(), "yyyy-MM-dd");
     const startTime = new Date(`${today}T${currentGameplayTime.startHour}:00`);
 
@@ -136,7 +100,6 @@ export const GameplayTimeOverlay = () => {
         ? getItem(gameplay.game, games)
         : null;
 
-    // Only return details if we have actual data
     if (!mentor?.name && !game?.name && !gameplay?.playerCount) {
       return null;
     }
@@ -148,14 +111,12 @@ export const GameplayTimeOverlay = () => {
     };
   };
 
-  // No active gameplay time - don't render anything
   if (!currentGameplayTime) {
     return null;
   }
 
   const details = getGameplayDetails();
 
-  // Modal hidden - show status bar (compact version)
   if (isModalHidden) {
     return (
       <div
@@ -180,7 +141,6 @@ export const GameplayTimeOverlay = () => {
     );
   }
 
-  // Modal visible - show full overlay
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center">
       <div className="bg-white rounded-2xl p-8 max-w-md w-[90%] mx-4 text-center shadow-2xl">
