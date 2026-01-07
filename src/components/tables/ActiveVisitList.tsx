@@ -1,6 +1,6 @@
 import { Chip, Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
 import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
@@ -146,6 +146,28 @@ export function ActiveVisitList({
     },
     { unique: [], seenUsers: {} }
   ).unique;
+
+  const getVisitBadgePriority = (visit: Visit) => {
+    const userBreak = isUserOnBreak(visit.user);
+    const userInGameplayTime = isUserInGameplayTime(visit.user);
+    const userActive = isUserActive(visit.user);
+
+    if (userActive) {
+      if (!userBreak && !userInGameplayTime) return 1;
+      if (userInGameplayTime) return 2;
+      if (userBreak) return 3;
+    }
+    return 4;
+  };
+
+  const sortedVisits = useMemo(() => {
+    return [...uniqueVisits].sort((a,b) => {
+      return getVisitBadgePriority(a) - getVisitBadgePriority(b)
+      }
+
+    )
+  }, [uniqueVisits,breaks,activeGameplayTimes])
+
   if (isConfirmationDialogOpen) {
     return (
       <ConfirmationDialog
@@ -176,7 +198,7 @@ export function ActiveVisitList({
         />
       </div>
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
-        {uniqueVisits.map((visit) => {
+        {sortedVisits.map((visit) => {
           const userOnVisit = getItem(visit?.user, users);
           if (!userOnVisit) {
             return null;
