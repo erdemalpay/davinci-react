@@ -1174,5 +1174,6 @@
   "End Break & Logout": "End Break & Logout",
   "End Gameplay & Logout": "End Gameplay & Logout",
   "Session ended successfully": "Session ended successfully",
-  "Error ending session": "Error ending session"
+  "Error ending session": "Error ending session",
+  "End Break" : "End Break"
 }

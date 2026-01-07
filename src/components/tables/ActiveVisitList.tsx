@@ -195,14 +195,6 @@ export function ActiveVisitList({
             tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
           }
 
-          // Determine animation class based on user status
-          const getAnimationClass = () => {
-            if (userBreak) return "animate-pulse-dark";
-            if (userGameplayTime) return "animate-pulse-dark";
-            return "";
-          };
-
-          // Build chip value with icon if user has special status
           const getChipValue = () => {
             if (userBreak) {
               return (
@@ -225,7 +217,7 @@ export function ActiveVisitList({
 
           return (
             <Tooltip key={visit?.user} content={tooltipContent}>
-              <div className={getAnimationClass()}>
+              <div>
                 <Chip
                   value={getChipValue()}
                   style={{
