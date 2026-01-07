@@ -23,6 +23,12 @@ export type GameplayTime = {
         playerCount: number;
       }
     | number;
+  table:
+    | {
+        _id: number;
+        name: string;
+      }
+    | number;
   date: string;
   startHour?: string;
   finishHour?: string;

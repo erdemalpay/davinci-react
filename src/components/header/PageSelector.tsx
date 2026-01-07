@@ -6,6 +6,7 @@ import {
   MenuList,
 } from "@material-tailwind/react";
 import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import Cookies from "js-cookie";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,8 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { useFilteredRoutes } from "../../hooks/useFilteredRoutes";
 import { Role } from "../../types";
+import { useGetBreaksByDate } from "../../utils/api/break";
+import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 
@@ -27,14 +30,35 @@ export function PageSelector() {
   const currentRoute = location.pathname;
   const { setUser } = useUserContext();
   const user = useGetUser();
-  const { resetGeneralContext, setIsNotificationOpen } = useGeneralContext();
+  const { resetGeneralContext, setIsNotificationOpen, setIsLogoutModalOpen } =
+    useGeneralContext();
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
     {}
   );
 
   const routes = useFilteredRoutes();
-
   const pages = useGetPanelControlPages();
+
+  // Active session checks
+  const todayDate = format(new Date(), "yyyy-MM-dd");
+  const activeBreaks = useGetBreaksByDate(todayDate);
+  const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
+
+  const userActiveBreak = activeBreaks?.find(
+    (breakRecord) =>
+      (typeof breakRecord.user === "string"
+        ? breakRecord.user
+        : breakRecord.user._id) === user?._id && !breakRecord.finishHour
+  );
+
+  const userActiveGameplayTime = activeGameplayTimes?.find(
+    (gameplayTime) =>
+      (typeof gameplayTime.user === "string"
+        ? gameplayTime.user
+        : gameplayTime.user._id) === user?._id && !gameplayTime.finishHour
+  );
+
+  const hasActiveSession = userActiveBreak || userActiveGameplayTime;
 
   const toggleGroup = (groupName: string) => {
     setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
@@ -49,6 +73,16 @@ export function PageSelector() {
     queryClient.clear();
     navigate("/login");
   }
+
+  const handleLogoutClick = () => {
+    // If user has active break or gameplay session, show warning modal
+    if (hasActiveSession) {
+      setIsLogoutModalOpen(true);
+    } else {
+      // No active session, logout directly
+      logout();
+    }
+  };
   return (
     <Menu>
       <MenuHandler>
@@ -184,7 +218,10 @@ export function PageSelector() {
           }
         })}
 
-        <MenuItem className="flex flex-row gap-2 items-center" onClick={logout}>
+        <MenuItem
+          className="flex flex-row gap-2 items-center"
+          onClick={handleLogoutClick}
+        >
           <IoIosLogOut className="text-lg" />
           {t("Logout")}
         </MenuItem>

@@ -281,6 +281,7 @@ const AllBreaks = () => {
           outsideSortProps={outsideSort}
           outsideSearchProps={outsideSearchProps}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

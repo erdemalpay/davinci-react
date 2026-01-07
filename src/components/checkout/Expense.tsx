@@ -740,6 +740,7 @@ const Expenses = () => {
           actions={actions}
           isActionsActive={isEnableEdit}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

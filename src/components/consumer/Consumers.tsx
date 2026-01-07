@@ -432,6 +432,7 @@ const Consumers = () => {
         outsideSortProps={outsideSort}
         outsideSearchProps={outsideSearchProps}
         {...(pagination && { pagination })}
+        isAllRowPerPageOption={false}
       />
     </div>
   );

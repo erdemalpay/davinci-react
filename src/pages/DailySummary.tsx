@@ -256,7 +256,6 @@ const DailySummary = () => {
           {filterDailySummaryPanelFormElements.date &&
           isToday(filterDailySummaryPanelFormElements.date) ? (
             <ActiveVisitList
-              suggestions={users}
               name="employees"
               label={t("Who's at cafe?")}
               visits={visits}
