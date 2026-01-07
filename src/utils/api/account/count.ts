@@ -177,6 +177,7 @@ export const updateCountQuantity = (payload: UpdateCountQuantityPayload) => {
     path: `${Paths.Accounting}/counts/${countId}`,
     payload: {
       products: newProducts,
+      isCompleted: false,
     },
   });
 };
@@ -216,6 +217,7 @@ export function useUpdateCountQuantityMutation() {
           return {
             ...count,
             products: updatedProducts,
+            isCompleted: false,
           };
         });
       });
