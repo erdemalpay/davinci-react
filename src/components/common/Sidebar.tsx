@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,6 +10,8 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { useFilteredRoutes } from "../../hooks/useFilteredRoutes";
 import { Role } from "../../types";
+import { useGetBreaksByDate } from "../../utils/api/break";
+import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 import { getMenuIcon } from "../../utils/menuIcons";
@@ -19,8 +22,12 @@ export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const { isSidebarOpen, setIsSidebarOpen, resetGeneralContext } =
-    useGeneralContext();
+  const {
+    isSidebarOpen,
+    setIsSidebarOpen,
+    resetGeneralContext,
+    setIsLogoutModalOpen,
+  } = useGeneralContext();
   const { setUser } = useUserContext();
   const user = useGetUser();
   const currentRoute = location.pathname;
@@ -29,8 +36,28 @@ export const Sidebar = () => {
   );
 
   const routes = useFilteredRoutes();
-
   const pages = useGetPanelControlPages();
+
+  // Active session checks
+  const todayDate = format(new Date(), "yyyy-MM-dd");
+  const activeBreaks = useGetBreaksByDate(todayDate);
+  const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
+
+  const userActiveBreak = activeBreaks?.find(
+    (breakRecord) =>
+      (typeof breakRecord.user === "string"
+        ? breakRecord.user
+        : breakRecord.user._id) === user?._id && !breakRecord.finishHour
+  );
+
+  const userActiveGameplayTime = activeGameplayTimes?.find(
+    (gameplayTime) =>
+      (typeof gameplayTime.user === "string"
+        ? gameplayTime.user
+        : gameplayTime.user._id) === user?._id && !gameplayTime.finishHour
+  );
+
+  const hasActiveSession = userActiveBreak || userActiveGameplayTime;
 
   const toggleGroup = (groupName: string) => {
     setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
@@ -55,6 +82,16 @@ export const Sidebar = () => {
     setIsSidebarOpen(false);
     queryClient.clear();
     navigate("/login");
+  };
+
+  const handleLogoutClick = () => {
+    // If user has active break or gameplay session, show warning modal
+    if (hasActiveSession) {
+      setIsLogoutModalOpen(true);
+    } else {
+      // No active session, logout directly
+      logout();
+    }
   };
 
   return (
@@ -283,7 +320,7 @@ export const Sidebar = () => {
           <div className="border-t border-gray-200 pt-3 mt-3">
             <SidebarTooltip content={t("Logout")}>
               <button
-                onClick={logout}
+                onClick={handleLogoutClick}
                 className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg
                 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
               >

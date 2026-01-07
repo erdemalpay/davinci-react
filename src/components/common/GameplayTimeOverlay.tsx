@@ -39,14 +39,18 @@ export const GameplayTimeOverlay = () => {
   }, []);
 
   useEffect(() => {
-    if (activeGameplayTimes && user) {
+    if (!user) {
+      setCurrentGameplayTime(null);
+      return;
+    }
+
+    if (activeGameplayTimes) {
       const userActiveGameplayTime = activeGameplayTimes.find(
         (gameplayTime) =>
           (typeof gameplayTime.user === "string"
             ? gameplayTime.user
             : gameplayTime.user._id) === user._id && !gameplayTime.finishHour
       );
-
       setCurrentGameplayTime(userActiveGameplayTime || null);
     }
   }, [activeGameplayTimes, user]);
@@ -207,7 +211,6 @@ export const GameplayTimeOverlay = () => {
             {t("End")}
           </button>
         </div>
-
       </div>
     </div>
   );

@@ -29,18 +29,21 @@ export const BreakOverlay = () => {
   }, []);
 
   useEffect(() => {
-    if (activeBreaks && user) {
+    if (!user) {
+      setCurrentBreak(null);
+      return;
+    }
+
+    if (activeBreaks) {
       const userActiveBreak = activeBreaks.find(
         (breakRecord) =>
           (typeof breakRecord.user === "string"
             ? breakRecord.user
             : breakRecord.user._id) === user._id && !breakRecord.finishHour
       );
-
       setCurrentBreak(userActiveBreak || null);
     }
   }, [activeBreaks, user]);
-
 
   const handleEndBreak = () => {
     if (!currentBreak) return;
@@ -129,7 +132,6 @@ export const BreakOverlay = () => {
             {t("End")}
           </button>
         </div>
-
       </div>
     </div>
   );
