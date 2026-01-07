@@ -1177,5 +1177,6 @@
   "End Gameplay & Logout": "Oyun Anlatımını Bitir ve Çıkış Yap",
   "Session ended successfully": "Oturum başarıyla sonlandırıldı",
   "Error ending session": "Oturum sonlandırılırken hata oluştu",
-  "End Break" : "Mola Sonlandır"
+  "End Break" : "Mola Sonlandır",
+  "I checked in" : "Kafeye Giriş Yap"
 }

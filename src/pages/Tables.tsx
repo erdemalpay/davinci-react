@@ -1624,9 +1624,8 @@ const Tables = () => {
               {selectedDate && isToday(selectedDate) ? (
                 <div className="flex flex-col gap-2">
                   <ActiveVisitList
-                    suggestions={users || []}
                     name="employees"
-                    label={t("Who's at cafe?")}
+                    label={t("I checked in")}
                     visits={visits}
                     breaks={todayBreaks}
                   />

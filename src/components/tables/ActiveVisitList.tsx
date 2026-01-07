@@ -1,6 +1,6 @@
-import { Chip, Tooltip } from "@material-tailwind/react";
+import { Checkbox, Chip, Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
 import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
@@ -16,12 +16,11 @@ import {
   useFinishVisitMutation,
 } from "../../utils/api/visit";
 import { getItem } from "../../utils/getItem";
-import { Autocomplete } from "../common/Autocomplete";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
+import Loading from "../common/Loading";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
-  suggestions: MinimalUser[];
   visits: Visit[];
   breaks?: Break[];
 }
@@ -32,7 +31,6 @@ interface SeenUsers {
 export function ActiveVisitList({
   name,
   label,
-  suggestions,
   visits,
   breaks = [],
 }: ActiveMentorListProps) {
@@ -49,14 +47,13 @@ export function ActiveVisitList({
   // Get active gameplay times for today
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<MinimalUser[]>(
-    []
-  );
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
   const [closedVisitFinishHour, setClosedVisitFinishHour] =
     useState<string>("");
+  const [isCreatingVisit, setIsCreatingVisit] = useState(false);
+
   function handleChipClose(userId: string) {
     if (!isUserActive(userId)) {
       return;
@@ -75,21 +72,47 @@ export function ActiveVisitList({
     // setItems(items.filter((t) => t._id !== user._id));
   }
 
-  function handleSelection(item: MinimalUser) {
+  function handleCheckboxChange(checked: boolean) {
     if (isDisabledCondition) {
       return;
     }
-    const now = new Date();
-    const startHour = format(now, "HH:mm");
-    const date = format(now, "yyyy-MM-dd");
-    if (!item || isUserActive(item._id)) return;
-    createVisit({
-      location: selectedLocationId,
-      date,
-      startHour,
-      visitStartSource: VisitSource.PANEL,
-    });
-    // setItems([...items, item]);
+    if (checked) {
+      setIsCreatingVisit(true);
+
+      const now = new Date();
+      const startHour = format(now, "HH:mm");
+      const date = format(now, "yyyy-MM-dd");
+      createVisit(
+        {
+          location: selectedLocationId,
+          date,
+          startHour,
+          visitStartSource: VisitSource.PANEL,
+        },
+        {
+          onSuccess: () => {
+            setIsCreatingVisit(false);
+          },
+          onError: () => {
+            setIsCreatingVisit(false);
+          },
+        }
+      );
+    } else {
+      // Uncheck: finish the visit
+      if (user?._id) {
+        const visit = visits.find(
+          (visitItem) => visitItem.user === user._id && !visitItem?.finishHour
+        );
+        if (visit) {
+          const now = new Date();
+          const finishHour = format(now, "HH:mm");
+          setClosedVisitId(visit._id);
+          setClosedVisitFinishHour(finishHour);
+          setIsConfirmationDialogOpen(true);
+        }
+      }
+    }
   }
   const isUserActive = (userId: string) => {
     return visits
@@ -124,17 +147,6 @@ export function ActiveVisitList({
       ) || null
     );
   };
-  useEffect(() => {
-    setFilteredSuggestions(
-      suggestions.filter(
-        (s) =>
-          !visits
-            .map((visit) => !visit.finishHour && visit.user)
-            .includes(s._id) && s.name !== "-"
-      )
-    );
-  }, [suggestions, visits]);
-
   const uniqueVisits = visits.reduce(
     (acc: { unique: typeof visits; seenUsers: SeenUsers }, visit) => {
       acc.seenUsers = acc.seenUsers || {}; // Initialize if not already initialized
@@ -146,6 +158,8 @@ export function ActiveVisitList({
     },
     { unique: [], seenUsers: {} }
   ).unique;
+
+  const isCurrentUserCheckedIn = user?._id ? isUserActive(user._id) : false;
 
   const getVisitBadgePriority = (visit: Visit) => {
     const userBreak = isUserOnBreak(visit.user);
@@ -172,7 +186,9 @@ export function ActiveVisitList({
     return (
       <ConfirmationDialog
         isOpen={isConfirmationDialogOpen}
-        close={() => setIsConfirmationDialogOpen(false)}
+        close={() => {
+          setIsConfirmationDialogOpen(false);
+        }}
         confirm={() => {
           if (!closedVisitId) return;
           finishVisit({
@@ -187,14 +203,26 @@ export function ActiveVisitList({
       />
     );
   }
+
+  if (isCreatingVisit) {
+    return <Loading />;
+  }
   return (
     <div className="flex flex-col w-full">
-      <div className="flex flex-col lg:flex-row w-full">
-        <Autocomplete
-          handleSelection={handleSelection}
-          suggestions={filteredSuggestions}
-          name={name}
+      <div className="flex flex-row w-full items-center gap-3">
+        <Checkbox
+          checked={isCurrentUserCheckedIn}
+          onChange={(e) => handleCheckboxChange(e.target.checked)}
+          disabled={isDisabledCondition}
           label={label}
+          className="hover:before:opacity-0"
+          containerProps={{
+            className: "p-0",
+          }}
+          labelProps={{
+            className: "cursor-default select-none text-black font-normal ml-2",
+          }}
+          crossOrigin={undefined}
         />
       </div>
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
