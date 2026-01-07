@@ -533,6 +533,7 @@ const EnterConsumption = () => {
           isActionsActive={true}
           actions={actions}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

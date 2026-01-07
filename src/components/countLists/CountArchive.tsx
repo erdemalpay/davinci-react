@@ -406,6 +406,7 @@ const CountArchive = () => {
           isActionsActive={true}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

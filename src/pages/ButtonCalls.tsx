@@ -394,6 +394,7 @@ export default function ButtonCalls() {
           isActionsAtFront={isButtonCallEnableEdit}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

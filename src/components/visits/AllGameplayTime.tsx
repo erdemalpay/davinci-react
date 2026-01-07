@@ -288,6 +288,7 @@ const AllGameplayTime = () => {
           outsideSortProps={outsideSort}
           outsideSearchProps={outsideSearchProps}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>
