@@ -9,15 +9,12 @@ export const useTemporarilyHiddenModal = (isActive: boolean) => {
   useEffect(() => {
     if (!isActive) {
       setIsModalHidden(false);
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = null;
-      }
     }
 
     return () => {
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
       }
     };
   }, [isActive]);
