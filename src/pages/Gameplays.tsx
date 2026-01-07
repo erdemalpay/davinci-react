@@ -263,6 +263,7 @@ export default function NewGameplays() {
           filters={filters}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

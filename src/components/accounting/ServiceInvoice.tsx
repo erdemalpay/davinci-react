@@ -1003,6 +1003,7 @@ const ServiceInvoice = () => {
           filterPanel={filterPanel}
           isSearch={false}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
         {isAddServiceModalOpen && (
           <GenericAddEditPanel

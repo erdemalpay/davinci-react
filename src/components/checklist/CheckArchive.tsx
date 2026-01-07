@@ -220,11 +220,10 @@ const CheckArchive = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
@@ -397,6 +396,7 @@ const CheckArchive = () => {
           isActionsActive={!isDisabledCondition}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

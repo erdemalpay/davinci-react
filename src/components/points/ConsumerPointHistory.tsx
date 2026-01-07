@@ -246,7 +246,11 @@ const ConsumerPointHistoryComponent = () => {
       filterPanelFormElements: filterPointHistoryPanelFormElements,
       setFilterPanelFormElements: setFilterPointHistoryPanelFormElements,
     };
-  }, [t, filterPointHistoryPanelFormElements, setFilterPointHistoryPanelFormElements]);
+  }, [
+    t,
+    filterPointHistoryPanelFormElements,
+    setFilterPointHistoryPanelFormElements,
+  ]);
 
   const outsideSort = useMemo(
     () => ({
@@ -277,6 +281,7 @@ const ConsumerPointHistoryComponent = () => {
         outsideSortProps={outsideSort}
         outsideSearchProps={outsideSearchProps}
         {...(pagination && { pagination })}
+        isAllRowPerPageOption={false}
       />
     </div>
   );
