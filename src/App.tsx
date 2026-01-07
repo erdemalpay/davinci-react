@@ -4,6 +4,7 @@ import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BreakOverlay } from "./components/common/BreakOverlay";
 import { GameplayTimeOverlay } from "./components/common/GameplayTimeOverlay";
+import { LogoutConfirmationModal } from "./components/common/LogoutConfirmationModal";
 import { Sidebar } from "./components/common/Sidebar";
 import { DataContextProvider } from "./context/Data.context";
 import { DateContextProvider } from "./context/Date.context";
@@ -38,6 +39,7 @@ function App() {
       </div>
       <BreakOverlay />
       <GameplayTimeOverlay />
+      <LogoutConfirmationModal />
       <ToastContainer
         autoClose={2000}
         hideProgressBar={true}

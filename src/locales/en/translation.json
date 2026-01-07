@@ -1164,5 +1164,17 @@
   "You're in a gameplay session": "You're in a gameplay session",
   "Hide the modal or end your gameplay": "Hide the modal or end your gameplay",
   "End": "End",
-  "Is Gameplay Time" : "Is Gameplay Time"
+  "Is Gameplay Time" : "Is Gameplay Time",
+  "Are you sure you want to logout?": "Are you sure you want to logout?",
+  "Active Session Warning": "Active Session Warning",
+  "Active Break": "Active Break",
+  "Active Gameplay Session": "Active Gameplay Session",
+  "If you logout, your break time will continue running.": "If you logout, your break time will continue running.",
+  "If you logout, your gameplay time will continue running.": "If you logout, your gameplay time will continue running.",
+  "End Break & Logout": "End Break & Logout",
+  "End Gameplay & Logout": "End Gameplay & Logout",
+  "Session ended successfully": "Session ended successfully",
+  "Error ending session": "Error ending session",
+  "End Break" : "End Break",
+  "I checked in" : "I checked in"
 }

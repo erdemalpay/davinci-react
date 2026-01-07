@@ -1166,5 +1166,17 @@
   "You're in a gameplay session": "Oyun Anlatımındasınız",
   "Hide the modal or end your gameplay": "Modalı gizleyin veya oyun anlatımınızı bitirin",
   "End": "Sonlandır",
-  "Is Gameplay Time" : "Oyun Anlatımı Başlat"
+  "Is Gameplay Time": "Oyun Anlatımı Sayacı Başlat",
+  "Are you sure you want to logout?": "Çıkış yapmak istediğinizden emin misiniz?",
+  "Active Session Warning": "Aktif Oturum Uyarısı",
+  "Active Break": "Aktif Mola",
+  "Active Gameplay Session": "Aktif Oyun Anlatımı",
+  "If you logout, your break time will continue running.": "Çıkış yaparsanız mola süreniz devam edecektir.",
+  "If you logout, your gameplay time will continue running.": "Çıkış yaparsanız oyun anlatımı süreniz devam edecektir.",
+  "End Break & Logout": "Molayı Bitir ve Çıkış Yap",
+  "End Gameplay & Logout": "Oyun Anlatımını Bitir ve Çıkış Yap",
+  "Session ended successfully": "Oturum başarıyla sonlandırıldı",
+  "Error ending session": "Oturum sonlandırılırken hata oluştu",
+  "End Break" : "Mola Sonlandır",
+  "I checked in" : "Kafeye Giriş Yap"
 }
