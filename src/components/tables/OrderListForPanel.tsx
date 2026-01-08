@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -16,7 +16,7 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
   const [activeTab, setActiveTab] = useState(0);
   const [expandedSections, setExpandedSections] = useState<{
     [key: number]: boolean;
-  }>({ 0: false, 1: false, 2: false });
+  }>({ 0: true, 1: false, 2: false });
   const { t } = useTranslation();
 
   const toggleSection = (index: number) => {
@@ -50,12 +50,6 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
       served: servedCount,
     };
   }, [orderCreateBulk, tableOrdersProp]);
-
-  useEffect(() => {
-    if (orderCounts.newOrders > 0) {
-      setExpandedSections((prev) => ({ ...prev, 0: true }));
-    }
-  }, [orderCounts.newOrders]);
 
   const tabs = [
     {
