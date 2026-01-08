@@ -97,7 +97,13 @@ export function useGetSummaryCollectionTotal() {
       filterSummaryFormElements.after
     }&before=${filterSummaryFormElements.before}&location=${Number(
       filterSummaryFormElements.location
-    )}`
+    )}`,
+    [
+      `${Paths.Order}/collection/summary/query`,
+      filterSummaryFormElements.after,
+      filterSummaryFormElements.before,
+      filterSummaryFormElements.location,
+    ]
   );
 }
 export function useGetTodayCollections() {
@@ -120,7 +126,13 @@ export function useGetSummaryDiscountTotal() {
       filterSummaryFormElements.after
     }&before=${filterSummaryFormElements.before}&location=${Number(
       filterSummaryFormElements.location
-    )}`
+    )}`,
+    [
+      `${Paths.Order}/discount/summary/query`,
+      filterSummaryFormElements.after,
+      filterSummaryFormElements.before,
+      filterSummaryFormElements.location,
+    ]
   );
 }
 // export function useGetTodayCollections() {
