@@ -1,9 +1,11 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdSportsEsports } from "react-icons/md";
+import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
+import { MdSportsEsports, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
+import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
 import { GameplayTime } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -20,14 +22,14 @@ export const GameplayTimeOverlay = () => {
   const [currentGameplayTime, setCurrentGameplayTime] =
     useState<GameplayTime | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { isModalHidden, handleHideModal, handleShowModal } =
+    useTemporarilyHiddenModal(!!currentGameplayTime);
 
-  // Get active gameplay times for today's date
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const games = useGetGames();
   const users = useGetUsersMinimal();
 
-  // Update current time every minute for real-time duration
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -37,15 +39,18 @@ export const GameplayTimeOverlay = () => {
   }, []);
 
   useEffect(() => {
-    if (activeGameplayTimes && user) {
-      // Find if current user has an active gameplay time for today
+    if (!user) {
+      setCurrentGameplayTime(null);
+      return;
+    }
+
+    if (activeGameplayTimes) {
       const userActiveGameplayTime = activeGameplayTimes.find(
         (gameplayTime) =>
           (typeof gameplayTime.user === "string"
             ? gameplayTime.user
             : gameplayTime.user._id) === user._id && !gameplayTime.finishHour
       );
-
       setCurrentGameplayTime(userActiveGameplayTime || null);
     }
   }, [activeGameplayTimes, user]);
@@ -68,7 +73,6 @@ export const GameplayTimeOverlay = () => {
       .split(":")
       .map(Number);
 
-    // Create start time using today's date
     const today = format(new Date(), "yyyy-MM-dd");
     const startTime = new Date(`${today}T${currentGameplayTime.startHour}:00`);
 
@@ -100,7 +104,6 @@ export const GameplayTimeOverlay = () => {
         ? getItem(gameplay.game, games)
         : null;
 
-    // Only return details if we have actual data
     if (!mentor?.name && !game?.name && !gameplay?.playerCount) {
       return null;
     }
@@ -112,12 +115,35 @@ export const GameplayTimeOverlay = () => {
     };
   };
 
-  // Only show overlay if user has an active gameplay time
   if (!currentGameplayTime) {
     return null;
   }
 
   const details = getGameplayDetails();
+
+  if (isModalHidden) {
+    return (
+      <div
+        onClick={handleShowModal}
+        className="fixed top-16 left-0 right-0 z-40 cursor-pointer"
+      >
+        <div className="bg-gradient-to-r from-purple-500 to-purple-700 animate-pulse shadow-sm">
+          <div className="px-4 py-1">
+            <div className="flex items-center justify-center gap-2">
+              <GiPerspectiveDiceSixFacesRandom className="text-white text-sm" />
+              <span className="text-white text-sm font-medium">
+                {t("You're in a gameplay session")} - {getGameplayDuration()}{" "}
+                {t("minutes")}
+              </span>
+              <span className="text-white/70 text-xs">
+                ({t("Click to open")})
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center">
@@ -170,16 +196,21 @@ export const GameplayTimeOverlay = () => {
           <p className="text-gray-500">{t("minutes")}</p>
         </div>
 
-        <button
-          onClick={handleEndGameplayTime}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
-        >
-          {t("End Gameplay Time")}
-        </button>
-
-        <p className="text-xs text-gray-400 mt-4">
-          {t("Click the button above to end your gameplay session")}
-        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={handleHideModal}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg flex items-center justify-center gap-2"
+          >
+            <MdVisibilityOff className="text-xl" />
+            {t("Hide")}
+          </button>
+          <button
+            onClick={handleEndGameplayTime}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
+          >
+            {t("End")}
+          </button>
+        </div>
       </div>
     </div>
   );

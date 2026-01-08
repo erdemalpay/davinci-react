@@ -1,9 +1,10 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdStop } from "react-icons/md";
+import { MdCoffee, MdStop, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
+import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
 import { Break } from "../../types";
 import { useBreakMutations, useGetBreaksByDate } from "../../utils/api/break";
 
@@ -13,12 +14,12 @@ export const BreakOverlay = () => {
   const { updateBreak } = useBreakMutations();
   const [currentBreak, setCurrentBreak] = useState<Break | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { isModalHidden, handleHideModal, handleShowModal } =
+    useTemporarilyHiddenModal(!!currentBreak);
 
-  // Get active breaks for today's date
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeBreaks = useGetBreaksByDate(todayDate);
 
-  // Update current time every minute for real-time duration
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -28,15 +29,18 @@ export const BreakOverlay = () => {
   }, []);
 
   useEffect(() => {
-    if (activeBreaks && user) {
-      // Find if current user has an active break for today
+    if (!user) {
+      setCurrentBreak(null);
+      return;
+    }
+
+    if (activeBreaks) {
       const userActiveBreak = activeBreaks.find(
         (breakRecord) =>
           (typeof breakRecord.user === "string"
             ? breakRecord.user
             : breakRecord.user._id) === user._id && !breakRecord.finishHour
       );
-
       setCurrentBreak(userActiveBreak || null);
     }
   }, [activeBreaks, user]);
@@ -55,11 +59,6 @@ export const BreakOverlay = () => {
   const getBreakDuration = () => {
     if (!currentBreak || !currentBreak.startHour) return "0";
 
-    const [startHour, startMinute] = currentBreak.startHour
-      .split(":")
-      .map(Number);
-
-    // Create start time using today's date
     const today = format(new Date(), "yyyy-MM-dd");
     const startTime = new Date(`${today}T${currentBreak.startHour}:00`);
 
@@ -69,9 +68,31 @@ export const BreakOverlay = () => {
     return diffMinutes.toString();
   };
 
-  // Only show overlay if user has an active break
   if (!currentBreak) {
     return null;
+  }
+
+  if (isModalHidden) {
+    return (
+      <div
+        onClick={handleShowModal}
+        className="fixed top-16 left-0 right-0 z-40 cursor-pointer"
+      >
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 animate-pulse shadow-sm">
+          <div className="px-4 py-1">
+            <div className="flex items-center justify-center gap-2">
+              <MdCoffee className="text-white text-sm" />
+              <span className="text-white text-sm font-medium">
+                {t("You're on a break")} - {getBreakDuration()} {t("minutes")}
+              </span>
+              <span className="text-white/70 text-xs">
+                ({t("Click to open")})
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -96,16 +117,21 @@ export const BreakOverlay = () => {
           <p className="text-gray-500">{t("minutes")}</p>
         </div>
 
-        <button
-          onClick={handleEndBreak}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
-        >
-          {t("End Break")}
-        </button>
-
-        <p className="text-xs text-gray-400 mt-4">
-          {t("Click the button above to end your break")}
-        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={handleHideModal}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg flex items-center justify-center gap-2"
+          >
+            <MdVisibilityOff className="text-xl" />
+            {t("Hide")}
+          </button>
+          <button
+            onClick={handleEndBreak}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
+          >
+            {t("End")}
+          </button>
+        </div>
       </div>
     </div>
   );

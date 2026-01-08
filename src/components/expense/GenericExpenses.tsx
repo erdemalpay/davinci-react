@@ -258,6 +258,7 @@ const GenericExpenses = ({
         isSearch={false}
         {...(pagination && { pagination })}
         isActionsActive={false}
+        isAllRowPerPageOption={false}
       />
     </div>
   );

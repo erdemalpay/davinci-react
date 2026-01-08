@@ -71,6 +71,7 @@ type Props<T> = {
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
+  isAllRowPerPageOption?: boolean;
   filters?: FilterType<T>[];
   isRowsPerPage?: boolean;
   rowClassNameFunction?: (row: T) => string;
@@ -119,6 +120,7 @@ const GenericTable = <T,>({
   isActionsAtFront = false,
   isCollapsibleCheckActive = true,
   isEmtpyExcel = false,
+  isAllRowPerPageOption = true,
   searchRowKeys,
   tooltipLimit = 40,
   rowClassNameFunction,
@@ -1110,7 +1112,9 @@ const GenericTable = <T,>({
                         {option}
                       </option>
                     ))}
-                    <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
+                    {isAllRowPerPageOption && (
+                      <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
+                    )}
                   </select>
                 </div>
                 {isPagination && (

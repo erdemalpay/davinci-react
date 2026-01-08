@@ -95,6 +95,7 @@ export function TableCard({
     memberships,
     stocks,
     user,
+    visits = [],
   } = useDataContext();
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -1085,6 +1086,7 @@ export function TableCard({
           table={table}
           mentors={mentors}
           games={games || []}
+          visits={visits}
         />
       )}
       {selectedGameplay && isEditGameplayDialogOpen && (

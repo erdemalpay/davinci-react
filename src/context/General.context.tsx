@@ -125,6 +125,8 @@ type GeneralContextType = {
   setIsSidebarOpen: (open: boolean) => void;
   tabOrientation: TabOrientation;
   setTabOrientation: (orientation: TabOrientation) => void;
+  isLogoutModalOpen: boolean;
+  setIsLogoutModalOpen: (open: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -258,6 +260,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setIsSidebarOpen: () => {},
   tabOrientation: "horizontal",
   setTabOrientation: () => {},
+  isLogoutModalOpen: false,
+  setIsLogoutModalOpen: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -364,6 +368,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     setTabOrientationState(orientation);
   };
 
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+
   const resetGeneralContext = () => {
     setIsSelectionActive(false);
     setSelectedRows([]);
@@ -466,6 +472,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setIsSidebarOpen,
         tabOrientation,
         setTabOrientation,
+        isLogoutModalOpen,
+        setIsLogoutModalOpen,
       }}
     >
       {children}

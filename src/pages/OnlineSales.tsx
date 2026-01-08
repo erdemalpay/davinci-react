@@ -247,7 +247,6 @@ const OnlineSales = () => {
               {/* who is/was at the cafe */}
               {selectedDate && isToday(selectedDate) ? (
                 <ActiveVisitList
-                  suggestions={users}
                   name="employees"
                   label={t("Who's at cafe?")}
                   visits={visits}

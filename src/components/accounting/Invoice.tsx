@@ -1147,6 +1147,7 @@ const Invoice = () => {
           filterPanel={filterPanel}
           isSearch={false}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
         {isAddProductOpen && (
           <GenericAddEditPanel

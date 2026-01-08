@@ -93,6 +93,10 @@ const AllGameplayTime = () => {
           userDisplayName: getItem(gameplayTime?.user, users)?.name ?? "",
           locationDisplayName:
             getItem(gameplayTime?.location, locations)?.name ?? "",
+          tableName:
+            typeof gameplayTime.table === "object"
+              ? gameplayTime.table?.name
+              : t("N/A"),
           formattedDate: formatAsLocalDate(gameplayTime.date),
           duration: calculateDuration(),
           gameName: game?.name ?? t("N/A"),
@@ -106,6 +110,7 @@ const AllGameplayTime = () => {
     () => [
       { key: t("User"), isSortable: true, correspondingKey: "user" },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
+      { key: t("Table"), isSortable: true, correspondingKey: "table" },
       { key: t("Date"), isSortable: true, correspondingKey: "date" },
       { key: t("Start Time"), isSortable: true, correspondingKey: "startHour" },
       { key: t("End Time"), isSortable: true, correspondingKey: "finishHour" },
@@ -120,6 +125,7 @@ const AllGameplayTime = () => {
     () => [
       { key: "userDisplayName" },
       { key: "locationDisplayName" },
+      { key: "tableName" },
       { key: "formattedDate" },
       { key: "startHour", node: (row: any) => row.startHour || t("N/A") },
       {
@@ -288,6 +294,7 @@ const AllGameplayTime = () => {
           outsideSortProps={outsideSort}
           outsideSearchProps={outsideSearchProps}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

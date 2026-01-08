@@ -143,7 +143,10 @@ const LossProduct = () => {
 
     return items
       .filter((menuItem) => {
-        if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
+        if (
+          orderForm.category &&
+          menuItem.category !== Number(orderForm.category)
+        ) {
           return false;
         }
         return true;
@@ -474,7 +477,7 @@ const LossProduct = () => {
                 paidQuantity: 0,
                 status: OrderStatus.WASTED,
                 kitchen: selectedMenuItemCategory?.kitchen,
-                stockLocation:  Number(orderForm?.stockLocation),
+                stockLocation: Number(orderForm?.stockLocation),
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
                 tableDate: new Date(),
               });
@@ -566,7 +569,11 @@ const LossProduct = () => {
       filterPanelFormElements: filterLossProductPanelFormElements,
       setFilterPanelFormElements: setFilterLossProductPanelFormElements,
     };
-  }, [t, filterLossProductPanelFormElements, setFilterLossProductPanelFormElements]);
+  }, [
+    t,
+    filterLossProductPanelFormElements,
+    setFilterLossProductPanelFormElements,
+  ]);
 
   const actions = useMemo(
     () => [
@@ -638,6 +645,7 @@ const LossProduct = () => {
           actions={actions}
           isActionsActive={true}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

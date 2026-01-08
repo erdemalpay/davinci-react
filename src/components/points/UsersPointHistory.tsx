@@ -25,7 +25,7 @@ const UsersPointHistoryComponent = () => {
     ...filterPointHistoryPanelFormElements,
     pointConsumer: -1,
   });
-  const users = useGetUsersMinimal(); 
+  const users = useGetUsersMinimal();
   const consumers = useGetConsumersWithFullNames();
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
@@ -246,7 +246,11 @@ const UsersPointHistoryComponent = () => {
       filterPanelFormElements: filterPointHistoryPanelFormElements,
       setFilterPanelFormElements: setFilterPointHistoryPanelFormElements,
     };
-  }, [t, filterPointHistoryPanelFormElements, setFilterPointHistoryPanelFormElements]);
+  }, [
+    t,
+    filterPointHistoryPanelFormElements,
+    setFilterPointHistoryPanelFormElements,
+  ]);
 
   const outsideSort = useMemo(
     () => ({
@@ -277,6 +281,7 @@ const UsersPointHistoryComponent = () => {
         outsideSortProps={outsideSort}
         outsideSearchProps={outsideSearchProps}
         {...(pagination && { pagination })}
+        isAllRowPerPageOption={false}
       />
     </div>
   );

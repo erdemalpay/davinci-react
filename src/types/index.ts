@@ -23,6 +23,12 @@ export type GameplayTime = {
         playerCount: number;
       }
     | number;
+  table:
+    | {
+        _id: number;
+        name: string;
+      }
+    | number;
   date: string;
   startHour?: string;
   finishHour?: string;
@@ -158,6 +164,7 @@ export type Location = {
   isShelfInfoRequired?: boolean;
   isVisibleInBaseQuantity?: boolean;
   phoneNumber?: string;
+  fallbackStockLocation?: number;
   googleMapsUrl?: string;
   dailyHours?: {
     day: string;
