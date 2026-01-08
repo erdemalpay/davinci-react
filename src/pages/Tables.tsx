@@ -1638,7 +1638,7 @@ const Tables = () => {
                 <PreviousVisitList visits={visits} />
               )}
               {/* filters */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-row lg:gap-4 justify-end mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-row lg:gap-4 lg:justify-start justify-end mt-4">
                 {switchFilters.map((filter, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <H5>{filter.label}</H5>
