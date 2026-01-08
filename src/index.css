@@ -92,25 +92,12 @@
   }
 }
 
-@keyframes pulse-dark {
-  0%, 100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(0.3);
-  }
-}
-
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
 
 .animate-pulse-once {
   animation: pulse-once 2s ease-in-out 3;
-}
-
-.animate-pulse-dark {
-  animation: pulse-dark 2s ease-in-out infinite;
 }
 
 /* Additional styling for specific elements */

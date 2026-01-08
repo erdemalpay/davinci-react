@@ -895,6 +895,7 @@ const AllExpenses = () => {
           {...(pagination && { pagination })}
           addButton={addButton}
           isActionsActive={false}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>

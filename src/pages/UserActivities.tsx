@@ -188,7 +188,10 @@ const UserActivities = () => {
         type: InputTypes.SELECT,
         formKey: "type",
         label: t("Type"),
-        options: activityTypeDetails,
+        options: activityTypeDetails?.map((activity) => ({
+          ...activity,
+          label: t(activity.label),
+        })),
         placeholder: t("Type"),
         required: false,
       },

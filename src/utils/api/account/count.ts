@@ -9,6 +9,21 @@ interface UpdateStockPayload {
   quantity: number;
   currentCountId: string;
 }
+
+interface UpdateCountQuantityPayload {
+  countId: string;
+  productId: string;
+  countQuantity: number;
+  stockQuantity: number;
+  productDeleteRequest?: string;
+  currentProducts: {
+    product: string;
+    stockQuantity: number;
+    countQuantity: number;
+    isStockEqualized?: boolean;
+    productDeleteRequest?: string;
+  }[];
+}
 export interface CountsPayload {
   data: AccountCount[];
   totalNumber: number;
@@ -135,4 +150,91 @@ export function useGetQueryCounts(
   const url = `${baseQueryUrl}?${queryString}`;
 
   return useGet<CountsPayload>(url, queryKey, true);
+}
+
+export const updateCountQuantity = (payload: UpdateCountQuantityPayload) => {
+  const {
+    countId,
+    productId,
+    countQuantity,
+    stockQuantity,
+    productDeleteRequest,
+    currentProducts,
+  } = payload;
+
+  // Build the new products array just like the old version
+  const newProducts = [
+    ...(currentProducts?.filter((p) => p.product !== productId) || []),
+    {
+      product: productId,
+      countQuantity,
+      stockQuantity,
+      productDeleteRequest,
+    },
+  ];
+
+  return patch({
+    path: `${Paths.Accounting}/counts/${countId}`,
+    payload: {
+      products: newProducts,
+      isCompleted: false,
+    },
+  });
+};
+
+export function useUpdateCountQuantityMutation() {
+  const queryClient = useQueryClient();
+  const queryKey = [baseUrl];
+
+  return useMutation({
+    mutationFn: updateCountQuantity,
+    onMutate: async (newData: UpdateCountQuantityPayload) => {
+      // Cancel any outgoing refetches to avoid overwriting our optimistic update
+      await queryClient.cancelQueries({ queryKey });
+
+      // Snapshot the previous value
+      const previousCounts = queryClient.getQueryData<AccountCount[]>(queryKey);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<AccountCount[]>(queryKey, (old) => {
+        if (!old) return old;
+
+        return old.map((count) => {
+          if (count._id !== newData.countId) return count;
+
+          // Update the specific product in the count
+          const updatedProducts =
+            count.products?.filter((p) => p.product !== newData.productId) ||
+            [];
+
+          updatedProducts.push({
+            product: newData.productId,
+            countQuantity: newData.countQuantity,
+            stockQuantity: newData.stockQuantity,
+            productDeleteRequest: newData.productDeleteRequest,
+          });
+
+          return {
+            ...count,
+            products: updatedProducts,
+            isCompleted: false,
+          };
+        });
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousCounts };
+    },
+    onError: (_err: any, _newData, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousCounts) {
+        queryClient.setQueryData(queryKey, context.previousCounts);
+      }
+      // Invalidate on error to ensure we have the correct server state
+      queryClient.invalidateQueries({ queryKey });
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
 }

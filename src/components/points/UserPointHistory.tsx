@@ -235,7 +235,11 @@ const UserPointHistory = () => {
       filterPanelFormElements: filterUserPointHistoryPanelFormElements,
       setFilterPanelFormElements: setFilterUserPointHistoryPanelFormElements,
     };
-  }, [t, filterUserPointHistoryPanelFormElements, setFilterUserPointHistoryPanelFormElements]);
+  }, [
+    t,
+    filterUserPointHistoryPanelFormElements,
+    setFilterUserPointHistoryPanelFormElements,
+  ]);
 
   const outsideSort = useMemo(
     () => ({
@@ -266,6 +270,7 @@ const UserPointHistory = () => {
         isActionsActive={false}
         outsideSortProps={outsideSort}
         {...(pagination && { pagination })}
+        isAllRowPerPageOption={false}
       />
     </div>
   );

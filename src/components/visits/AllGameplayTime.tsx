@@ -7,8 +7,9 @@ import {
   FormElementsState,
   commonDateOptions,
 } from "../../types";
-import { useGetBreaks } from "../../utils/api/break";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { useGetGames } from "../../utils/api/game";
+import { useGetGameplayTimes } from "../../utils/api/gameplaytime";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
@@ -17,22 +18,24 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-const AllBreaks = () => {
+const AllGameplayTime = () => {
   const { t } = useTranslation();
   const users = useGetUsersMinimal();
+  const games = useGetGames();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const initialFilterPanelFormElements = {
     before: "",
     after: format(startOfYear(new Date()), "yyyy-MM-dd"),
     user: "",
     location: "",
+    gameplay: "",
     sort: "",
     asc: 1,
     search: "",
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
-  const breakData = useGetBreaks(
+  const gameplayTimeData = useGetGameplayTimes(
     currentPage,
     rowsPerPage,
     filterPanelFormElements
@@ -42,25 +45,25 @@ const AllBreaks = () => {
 
   const rows = useMemo(() => {
     return (
-      breakData?.data?.map((breakRecord) => {
+      gameplayTimeData?.data?.map((gameplayTime) => {
         const calculateDuration = () => {
-          if (!breakRecord.startHour) return t("Active");
+          if (!gameplayTime.startHour) return t("N/A");
 
           const startTime = new Date();
-          const [startHour, startMinute] = breakRecord.startHour
+          const [startHour, startMinute] = gameplayTime.startHour
             .split(":")
             .map(Number);
           startTime.setHours(startHour, startMinute, 0, 0);
 
           const endTime = new Date();
-          if (breakRecord.finishHour) {
-            const [endHour, endMinute] = breakRecord.finishHour
+          if (gameplayTime.finishHour) {
+            const [endHour, endMinute] = gameplayTime.finishHour
               .split(":")
               .map(Number);
             endTime.setHours(endHour, endMinute, 0, 0);
           }
 
-          if (!breakRecord.finishHour) return t("Active");
+          if (!gameplayTime.finishHour) return t("Active");
 
           const diffMs = endTime.getTime() - startTime.getTime();
           const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -73,28 +76,47 @@ const AllBreaks = () => {
           return `${minutes}m`;
         };
 
+        // Handle populated gameplay object
+        const gameplay =
+          typeof gameplayTime.gameplay === "object"
+            ? gameplayTime.gameplay
+            : null;
+        const game =
+          gameplay && typeof gameplay.game === "object"
+            ? gameplay.game
+            : typeof gameplay?.game === "number"
+            ? getItem(gameplay.game, games)
+            : null;
+
         return {
-          ...breakRecord,
-          userDisplayName: getItem(breakRecord?.user, users)?.name ?? "",
+          ...gameplayTime,
+          userDisplayName: getItem(gameplayTime?.user, users)?.name ?? "",
           locationDisplayName:
-            getItem(breakRecord?.location, locations)?.name ?? "",
-          formattedDate: formatAsLocalDate(breakRecord.date),
+            getItem(gameplayTime?.location, locations)?.name ?? "",
+          tableName:
+            typeof gameplayTime.table === "object"
+              ? gameplayTime.table?.name
+              : t("N/A"),
+          formattedDate: formatAsLocalDate(gameplayTime.date),
           duration: calculateDuration(),
-          status: breakRecord.finishHour ? t("Completed") : t("Active"),
+          gameName: game?.name ?? t("N/A"),
+          playerCount: gameplay?.playerCount ?? t("N/A"),
         };
       }) ?? []
     );
-  }, [breakData, users, locations, t]);
+  }, [gameplayTimeData, users, locations, games, t]);
 
   const columns = useMemo(
     () => [
       { key: t("User"), isSortable: true, correspondingKey: "user" },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
+      { key: t("Table"), isSortable: true, correspondingKey: "table" },
       { key: t("Date"), isSortable: true, correspondingKey: "date" },
       { key: t("Start Time"), isSortable: true, correspondingKey: "startHour" },
       { key: t("End Time"), isSortable: true, correspondingKey: "finishHour" },
       { key: t("Duration"), isSortable: false },
-      { key: t("Status"), isSortable: false },
+      { key: t("Game"), isSortable: false },
+      { key: t("Player Count"), isSortable: false },
     ],
     [t]
   );
@@ -103,27 +125,16 @@ const AllBreaks = () => {
     () => [
       { key: "userDisplayName" },
       { key: "locationDisplayName" },
+      { key: "tableName" },
       { key: "formattedDate" },
-      { key: "startHour" },
+      { key: "startHour", node: (row: any) => row.startHour || t("N/A") },
       {
         key: "finishHour",
         node: (row: any) => row.finishHour || t("Active"),
       },
       { key: "duration" },
-      {
-        key: "status",
-        node: (row: any) => (
-          <span
-            className={`px-2 py-1 rounded text-sm ${
-              row.finishHour
-                ? "bg-green-100 text-green-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
-          >
-            {row.status}
-          </span>
-        ),
-      },
+      { key: "gameName" },
+      { key: "playerCount" },
     ],
     [t]
   );
@@ -246,14 +257,16 @@ const AllBreaks = () => {
     }),
     [filterPanelFormElements]
   );
+
   const pagination = useMemo(() => {
-    return breakData
+    return gameplayTimeData
       ? {
-          totalPages: breakData.totalPages,
-          totalRows: breakData.totalNumber,
+          totalPages: gameplayTimeData.totalPages,
+          totalRows: gameplayTimeData.totalNumber,
         }
       : null;
-  }, [breakData]);
+  }, [gameplayTimeData]);
+
   useMemo(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements, setCurrentPage]);
@@ -275,7 +288,7 @@ const AllBreaks = () => {
           rows={rows}
           filters={filters}
           filterPanel={filterPanel}
-          title={t("All Breaks")}
+          title={t("All Gameplay Time")}
           isActionsActive={false}
           isSearch={false}
           outsideSortProps={outsideSort}
@@ -288,4 +301,4 @@ const AllBreaks = () => {
   );
 };
 
-export default AllBreaks;
+export default AllGameplayTime;

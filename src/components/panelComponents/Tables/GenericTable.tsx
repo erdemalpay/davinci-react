@@ -71,6 +71,7 @@ type Props<T> = {
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
+  isAllRowPerPageOption?: boolean;
   filters?: FilterType<T>[];
   isRowsPerPage?: boolean;
   rowClassNameFunction?: (row: T) => string;
@@ -119,6 +120,7 @@ const GenericTable = <T,>({
   isActionsAtFront = false,
   isCollapsibleCheckActive = true,
   isEmtpyExcel = false,
+  isAllRowPerPageOption = true,
   searchRowKeys,
   tooltipLimit = 40,
   rowClassNameFunction,
@@ -564,7 +566,7 @@ const GenericTable = <T,>({
                   <img
                     src={(row[rowKey.key as keyof T] as string) || imageHolder}
                     alt="img"
-                    className="w-12 h-12 rounded-full cursor-pointer"
+                    className="w-12 h-12 rounded-full cursor-pointer min-w-12"
                     onClick={() => {
                       setImageModalSrc(
                         (row[rowKey.key as keyof T] as string) ?? imageHolder
@@ -1110,7 +1112,9 @@ const GenericTable = <T,>({
                         {option}
                       </option>
                     ))}
-                    <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
+                    {isAllRowPerPageOption && (
+                      <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
+                    )}
                   </select>
                 </div>
                 {isPagination && (

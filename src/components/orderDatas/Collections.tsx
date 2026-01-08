@@ -141,6 +141,10 @@ const Collections = () => {
           );
           const zonedTime = toZonedTime(collection.tableDate, "UTC");
           const collectionDate = new Date(zonedTime);
+          const istanbulTime = toZonedTime(
+            collection.createdAt,
+            "Europe/Istanbul"
+          );
           return {
             ...collection,
             cashier: getItem(collection?.createdBy, users)?.name,
@@ -153,7 +157,7 @@ const Collections = () => {
             cancelledAt: collection?.cancelledAt
               ? format(collection?.cancelledAt, "HH:mm")
               : "",
-            hour: format(collectionDate, "HH:mm"),
+            hour: format(istanbulTime, "HH:mm"),
             paymentMethod: paymentMethod ? t(paymentMethod.name) : "",
             paymentMethodId: collection?.paymentMethod,
             tableId: (collection?.table as Table)?._id,
@@ -530,11 +534,11 @@ const Collections = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
               queryClient.invalidateQueries({
-                queryKey: [
-                  `${Paths.Order}/collection/query`,
-                ],
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
               });
             }}
           />

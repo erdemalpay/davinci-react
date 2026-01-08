@@ -3,6 +3,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BreakOverlay } from "./components/common/BreakOverlay";
+import { GameplayTimeOverlay } from "./components/common/GameplayTimeOverlay";
+import { LogoutConfirmationModal } from "./components/common/LogoutConfirmationModal";
 import { Sidebar } from "./components/common/Sidebar";
 import { DataContextProvider } from "./context/Data.context";
 import { DateContextProvider } from "./context/Date.context";
@@ -21,20 +23,9 @@ import RouterContainer from "./navigation/routes";
 const queryClient = new QueryClient();
 
 function App() {
-  // const isVisible = usePageVisibility();
-  // const queryClient = useQueryClient();
   const { isSidebarOpen } = useGeneralContext();
   const { user } = useUserContext();
-  // const prevVisibleRef = useRef(isVisible);
-
   useWebSocket();
-
-  // useEffect(() => {
-  //   if (prevVisibleRef.current === false && isVisible === true) {
-  //     queryClient.clear();
-  //   }
-  //   prevVisibleRef.current = isVisible;
-  // }, [isVisible, queryClient]);
 
   return (
     <div className="App">
@@ -47,6 +38,8 @@ function App() {
         <RouterContainer />
       </div>
       <BreakOverlay />
+      <GameplayTimeOverlay />
+      <LogoutConfirmationModal />
       <ToastContainer
         autoClose={2000}
         hideProgressBar={true}

@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
-import { Gameplay, Table, User } from "../../types";
+import { Gameplay, Table, User, Visit } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -16,6 +16,7 @@ export function CreateGameplayDialog({
   table,
   mentors,
   games,
+  visits = [],
 }: {
   isOpen: boolean;
   close: () => void;
@@ -23,11 +24,26 @@ export function CreateGameplayDialog({
   table: Table;
   mentors: User[];
   games: MinimalGame[];
+  visits?: Visit[];
 }) {
   const { t } = useTranslation();
   const [data, setData] = useState<Partial<Gameplay>>(gameplay);
   const { users } = useDataContext();
   const { mutate: createGameplay } = useCreateGameplayMutation();
+
+  // Helper function to check if a specific mentor has an active visit
+  const checkMentorHasActiveVisit = (mentorId: string | undefined) => {
+    if (!mentorId || !visits || visits.length === 0) return false;
+    return visits.some((visit) => visit.user === mentorId && !visit.finishHour);
+  };
+
+  // Check if selected mentor has an active visit
+  const doesMentorHaveActiveVisit = useMemo(() => {
+    if (!data.mentor) return false;
+    const mentorId =
+      typeof data.mentor === "object" ? data.mentor._id : data.mentor;
+    return checkMentorHasActiveVisit(mentorId);
+  }, [data.mentor, visits]);
 
   function handleCreate() {
     // Mentor ve game kontrolü
@@ -36,8 +52,21 @@ export function CreateGameplayDialog({
       return;
     }
 
+    // Get mentor ID
+    const mentorId =
+      typeof data.mentor === "object" ? data.mentor._id : data.mentor;
+
+    // If mentor has active visit, default isGameplayTime to true
+    // If mentor doesn't have active visit, force isGameplayTime to false
+    const finalPayload = {
+      ...data,
+      isGameplayTime: checkMentorHasActiveVisit(mentorId)
+        ? data.isGameplayTime ?? true // Default to true if checkbox is visible
+        : false,
+    } as Gameplay;
+
     createGameplay(
-      { table: table._id as number, payload: data as Gameplay },
+      { table: table._id as number, payload: finalPayload },
       {
         onSuccess: () => {
           toast.success(
@@ -114,8 +143,20 @@ export function CreateGameplayDialog({
         placeholder: t("End Time"),
         required: false,
       },
+      // Only show "Is Gameplay Time" checkbox if selected mentor has an active visit
+      ...(doesMentorHaveActiveVisit
+        ? [
+            {
+              type: InputTypes.CHECKBOX,
+              formKey: "isGameplayTime",
+              label: t("Is Gameplay Time"),
+              placeholder: t("Is Gameplay Time"),
+              required: false,
+            },
+          ]
+        : []),
     ],
-    [mentors, games, t, users]
+    [mentors, games, t, users, doesMentorHaveActiveVisit]
   );
 
   const gameplayFormKeys = [
@@ -125,6 +166,7 @@ export function CreateGameplayDialog({
     { key: "game", type: FormKeyTypeEnum.NUMBER },
     { key: "startHour", type: FormKeyTypeEnum.STRING },
     { key: "finishHour", type: FormKeyTypeEnum.STRING },
+    { key: "isGameplayTime", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   if (!isOpen) return null;
@@ -155,6 +197,7 @@ export function CreateGameplayDialog({
             typeof gameplay.game === "object"
               ? gameplay.game?._id
               : gameplay.game,
+          isGameplayTime: gameplay.isGameplayTime ?? true,
         }}
         submitItem={handleCreate}
         submitFunction={handleCreate}

@@ -335,6 +335,7 @@ const ProductExpenses = () => {
         isSearch={false}
         isActionsActive={false}
         {...(pagination && { pagination })}
+        isAllRowPerPageOption={false}
       />
     </div>
   );

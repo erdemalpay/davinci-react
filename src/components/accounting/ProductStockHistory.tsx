@@ -324,7 +324,11 @@ const ProductStockHistory = () => {
       filterPanelFormElements: filterProductStockHistoryPanelFormElements,
       setFilterPanelFormElements: setFilterProductStockHistoryPanelFormElements,
     };
-  }, [t, filterProductStockHistoryPanelFormElements, setFilterProductStockHistoryPanelFormElements]);
+  }, [
+    t,
+    filterProductStockHistoryPanelFormElements,
+    setFilterProductStockHistoryPanelFormElements,
+  ]);
 
   useMemo(() => {
     setCurrentPage(1);
@@ -345,6 +349,7 @@ const ProductStockHistory = () => {
           isActionsActive={false}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
         />
       </div>
     </>
