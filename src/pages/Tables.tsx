@@ -31,7 +31,6 @@ import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
 import { Routes } from "../navigation/constants";
 import {
-  Break,
   MenuItem,
   Order,
   OrderDiscountStatus,
@@ -119,16 +118,6 @@ const Tables = () => {
   const activeGameplayTimes = useGetGameplayTimesByDate(
     selectedDate || formatDate(new Date())
   );
-
-  // Get users currently on break at selected location (for counting)
-  const usersOnBreak = useMemo(() => {
-    if (!todayBreaks || !selectedLocationId) return [];
-
-    return todayBreaks.filter(
-      (breakItem: Break) =>
-        breakItem.location === selectedLocationId && !breakItem.finishHour // Only active breaks (no finish time)
-    );
-  }, [todayBreaks, selectedLocationId]);
 
   const comingReservedTableNames = useMemo(() => {
     if (!reservations || !selectedLocationId) return new Set<string>();
