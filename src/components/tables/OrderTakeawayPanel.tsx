@@ -12,7 +12,7 @@ const OrderTakeawayPanel = () => {
   const { orderCreateBulk } = useOrderContext();
   const [expandedSections, setExpandedSections] = useState<{
     [key: number]: boolean;
-  }>({ 0: false });
+  }>({ 0: true });
   const { t } = useTranslation();
 
   const toggleSection = (index: number) => {

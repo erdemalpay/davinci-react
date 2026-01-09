@@ -16,7 +16,7 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
   const [activeTab, setActiveTab] = useState(0);
   const [expandedSections, setExpandedSections] = useState<{
     [key: number]: boolean;
-  }>({ 0: false, 1: false, 2: false });
+  }>({ 0: true, 1: false, 2: false });
   const { t } = useTranslation();
 
   const toggleSection = (index: number) => {

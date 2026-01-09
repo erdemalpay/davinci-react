@@ -65,6 +65,7 @@ type Props<T> = {
   isSubmitButtonActive?: boolean;
   upperMessage?: string[];
   additionalButtons?: AdditionalButtonProps[];
+  stickyFooterButtons?: boolean;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -114,6 +115,7 @@ const GenericAddEditPanel = <T,>({
   setForm,
   submitItem,
   nonImageInputsClassName,
+  stickyFooterButtons = false,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -391,9 +393,17 @@ const GenericAddEditPanel = <T,>({
           anotherPanelTopClassName
             ? ""
             : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
-        }   max-h-[90vh] overflow-y-auto   ${generalClassName} `}
+        }   ${
+          stickyFooterButtons ? "h-[90vh] flex flex-col" : "max-h-[90vh] overflow-y-auto"
+        }   ${generalClassName} `}
       >
-        <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between">
+        <div
+          className={`rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 ${
+            stickyFooterButtons
+              ? "overflow-y-auto"
+              : "justify-between"
+          }`}
+        >
           {upperMessage?.length && upperMessage?.length > 0 && (
             <div className="flex flex-col px-4 py-2 border-b space-y-1">
               {upperMessage.map((msg, index) => (
@@ -789,7 +799,14 @@ const GenericAddEditPanel = <T,>({
               })}
             </div>
           </div>
-          <div className="sm:ml-auto mx-auto sm:mx-0 flex flex-row gap-4 mt-auto relative justify-center sm:justify-start">
+        </div>
+        <div
+          className={`px-4 py-4 flex flex-row gap-4 justify-center sm:justify-start sm:ml-auto mx-auto sm:mx-0 ${
+            stickyFooterButtons
+              ? "bg-white mt-auto flex-shrink-0"
+              : "mt-auto relative"
+          }`}
+        >
             <GenericButton
               variant="danger"
               size="md"
@@ -880,7 +897,6 @@ const GenericAddEditPanel = <T,>({
                   : t("Create")}
               </GenericButton>
             )}
-          </div>
         </div>
       </div>
     );

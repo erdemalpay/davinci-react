@@ -1130,6 +1130,7 @@ export function TableCard({
                 ),
               }
             : {})}
+          stickyFooterButtons={true}
           submitItem={createOrder as any}
           isConfirmationDialogRequired={() => {
             const menuItem = menuItems?.find(
