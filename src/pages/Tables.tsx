@@ -1667,7 +1667,7 @@ const Tables = () => {
               )}
               {/* filters */}
               {/* Desktop: Original layout */}
-              <div className="hidden lg:flex lg:flex-row lg:gap-4 justify-end mt-4">
+              <div className="hidden lg:flex lg:flex-row lg:gap-4 justify-start mt-4">
                 {switchFilters.map((filter, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <H5>{filter.label}</H5>
