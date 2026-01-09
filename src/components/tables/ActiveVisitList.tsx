@@ -70,7 +70,7 @@ export function ActiveVisitList({
   }
 
   function handleCheckboxChange(checked: boolean) {
-    if (!isDisabledCondition) {
+    if (isDisabledCondition) {
       return;
     }
     if (checked) {
