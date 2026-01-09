@@ -7,10 +7,8 @@ import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { Break, GameplayTime, RoleEnum, Visit, VisitSource } from "../../types";
+import { Break, GameplayTime, Visit, VisitSource } from "../../types";
 import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
-import { useGetPanelSettings } from "../../utils/api/panelControl/panelSettings";
-import { MinimalUser } from "../../utils/api/user";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
@@ -39,10 +37,9 @@ export function ActiveVisitList({
   const { mutate: finishVisit } = useFinishVisitMutation();
   const { users = [] } = useDataContext();
   const { user } = useUserContext();
-  const panelSettings = useGetPanelSettings();
+  const { panelSettings } = useDataContext();
   const { selectedLocationId } = useLocationContext();
-  const isDisabledCondition =
-    panelSettings?.isVisitEntryDisabled && user?.role?._id !== RoleEnum.MANAGER;
+  const isDisabledCondition = panelSettings?.isVisitEntryDisabled;
 
   // Get active gameplay times for today
   const todayDate = format(new Date(), "yyyy-MM-dd");
@@ -73,7 +70,7 @@ export function ActiveVisitList({
   }
 
   function handleCheckboxChange(checked: boolean) {
-    if (isDisabledCondition) {
+    if (!isDisabledCondition) {
       return;
     }
     if (checked) {
@@ -175,12 +172,10 @@ export function ActiveVisitList({
   };
 
   const sortedVisits = useMemo(() => {
-    return [...uniqueVisits].sort((a,b) => {
-      return getVisitBadgePriority(a) - getVisitBadgePriority(b)
-      }
-
-    )
-  }, [uniqueVisits,breaks,activeGameplayTimes])
+    return [...uniqueVisits].sort((a, b) => {
+      return getVisitBadgePriority(a) - getVisitBadgePriority(b);
+    });
+  }, [uniqueVisits, breaks, activeGameplayTimes]);
 
   if (isConfirmationDialogOpen) {
     return (
@@ -209,22 +204,25 @@ export function ActiveVisitList({
   }
   return (
     <div className="flex flex-col w-full">
-      <div className="flex flex-row w-full items-center gap-3">
-        <Checkbox
-          checked={isCurrentUserCheckedIn}
-          onChange={(e) => handleCheckboxChange(e.target.checked)}
-          disabled={isDisabledCondition}
-          label={label}
-          className="hover:before:opacity-0"
-          containerProps={{
-            className: "p-0",
-          }}
-          labelProps={{
-            className: "cursor-default select-none text-black font-normal ml-2",
-          }}
-          crossOrigin={undefined}
-        />
-      </div>
+      {!isDisabledCondition && (
+        <div className="flex flex-row w-full items-center gap-3">
+          <Checkbox
+            checked={isCurrentUserCheckedIn}
+            onChange={(e) => handleCheckboxChange(e.target.checked)}
+            disabled={isDisabledCondition}
+            label={label}
+            className="hover:before:opacity-0"
+            containerProps={{
+              className: "p-0",
+            }}
+            labelProps={{
+              className:
+                "cursor-default select-none text-black font-normal ml-2",
+            }}
+            crossOrigin={undefined}
+          />
+        </div>
+      )}
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
         {sortedVisits.map((visit) => {
           const userOnVisit = getItem(visit?.user, users);
@@ -267,12 +265,11 @@ export function ActiveVisitList({
 
           const getChipBackgroundColor = () => {
             if (userGameplayTime) {
-              return "#F97316"
-            }else if(userBreak){
-              return "#255691"
-            }else
-              return "#288809"
-          }
+              return "#F97316";
+            } else if (userBreak) {
+              return "#255691";
+            } else return "#288809";
+          };
 
           return (
             <Tooltip key={visit?.user} content={tooltipContent}>
