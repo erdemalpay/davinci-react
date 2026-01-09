@@ -417,7 +417,11 @@ const Count = () => {
     } else if (currentCount) {
       updateAccountCount({
         id: currentCount?._id,
-        updates: { isCompleted: true, completedAt: new Date() },
+        updates: {
+          products: currentCount.products,
+          isCompleted: true,
+          completedAt: new Date(),
+        },
       });
     }
     setCountListActiveTab(CountListPageTabEnum.COUNTARCHIVE);
