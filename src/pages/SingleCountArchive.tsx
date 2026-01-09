@@ -19,7 +19,7 @@ import { Routes } from "../navigation/constants";
 import { RoleEnum } from "../types";
 import {
   useAccountCountMutations,
-  useGetAccountCounts,
+  useGetCountById,
   useUpdateStockForStockCountBulkMutation,
   useUpdateStockForStockCountMutation,
 } from "../utils/api/account/count";
@@ -37,7 +37,7 @@ const SingleCountArchive = () => {
   const { t } = useTranslation();
   const { archiveId } = useParams();
   const { user } = useUserContext();
-  const counts = useGetAccountCounts();
+  const count = useGetCountById(archiveId || "");
   const items = useGetMenuItems();
   const countLists = useGetAccountCountLists();
   const users = useGetUsersMinimal();
@@ -61,8 +61,8 @@ const SingleCountArchive = () => {
   }, [user]);
 
   const currentCount = useMemo(() => {
-    return counts?.find((count) => count._id === archiveId);
-  }, [counts, archiveId]);
+    return count;
+  }, [count, archiveId]);
 
   const currentCountList = useMemo(() => {
     return countLists?.find(
@@ -310,9 +310,6 @@ const SingleCountArchive = () => {
           <ButtonFilter
             buttonName={t("Stock Equalize")}
             onclick={() => {
-              const currentCount = counts?.find(
-                (count) => count._id === archiveId
-              );
               if (
                 !currentCount ||
                 currentCount?.products?.filter(
@@ -331,7 +328,7 @@ const SingleCountArchive = () => {
         ),
       },
     ],
-    [t, isDisabledCondition, counts, archiveId, updateStockForStockCountBulk]
+    [t, isDisabledCondition, count, archiveId, updateStockForStockCountBulk]
   );
 
   const rowClassNameFunction = useMemo(() => {
