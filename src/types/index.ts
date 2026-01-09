@@ -163,6 +163,7 @@ export type Location = {
   tableNames?: string[];
   isShelfInfoRequired?: boolean;
   isVisibleInBaseQuantity?: boolean;
+  seenInOrdersSummaryPage?: boolean;
   phoneNumber?: string;
   fallbackStockLocation?: number;
   googleMapsUrl?: string;
@@ -1804,6 +1805,11 @@ export const commonDateOptions = [
     value: "fromTodayToEndOfNextMonth",
     label: "From Today To End Of Next Month",
   },
+  { value: "last7Days", label: "Last 7 Days" },
+  { value: "last30Days", label: "Last 30 Days" },
+  { value: "last3Months", label: "Last 3 Months" },
+  { value: "last6Months", label: "Last 6 Months" },
+  { value: "customDate", label: "Custom Date" },
 ];
 
 export type DateRangeKey =
@@ -1819,7 +1825,49 @@ export type DateRangeKey =
   | "lastYear"
   | "nextWeek"
   | "nextMonth"
-  | "fromTodayToEndOfNextMonth";
+  | "fromTodayToEndOfNextMonth"
+  | "last7Days"
+  | "last30Days"
+  | "last3Months"
+  | "last6Months"
+  | "customDate";
+
+export type Granularity = "daily" | "monthly";
+
+export type DailyData = {
+  date: string;
+  total: number;
+};
+
+export type WeeklyData = {
+  weekStart: string;
+  weekEnd: string;
+  total: number;
+};
+
+export type MonthlyData = {
+  month: string;
+  total: number;
+};
+
+export type PeriodData<T = DailyData | WeeklyData | MonthlyData> = {
+  granularity: Granularity;
+  startDate: string;
+  endDate: string;
+  data: T[];
+  totalRevenue: number;
+};
+
+export type ComparisonMetrics = {
+  percentageChange: number;
+  absoluteChange: number;
+};
+
+export type CategorySummaryCompareResponse = {
+  primaryPeriod: PeriodData;
+  secondaryPeriod: PeriodData;
+  comparisonMetrics: ComparisonMetrics;
+};
 
 export type PersonalOrderDataType = {
   _id: string;

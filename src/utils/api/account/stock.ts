@@ -63,7 +63,13 @@ export function useGetSummaryStockTotal() {
       filterSummaryFormElements.after
     }&before=${filterSummaryFormElements.before}&location=${Number(
       filterSummaryFormElements.location
-    )}`
+    )}`,
+    [
+      `${Paths.Accounting}/stocks/summary/query`,
+      filterSummaryFormElements.after,
+      filterSummaryFormElements.before,
+      filterSummaryFormElements.location,
+    ]
   );
 }
 export function consumptStock(payload: ConsumptStockPayload) {

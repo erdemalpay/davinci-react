@@ -3,26 +3,36 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { Header } from "../components/header/Header";
-import CategorySummaryChart from "../components/orderSummary/CategorySummaryChart";
+import CategorySummaryCompareChart from "../components/orderSummary/CategorySummaryCompareChart";
 import SummaryCard from "../components/orders/ordersSummary/SummaryCard";
 import SelectInput from "../components/panelComponents/FormElements/SelectInput";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
-import { MenuCategory, OptionType, TURKISHLIRA, UpperCategory } from "../types";
+import {
+  DateRangeKey,
+  MenuCategory,
+  OptionType,
+  TURKISHLIRA,
+  UpperCategory,
+} from "../types";
 import { useGetSummaryStockTotal } from "../utils/api/account/stock";
-import { useGetStoreLocations } from "../utils/api/location";
+import { dateRanges } from "../utils/api/dateRanges";
+import { useGetOrdersSummaryLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetUpperCategories } from "../utils/api/menu/upperCategory";
-import { useGetSummaryCollectionTotal } from "../utils/api/order/orderCollection";
+import {
+  useGetSummaryCollectionTotal,
+  useGetSummaryDiscountTotal,
+} from "../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../utils/format";
-import { formatPrice } from "../utils/formatPrice";
 
 const OrdersSummary = () => {
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
-  const locations = useGetStoreLocations();
+  const locations = useGetOrdersSummaryLocations();
   const stockData = useGetSummaryStockTotal();
+  const discountData = useGetSummaryDiscountTotal();
   const categories = useGetCategories();
   const upperCategories = useGetUpperCategories();
   if (!categories || !upperCategories) return <></>;
@@ -30,6 +40,18 @@ const OrdersSummary = () => {
     useState<MenuCategory | null>();
   const [selectedUpperCategory, setSelectedUpperCategory] =
     useState<UpperCategory | null>(upperCategories[0]);
+  const [selectedDateRange, setSelectedDateRange] =
+    useState<DateRangeKey>("thisMonth");
+
+  const ordersSummaryDateOptions = [
+    { value: "thisWeek", label: "This Week" },
+    { value: "lastWeek", label: "Last Week" },
+    { value: "thisMonth", label: "This Month" },
+    { value: "lastMonth", label: "Last Month" },
+    { value: "thisYear", label: "This Year" },
+    { value: "lastYear", label: "Last Year" },
+    { value: "customDate", label: "Custom Date" },
+  ];
   const categoryOptions = categories?.map((category) => {
     return {
       value: String(category._id),
@@ -45,6 +67,19 @@ const OrdersSummary = () => {
   const { filterSummaryFormElements, setFilterSummaryFormElements } =
     useOrderContext();
   const totalIncome = useGetSummaryCollectionTotal();
+
+  // İlk yüklemede varsayılan tarih aralığını ayarla
+  useEffect(() => {
+    if (!filterSummaryFormElements.after && !filterSummaryFormElements.before) {
+      const dateRange = dateRanges[selectedDateRange]();
+      setFilterSummaryFormElements((prev: any) => ({
+        ...prev,
+        after: dateRange.after,
+        before: dateRange.before,
+      }));
+    }
+  }, []);
+
   const filterInputs = [
     {
       type: InputTypes.SELECT,
@@ -66,21 +101,51 @@ const OrdersSummary = () => {
       required: true,
     },
     {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
+      type: InputTypes.SELECT,
+      formKey: "dateRange",
+      label: t("Date Range"),
+      options: ordersSummaryDateOptions.map((option) => ({
+        value: option.value,
+        label: t(option.label),
+      })),
+      placeholder: t("Select Date Range"),
       required: true,
-      isDatePicker: true,
+      additionalOnChange: ({ value }: { value: string }) => {
+        setSelectedDateRange(value as DateRangeKey);
+        if (value === "customDate") {
+          // Özel tarih seçildiğinde manuel tarih seçicileri göster
+        } else {
+          const dateRange = dateRanges[value as DateRangeKey]();
+          setFilterSummaryFormElements((prev: any) => ({
+            ...prev,
+            after: dateRange.after,
+            before: dateRange.before,
+          }));
+        }
+      },
     },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
+    ...(selectedDateRange === "customDate"
+      ? [
+          {
+            type: InputTypes.DATE,
+            formKey: "after",
+            label: t("Start Date"),
+            placeholder: t("Start Date"),
+            required: true,
+            isDatePicker: true,
+            isOnClearActive: false,
+          },
+          {
+            type: InputTypes.DATE,
+            formKey: "before",
+            label: t("End Date"),
+            placeholder: t("End Date"),
+            required: true,
+            isDatePicker: true,
+            isOnClearActive: false,
+          },
+        ]
+      : []),
   ];
   const handleChange = (key: string) => (value: string) => {
     setFilterSummaryFormElements((prev: any) => ({ ...prev, [key]: value }));
@@ -120,27 +185,18 @@ const OrdersSummary = () => {
       ? `${afterDate} - ${beforeDate}`
       : `${afterDate} - ${currentDate}`;
   }
+  // componentKey useEffect kaldırıldı - sonsuz döngüye sebep oluyordu
   useEffect(() => {
-    setComponentKey((prev) => prev + 1);
-  }, [
-    totalIncome,
-    filterSummaryFormElements,
-    locations,
-    stockData,
-    categories,
-    upperCategories,
-  ]);
-  useEffect(() => {
-    if (!selectedCategory) {
+    if (!selectedCategory && upperCategories && upperCategories.length > 0) {
       setSelectedUpperCategory(upperCategories[0]);
     }
-  }, [upperCategories]);
+  }, [upperCategories, selectedCategory]);
   return (
     <>
       <Header showLocationSelector={false} />
       <div className="w-full px-4 flex flex-col gap-4 my-10">
         {/* filter */}
-        <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto   ">
+        <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto relative z-40">
           {filterInputs.map((input: any) => {
             if (input.type === InputTypes.DATE) {
               return (
@@ -160,7 +216,10 @@ const OrdersSummary = () => {
             } else if (input.type === InputTypes.SELECT) {
               const selectedValue = input.options?.find(
                 (option: any) =>
-                  option.value === filterSummaryFormElements[input.formKey]
+                  option.value ===
+                  (input.formKey === "dateRange"
+                    ? selectedDateRange
+                    : filterSummaryFormElements[input.formKey])
               );
               return (
                 <div key={input.formKey} className="w-full ">
@@ -169,7 +228,18 @@ const OrdersSummary = () => {
                     value={selectedValue}
                     options={input.options ?? []}
                     placeholder={input.placeholder ?? ""}
-                    onChange={handleChangeForSelect(input.formKey)}
+                    onChange={
+                      input.additionalOnChange
+                        ? (selectedOption) => {
+                            if (selectedOption) {
+                              input.additionalOnChange?.({
+                                value: (selectedOption as OptionType).value,
+                                label: (selectedOption as OptionType).label,
+                              });
+                            }
+                          }
+                        : handleChangeForSelect(input.formKey)
+                    }
                   />
                 </div>
               );
@@ -178,8 +248,8 @@ const OrdersSummary = () => {
           })}
         </div>
         <div key={componentKey} className="flex flex-col gap-4">
-          {/* summary cards*/}
-          <div className="w-full  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 ">
+          {/* summary cards - Responsive */}
+          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
             <SummaryCard
               header={t("Total Income")}
               firstSubHeader={getDateRange()}
@@ -196,30 +266,54 @@ const OrdersSummary = () => {
                 filterSummaryFormElements?.after
               )}
               firstSubHeaderValue={
-                formatPrice(stockData?.afterTotalValue ?? 0) + " " + TURKISHLIRA
+                stockData?.afterTotalValue
+                  ? stockData.afterTotalValue.toLocaleString("tr-TR") +
+                    " " +
+                    TURKISHLIRA
+                  : "0 " + TURKISHLIRA
               }
               secondSubHeader={formatAsLocalDate(
                 filterSummaryFormElements?.before
               )}
               secondSubHeaderValue={
-                formatPrice(stockData?.beforeTotalValue ?? 0) +
-                " " +
-                TURKISHLIRA
+                stockData?.beforeTotalValue
+                  ? stockData.beforeTotalValue.toLocaleString("tr-TR") +
+                    " " +
+                    TURKISHLIRA
+                  : "0 " + TURKISHLIRA
               }
-              difference={formatPrice(
+              difference={
                 (stockData?.beforeTotalValue ?? 0) -
-                  (stockData?.afterTotalValue ?? 0)
-              )}
+                (stockData?.afterTotalValue ?? 0)
+                  ? TURKISHLIRA +
+                    (
+                      (stockData?.beforeTotalValue ?? 0) -
+                      (stockData?.afterTotalValue ?? 0)
+                    ).toLocaleString("tr-TR")
+                  : TURKISHLIRA + "0"
+              }
               sideColor={"#d8521d"}
+            />
+            <SummaryCard
+              header={t("Total Discounts")}
+              firstSubHeader={getDateRange()}
+              firstSubHeaderValue={
+                discountData?.totalDiscounts
+                  ? discountData.totalDiscounts.toLocaleString("tr-TR") +
+                    " " +
+                    TURKISHLIRA
+                  : "0 " + TURKISHLIRA
+              }
+              sideColor={"#10B981"}
             />
           </div>
           {/* category summary chart */}
           <div className="w-full">
             <div className="w-full flex flex-col gap-4">
               {/* selections */}
-              <div className="flex flex-col sm:flex-row gap-2 ">
+              <div className="flex flex-col sm:flex-row gap-2 relative z-20">
                 {/* upper category  selection*/}
-                <div className="sm:w-1/4 px-4 ">
+                <div className="sm:w-1/4 px-4 relative z-30">
                   <SelectInput
                     label={t("Upper Category")}
                     options={upperCategoryOptions}
@@ -250,7 +344,7 @@ const OrdersSummary = () => {
                   />
                 </div>
                 {/* category selection */}
-                <div className="sm:w-1/4 px-4">
+                <div className="sm:w-1/4 px-4 relative z-20">
                   <SelectInput
                     label={t("Category")}
                     options={categoryOptions}
@@ -282,18 +376,34 @@ const OrdersSummary = () => {
                 </div>
               </div>
 
-              {selectedCategory && (
-                <CategorySummaryChart
-                  location={filterSummaryFormElements.location}
-                  category={selectedCategory}
-                />
-              )}
-              {selectedUpperCategory && (
-                <CategorySummaryChart
-                  location={filterSummaryFormElements.location}
-                  upperCategory={selectedUpperCategory}
-                />
-              )}
+              {filterSummaryFormElements.after &&
+                filterSummaryFormElements.before && (
+                  <div className="relative z-10">
+                    {selectedCategory ? (
+                      <CategorySummaryCompareChart
+                        location={
+                          filterSummaryFormElements.location
+                            ? Number(filterSummaryFormElements.location)
+                            : 0
+                        }
+                        category={selectedCategory}
+                        primaryAfter={filterSummaryFormElements.after}
+                        primaryBefore={filterSummaryFormElements.before}
+                      />
+                    ) : selectedUpperCategory ? (
+                      <CategorySummaryCompareChart
+                        location={
+                          filterSummaryFormElements.location
+                            ? Number(filterSummaryFormElements.location)
+                            : 0
+                        }
+                        upperCategory={selectedUpperCategory}
+                        primaryAfter={filterSummaryFormElements.after}
+                        primaryBefore={filterSummaryFormElements.before}
+                      />
+                    ) : null}
+                  </div>
+                )}
             </div>
           </div>
         </div>

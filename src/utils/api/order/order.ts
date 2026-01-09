@@ -7,6 +7,7 @@ import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
 import { useOrderContext } from "./../../../context/Order.context";
 import {
+  CategorySummaryCompareResponse,
   Order,
   PersonalOrderDataType,
   PopularDiscounts,
@@ -376,7 +377,7 @@ export function useGetTableOrders(tableId: number) {
 
   useEffect(() => {
     if (!tableOrders || tableOrders.length === 0) return;
-    
+
     // keep todayOrders in sync with this table
     queryClient.setQueryData<Order[]>(
       [`${baseUrl}/today`, selectedDate],
@@ -749,6 +750,45 @@ export function useGetCategorySummary(
   return useGetList<{ month: string; total: number }>(
     url,
     [url, category, location, upperCategory],
+    true
+  );
+}
+
+export function useGetCategorySummaryCompare(
+  primaryAfter: string,
+  primaryBefore: string,
+  secondaryAfter: string,
+  secondaryBefore: string,
+  granularity: "daily" | "monthly",
+  location?: number,
+  upperCategory?: number,
+  category?: number
+) {
+  let url = `${Paths.Order}/category_summary/compare?primaryAfter=${primaryAfter}&primaryBefore=${primaryBefore}&secondaryAfter=${secondaryAfter}&secondaryBefore=${secondaryBefore}&granularity=${granularity}`;
+
+  if (location !== undefined && location !== null) {
+    url = url.concat(`&location=${location}`);
+  }
+  if (upperCategory !== undefined && upperCategory !== null) {
+    url = url.concat(`&upperCategory=${upperCategory}`);
+  }
+  if (category !== undefined && category !== null) {
+    url = url.concat(`&category=${category}`);
+  }
+
+  return useGet<CategorySummaryCompareResponse>(
+    url,
+    [
+      `${Paths.Order}/category_summary/compare`,
+      primaryAfter,
+      primaryBefore,
+      secondaryAfter,
+      secondaryBefore,
+      granularity,
+      location,
+      upperCategory,
+      category,
+    ],
     true
   );
 }

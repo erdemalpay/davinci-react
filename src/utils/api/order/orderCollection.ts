@@ -97,7 +97,13 @@ export function useGetSummaryCollectionTotal() {
       filterSummaryFormElements.after
     }&before=${filterSummaryFormElements.before}&location=${Number(
       filterSummaryFormElements.location
-    )}`
+    )}`,
+    [
+      `${Paths.Order}/collection/summary/query`,
+      filterSummaryFormElements.after,
+      filterSummaryFormElements.before,
+      filterSummaryFormElements.location,
+    ]
   );
 }
 export function useGetTodayCollections() {
@@ -112,6 +118,34 @@ export function useGetTodayCollections() {
     }
   );
 }
+
+export function useGetSummaryDiscountTotal() {
+  const { filterSummaryFormElements } = useOrderContext();
+  return useGet<{ totalDiscounts: number }>(
+    `${Paths.Order}/discount/summary/query?after=${
+      filterSummaryFormElements.after
+    }&before=${filterSummaryFormElements.before}&location=${Number(
+      filterSummaryFormElements.location
+    )}`,
+    [
+      `${Paths.Order}/discount/summary/query`,
+      filterSummaryFormElements.after,
+      filterSummaryFormElements.before,
+      filterSummaryFormElements.location,
+    ]
+  );
+}
+// export function useGetTodayCollections() {
+//   const { selectedDate } = useDateContext();
+//   return useGetList<OrderCollection>(
+//     `${Paths.Order}/collection/today?after=${selectedDate}`,
+//     [`${Paths.Order}/collection/today`, selectedDate],
+//     false, // isStaleTimeZero - keep staleTime as Infinity
+//     {
+//       refetchOnWindowFocus: true,
+//     }
+//   );
+// }
 function createRequest(
   itemDetails: Partial<OrderCollection>
 ): Promise<OrderCollection> {

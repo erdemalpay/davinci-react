@@ -75,6 +75,7 @@ const LocationPage = () => {
       { key: t("Opening Hours"), isSortable: false },
       { key: t("Shelf Info"), isSortable: false },
       { key: t("Show in Base Quantity"), isSortable: false },
+      { key: t("Show on Orders Summary"), isSortable: false },
       { key: t("Active"), isSortable: false },
       { key: t("Activity Note"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
@@ -256,6 +257,37 @@ const LocationPage = () => {
                     id: row._id,
                     updates: {
                       isVisibleInBaseQuantity: !row?.isVisibleInBaseQuantity,
+                    },
+                  });
+                }}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        key: "seenInOrdersSummaryPage",
+        node: (row: any) => {
+          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return (
+            <div
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
+            >
+              <SwitchButton
+                checked={row?.seenInOrdersSummaryPage}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  updateLocation({
+                    id: row._id,
+                    updates: {
+                      seenInOrdersSummaryPage: !row?.seenInOrdersSummaryPage,
                     },
                   });
                 }}

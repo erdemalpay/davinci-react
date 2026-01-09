@@ -269,11 +269,11 @@ const DailyIncome = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
               queryClient.invalidateQueries({
-                queryKey: [
-                  `${Paths.Order}/collection/query`,
-                ],
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
               });
             }}
           />

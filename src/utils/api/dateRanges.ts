@@ -49,7 +49,7 @@ export const dateRanges: {
   }),
   thisMonth: () => ({
     after: formatDate(startOfMonth(new Date())),
-    before: formatDate(endOfMonth(new Date())),
+    before: formatDate(new Date()), // Bugüne kadar
     date: "thisMonth",
   }),
   lastMonth: () => ({
@@ -101,7 +101,7 @@ export const dateRanges: {
     return {
       before: formatDate(nextFriday),
       after: formatDate(nextMonday),
-      date: 'nextWeek',
+      date: "nextWeek",
     };
   },
   nextMonth: () => {
@@ -112,7 +112,7 @@ export const dateRanges: {
     return {
       before: formatDate(endOfMonth(nextMonth)),
       after: formatDate(startOfMonth(nextMonth)),
-      date: 'nextMonth',
+      date: "nextMonth",
     };
   },
   fromTodayToEndOfNextMonth: () => {
@@ -123,7 +123,51 @@ export const dateRanges: {
     return {
       before: formatDate(endOfMonth(nextMonth)),
       after: formatDate(today),
-      date: 'fromTodayToEndOfNextMonth',
+      date: "fromTodayToEndOfNextMonth",
+    };
+  },
+  last7Days: () => {
+    const today = new Date();
+    const sevenDaysAgo = subDays(today, 6);
+    return {
+      before: formatDate(today),
+      after: formatDate(sevenDaysAgo),
+      date: "last7Days",
+    };
+  },
+  last30Days: () => {
+    const today = new Date();
+    const thirtyDaysAgo = subDays(today, 29);
+    return {
+      before: formatDate(today),
+      after: formatDate(thirtyDaysAgo),
+      date: "last30Days",
+    };
+  },
+  last3Months: () => {
+    const today = new Date();
+    const threeMonthsAgo = subMonths(today, 3);
+    return {
+      before: formatDate(today),
+      after: formatDate(startOfMonth(threeMonthsAgo)),
+      date: "last3Months",
+    };
+  },
+  last6Months: () => {
+    const today = new Date();
+    const sixMonthsAgo = subMonths(today, 6);
+    return {
+      before: formatDate(today),
+      after: formatDate(startOfMonth(sixMonthsAgo)),
+      date: "last6Months",
+    };
+  },
+  customDate: () => {
+    const today = new Date();
+    return {
+      before: formatDate(today),
+      after: formatDate(today),
+      date: "customDate",
     };
   },
 };
