@@ -58,6 +58,13 @@ export const updateStockForStockCount = (payload: UpdateStockPayload) => {
   });
 };
 
+export function useGetCountById(id: string) {
+  return useGet<AccountCount>(
+    `${Paths.Accounting}/counts/${id}`,
+    [Paths.Accounting, "counts", id],
+    true
+  );
+}
 export function useUpdateStockForStockCountMutation() {
   const queryKey = [`${Paths.Accounting}/stocks`];
   const queryClient = useQueryClient();

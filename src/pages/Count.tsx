@@ -139,6 +139,10 @@ const Count = () => {
             const foundProduct = products?.find(
               (p) => p?._id === countListProduct.product
             );
+            // Skip deleted products
+            if (!foundProduct || foundProduct.deleted) {
+              return { product: "", countQuantity: 0 };
+            }
             const foundMenuItem = items?.find(
               (it) => it?.matchedProduct === countListProduct.product
             );
