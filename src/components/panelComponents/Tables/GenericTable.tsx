@@ -87,6 +87,7 @@ type Props<T> = {
   selectionActions?: ActionType<T>[];
   isToolTipEnabled?: boolean;
   isEmtpyExcel?: boolean;
+  collapsibleCell?: boolean;
   // Toggle, GenericTable sayfalarında search yanında gözükmeli
   // Eğer prop verilmezse, UnifiedTabPanel context'inden alınır
   showOrientationToggle?: boolean;
@@ -115,6 +116,7 @@ const GenericTable = <T,>({
   isExcel = false,
   isCollapsible = false,
   isToolTipEnabled = false,
+  collapsibleCell = false,
   isPagination = true,
   isRowsPerPage = true,
   isActionsAtFront = false,
@@ -168,6 +170,9 @@ const GenericTable = <T,>({
     key: string;
     direction: "ascending" | "descending";
   } | null>(null);
+  const [expandedCells, setExpandedCells] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     if (!title) return;
@@ -295,6 +300,13 @@ const GenericTable = <T,>({
     setExpandedRows((prevExpandedRows) => ({
       ...prevExpandedRows,
       [rowId]: !prevExpandedRows[rowId],
+    }));
+  };
+
+  const toggleCellExpansion = (cellId: string) => {
+    setExpandedCells((prevExpandedCells) => ({
+      ...prevExpandedCells,
+      [cellId]: !prevExpandedCells[cellId],
     }));
   };
 
@@ -527,7 +539,7 @@ const GenericTable = <T,>({
             }
             const cellValue = `${row[rowKey.key as keyof T]}`;
             const displayValue =
-              cellValue.length > tooltipLimit && isToolTipEnabled
+              cellValue.length > tooltipLimit && (isToolTipEnabled || collapsibleCell)
                 ? `${cellValue.substring(0, tooltipLimit)}...`
                 : cellValue;
             let style: React.CSSProperties = {};
@@ -555,12 +567,14 @@ const GenericTable = <T,>({
                 </td>
               );
             }
+            const cellId = `${rowIndex}-${keyIndex}`;
+            const isCellExpanded = expandedCells[cellId];
             return (
               <td
                 key={keyIndex}
                 className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                   rowKey?.className
-                } min-w-20 md:min-w-0 `}
+                } ${cellValue.length > tooltipLimit && collapsibleCell ? "max-w-xs" : "min-w-20 md:min-w-0"} `}
               >
                 {rowKey.isImage ? (
                   <img
@@ -574,6 +588,22 @@ const GenericTable = <T,>({
                       setIsImageModalOpen(true);
                     }}
                   />
+                ) : cellValue.length > tooltipLimit && collapsibleCell ? (
+                  <div className="flex flex-col gap-1 w-full">
+                    <P1 className="whitespace-pre-wrap break-words w-full">
+                      {isCellExpanded ? cellValue : displayValue}
+                    </P1>
+                    <FaChevronDown
+                      className="text-gray-500 cursor-pointer hover:text-blue-500 text-sm w-fit"
+                      onClick={() => toggleCellExpansion(cellId)}
+                      style={{
+                        transform: isCellExpanded
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.2s",
+                      }}
+                    />
+                  </div>
                 ) : cellValue.length > tooltipLimit && isToolTipEnabled ? (
                   <CustomTooltip content={cellValue}>
                     <P1>{displayValue}</P1>
