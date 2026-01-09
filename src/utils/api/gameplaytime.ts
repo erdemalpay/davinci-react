@@ -40,6 +40,7 @@ export const useGetGameplayTimes = (
     filters?.after && `after=${filters.after}`,
     filters?.before && `before=${filters.before}`,
     filters?.sort && `sort=${filters.sort}`,
+    filters?.search && `search=${filters.search}`,
     filters?.asc !== undefined && `asc=${filters.asc}`,
   ];
   const queryString = parts.filter(Boolean).join("&");
