@@ -1,8 +1,9 @@
-import { Chip, Tooltip } from "@material-tailwind/react";
+import { Tooltip } from "@material-tailwind/react";
 import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
@@ -99,6 +100,7 @@ const Tables = () => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
   const { setIsTabInputScreenOpen } = useGeneralContext();
   const { mutate: consumptStock } = useConsumptStockMutation();
@@ -1089,7 +1091,14 @@ const Tables = () => {
         return newMentors;
       }
     });
-  }, [defaultUser, visits, todayBreaks, activeGameplayTimes, selectedLocationId, users]);
+  }, [
+    defaultUser,
+    visits,
+    todayBreaks,
+    activeGameplayTimes,
+    selectedLocationId,
+    users,
+  ]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
@@ -1200,6 +1209,51 @@ const Tables = () => {
       tooltip: t("Waiting / Coming"),
     },
   ];
+
+  const renderCafeInfos = (className: string, keyPrefix: string) => {
+    if (
+      !(
+        activeTableCount > 0 ||
+        totalTableCount > 0 ||
+        activeCustomerCount > 0 ||
+        totalCustomerCount > 0
+      )
+    ) {
+      return null;
+    }
+
+    return (
+      <div
+        className={`border w-fit min-w-fit border-gray-400 rounded-md ${className}`}
+      >
+        <div className="grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
+          {cafeInfos.map((info, index) =>
+            info?.tooltip ? (
+              <Tooltip
+                key={`${keyPrefix}-${index}`}
+                content={info.tooltip}
+                placement="top"
+                className="!z-[999999999999999999999]"
+              >
+                <div className="flex flex-col items-center justify-center p-2 min-w-fit">
+                  <h4 className="text-center text-[14px]">{t(info.title)}</h4>
+                  <p className="font-thin">{info.value}</p>
+                </div>
+              </Tooltip>
+            ) : (
+              <div
+                key={`${keyPrefix}-${index}`}
+                className="flex flex-col items-center justify-center p-2 min-w-fit"
+              >
+                <h4 className="text-center text-[14px]">{t(info.title)}</h4>
+                <p className="font-thin">{info.value}</p>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const bgColorForUpperButtons = (table: Table, tableName?: string) => {
     const tableOrders = todayOrders?.filter(
@@ -1583,42 +1637,7 @@ const Tables = () => {
 
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
             {/*Cafe info opentables ...  */}
-            {(activeTableCount > 0 ||
-              totalTableCount > 0 ||
-              activeCustomerCount > 0 ||
-              totalCustomerCount > 0) && (
-              <div className="border  w-fit min-w-fit border-gray-400 rounded-md ">
-                <div className=" grid grid-cols-3  grid-rows-2 divide-x divide-y    divide-gray-200  ">
-                  {cafeInfos.map((info, index) =>
-                    info?.tooltip ? (
-                      <Tooltip
-                        key={index + "cafeinfo"}
-                        content={info.tooltip}
-                        placement="top"
-                        className="!z-[999999999999999999999]"
-                      >
-                        <div className="flex flex-col items-center justify-center p-2 min-w-fit">
-                          <h4 className="text-center text-[14px]">
-                            {t(info.title)}
-                          </h4>
-                          <p className="font-thin">{info.value}</p>
-                        </div>
-                      </Tooltip>
-                    ) : (
-                      <div
-                        key={index + "cafeinfo"}
-                        className="flex flex-col items-center justify-center p-2 min-w-fit"
-                      >
-                        <h4 className="text-center text-[14px]">
-                          {t(info.title)}
-                        </h4>
-                        <p className="font-thin">{info.value}</p>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
+            {renderCafeInfos("hidden md:block", "cafeinfo-desktop")}
             <div className="flex flex-col md:ml-8 justify-between w-full px-2 md:px-0 mt-2 md:mt-0">
               {/* who is/was at the cafe */}
               {selectedDate && isToday(selectedDate) ? (
@@ -1633,12 +1652,22 @@ const Tables = () => {
                     key={selectedDate + selectedLocationId + "active"}
                     visits={visits}
                   />
+                  {/* Cafe info for mobile - below "Kafeye giriş yap" */}
+                  {renderCafeInfos("md:hidden mt-4", "cafeinfo-mobile-today")}
                 </div>
               ) : (
-                <PreviousVisitList visits={visits} />
+                <>
+                  <PreviousVisitList visits={visits} />
+                  {/* Cafe info for mobile - below "Kafeye giriş yap" */}
+                  {renderCafeInfos(
+                    "md:hidden mt-4",
+                    "cafeinfo-mobile-previous"
+                  )}
+                </>
               )}
               {/* filters */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-row lg:gap-4 lg:justify-start justify-end mt-4">
+              {/* Desktop: Original layout */}
+              <div className="hidden lg:flex lg:flex-row lg:gap-4 justify-end mt-4">
                 {switchFilters.map((filter, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <H5>{filter.label}</H5>
@@ -1648,6 +1677,43 @@ const Tables = () => {
                     />
                   </div>
                 ))}
+              </div>
+
+              {/* Mobile: Collapsible filters */}
+              <div className="lg:hidden mt-4">
+                <button
+                  onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+                  className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-md transition-colors"
+                >
+                  <span className="font-medium text-sm text-gray-700">
+                    {t("Filters")}
+                  </span>
+                  {isFiltersExpanded ? (
+                    <FaChevronUp className="text-gray-600" size={14} />
+                  ) : (
+                    <FaChevronDown className="text-gray-600" size={14} />
+                  )}
+                </button>
+                {isFiltersExpanded && (
+                  <div className="mt-2 border border-gray-300 rounded-md bg-white">
+                    <div className="flex flex-col divide-y divide-gray-200">
+                      {switchFilters.map((filter, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between px-3 py-2.5"
+                        >
+                          <H5 className="text-sm font-medium text-gray-700">
+                            {filter.label}
+                          </H5>
+                          <SwitchButton
+                            checked={filter.checked}
+                            onChange={filter.onChange as any}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
