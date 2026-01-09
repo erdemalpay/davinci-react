@@ -419,7 +419,8 @@ const Checklist = () => {
             key={tableKey}
             rowKeys={rowKeys}
             columns={columns}
-            isToolTipEnabled={true}
+            isToolTipEnabled={false}
+            collapsibleCell={true}
             rows={rows()}
             actions={!isDisabledCondition ? actions : undefined}
             addButton={!isDisabledCondition ? addButton : undefined}
