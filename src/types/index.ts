@@ -594,6 +594,11 @@ export enum DisabledConditionEnum {
   ACCOUNTING_ACTIONS = "actions",
   MENU = "menu",
   MENU_CATEGORIES = "menu_categories",
+  VISITS_VISITSCHEDULEOVERVIEW = "visits_visitscheduleoverview",
+  VISITS_ALLVISITS = "visits_allvisits",
+  VISITS_SHIFTS = "visits_shifts",
+
+
 }
 
 export enum ActionEnum {
@@ -640,6 +645,10 @@ export enum ActionEnum {
   SHOW_ON_MENU = "show_on_menu",
   SHOW_IKAS_CATEGORIES = "show_ikas_categories",
   POPULARIZE = "popularize",
+  ASSIGN_CHEF = "assign_chef",
+  COPY_DAY_INTERVAL = "copy_day_interval",
+  COPY_SHIFT = "copy_shift",
+
 }
 
 export type Membership = {

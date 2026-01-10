@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
@@ -10,13 +10,15 @@ import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OptionType,
-  RoleEnum,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useCopyShiftIntervalMutation,
   useCopyShiftMutation,
@@ -68,6 +70,7 @@ const Shifts = () => {
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
   const { selectedLocationId: globalSelectedLocationId } = useLocationContext();
+  const disabledConditions = useGetDisabledConditions();
   const [selectedLocationId, setSelectedLocationId] = useState(
     globalSelectedLocationId
   );
@@ -95,13 +98,9 @@ const Shifts = () => {
     selectedLocationId
   );
   const { user } = useUserContext();
-  const isDisabledCondition = user
-    ? ![
-        RoleEnum.MANAGER,
-        RoleEnum.GAMEMANAGER,
-        RoleEnum.OPERATIONSASISTANT,
-      ].includes(user?.role?._id)
-    : true;
+  const shiftsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.VISITS_SHIFTS, disabledConditions);
+  }, [disabledConditions]);
   const [rowToAction, setRowToAction] = useState<any>();
   const { updateShift, createShift, deleteShift } = useShiftMutations(
     filterPanelFormElements?.after,
@@ -521,10 +520,7 @@ const Shifts = () => {
         isSortable: false,
         correspondingKey: shift.shift,
       });
-      if (
-        isDisabledCondition ||
-        (!isShiftsEnableEdit && !isDisabledCondition)
-      ) {
+      if (!isShiftsEnableEdit) {
         rowKeys.push({
           key: shiftKey,
           node: (row: any) => {
@@ -981,115 +977,159 @@ const Shifts = () => {
   if (isShiftsEnableEdit && selectedLocationId !== -1) {
     columns.push({ key: t("Actions"), isSortable: false } as any);
   }
-  const actions = [
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-2xl text-blue-500 cursor-pointer",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: (
-        <GenericAddEditPanel
-          isOpen={isShiftsEditModalOpen}
-          close={() => setIsShiftsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
-          constantValues={rowToAction}
-          submitItem={updateShift as any}
-          isEditMode={true}
-          setForm={setForm}
-          handleUpdate={() => {
-            // handle create
-            if (!rowToAction?._id && foundLocation) {
-              const shifts = foundLocation?.shifts?.map((shift) => ({
-                shift: shift.shift,
-                ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
-                user: form?.[shift.shift],
-              }));
-              createShift({
-                shifts,
-                location: foundLocation?._id,
-                day: form.day,
-              });
-            }
-            // handle update
-            else {
-              const shifts = foundLocation?.shifts?.map((shift) => ({
-                shift: shift.shift,
-                ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
-                user: form?.[shift.shift],
-              }));
-              updateShift({
-                id: rowToAction?._id,
-                updates: {
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Edit"),
+        icon: <FiEdit />,
+        className: "text-2xl text-blue-500 cursor-pointer",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: (
+          <GenericAddEditPanel
+            isOpen={isShiftsEditModalOpen}
+            close={() => setIsShiftsEditModalOpen(false)}
+            inputs={inputs}
+            formKeys={formKeys}
+            constantValues={rowToAction}
+            submitItem={updateShift as any}
+            isEditMode={true}
+            setForm={setForm}
+            handleUpdate={() => {
+              // handle create
+              if (!rowToAction?._id && foundLocation) {
+                const shifts = foundLocation?.shifts?.map((shift) => ({
+                  shift: shift.shift,
+                  ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
+                  user: form?.[shift.shift],
+                }));
+                createShift({
                   shifts,
-                },
-              });
-            }
-          }}
-          topClassName="flex flex-col gap-2  "
-        />
-      ),
-      isModalOpen: isShiftsEditModalOpen,
-      setIsModal: setIsShiftsEditModalOpen,
-      isPath: false,
-      isDisabled: isDisabledCondition || selectedLocationId === -1,
-    },
-    {
-      name: t("Delete"),
-      isDisabled: isDisabledCondition || selectedLocationId === -1,
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deleteShift(rowToAction?._id);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title="Delete Shift"
-          text={`Shift will be deleted. Are you sure you want to continue?`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl  ",
+                  location: foundLocation?._id,
+                  day: form.day,
+                });
+              }
+              // handle update
+              else {
+                const shifts = foundLocation?.shifts?.map((shift) => ({
+                  shift: shift.shift,
+                  ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
+                  user: form?.[shift.shift],
+                }));
+                updateShift({
+                  id: rowToAction?._id,
+                  updates: {
+                    shifts,
+                  },
+                });
+              }
+            }}
+            topClassName="flex flex-col gap-2  "
+          />
+        ),
+        isModalOpen: isShiftsEditModalOpen,
+        setIsModal: setIsShiftsEditModalOpen,
+        isPath: false,
+        isDisabled:
+          selectedLocationId === -1 ||
+          shiftsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
+      },
+      {
+        name: t("Delete"),
+        isDisabled:
+          selectedLocationId === -1 ||
+          shiftsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.DELETE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteShift(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title="Delete Shift"
+            text={`Shift will be deleted. Are you sure you want to continue?`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl  ",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+      },
+      {
+        name: t("Copy Shift"),
+        icon: <LuCopyPlus />,
+        className: "text-2xl mt-1 cursor-pointer",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isCopyShiftModalOpen}
+            close={() => setIsCopyShiftModalOpen(false)}
+            inputs={copyShiftInputs}
+            setForm={setCopyShiftForm}
+            formKeys={copyShiftFormKeys}
+            submitItem={copyShift as any}
+            isEditMode={false}
+            constantValues={{
+              selectedDay: rowToAction?.day,
+              location: selectedLocationId,
+            }}
+            topClassName="flex flex-col gap-2  "
+          />
+        ) : null,
+        isModalOpen: isCopyShiftModalOpen,
+        setIsModal: setIsCopyShiftModalOpen,
+        isPath: false,
+        isDisabled:
+          selectedLocationId === -1 ||
+          shiftsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.COPY_SHIFT &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
+      },
+  ],
+    [
+      t,
+      isShiftsEditModalOpen,
+      inputs,
+      formKeys,
+      rowToAction,
+      updateShift,
+      foundLocation,
+      form,
+      createShift,
+      selectedLocationId,
+      shiftsDisabledCondition,
+      user,
+      isCloseAllConfirmationDialogOpen,
+      deleteShift,
+      isCopyShiftModalOpen,
+      copyShiftInputs,
+      copyShiftFormKeys,
+      copyShift,
+    ]
+  );
+  const copyShiftIntervalButton = useMemo(
+    () => ({
+      name: t(`Copy Shift Interval`),
       isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-    },
-    {
-      name: t("Copy Shift"),
-      icon: <LuCopyPlus />,
-      className: "text-2xl mt-1 cursor-pointer",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isCopyShiftModalOpen}
-          close={() => setIsCopyShiftModalOpen(false)}
-          inputs={copyShiftInputs}
-          setForm={setCopyShiftForm}
-          formKeys={copyShiftFormKeys}
-          submitItem={copyShift as any}
-          isEditMode={false}
-          constantValues={{
-            selectedDay: rowToAction?.day,
-            location: selectedLocationId,
-          }}
-          topClassName="flex flex-col gap-2  "
-        />
-      ) : null,
-      isModalOpen: isCopyShiftModalOpen,
-      setIsModal: setIsCopyShiftModalOpen,
-      isPath: false,
-      isDisabled: isDisabledCondition || selectedLocationId === -1,
-    },
-  ];
-  const copyShiftIntervalButton = {
-    name: t(`Copy Shift Interval`),
-    isModal: true,
-    modal: (
+      modal: (
       <GenericAddEditPanel
         isOpen={isCopyShiftIntervalModalOpen}
         close={() => setIsCopyShiftIntervalModalOpen(false)}
@@ -1102,28 +1142,46 @@ const Shifts = () => {
         submitItem={copyShiftInterval as any}
         topClassName="flex flex-col gap-2 "
       />
-    ),
-    isModalOpen: isCopyShiftIntervalModalOpen,
-    setIsModal: setIsCopyShiftIntervalModalOpen,
-    isPath: false,
-    isDisabled: isDisabledCondition,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-  };
-  const filters = [
-    {
-      isUpperSide: true,
-      node: (
-        <ButtonFilter
-          buttonName={t("All")}
-          onclick={() => {
-            setSelectedLocationId(-1);
-          }}
-          backgroundColor="#6B7280"
-          isActive={selectedLocationId === -1}
-        />
       ),
-    },
+      isModalOpen: isCopyShiftIntervalModalOpen,
+      setIsModal: setIsCopyShiftIntervalModalOpen,
+      isPath: false,
+      isDisabled: shiftsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.COPY_DAY_INTERVAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
+      icon: null,
+      className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    }),
+    [
+      t,
+      isCopyShiftIntervalModalOpen,
+      setCopyShiftIntervalForm,
+      selectedLocationId,
+      copyShifIntervaltInputs,
+      copyShiftIntervalFormKeys,
+      copyShiftInterval,
+      shiftsDisabledCondition,
+      user,
+    ]
+  );
+  const filters = useMemo(
+    () => [
+      {
+        isUpperSide: true,
+        node: (
+          <ButtonFilter
+            buttonName={t("All")}
+            onclick={() => {
+              setSelectedLocationId(-1);
+            }}
+            backgroundColor="#6B7280"
+            isActive={selectedLocationId === -1}
+          />
+        ),
+      },
     ...locations.map((location) => {
       return {
         isUpperSide: true,
@@ -1162,7 +1220,12 @@ const Shifts = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: shiftsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ASSIGN_CHEF &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Enable Edit"),
@@ -1175,9 +1238,28 @@ const Shifts = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: shiftsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
-  ];
+  ],
+    [
+      t,
+      selectedLocationId,
+      locations,
+      showShiftsFilters,
+      setShowShiftsFilters,
+      isChefAssignOpen,
+      setIsChefAssignOpen,
+      shiftsDisabledCondition,
+      user,
+      isShiftsEnableEdit,
+      setIsShiftsEnableEdit,
+    ]
+  );
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -1298,7 +1380,15 @@ const Shifts = () => {
           "  " +
           t("Shifts")
         }
-        isExcel={true}
+        isExcel={
+          user &&
+          !shiftsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.EXCEL &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          )
+        }
         filterPanel={filterPanel as any}
         excelFileName={`${
           (getItem(selectedLocationId, locations)?.name || "All") +

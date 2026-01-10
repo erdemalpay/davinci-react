@@ -3,13 +3,17 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { useFilterContext } from "../../context/Filter.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   LocationShiftType,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useAddShiftMutation, useGetUserShifts } from "../../utils/api/shift";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetUniqueVisits } from "../../utils/api/visit";
@@ -21,8 +25,10 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const VisitScheduleOverview = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
+  const disabledConditions = useGetDisabledConditions();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);
   const initialFilterPanelFormElements = {
@@ -53,6 +59,13 @@ const VisitScheduleOverview = () => {
     shift: "",
     shiftEndHour: "",
   });
+
+  const visitScheduleOverviewDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.VISITS_VISITSCHEDULEOVERVIEW,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     const allRows = visits
@@ -392,6 +405,12 @@ const VisitScheduleOverview = () => {
         isModalOpen: isAddShiftModalOpen,
         setIsModal: setIsAddShiftModalOpen,
         isPath: false,
+        isDisabled: visitScheduleOverviewDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ADD &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -405,6 +424,8 @@ const VisitScheduleOverview = () => {
       addShiftForm.shift,
       rowToAction,
       locations,
+      visitScheduleOverviewDisabledCondition,
+      user,
     ]
   );
 
@@ -442,7 +463,15 @@ const VisitScheduleOverview = () => {
           isActionsActive={true}
           filterPanel={filterPanel}
           filters={filters}
-          isExcel={true}
+          isExcel={
+            user &&
+            !visitScheduleOverviewDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={"VisitSchedule.xlsx"}
           title={t("Visit Schedule Overview")}
         />
