@@ -205,3 +205,19 @@ export function useUpdateIkasPricesMutation() {
     },
   });
 }
+export function updateShopifyPrices() {
+  return post<any, any>({
+    path: `${Paths.MenuItems}/shopify/sync-all-prices`,
+    payload: {},
+  });
+}
+export function useUpdateShopifyPricesMutation() {
+  return useMutation({
+    mutationFn: updateShopifyPrices,
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}

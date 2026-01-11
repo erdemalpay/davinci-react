@@ -24,6 +24,7 @@ import Feedback from "../pages/Feedback";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import IkasPickUp from "../pages/IkasPickUp";
+import ShopifyPickUp from "../pages/ShopifyPickUp";
 import Images from "../pages/Images";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Memberships from "../pages/Memberships";
@@ -123,6 +124,7 @@ export enum Routes {
   Activities = "/activities",
   DailySummary = "/daily-summary",
   IkasPickUp = "/ikas-pickup",
+  ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
   Consumers = "/consumers",
 }
@@ -231,6 +233,12 @@ export const allRoutes: {
     name: "Ikas Pick Up",
     path: Routes.IkasPickUp,
     element: IkasPickUp,
+    isOnSidebar: true,
+  },
+  {
+    name: "Shopify Pick Up",
+    path: Routes.ShopifyPickUp,
+    element: ShopifyPickUp,
     isOnSidebar: true,
   },
   {

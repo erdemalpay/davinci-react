@@ -561,6 +561,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       {
         type: InputTypes.TEXT,
+        formKey: "shopifyId",
+        label: "Shopify ID",
+        placeholder: "Shopify ID",
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
         formKey: "sku",
         label: "Sku",
         placeholder: "Sku",
@@ -608,6 +615,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
       { key: "productCategories", type: FormKeyTypeEnum.STRING },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
+      { key: "shopifyId", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
       { key: "startDate", type: FormKeyTypeEnum.STRING },
@@ -641,6 +649,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         ? [{ key: t("Ikas Categories"), isSortable: false }]
         : []),
       { key: "Ikas ID", isSortable: true },
+      { key: "Shopify ID", isSortable: true },
       { key: t("Created At"), isSortable: true },
       ...(showMenuBarcodeInfo
         ? [
@@ -758,6 +767,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         : []),
       {
         key: "ikasId",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "shopifyId",
         className: "min-w-32 pr-1",
       },
       {

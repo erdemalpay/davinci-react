@@ -21,6 +21,8 @@ import DessertStock from "../components/stocks/DessertStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import IkasPriceComparision from "../components/stocks/IkasPriceComparision";
 import IkasStockComparision from "../components/stocks/IkasStockComparision";
+import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
+import ShopifyStockComparision from "../components/stocks/ShopifyStockComparision";
 import LossProduct from "../components/stocks/LossProduct";
 import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
 import VendorOrder from "../components/stocks/VendorOrder";
@@ -92,6 +94,20 @@ export const StockPageTabs = [
     label: "Ikas Price Comparision",
     icon: <MdOutlinePriceChange className="text-lg font-thin" />,
     content: <IkasPriceComparision />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.SHOPIFYSTOCKCOMPARISION,
+    label: "Shopify Stock Comparision",
+    icon: <MdOutlineCompare className="text-lg font-thin" />,
+    content: <ShopifyStockComparision />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.SHOPIFYPRICECOMPARISION,
+    label: "Shopify Price Comparision",
+    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
+    content: <ShopifyPriceComparision />,
     isDisabled: false,
   },
   {

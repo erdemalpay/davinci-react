@@ -71,6 +71,9 @@ type OrderContextType = {
   initialIkasPickUpFilterPanelFormElements: FormElementsState;
   ikasPickUpFilterPanelFormElements: FormElementsState;
   setIkasPickUpFilterPanelFormElements: (state: FormElementsState) => void;
+  initialShopifyPickUpFilterPanelFormElements: FormElementsState;
+  shopifyPickUpFilterPanelFormElements: FormElementsState;
+  setShopifyPickUpFilterPanelFormElements: (state: FormElementsState) => void;
   setFilterPanelFormElements: (state: FormElementsState) => void;
   filterSummaryFormElements: FormElementsState;
   setFilterSummaryFormElements: (state: FormElementsState) => void;
@@ -311,6 +314,31 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     ikasPickUpFilterPanelFormElements,
     setIkasPickUpFilterPanelFormElements,
   ] = useState<FormElementsState>(initialIkasPickUpFilterPanelFormElements);
+  const initialShopifyPickUpFilterPanelFormElements = {
+    location: "",
+    user: "",
+    status: "",
+    collectionStatus: "",
+    before: "",
+    after: `${format(new Date(), "yyyy")}-01-01`,
+    date: "",
+    category: "",
+    discount: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    hour: "",
+    item: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+    eliminatedDiscounts: [],
+    cancelHour: "",
+  };
+  const [
+    shopifyPickUpFilterPanelFormElements,
+    setShopifyPickUpFilterPanelFormElements,
+  ] = useState<FormElementsState>(initialShopifyPickUpFilterPanelFormElements);
   const [todaysOrderDate, setTodaysOrderDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
@@ -408,9 +436,12 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setShowPickedOrders,
         ikasPickUpFilterPanelFormElements,
         setIkasPickUpFilterPanelFormElements,
+        shopifyPickUpFilterPanelFormElements,
+        setShopifyPickUpFilterPanelFormElements,
         selectedNewOrders,
         setSelectedNewOrders,
         initialIkasPickUpFilterPanelFormElements,
+        initialShopifyPickUpFilterPanelFormElements,
         isExtraModalOpen,
         setIsExtraModalOpen,
       }}

@@ -108,6 +108,30 @@ export function useUpdateIkasStocksMutation() {
     },
   });
 }
+export function updateShopifyStocks() {
+  return post<any, any>({
+    path: `${Paths.Shopify}/update-all-stocks`,
+    payload: {},
+  });
+}
+export function useUpdateShopifyStocksMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateShopifyStocks,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 export function updateProductBaseStocks() {
   return post<any, any>({
     path: `${Paths.Accounting}/stocks/create-all-product`,
