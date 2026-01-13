@@ -657,7 +657,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           ]
         : []),
       { key: t("Shown In Menu"), isSortable: false },
-      { key: t("Auto Served"), isSortable: false },
+      // { key: t("Auto Served"), isSortable: false },
       { key: t("Auto Prepared"), isSortable: false },
     ];
 
@@ -799,25 +799,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           );
         },
       },
-      {
-        key: "isAutoServed",
-        node: (row: MenuItem) => {
-          return (
-            <CheckSwitch
-              checked={row?.isAutoServed ?? false}
-              onChange={() => {
-                updateItem({
-                  id: row._id,
-                  updates: {
-                    ...row,
-                    isAutoServed: !row.isAutoServed,
-                  },
-                });
-              }}
-            />
-          );
-        },
-      },
+      // {
+      //   key: "isAutoServed",
+      //   node: (row: MenuItem) => {
+      //     return (
+      //       <CheckSwitch
+      //         checked={row?.isAutoServed ?? false}
+      //         onChange={() => {
+      //           updateItem({
+      //             id: row._id,
+      //             updates: {
+      //               ...row,
+      //               isAutoServed: !row.isAutoServed,
+      //             },
+      //           });
+      //         }}
+      //       />
+      //     );
+      //   },
+      // },
       {
         key: "isAutoPrepared",
         node: (row: MenuItem) => {
