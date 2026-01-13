@@ -48,5 +48,9 @@ export function useGetQueryChecks(
   const queryString = parts.filter(Boolean).join("&");
   const url = `${baseUrl}/query?${queryString}`;
 
-  return useGet<CheckPayload>(url, [url, page, limit, filters], true);
+  return useGet<CheckPayload>(
+    url,
+    [`${baseUrl}/query`, page, limit, filters],
+    true
+  );
 }
