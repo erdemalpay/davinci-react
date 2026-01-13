@@ -597,8 +597,6 @@ export enum DisabledConditionEnum {
   VISITS_VISITSCHEDULEOVERVIEW = "visits_visitscheduleoverview",
   VISITS_ALLVISITS = "visits_allvisits",
   VISITS_SHIFTS = "visits_shifts",
-
-
 }
 
 export enum ActionEnum {
@@ -648,7 +646,6 @@ export enum ActionEnum {
   ASSIGN_CHEF = "assign_chef",
   COPY_DAY_INTERVAL = "copy_day_interval",
   COPY_SHIFT = "copy_shift",
-
 }
 
 export type Membership = {
@@ -717,6 +714,7 @@ export type MenuItem = {
   suggestedDiscount?: number[];
   order: number;
   isAutoServed?: boolean;
+  isAutoPrepared?: boolean;
   itemProduction?: {
     product: string;
     quantity: number;

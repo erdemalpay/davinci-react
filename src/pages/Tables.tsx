@@ -1134,6 +1134,20 @@ const Tables = () => {
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
+    if (user && selectedMenuItem && selectedMenuItem?.isAutoPrepared) {
+      return {
+        ...orderForm,
+        createdAt: new Date(),
+        location: selectedLocationId,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        status: OrderStatus.READYTOSERVE,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
+      };
+    }
     // Check if the menu item is not automatically served
     if (selectedMenuItem && !selectedMenuItemCategory?.isAutoServed) {
       return {
