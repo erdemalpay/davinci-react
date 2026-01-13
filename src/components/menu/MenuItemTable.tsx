@@ -658,6 +658,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         : []),
       { key: t("Shown In Menu"), isSortable: false },
       { key: t("Auto Served"), isSortable: false },
+      { key: t("Auto Prepared"), isSortable: false },
     ];
 
     const keys = [
@@ -810,6 +811,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                   updates: {
                     ...row,
                     isAutoServed: !row.isAutoServed,
+                  },
+                });
+              }}
+            />
+          );
+        },
+      },
+      {
+        key: "isAutoPrepared",
+        node: (row: MenuItem) => {
+          return (
+            <CheckSwitch
+              checked={row?.isAutoPrepared ?? false}
+              onChange={() => {
+                updateItem({
+                  id: row._id,
+                  updates: {
+                    ...row,
+                    isAutoPrepared: !row.isAutoPrepared,
                   },
                 });
               }}

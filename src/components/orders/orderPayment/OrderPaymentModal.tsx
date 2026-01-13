@@ -873,6 +873,22 @@ const OrderPaymentModal = ({
         tableDate: new Date(table?.date),
       };
     }
+    if (user && selectedMenuItem && selectedMenuItem?.isAutoPrepared) {
+      return {
+        ...orderForm,
+        createdAt: new Date(),
+        location: table?.isOnlineSale ? 4 : selectedLocationId,
+        table: table._id,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        status: OrderStatus.READYTOSERVE,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
+        tableDate: new Date(table.date),
+      };
+    }
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
