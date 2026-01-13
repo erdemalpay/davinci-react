@@ -21,25 +21,28 @@ type Props = {
   orderStatus: Partial<OrderStatus>[];
   tableId: number;
   tableOrdersProp?: Order[];
-
 };
 type DisabledButtons = {
   [key: string]: boolean;
 };
 
-const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) => {
+const OrderListForPanelTab = ({
+  tableId,
+  orderStatus,
+  tableOrdersProp,
+}: Props) => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const { updateOrder, createOrder } = useOrderMutations();
-  const tableOrders = tableOrdersProp?? useGetTableOrders(tableId) 
+  const tableOrders = tableOrdersProp ?? useGetTableOrders(tableId);
   const [key, setKey] = useState(0);
   const orders = tableOrders?.filter((order) =>
-    orderStatus.includes(order.status as OrderStatus)
+    orderStatus.includes(order?.status as OrderStatus)
   );
   const [disabledButtons, setDisabledButtons] = useState<DisabledButtons>({});
   const { mutate: updateOrderCancel } = useUpdateOrderForCancelMutation();
   const orderWaitTime = (order: Order) => {
-    const orderTime = new Date(order.createdAt).getTime();
+    const orderTime = new Date(order?.createdAt).getTime();
     const currentTime = new Date().getTime();
     return Math.floor((currentTime - orderTime) / 60000);
   };
@@ -50,14 +53,14 @@ const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) 
     return <></>;
   }
   const handleCancel = (order: Order) => {
-    if (disabledButtons[order._id]) {
+    if (disabledButtons[order?._id]) {
       toast.info(t("Action already processed."));
       return;
     }
-    setDisabledButtons((prev) => ({ ...prev, [order._id]: true }));
+    setDisabledButtons((prev) => ({ ...prev, [order?._id]: true }));
 
     updateOrderCancel({
-      id: order._id,
+      id: order?._id,
       updates: {
         status: OrderStatus.CANCELLED,
         cancelledAt: new Date(),
@@ -79,10 +82,10 @@ const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) 
           orderItemCategory?.kitchen,
           kitchens
         )?.isConfirmationRequired;
-        if (!order || order.status === OrderStatus.CANCELLED) return null;
+        if (!order || order?.status === OrderStatus.CANCELLED) return null;
         return (
           <div
-            key={order._id}
+            key={order?._id}
             className={`flex justify-between text-xs  rounded-lg items-center px-2 py-1 mb-1 ${orderBgColor(
               order
             )} `}
@@ -92,16 +95,16 @@ const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) 
               <FiMinusCircle
                 className="w-5 h-5 flex-shrink-0  text-red-500  hover:text-red-800 cursor-pointer focus:outline-none"
                 onClick={() => {
-                  if (order.quantity === 1) {
+                  if (order?.quantity === 1) {
                     toast.error(t("Order quantity cannot be less than 1"));
                     return;
                   }
                   if (
-                    order.paidQuantity > 0 &&
+                    order?.paidQuantity > 0 &&
                     !(
-                      order.discount &&
+                      order?.discount &&
                       ((order?.discountAmount &&
-                        order?.discountAmount >= order.unitPrice) ||
+                        order?.discountAmount >= order?.unitPrice) ||
                         (order?.discountPercentage &&
                           order?.discountPercentage >= 100))
                     )
@@ -110,34 +113,34 @@ const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) 
                     return;
                   }
                   let updates = {
-                    quantity: order.quantity - 1,
-                    paidQuantity: order.paidQuantity,
+                    quantity: order?.quantity - 1,
+                    paidQuantity: order?.paidQuantity,
                   };
                   if (
-                    order.discount &&
+                    order?.discount &&
                     ((order?.discountAmount &&
-                      order?.discountAmount >= order.unitPrice) ||
+                      order?.discountAmount >= order?.unitPrice) ||
                       (order?.discountPercentage &&
                         order?.discountPercentage >= 100))
                   ) {
                     updates = {
-                      quantity: order.quantity - 1,
-                      paidQuantity: order.paidQuantity - 1,
+                      quantity: order?.quantity - 1,
+                      paidQuantity: order?.paidQuantity - 1,
                     };
                   }
                   if (
                     ![OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
-                      order.status as OrderStatus
+                      order?.status as OrderStatus
                     )
                   ) {
                     updateOrder({
-                      id: order._id,
+                      id: order?._id,
                       updates: updates,
                     });
                   }
                   if (
                     [OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
-                      order.status as OrderStatus
+                      order?.status as OrderStatus
                     )
                   ) {
                     createOrder({
@@ -147,7 +150,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) 
                       paidQuantity: 0,
                     });
                     updateOrder({
-                      id: order._id,
+                      id: order?._id,
                       updates: updates,
                     });
                   }
@@ -156,26 +159,26 @@ const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) 
               {/* name and quantity */}
               <div className="flex w-5/6 gap-1 items-center">
                 <p>{orderItem?.name}</p>
-                <h1 className="text-xs">({order.quantity})</h1>
+                <h1 className="text-xs">({order?.quantity})</h1>
               </div>
               {/* increment */}
               <GoPlusCircle
                 className="w-5 h-5 flex-shrink-0  text-green-500  hover:text-green-800 cursor-pointer focus:outline-none"
                 onClick={() => {
-                  if (order.discount) {
+                  if (order?.discount) {
                     toast.error(t("Discounted orders cannot be increased."));
                     return;
                   }
                   if (
                     ![OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
-                      order.status as OrderStatus
+                      order?.status as OrderStatus
                     ) &&
-                    !order.discount
+                    !order?.discount
                   ) {
                     updateOrder({
-                      id: order._id,
+                      id: order?._id,
                       updates: {
-                        quantity: order.quantity + 1,
+                        quantity: order?.quantity + 1,
                       },
                     });
                   } else {
@@ -195,34 +198,40 @@ const OrderListForPanelTab = ({ tableId, orderStatus, tableOrdersProp }: Props) 
             </div>
 
             <div className="flex flex-row gap-2 items-center">
-              {(order.activityTableName || order.activityPlayer) &&
-                (order.status === OrderStatus.READYTOSERVE ||
-                  order.status === OrderStatus.SERVED) && (
+              {(order?.activityTableName || order?.activityPlayer) &&
+                (order?.status === OrderStatus.READYTOSERVE ||
+                  order?.status === OrderStatus.SERVED) && (
                   <p className="text-xs text-gray-700 whitespace-nowrap">
-                    {order.activityTableName && `${t("TableShort")}:${order.activityTableName}`}
-                    {order.activityTableName && order.activityPlayer && " - "}
-                    {order.activityPlayer && `${t("PlayerShort")}:${order.activityPlayer}`}
+                    {order?.activityTableName &&
+                      `${t("TableShort")}:${order?.activityTableName}`}
+                    {order?.activityTableName && order?.activityPlayer && " - "}
+                    {order?.activityPlayer &&
+                      `${t("PlayerShort")}:${order?.activityPlayer}`}
                   </p>
                 )}
-              {(order.status === OrderStatus.PENDING ||
-                order.status === OrderStatus.AUTOSERVED) &&
-                (order.activityTableName || order.activityPlayer) && (
-                <div className="flex flex-row gap-[1px]">
-                  <h5 className="text-xs  text-gray-700 whitespace-nowrap min-w-8">
-                    {orderWaitTime(order)}{" "}
-                    {i18n.language?.startsWith("tr") ? "dk" : "m"} /
-                  </h5>
-                <p className="text-xs text-gray-700 whitespace-nowrap">
-                    {order.activityTableName && `${t("TableShort")}:${order.activityTableName}`}
-                    {order.activityTableName && order.activityPlayer && " - "}
-                    {order.activityPlayer && `${t("PlayerShort")}:${order.activityPlayer}`}
-                </p>
-                </div>
-              )}
-              {(order.paidQuantity === 0 ||
-                (order.discount &&
+              {(order?.status === OrderStatus.PENDING ||
+                order?.status === OrderStatus.AUTOSERVED) &&
+                (order?.activityTableName || order?.activityPlayer) && (
+                  <div className="flex flex-row gap-[1px]">
+                    <h5 className="text-xs  text-gray-700 whitespace-nowrap min-w-8">
+                      {orderWaitTime(order)}{" "}
+                      {i18n.language?.startsWith("tr") ? "dk" : "m"} /
+                    </h5>
+                    <p className="text-xs text-gray-700 whitespace-nowrap">
+                      {order?.activityTableName &&
+                        `${t("TableShort")}:${order?.activityTableName}`}
+                      {order?.activityTableName &&
+                        order?.activityPlayer &&
+                        " - "}
+                      {order?.activityPlayer &&
+                        `${t("PlayerShort")}:${order?.activityPlayer}`}
+                    </p>
+                  </div>
+                )}
+              {(order?.paidQuantity === 0 ||
+                (order?.discount &&
                   ((order?.discountAmount &&
-                    order?.discountAmount >= order.unitPrice) ||
+                    order?.discountAmount >= order?.unitPrice) ||
                     (order?.discountPercentage &&
                       order?.discountPercentage >= 100)))) && (
                 <HiOutlineTrash

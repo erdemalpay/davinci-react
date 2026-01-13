@@ -193,7 +193,7 @@ const OrderPaymentModal = ({
       orders?.filter(
         (order) =>
           (order?.table as Table)?._id === tableId &&
-          order.status !== OrderStatus.CANCELLED
+          order?.status !== OrderStatus.CANCELLED
       ),
     [orders, tableId]
   );
@@ -202,14 +202,14 @@ const OrderPaymentModal = ({
       allTableOrders?.filter(
         (order) =>
           selectedActivityUser === "" ||
-          order.activityPlayer === selectedActivityUser
+          order?.activityPlayer === selectedActivityUser
       ),
     [allTableOrders, selectedActivityUser]
   );
   const allTotalAmount = useMemo(
     () =>
       allTableOrders?.reduce((acc, order) => {
-        return acc + order.unitPrice * order.quantity;
+        return acc + order?.unitPrice * order?.quantity;
       }, 0),
     [allTableOrders]
   );
@@ -251,15 +251,15 @@ const OrderPaymentModal = ({
   const allDiscountAmount = useMemo(
     () =>
       allTableOrders?.reduce((acc, order) => {
-        if (!order.discount) {
+        if (!order?.discount) {
           return acc;
         }
         const discountValue =
-          (order.unitPrice *
-            order.quantity *
+          (order?.unitPrice *
+            order?.quantity *
             (order?.discountPercentage ?? 0)) /
             100 +
-          (order?.discountAmount ?? 0) * order.quantity;
+          (order?.discountAmount ?? 0) * order?.quantity;
         return acc + discountValue;
       }, 0),
     [allTableOrders]
@@ -269,15 +269,15 @@ const OrderPaymentModal = ({
   const discountAmount = useMemo(
     () =>
       tableOrders?.reduce((acc, order) => {
-        if (!order.discount) {
+        if (!order?.discount) {
           return acc;
         }
         const discountValue =
-          (order.unitPrice *
-            order.quantity *
+          (order?.unitPrice *
+            order?.quantity *
             (order?.discountPercentage ?? 0)) /
             100 +
-          (order?.discountAmount ?? 0) * order.quantity;
+          (order?.discountAmount ?? 0) * order?.quantity;
         return acc + discountValue;
       }, 0),
     [tableOrders]
@@ -285,13 +285,13 @@ const OrderPaymentModal = ({
   const totalAmount = useMemo(
     () =>
       tableOrders?.reduce((acc, order) => {
-        return acc + order.unitPrice * order.quantity;
+        return acc + order?.unitPrice * order?.quantity;
       }, 0),
     [tableOrders]
   );
   const isTableItemsPaid = useMemo(
     () =>
-      tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
+      tableOrders?.every((order) => order?.paidQuantity === order?.quantity) &&
       collectionsTotalAmount >= totalAmount - discountAmount,
     [tableOrders, collectionsTotalAmount, totalAmount, discountAmount]
   );
@@ -301,7 +301,7 @@ const OrderPaymentModal = ({
   );
 
   const isAllItemsPaid =
-    allTableOrders?.every((order) => order.paidQuantity === order.quantity) &&
+    allTableOrders?.every((order) => order?.paidQuantity === order?.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
   const unpaidAmount = Math.min(
     totalAmount - discountAmount - collectionsTotalAmount,
@@ -316,26 +316,28 @@ const OrderPaymentModal = ({
     document.body.appendChild(printFrame);
     let totalAmount = 0;
     const content = orders
-      ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+      ?.filter((order) => order?.status !== OrderStatus.CANCELLED)
       ?.map((order) => {
         const discountValue =
-          (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+          (order?.unitPrice *
+            order?.quantity *
+            (order?.discountPercentage ?? 0)) /
             100 +
-          (order.discountAmount ?? 0) * order.quantity;
-        const orderAmount = order.unitPrice * order.quantity - discountValue;
+          (order?.discountAmount ?? 0) * order?.quantity;
+        const orderAmount = order?.unitPrice * order?.quantity - discountValue;
         totalAmount += orderAmount;
 
         const originalPriceText =
           (order?.discountPercentage && order?.discountPercentage > 0) ||
           (order?.discountAmount && order?.discountAmount > 0)
             ? `<span class="original-price">${
-                (order.unitPrice * order.quantity).toFixed(2) + TURKISHLIRA
+                (order?.unitPrice * order?.quantity).toFixed(2) + TURKISHLIRA
               }</span>`
             : "";
 
         return `<div class="receipt-item">
-                <span class="item-name">(${order.quantity})${
-          getItem(order.item, items)?.name
+                <span class="item-name">(${order?.quantity})${
+          getItem(order?.item, items)?.name
         }</span>
                 ${originalPriceText}
                 <span class="discounted-price">${
@@ -523,8 +525,7 @@ const OrderPaymentModal = ({
       orders
         ?.filter(
           (order) =>
-            order.status !== OrderStatus.CANCELLED &&
-            order?.activityPlayer !== ""
+            order?.status !== OrderStatus.CANCELLED && order?.activityPlayer
         )
         ?.map((order) => order?.activityPlayer) || []
     )
