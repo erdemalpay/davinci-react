@@ -3,8 +3,12 @@ import { Paths, useGet, useMutationApi } from "./factory";
 
 const breakBaseUrl = `${Paths.Breaks}`;
 
+export interface BreakAll extends Break {
+  duration: number;
+  dailyDuration: number;
+}
 export interface BreakPayload {
-  data: Break[];
+  data: BreakAll[];
   totalNumber: number;
   totalPages: number;
   page: number;

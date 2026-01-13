@@ -1143,7 +1143,7 @@
   "Gameplay Activity Calendar": "Oyun Anlatım Takvimi",
   "Less": "Az",
   "More": "Çok",
-  "Transfer Transfer" : "Transfer",
+  "Transfer Transfer": "Transfer",
   "Table Call": "Masa Çağrısı",
   "Game Master Call": "Oyun Anlatıcısı Çağrısı",
   "Order Call": "Sipariş Çağrısı",
@@ -1177,7 +1177,7 @@
   "End Gameplay & Logout": "Oyun Anlatımını Bitir ve Çıkış Yap",
   "Session ended successfully": "Oturum başarıyla sonlandırıldı",
   "Error ending session": "Oturum sonlandırılırken hata oluştu",
-  "I checked in" : "Kafeye Giriş Yap",
+  "I checked in": "Kafeye Giriş Yap",
   "Last 7 Days": "Son 7 Gün",
   "Last 30 Days": "Son 30 Gün",
   "Last 3 Months": "Son 3 Ay",
@@ -1210,5 +1210,6 @@
   "Sep": "Eyl",
   "Oct": "Eki",
   "Nov": "Kas",
-  "Dec": "Ara"
+  "Dec": "Ara",
+  "Daily Duration": "Günlük Süre"
 }

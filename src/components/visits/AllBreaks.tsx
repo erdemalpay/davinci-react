@@ -43,43 +43,12 @@ const AllBreaks = () => {
   const rows = useMemo(() => {
     return (
       breakData?.data?.map((breakRecord) => {
-        const calculateDuration = () => {
-          if (!breakRecord.startHour) return t("Active");
-
-          const startTime = new Date();
-          const [startHour, startMinute] = breakRecord.startHour
-            .split(":")
-            .map(Number);
-          startTime.setHours(startHour, startMinute, 0, 0);
-
-          const endTime = new Date();
-          if (breakRecord.finishHour) {
-            const [endHour, endMinute] = breakRecord.finishHour
-              .split(":")
-              .map(Number);
-            endTime.setHours(endHour, endMinute, 0, 0);
-          }
-
-          if (!breakRecord.finishHour) return t("Active");
-
-          const diffMs = endTime.getTime() - startTime.getTime();
-          const diffMinutes = Math.floor(diffMs / (1000 * 60));
-          const hours = Math.floor(diffMinutes / 60);
-          const minutes = diffMinutes % 60;
-
-          if (hours > 0) {
-            return `${hours}h ${minutes}m`;
-          }
-          return `${minutes}m`;
-        };
-
         return {
           ...breakRecord,
           userDisplayName: getItem(breakRecord?.user, users)?.name ?? "",
           locationDisplayName:
             getItem(breakRecord?.location, locations)?.name ?? "",
           formattedDate: formatAsLocalDate(breakRecord.date),
-          duration: calculateDuration(),
           status: breakRecord.finishHour ? t("Completed") : t("Active"),
         };
       }) ?? []
@@ -94,6 +63,7 @@ const AllBreaks = () => {
       { key: t("Start Time"), isSortable: true, correspondingKey: "startHour" },
       { key: t("End Time"), isSortable: true, correspondingKey: "finishHour" },
       { key: t("Duration"), isSortable: false },
+      { key: t("Daily Duration"), isSortable: false },
       { key: t("Status"), isSortable: false },
     ],
     [t]
@@ -110,6 +80,7 @@ const AllBreaks = () => {
         node: (row: any) => row.finishHour || t("Active"),
       },
       { key: "duration" },
+      { key: "dailyDuration" },
       {
         key: "status",
         node: (row: any) => (
