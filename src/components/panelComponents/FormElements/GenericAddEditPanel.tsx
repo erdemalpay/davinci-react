@@ -185,7 +185,13 @@ const GenericAddEditPanel = <T,>({
     close?.();
   };
   const uploadImageMutation = useMutation({
-    mutationFn: async ({ file, filename }: { file: File; filename: string }) => {
+    mutationFn: async ({
+      file,
+      filename,
+    }: {
+      file: File;
+      filename: string;
+    }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
@@ -271,6 +277,23 @@ const GenericAddEditPanel = <T,>({
             default:
               break;
           }
+        }
+      });
+
+      const arrayFieldsToNormalize = ["suggestedDiscount", "productCategories"];
+      arrayFieldsToNormalize.forEach((key) => {
+        const value = convertedFormElements[key];
+
+        if (value === "") {
+          convertedFormElements[key] = undefined;
+        }
+
+        if (
+          key === "suggestedDiscount" &&
+          Array.isArray(value) &&
+          value.length > 0
+        ) {
+          convertedFormElements[key] = value.map((item) => Number(item));
         }
       });
 
@@ -394,14 +417,14 @@ const GenericAddEditPanel = <T,>({
             ? ""
             : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
         }   ${
-          stickyFooterButtons ? "h-[90vh] flex flex-col" : "max-h-[90vh] overflow-y-auto"
+          stickyFooterButtons
+            ? "h-[90vh] flex flex-col"
+            : "max-h-[90vh] overflow-y-auto"
         }   ${generalClassName} `}
       >
         <div
           className={`rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 ${
-            stickyFooterButtons
-              ? "overflow-y-auto"
-              : "justify-between"
+            stickyFooterButtons ? "overflow-y-auto" : "justify-between"
           }`}
         >
           {upperMessage?.length && upperMessage?.length > 0 && (
@@ -807,96 +830,89 @@ const GenericAddEditPanel = <T,>({
               : "mt-auto relative"
           }`}
         >
+          <GenericButton
+            variant="danger"
+            size="md"
+            onClick={() => {
+              isCancelConfirmationDialogExist
+                ? setIsCancelConfirmationDialogOpen(true)
+                : handleCancelButtonClick();
+            }}
+          >
+            {t(cancelButtonLabel)}
+          </GenericButton>
+          {additionalButtons &&
+            additionalButtons.map((button, index) => {
+              return (
+                <GenericButton
+                  key={index}
+                  variant={
+                    button.isInputRequirementCheck && !allRequiredFilled
+                      ? "secondary"
+                      : "primary"
+                  }
+                  size="md"
+                  onClick={() => {
+                    if (button.isInputRequirementCheck && !allRequiredFilled) {
+                      setAttemptedSubmit(true);
+                      toast.error(t("Please fill all required fields"));
+                      return;
+                    }
+
+                    const handleButtonClick = () => {
+                      const preservedValues = button.preservedKeys?.reduce<
+                        Partial<typeof formElements>
+                      >((acc, key) => {
+                        acc[key] = formElements[key];
+                        return acc;
+                      }, {});
+
+                      button.onClick();
+
+                      if (button?.isInputNeedToBeReset) {
+                        setFormElements({
+                          ...(constantValues
+                            ? { ...initialState, ...constantValues }
+                            : initialState),
+                          ...preservedValues,
+                        });
+                        setResetTextInput((prev) => !prev);
+                        setAttemptedSubmit(false);
+                      }
+                      // triggerOnTriggerTabInput();
+                    };
+
+                    if (isConfirmationDialogRequired?.()) {
+                      setConfirmationDialogFunction(() => handleButtonClick);
+                      setIsConfirmationDialogOpen(true);
+                    } else {
+                      handleButtonClick();
+                    }
+                  }}
+                >
+                  {t(button.label)}
+                </GenericButton>
+              );
+            })}
+          {isSubmitButtonActive && (
             <GenericButton
-              variant="danger"
+              variant={
+                !allRequiredFilled && !optionalCreateButtonActive
+                  ? "secondary"
+                  : "primary"
+              }
               size="md"
               onClick={() => {
-                isCancelConfirmationDialogExist
-                  ? setIsCancelConfirmationDialogOpen(true)
-                  : handleCancelButtonClick();
+                if (isCreateConfirmationDialogExist) {
+                  setIsCreateConfirmationDialogOpen(true);
+                } else {
+                  handleCreateButtonClick();
+                }
               }}
             >
-              {t(cancelButtonLabel)}
+              {buttonName ? buttonName : isEditMode ? t("Update") : t("Create")}
             </GenericButton>
-            {additionalButtons &&
-              additionalButtons.map((button, index) => {
-                return (
-                  <GenericButton
-                    key={index}
-                    variant={
-                      button.isInputRequirementCheck && !allRequiredFilled
-                        ? "secondary"
-                        : "primary"
-                    }
-                    size="md"
-                    onClick={() => {
-                      if (
-                        button.isInputRequirementCheck &&
-                        !allRequiredFilled
-                      ) {
-                        setAttemptedSubmit(true);
-                        toast.error(t("Please fill all required fields"));
-                        return;
-                      }
-
-                      const handleButtonClick = () => {
-                        const preservedValues = button.preservedKeys?.reduce<
-                          Partial<typeof formElements>
-                        >((acc, key) => {
-                          acc[key] = formElements[key];
-                          return acc;
-                        }, {});
-
-                        button.onClick();
-
-                        if (button?.isInputNeedToBeReset) {
-                          setFormElements({
-                            ...(constantValues
-                              ? { ...initialState, ...constantValues }
-                              : initialState),
-                            ...preservedValues,
-                          });
-                          setResetTextInput((prev) => !prev);
-                          setAttemptedSubmit(false);
-                        }
-                        // triggerOnTriggerTabInput();
-                      };
-
-                      if (isConfirmationDialogRequired?.()) {
-                        setConfirmationDialogFunction(() => handleButtonClick);
-                        setIsConfirmationDialogOpen(true);
-                      } else {
-                        handleButtonClick();
-                      }
-                    }}
-                  >
-                    {t(button.label)}
-                  </GenericButton>
-                );
-              })}
-            {isSubmitButtonActive && (
-              <GenericButton
-                variant={
-                  !allRequiredFilled && !optionalCreateButtonActive
-                    ? "secondary"
-                    : "primary"
-                }
-                size="md"
-                onClick={() => {
-                  if (isCreateConfirmationDialogExist) {
-                    setIsCreateConfirmationDialogOpen(true);
-                  } else {
-                    handleCreateButtonClick();
-                  }
-                }}
-              >
-                {buttonName
-                  ? buttonName
-                  : isEditMode
-                  ? t("Update")
-                  : t("Create")}
-              </GenericButton>
-            )}
+          )}
         </div>
       </div>
     );
