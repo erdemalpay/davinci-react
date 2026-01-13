@@ -224,7 +224,12 @@ const CafeActivity = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: false,
+        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -247,7 +252,12 @@ const CafeActivity = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: false,
+        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Toggle Active"),
@@ -267,6 +277,12 @@ const CafeActivity = () => {
             ></CheckSwitch>
           </div>
         ),
+        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.TOGGLE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -278,6 +294,8 @@ const CafeActivity = () => {
       inputs,
       formKeys,
       updateCafeActivity,
+      cafeActivitiesDisabledCondition,
+      user,
     ]
   );
 

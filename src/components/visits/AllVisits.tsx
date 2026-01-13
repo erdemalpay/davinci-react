@@ -4,9 +4,15 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
-import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
+import {
+  ActionEnum,
+  DateRangeKey,
+  DisabledConditionEnum,
+  commonDateOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetFilteredVisits, useVisitMutation } from "../../utils/api/visit";
 import { convertDateFormat } from "../../utils/format";
@@ -21,6 +27,7 @@ const AllVisits = () => {
   const { user } = useUserContext();
   const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
+  const disabledConditions = useGetDisabledConditions();
   const { deleteVisit } = useVisitMutation();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -46,9 +53,9 @@ const AllVisits = () => {
     filterAllVisitsPanelFormElements.before
   );
 
-  const isDisabledCondition = useMemo(() => {
-    return user && ![RoleEnum.MANAGER].includes(user?.role?._id);
-  }, [user]);
+  const allVisitsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.VISITS_ALLVISITS, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     const allRows = visits
@@ -76,8 +83,8 @@ const AllVisits = () => {
     return allRows || [];
   }, [visits, filterAllVisitsPanelFormElements, users, locations]);
 
-  const columns = useMemo(() => {
-    const baseColumns = [
+  const columns = useMemo(
+    () => [
       { key: t("User"), isSortable: true, correspondingKey: "userName" },
       { key: t("Role"), isSortable: true, correspondingKey: "userRole" },
       {
@@ -92,12 +99,10 @@ const AllVisits = () => {
         isSortable: true,
         correspondingKey: "finishHour",
       },
-    ];
-    if (!isDisabledCondition) {
-      baseColumns.push({ key: t("Actions"), isSortable: false } as any);
-    }
-    return baseColumns;
-  }, [t, isDisabledCondition]);
+      { key: t("Actions"), isSortable: false },
+    ],
+    [t]
+  );
 
   const rowKeys = useMemo(
     () => [
@@ -157,7 +162,12 @@ const AllVisits = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: allVisitsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -165,7 +175,8 @@ const AllVisits = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteVisit,
-      isDisabledCondition,
+      allVisitsDisabledCondition,
+      user,
     ]
   );
 
@@ -281,12 +292,20 @@ const AllVisits = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          isActionsActive={!isDisabledCondition}
+          isActionsActive={true}
           filterPanel={filterPanel}
           filters={filters}
           title={t("All Visits")}
-          actions={!isDisabledCondition ? actions : []}
-          isExcel={true}
+          actions={actions}
+          isExcel={
+            user &&
+            !allVisitsDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={`Visits.xlsx`}
         />
       </div>
