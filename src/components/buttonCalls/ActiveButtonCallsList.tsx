@@ -66,7 +66,9 @@ export function ActiveButtonCallsList() {
 
   function handleChipClose(buttonCallId: string, buttonCallType: string) {
     const buttonCall = buttonCalls?.find(
-      (buttonCallItem) => buttonCallItem.tableName == buttonCallId && buttonCallItem.type == buttonCallType
+      (buttonCallItem) =>
+        buttonCallItem.tableName == buttonCallId &&
+        buttonCallItem.type == buttonCallType
     );
     const now = new Date();
     const formattedTime = now.toLocaleTimeString("tr-TR", { hour12: false });
@@ -150,7 +152,9 @@ export function ActiveButtonCallsList() {
 
               {/* Kapat Butonu - Her zaman görünür */}
               <button
-                onClick={() => handleChipClose(buttonCall.tableName, buttonCall.type)}
+                onClick={() =>
+                  handleChipClose(buttonCall.tableName, buttonCall.type)
+                }
                 className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
                 aria-label="Çağrıyı kapat"
               >
@@ -171,14 +175,14 @@ export function ActiveButtonCallsList() {
       className="flex flex-col w-full px-2 sm:px-0"
     >
       <div className="flex flex-col gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
-        {groupedCalls.gameMasterAndTable.length > 0 &&
+        {groupedCalls?.gameMasterAndTable.length > 0 &&
           renderCallGroup(
-            groupedCalls.gameMasterAndTable,
+            groupedCalls?.gameMasterAndTable,
             ButtonCallTypeEnum.GAMEMASTERCALL
           )}
 
-        {groupedCalls.order.length > 0 &&
-          renderCallGroup(groupedCalls.order, ButtonCallTypeEnum.ORDERCALL)}
+        {groupedCalls?.order?.length > 0 &&
+          renderCallGroup(groupedCalls?.order, ButtonCallTypeEnum.ORDERCALL)}
       </div>
     </div>
   );
