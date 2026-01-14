@@ -38,6 +38,7 @@ import {
 } from "../utils/api/reservations";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsersMinimal } from "../utils/api/user";
+import { useGetVisits } from "../utils/api/visit";
 import { getItem } from "../utils/getItem";
 
 export default function Reservations() {
@@ -65,6 +66,17 @@ export default function Reservations() {
   const [selectedDuration, setSelectedDuration] = useState(30);
   const [selectedTableNumber, setSelectedTableNumber] = useState<string>("");
   const tables = useGetTables();
+  const visits = useGetVisits();
+
+  const usersInCafe = useMemo(() => {
+    if (visits.length === 0) return [];
+    const activeUserIds = visits
+      .filter((visit) => !visit.finishHour)
+      .map((visit) => visit.user);
+    const uniqueUserIdSet = new Set(activeUserIds);
+    return users.filter((user) => uniqueUserIdSet.has(user._id));
+  }, [visits, users]);
+
   const tableOptions = useMemo(() => {
     return (
       locations
@@ -184,7 +196,7 @@ export default function Reservations() {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users.map((user) => ({
+        options: usersInCafe.map((user) => ({
           value: user._id,
           label: user.name,
         })),
@@ -216,7 +228,7 @@ export default function Reservations() {
         required: false,
       },
     ],
-    [t, users]
+    [t, usersInCafe]
   );
 
   const formKeys = useMemo(
