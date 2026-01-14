@@ -97,7 +97,7 @@ const ShiftList = ({ visits }: Props) => {
                 value={
                   label ? `${foundUser?.name} (${label})` : foundUser?.name
                 }
-                style={{ backgroundColor: "green", height: "fit-content" }}
+                className="bg-gray-500 h-fit"
                 color="gray"
               />
             </Tooltip>

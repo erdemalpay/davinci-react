@@ -420,7 +420,7 @@ const Checklist = () => {
             rowKeys={rowKeys}
             columns={columns}
             isToolTipEnabled={false}
-            collapsibleCell={true}
+            clickableCell={true}
             rows={rows()}
             actions={!isDisabledCondition ? actions : undefined}
             addButton={!isDisabledCondition ? addButton : undefined}

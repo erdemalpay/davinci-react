@@ -87,7 +87,7 @@ type Props<T> = {
   selectionActions?: ActionType<T>[];
   isToolTipEnabled?: boolean;
   isEmtpyExcel?: boolean;
-  collapsibleCell?: boolean;
+  clickableCell?: boolean;
   // Toggle, GenericTable sayfalarında search yanında gözükmeli
   // Eğer prop verilmezse, UnifiedTabPanel context'inden alınır
   showOrientationToggle?: boolean;
@@ -116,7 +116,7 @@ const GenericTable = <T,>({
   isExcel = false,
   isCollapsible = false,
   isToolTipEnabled = false,
-  collapsibleCell = false,
+  clickableCell = false,
   isPagination = true,
   isRowsPerPage = true,
   isActionsAtFront = false,
@@ -539,7 +539,7 @@ const GenericTable = <T,>({
             }
             const cellValue = `${row[rowKey.key as keyof T]}`;
             const displayValue =
-              cellValue.length > tooltipLimit && (isToolTipEnabled || collapsibleCell)
+              cellValue.length > tooltipLimit && (isToolTipEnabled || clickableCell)
                 ? `${cellValue.substring(0, tooltipLimit)}...`
                 : cellValue;
             let style: React.CSSProperties = {};
@@ -574,7 +574,7 @@ const GenericTable = <T,>({
                 key={keyIndex}
                 className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                   rowKey?.className
-                } ${cellValue.length > tooltipLimit && collapsibleCell ? "max-w-xs" : "min-w-20 md:min-w-0"} `}
+                } ${cellValue.length > tooltipLimit && clickableCell ? "max-w-xs" : "min-w-20 md:min-w-0"} `}
               >
                 {rowKey.isImage ? (
                   <img
@@ -588,21 +588,14 @@ const GenericTable = <T,>({
                       setIsImageModalOpen(true);
                     }}
                   />
-                ) : cellValue.length > tooltipLimit && collapsibleCell ? (
-                  <div className="flex flex-col gap-1 w-full">
+                ) : cellValue.length > tooltipLimit && clickableCell ? (
+                  <div
+                    className="cursor-pointer hover:text-blue-500 transition-colors"
+                    onClick={() => toggleCellExpansion(cellId)}
+                  >
                     <P1 className="whitespace-pre-wrap break-words w-full">
                       {isCellExpanded ? cellValue : displayValue}
                     </P1>
-                    <FaChevronDown
-                      className="text-gray-500 cursor-pointer hover:text-blue-500 text-sm w-fit"
-                      onClick={() => toggleCellExpansion(cellId)}
-                      style={{
-                        transform: isCellExpanded
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                        transition: "transform 0.2s",
-                      }}
-                    />
                   </div>
                 ) : cellValue.length > tooltipLimit && isToolTipEnabled ? (
                   <CustomTooltip content={cellValue}>
