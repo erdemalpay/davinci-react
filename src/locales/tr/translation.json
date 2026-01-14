@@ -1211,5 +1211,7 @@
   "Oct": "Eki",
   "Nov": "Kas",
   "Dec": "Ara",
-  "Daily Duration": "Günlük Süre"
+  "Daily Duration": "Günlük Süre",
+  "All Gameplay Time": "Oyun Anlatımı Süreleri",
+  "Auto Prepared": "Otomatik Hazırlandı"
 }
