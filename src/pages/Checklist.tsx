@@ -181,7 +181,10 @@ const Checklist = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Description"), isSortable: false },
   ];
-  const rowKeys: RowKeyType<any>[] = [{ key: "duty" }, { key: "description" }];
+  const rowKeys: RowKeyType<any>[] = [
+    { key: "duty", className: "pr-2" },
+    { key: "description", className: "pr-2" },
+  ];
   locations?.forEach((item) => {
     columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
@@ -420,7 +423,6 @@ const Checklist = () => {
             rowKeys={rowKeys}
             columns={columns}
             isToolTipEnabled={false}
-            clickableCell={true}
             rows={rows()}
             actions={!isDisabledCondition ? actions : undefined}
             addButton={!isDisabledCondition ? addButton : undefined}
