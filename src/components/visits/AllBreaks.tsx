@@ -29,6 +29,7 @@ const AllBreaks = () => {
     sort: "",
     asc: 1,
     search: "",
+    date: "",
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
