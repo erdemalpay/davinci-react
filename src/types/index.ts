@@ -153,6 +153,7 @@ export type Location = {
   active: boolean;
   activityNote?: string;
   ikasId?: string;
+  shopifyId?: string;
   backgroundColor?: string;
   shifts?: {
     shift: string;
@@ -359,6 +360,7 @@ export type ProductCategories = {
   _id: string;
   name: string;
   ikasId?: string;
+  shopifyId?: string;
 };
 
 export type AccountBrand = {
@@ -554,6 +556,8 @@ export enum DisabledConditionEnum {
   STOCK_VENDORORDER = "vendororder",
   STOCK_IKASSTOCKCOMPARISION = "ikasstockcomparision",
   STOCK_IKASPRICECOMPARISION = "ikaspricecomparision",
+  STOCK_SHOPIFYSTOCKCOMPARISION = "shopifystockcomparision",
+  STOCK_SHOPIFYPRICECOMPARISION = "shopifypricecomparision",
   STOCK_ENTERCONSUMPTION = "enterconsumption",
   STOCK_LOSSPRODUCT = "lossproduct",
   ORDERDATAS_DAILYINCOME = "dailyincome",
@@ -565,9 +569,11 @@ export enum DisabledConditionEnum {
   ORDERDATAS_COLLECTIONS = "collections",
   ORDERDATAS_ORDERS = "orders",
   ORDERDATAS_IKASORDERS = "ikasorders",
+  ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
   IKAS_PICK_UP = "ikas_pick_up",
+  SHOPIFY_PICK_UP = "shopify_pick_up",
   RESERVATIONS = "reservations",
   ANALYTICS_TABLEPLAYERCOUNTS = "tableplayercounts",
   ANALYTICS_GAMEPLAYSBYMENTORSDETAILS = "gameplaysbymentorsdetails",
@@ -612,6 +618,7 @@ export enum ActionEnum {
   UPLOAD = "upload",
   SETBASEAMOUNT = "set_base_amount",
   UPDATEIKASSTOCK = "update_ikas_stock",
+  UPDATESHOPIFYSTOCK = "update_shopify_stock",
   UPDATESTORESTOCK = "update_store_stock",
   SYNC = "sync",
   REFRESH = "refresh",
@@ -731,6 +738,7 @@ export type MenuItem = {
   productCategories?: string[];
   productImages?: string[];
   ikasId?: string;
+  shopifyId?: string;
   sku?: string;
   barcode?: string;
   shownInMenu?: boolean;
@@ -851,6 +859,14 @@ export type IkasCustomer = {
   phone: string;
   location: number;
 };
+export type ShopifyCustomer = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  location: number;
+};
 export type Order = {
   _id: number;
   location: number;
@@ -882,6 +898,7 @@ export type Order = {
   kitchen?: string;
   stockNote?: string;
   ikasId?: string;
+  shopifyId?: string;
   paymentMethod?: string;
   tableDate?: Date;
   activityTableName?: string;
@@ -890,6 +907,9 @@ export type Order = {
   ikasCustomer?: IkasCustomer;
   isIkasCustomerPicked?: boolean;
   ikasOrderNumber?: string;
+  shopifyCustomer?: ShopifyCustomer;
+  isShopifyCustomerPicked?: boolean;
+  shopifyOrderNumber?: string;
 };
 
 export type OrderCollection = {
@@ -909,9 +929,11 @@ export type OrderCollection = {
   newOrders?: Order[];
   table?: Table | number;
   ikasId?: string;
+  shopifyId?: string;
   tableDate?: Date;
   activityPlayer?: string;
   ikasOrderNumber?: string;
+  shopifyOrderNumber?: string;
 };
 
 export type OrderNote = {
@@ -1089,6 +1111,81 @@ export type IkasProduct = {
   }[];
 };
 
+export type ShopifyProduct = {
+  id: string;
+  title: string;
+  body_html: string | null;
+  vendor: string;
+  product_type: string;
+  created_at: string;
+  handle: string;
+  updated_at: string;
+  published_at: string | null;
+  template_suffix: string | null;
+  status: string;
+  published_scope: string;
+  tags: string;
+  admin_graphql_api_id: string;
+  variants: {
+    id: string;
+    product_id: string;
+    title: string;
+    price: string;
+    sku: string | null;
+    position: number;
+    compare_at_price: string | null;
+    option1: string | null;
+    option2: string | null;
+    option3: string | null;
+    created_at: string;
+    updated_at: string;
+    taxable: boolean;
+    barcode: string | null;
+    grams: number;
+    image_id: string | null;
+    weight: number;
+    weight_unit: string;
+    inventory_item_id: string;
+    inventory_quantity: number;
+    old_inventory_quantity: number;
+    requires_shipping: boolean;
+    admin_graphql_api_id: string;
+  }[];
+  options: {
+    id: string;
+    product_id: string;
+    name: string;
+    position: number;
+    values: string[];
+  }[];
+  images: {
+    id: string;
+    product_id: string;
+    position: number;
+    created_at: string;
+    updated_at: string;
+    alt: string | null;
+    width: number;
+    height: number;
+    src: string;
+    variant_ids: string[];
+    admin_graphql_api_id: string;
+  }[];
+  image: {
+    id: string;
+    product_id: string;
+    position: number;
+    created_at: string;
+    updated_at: string;
+    alt: string | null;
+    width: number;
+    height: number;
+    src: string;
+    variant_ids: string[];
+    admin_graphql_api_id: string;
+  } | null;
+};
+
 export enum RoleEnum {
   MANAGER = 1,
   GAMEMASTER,
@@ -1191,6 +1288,7 @@ export enum AccountingPageTabEnum {
   BRAND,
   PRODUCT,
   PRODUCTCATEGORIES,
+  SHOPIFYCOLLECTIONS,
   SERVICES,
   DISCOUNTS,
   PAYMENTMETHODS,
@@ -1221,6 +1319,8 @@ export enum StocksPageTabEnum {
   VENDORORDER,
   IKASSTOCKCOMPARISION,
   IKASPRICECOMPARISION,
+  SHOPIFYSTOCKCOMPARISION,
+  SHOPIFYPRICECOMPARISION,
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
@@ -1284,6 +1384,7 @@ export enum OrderDataTabEnum {
   COLLECTIONS,
   ORDERS,
   IKASORDERS,
+  SHOPIFYORDERS,
   PERSONALORDERDATAS,
 }
 export enum StockHistoryStatusEnum {
@@ -1309,6 +1410,8 @@ export enum StockHistoryStatusEnum {
   ORDERRETURN = "ORDERRETURN",
   IKASORDERCREATE = "IKASORDERCREATE",
   IKASORDERCANCEL = "IKASORDERCANCEL",
+  SHOPIFYORDERCREATE = "SHOPIFYORDERCREATE",
+  SHOPIFYORDERCANCEL = "SHOPIFYORDERCANCEL",
   LOSSPRODUCTCANCEL = "LOSSPRODUCTCANCEL",
   CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
 }
@@ -1433,6 +1536,16 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.IKASORDERCANCEL,
     label: "Ikas Order Cancel",
     backgroundColor: "bg-orange-800",
+  },
+  {
+    value: StockHistoryStatusEnum.SHOPIFYORDERCREATE,
+    label: "Shopify Order Create",
+    backgroundColor: "bg-indigo-800",
+  },
+  {
+    value: StockHistoryStatusEnum.SHOPIFYORDERCANCEL,
+    label: "Shopify Order Cancel",
+    backgroundColor: "bg-cyan-800",
   },
 ];
 

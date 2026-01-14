@@ -126,6 +126,10 @@ interface CancelIkasOrder {
   ikasId: string;
   quantity: number;
 }
+interface CancelShopifyOrder {
+  shopifyId: string;
+  quantity: number;
+}
 
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
@@ -147,6 +151,7 @@ export function useSimpleOrderMutations() {
       [`${Paths.Order}/query`],
       [`${Paths.Order}/collection/query`],
       [`${Paths.Order}/ikas-pick-up/query`],
+      [`${Paths.Order}/shopify-pick-up/query`],
     ],
   });
 
@@ -451,6 +456,31 @@ export function useCancelIkasOrderMutation() {
     },
   });
 }
+export function cancelShopifyOrder(payload: CancelShopifyOrder) {
+  return post({
+    path: `/order/cancel-shopify-order`,
+    payload,
+  });
+}
+export function useCancelShopifyOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: cancelShopifyOrder,
+    onMutate: async () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 
 export function useCreateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
@@ -579,6 +609,53 @@ export function useGetIkasPickUpOrders(category?: number[]) {
       ikasPickUpFilterPanelFormElements.status,
       ikasPickUpFilterPanelFormElements.category,
       ikasPickUpFilterPanelFormElements.location,
+    ],
+    true
+  );
+}
+export function useGetShopifyPickUpOrders(category?: number[]) {
+  const { shopifyPickUpFilterPanelFormElements } = useOrderContext();
+  let url = `${baseUrl}/query?after=${shopifyPickUpFilterPanelFormElements.after}&isShopifyPickUp=true`;
+  const parameters = [
+    "before",
+    "discount",
+    "createdBy",
+    "preparedBy",
+    "deliveredBy",
+    "cancelledBy",
+    "status",
+    "location",
+  ];
+  if (category || shopifyPickUpFilterPanelFormElements.category !== "") {
+    url = url.concat(
+      `&category=${category || shopifyPickUpFilterPanelFormElements.category}`
+    );
+  }
+  parameters.forEach((param) => {
+    if (shopifyPickUpFilterPanelFormElements[param]) {
+      url = url.concat(
+        `&${param}=${encodeURIComponent(
+          shopifyPickUpFilterPanelFormElements[param]
+        )}`
+      );
+    }
+  });
+  return useGetList<Order>(
+    url,
+    [
+      `${Paths.Order}/shopify-pick-up/query`,
+      `${Paths.Order}`,
+
+      shopifyPickUpFilterPanelFormElements.after,
+      shopifyPickUpFilterPanelFormElements.before,
+      shopifyPickUpFilterPanelFormElements.discount,
+      shopifyPickUpFilterPanelFormElements.createdBy,
+      shopifyPickUpFilterPanelFormElements.preparedBy,
+      shopifyPickUpFilterPanelFormElements.deliveredBy,
+      shopifyPickUpFilterPanelFormElements.cancelledBy,
+      shopifyPickUpFilterPanelFormElements.status,
+      shopifyPickUpFilterPanelFormElements.category,
+      shopifyPickUpFilterPanelFormElements.location,
     ],
     true
   );

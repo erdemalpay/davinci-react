@@ -62,6 +62,30 @@ export function useCreateMultipleIkasProductMutation() {
   });
 }
 
+export function createMultipleShopifyProduct(itemIds: number[]) {
+  return post({
+    path: `${Paths.MenuItems}/create-shopify-products`,
+    payload: itemIds,
+  });
+}
+
+export function useCreateMultipleShopifyProductMutation() {
+  const queryKey = [`${Paths.MenuItems}`];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createMultipleShopifyProduct,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+}
+
 export function updateItems(items: MenuItem[]) {
   return patch({
     path: `${Paths.MenuItems}/update_bulk`,
@@ -198,6 +222,22 @@ export function updateIkasPrices() {
 export function useUpdateIkasPricesMutation() {
   return useMutation({
     mutationFn: updateIkasPrices,
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function updateShopifyPrices() {
+  return post<any, any>({
+    path: `${Paths.MenuItems}/shopify/sync-all-prices`,
+    payload: {},
+  });
+}
+export function useUpdateShopifyPricesMutation() {
+  return useMutation({
+    mutationFn: updateShopifyPrices,
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
