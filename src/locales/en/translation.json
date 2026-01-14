@@ -1160,8 +1160,8 @@
   "Expiration List": "Expiration List",
   "Update Store Stock": "Update Store Stock",
   "Online": "Online",
-  "Fallback Location" : "Menu Stock Depot",
-  "No Fallback Location" : "No Fallback Location",
+  "Fallback Location": "Menu Stock Depot",
+  "No Fallback Location": "No Fallback Location",
   "Media": "Media",
   "Ikas Discounted Price": "Ikas Discounted Price",
   "Ikas Id": "Ikas Id",
@@ -1177,7 +1177,7 @@
   "You're in a gameplay session": "You're in a gameplay session",
   "Hide the modal or end your gameplay": "Hide the modal or end your gameplay",
   "End": "End",
-  "Is Gameplay Time" : "Is Gameplay Time",
+  "Is Gameplay Time": "Is Gameplay Time",
   "Are you sure you want to logout?": "Are you sure you want to logout?",
   "Active Session Warning": "Active Session Warning",
   "Active Break": "Active Break",
@@ -1188,7 +1188,7 @@
   "End Gameplay & Logout": "End Gameplay & Logout",
   "Session ended successfully": "Session ended successfully",
   "Error ending session": "Error ending session",
-  "I checked in" : "I checked in",
+  "I checked in": "I checked in",
   "Last 7 Days": "Last 7 Days",
   "Last 30 Days": "Last 30 Days",
   "Last 3 Months": "Last 3 Months",
@@ -1221,5 +1221,8 @@
   "Sep": "Sep",
   "Oct": "Oct",
   "Nov": "Nov",
-  "Dec": "Dec"
+  "Dec": "Dec",
+  "Daily Duration": "Daily Duration",
+  "All Gameplay Time": "All Gameplay Time",
+  "Auto Prepared": "Auto Prepared"
 }

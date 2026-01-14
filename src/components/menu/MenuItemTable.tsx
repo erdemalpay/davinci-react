@@ -608,7 +608,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "description", type: FormKeyTypeEnum.STRING },
       { key: "price", type: FormKeyTypeEnum.NUMBER },
       { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
-      { key: "category", type: FormKeyTypeEnum.STRING },
+      { key: "category", type: FormKeyTypeEnum.NUMBER },
       { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },
       { key: "imageUrl", type: FormKeyTypeEnum.STRING },
       { key: "suggestedDiscount", type: FormKeyTypeEnum.STRING },
@@ -666,7 +666,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           ]
         : []),
       { key: t("Shown In Menu"), isSortable: false },
-      { key: t("Auto Served"), isSortable: false },
+      // { key: t("Auto Served"), isSortable: false },
+      { key: t("Auto Prepared"), isSortable: false },
     ];
 
     const keys = [
@@ -811,18 +812,37 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           );
         },
       },
+      // {
+      //   key: "isAutoServed",
+      //   node: (row: MenuItem) => {
+      //     return (
+      //       <CheckSwitch
+      //         checked={row?.isAutoServed ?? false}
+      //         onChange={() => {
+      //           updateItem({
+      //             id: row._id,
+      //             updates: {
+      //               ...row,
+      //               isAutoServed: !row.isAutoServed,
+      //             },
+      //           });
+      //         }}
+      //       />
+      //     );
+      //   },
+      // },
       {
-        key: "isAutoServed",
+        key: "isAutoPrepared",
         node: (row: MenuItem) => {
           return (
             <CheckSwitch
-              checked={row?.isAutoServed ?? false}
+              checked={row?.isAutoPrepared ?? false}
               onChange={() => {
                 updateItem({
                   id: row._id,
                   updates: {
                     ...row,
-                    isAutoServed: !row.isAutoServed,
+                    isAutoPrepared: !row.isAutoPrepared,
                   },
                 });
               }}
@@ -889,7 +909,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           formKeys={formKeys}
           submitItem={createItem as any}
           constantValues={{
-            category: singleItemGroup?.category,
+            category: singleItemGroup?.category._id,
             locations: [1, 2],
           }}
           folderName="menu"
@@ -1053,7 +1073,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             inputs={inputs}
             formKeys={formKeys}
             submitItem={updateItem as any}
-            constantValues={{ category: singleItemGroup?.category }}
+            constantValues={{ category: singleItemGroup?.category?._id }}
             isEditMode={true}
             itemToEdit={{ id: rowToAction?._id, updates: rowToAction }}
             generalClassName="overflow-scroll min-w-[90%]  min-h-[95%]"

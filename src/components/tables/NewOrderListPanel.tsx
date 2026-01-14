@@ -93,7 +93,7 @@ const NewOrderListPanel = () => {
 
         orderCreateBulk?.forEach((order, index) => {
           const selectedOrder = selectedOrders.find(
-            (sel) => sel.order.bulkIndex === index
+            (sel) => sel.order?.bulkIndex === index
           );
 
           if (!selectedOrder) {
@@ -154,9 +154,9 @@ const NewOrderListPanel = () => {
         <>
           <div className="flex flex-col  gap-1  text-sm ">
             {orderCreateBulk?.map((order, index) => {
-              const orderItem = getItem(order.item, items);
-              const orderDiscount = order.discount
-                ? discounts?.find((d) => d._id === order.discount)
+              const orderItem = getItem(order?.item, items);
+              const orderDiscount = order?.discount
+                ? discounts?.find((d) => d._id === order?.discount)
                 : null;
               return (
                 <div
@@ -172,7 +172,7 @@ const NewOrderListPanel = () => {
                       <div className="flex flex-col gap-1">
                         <div className="flex gap-1 items-center">
                           <p>{orderItem?.name}</p>
-                          <h1 className="text-xs">({order.quantity})</h1>
+                          <h1 className="text-xs">({order?.quantity})</h1>
                         </div>
 
                         {orderDiscount && (
@@ -200,8 +200,8 @@ const NewOrderListPanel = () => {
                         <FiMinusCircle
                           className="w-5 h-5 flex-shrink-0  text-red-500  hover:text-red-800 cursor-pointer focus:outline-none"
                           onClick={() => {
-                            if (!order.quantity) return;
-                            if (Number(order.quantity) === 1) {
+                            if (!order?.quantity) return;
+                            if (Number(order?.quantity) === 1) {
                               const newOrders = [...orderCreateBulk];
                               newOrders.splice(index, 1);
                               setOrderCreateBulk(newOrders);
@@ -209,7 +209,7 @@ const NewOrderListPanel = () => {
                             } else {
                               const newOrders = [...orderCreateBulk];
                               newOrders[index].quantity =
-                                Number(order.quantity) - 1;
+                                Number(order?.quantity) - 1;
                               setOrderCreateBulk(newOrders);
                             }
                           }}
@@ -217,19 +217,24 @@ const NewOrderListPanel = () => {
                         <GoPlusCircle
                           className="w-5 h-5 flex-shrink-0  text-green-500  hover:text-green-800 cursor-pointer focus:outline-none"
                           onClick={() => {
-                            if (!order.quantity) return;
+                            if (!order?.quantity) return;
                             const newOrders = [...orderCreateBulk];
                             newOrders[index].quantity =
-                              Number(order.quantity) + 1;
+                              Number(order?.quantity) + 1;
                             setOrderCreateBulk(newOrders);
                           }}
                         />
 
-                        {(order.activityTableName || order.activityPlayer) && (
+                        {(order?.activityTableName ||
+                          order?.activityPlayer) && (
                           <p className="text-xs text-gray-700 whitespace-nowrap">
-                            {order.activityTableName && `${t("TableShort")}:${order.activityTableName}`}
-                            {order.activityTableName && order.activityPlayer && " - "}
-                            {order.activityPlayer && `${t("PlayerShort")}:${order.activityPlayer}`}
+                            {order?.activityTableName &&
+                              `${t("TableShort")}:${order?.activityTableName}`}
+                            {order?.activityTableName &&
+                              order?.activityPlayer &&
+                              " - "}
+                            {order?.activityPlayer &&
+                              `${t("PlayerShort")}:${order?.activityPlayer}`}
                           </p>
                         )}
                         {orderCreateBulk[index].status !==

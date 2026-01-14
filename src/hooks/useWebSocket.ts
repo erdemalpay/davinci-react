@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
 import { useDataContext } from "../context/Data.context";
 import {
+  AccountStock,
   Gameplay,
   MenuItem,
   Notification,
@@ -50,12 +51,12 @@ export function useWebSocket() {
   const audioRef = useRef<HTMLAudioElement>();
   const audioContextRef = useRef<AudioContext>();
   const gainNodeRef = useRef<GainNode>();
-  
+
   // Store socket in ref - only create/destroy on mount/unmount
   const socketRef = useRef<Socket | null>(null);
   // Track disconnection time
   const disconnectTimeRef = useRef<number | null>(null);
-  
+
   // Store current values in refs (to solve closure issues)
   const latestValuesRef = useRef({
     queryClient,
@@ -88,7 +89,18 @@ export function useWebSocket() {
       audioReadyRef,
       audioRef,
     };
-  }, [queryClient, user, selectedLocationId, selectedDate, kitchens, categories, setIsTakeAwayPaymentModalOpen, setOrderCreateBulk, setTakeawayTableId, setSelectedNewOrders]);
+  }, [
+    queryClient,
+    user,
+    selectedLocationId,
+    selectedDate,
+    kitchens,
+    categories,
+    setIsTakeAwayPaymentModalOpen,
+    setOrderCreateBulk,
+    setTakeawayTableId,
+    setSelectedNewOrders,
+  ]);
 
   // Create socket connection only once
   useEffect(() => {
@@ -148,7 +160,7 @@ export function useWebSocket() {
     socket.on("disconnect", (reason) => {
       console.log("❌ WebSocket connection lost:", reason);
       disconnectTimeRef.current = Date.now();
-      
+
       if (reason === "io server disconnect") {
         // Disconnected by server, manually reconnect
         socket.connect();
@@ -158,16 +170,22 @@ export function useWebSocket() {
 
     socket.on("reconnect", (attemptNumber) => {
       const { queryClient, selectedDate } = latestValuesRef.current;
-      const disconnectDuration = disconnectTimeRef.current 
-        ? Date.now() - disconnectTimeRef.current 
+      const disconnectDuration = disconnectTimeRef.current
+        ? Date.now() - disconnectTimeRef.current
         : 0;
-      
-      console.log(`🔄 WebSocket reconnected (attempt: ${attemptNumber}, disconnect duration: ${Math.round(disconnectDuration / 1000)}s)`);
-      
+
+      console.log(
+        `🔄 WebSocket reconnected (attempt: ${attemptNumber}, disconnect duration: ${Math.round(
+          disconnectDuration / 1000
+        )}s)`
+      );
+
       // Re-fetch data that was missed during disconnection
       if (disconnectDuration > 30000) {
         // If connection was lost for more than 30 seconds, invalidate all queries
-        console.log("⚠️ Connection was lost for a long time, refetching all active queries...");
+        console.log(
+          "⚠️ Connection was lost for a long time, refetching all active queries..."
+        );
         queryClient.invalidateQueries();
       } else {
         // Otherwise, only invalidate critical queries
@@ -196,7 +214,9 @@ export function useWebSocket() {
     });
 
     socket.on("reconnect_failed", () => {
-      console.error("❌ WebSocket reconnection failed. Please try reconnecting manually.");
+      console.error(
+        "❌ WebSocket reconnection failed. Please try reconnecting manually."
+      );
     });
 
     socket.on("connect_error", (error) => {
@@ -204,8 +224,17 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", ({ order }: { order: Order }) => {
-      const { queryClient, selectedDate, user, selectedLocationId, categories, kitchens, audioReadyRef, audioRef } = latestValuesRef.current;
-      
+      const {
+        queryClient,
+        selectedDate,
+        user,
+        selectedLocationId,
+        categories,
+        kitchens,
+        audioReadyRef,
+        audioRef,
+      } = latestValuesRef.current;
+
       queryClient.setQueryData<any[]>(
         [`${Paths.Order}/today`, selectedDate],
         (oldData) => {
@@ -273,9 +302,33 @@ export function useWebSocket() {
       }
     });
 
+    socket.on("stockAdded", ({ stock }: { stock: AccountStock }) => {
+      const { queryClient } = latestValuesRef.current;
+
+      queryClient.setQueryData<AccountStock[]>(
+        [`${Paths.Accounting}/stocks`],
+        (oldData) => {
+          if (!oldData) return oldData;
+          return [...oldData, stock];
+        }
+      );
+    });
+
+    socket.on("stockUpdated", ({ stock }: { stock: AccountStock }) => {
+      const { queryClient } = latestValuesRef.current;
+
+      queryClient.setQueryData<AccountStock[]>(
+        [`${Paths.Accounting}/stocks`],
+        (oldData) => {
+          if (!oldData) return oldData;
+          return oldData.map((s) => (s._id === stock._id ? stock : s));
+        }
+      );
+    });
+
     socket.on("orderUpdated", ({ orders }: { orders: Order[] }) => {
       const { queryClient, selectedDate } = latestValuesRef.current;
-      
+
       const tableId =
         typeof orders[0]?.table === "number"
           ? orders[0]?.table
@@ -335,7 +388,7 @@ export function useWebSocket() {
 
     socket.on("orderDeleted", ({ order }: { order: Order }) => {
       const { queryClient, selectedDate } = latestValuesRef.current;
-      
+
       const tableId =
         typeof order.table === "number" ? order.table : order.table?._id;
 
@@ -386,7 +439,7 @@ export function useWebSocket() {
       "collectionChanged",
       ({ collection }: { collection: OrderCollection }) => {
         const { queryClient, selectedDate } = latestValuesRef.current;
-        
+
         queryClient.invalidateQueries({
           queryKey: [`${Paths.Order}/collection/table`, collection.table],
         });
@@ -452,7 +505,7 @@ export function useWebSocket() {
       "notificationChanged",
       ({ notifications }: { notifications: Notification[] }) => {
         const { queryClient, user } = latestValuesRef.current;
-        
+
         if (!user) return;
         if (
           notifications.some(
@@ -580,7 +633,7 @@ export function useWebSocket() {
         tableId: number;
       }) => {
         const { queryClient, user } = latestValuesRef.current;
-        
+
         // Only update cache for other users' actions
         if (creatingUser._id === user?._id) return;
 
@@ -625,7 +678,7 @@ export function useWebSocket() {
         tableId: number;
       }) => {
         const { queryClient, user } = latestValuesRef.current;
-        
+
         // Only update cache for other users' actions
         if (deletingUser._id === user?._id) return;
 
@@ -669,7 +722,7 @@ export function useWebSocket() {
         user: User;
       }) => {
         const { queryClient, user } = latestValuesRef.current;
-        
+
         // Only update cache for other users' actions
         if (updatingUser._id === user?._id) return;
 
@@ -684,7 +737,7 @@ export function useWebSocket() {
             const prevForLocation = prev[locationId] ?? [];
 
             const updatedTables = prevForLocation.map((t) => {
-              if (t?.gameplays.some(g => g._id === gameplay._id)) {
+              if (t?.gameplays.some((g) => g._id === gameplay._id)) {
                 return {
                   ...t,
                   gameplays: t.gameplays.map((g) =>
@@ -731,8 +784,17 @@ export function useWebSocket() {
         locationId: number;
         kitchenIds: string[];
       }) => {
-        const { queryClient, user, selectedLocationId, kitchens, setIsTakeAwayPaymentModalOpen, setTakeawayTableId, setOrderCreateBulk, setSelectedNewOrders } = latestValuesRef.current;
-        
+        const {
+          queryClient,
+          user,
+          selectedLocationId,
+          kitchens,
+          setIsTakeAwayPaymentModalOpen,
+          setTakeawayTableId,
+          setOrderCreateBulk,
+          setSelectedNewOrders,
+        } = latestValuesRef.current;
+
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
         if (!user) {
@@ -751,11 +813,20 @@ export function useWebSocket() {
         }
 
         if (creatingUser._id === user._id) return;
-        const foundKitchens = kitchenIds.map((kitchenId) => getItem(kitchenId, kitchens ?? []));
+        const foundKitchens = kitchenIds.map((kitchenId) =>
+          getItem(kitchenId, kitchens ?? [])
+        );
         foundKitchens.forEach((foundKitchen) => {
           const { soundRoles, selectedUsers } = foundKitchen ?? {};
-          if (soundRoles?.includes(user.role?._id) && locationId === selectedLocationId) {
-            if (selectedUsers && selectedUsers.length > 0 && !selectedUsers?.includes(user._id)) {
+          if (
+            soundRoles?.includes(user.role?._id) &&
+            locationId === selectedLocationId
+          ) {
+            if (
+              selectedUsers &&
+              selectedUsers.length > 0 &&
+              !selectedUsers?.includes(user._id)
+            ) {
               return;
             }
             if (audioReadyRef.current && audioRef.current) {

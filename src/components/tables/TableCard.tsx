@@ -857,6 +857,24 @@ export function TableCard({
         tableDate: new Date(table.date),
       };
     }
+    if (user && selectedMenuItem && selectedMenuItem?.isAutoPrepared) {
+      return {
+        ...orderForm,
+        createdAt: new Date(),
+        location: table?.isOnlineSale
+          ? OnlineLocationId
+          : orderForm?.location ?? selectedLocationId,
+        table: table._id,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        status: OrderStatus.READYTOSERVE,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
+        tableDate: new Date(table.date),
+      };
+    }
 
     // Check if the menu item is not automatically served
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {

@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Header } from "../components/header/Header";
@@ -28,9 +29,11 @@ const Feedback = () => {
     return (
       feedbacks?.map((feedback) => {
         const foundLocation = getItem(feedback.location, locations);
+        const istanbulTime = toZonedTime(feedback.createdAt, "Europe/Istanbul");
         return {
           ...feedback,
           formattedDate: format(new Date(feedback.createdAt), "dd/MM/yyyy"),
+          hour: format(istanbulTime, "HH:mm"),
           locationName: foundLocation ? foundLocation.name : "",
         };
       }) ?? []
@@ -40,6 +43,7 @@ const Feedback = () => {
   const columns = useMemo(
     () => [
       { key: t("Date"), isSortable: true },
+      { key: t("Create Hour"), isSortable: true },
       { key: t("Location"), isSortable: true },
       { key: t("Table"), isSortable: true },
       { key: t("Feedback"), isSortable: true },
@@ -57,6 +61,7 @@ const Feedback = () => {
           return row.formattedDate;
         },
       },
+      { key: "hour" },
       { key: "locationName" },
       { key: "tableName" },
       { key: "comment" },

@@ -177,7 +177,10 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "checkChanged",
-    invalidateKeys: [`${Paths.Checklist}/check`],
+    invalidateKeys: [
+      `${Paths.Checklist}/check`,
+      `${Paths.Checklist}/check/query`,
+    ],
   },
   {
     event: "productCategoryChanged",
