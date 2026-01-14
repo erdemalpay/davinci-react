@@ -69,12 +69,12 @@ export default function Reservations() {
   const visits = useGetVisits();
 
   const usersInCafe = useMemo(() => {
-    if (!visits || visits.length === 0) return [];
+    if (visits.length === 0) return [];
     const activeUserIds = visits
       .filter((visit) => !visit.finishHour)
       .map((visit) => visit.user);
-    const uniqueUserIds = [...new Set(activeUserIds)];
-    return users.filter((user) => uniqueUserIds.includes(user._id));
+    const uniqueUserIdSet = new Set(activeUserIds);
+    return users.filter((user) => uniqueUserIdSet.has(user._id));
   }, [visits, users]);
 
   const tableOptions = useMemo(() => {
