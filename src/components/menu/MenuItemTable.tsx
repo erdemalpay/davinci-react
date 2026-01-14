@@ -31,6 +31,7 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import {
   useCreateMultipleIkasProductMutation,
+  useCreateMultipleShopifyProductMutation,
   useGetAllMenuItems,
   useMenuItemMutations,
   useUpdateBulkItemsMutation,
@@ -97,6 +98,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { createPopular, deletePopular } = usePopularMutations();
   const { mutate: createMultipleIkasProduct } =
     useCreateMultipleIkasProductMutation();
+  const { mutate: createMultipleShopifyProduct } =
+    useCreateMultipleShopifyProductMutation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
@@ -1436,6 +1439,26 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
+      {
+        name: t("Create Shopify Product"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-blue-500 hover:text-green-500 hover:border-green-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+        onClick: () => {
+          createMultipleShopifyProduct({
+            itemIds: selectedRows?.map((row) => row._id),
+          } as any);
+          setSelectedRows([]);
+          setIsSelectionActive(false);
+          setIsEditSelectionCompeted(false);
+        },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
     ],
     [
       t,
@@ -1451,6 +1474,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       setSelectedRows,
       setIsSelectionActive,
       createMultipleIkasProduct,
+      createMultipleShopifyProduct,
       menuPageDisabledCondition,
       user,
     ]
