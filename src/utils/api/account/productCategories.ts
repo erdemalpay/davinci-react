@@ -23,3 +23,24 @@ export function useIkasCategoriesMutations() {
 export function useGetIkasCategories() {
   return useGetList<IkasCategories>(baseUrl);
 }
+
+export function useShopifyCollectionsMutations() {
+  const {
+    deleteItem: deleteShopifyCollections,
+    updateItem: updateShopifyCollections,
+    createItem: createShopifyCollections,
+  } = useMutationApi<IkasCategories>({
+    isAdditionalInvalidate: true,
+    baseQuery: baseUrl,
+  });
+
+  return {
+    deleteShopifyCollections: deleteShopifyCollections,
+    updateShopifyCollections: updateShopifyCollections,
+    createShopifyCollections: createShopifyCollections,
+  };
+}
+
+export function useGetShopifyCollections() {
+  return useGetList<IkasCategories>(baseUrl);
+}
