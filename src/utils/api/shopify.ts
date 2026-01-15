@@ -5,7 +5,7 @@ import { ShopifyProduct } from "../../types";
 import { Paths, useGetList } from "./factory";
 
 interface UpdateShopifyProductPayload {
-  productId: string;
+  variantId: string;
   stockLocationId: number;
   stockCount: number;
 }
@@ -16,7 +16,9 @@ export function useGetShopifyProducts() {
   return useGetList<ShopifyProduct>(`${Paths.Shopify}/product`);
 }
 
-export function updateShopifyProductStock(payload: UpdateShopifyProductPayload) {
+export function updateShopifyProductStock(
+  payload: UpdateShopifyProductPayload
+) {
   return patch({
     path: `${Paths.Shopify}/product-stock`,
     payload: payload,
