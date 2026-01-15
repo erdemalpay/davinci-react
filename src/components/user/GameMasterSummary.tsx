@@ -13,12 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
 import useIsSmallScreen from "../../hooks/useIsSmallScreen";
-import {
-  DateRangeKey,
-  LocationShiftType,
-  VisitPageTabEnum,
-  commonDateOptions,
-} from "../../types";
+import { DateRangeKey, VisitPageTabEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -38,6 +33,7 @@ import InfoCard from "../common/InfoCard";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import AttendanceCalendar from "./AttendanceCalendar";
 
 type Props = {
   userId: string;
@@ -53,6 +49,9 @@ const GameMasterSummary = ({ userId }: Props) => {
   const gameplayMentoredDatas = useGetPersonalGameplayMentoredData();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const [fullTimeAttendance, setFullTimeAttendance] = useState(0);
+  const [partTimeAttendance, setPartTimeAttendance] = useState(0);
+  const [unknownAttendance, setUnknownAttendance] = useState(0);
   const {
     setFilterVisitScheduleOverviewPanelFormElements,
     setShowVisitScheduleOverviewFilters,
@@ -76,39 +75,9 @@ const GameMasterSummary = ({ userId }: Props) => {
   );
   const locations = useGetStoreLocations();
   const gameplayCountsByDate = useGetGameplayCountsByDate(userId);
-  let fullTimeAttendance = 0;
-  let partTimeAttendance = 0;
-  let unknownAttendance = 0;
-  visits?.forEach((visit) => {
-    const foundShift = shifts
-      ?.find(
-        (shift) =>
-          shift.day === visit.date &&
-          shift.location === visit.location &&
-          shift.shifts?.some((s) => s.user?.includes(userId))
-      )
-      ?.shifts?.find((shift) => shift.user?.includes(userId));
-    if (foundShift) {
-      const foundLocation = locations?.find(
-        (location) => location._id === visit.location
-      );
-      if (foundLocation) {
-        const foundShiftType = foundLocation.shifts?.find(
-          (shift) => shift.shift === foundShift.shift && shift.isActive
-        )?.type;
-        if (foundShiftType === LocationShiftType.FULLTIME) {
-          fullTimeAttendance++;
-        } else if (foundShiftType === LocationShiftType.PARTTIME) {
-          partTimeAttendance++;
-        } else {
-          unknownAttendance++;
-        }
-      }
-    } else {
-      unknownAttendance++;
-    }
-  });
+
   const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.5;
+
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(
       (item) => item.user === userId
@@ -291,13 +260,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       }),
       placeholder: t("Date"),
       required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
+      additionalOnChange: ({ value }: { value: string; label: string }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
           setFilterPanelFormElements({
@@ -354,7 +317,7 @@ const GameMasterSummary = ({ userId }: Props) => {
     {
       key: "learnDate",
       className: `min-w-32   `,
-      node: (row: any) => {
+      node: (row: { learnDate: string }) => {
         return <p>{formatAsLocalDate(row.learnDate)}</p>;
       },
     },
@@ -401,9 +364,29 @@ const GameMasterSummary = ({ userId }: Props) => {
     shifts,
     visits,
     locations,
+    filterPanelFormElements.after,
+    filterPanelFormElements.before,
+    fullTimeAttendance,
+    partTimeAttendance,
+    unknownAttendance,
   ]);
   return (
     <div className="w-full flex flex-col gap-4">
+      <AttendanceCalendar
+        visits={visits || []}
+        shifts={shifts || []}
+        locations={locations || []}
+        userId={userId}
+        onAttendanceChange={({
+          fullTimeAttendance: ft,
+          partTimeAttendance: pt,
+          unknownAttendance: ua,
+        }) => {
+          setFullTimeAttendance(ft);
+          setPartTimeAttendance(pt);
+          setUnknownAttendance(ua);
+        }}
+      />
       <div
         key={tableKey}
         className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"
