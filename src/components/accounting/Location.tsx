@@ -27,12 +27,14 @@ const LocationPage = () => {
   const locations = useGetAllLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isShiftHoursCollapsibleOpen, setIsShiftHoursCollapsibleOpen] = useState(new Set());
+  const [isShiftHoursCollapsibleOpen, setIsShiftHoursCollapsibleOpen] =
+    useState(new Set());
   const [rowToAction, setRowToAction] = useState<Location>();
   const initialForm = {
     type: [],
     tableCount: 0,
     ikasId: "",
+    shopifyId: "",
   };
   const [form, setForm] = useState(initialForm as Partial<Location>);
   const { updateLocation, createStockLocation } = useLocationMutations();
@@ -80,6 +82,7 @@ const LocationPage = () => {
       { key: t("Activity Note"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
+      { key: "Shopify ID", isSortable: false },
       { key: t("Fallback Location"), isSortable: false },
       { key: t("Actions"), isSortable: false },
     ];
@@ -172,14 +175,20 @@ const LocationPage = () => {
               <button
                 onClick={() =>
                   setIsShiftHoursCollapsibleOpen((prev) => {
-                    const newSet = new Set(prev)
-                    isOpen ? newSet.delete(row._id) : newSet.add(row._id)
-                    return newSet
+                    const newSet = new Set(prev);
+                    isOpen ? newSet.delete(row._id) : newSet.add(row._id);
+                    return newSet;
                   })
                 }
                 className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
               >
-                {(sortedHours.length > 0) ? (isOpen ? <IoChevronUp/> : <IoChevronDown/>) : null}
+                {sortedHours.length > 0 ? (
+                  isOpen ? (
+                    <IoChevronUp />
+                  ) : (
+                    <IoChevronDown />
+                  )
+                ) : null}
               </button>
               {isOpen && (
                 <div className="flex flex-col gap-1 max-w-64">
@@ -343,14 +352,20 @@ const LocationPage = () => {
               <button
                 onClick={() =>
                   setIsShiftHoursCollapsibleOpen((prev) => {
-                    const newSet = new Set(prev)
-                    isOpen ? newSet.delete(row._id) : newSet.add(row._id)
-                    return newSet
+                    const newSet = new Set(prev);
+                    isOpen ? newSet.delete(row._id) : newSet.add(row._id);
+                    return newSet;
                   })
                 }
                 className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
               >
-                {(row.shifts.length>0) ? (isOpen ? <IoChevronUp/> : <IoChevronDown/>) : null}
+                {row.shifts.length > 0 ? (
+                  isOpen ? (
+                    <IoChevronUp />
+                  ) : (
+                    <IoChevronDown />
+                  )
+                ) : null}
               </button>
               {isOpen && (
                 <div className="flex flex-row gap-2 max-w-64 flex-wrap">
@@ -376,15 +391,17 @@ const LocationPage = () => {
         className: "min-w-32 pr-1",
       },
       {
+        key: "shopifyId",
+        className: "min-w-32 pr-1",
+      },
+      {
         key: "fallbackStockLocation",
         className: "min-w-32 pr-1",
         node: (row: Location) => {
           const fallbackLocation = locations.find(
             (loc) => loc._id === row.fallbackStockLocation
           );
-          return (
-            <p>{fallbackLocation?.name || "-"}</p>
-          );
+          return <p>{fallbackLocation?.name || "-"}</p>;
         },
       },
     ],
@@ -423,6 +440,13 @@ const LocationPage = () => {
         formKey: "ikasId",
         label: "Ikas ID",
         placeholder: "Ikas ID",
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "shopifyId",
+        label: "Shopify ID",
+        placeholder: "Shopify ID",
         required: false,
       },
       {
@@ -475,6 +499,13 @@ const LocationPage = () => {
         required: false,
       },
       {
+        type: InputTypes.TEXT,
+        formKey: "shopifyId",
+        label: "Shopify ID",
+        placeholder: "Shopify ID",
+        required: false,
+      },
+      {
         type: InputTypes.COLOR,
         formKey: "backgroundColor",
         label: t("Background Color"),
@@ -521,6 +552,7 @@ const LocationPage = () => {
       { key: "phoneNumber", type: FormKeyTypeEnum.STRING },
       { key: "googleMapsUrl", type: FormKeyTypeEnum.STRING },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
+      { key: "shopifyId", type: FormKeyTypeEnum.STRING },
       { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
       { key: "dailyHours", type: FormKeyTypeEnum.STRING },
       { key: "activityNote", type: FormKeyTypeEnum.STRING },
