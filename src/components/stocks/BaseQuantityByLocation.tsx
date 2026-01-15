@@ -184,26 +184,27 @@ const BaseQuantityByLocation = () => {
 
     locations
       ?.filter((location) => location.isVisibleInBaseQuantity !== false)
-      ?.forEach((location) => {
+      ?.forEach((location, index) => {
         cols.push({
           key: location.name,
           isSortable: false,
           correspondingKey: `${location._id}combined`,
           className: "min-w-[220px]",
-          node: () => (
+          columnClassName: index % 2 === 0 ? "bg-gray-100" : "bg-white",
+          node: (columnClassName) => (
             <th
               key={`header-${location._id}`}
-              className="sticky top-0 z-10 bg-gray-50 border-b-2 border-gray-200 min-w-[220px]"
+              className={`sticky top-0 z-10 border-b-2 border-gray-200 min-w-[220px] ${columnClassName}`}
             >
-              <div className="flex flex-col items-center py-3 px-3 gap-2">
+              <div className="flex flex-col items-center  px-3 gap-2">
                 <div className="text-sm font-bold text-gray-900 mb-1">
                   {location.name}
                 </div>
                 <div className="flex gap-3 w-full">
-                  <div className="flex-1 flex items-center justify-center text-blue-600 px-2 py-1  text-xs font-bold ">
+                  <div className="flex-1 flex items-center justify-center text-blue-700 bg-blue-50 px-2 py-1 text-xs font-bold rounded-md">
                     Min
                   </div>
-                  <div className="flex-1 flex items-center justify-center text-orange-600 px-2 py-1 text-xs font-bold ">
+                  <div className="flex-1 flex items-center justify-center text-orange-700 bg-orange-50 px-2 py-1 text-xs font-bold rounded-md">
                     Max
                   </div>
                 </div>
@@ -242,14 +243,14 @@ const BaseQuantityByLocation = () => {
               );
 
             return (
-              <div className="flex gap-2 items-center justify-center py-2 px-1">
-                <div className="flex items-center gap-1">
+              <div className="flex gap-2 items-center justify-center px-1">
+                <div className="flex items-center gap-1 bg-blue-50 rounded-lg p-1">
                   <TextInput
                     key={`${location._id}min`}
                     type={"number"}
                     isDebounce={true}
                     isCompactStyle={true}
-                    className="text-center w-14 h-9 px-1 text-sm font-bold border-2 !border-blue-400 focus:!border-blue-400 active:!border-blue-400 focus:outline-none rounded-md bg-white shadow-sm"
+                    className="text-center min-w-20 w-20 h-9 px-2 text-sm font-bold border-2 !border-blue-400 focus:!border-blue-400 active:!border-blue-400 focus:outline-none rounded-md bg-white shadow-sm"
                     inputWidth="w-auto"
                     value={row?.[`${location._id}min`] ?? 0}
                     label={""}
@@ -280,13 +281,13 @@ const BaseQuantityByLocation = () => {
                 </div>
 
                 {/* Max Input */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 bg-orange-50 rounded-lg p-1">
                   <TextInput
                     key={`${location._id}max`}
                     type={"number"}
                     value={row?.[`${location._id}max`] ?? 0}
                     isCompactStyle={true}
-                    className="text-center w-14 h-9 px-1 text-sm font-bold border-2 !border-orange-400 focus:!border-orange-400 active:!border-orange-400 focus:outline-none rounded-md bg-white shadow-sm"
+                    className="text-center min-w-20 w-20 h-9 px-2 text-sm font-bold border-2 !border-orange-400 focus:!border-orange-400 active:!border-orange-400 focus:outline-none rounded-md bg-white shadow-sm"
                     inputWidth="w-auto"
                     label={""}
                     placeholder={"0"}

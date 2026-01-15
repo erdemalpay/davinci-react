@@ -491,13 +491,16 @@ const GenericTable = <T,>({
             <td>{renderActionButtons(row, actions)}</td>
           )}
           {usedRowKeys?.map((rowKey, keyIndex) => {
+            const columnIndex = isActionsAtFront ? keyIndex + 1 : keyIndex;
+            const column = usedColumns?.[columnIndex];
+            const columnClassName = column?.columnClassName ?? "";
             if (rowKey.node) {
               return (
                 <td
                   key={keyIndex}
                   className={`${keyIndex === 0 ? "pl-3" : ""} py-3 min-w-20 ${
                     rowKey?.className
-                  } `}
+                  } ${columnClassName}`}
                 >
                   {rowKey.node(row)}
                 </td>
@@ -514,7 +517,7 @@ const GenericTable = <T,>({
                   key={keyIndex}
                   className={`${keyIndex === 0 ? "pl-3" : ""} py-3 min-w-20 ${
                     rowKey?.className
-                  } `}
+                  } ${columnClassName}`}
                 >
                   -
                 </td>
@@ -531,7 +534,7 @@ const GenericTable = <T,>({
                   key={keyIndex}
                   className={`${keyIndex === 0 ? "pl-3" : ""} py-3 min-w-20 ${
                     rowKey?.className
-                  }`}
+                  } ${columnClassName}`}
                 >
                   <P1>{formattedValue} ₺</P1>
                 </td>
@@ -539,7 +542,8 @@ const GenericTable = <T,>({
             }
             const cellValue = `${row[rowKey.key as keyof T]}`;
             const displayValue =
-              cellValue.length > tooltipLimit && (isToolTipEnabled || clickableCell)
+              cellValue.length > tooltipLimit &&
+              (isToolTipEnabled || clickableCell)
                 ? `${cellValue.substring(0, tooltipLimit)}...`
                 : cellValue;
             let style: React.CSSProperties = {};
@@ -556,7 +560,7 @@ const GenericTable = <T,>({
                   key={keyIndex}
                   className={`${keyIndex === 0 ? "pl-3" : ""}  py-3  ${
                     rowKey?.className
-                  } min-w-32 md:min-w-0 `}
+                  } ${columnClassName} min-w-32 md:min-w-0 `}
                 >
                   <P1
                     className="w-fit px-2 py-1 rounded-md font-semibold"
@@ -574,7 +578,11 @@ const GenericTable = <T,>({
                 key={keyIndex}
                 className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                   rowKey?.className
-                } ${cellValue.length > tooltipLimit && clickableCell ? "max-w-xs" : "min-w-20 md:min-w-0"} `}
+                } ${columnClassName} ${
+                  cellValue.length > tooltipLimit && clickableCell
+                    ? "max-w-xs"
+                    : "min-w-20 md:min-w-0"
+                } `}
               >
                 {rowKey.isImage ? (
                   <img
@@ -1018,7 +1026,8 @@ const GenericTable = <T,>({
                         <th className="sticky top-0 z-10 bg-gray-100"></th>
                       )}
                       {usedColumns?.map((column, index) => {
-                        if (column.node) return column.node();
+                        if (column.node)
+                          return column.node(column.columnClassName ?? "");
                         return (
                           <th
                             key={index}
@@ -1028,7 +1037,7 @@ const GenericTable = <T,>({
                               !isSelectionActive
                                 ? "pl-3"
                                 : ""
-                            }  py-3  min-w-8  `}
+                            }  py-3  min-w-8 ${column.columnClassName ?? ""} `}
                           >
                             <h1
                               className={`text-base font-medium leading-6 w-max flex gap-2  ${
