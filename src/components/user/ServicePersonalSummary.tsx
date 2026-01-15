@@ -1,3 +1,4 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBill1Wave } from "react-icons/fa6";
 import { GiStorkDelivery } from "react-icons/gi";
@@ -6,12 +7,7 @@ import { MdOutlineFastfood, MdOutlineTimelapse, MdTimer } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
-import {
-  DateRangeKey,
-  LocationShiftType,
-  VisitPageTabEnum,
-  commonDateOptions,
-} from "../../types";
+import { DateRangeKey, VisitPageTabEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
@@ -21,6 +17,7 @@ import { useGetFilteredVisits } from "../../utils/api/visit";
 import InfoCard from "../common/InfoCard";
 import FilterPanel from "../panelComponents/Tables/FilterPanel";
 import { InputTypes } from "../panelComponents/shared/types";
+import AttendanceCalendar from "./AttendanceCalendar";
 
 type Props = {
   userId: string;
@@ -31,6 +28,9 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   const personalOrderDatas = useGetPersonalOrderDatas();
   const navigate = useNavigate();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
+  const [fullTimeAttendance, setFullTimeAttendance] = React.useState(0);
+  const [partTimeAttendance, setPartTimeAttendance] = React.useState(0);
+  const [unknownAttendance, setUnknownAttendance] = React.useState(0);
   const { showPersonalSummaryFilters, setShowPersonalSummaryFilters } =
     useFilterContext();
   const {
@@ -53,39 +53,9 @@ const ServicePersonalSummary = ({ userId }: Props) => {
     userId
   );
   const locations = useGetStoreLocations();
-  let fullTimeAttendance = 0;
-  let partTimeAttendance = 0;
-  let unknownAttendance = 0;
-  visits?.forEach((visit) => {
-    const foundShift = shifts
-      ?.find(
-        (shift) =>
-          shift.day === visit.date &&
-          shift.location === visit.location &&
-          shift.shifts?.some((s) => s.user?.includes(userId))
-      )
-      ?.shifts?.find((shift) => shift.user?.includes(userId));
-    if (foundShift) {
-      const foundLocation = locations?.find(
-        (location) => location._id === visit.location
-      );
-      if (foundLocation) {
-        const foundShiftType = foundLocation.shifts?.find(
-          (shift) => shift.shift === foundShift.shift && shift.isActive
-        )?.type;
-        if (foundShiftType === LocationShiftType.FULLTIME) {
-          fullTimeAttendance++;
-        } else if (foundShiftType === LocationShiftType.PARTTIME) {
-          partTimeAttendance++;
-        } else {
-          unknownAttendance++;
-        }
-      }
-    } else {
-      unknownAttendance++;
-    }
-  });
+
   const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.5;
+
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(
       (item) => item.user === userId
@@ -234,12 +204,29 @@ const ServicePersonalSummary = ({ userId }: Props) => {
     },
   };
   return (
-    <div className="w-full  flex flex-row gap-6">
-      <FilterPanel {...filterPanel} />
-      <div className=" grid grid-cols-1 md:grid-cols-3 gap-4 h-32 ">
-        {userInfoCards.map((card, index) => (
-          <InfoCard key={index} {...card} />
-        ))}
+    <div className="w-full flex flex-col gap-6">
+      <AttendanceCalendar
+        visits={visits || []}
+        shifts={shifts || []}
+        locations={locations || []}
+        userId={userId}
+        onAttendanceChange={({
+          fullTimeAttendance: ft,
+          partTimeAttendance: pt,
+          unknownAttendance: ua,
+        }) => {
+          setFullTimeAttendance(ft);
+          setPartTimeAttendance(pt);
+          setUnknownAttendance(ua);
+        }}
+      />
+      <div className="w-full flex flex-row gap-6">
+        <FilterPanel {...filterPanel} />
+        <div className=" grid grid-cols-1 md:grid-cols-3 gap-4 h-32 ">
+          {userInfoCards.map((card, index) => (
+            <InfoCard key={index} {...card} />
+          ))}
+        </div>
       </div>
     </div>
   );
