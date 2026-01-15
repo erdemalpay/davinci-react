@@ -10,12 +10,12 @@ import {
   useGetAccountStocks,
   useUpdateShopifyStocksMutation,
 } from "../../utils/api/account/stock";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useGetShopifyProducts,
   useUpdateShopifyProductStockMutation,
 } from "../../utils/api/shopify";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -59,14 +59,22 @@ const ShopifyStockComparision = () => {
           (stock) =>
             stock.product === shopifyItemProduct._id && stock.location === 6
         );
+        const foundMenuItem = items.find(
+          (item) => item?.matchedProduct === shopifyItemProduct._id
+        );
+        const foundShopifyProduct = shopifyProducts?.find(
+          (shopifyProduct) =>
+            shopifyProduct.id.split("/").pop() === foundMenuItem?.shopifyId
+        );
+        const shopifyStock =
+          foundShopifyProduct?.variants?.edges?.[0]?.node?.inventoryQuantity;
+        const shopifyVariantId =
+          foundShopifyProduct?.variants?.edges?.[0]?.node?.id?.split("/").pop();
+
         return {
           ...shopifyItemProduct,
-          shopifyStock: shopifyProducts?.find(
-            (shopifyProduct) =>
-              shopifyProduct.id ===
-              items.find((item) => item?.matchedProduct === shopifyItemProduct._id)
-                ?.shopifyId
-          )?.variants[0]?.inventory_quantity,
+          shopifyStock: shopifyStock,
+          shopifyVariantId: shopifyVariantId,
           storeStock: foundStock?.quantity,
           storeStockId: foundStock?._id,
           foundStock: foundStock,
@@ -124,12 +132,11 @@ const ShopifyStockComparision = () => {
         icon: <TbTransferOut />,
         className: " cursor-pointer text-2xl",
         onClick: (row: any) => {
-          const foundItemShopifyId = items.find(
-            (item) => item.matchedProduct === row._id
-          )?.shopifyId;
-          if (row.shopifyStock === row.storeStock || !foundItemShopifyId) return;
+          if (row.shopifyStock === row.storeStock || !row.shopifyVariantId)
+            return;
+          console.log(row.shopifyVariantId);
           updateShopifyProductStock({
-            productId: foundItemShopifyId,
+            variantId: row.shopifyVariantId,
             stockLocationId: 6,
             stockCount: row.storeStock,
           });

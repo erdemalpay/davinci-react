@@ -1114,44 +1114,55 @@ export type IkasProduct = {
 export type ShopifyProduct = {
   id: string;
   title: string;
-  body_html: string | null;
+  description: string | null;
+  body_html?: string | null;
   vendor: string;
-  product_type: string;
-  created_at: string;
+  productType: string;
+  product_type?: string;
+  createdAt: string;
+  created_at?: string;
   handle: string;
-  updated_at: string;
-  published_at: string | null;
-  template_suffix: string | null;
+  updatedAt: string;
+  updated_at?: string;
+  published_at?: string | null;
+  template_suffix?: string | null;
   status: string;
-  published_scope: string;
+  published_scope?: string;
   tags: string;
-  admin_graphql_api_id: string;
+  admin_graphql_api_id?: string;
   variants: {
-    id: string;
-    product_id: string;
-    title: string;
-    price: string;
-    sku: string | null;
-    position: number;
-    compare_at_price: string | null;
-    option1: string | null;
-    option2: string | null;
-    option3: string | null;
-    created_at: string;
-    updated_at: string;
-    taxable: boolean;
-    barcode: string | null;
-    grams: number;
-    image_id: string | null;
-    weight: number;
-    weight_unit: string;
-    inventory_item_id: string;
-    inventory_quantity: number;
-    old_inventory_quantity: number;
-    requires_shipping: boolean;
-    admin_graphql_api_id: string;
-  }[];
-  options: {
+    edges: {
+      node: {
+        id: string;
+        product_id?: string;
+        title: string;
+        price: string;
+        sku: string | null;
+        position?: number;
+        compare_at_price?: string | null;
+        option1?: string | null;
+        option2?: string | null;
+        option3?: string | null;
+        created_at?: string;
+        updated_at?: string;
+        taxable?: boolean;
+        barcode: string | null;
+        grams?: number;
+        image_id?: string | null;
+        weight?: number;
+        weight_unit?: string;
+        inventory_item_id?: string;
+        inventoryQuantity: number;
+        old_inventory_quantity?: number;
+        requires_shipping?: boolean;
+        admin_graphql_api_id?: string;
+        image?: {
+          url: string;
+        };
+      };
+    }[];
+  };
+  options?: {
     id: string;
     product_id: string;
     name: string;
@@ -1159,31 +1170,14 @@ export type ShopifyProduct = {
     values: string[];
   }[];
   images: {
-    id: string;
-    product_id: string;
-    position: number;
-    created_at: string;
-    updated_at: string;
-    alt: string | null;
-    width: number;
-    height: number;
-    src: string;
-    variant_ids: string[];
-    admin_graphql_api_id: string;
-  }[];
-  image: {
-    id: string;
-    product_id: string;
-    position: number;
-    created_at: string;
-    updated_at: string;
-    alt: string | null;
-    width: number;
-    height: number;
-    src: string;
-    variant_ids: string[];
-    admin_graphql_api_id: string;
-  } | null;
+    edges: {
+      node: {
+        id: string;
+        url: string;
+        altText: string | null;
+      };
+    }[];
+  };
 };
 
 export enum RoleEnum {
