@@ -59,9 +59,10 @@ export interface ColumnType {
   isSortable: boolean;
   isAddable?: boolean;
   className?: string;
+  columnClassName?: string;
   isActive?: boolean;
   correspondingKey?: string;
-  node?: () => React.ReactNode;
+  node?: (columnClassName?: string) => React.ReactNode;
   onClick?: () => void;
 }
 type FormElementsState = {
