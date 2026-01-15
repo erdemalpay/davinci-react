@@ -64,7 +64,7 @@ export function EditGameplayDialog({
     updateGameplay({
       tableId: table._id,
       id: gameplay._id,
-      updates: { mentor },
+      updates: { mentor: mentor._id },
     });
     toast.success(t("Gameplay updated"));
   }
