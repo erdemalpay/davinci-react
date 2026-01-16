@@ -739,6 +739,7 @@ export type MenuItem = {
   productImages?: string[];
   ikasId?: string;
   shopifyId?: string;
+  shopifyVariantId?: string;
   sku?: string;
   barcode?: string;
   shownInMenu?: boolean;

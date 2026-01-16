@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
 import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetShopifyProducts } from "../../utils/api/shopify";
 import {
   useGetMenuItems,
   useUpdateShopifyPricesMutation,
 } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetShopifyProducts } from "../../utils/api/shopify";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -47,16 +47,14 @@ const ShopifyPriceComparision = () => {
         const foundItem = items.find(
           (item) => item.matchedProduct === shopifyItemProduct._id
         );
+        const foundShopifyProduct = shopifyProducts?.find(
+          (shopifyProduct) =>
+            shopifyProduct.id.split("/").pop() === foundItem?.shopifyId
+        );
         return {
           ...shopifyItemProduct,
           shopifyPrice: parseFloat(
-            shopifyProducts?.find(
-              (shopifyProduct) =>
-                shopifyProduct.id ===
-                items.find(
-                  (item) => item?.matchedProduct === shopifyItemProduct._id
-                )?.shopifyId
-            )?.variants[0]?.price || "0"
+            foundShopifyProduct?.variants?.edges?.[0]?.node?.price || "0"
           ),
           itemPrice: foundItem?.price,
           itemOnlinePrice: foundItem?.onlinePrice,
