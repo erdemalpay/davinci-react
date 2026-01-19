@@ -79,9 +79,9 @@ const ShopifyOrders = () => {
     const allRows = orders
       ?.filter((order) => {
         if (
-          order?.shopifyId !== null &&
-          order?.shopifyId !== undefined &&
-          order?.shopifyId !== ""
+          order?.shopifyOrderLineItemId !== null &&
+          order?.shopifyOrderLineItemId !== undefined &&
+          order?.shopifyOrderLineItemId !== ""
         ) {
           if (filterPanelFormElements?.cancelHour !== "") {
             return (
@@ -560,7 +560,7 @@ const ShopifyOrders = () => {
                 return;
               }
               cancelShopifyOrder({
-                shopifyId: rowToAction.shopifyId,
+                shopifyOrderLineItemId: rowToAction.shopifyOrderLineItemId,
                 quantity: cancelForm.quantity,
               });
             }}
