@@ -783,7 +783,7 @@
   "Zero Stock": "Sıfır Stok",
   "Stock Restored": "Stok Yenilendi",
   "StockRestored": "{{product}} ürününün {{location}} lokasyonundaki stoğu yenilendi.Menuye eklendi.",
-  "Ikas Takeaway": "İkas Paket Servis",
+  "Ikas Takeaway": "İkas Gel Al",
   "Late Shift Start": "Geç Vardiya Başlangıcı",
   "Night Open Table": "Gece Açık Masa",
   "Early Shift End": "Erken Vardiya Bitişi",
@@ -1229,5 +1229,6 @@
   "Daily Duration": "Günlük Süre",
   "All Gameplay Time": "Oyun Anlatımı Süreleri",
   "Auto Prepared": "Otomatik Hazırlandı",
-  "Create Shopify Product" : "Shopify Ürünü Oluştur"
+  "Create Shopify Product": "Shopify Ürünü Oluştur",
+  "Shopify Takeaway": " Shopify Gel Al"
 }
