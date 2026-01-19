@@ -63,9 +63,9 @@ const ShopifyPickUp = () => {
           return false;
         }
         if (
-          order?.shopifyId !== null &&
-          order?.shopifyId !== undefined &&
-          order?.shopifyId !== "" &&
+          order?.shopifyOrderId !== null &&
+          order?.shopifyOrderId !== undefined &&
+          order?.shopifyOrderId !== "" &&
           order?.shopifyCustomer &&
           order?.status !== OrderStatus.CANCELLED
         ) {
@@ -99,7 +99,7 @@ const ShopifyPickUp = () => {
           tableName: (order?.table as Table)?.name ?? "",
           amount: order?.unitPrice * order?.quantity,
           note: order?.note ?? "",
-          shopifyId: order?.shopifyId,
+          shopifyOrderId: order?.shopifyOrderId,
           customerFirstName: order?.shopifyCustomer?.firstName ?? "",
           customerLastName: order?.shopifyCustomer?.lastName ?? "",
           customerEmail: order?.shopifyCustomer?.email ?? "",
