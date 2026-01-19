@@ -280,4 +280,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "breakChanged",
     invalidateKeys: [`${Paths.Breaks}`],
   },
+  {
+    event: "shopifyProductStockChanged",
+    invalidateKeys: [`${Paths.Shopify}/product`],
+  },
 ];
