@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
 import { useDataContext } from "../context/Data.context";
 import {
-  AccountStock,
   Gameplay,
   MenuItem,
   Notification,
@@ -300,30 +299,6 @@ export function useWebSocket() {
             .catch((error) => console.error("Error playing sound:", error));
         }
       }
-    });
-
-    socket.on("stockAdded", ({ stock }: { stock: AccountStock }) => {
-      const { queryClient } = latestValuesRef.current;
-
-      queryClient.setQueryData<AccountStock[]>(
-        [`${Paths.Accounting}/stocks`],
-        (oldData) => {
-          if (!oldData) return oldData;
-          return [...oldData, stock];
-        }
-      );
-    });
-
-    socket.on("stockUpdated", ({ stock }: { stock: AccountStock }) => {
-      const { queryClient } = latestValuesRef.current;
-
-      queryClient.setQueryData<AccountStock[]>(
-        [`${Paths.Accounting}/stocks`],
-        (oldData) => {
-          if (!oldData) return oldData;
-          return oldData.map((s) => (s._id === stock._id ? stock : s));
-        }
-      );
     });
 
     socket.on("orderUpdated", ({ orders }: { orders: Order[] }) => {
