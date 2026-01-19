@@ -17,6 +17,7 @@ import {
   useUpdateShopifyProductStockMutation,
 } from "../../utils/api/shopify";
 import { getItem } from "../../utils/getItem";
+import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
@@ -28,7 +29,8 @@ const ShopifyStockComparision = () => {
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
   const disabledConditions = useGetDisabledConditions();
-  const { mutate: updateShopifyStocks } = useUpdateShopifyStocksMutation();
+  const { mutate: updateShopifyStocks, isPending: isUpdatingShopifyStocks } =
+    useUpdateShopifyStocksMutation();
   const { mutate: updateShopifyProductStock } =
     useUpdateShopifyProductStockMutation();
   const { updateAccountStock } = useAccountStockMutations();
@@ -66,8 +68,18 @@ const ShopifyStockComparision = () => {
           (shopifyProduct) =>
             shopifyProduct.id.split("/").pop() === foundMenuItem?.shopifyId
         );
+
+        // Get on_hand quantity from inventoryLevels
+        const inventoryLevels =
+          foundShopifyProduct?.variants?.edges?.[0]?.node?.inventoryItem
+            ?.inventoryLevels?.edges?.[0]?.node;
+        const onHandQuantity = inventoryLevels?.quantities?.find(
+          (q) => q.name === "on_hand"
+        )?.quantity;
         const shopifyStock =
+          onHandQuantity ??
           foundShopifyProduct?.variants?.edges?.[0]?.node?.inventoryQuantity;
+
         const shopifyVariantId =
           foundShopifyProduct?.variants?.edges?.[0]?.node?.id?.split("/").pop();
 
@@ -163,15 +175,21 @@ const ShopifyStockComparision = () => {
     () => [
       {
         isUpperSide: false,
-        isDisabled: shopifyStockComparisionPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SYNC &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled:
+          isUpdatingShopifyStocks ||
+          shopifyStockComparisionPageDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.SYNC &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
         node: (
           <ButtonFilter
-            buttonName={t("Update Shopify Stocks")}
+            buttonName={
+              isUpdatingShopifyStocks
+                ? t("Updating...")
+                : t("Update Shopify Stocks")
+            }
             onclick={() => {
               updateShopifyStocks();
             }}
@@ -179,11 +197,18 @@ const ShopifyStockComparision = () => {
         ),
       },
     ],
-    [shopifyStockComparisionPageDisabledCondition, user, t, updateShopifyStocks]
+    [
+      shopifyStockComparisionPageDisabledCondition,
+      user,
+      t,
+      updateShopifyStocks,
+      isUpdatingShopifyStocks,
+    ]
   );
 
   return (
     <>
+      {isUpdatingShopifyStocks && <Loading />}
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}

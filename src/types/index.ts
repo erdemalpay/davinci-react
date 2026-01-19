@@ -1160,6 +1160,25 @@ export type ShopifyProduct = {
         image?: {
           url: string;
         };
+        inventoryItem?: {
+          id: string;
+          tracked: boolean;
+          inventoryLevels: {
+            edges: {
+              node: {
+                id: string;
+                quantities: {
+                  name: string;
+                  quantity: number;
+                }[];
+                location: {
+                  id: string;
+                  name: string;
+                };
+              };
+            }[];
+          };
+        };
       };
     }[];
   };
