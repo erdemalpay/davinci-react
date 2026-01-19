@@ -127,7 +127,7 @@ interface CancelIkasOrder {
   quantity: number;
 }
 interface CancelShopifyOrder {
-  shopifyId: string;
+  shopifyOrderId: string;
   quantity: number;
 }
 
