@@ -935,6 +935,7 @@ export type OrderCollection = {
   activityPlayer?: string;
   ikasOrderNumber?: string;
   shopifyOrderNumber?: string;
+  shopifyShippingAmount?: number;
 };
 
 export type OrderNote = {

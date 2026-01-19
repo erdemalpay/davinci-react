@@ -284,6 +284,7 @@ const Collections = () => {
       { key: t("Created By"), isSortable: true },
       { key: t("Payment Method"), isSortable: true },
       { key: t("Amount"), isSortable: true },
+      { key: t("Shipping Cost"), isSortable: true },
       { key: t("Cancelled By"), isSortable: true },
       { key: t("Cancelled At"), isSortable: true },
       { key: t("Cancel Note"), isSortable: true },
@@ -356,6 +357,7 @@ const Collections = () => {
           );
         },
       },
+      { key: "shopifyShippingAmount" },
       { key: "cancelledBy" },
       { key: "cancelledAt" },
       { key: "cancelNote" },
