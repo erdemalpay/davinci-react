@@ -90,7 +90,8 @@ export function ActiveButtonCallsList() {
         const newTimes: { [key: string]: string } = {};
         activeButtonCalls.forEach((buttonCall) => {
           const diffInSeconds = getElapsedSeconds(buttonCall.startHour);
-          newTimes[buttonCall.tableName] = formatTimeAgo(diffInSeconds);
+          const uniqueKey = `${buttonCall.tableName}-${buttonCall.type}`;
+          newTimes[uniqueKey] = formatTimeAgo(diffInSeconds);
         });
         return newTimes;
       });
@@ -130,38 +131,41 @@ export function ActiveButtonCallsList() {
         <div className="text-gray-400 text-xs sm:text-sm flex-shrink-0">─</div>
 
         <div className="flex flex-wrap gap-1 sm:gap-1.5">
-          {calls.map((buttonCall) => (
-            <div
-              key={buttonCall.tableName}
-              className={`${getBackgroundColor(
-                buttonCall.type
-              )} relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
-              title={`${buttonCall.tableName} - ${
-                timeAgo[buttonCall.tableName] || "00:00"
-              }`}
-            >
-              {/* Masa Adı */}
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">
-                {buttonCall.tableName}
-              </span>
-
-              {/* Süre */}
-              <span className="text-[9px] sm:text-[10px] font-mono opacity-90 whitespace-nowrap">
-                {timeAgo[buttonCall.tableName] || "00:00"}
-              </span>
-
-              {/* Kapat Butonu - Her zaman görünür */}
-              <button
-                onClick={() =>
-                  handleChipClose(buttonCall.tableName, buttonCall.type)
-                }
-                className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
-                aria-label="Çağrıyı kapat"
+          {calls.map((buttonCall) => {
+            const uniqueKey = `${buttonCall.tableName}-${buttonCall.type}`;
+            return (
+              <div
+                key={uniqueKey}
+                className={`${getBackgroundColor(
+                  buttonCall.type
+                )} relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
+                title={`${buttonCall.tableName} - ${
+                  timeAgo[uniqueKey] || "00:00"
+                }`}
               >
-                ✕
-              </button>
-            </div>
-          ))}
+                {/* Masa Adı */}
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">
+                  {buttonCall.tableName}
+                </span>
+
+                {/* Süre */}
+                <span className="text-[9px] sm:text-[10px] font-mono opacity-90 whitespace-nowrap">
+                  {timeAgo[uniqueKey] || "00:00"}
+                </span>
+
+                {/* Kapat Butonu - Her zaman görünür */}
+                <button
+                  onClick={() =>
+                    handleChipClose(buttonCall.tableName, buttonCall.type)
+                  }
+                  className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
+                  aria-label="Çağrıyı kapat"
+                >
+                  ✕
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
