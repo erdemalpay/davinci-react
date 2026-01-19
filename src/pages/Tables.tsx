@@ -1,9 +1,10 @@
 import { Tooltip } from "@material-tailwind/react";
 import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { GiBowlOfRice, GiHamburger } from "react-icons/gi";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
@@ -101,7 +102,30 @@ const Tables = () => {
   const [showServedOrders, setShowServedOrders] = useState(true);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
+
+  // Time tracker for icon animation after 2 minutes
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const { setIsTabInputScreenOpen } = useGeneralContext();
+
+  // Check if there are any CONFIRMATIONREQ orders that need time tracking
+  const hasConfirmationReqOrders = useMemo(() => {
+    if (!todayOrders || !menuItems || !categories || !kitchens) return false;
+
+    return todayOrders.some((order) => {
+      if (order.status !== OrderStatus.CONFIRMATIONREQ) return false;
+
+      const menuItem = menuItems.find((item) => item._id === order.item);
+      if (!menuItem) return false;
+
+      const category = categories.find((cat) => cat._id === menuItem.category);
+      if (!category) return false;
+
+      const kitchen = kitchens.find((k) => k._id === category.kitchen);
+      if (!kitchen) return false;
+
+      return kitchen.isConfirmationRequired === true;
+    });
+  }, [todayOrders, menuItems, categories, kitchens]);
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
   const allLocations = useGetAllLocations();
@@ -1088,6 +1112,22 @@ const Tables = () => {
     selectedLocationId,
     users,
   ]);
+
+  // Update time every 10 seconds for 2-minute icon animation check
+  // Only run interval when there are CONFIRMATIONREQ orders to avoid unnecessary re-renders
+  useEffect(() => {
+    if (!hasConfirmationReqOrders) {
+      // No confirmation required orders, no need to update time
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
+  }, [hasConfirmationReqOrders]);
+
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
@@ -1100,6 +1140,83 @@ const Tables = () => {
     newDate.setDate(date.getDate() + 1);
     setSelectedDate(formatDate(newDate));
   };
+
+  const tableOrdersMap = useMemo(() => {
+    if (!todayOrders) return new Map<string | number, Order[]>();
+
+    const map = new Map<string | number, Order[]>();
+    todayOrders.forEach((order) => {
+      const tableId = (order.table as Table)?._id;
+      if (!tableId) return;
+
+      if (!map.has(tableId)) {
+        map.set(tableId, []);
+      }
+      const orders = map.get(tableId);
+      if (orders) {
+        orders.push(order);
+      }
+    });
+
+    return map;
+  }, [todayOrders]);
+
+  const isConfirmationRequiredOrder = useCallback(
+    (order: Order) => {
+      if (!menuItems || !categories || !kitchens) return false;
+
+      const menuItem = menuItems.find((item) => item._id === order.item);
+      if (!menuItem) return false;
+
+      const category = categories.find((cat) => cat._id === menuItem.category);
+      if (!category) return false;
+
+      const kitchen = kitchens.find((k) => k._id === category.kitchen);
+      if (!kitchen) return false;
+
+      return kitchen.isConfirmationRequired === true;
+    },
+    [menuItems, categories, kitchens]
+  );
+
+  const getKitchenIcon = useCallback(
+    (order: Order) => {
+      if (!menuItems || !categories || !kitchens) return null;
+
+      const menuItem = menuItems.find((item) => item._id === order.item);
+      if (!menuItem) return null;
+
+      const category = categories.find((cat) => cat._id === menuItem.category);
+      if (!category) return null;
+
+      const kitchen = kitchens.find((k) => k._id === category.kitchen);
+      if (!kitchen) return null;
+
+      const kitchenName = kitchen.name.toLowerCase();
+
+      // Check if 2 minutes have passed
+      const waitTime = currentTime - new Date(order.createdAt).getTime();
+      const isOverTwoMinutes = waitTime > 120000; // 2 minutes
+
+      const animationClass = isOverTwoMinutes ? "animate-bounce" : "";
+
+      if (kitchenName.includes("farm") || kitchenName.includes("burger")) {
+        return (
+          <GiHamburger className={`inline-block ml-2 ${animationClass}`} />
+        );
+      }
+
+      if (kitchenName.includes("kovada") || kitchenName.includes("pilav")) {
+        return (
+          <GiBowlOfRice className={`inline-block ml-2 ${animationClass}`} />
+        );
+      }
+
+      return null;
+    },
+    [menuItems, categories, kitchens, currentTime]
+  );
+
   const handleOrderObject = () => {
     if (!menuItems || !categories) return null;
     const selectedMenuItem = getItem(orderForm?.item, menuItems);
@@ -1258,41 +1375,113 @@ const Tables = () => {
     );
   };
 
-  const bgColorForUpperButtons = (table: Table, tableName?: string) => {
-    const tableOrders = todayOrders?.filter(
-      (order) => (order.table as Table)?._id === table?._id
-    );
+  //optimization for time based color
+  const getColorByWaitTime = useCallback(
+    (orders: Order[]) => {
+      if (!orders || orders.length === 0) return null;
 
-    if (table.type === TableTypes.ACTIVITY && tableName) {
-      const ordersWithoutActivityTable = tableOrders?.some(
-        (tableOrder) =>
-          (tableOrder as Order)?.status === OrderStatus.READYTOSERVE &&
-          !(tableOrder as Order)?.activityTableName
+      const oldestOrder = orders.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )[0];
+
+      const waitTime = currentTime - new Date(oldestOrder.createdAt).getTime();
+      const isOverTwoMinutes = waitTime > 120000; // 2 minutes
+
+      return isOverTwoMinutes ? "gradient-pulse-urgent" : "bg-purple-300";
+    },
+    [currentTime]
+  );
+
+  const bgColorForUpperButtons = useCallback(
+    (table: Table, tableName?: string) => {
+      const tableOrders = tableOrdersMap.get(table?._id) || [];
+
+      const confirmationReqOrders = tableOrders.filter(
+        (order) =>
+          order.status === OrderStatus.CONFIRMATIONREQ &&
+          isConfirmationRequiredOrder(order)
       );
 
-      if (ordersWithoutActivityTable) {
-        return "bg-orange-200";
+      if (confirmationReqOrders.length > 0) {
+        if (table.type === TableTypes.ACTIVITY && tableName) {
+          const relevantOrders = confirmationReqOrders.filter(
+            (order) =>
+              !(order as Order)?.activityTableName ||
+              (order as Order)?.activityTableName === tableName
+          );
+
+          if (relevantOrders.length > 0) {
+            return getColorByWaitTime(relevantOrders);
+          }
+        } else {
+          return getColorByWaitTime(confirmationReqOrders);
+        }
       }
 
-      const hasReadyToServeForTable = tableOrders?.some((tableOrder) => {
-        const isReadyToServe =
-          (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
-        const matchesTableName =
-          (tableOrder as Order)?.activityTableName === tableName;
-        return isReadyToServe && matchesTableName;
-      });
+      if (table.type === TableTypes.ACTIVITY && tableName) {
+        const ordersWithoutActivityTable = tableOrders?.some(
+          (tableOrder) =>
+            (tableOrder as Order)?.status === OrderStatus.READYTOSERVE &&
+            !(tableOrder as Order)?.activityTableName
+        );
 
-      return hasReadyToServeForTable ? "bg-orange-200" : "bg-red-300";
-    } else if (table.type !== TableTypes.ACTIVITY) {
-      return tableOrders?.some(
-        (tableOrder) =>
-          (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
-      )
-        ? "bg-orange-200"
-        : "bg-red-300";
-    }
-    return "bg-red-300";
-  };
+        if (ordersWithoutActivityTable) {
+          return "bg-orange-200";
+        }
+
+        const hasReadyToServeForTable = tableOrders?.some((tableOrder) => {
+          const isReadyToServe =
+            (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
+          const matchesTableName =
+            (tableOrder as Order)?.activityTableName === tableName;
+          return isReadyToServe && matchesTableName;
+        });
+
+        return hasReadyToServeForTable ? "bg-orange-200" : "bg-red-300";
+      } else if (table.type !== TableTypes.ACTIVITY) {
+        return tableOrders?.some(
+          (tableOrder) =>
+            (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
+        )
+          ? "bg-orange-200"
+          : "bg-red-300";
+      }
+
+      return "bg-red-300";
+    },
+    [tableOrdersMap, isConfirmationRequiredOrder, getColorByWaitTime]
+  );
+
+  const getTableButtonProps = useCallback(
+    (table: Table, tableName?: string) => {
+      const buttonColor = bgColorForUpperButtons(table, tableName);
+      const isPurpleOrGradient =
+        buttonColor === "bg-purple-300" ||
+        buttonColor === "gradient-pulse-urgent";
+      const hoverClass = isPurpleOrGradient
+        ? "hover:opacity-90"
+        : "hover:bg-red-500";
+
+      const tableOrders = tableOrdersMap.get(table?._id) || [];
+      const confirmationOrder = tableOrders.find(
+        (order) =>
+          order.status === OrderStatus.CONFIRMATIONREQ &&
+          isConfirmationRequiredOrder(order)
+      );
+      const kitchenIcon = confirmationOrder
+        ? getKitchenIcon(confirmationOrder)
+        : null;
+
+      return { buttonColor, hoverClass, kitchenIcon };
+    },
+    [
+      bgColorForUpperButtons,
+      tableOrdersMap,
+      isConfirmationRequiredOrder,
+      getKitchenIcon,
+    ]
+  );
 
   const reservedTableClass = "bg-purple-400 text-white hover:bg-purple-500";
 
@@ -1513,13 +1702,14 @@ const Tables = () => {
                           table?.tables?.includes(tableName)
                       );
                       if (table && !table?.finishHour) {
+                        // ✅ Use helper function (OPTIMIZATION 1 - eliminates code duplication)
+                        const { buttonColor, hoverClass, kitchenIcon } =
+                          getTableButtonProps(table, tableName);
+
                         return (
                           <a
                             key={`${table._id}-${tableName}-tableselector-small`}
-                            className={`px-4 py-2 rounded-lg focus:outline-none hover:bg-red-500 text-white font-medium ${bgColorForUpperButtons(
-                              table,
-                              tableName
-                            )}`}
+                            className={`px-4 py-2 rounded-lg focus:outline-none ${hoverClass} text-white font-medium ${buttonColor}`}
                             {...makePressHandlers(
                               table._id,
                               `table-${table._id}`
@@ -1528,6 +1718,7 @@ const Tables = () => {
                             {table?.type === TableTypes.ACTIVITY
                               ? `${tableName} (${table?.name})`
                               : table?.name}
+                            {kitchenIcon}
                           </a>
                         );
                       }
@@ -1596,13 +1787,14 @@ const Tables = () => {
                     );
 
                     if (table && !table.finishHour) {
+                      // ✅ Use helper function (OPTIMIZATION 1 - eliminates code duplication)
+                      const { buttonColor, hoverClass, kitchenIcon } =
+                        getTableButtonProps(table, tableName);
+
                       return (
                         <a
                           key={`${table._id}-${tableName}-tableselector-large`}
-                          className={`px-4 py-2 rounded-lg cursor-pointer focus:outline-none hover:bg-red-500 text-white font-medium ${bgColorForUpperButtons(
-                            table,
-                            tableName
-                          )}`}
+                          className={`px-4 py-2 rounded-lg cursor-pointer focus:outline-none ${hoverClass} text-white font-medium ${buttonColor}`}
                           {...makePressHandlers(
                             table._id,
                             `table-${table._id}`
@@ -1611,6 +1803,7 @@ const Tables = () => {
                           {table.type === TableTypes.ACTIVITY
                             ? `${tableName} (${table.name})`
                             : table.name}
+                          {kitchenIcon}
                         </a>
                       );
                     }
