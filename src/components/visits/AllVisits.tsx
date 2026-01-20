@@ -115,8 +115,36 @@ const AllVisits = () => {
           return <p className="min-w-32 pr-2">{row.formattedDate}</p>;
         },
       },
-      { key: "startHour" },
-      { key: "finishHour" },
+      {
+        key: "startHour",
+        node: (row: any) => {
+          return (
+            <div className="flex flex-col">
+              <p>{row.startHour}</p>
+              {row.visitStartSource && (
+                <p className="text-xs text-gray-500">
+                  {t(row.visitStartSource)}
+                </p>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: "finishHour",
+        node: (row: any) => {
+          return (
+            <div className="flex flex-col">
+              <p>{row.finishHour}</p>
+              {row.visitFinishSource && (
+                <p className="text-xs text-gray-500">
+                  {t(row.visitFinishSource)}
+                </p>
+              )}
+            </div>
+          );
+        },
+      },
     ],
     []
   );
