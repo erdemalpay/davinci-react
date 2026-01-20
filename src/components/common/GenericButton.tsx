@@ -15,44 +15,14 @@ export type GenericButtonVariant =
 export type GenericButtonSize = "sm" | "md" | "lg";
 
 export interface GenericButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /**
-   * Visual style variant of the button
-   * @default "primary"
-   */
-  variant?: GenericButtonVariant;
-
-  /**
-   * Size of the button
-   * @default "md"
-   */
-  size?: GenericButtonSize;
-
-  /**
-   * Loading state - shows spinner and disables button
-   * @default false
-   */
-  isLoading?: boolean;
-
-  /**
-   * Icon to display before the button text
-   */
-  iconLeft?: ReactNode;
-
-  /**
-   * Icon to display after the button text
-   */
-  iconRight?: ReactNode;
-
-  /**
-   * Makes the button take full width of its container
-   * @default false
-   */
-  fullWidth?: boolean;
-
-  /**
-   * Button content
-   */
-  children?: ReactNode;
+  variant?: GenericButtonVariant; // Visual style variant of the button @default "primary"
+  size?: GenericButtonSize; // Size of the button @default "md"
+  isLoading?: boolean; // Loading state - shows spinner and disables button @default false
+  iconLeft?: ReactNode; // Icon to display before the button text
+  iconRight?: ReactNode; // Icon to display after the button text
+  fullWidth?: boolean; // Makes the button take full width of its container @default false
+  customHeight?: string; // Custom height for the button (e.g., "h-12", "h-16")
+  children?: ReactNode; // Button content
 }
 
 const GenericButton = forwardRef<HTMLButtonElement, GenericButtonProps>(
@@ -64,6 +34,7 @@ const GenericButton = forwardRef<HTMLButtonElement, GenericButtonProps>(
       iconLeft,
       iconRight,
       fullWidth = false,
+      customHeight,
       disabled,
       className = "",
       type = "button",
@@ -110,12 +81,16 @@ const GenericButton = forwardRef<HTMLButtonElement, GenericButtonProps>(
     // Width style
     const widthStyle = fullWidth ? "w-full" : "w-fit";
 
+    // Height style
+    const heightStyle = customHeight || "";
+
     // Combine all styles
     const combinedClassName = `
       ${baseStyles}
       ${variantStyles[variant]}
       ${sizeStyles[size]}
       ${widthStyle}
+      ${heightStyle}
       ${className}
     `.trim();
 

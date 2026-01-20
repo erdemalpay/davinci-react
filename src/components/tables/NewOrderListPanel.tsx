@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
@@ -5,6 +6,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { MdCancel } from "react-icons/md";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { toast } from "react-toastify";
+import { GenericButton } from "../common/GenericButton";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import { OrderDiscountStatus, OrderStatus } from "../../types";
@@ -20,6 +22,7 @@ const NewOrderListPanel = () => {
   const items = useGetMenuItems();
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const [isDiscountSectionOpen, setIsDiscountSectionOpen] = useState(false);
   const {
     orderCreateBulk,
     setOrderCreateBulk,
@@ -270,7 +273,22 @@ const NewOrderListPanel = () => {
             })}
           </div>
 
-          {orderCreateBulk?.length > 0 && <NewOrderDiscounts />}
+          {orderCreateBulk?.length > 0 && (
+            !isDiscountSectionOpen ? (
+              <GenericButton
+                onClick={() => setIsDiscountSectionOpen(true)}
+                variant="primary"
+                size="lg"
+                fullWidth
+                customHeight="h-8"
+                className="shadow-md"
+              >
+                {t("Apply Discount to All Products")}
+              </GenericButton>
+            ) : (
+              <NewOrderDiscounts />
+            )
+          )}
         </>
       )}
 
