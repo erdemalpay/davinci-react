@@ -73,8 +73,25 @@ const CheckArchive = () => {
     );
   }, [disabledConditions]);
 
+  const canShowAll = useMemo(() => {
+    const showAllAction = checkArchivePageDisabledCondition?.actions?.find(
+      (ac) => ac.action === ActionEnum.SHOW_ALL
+    );
+    return (
+      showAllAction &&
+      user?.role?._id &&
+      showAllAction.permissionsRoles?.includes(user.role._id)
+    );
+  }, [checkArchivePageDisabledCondition, user]);
+
   const rows = useMemo(() => {
     const allRows = checks
+      .filter((check) => {
+        if (canShowAll) {
+          return true;
+        }
+        return check?.user === user?._id;
+      })
       .map((check) => {
         if (!check?.createdAt) {
           return null;
@@ -109,7 +126,7 @@ const CheckArchive = () => {
       })
       .filter((item) => item !== null);
     return allRows;
-  }, [checks, checklists, locations, users, pad]);
+  }, [checks, user, canShowAll, checklists, locations, users, pad]);
 
   const columns = useMemo(() => {
     return [

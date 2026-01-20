@@ -655,7 +655,8 @@ export enum ActionEnum {
   ASSIGN_CHEF = "assign_chef",
   COPY_DAY_INTERVAL = "copy_day_interval",
   COPY_SHIFT = "copy_shift",
-  CHECK = "check"
+  CHECK = "check",
+  SHOW_ALL = "show_all"
 }
 
 export type Membership = {
