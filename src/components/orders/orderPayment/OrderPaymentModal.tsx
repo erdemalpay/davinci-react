@@ -229,25 +229,39 @@ const OrderPaymentModal = ({
       ),
     [collections, tableId, selectedActivityUser]
   );
-  const collectionsTotalAmount = useMemo(
-    () =>
-      Number(
-        collections
-          ?.filter(
-            (collection) =>
-              (collection?.table as Table)?._id === tableId &&
-              (selectedActivityUser === "" ||
-                collection?.activityPlayer === selectedActivityUser)
-          )
-          ?.reduce((acc, collection) => {
-            if (collection?.status === OrderCollectionStatus.CANCELLED) {
-              return acc;
-            }
-            return acc + (collection?.amount ?? 0);
-          }, 0)
-      ),
-    [collections, tableId, selectedActivityUser]
-  );
+  const collectionsTotalAmount = useMemo(() => {
+    if (selectedActivityUser) {
+      const userOrders = allTableOrders?.filter(
+        (order) =>
+          order?.activityPlayer === selectedActivityUser &&
+          order?.status !== OrderStatus.CANCELLED
+      );
+      const isAllUserOrdersPaid = !userOrders?.some(
+        (order: Order) => order?.paidQuantity !== order?.quantity
+      );
+      if (isAllUserOrdersPaid) {
+        const userOrdersTotal = userOrders?.reduce((acc, order) => {
+          return acc + order?.unitPrice * order?.quantity;
+        }, 0);
+        return Number(userOrdersTotal);
+      }
+    }
+    return Number(
+      collections
+        ?.filter(
+          (collection) =>
+            (collection?.table as Table)?._id === tableId &&
+            (selectedActivityUser === "" ||
+              collection?.activityPlayer === selectedActivityUser)
+        )
+        ?.reduce((acc, collection) => {
+          if (collection?.status === OrderCollectionStatus.CANCELLED) {
+            return acc;
+          }
+          return acc + (collection?.amount ?? 0);
+        }, 0)
+    );
+  }, [collections, tableId, selectedActivityUser, allTableOrders]);
   const allDiscountAmount = useMemo(
     () =>
       allTableOrders?.reduce((acc, order) => {
@@ -282,6 +296,7 @@ const OrderPaymentModal = ({
       }, 0),
     [tableOrders]
   );
+  console.log("discountAmount", discountAmount);
   const totalAmount = useMemo(
     () =>
       tableOrders?.reduce((acc, order) => {
@@ -303,10 +318,26 @@ const OrderPaymentModal = ({
   const isAllItemsPaid =
     allTableOrders?.every((order) => order?.paidQuantity === order?.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
-  const unpaidAmount = Math.min(
-    totalAmount - discountAmount - collectionsTotalAmount,
-    allTotalAmount - allDiscountAmount - allCollectionsTotalAmount
-  );
+  const unpaidAmount = useMemo(() => {
+    if (selectedActivityUser) {
+      // For specific activity user: unpaid amount is only for that user's orders
+      return Math.max(0, totalAmount - discountAmount - collectionsTotalAmount);
+    }
+    // For normal case (no specific user): minimum of filtered orders and all orders
+    return Math.min(
+      totalAmount - discountAmount - collectionsTotalAmount,
+      allTotalAmount - allDiscountAmount - allCollectionsTotalAmount
+    );
+  }, [
+    selectedActivityUser,
+    totalAmount,
+    discountAmount,
+    collectionsTotalAmount,
+    allTotalAmount,
+    allDiscountAmount,
+    allCollectionsTotalAmount,
+  ]);
+
   const handlePrint = () => {
     const printFrame = document.createElement("iframe");
     printFrame.style.visibility = "hidden";
