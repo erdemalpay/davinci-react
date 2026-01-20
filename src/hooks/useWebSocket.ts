@@ -29,7 +29,6 @@ const GESTURE_EVENTS = [
   "touchstart",
   "keydown",
 ] as const;
-type TablesByLocation = Record<string, Table[]>;
 
 export function useWebSocket() {
   const queryClient = useQueryClient();
@@ -240,19 +239,16 @@ export function useWebSocket() {
           if (!oldData) return oldData;
 
           const normalizedOrder = order;
-          // If table is just an ID, fetch the full table object from tables cache
-          if (typeof order.table === "number") {
-            const tablesData = queryClient.getQueryData<TablesByLocation>([
-              Paths.Tables,
-              selectedDate,
-            ]);
+          // If table is just an ID, fetch the full table object from tables cache using order's location
+          if (typeof order.table === "number" && order.location) {
+            const tablesForLocation = queryClient.getQueryData<Table[]>(
+              [Paths.Tables, order.location, selectedDate]
+            );
 
-            if (tablesData) {
-              let foundTable = null;
-              for (const locationTables of Object.values(tablesData)) {
-                foundTable = locationTables.find((t) => t?._id === order.table);
-                if (foundTable) break;
-              }
+            if (tablesForLocation) {
+              const foundTable = tablesForLocation.find(
+                (t) => t?._id === order.table
+              );
 
               if (foundTable) {
                 normalizedOrder.table = foundTable;
@@ -322,20 +318,15 @@ export function useWebSocket() {
           }
           for (const order of orders) {
             const normalizedOrder = order;
-            if (typeof order.table === "number") {
-              const tablesData = queryClient.getQueryData<TablesByLocation>([
-                Paths.Tables,
-                selectedDate,
-              ]);
+            if (typeof order.table === "number" && order.location) {
+              const tablesForLocation = queryClient.getQueryData<Table[]>(
+                [Paths.Tables, order.location, selectedDate]
+              );
 
-              if (tablesData) {
-                let foundTable = null;
-                for (const locationTables of Object.values(tablesData)) {
-                  foundTable = locationTables.find(
-                    (t) => t?._id === order.table
-                  );
-                  if (foundTable) break;
-                }
+              if (tablesForLocation) {
+                const foundTable = tablesForLocation.find(
+                  (t) => t?._id === order.table
+                );
 
                 if (foundTable) {
                   normalizedOrder.table = foundTable;
@@ -386,14 +377,14 @@ export function useWebSocket() {
       );
 
       // Remove order from tables data orders array
-      queryClient.setQueryData<TablesByLocation>(
-        [Paths.Tables, selectedDate],
-        (old) => {
-          if (!old) return old;
-
-          const updatedTables: TablesByLocation = {};
-          for (const [locationId, tables] of Object.entries(old)) {
-            updatedTables[locationId] = tables.map((table) => {
+      // First, find the table's location by checking all locations (since we only have tableId)
+      const orderLocation = order.location;
+      if (orderLocation) {
+        queryClient.setQueryData<Table[]>(
+          [Paths.Tables, orderLocation, selectedDate],
+          (old) => {
+            if (!old) return old;
+            return old.map((table) => {
               if (table?._id === tableId) {
                 return {
                   ...table,
@@ -405,9 +396,10 @@ export function useWebSocket() {
               return table;
             });
           }
-          return updatedTables;
-        }
-      );
+        );
+      } else {
+        console.warn("Order doesn't have location. Order: ", order);
+      }
     });
 
     socket.on(
@@ -425,20 +417,15 @@ export function useWebSocket() {
           (oldData) => {
             if (!oldData) return oldData;
 
-            // If table is just an ID, fetch the full table object from tables cache
-            if (typeof collection.table === "number") {
-              const tablesData = queryClient.getQueryData<TablesByLocation>([
-                Paths.Tables,
-                selectedDate,
-              ]);
-              if (tablesData) {
-                let foundTable = null;
-                for (const locationTables of Object.values(tablesData)) {
-                  foundTable = locationTables.find(
-                    (t) => t?._id === collection.table
-                  );
-                  if (foundTable) break;
-                }
+            // If table is just an ID, fetch the full table object from tables cache using collection's location
+            if (typeof collection.table === "number" && collection.location) {
+              const tablesForLocation = queryClient.getQueryData<Table[]>(
+                [Paths.Tables, collection.location, selectedDate]
+              );
+              if (tablesForLocation) {
+                const foundTable = tablesForLocation.find(
+                  (t) => t?._id === collection.table
+                );
                 if (foundTable) {
                   collection.table = foundTable;
                 } else {
@@ -449,7 +436,7 @@ export function useWebSocket() {
                   return oldData;
                 }
               } else {
-                // If no tables data, invalidate and return
+                // If no tables data for this location, invalidate and return
                 queryClient.invalidateQueries({
                   queryKey: [`${Paths.Order}/collection/today`],
                 });
@@ -506,21 +493,16 @@ export function useWebSocket() {
     socket.on("singleTableChanged", ({ table }: { table: Table }) => {
       const locationId = table.location;
       const date = table.date;
-      queryClient.setQueryData<TablesByLocation>(
-        [Paths.Tables, date],
+      queryClient.setQueryData<Table[]>(
+        [Paths.Tables, locationId, date],
         (old) => {
-          const prev = old ?? {};
-          const prevForLocation = prev[locationId] ?? [];
-          const updatedTables = prevForLocation.map((prevTable) => {
+          if (!old) return [table];
+          return old.map((prevTable) => {
             if (prevTable?._id === table._id) {
               return { ...prevTable, ...table };
             }
             return prevTable;
           });
-          return {
-            ...prev,
-            [locationId]: updatedTables,
-          };
         }
       );
     });
@@ -537,15 +519,15 @@ export function useWebSocket() {
     socket.on("tableCreated", ({ table }: { table: Table }) => {
       const locationId = table.location;
       const date = table.date;
-      queryClient.setQueryData<TablesByLocation>(
-        [Paths.Tables, date],
+      queryClient.setQueryData<Table[]>(
+        [Paths.Tables, locationId, date],
         (old) => {
-          const prev = old ?? {};
-          const prevForLocation = prev[locationId] ?? [];
-          return {
-            ...prev,
-            [locationId]: [...prevForLocation, table],
-          };
+          if (!old) return [table];
+          // Check if table already exists to avoid duplicates
+          if (old.some((t) => t._id === table._id)) {
+            return old;
+          }
+          return [...old, table];
         }
       );
     });
@@ -554,18 +536,11 @@ export function useWebSocket() {
       console.log("tableDeleted", deletedTable);
       const locationId = deletedTable.location;
       const date = deletedTable.date;
-      queryClient.setQueryData<TablesByLocation>(
-        [Paths.Tables, date],
+      queryClient.setQueryData<Table[]>(
+        [Paths.Tables, locationId, date],
         (old) => {
-          const prev = old ?? {};
-          const prevForLocation = prev[locationId] ?? [];
-          const updatedTables = prevForLocation.filter(
-            (table) => table?._id !== deletedTable?._id
-          );
-          return {
-            ...prev,
-            [locationId]: updatedTables,
-          };
+          if (!old) return [];
+          return old.filter((table) => table?._id !== deletedTable?._id);
         }
       );
     });
@@ -573,12 +548,11 @@ export function useWebSocket() {
     socket.on("tableClosed", ({ table: closedTable }: { table: Table }) => {
       const locationId = closedTable.location;
       const date = closedTable.date;
-      queryClient.setQueryData<TablesByLocation>(
-        [Paths.Tables, date],
+      queryClient.setQueryData<Table[]>(
+        [Paths.Tables, locationId, date],
         (old) => {
-          const prev = old ?? {};
-          const prevForLocation = prev[locationId] ?? [];
-          const updatedTables = prevForLocation.map((table) => {
+          if (!old) return [];
+          return old.map((table) => {
             if (table?._id === closedTable?._id) {
               return {
                 ...table,
@@ -587,11 +561,6 @@ export function useWebSocket() {
             }
             return table;
           });
-
-          return {
-            ...prev,
-            [locationId]: updatedTables,
-          };
         }
       );
     });
@@ -616,13 +585,11 @@ export function useWebSocket() {
         const date = gameplay.date;
         if (!gameplay || !locationId || !date) return;
 
-        queryClient.setQueryData<TablesByLocation>(
-          [Paths.Tables, date],
+        queryClient.setQueryData<Table[]>(
+          [Paths.Tables, locationId, date],
           (old) => {
-            const prev = old ?? {};
-            const prevForLocation = prev[locationId] ?? [];
-
-            const updatedTables = prevForLocation.map((t) => {
+            if (!old) return [];
+            return old.map((t) => {
               if (t?._id === Number(tableId)) {
                 return {
                   ...t,
@@ -631,11 +598,6 @@ export function useWebSocket() {
               }
               return t;
             });
-
-            return {
-              ...prev,
-              [locationId]: updatedTables,
-            };
           }
         );
       }
@@ -662,13 +624,11 @@ export function useWebSocket() {
         const date = gameplay.date;
         if (!gameplayId || !locationId || !date) return;
 
-        queryClient.setQueryData<TablesByLocation>(
-          [Paths.Tables, date],
+        queryClient.setQueryData<Table[]>(
+          [Paths.Tables, locationId, date],
           (old) => {
-            const prev = old ?? {};
-            const prevForLocation = prev[locationId] ?? [];
-
-            const updatedTables = prevForLocation.map((t) => {
+            if (!old) return [];
+            return old.map((t) => {
               if (t?._id === Number(tableId)) {
                 return {
                   ...t,
@@ -677,11 +637,6 @@ export function useWebSocket() {
               }
               return t;
             });
-
-            return {
-              ...prev,
-              [locationId]: updatedTables,
-            };
           }
         );
       }
@@ -705,13 +660,11 @@ export function useWebSocket() {
         const date = gameplay.date;
         if (!gameplay || !locationId || !date) return;
 
-        queryClient.setQueryData<TablesByLocation>(
-          [Paths.Tables, date],
+        queryClient.setQueryData<Table[]>(
+          [Paths.Tables, locationId, date],
           (old) => {
-            const prev = old ?? {};
-            const prevForLocation = prev[locationId] ?? [];
-
-            const updatedTables = prevForLocation.map((t) => {
+            if (!old) return [];
+            return old.map((t) => {
               if (t?.gameplays.some((g) => g._id === gameplay._id)) {
                 return {
                   ...t,
@@ -722,11 +675,6 @@ export function useWebSocket() {
               }
               return t;
             });
-
-            return {
-              ...prev,
-              [locationId]: updatedTables,
-            };
           }
         );
       }
@@ -735,15 +683,7 @@ export function useWebSocket() {
     socket.on("tableChanged", ({ table }: { table: Table }) => {
       const locationId = table.location;
       const date = table.date;
-      queryClient.setQueryData<TablesByLocation>(
-        [Paths.Tables, date],
-        (old) => {
-          if (!old) return old;
-          const { [locationId]: _, ...rest } = old;
-          return rest;
-        }
-      );
-      queryClient.invalidateQueries({ queryKey: [Paths.Tables, date] });
+      queryClient.invalidateQueries({ queryKey: [Paths.Tables, locationId, date] });
     });
 
     socket.on(

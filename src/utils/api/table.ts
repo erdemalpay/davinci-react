@@ -9,7 +9,6 @@ import { sortTable } from "../sort";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 import { get, patch } from "./index";
 
-export type TablesByLocation = Record<string, Table[]>;
 interface UpdateTablePayload {
   id: number;
   updates: Partial<Table>;
@@ -57,7 +56,7 @@ export function reopenTable({ id }: TablePayloadWithId): Promise<Table> {
 export function useCloseTableMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const queryKey = [BASE_URL, selectedLocationId, selectedDate];
+  const queryKey = [Paths.Tables, selectedLocationId, selectedDate];
 
   const queryClient = useQueryClient();
   return useMutation({
@@ -104,7 +103,7 @@ export function useCloseTableMutation() {
 export function useCloseAllTableMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const queryKey = [BASE_URL, selectedLocationId, selectedDate];
+  const queryKey = [Paths.Tables, selectedLocationId, selectedDate];
 
   const queryClient = useQueryClient();
 
@@ -148,7 +147,7 @@ export function useCloseAllTableMutation() {
 export function useReopenTableMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const queryKey = [BASE_URL, selectedLocationId, selectedDate];
+  const queryKey = [Paths.Tables, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: reopenTable,
@@ -203,6 +202,7 @@ export function useTableMutations() {
   } = useMutationApi<Table>({
     baseQuery: Paths.Tables,
     queryKey: [Paths.Tables, selectedLocationId, selectedDate],
+    sortFunction: sortTable,
   });
   return { deleteTable, updateTable, createTable };
 }
@@ -226,27 +226,17 @@ export function useGetTable(id: number) {
 export function useGetTables() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const queryClient = useQueryClient();
 
-  const queryKey: QueryKey = [Paths.Tables, selectedDate];
+  const queryKey: QueryKey = [Paths.Tables, selectedLocationId, selectedDate];
 
-  const queryFn = async (): Promise<TablesByLocation> => {
-    const existing = queryClient.getQueryData<TablesByLocation>(queryKey);
-
-    if (existing?.[selectedLocationId]) {
-      return existing;
-    }
+  const queryFn = async (): Promise<Table[]> => {
     const tablesForLocation = await get<Table[]>({
       path: `${Paths.Tables}?location=${selectedLocationId}&date=${selectedDate}`,
     });
-
-    return {
-      ...(existing ?? {}),
-      [selectedLocationId]: tablesForLocation,
-    };
+    return tablesForLocation;
   };
 
-  const { data, refetch } = useQuery<TablesByLocation>({
+  const { data, refetch } = useQuery<Table[]>({
     queryKey,
     queryFn,
     staleTime: Infinity,
@@ -255,14 +245,13 @@ export function useGetTables() {
 
   useEffect(() => {
     if (!selectedLocationId) return;
-
-    const existing = queryClient.getQueryData<TablesByLocation>(queryKey);
-    if (!existing?.[selectedLocationId]) {
+    // Refetch if data doesn't exist for this location/date combination
+    if (!data) {
       refetch();
     }
-  }, [selectedLocationId, selectedDate, queryClient, refetch]);
+  }, [selectedLocationId, selectedDate, data, refetch]);
 
-  return (data?.[selectedLocationId] ?? []) as Table[];
+  return (data ?? []) as Table[];
 }
 
 export function useGetTablePlayerCounts(month: string, year: string) {
