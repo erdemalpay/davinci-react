@@ -1231,5 +1231,8 @@
   "Auto Prepared": "Otomatik Hazırlandı",
   "Create Shopify Product": "Shopify Ürünü Oluştur",
   "Shopify Takeaway": " Shopify Gel Al",
-  "Apply Discount to All Products": "Tüm Siparişe İndirim Tanımla"
+  "Apply Discount to All Products": "Tüm Siparişe İndirim Tanımla",
+  "face_recognition": "Yüz Okutma",
+  "panel": "Panel"
+
 }
