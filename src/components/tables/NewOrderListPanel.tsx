@@ -273,21 +273,21 @@ const NewOrderListPanel = () => {
             })}
           </div>
 
-          {orderCreateBulk?.length > 0 && !isDiscountSectionOpen && (
-            <GenericButton
-              onClick={() => setIsDiscountSectionOpen(true)}
-              variant="primary"
-              size="lg"
-              fullWidth
-              customHeight="h-8"
-              className="shadow-md"
-            >
-              {t("Apply Discount to All Products")}
-            </GenericButton>
-          )}
-
-          {orderCreateBulk?.length > 0 && isDiscountSectionOpen && (
-            <NewOrderDiscounts />
+          {orderCreateBulk?.length > 0 && (
+            !isDiscountSectionOpen ? (
+              <GenericButton
+                onClick={() => setIsDiscountSectionOpen(true)}
+                variant="primary"
+                size="lg"
+                fullWidth
+                customHeight="h-8"
+                className="shadow-md"
+              >
+                {t("Apply Discount to All Products")}
+              </GenericButton>
+            ) : (
+              <NewOrderDiscounts />
+            )
           )}
         </>
       )}
