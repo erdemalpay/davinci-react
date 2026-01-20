@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
@@ -83,6 +83,26 @@ const CheckArchive = () => {
       showAllAction.permissionsRoles?.includes(user.role._id)
     );
   }, [checkArchivePageDisabledCondition, user]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+
+      if (!user?.role?._id) {
+        return true;
+      }
+
+      const action = checkArchivePageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+
+      if (!action) {
+        return false;
+      }
+
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [checkArchivePageDisabledCondition, user]
+  );
 
   const rows = useMemo(() => {
     const allRows = checks
@@ -327,21 +347,11 @@ const CheckArchive = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: checkArchivePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.DELETE),
       },
       {
         name: t("Toggle Active"),
-        isDisabled: checkArchivePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TOGGLE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.TOGGLE),
         isModal: false,
         isPath: false,
         icon: null,
@@ -367,8 +377,7 @@ const CheckArchive = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteCheck,
-      checkArchivePageDisabledCondition,
-      user,
+      isActionDisabled,
       updateCheck,
     ]
   );
