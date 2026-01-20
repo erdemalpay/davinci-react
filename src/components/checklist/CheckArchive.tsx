@@ -1,17 +1,22 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { CheckType, RoleEnum } from "../../types";
+import {
+  ActionEnum,
+  CheckType,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useCheckMutations,
   useGetQueryChecks,
 } from "../../utils/api/checklist/check";
 import { useGetChecklists } from "../../utils/api/checklist/checklist";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -59,24 +64,53 @@ const CheckArchive = () => {
   const { resetGeneralContext } = useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
 
-  const isDisabledCondition = useMemo(() => {
-    return !(
-      user &&
-      [
-        RoleEnum.MANAGER,
-        RoleEnum.GAMEMANAGER,
-        RoleEnum.OPERATIONSASISTANT,
-      ].includes(user.role._id)
+  const checkArchivePageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.CHECKLISTS_CHECKARCHIVE,
+      disabledConditions
     );
-  }, [user]);
+  }, [disabledConditions]);
+
+  const canShowAll = useMemo(() => {
+    const showAllAction = checkArchivePageDisabledCondition?.actions?.find(
+      (ac) => ac.action === ActionEnum.SHOW_ALL
+    );
+    return (
+      showAllAction &&
+      user?.role?._id &&
+      showAllAction.permissionsRoles?.includes(user.role._id)
+    );
+  }, [checkArchivePageDisabledCondition, user]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+
+      if (!user?.role?._id) {
+        return true;
+      }
+
+      const action = checkArchivePageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+
+      if (!action) {
+        return false;
+      }
+
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [checkArchivePageDisabledCondition, user]
+  );
 
   const rows = useMemo(() => {
     const allRows = checks
       .filter((check) => {
-        if (check?.user === user?._id || !isDisabledCondition) {
-          return check;
+        if (canShowAll) {
+          return true;
         }
+        return check?.user === user?._id;
       })
       .map((check) => {
         if (!check?.createdAt) {
@@ -112,10 +146,10 @@ const CheckArchive = () => {
       })
       .filter((item) => item !== null);
     return allRows;
-  }, [checks, user, isDisabledCondition, checklists, locations, users, pad]);
+  }, [checks, user, canShowAll, checklists, locations, users, pad]);
 
   const columns = useMemo(() => {
-    const cols = [
+    return [
       { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
       { key: t("Start Hour"), isSortable: true },
       { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
@@ -125,12 +159,9 @@ const CheckArchive = () => {
       { key: t("User"), isSortable: true, correspondingKey: "user" },
       { key: t("Completed"), isSortable: true },
       { key: t("Status"), isSortable: false },
+      { key: t("Actions"), isSortable: false },
     ];
-    if (!isDisabledCondition) {
-      cols.push({ key: t("Actions"), isSortable: false });
-    }
-    return cols;
-  }, [t, isDisabledCondition]);
+  }, [t]);
 
   const rowKeys = useMemo(
     () => [
@@ -316,11 +347,11 @@ const CheckArchive = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: isActionDisabled(ActionEnum.DELETE),
       },
       {
         name: t("Toggle Active"),
-        isDisabled: isDisabledCondition,
+        isDisabled: isActionDisabled(ActionEnum.TOGGLE),
         isModal: false,
         isPath: false,
         icon: null,
@@ -346,7 +377,7 @@ const CheckArchive = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteCheck,
-      isDisabledCondition,
+      isActionDisabled,
       updateCheck,
     ]
   );
@@ -393,7 +424,7 @@ const CheckArchive = () => {
           isSearch={false}
           filters={filters}
           actions={actions}
-          isActionsActive={!isDisabledCondition}
+          isActionsActive={true}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
           isAllRowPerPageOption={false}

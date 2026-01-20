@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -8,7 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { ChecklistType, RoleEnum } from "../../types";
+import {
+  ActionEnum,
+  ChecklistType,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useCheckMutations,
   useGetChecks,
@@ -18,6 +22,8 @@ import {
   useGetChecklists,
 } from "../../utils/api/checklist/checklist";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -53,12 +59,31 @@ const ChecklistsTab = () => {
   ] = useState(false);
   const { createChecklist, deleteChecklist, updateChecklist } =
     useChecklistMutations();
+  const disabledConditions = useGetDisabledConditions();
 
-  const isDisabledCondition = useMemo(() => {
-    return user
-      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
-      : true;
-  }, [user]);
+  const checklistsPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.CHECKLISTS_CHECKLISTS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+      if (!user?.role?._id) {
+        return true;
+      }
+
+      const action = checklistsPageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+      if (!action) {
+        return false;
+      }
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [checklistsPageDisabledCondition, user]
+  );
 
   function handleLocationUpdate(item: ChecklistType, location: number) {
     const newLocations = item.locations || [];
@@ -192,8 +217,9 @@ const ChecklistsTab = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+      isDisabled: isActionDisabled(ActionEnum.ADD),
     }),
-    [t, isAddModalOpen, inputs, formKeys, createChecklist]
+    [t, isAddModalOpen, inputs, formKeys, createChecklist, isActionDisabled]
   );
 
   const actions = useMemo(
@@ -221,7 +247,7 @@ const ChecklistsTab = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: isActionDisabled(ActionEnum.DELETE),
       },
       {
         name: t("Edit"),
@@ -259,11 +285,11 @@ const ChecklistsTab = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: isActionDisabled(ActionEnum.UPDATE),
       },
       {
         name: t("Toggle Active"),
-        isDisabled: isDisabledCondition,
+        isDisabled: isActionDisabled(ActionEnum.TOGGLE),
         isModal: false,
         isPath: false,
         icon: null,
@@ -289,6 +315,7 @@ const ChecklistsTab = () => {
         icon: <TbIndentIncrease />,
         className: "cursor-pointer text-xl  ",
         isModal: true,
+        isDisabled: isActionDisabled(ActionEnum.CHECK),
         setRow: setRowToAction,
         modal: rowToAction ? (
           <GenericAddEditPanel
@@ -344,7 +371,7 @@ const ChecklistsTab = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteChecklist,
-      isDisabledCondition,
+      isActionDisabled,
       isEditModalOpen,
       inputs,
       formKeys,
@@ -365,7 +392,7 @@ const ChecklistsTab = () => {
     () => [
       {
         label: t("Show Inactive Checklists"),
-        isDisabled: isDisabledCondition,
+        isDisabled: isActionDisabled(ActionEnum.SHOW_INACTIVE_ELEMENTS),
         isUpperSide: true,
         node: (
           <SwitchButton
@@ -376,13 +403,14 @@ const ChecklistsTab = () => {
       },
       {
         label: t("Location Edit"),
+        isDisabled: isActionDisabled(ActionEnum.UPDATE_LOCATION),
         isUpperSide: false,
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
       },
     ],
-    [t, isDisabledCondition, showInactiveChecklists, isEnableEdit]
+    [t, isActionDisabled, showInactiveChecklists, isEnableEdit]
   );
 
   const filteredRows = useMemo(() => {
@@ -399,10 +427,10 @@ const ChecklistsTab = () => {
           actions={actions}
           isActionsActive={true}
           columns={columns}
-          filters={!isDisabledCondition ? filters : []}
+          filters={filters}
           rows={filteredRows}
           title={t("Checklists")}
-          addButton={!isDisabledCondition ? addButton : undefined}
+          addButton={addButton}
         />
       </div>
     </>

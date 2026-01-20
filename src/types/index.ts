@@ -603,6 +603,8 @@ export enum DisabledConditionEnum {
   VISITS_VISITSCHEDULEOVERVIEW = "visits_visitscheduleoverview",
   VISITS_ALLVISITS = "visits_allvisits",
   VISITS_SHIFTS = "visits_shifts",
+  CHECKLISTS_CHECKARCHIVE = "checklists_checkarchive",
+  CHECKLISTS_CHECKLISTS = "checklists_checklists",
 }
 
 export enum ActionEnum {
@@ -653,6 +655,8 @@ export enum ActionEnum {
   ASSIGN_CHEF = "assign_chef",
   COPY_DAY_INTERVAL = "copy_day_interval",
   COPY_SHIFT = "copy_shift",
+  CHECK = "check",
+  SHOW_ALL = "show_all"
 }
 
 export type Membership = {
