@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -67,6 +67,23 @@ const ChecklistsTab = () => {
       disabledConditions
     );
   }, [disabledConditions]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+      if (!user?.role?._id) {
+        return true;
+      }
+
+      const action = checklistsPageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+      if (!action) {
+        return false;
+      }
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [checklistsPageDisabledCondition, user]
+  );
 
   function handleLocationUpdate(item: ChecklistType, location: number) {
     const newLocations = item.locations || [];
@@ -200,14 +217,9 @@ const ChecklistsTab = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: checklistsPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(ActionEnum.ADD),
     }),
-    [t, isAddModalOpen, inputs, formKeys, createChecklist, checklistsPageDisabledCondition, user]
+    [t, isAddModalOpen, inputs, formKeys, createChecklist, isActionDisabled]
   );
 
   const actions = useMemo(
@@ -235,12 +247,7 @@ const ChecklistsTab = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: checklistsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.DELETE),
       },
       {
         name: t("Edit"),
@@ -278,21 +285,11 @@ const ChecklistsTab = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: checklistsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.UPDATE),
       },
       {
         name: t("Toggle Active"),
-        isDisabled: checklistsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TOGGLE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.TOGGLE),
         isModal: false,
         isPath: false,
         icon: null,
@@ -318,12 +315,7 @@ const ChecklistsTab = () => {
         icon: <TbIndentIncrease />,
         className: "cursor-pointer text-xl  ",
         isModal: true,
-        isDisabled: checklistsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.CHECK &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.CHECK),
         setRow: setRowToAction,
         modal: rowToAction ? (
           <GenericAddEditPanel
@@ -379,8 +371,7 @@ const ChecklistsTab = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteChecklist,
-      checklistsPageDisabledCondition,
-      user,
+      isActionDisabled,
       isEditModalOpen,
       inputs,
       formKeys,
@@ -389,6 +380,7 @@ const ChecklistsTab = () => {
       checkLocationInputs,
       checkLocationFormKeys,
       checks,
+      user,
       resetGeneralContext,
       navigate,
       createCheck,
@@ -400,12 +392,7 @@ const ChecklistsTab = () => {
     () => [
       {
         label: t("Show Inactive Checklists"),
-        isDisabled: checklistsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.SHOW_INACTIVE_ELEMENTS),
         isUpperSide: true,
         node: (
           <SwitchButton
@@ -416,19 +403,14 @@ const ChecklistsTab = () => {
       },
       {
         label: t("Location Edit"),
-        isDisabled: checklistsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE_LOCATION &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.UPDATE_LOCATION),
         isUpperSide: false,
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
       },
     ],
-    [t, checklistsPageDisabledCondition, user, showInactiveChecklists, isEnableEdit]
+    [t, isActionDisabled, showInactiveChecklists, isEnableEdit]
   );
 
   const filteredRows = useMemo(() => {
