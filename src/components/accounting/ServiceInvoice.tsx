@@ -63,7 +63,8 @@ const ServiceInvoice = () => {
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterServiceInvoicePanelFormElements
+    filterServiceInvoicePanelFormElements,
+    true
   );
   const invoices = invoicesPayload?.data;
   const expenseTypes = useGetAccountExpenseTypes();
@@ -886,7 +887,7 @@ const ServiceInvoice = () => {
                 style: "decimal",
                 minimumFractionDigits: 3,
                 maximumFractionDigits: 3,
-              }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
+              }).format(invoicesPayload?.overallTotalExpense ?? 0)}{" "}
               ₺
             </p>
           </div>

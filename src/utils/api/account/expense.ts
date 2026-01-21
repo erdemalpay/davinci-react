@@ -12,6 +12,7 @@ export interface AccountExpensePayload {
   page: number;
   limit: number;
   generalTotalExpense: number;
+  overallTotalExpense?: number;
 }
 
 export interface CreateMultipleExpense {
@@ -66,9 +67,10 @@ export function useGetAccountProductExpenses(product: string) {
 export function useGetAccountExpenses(
   page: number,
   limit: number,
-  filterPanelElements: FormElementsState
+  filterPanelElements: FormElementsState,
+  includeAllRecords = false
 ) {
-  let url = `${Paths.Accounting}/expenses?page=${page}&limit=${limit}&product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}`;
+  let url = `${Paths.Accounting}/expenses?page=${page}&limit=${limit}&product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}&includeAllRecords=${includeAllRecords}`;
 
   if (filterPanelElements.search) {
     url = url.concat(`&search=${filterPanelElements.search.trim()}`);

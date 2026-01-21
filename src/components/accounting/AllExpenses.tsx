@@ -52,7 +52,8 @@ const AllExpenses = () => {
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterAllExpensesPanelFormElements
+    filterAllExpensesPanelFormElements,
+    true
   );
   const invoices = invoicesPayload?.data;
   const locations = useGetStockLocations();
@@ -801,7 +802,7 @@ const AllExpenses = () => {
                 style: "decimal",
                 minimumFractionDigits: 3,
                 maximumFractionDigits: 3,
-              }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
+              }).format(invoicesPayload?.overallTotalExpense ?? 0)}{" "}
               ₺
             </p>
           </div>
