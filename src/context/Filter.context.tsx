@@ -261,6 +261,7 @@ const FilterContext = createContext<FilterContextType>({
   filterGameStockPanelFormElements: {
     product: [],
     location: "",
+    itemCategory: [],
   },
   setFilterGameStockPanelFormElements: () => {},
   showGameStockPrices: false,
@@ -324,7 +325,7 @@ const FilterContext = createContext<FilterContextType>({
     asc: 1,
     vendor: "",
     brand: "",
-    search:""
+    search: "",
   },
   initialFilterPanelServiceInvoiceFormElements: {
     product: [],
@@ -901,7 +902,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     asc: 1,
     vendor: "",
     brand: "",
-    search:""
+    search: "",
   });
   const [
     filterBaseQuantityPanelFormElements,
