@@ -24,6 +24,7 @@ import {
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
@@ -65,6 +66,8 @@ const GameStock = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { mutate: stockTransfer } = useStockTransferMutation();
+  const categories = useGetCategories();
+  const onlineCategories = categories?.filter((cat) => cat?.isOnlineOrder);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
@@ -109,6 +112,11 @@ const GameStock = () => {
               (panelProduct: string) =>
                 passesFilter(panelProduct, stock?.product)
             )) &&
+          (!filterGameStockPanelFormElements?.itemCategory?.length ||
+            (rowProduct?.matchedMenuItem &&
+              filterGameStockPanelFormElements?.itemCategory?.includes(
+                getItem(rowProduct?.matchedMenuItem, items)?.category
+              ))) &&
           (!filterGameStockPanelFormElements?.vendor ||
             rowProduct?.vendor?.includes(
               filterGameStockPanelFormElements?.vendor
@@ -673,6 +681,18 @@ const GameStock = () => {
         })),
         placeholder: t("Location"),
         required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "itemCategory",
+        label: t("Item Category"),
+        options: onlineCategories.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        isMultiple: true,
+        placeholder: t("Item Category"),
+        required: false,
       },
       {
         type: InputTypes.SELECT,
