@@ -153,10 +153,15 @@ export function useMutationApi<T extends { _id: number | string }>({
         setTimeout(() => toast.error(t(errorMessage)), 200);
       },
       // Always refetch after error or success:
-      onSettled: async () => {
-        if (isInvalidate) {
-          queryClient.invalidateQueries({ queryKey });
-        }
+      onSettled: async (newItem, error, _variables, context) => {
+        const previousItemContext = context as {
+          previousItems: T[];
+        };
+        const updatedItems = [
+          ...(previousItemContext?.previousItems || []),
+          newItem,
+        ];
+        queryClient.setQueryData(queryKey, updatedItems);
         if (isAdditionalInvalidate) {
           additionalInvalidates?.forEach((key) => {
             queryClient.invalidateQueries({ queryKey: key });
@@ -204,9 +209,7 @@ export function useMutationApi<T extends { _id: number | string }>({
       },
       // Always refetch after error or success:
       onSettled: async () => {
-        if (isInvalidate) {
-          queryClient.invalidateQueries({ queryKey });
-        }
+
         if (isAdditionalInvalidate) {
           additionalInvalidates?.forEach((key) => {
             queryClient.invalidateQueries({ queryKey: key });
@@ -259,11 +262,15 @@ export function useMutationApi<T extends { _id: number | string }>({
         setTimeout(() => toast.error(t(errorMessage)), 200);
       },
       // Always refetch after error or success:
-      onSettled: async () => {
-        if (isInvalidate) {
-          queryClient.invalidateQueries({ queryKey });
-        }
-        if (isAdditionalInvalidate || additionalInvalidates) {
+      onSettled: async (updatedItem, error, _variables, context) => {
+        const previousItemContext = context as {
+          previousItems: T[];
+        };
+        const updatedItems = (previousItemContext?.previousItems || []).map(
+          (item) => (item._id === updatedItem?._id ? updatedItem : item)
+        );
+        queryClient.setQueryData(queryKey, updatedItems);
+        if (isAdditionalInvalidate) {
           additionalInvalidates?.forEach((key) => {
             queryClient.invalidateQueries({ queryKey: key });
           });
