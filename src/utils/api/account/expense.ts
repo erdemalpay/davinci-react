@@ -68,9 +68,9 @@ export function useGetAccountExpenses(
   page: number,
   limit: number,
   filterPanelElements: FormElementsState,
-  includeAllTotals = false
+  includeAllRecords = false
 ) {
-  let url = `${Paths.Accounting}/expenses?page=${page}&limit=${limit}&product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}&includeAllTotals=${includeAllTotals}`;
+  let url = `${Paths.Accounting}/expenses?page=${page}&limit=${limit}&product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}&includeAllRecords=${includeAllRecords}`;
 
   if (filterPanelElements.search) {
     url = url.concat(`&search=${filterPanelElements.search.trim()}`);
