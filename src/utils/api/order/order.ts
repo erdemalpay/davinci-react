@@ -127,7 +127,7 @@ interface CancelIkasOrder {
   quantity: number;
 }
 interface CancelShopifyOrder {
-  shopifyOrderId: string;
+  shopifyOrderLineItemId: string;
   quantity: number;
 }
 
@@ -357,11 +357,15 @@ export function useReturnOrdersMutation() {
     mutationFn: returnOrder,
     onMutate: async () => {
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -443,11 +447,15 @@ export function useCancelIkasOrderMutation() {
     mutationFn: cancelIkasOrder,
     onMutate: async () => {
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -459,7 +467,11 @@ export function useCancelIkasOrderMutation() {
 export function cancelShopifyOrder(payload: CancelShopifyOrder) {
   return post({
     path: `/order/cancel-shopify-order`,
-    payload,
+    payload: {
+      ...payload,
+      shopifyOrderLineItemId: payload.shopifyOrderLineItemId,
+      quantity: Number(payload.quantity),
+    },
   });
 }
 export function useCancelShopifyOrderMutation() {
@@ -468,11 +480,15 @@ export function useCancelShopifyOrderMutation() {
     mutationFn: cancelShopifyOrder,
     onMutate: async () => {
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
     },
     onError: (_err: any) => {
       const errorMessage =

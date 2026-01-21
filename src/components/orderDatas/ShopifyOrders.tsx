@@ -8,13 +8,13 @@ import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
-    ActionEnum,
-    DateRangeKey,
-    DisabledConditionEnum,
-    OrderStatus,
-    Table,
-    commonDateOptions,
-    orderFilterStatusOptions,
+  ActionEnum,
+  DateRangeKey,
+  DisabledConditionEnum,
+  OrderStatus,
+  Table,
+  commonDateOptions,
+  orderFilterStatusOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
@@ -22,8 +22,8 @@ import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
-    useCancelShopifyOrderMutation,
-    useGetOrders,
+  useCancelShopifyOrderMutation,
+  useGetOrders,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
@@ -560,7 +560,7 @@ const ShopifyOrders = () => {
                 return;
               }
               cancelShopifyOrder({
-                shopifyOrderId: rowToAction.shopifyOrderId,
+                shopifyOrderLineItemId: rowToAction.shopifyOrderLineItemId,
                 quantity: cancelForm.quantity,
               });
             }}
