@@ -887,11 +887,7 @@ const ServiceInvoice = () => {
                 style: "decimal",
                 minimumFractionDigits: 3,
                 maximumFractionDigits: 3,
-              }).format(
-                invoicesPayload?.overallTotalExpense ??
-                  invoicesPayload?.generalTotalExpense ??
-                  0
-              )}{" "}
+              }).format(invoicesPayload?.overallTotalExpense ?? 0)}{" "}
               ₺
             </p>
           </div>
