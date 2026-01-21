@@ -283,7 +283,7 @@ const NewOrderListPanel = () => {
                 customHeight="h-8"
                 className="shadow-md"
               >
-                {t("Apply Discount to All Products")}
+                {t("Apply Discount")}
               </GenericButton>
             ) : (
               <NewOrderDiscounts />
