@@ -209,6 +209,9 @@ export function useMutationApi<T extends { _id: number | string }>({
       },
       // Always refetch after error or success:
       onSettled: async (_data, error, deletedId, context) => {
+        if (error) {
+          return;
+        }
         const previousItemContext = context as {
           previousItems: T[];
         };
