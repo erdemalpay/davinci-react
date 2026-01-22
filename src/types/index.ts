@@ -1347,6 +1347,12 @@ export enum StocksPageTabEnum {
   PRODUCTSTOCKHISTORY,
 }
 
+export enum StockHistoriesReportsPageTabEnum {
+  LOSSPRODUCTREPORT,
+  ENTERCONSUMPTIONREPORT,
+  PRODUCTSTOCKHISTORYREPORT,
+}
+
 export enum PointsPageTabEnum {
   USERSPOINT,
   CONSUMERSPOINT,

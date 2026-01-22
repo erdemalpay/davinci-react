@@ -614,6 +614,17 @@
   "Created Gameplay Count": "Oluşturulan Oyun Sayısı",
   "Product Consumption": "Ürün Tüketimi",
   "Loss Product": "Zayi",
+  "Loss Product Report": "Zayi Raporu",
+  "Consumption Report": "Tüketim Raporu",
+  "Product Stock History Report": "Ürün Stok Geçmişi Raporu",
+  "Total Change": "Toplam Değişim",
+  "Total Value": "Toplam Değer",
+  "Total Cost": "Toplam Maliyet",
+  "First Entry": "İlk Giriş",
+  "Last Entry": "Son Giriş",
+  "Unit Price": "Birim Fiyat",
+  "Menu Item": "Menü Öğesi",
+  "Stock Histories Reports": "Stok Geçmiş Raporları",
   "Active Table": "Aktif Masa",
   "Show Inactive Discounts": "Aktif Olmayan İndirimleri Göster",
   "Order Return": "Sipariş İadesi",
@@ -1235,5 +1246,4 @@
   "Apply Discount": "İndirim Uygula",
   "face_recognition": "Yüz Okutma",
   "panel": "Panel"
-
 }
