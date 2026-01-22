@@ -7,6 +7,8 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import {
   ActionEnum,
+  commonDateOptions,
+  DateRangeKey,
   DisabledConditionEnum,
   StockHistoryStatusEnum,
   stockHistoryStatuses,
@@ -21,7 +23,9 @@ import {
 } from "../../utils/api/account/productStockHistory";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
@@ -38,6 +42,7 @@ const EnterConsumption = () => {
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
+  const categories = useGetAllCategories();
   const [rowToAction, setRowToAction] = useState<any>({});
   const { updateAccountProductStockHistory } =
     useAccountProductStockHistoryMutations();
@@ -171,6 +176,21 @@ const EnterConsumption = () => {
       },
       {
         type: InputTypes.SELECT,
+        formKey: "category",
+        label: t("Category"),
+        options: categories?.map((category) => {
+          return {
+            value: category._id,
+            label: category.name,
+          };
+        }),
+        invalidateKeys: [{ key: "product", defaultValue: "" }],
+        isMultiple: true,
+        placeholder: t("Category"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
         formKey: "product",
         label: t("Product"),
         options: products.map((product) => {
@@ -219,6 +239,32 @@ const EnterConsumption = () => {
         }),
         placeholder: t("Location"),
         required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => ({
+          value: option.value,
+          label: t(option.label),
+        })),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({
+          value,
+          label,
+        }: {
+          value: string;
+          label: string;
+        }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterEnterConsumptionPanelFormElements({
+              ...filterEnterConsumptionPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
       },
       {
         type: InputTypes.DATE,

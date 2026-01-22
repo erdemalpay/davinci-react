@@ -35,7 +35,6 @@ const AllExpenses = () => {
   const { t } = useTranslation();
   const paymentMethods = useGetAccountPaymentMethods();
   const {
-    searchQuery,
     rowsPerPage,
     currentPage,
     setCurrentPage,

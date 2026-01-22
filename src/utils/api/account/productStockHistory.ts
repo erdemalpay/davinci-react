@@ -34,6 +34,8 @@ export function useGetAccountProductStockHistorys(
     filters.expenseType && `expenseType=${filters.expenseType}`,
     filters.location && `location=${filters.location}`,
     filters.status && `status=${filters.status}`,
+    filters.date && `date=${filters.date}`,
+    filters.category && `category=${filters.category}`,
     filters.before && `before=${filters.before}`,
     filters.after && `after=${filters.after}`,
     filters.sort && `sort=${filters.sort}`,

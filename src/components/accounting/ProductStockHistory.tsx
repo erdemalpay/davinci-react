@@ -3,7 +3,11 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { stockHistoryStatuses } from "../../types";
+import {
+  commonDateOptions,
+  DateRangeKey,
+  stockHistoryStatuses,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -12,7 +16,9 @@ import {
   useGetAccountProductStockHistorys,
 } from "../../utils/api/account/productStockHistory";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -38,6 +44,7 @@ const ProductStockHistory = () => {
   const brands = useGetAccountBrands();
   stockHistoriesPayload as StockHistoryPayload;
   const products = useGetAccountProducts();
+  const categories = useGetAllCategories();
   const users = useGetUsersMinimal();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
@@ -82,6 +89,21 @@ const ProductStockHistory = () => {
         }),
         placeholder: t("Expense Type"),
         required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "category",
+        label: t("Category"),
+        options: categories?.map((category) => {
+          return {
+            value: category._id,
+            label: category.name,
+          };
+        }),
+        invalidateKeys: [{ key: "product", defaultValue: "" }],
+        isMultiple: true,
+        placeholder: t("Category"),
+        required: false,
       },
       {
         type: InputTypes.SELECT,
@@ -147,6 +169,32 @@ const ProductStockHistory = () => {
         placeholder: t("Status"),
         isMultiple: true,
         required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => ({
+          value: option.value,
+          label: t(option.label),
+        })),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({
+          value,
+          label,
+        }: {
+          value: string;
+          label: string;
+        }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterProductStockHistoryPanelFormElements({
+              ...filterProductStockHistoryPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
       },
       {
         type: InputTypes.DATE,
