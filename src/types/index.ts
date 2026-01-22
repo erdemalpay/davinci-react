@@ -550,6 +550,7 @@ export enum DisabledConditionEnum {
   PANELCONTROL_EDUCATIONPERMISSIONS = "education_permissions",
   STOCK_GAMESTOCK = "gamestock",
   STOCK_DESSERTSTOCK = "dessertstock",
+  STOCK_COLDDRINKSTOCK = "colddrinkstock",
   STOCK_GAMESTOCKLOCATION = "gamestocklocation",
   STOCK_BASEQUANTITYBYLOCATION = "basequantitybylocation",
   STOCK_PRODUCTSHELFINFO = "productshelfinfo",
@@ -1332,6 +1333,7 @@ export enum StocksPageTabEnum {
   STOCK,
   GAMESTOCK,
   DESSERTSTOCK,
+  COLDDRINKSTOCK,
   GAMESTOCKBYLOCATION,
   BASEQUANTITYBYLOCATION,
   PRODUCTSHELFINFO,
@@ -2224,6 +2226,7 @@ export type PopularDiscounts = {
 export const GAMEEXPENSETYPE = "oys";
 export const DESSERTEXPENSETYPE = "tat";
 export const SANDWICHEXPENSETYPE = "sand";
+export const COLDDRINKEXPENSETYPE = "soguk_icecekler";
 export type OptionType = { value: any; label: string; imageUrl?: string };
 
 // -------------------- Shift Change (Requests) --------------------
