@@ -18,6 +18,7 @@ import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation";
 import DessertStock from "../components/stocks/DessertStocks";
+import ColdDrinkStock from "../components/stocks/ColdDrinkStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import IkasPriceComparision from "../components/stocks/IkasPriceComparision";
 import IkasStockComparision from "../components/stocks/IkasStockComparision";
@@ -51,6 +52,13 @@ export const StockPageTabs = [
     label: "Dessert Stocks",
     icon: <LuDessert className="text-lg font-thin" />,
     content: <DessertStock />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.COLDDRINKSTOCK,
+    label: "Cold Drink Stocks",
+    icon: <LuDessert className="text-lg font-thin" />,
+    content: <ColdDrinkStock />,
     isDisabled: false,
   },
   {
