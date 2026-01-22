@@ -2148,6 +2148,7 @@ export enum NotificationEventType {
   SHIFTCHANGEAPPROVED = "SHIFTCHANGEAPPROVED",
   SHIFTCHANGEREJECTED = "SHIFTCHANGEREJECTED",
   SHOPIFYTAKEAWAY = "SHOPIFYTAKEAWAY",
+  SHOPIFYORDER = "SHOPIFYORDER",
 }
 export const notificationEventsOptions = [
   {
@@ -2221,6 +2222,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.SHOPIFYTAKEAWAY,
     label: "Shopify Takeaway",
+  },
+  {
+    value: NotificationEventType.SHOPIFYORDER,
+    label: "Shopify Order",
   },
 ];
 
