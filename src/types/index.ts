@@ -657,7 +657,7 @@ export enum ActionEnum {
   COPY_DAY_INTERVAL = "copy_day_interval",
   COPY_SHIFT = "copy_shift",
   CHECK = "check",
-  SHOW_ALL = "show_all"
+  SHOW_ALL = "show_all",
 }
 
 export type Membership = {

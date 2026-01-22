@@ -7,11 +7,13 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import {
   ActionEnum,
+  DateRangeKey,
   DisabledConditionEnum,
   MenuItem,
   OrderStatus,
   StockHistoryStatusEnum,
   TURKISHLIRA,
+  commonDateOptions,
   stockHistoryStatuses,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
@@ -24,6 +26,7 @@ import {
 } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -270,6 +273,21 @@ const LossProduct = () => {
       },
       {
         type: InputTypes.SELECT,
+        formKey: "category",
+        label: t("Category"),
+        options: categories?.map((category) => {
+          return {
+            value: category._id,
+            label: category.name,
+          };
+        }),
+        invalidateKeys: [{ key: "product", defaultValue: "" }],
+        isMultiple: true,
+        placeholder: t("Category"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
         formKey: "product",
         label: t("Product"),
         options: products.map((product) => {
@@ -318,6 +336,32 @@ const LossProduct = () => {
         }),
         placeholder: t("Location"),
         required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => ({
+          value: option.value,
+          label: t(option.label),
+        })),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({
+          value,
+          label,
+        }: {
+          value: string;
+          label: string;
+        }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterLossProductPanelFormElements({
+              ...filterLossProductPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
       },
       {
         type: InputTypes.DATE,
