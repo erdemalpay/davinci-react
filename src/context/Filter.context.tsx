@@ -155,6 +155,14 @@ type FilterContextType = {
   setShowDesertStockPrices: (state: boolean) => void;
   isDesertStockEnableEdit: boolean;
   setIsDesertStockEnableEdit: (state: boolean) => void;
+  showColdDrinkStockFilters: boolean;
+  setShowColdDrinkStockFilters: (state: boolean) => void;
+  filterColdDrinkStockPanelFormElements: FormElementsState;
+  setFilterColdDrinkStockPanelFormElements: (state: FormElementsState) => void;
+  showColdDrinkStockPrices: boolean;
+  setShowColdDrinkStockPrices: (state: boolean) => void;
+  isColdDrinkStockEnableEdit: boolean;
+  setIsColdDrinkStockEnableEdit: (state: boolean) => void;
   isTakeAwayOrderModalOpen: boolean;
   setIsTakeAwayOrderModalOpen: (state: boolean) => void;
   isLossProductModalOpen: boolean;
@@ -567,6 +575,17 @@ const FilterContext = createContext<FilterContextType>({
   setShowDesertStockPrices: () => {},
   isDesertStockEnableEdit: false,
   setIsDesertStockEnableEdit: () => {},
+  showColdDrinkStockFilters: false,
+  setShowColdDrinkStockFilters: () => {},
+  filterColdDrinkStockPanelFormElements: {
+    product: [],
+    location: "",
+  },
+  setFilterColdDrinkStockPanelFormElements: () => {},
+  showColdDrinkStockPrices: false,
+  setShowColdDrinkStockPrices: () => {},
+  isColdDrinkStockEnableEdit: false,
+  setIsColdDrinkStockEnableEdit: () => {},
   isTakeAwayOrderModalOpen: false,
   setIsTakeAwayOrderModalOpen: () => {},
   isLossProductModalOpen: false,
@@ -711,6 +730,17 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [
     filterDesertStockPanelFormElements,
     setFilterDesertStockPanelFormElements,
+  ] = useState<FormElementsState>({
+    product: [],
+    location: "",
+  });
+
+  const [showColdDrinkStockFilters, setShowColdDrinkStockFilters] = useState(false);
+  const [isColdDrinkStockEnableEdit, setIsColdDrinkStockEnableEdit] = useState(false);
+  const [showColdDrinkStockPrices, setShowColdDrinkStockPrices] = useState(false);
+  const [
+    filterColdDrinkStockPanelFormElements,
+    setFilterColdDrinkStockPanelFormElements,
   ] = useState<FormElementsState>({
     product: [],
     location: "",
@@ -1087,6 +1117,15 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowDesertStockPrices: setShowDesertStockPrices,
         isDesertStockEnableEdit: isDesertStockEnableEdit,
         setIsDesertStockEnableEdit: setIsDesertStockEnableEdit,
+        showColdDrinkStockFilters: showColdDrinkStockFilters,
+        setShowColdDrinkStockFilters: setShowColdDrinkStockFilters,
+        filterColdDrinkStockPanelFormElements: filterColdDrinkStockPanelFormElements,
+        setFilterColdDrinkStockPanelFormElements:
+          setFilterColdDrinkStockPanelFormElements,
+        showColdDrinkStockPrices: showColdDrinkStockPrices,
+        setShowColdDrinkStockPrices: setShowColdDrinkStockPrices,
+        isColdDrinkStockEnableEdit: isColdDrinkStockEnableEdit,
+        setIsColdDrinkStockEnableEdit: setIsColdDrinkStockEnableEdit,
         isTakeAwayOrderModalOpen: isTakeAwayOrderModalOpen,
         setIsTakeAwayOrderModalOpen: setIsTakeAwayOrderModalOpen,
         isLossProductModalOpen: isLossProductModalOpen,
