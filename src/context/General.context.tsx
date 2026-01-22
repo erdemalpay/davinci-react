@@ -9,6 +9,7 @@ import {
   ExpensesPageTabEnum,
   MenuItem,
   RowPerPageEnum,
+  StockHistoriesReportsPageTabEnum,
   StocksPageTabEnum,
 } from "../types";
 import { CreateMultipleExpense } from "../utils/api/account/expense";
@@ -78,6 +79,8 @@ type GeneralContextType = {
   setExpensesActiveTab: (tab: number) => void;
   stocksActiveTab: number;
   setStocksActiveTab: (tab: number) => void;
+  stockHistoriesReportsActiveTab: number;
+  setStockHistoriesReportsActiveTab: (tab: number) => void;
   pointsActiveTab: number;
   setPointsActiveTab: (tab: number) => void;
   consumerActiveTab: number;
@@ -163,6 +166,9 @@ const GeneralContext = createContext<GeneralContextType>({
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
   stocksActiveTab: StocksPageTabEnum.STOCK,
+  setStockHistoriesReportsActiveTab: () => {},
+  stockHistoriesReportsActiveTab:
+    StockHistoriesReportsPageTabEnum.LOSSPRODUCTREPORT,
   setPointsActiveTab: () => {},
   pointsActiveTab: 0,
   setConsumerActiveTab: () => {},
@@ -328,6 +334,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [stocksActiveTab, setStocksActiveTab] = useState<number>(
     StocksPageTabEnum.STOCK
   );
+  const [stockHistoriesReportsActiveTab, setStockHistoriesReportsActiveTab] =
+    useState<number>(StockHistoriesReportsPageTabEnum.LOSSPRODUCTREPORT);
   const [pointsActiveTab, setPointsActiveTab] = useState<number>(0);
   const [consumerActiveTab, setConsumerActiveTab] = useState<number>(0);
   const [accountingActiveTab, setAccountingActiveTab] = useState<number>(
@@ -428,6 +436,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         expandedRows,
         stocksActiveTab,
         setStocksActiveTab,
+        stockHistoriesReportsActiveTab,
+        setStockHistoriesReportsActiveTab,
         pointsActiveTab,
         setPointsActiveTab,
         consumerActiveTab,

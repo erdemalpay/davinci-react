@@ -24,7 +24,6 @@ import Feedback from "../pages/Feedback";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import IkasPickUp from "../pages/IkasPickUp";
-import ShopifyPickUp from "../pages/ShopifyPickUp";
 import Images from "../pages/Images";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Memberships from "../pages/Memberships";
@@ -42,10 +41,14 @@ import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
+import ShopifyPickUp from "../pages/ShopifyPickUp";
 import SingleCheckArchive from "../pages/SingleCheckArchive";
 import SingleCountArchive from "../pages/SingleCountArchive";
 import SingleExpirationCountArchive from "../pages/SingleExpirationCountArchive";
 import SingleFolderPage from "../pages/SingleFolderPage";
+import StockHistoriesReports, {
+  StockHistoriesReportsPageTabs,
+} from "../pages/StockHistoriesReports";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
@@ -92,6 +95,7 @@ export enum Routes {
   Accounting = "/accounting",
   Expenses = "/expenses",
   Stocks = "/stocks",
+  StockHistoriesReports = "/stock-histories-reports",
   Count = "/count/:location/:countListId",
   Check = "/check/:location/:checklistId",
   Product = "/product/:productId",
@@ -495,6 +499,29 @@ export const allRoutes: {
     element: Stocks,
     isOnSidebar: true,
     tabs: StockPageTabs,
+    children: [
+      {
+        name: "Stocks",
+        path: Routes.Stocks,
+        element: Stocks,
+        isOnSidebar: true,
+        tabs: StockPageTabs,
+      },
+      {
+        name: "Stock Histories Reports",
+        path: Routes.StockHistoriesReports,
+        element: StockHistoriesReports,
+        isOnSidebar: true,
+        tabs: StockHistoriesReportsPageTabs,
+      },
+    ],
+  },
+  {
+    name: "Stock Histories Reports",
+    path: Routes.StockHistoriesReports,
+    element: StockHistoriesReports,
+    isOnSidebar: false,
+    tabs: StockHistoriesReportsPageTabs,
   },
   {
     name: "Constants",
