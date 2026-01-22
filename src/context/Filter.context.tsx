@@ -327,8 +327,10 @@ const FilterContext = createContext<FilterContextType>({
       StockHistoryStatusEnum.CONSUMPTION,
       StockHistoryStatusEnum.CONSUMPTIONCANCEL,
     ],
-    before: "",
-    after: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
+    date: "thisMonth",
+    category: [],
     sort: "",
     asc: 1,
     vendor: "",
@@ -378,9 +380,11 @@ const FilterContext = createContext<FilterContextType>({
       StockHistoryStatusEnum.LOSSPRODUCT,
       StockHistoryStatusEnum.LOSSPRODUCTCANCEL,
     ],
-    before: "",
-    after: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
     sort: "",
+    date: "thisMonth",
+    category: [],
     asc: 1,
     vendor: "",
     brand: "",
@@ -394,8 +398,10 @@ const FilterContext = createContext<FilterContextType>({
     expenseType: "",
     location: "",
     status: [],
-    before: "",
-    after: "",
+    date: "thisMonth",
+    category: [],
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
     sort: "",
     asc: 1,
     vendor: "",
@@ -735,9 +741,12 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     location: "",
   });
 
-  const [showColdDrinkStockFilters, setShowColdDrinkStockFilters] = useState(false);
-  const [isColdDrinkStockEnableEdit, setIsColdDrinkStockEnableEdit] = useState(false);
-  const [showColdDrinkStockPrices, setShowColdDrinkStockPrices] = useState(false);
+  const [showColdDrinkStockFilters, setShowColdDrinkStockFilters] =
+    useState(false);
+  const [isColdDrinkStockEnableEdit, setIsColdDrinkStockEnableEdit] =
+    useState(false);
+  const [showColdDrinkStockPrices, setShowColdDrinkStockPrices] =
+    useState(false);
   const [
     filterColdDrinkStockPanelFormElements,
     setFilterColdDrinkStockPanelFormElements,
@@ -841,8 +850,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     expenseType: "",
     location: "",
     status: [],
-    before: "",
-    after: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
+    date: "thisMonth",
+    category: [],
     sort: "",
     asc: 1,
     vendor: "",
@@ -893,8 +904,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
       StockHistoryStatusEnum.LOSSPRODUCT,
       StockHistoryStatusEnum.LOSSPRODUCTCANCEL,
     ],
-    before: "",
-    after: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
+    date: "thisMonth",
+    category: [],
     sort: "",
     asc: 1,
     vendor: "",
@@ -926,8 +939,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
       StockHistoryStatusEnum.CONSUMPTION,
       StockHistoryStatusEnum.CONSUMPTIONCANCEL,
     ],
-    before: "",
-    after: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
+    date: "thisMonth",
+    category: [],
     sort: "",
     asc: 1,
     vendor: "",
@@ -1119,7 +1134,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setIsDesertStockEnableEdit: setIsDesertStockEnableEdit,
         showColdDrinkStockFilters: showColdDrinkStockFilters,
         setShowColdDrinkStockFilters: setShowColdDrinkStockFilters,
-        filterColdDrinkStockPanelFormElements: filterColdDrinkStockPanelFormElements,
+        filterColdDrinkStockPanelFormElements:
+          filterColdDrinkStockPanelFormElements,
         setFilterColdDrinkStockPanelFormElements:
           setFilterColdDrinkStockPanelFormElements,
         showColdDrinkStockPrices: showColdDrinkStockPrices,
