@@ -208,8 +208,14 @@ export function useMutationApi<T extends { _id: number | string }>({
         setTimeout(() => toast.error(t(errorMessage)), 200);
       },
       // Always refetch after error or success:
-      onSettled: async () => {
-
+      onSettled: async (_data, error, deletedId, context) => {
+        const previousItemContext = context as {
+          previousItems: T[];
+        };
+        const updatedItems = (previousItemContext?.previousItems || []).filter(
+          (item) => item._id !== deletedId
+        );
+        queryClient.setQueryData(queryKey, updatedItems);
         if (isAdditionalInvalidate) {
           additionalInvalidates?.forEach((key) => {
             queryClient.invalidateQueries({ queryKey: key });
