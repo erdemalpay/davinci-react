@@ -1243,7 +1243,10 @@
   "Auto Prepared": "Otomatik Hazırlandı",
   "Create Shopify Product": "Shopify Ürünü Oluştur",
   "Shopify Takeaway": " Shopify Gel Al",
+  "Shopify Order": "Shopify Sipariş",
   "Apply Discount": "İndirim Uygula",
   "face_recognition": "Yüz Okutma",
-  "panel": "Panel"
+  "panel": "Panel",
+  "ShopifyOrderReceived": "Shopify'dan #{{orderNumber}} numaralı sipariş geldi. Ürünler: {{products}}. Toplam: {{amount}}₺ ({{itemCount}} ürün)",
+  "ShopifyPickupOrderArrived": "Shopify'dan {{product}} siparişi mağazadan teslim için geldi"
 }
