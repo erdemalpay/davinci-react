@@ -1254,6 +1254,5 @@
   "Stock Histories Reports": "Stock Histories Reports",
   "panel": "Panel",
   "Shopify Order": "Shopify Order",
-  "ShopifyOrderReceived": "Order #{{orderNumber}} received from Shopify. Products: {{products}}. Total: {{amount}}₺ ({{itemCount}} items)",
-  "ShopifyPickupOrderArrived": "{{product}} order from Shopify arrived for store pickup"
+  "ShopifyOrderReceived": "Order #{{orderNumber}} received from Shopify. Products: {{products}}. Total: {{amount}}₺ ({{itemCount}} items)"
 }

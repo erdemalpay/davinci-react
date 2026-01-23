@@ -1247,6 +1247,5 @@
   "Apply Discount": "İndirim Uygula",
   "face_recognition": "Yüz Okutma",
   "panel": "Panel",
-  "ShopifyOrderReceived": "Shopify'dan #{{orderNumber}} numaralı sipariş geldi. Ürünler: {{products}}. Toplam: {{amount}}₺ ({{itemCount}} ürün)",
-  "ShopifyPickupOrderArrived": "Shopify'dan {{product}} siparişi mağazadan teslim için geldi"
+  "ShopifyOrderReceived": "Shopify'dan #{{orderNumber}} numaralı sipariş geldi. Ürünler: {{products}}. Toplam: {{amount}}₺ ({{itemCount}} ürün)"
 }
