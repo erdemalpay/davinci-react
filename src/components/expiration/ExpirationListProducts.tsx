@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { ExpirationListType } from "../../types";
+import { ActionEnum, DisabledConditionEnum, ExpirationListType } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
@@ -10,11 +10,14 @@ import {
   useGetExpirationLists,
 } from "../../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { ExpenseTypeInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { RowKeyType } from "../panelComponents/shared/types";
+import { useUserContext } from "../../context/User.context";
 
 type FormElementsState = {
   [key: string]: any;
@@ -22,10 +25,12 @@ type FormElementsState = {
 
 const ExpirationListProducts = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const expirationLists = useGetExpirationLists();
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
   const locations = useGetStockLocations();
+  const disabledConditions = useGetDisabledConditions();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { updateExpirationList } = useExpirationListMutations();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -34,6 +39,29 @@ const ExpirationListProducts = () => {
       expenseType: "",
     });
   const [showFilters, setShowFilters] = useState(false);
+
+  const expirationListProductsPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.EXPIRATIONS_EXPIRATIONLISTPRODUCTS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+      if (!user?.role?._id) {
+        return true;
+      }
+      const action = expirationListProductsPageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+      if (!action) {
+        return false;
+      }
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [expirationListProductsPageDisabledCondition, user]
+  );
   const filterPanelInputs = [ExpenseTypeInput({ expenseTypes: expenseTypes })];
   const allRows = products.filter((product) => {
     return (
@@ -116,6 +144,7 @@ const ExpirationListProducts = () => {
   const filters = [
     {
       label: t("Enable Edit"),
+      isDisabled: isActionDisabled(ActionEnum.ENABLEEDIT),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
