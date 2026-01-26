@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -8,7 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { ExpirationListType, RoleEnum } from "../../types";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  ExpirationListType,
+} from "../../types";
 import {
   useExpirationCountMutations,
   useGetExpirationCounts,
@@ -18,7 +22,8 @@ import {
   useGetExpirationLists,
 } from "../../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../../utils/api/location";
-import { isDisabledConditionExpirationLists } from "../../utils/isDisabledConditions";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -34,11 +39,11 @@ import {
 const ExpirationLists = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const isDisabledCondition = isDisabledConditionExpirationLists(user);
   const navigate = useNavigate();
   const expirationLists = useGetExpirationLists();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetStockLocations();
+  const disabledConditions = useGetDisabledConditions();
   const [showInactiveExpirationLists, setShowInactiveExpirationLists] =
     useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -56,6 +61,29 @@ const ExpirationLists = () => {
   ] = useState(false);
   const { createExpirationList, deleteExpirationList, updateExpirationList } =
     useExpirationListMutations();
+
+  const expirationListsPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.EXPIRATIONS_EXPIRATIONLISTS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+      if (!user?.role?._id) {
+        return true;
+      }
+      const action = expirationListsPageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+      if (!action) {
+        return false;
+      }
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [expirationListsPageDisabledCondition, user]
+  );
 
   function handleLocationUpdate(item: ExpirationListType, location: number) {
     const newLocations = item.locations || [];
@@ -157,6 +185,7 @@ const ExpirationLists = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: isActionDisabled(ActionEnum.ADD),
   };
   const actions = [
     {
@@ -182,7 +211,7 @@ const ExpirationLists = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: isActionDisabled(ActionEnum.DELETE),
     },
     {
       name: t("Edit"),
@@ -220,13 +249,12 @@ const ExpirationLists = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: isActionDisabled(ActionEnum.UPDATE),
     },
     {
       name: t("Toggle Active"),
       isDisabled:
-        !showInactiveExpirationLists ||
-        (user && ![RoleEnum.MANAGER].includes(user.role._id)),
+        !showInactiveExpirationLists || isActionDisabled(ActionEnum.TOGGLE),
       isModal: false,
       isPath: false,
       icon: null,
@@ -300,12 +328,13 @@ const ExpirationLists = () => {
       isModalOpen: isCountLocationModalOpen,
       setIsModal: setIsCountLocationModalOpen,
       isPath: false,
+      isDisabled: isActionDisabled(ActionEnum.CREATE_COUNT),
     },
   ];
   const filters = [
     {
       label: t("Show Inactive ExpirationLists"),
-      isDisabled: isDisabledCondition,
+      isDisabled: isActionDisabled(ActionEnum.SHOW_INACTIVE_ELEMENTS),
       isUpperSide: true,
       node: (
         <SwitchButton
@@ -316,6 +345,7 @@ const ExpirationLists = () => {
     },
     {
       label: t("Location Edit"),
+      isDisabled: isActionDisabled(ActionEnum.UPDATE_LOCATION),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
@@ -340,9 +370,7 @@ const ExpirationLists = () => {
           actions={actions}
           isActionsActive={true}
           columns={columns}
-          filters={
-            user && [RoleEnum.MANAGER].includes(user.role._id) ? filters : []
-          }
+          filters={filters}
           rows={
             showInactiveExpirationLists
               ? expirationLists
@@ -351,11 +379,7 @@ const ExpirationLists = () => {
                 )
           }
           title={t("Expiration Lists")}
-          addButton={
-            user && [RoleEnum.MANAGER].includes(user.role._id)
-              ? addButton
-              : undefined
-          }
+          addButton={addButton}
         />
       </div>
     </>
