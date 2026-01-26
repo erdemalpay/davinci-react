@@ -204,9 +204,9 @@ export function useTableMutations() {
     queryKey: [Paths.Tables, selectedLocationId, selectedDate],
     sortFunction: sortTable,
     optimisticCreateItem: (itemDetails) => {
-      const table = itemDetails?.tableDto ? itemDetails.tableDto : itemDetails;
+      const table = itemDetails?.tableDto ?? itemDetails;
       return {
-        ...table,
+        ...(table ?? {}),
         tables: table?.tables ?? [],
         gameplays: table?.gameplays ?? [],
         orders: table?.orders ?? [],
