@@ -207,9 +207,9 @@ export function useTableMutations() {
       const table = itemDetails?.tableDto ?? itemDetails;
       return {
         ...(table ?? {}),
-        tables: table?.tables ?? [],
-        gameplays: table?.gameplays ?? [],
-        orders: table?.orders ?? [],
+        tables: Array.isArray(table?.tables) ? table.tables : [],
+        gameplays: Array.isArray(table?.gameplays) ? table.gameplays : [],
+        orders: Array.isArray(table?.orders) ? table.orders : [],
       };
     },
   });
