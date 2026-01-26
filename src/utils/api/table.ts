@@ -203,6 +203,15 @@ export function useTableMutations() {
     baseQuery: Paths.Tables,
     queryKey: [Paths.Tables, selectedLocationId, selectedDate],
     sortFunction: sortTable,
+    optimisticCreateItem: (itemDetails) => {
+      const table = itemDetails?.tableDto ? itemDetails.tableDto : itemDetails;
+      return {
+        ...table,
+        tables: Array.isArray(table?.tables) ? table.tables : [],
+        gameplays: Array.isArray(table?.gameplays) ? table.gameplays : [],
+        orders: Array.isArray(table?.orders) ? table.orders : [],
+      };
+    },
   });
   return { deleteTable, updateTable, createTable };
 }

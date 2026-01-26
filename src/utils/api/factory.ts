@@ -61,6 +61,7 @@ interface Props<T> {
   isAdditionalInvalidate?: boolean;
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
   additionalInvalidates?: QueryKey[];
+  optimisticCreateItem?: (itemDetails: any) => Partial<T>;
 }
 export function useGet<T>(
   path: string,
@@ -97,6 +98,7 @@ export function useMutationApi<T extends { _id: number | string }>({
   isAdditionalInvalidate = false,
   sortFunction,
   additionalInvalidates,
+  optimisticCreateItem,
 }: Props<T>) {
   function createRequest(itemDetails: Partial<T>): Promise<T> {
     return post<Partial<T>, T>({
@@ -111,11 +113,12 @@ export function useMutationApi<T extends { _id: number | string }>({
     });
   }
 
-  function updateRequest({ id, updates }: UpdatePayload<T>): Promise<T> {
-    return patch<Partial<T>, T>({
+  async function updateRequest({ id, updates }: UpdatePayload<T>): Promise<T> {
+    const response = await patch<Partial<T>, T>({
       path: `${baseQuery}/${id}`,
       payload: updates,
     });
+    return (response as { data?: T })?.data ?? (response as T);
   }
   const { t } = useTranslation();
   function useCreateItemMutation() {
@@ -129,7 +132,10 @@ export function useMutationApi<T extends { _id: number | string }>({
         // Snapshot the previous value
         const previousItems = queryClient.getQueryData<T[]>(queryKey);
         if (!previousItems) return;
-        const updatedItems = [...(previousItems as T[]), itemDetails];
+        const optimisticItem = optimisticCreateItem
+          ? optimisticCreateItem(itemDetails)
+          : (itemDetails as Partial<T>);
+        const updatedItems = [...(previousItems as T[]), optimisticItem];
         if (sortFunction) {
           updatedItems.sort(sortFunction);
         }
