@@ -118,7 +118,7 @@ export function useMutationApi<T extends { _id: number | string }>({
       path: `${baseQuery}/${id}`,
       payload: updates,
     });
-    return (response as { data?: T })?.data ?? (response as T);
+    return (response as { data?: T })?.data ?? response;
   }
   const { t } = useTranslation();
   function useCreateItemMutation() {
