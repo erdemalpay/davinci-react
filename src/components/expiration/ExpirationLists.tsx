@@ -12,7 +12,6 @@ import {
   ActionEnum,
   DisabledConditionEnum,
   ExpirationListType,
-  RoleEnum,
 } from "../../types";
 import {
   useExpirationCountMutations,
@@ -255,8 +254,7 @@ const ExpirationLists = () => {
     {
       name: t("Toggle Active"),
       isDisabled:
-        !showInactiveExpirationLists ||
-        (user && ![RoleEnum.MANAGER].includes(user.role._id)),
+        !showInactiveExpirationLists || isActionDisabled(ActionEnum.TOGGLE),
       isModal: false,
       isPath: false,
       icon: null,
