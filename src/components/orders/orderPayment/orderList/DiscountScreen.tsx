@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useOrderContext } from "../../../../context/Order.context";
 import {
-  Order,
   OrderDiscount,
   OrderDiscountStatus,
   Table,
@@ -12,7 +11,6 @@ import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
   table: Table;
-  tableOrders: Order[];
 };
 
 const normalizeText = (text: string) =>

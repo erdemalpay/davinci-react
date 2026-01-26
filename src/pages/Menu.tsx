@@ -11,7 +11,7 @@ import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
-import { useGetCategories } from "../utils/api/menu/category";
+import { useGetAllCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetPopularItems } from "../utils/api/menu/popular";
 import { getItem } from "../utils/getItem";
@@ -28,7 +28,8 @@ export default function Menu() {
   const popularItems = useGetPopularItems();
   const [isCategoryTabChanged, setIsCategoryTabChanged] = useState<boolean>();
   const [tabs, setTabs] = useState<Tab[]>([]);
-  const categories = useGetCategories();
+  const categories = useGetAllCategories();
+  console.log("categories", categories);
   const {
     currentPage,
     rowsPerPage,
@@ -70,7 +71,7 @@ export default function Menu() {
       );
       if (existingGroup) {
         existingGroup.items.push(item);
-      } else if (category?.active) {
+      } else if (category?.active || category?.isKitchenMenu) {
         const newGroup = {
           category: category as MenuCategory,
           order: category?.order as number,
@@ -139,9 +140,7 @@ export default function Menu() {
           number: itemCategories?.length + emptyCategories?.length + 3,
           label: t("Order Categories Order"),
           icon: null,
-          content: (
-           <OrderCategoryOrder />
-          ),
+          content: <OrderCategoryOrder />,
           isDisabled: false,
         },
       ].sort((a, b) => a.number - b.number)

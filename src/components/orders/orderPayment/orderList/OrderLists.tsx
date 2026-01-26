@@ -256,7 +256,7 @@ const OrderLists = ({
         !isProductSelectionOpen &&
         !isDiscountNoteOpen &&
         (isDiscountScreenOpen ? (
-          <DiscountScreen tableOrders={tableOrders} table={table} />
+          <DiscountScreen table={table} />
         ) : (
           <UnpaidOrders
             tableOrders={tableOrders}
