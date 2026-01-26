@@ -73,7 +73,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       if (showInactiveCategories) {
         return true;
       }
-      return category?.active;
+      return category?.active || category?.isKitchenMenu;
     })
     ?.map((category) => {
       const categoryKitchen = getItem(category.kitchen, kitchens);
@@ -293,7 +293,9 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
               isEnableEdit ? (
                 <CheckSwitch
                   checked={row.isAutoServed}
-                  onChange={() => handleCategoryFieldUpdate(row, "isAutoServed")}
+                  onChange={() =>
+                    handleCategoryFieldUpdate(row, "isAutoServed")
+                  }
                 />
               ) : row.isAutoServed ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
@@ -307,7 +309,9 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
               isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.isOnlineOrder ?? false}
-                  onChange={() => handleCategoryFieldUpdate(row, "isOnlineOrder")}
+                  onChange={() =>
+                    handleCategoryFieldUpdate(row, "isOnlineOrder")
+                  }
                 />
               ) : row?.isOnlineOrder ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
@@ -321,7 +325,9 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
               isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.isKitchenMenu ?? false}
-                  onChange={() => handleCategoryFieldUpdate(row, "isKitchenMenu")}
+                  onChange={() =>
+                    handleCategoryFieldUpdate(row, "isKitchenMenu")
+                  }
                 />
               ) : row?.isKitchenMenu ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
@@ -335,7 +341,9 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
               isEnableEdit ? (
                 <CheckSwitch
                   checked={row?.isLimitedTime ?? false}
-                  onChange={() => handleCategoryFieldUpdate(row, "isLimitedTime")}
+                  onChange={() =>
+                    handleCategoryFieldUpdate(row, "isLimitedTime")
+                  }
                 />
               ) : row?.isLimitedTime ? (
                 <IoCheckmark className="text-blue-500 text-2xl " />
@@ -525,12 +533,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     {
       label: t("Enable Edit"),
       isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={isEnableEdit}
-          onChange={setIsEnableEdit}
-        />
-      ),
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
       isDisabled: menuPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.UPDATE &&
