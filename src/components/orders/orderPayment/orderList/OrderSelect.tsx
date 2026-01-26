@@ -4,7 +4,7 @@ import { GrCheckbox, GrCheckboxSelected } from "react-icons/gr";
 import { useDataContext } from "../../../../context/Data.context";
 import { useOrderContext } from "../../../../context/Order.context";
 import { Order, OrderDiscountStatus } from "../../../../types";
-import { useGetCategories } from "../../../../utils/api/menu/category";
+import { useGetAllCategories } from "../../../../utils/api/menu/category";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
 import OrderScreenHeader from "./OrderScreenHeader";
@@ -14,12 +14,11 @@ type Props = {
 };
 const OrderSelect = ({ tableOrders }: Props) => {
   const { t } = useTranslation();
-  const categories = useGetCategories();
+  const categories = useGetAllCategories();
   const { menuItems: items = [] } = useDataContext();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
-  if (!categories) return <></>;
   const {
     temporaryOrders,
     selectedOrders,
