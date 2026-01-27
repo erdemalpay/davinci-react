@@ -32,7 +32,6 @@ import {
   OrderStatus,
   TURKISHLIRA,
   Table,
-  TableStatus,
   TableTypes,
   User,
 } from "../../types";
@@ -119,7 +118,7 @@ export function TableCard({
   const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
-  const { updateTable } = useTableMutations();
+  const { updateTable, deleteTable } = useTableMutations();
   const { mutate: reopenTable } = useReopenTableMutation();
   const { mutate: combineTable } = useCombineTableMutation();
   const { mutate: transferTable } = useTransferTableMutations();
@@ -811,13 +810,11 @@ export function TableCard({
         return;
       }
     }
-    updateTable({
-      id: table._id,
-      updates: { status: TableStatus.CANCELLED },
-    });
+    console.log("About to call deleteTable with id:", table._id);
+    deleteTable(table._id);
 
     setIsDeleteConfirmationDialogOpen(false);
-  }, [table._id, tableOrders, updateTable, t]);
+  }, [table._id, tableOrders, deleteTable, t]);
 
   const handleOrderObject = () => {
     if (!menuItems || !categories) return null;
