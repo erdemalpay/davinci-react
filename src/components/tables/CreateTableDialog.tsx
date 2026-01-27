@@ -7,8 +7,8 @@ import { useLocationContext } from "../../context/Location.context";
 import { useForm } from "../../hooks/useForm";
 import { Table } from "../../types";
 import { useTableMutations } from "../../utils/api/table";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import { GenericButton } from "../common/GenericButton";
+import TextInput from "../panelComponents/FormElements/TextInput";
 
 export function CreateTableDialog({
   isOpen,
@@ -32,6 +32,7 @@ export function CreateTableDialog({
     playerCount: 2,
     startHour,
     gameplays: [],
+    tables: [],
   };
   const { data, handleUpdate } = useForm(initialTable);
   const { createTable } = useTableMutations();
