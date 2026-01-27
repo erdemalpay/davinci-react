@@ -1,4 +1,9 @@
-import { QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
@@ -7,7 +12,7 @@ import { useOrderContext } from "../../context/Order.context";
 import { Table } from "../../types/index";
 import { sortTable } from "../sort";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
-import { get, patch } from "./index";
+import { get, patch, post } from "./index";
 
 interface UpdateTablePayload {
   id: number;
@@ -75,6 +80,8 @@ export function useCloseTableMutation() {
           updatedTables[i] = { ...updatedTables[i], ...updates };
         }
       }
+      console.log("Updated tables after close:", updatedTables);
+      console.log(updates);
       updatedTables.sort(sortTable);
 
       // Optimistically update to the new value
@@ -94,9 +101,16 @@ export function useCloseTableMutation() {
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
-    // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
+    // Update cache with server response on success
+    onSettled: async (response: any, error, _variables, context) => {
+      if (error || !response) return;
+
+      const previousTableContext = context as { previousTables: Table[] };
+      const updatedTable = response.data || response;
+      const updatedTables = (previousTableContext?.previousTables || []).map(
+        (table) => (table._id === updatedTable._id ? updatedTable : table)
+      );
+      queryClient.setQueryData(queryKey, updatedTables);
     },
   });
 }
@@ -136,10 +150,6 @@ export function useCloseAllTableMutation() {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
-    },
-    onSettled: () => {
-      // Invalidate queries to refetch the table list
-      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
@@ -184,9 +194,81 @@ export function useReopenTableMutation() {
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
+    // Update cache with server response on success
+    onSettled: async (response: any, error, _variables, context) => {
+      if (error || !response) return;
+
+      const previousTableContext = context as { previousTables: Table[] };
+      const updatedTable = response.data || response;
+      const updatedTables = (previousTableContext?.previousTables || []).map(
+        (table) => (table._id === updatedTable._id ? updatedTable : table)
+      );
+      queryClient.setQueryData(queryKey, updatedTables);
+    },
+  });
+}
+
+export function useCreateTableMutation() {
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  const queryKey = [Paths.Tables, selectedLocationId, selectedDate];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: any) =>
+      post<any, Table>({
+        path: `${BASE_URL}`,
+        payload,
+      }),
+    // We are updating tables query data with new table
+    onMutate: async (itemDetails) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey });
+      // Snapshot the previous value
+      const previousItems = queryClient.getQueryData<Table[]>(queryKey);
+      if (!previousItems) return;
+      const updatedItems = [
+        ...previousItems,
+        {
+          ...itemDetails.tableDto,
+          ...itemDetails?.orders,
+          tables:
+            itemDetails?.tableDto?.tables !== ""
+              ? itemDetails.tableDto.tables
+              : [],
+        },
+      ];
+      updatedItems.sort(sortTable);
+      // Optimistically update to the new value
+      queryClient.setQueryData(queryKey, updatedItems);
+
+      // Return a context object with the snapshotted value
+      return { previousItems };
+    },
+    // If the mutation fails, use the context returned from onMutate to roll back
+    onError: (_err: any, _newTable, context) => {
+      const previousItemContext = context as {
+        previousItems: Table[];
+      };
+      if (previousItemContext?.previousItems) {
+        const { previousItems } = previousItemContext;
+        queryClient.setQueryData<Table[]>(queryKey, previousItems);
+      }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
     // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
+    onSettled: async (newItem, error, _variables, context) => {
+      const previousItemContext = context as {
+        previousItems: Table[];
+      };
+      if (newItem) {
+        const updatedItems = [
+          ...(previousItemContext?.previousItems || []),
+          newItem,
+        ];
+        queryClient.setQueryData(queryKey, updatedItems);
+      }
     },
   });
 }
@@ -195,15 +277,13 @@ export function useTableMutations() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
 
-  const {
-    deleteItem: deleteTable,
-    updateItem: updateTable,
-    createItem: createTable,
-  } = useMutationApi<Table>({
-    baseQuery: Paths.Tables,
-    queryKey: [Paths.Tables, selectedLocationId, selectedDate],
-    sortFunction: sortTable,
-  });
+  const { deleteItem: deleteTable, updateItem: updateTable } =
+    useMutationApi<Table>({
+      baseQuery: Paths.Tables,
+      queryKey: [Paths.Tables, selectedLocationId, selectedDate],
+      sortFunction: sortTable,
+    });
+  const { mutate: createTable } = useCreateTableMutation();
   return { deleteTable, updateTable, createTable };
 }
 

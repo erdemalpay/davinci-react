@@ -241,9 +241,11 @@ export function useWebSocket() {
           const normalizedOrder = order;
           // If table is just an ID, fetch the full table object from tables cache using order's location
           if (typeof order.table === "number" && order.location) {
-            const tablesForLocation = queryClient.getQueryData<Table[]>(
-              [Paths.Tables, order.location, selectedDate]
-            );
+            const tablesForLocation = queryClient.getQueryData<Table[]>([
+              Paths.Tables,
+              order.location,
+              selectedDate,
+            ]);
 
             if (tablesForLocation) {
               const foundTable = tablesForLocation.find(
@@ -319,9 +321,11 @@ export function useWebSocket() {
           for (const order of orders) {
             const normalizedOrder = order;
             if (typeof order.table === "number" && order.location) {
-              const tablesForLocation = queryClient.getQueryData<Table[]>(
-                [Paths.Tables, order.location, selectedDate]
-              );
+              const tablesForLocation = queryClient.getQueryData<Table[]>([
+                Paths.Tables,
+                order.location,
+                selectedDate,
+              ]);
 
               if (tablesForLocation) {
                 const foundTable = tablesForLocation.find(
@@ -419,9 +423,11 @@ export function useWebSocket() {
 
             // If table is just an ID, fetch the full table object from tables cache using collection's location
             if (typeof collection.table === "number" && collection.location) {
-              const tablesForLocation = queryClient.getQueryData<Table[]>(
-                [Paths.Tables, collection.location, selectedDate]
-              );
+              const tablesForLocation = queryClient.getQueryData<Table[]>([
+                Paths.Tables,
+                collection.location,
+                selectedDate,
+              ]);
               if (tablesForLocation) {
                 const foundTable = tablesForLocation.find(
                   (t) => t?._id === collection.table
@@ -516,54 +522,66 @@ export function useWebSocket() {
       });
     });
 
-    socket.on("tableCreated", ({ table }: { table: Table }) => {
-      const locationId = table.location;
-      const date = table.date;
-      queryClient.setQueryData<Table[]>(
-        [Paths.Tables, locationId, date],
-        (old) => {
-          if (!old) return [table];
-          // Check if table already exists to avoid duplicates
-          if (old.some((t) => t._id === table._id)) {
-            return old;
-          }
-          return [...old, table];
-        }
-      );
-    });
-
-    socket.on("tableDeleted", ({ table: deletedTable }: { table: Table }) => {
-      console.log("tableDeleted", deletedTable);
-      const locationId = deletedTable.location;
-      const date = deletedTable.date;
-      queryClient.setQueryData<Table[]>(
-        [Paths.Tables, locationId, date],
-        (old) => {
-          if (!old) return [];
-          return old.filter((table) => table?._id !== deletedTable?._id);
-        }
-      );
-    });
-
-    socket.on("tableClosed", ({ table: closedTable }: { table: Table }) => {
-      const locationId = closedTable.location;
-      const date = closedTable.date;
-      queryClient.setQueryData<Table[]>(
-        [Paths.Tables, locationId, date],
-        (old) => {
-          if (!old) return [];
-          return old.map((table) => {
-            if (table?._id === closedTable?._id) {
-              return {
-                ...table,
-                finishHour: closedTable.finishHour,
-              };
+    socket.on(
+      "tableCreated",
+      ({ table, user }: { table: Table; user: User }) => {
+        if (user._id === latestValuesRef.current.user?._id) return;
+        const locationId = table.location;
+        const date = table.date;
+        queryClient.setQueryData<Table[]>(
+          [Paths.Tables, locationId, date],
+          (old) => {
+            if (!old) return [table];
+            // Check if table already exists to avoid duplicates
+            if (old.some((t) => t._id === table._id)) {
+              return old;
             }
-            return table;
-          });
-        }
-      );
-    });
+            return [...old, table];
+          }
+        );
+      }
+    );
+
+    socket.on(
+      "tableDeleted",
+      ({ table: deletedTable, user }: { table: Table; user: User }) => {
+        if (user._id === latestValuesRef.current.user?._id) return;
+        console.log("tableDeleted", deletedTable);
+        const locationId = deletedTable.location;
+        const date = deletedTable.date;
+        queryClient.setQueryData<Table[]>(
+          [Paths.Tables, locationId, date],
+          (old) => {
+            if (!old) return [];
+            return old.filter((table) => table?._id !== deletedTable?._id);
+          }
+        );
+      }
+    );
+
+    socket.on(
+      "tableClosed",
+      ({ table: closedTable, user }: { table: Table; user: User }) => {
+        if (user._id === latestValuesRef.current.user?._id) return;
+        const locationId = closedTable.location;
+        const date = closedTable.date;
+        queryClient.setQueryData<Table[]>(
+          [Paths.Tables, locationId, date],
+          (old) => {
+            if (!old) return [];
+            return old.map((table) => {
+              if (table?._id === closedTable?._id) {
+                return {
+                  ...table,
+                  finishHour: closedTable.finishHour,
+                };
+              }
+              return table;
+            });
+          }
+        );
+      }
+    );
 
     socket.on(
       "gameplayCreated",
@@ -683,7 +701,9 @@ export function useWebSocket() {
     socket.on("tableChanged", ({ table }: { table: Table }) => {
       const locationId = table.location;
       const date = table.date;
-      queryClient.invalidateQueries({ queryKey: [Paths.Tables, locationId, date] });
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Tables, locationId, date],
+      });
     });
 
     socket.on(
