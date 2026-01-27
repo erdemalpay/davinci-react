@@ -93,7 +93,6 @@ export function useGetList<T>(
 export function useMutationApi<T extends { _id: number | string }>({
   baseQuery,
   queryKey = [baseQuery],
-  isInvalidate = false,
   isAdditionalInvalidate = false,
   sortFunction,
   additionalInvalidates,
@@ -203,13 +202,11 @@ export function useMutationApi<T extends { _id: number | string }>({
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: updateRequest,
-      // We are updating tables query data with new item
       onMutate: async ({ id, updates }: UpdatePayload<T>) => {
         await queryClient.cancelQueries({ queryKey });
         const previousItems = queryClient.getQueryData<T[]>(queryKey) || [];
 
         const updatedItems = [...previousItems];
-        console.log("Updating item with id:", id, "with updates:", updates);
         for (let i = 0; i < updatedItems.length; i++) {
           if (updatedItems[i]._id === id) {
             updatedItems[i] = { ...updatedItems[i], ...updates };

@@ -102,11 +102,10 @@ export function useCloseTableMutation() {
       setTimeout(() => toast.error(errorMessage), 200);
     },
     // Update cache with server response on success
-    onSettled: async (response: any, error, _variables, context) => {
-      if (error || !response) return;
+    onSettled: async (updatedTable, error, _variables, context) => {
+      if (error || !updatedTable) return;
 
       const previousTableContext = context as { previousTables: Table[] };
-      const updatedTable = response.data || response;
       const updatedTables = (previousTableContext?.previousTables || []).map(
         (table) => (table._id === updatedTable._id ? updatedTable : table)
       );
@@ -195,11 +194,10 @@ export function useReopenTableMutation() {
       setTimeout(() => toast.error(errorMessage), 200);
     },
     // Update cache with server response on success
-    onSettled: async (response: any, error, _variables, context) => {
-      if (error || !response) return;
+    onSettled: async (updatedTable, error, _variables, context) => {
+      if (error || !updatedTable) return;
 
       const previousTableContext = context as { previousTables: Table[] };
-      const updatedTable = response.data || response;
       const updatedTables = (previousTableContext?.previousTables || []).map(
         (table) => (table._id === updatedTable._id ? updatedTable : table)
       );
