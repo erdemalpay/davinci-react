@@ -41,7 +41,7 @@ export const printTableReceipt = ({
   tableName,
   orders,
   items,
-  title = "DA VINCI BOARD GAME Cafe",
+  title = "DA VINCI BOARD GAME CAFE",
   printedAt = new Date(),
   showLogo = true,
   showDate = true,
