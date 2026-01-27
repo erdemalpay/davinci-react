@@ -542,6 +542,21 @@ export function useWebSocket() {
       }
     );
 
+    socket.on("locationChanged", ({ user }: { user: User }) => {
+      console.log("locationChanged event received");
+      if (user._id !== latestValuesRef.current.user?._id) {
+        queryClient.invalidateQueries({ queryKey: [`${Paths.Location}/all`] });
+      }
+      const invalidateKeys = [
+        `${Paths.Location}/stock`,
+        `${Paths.Location}/sell`,
+        `${Paths.Location}`,
+      ];
+      invalidateKeys.forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      });
+    });
+
     socket.on(
       "tableDeleted",
       ({ table: deletedTable, user }: { table: Table; user: User }) => {

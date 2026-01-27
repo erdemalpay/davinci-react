@@ -6,6 +6,7 @@ export function useLocationMutations() {
   const { updateItem: updateLocation, createItem: createStockLocation } =
     useMutationApi<Location>({
       baseQuery: baseUrl,
+      queryKey: [`${baseUrl}/all`],
     });
   return { updateLocation, createStockLocation };
 }
