@@ -14,6 +14,7 @@ import {
   DateRangeKey,
   DisabledConditionEnum,
   OptionType,
+  ShiftValue,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -182,7 +183,7 @@ const Shifts = () => {
             > = {};
 
             dayShifts.forEach((shiftRecord) => {
-              shiftRecord.shifts?.forEach((s: any) => {
+              shiftRecord.shifts?.forEach((s: ShiftValue) => {
                 const shiftKey = buildShiftKey(s, shiftRecord.location);
                 if (!shiftsByLocation[shiftKey]) {
                   shiftsByLocation[shiftKey] = [];
@@ -277,7 +278,7 @@ const Shifts = () => {
             > = {};
 
             dayShifts.forEach((shiftRecord) => {
-              shiftRecord.shifts?.forEach((s: any) => {
+              shiftRecord.shifts?.forEach((s: ShiftValue) => {
                 const shiftKey = buildShiftKey(s, shiftRecord.location);
                 if (!shiftsByLocation[shiftKey]) {
                   shiftsByLocation[shiftKey] = [];
@@ -593,7 +594,7 @@ const Shifts = () => {
                                       // Update the shifts array for this location
                                       const updatedShifts =
                                         locationShiftRecord.shifts?.map(
-                                          (s: any) => {
+                                          (s: ShiftValue) => {
                                             // Only update the current shift
                                             if (
                                               s.shift === shift.shift &&
@@ -794,7 +795,7 @@ const Shifts = () => {
 
                           // Update the shifts array for this specific location
                           const updatedShifts =
-                            locationShiftRecord?.shifts?.map((s: any) => {
+                            locationShiftRecord?.shifts?.map((s: ShiftValue) => {
                               if (
                                 s.shift === shift.shift &&
                                 s.shiftEndHour === shift.shiftEndHour
@@ -858,7 +859,7 @@ const Shifts = () => {
                       if (!dayShifts) return true;
 
                       const userInOtherShifts = dayShifts.shifts?.some(
-                        (s: any) => s.shift !== shift.shift && s.user?.includes(user._id)
+                        (s: ShiftValue) => s.shift !== shift.shift && s.user?.includes(user._id)
                       );
                       return !userInOtherShifts;
                     })
