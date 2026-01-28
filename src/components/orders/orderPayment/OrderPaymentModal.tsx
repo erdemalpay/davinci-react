@@ -43,6 +43,7 @@ import {
 } from "../../../utils/bodyScrollLock";
 import { formatDate } from "../../../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../../../utils/getItem";
+import { printTableReceipt } from "../../../utils/printReceipt";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -339,76 +340,17 @@ const OrderPaymentModal = ({
   ]);
 
   const handlePrint = () => {
-    const printFrame = document.createElement("iframe");
-    printFrame.style.visibility = "hidden";
-    printFrame.style.position = "absolute";
-    printFrame.style.width = "0";
-    printFrame.style.height = "0";
-    document.body.appendChild(printFrame);
-    let totalAmount = 0;
-    const content = orders
-      ?.filter((order) => order?.status !== OrderStatus.CANCELLED)
-      ?.map((order) => {
-        const discountValue =
-          (order?.unitPrice *
-            order?.quantity *
-            (order?.discountPercentage ?? 0)) /
-            100 +
-          (order?.discountAmount ?? 0) * order?.quantity;
-        const orderAmount = order?.unitPrice * order?.quantity - discountValue;
-        totalAmount += orderAmount;
-
-        const originalPriceText =
-          (order?.discountPercentage && order?.discountPercentage > 0) ||
-          (order?.discountAmount && order?.discountAmount > 0)
-            ? `<span class="original-price">${
-                (order?.unitPrice * order?.quantity).toFixed(2) + TURKISHLIRA
-              }</span>`
-            : "";
-
-        return `<div class="receipt-item">
-                <span class="item-name">(${order?.quantity})${
-          getItem(order?.item, items)?.name
-        }</span>
-                ${originalPriceText}
-                <span class="discounted-price">${
-                  orderAmount.toFixed(2) + " " + TURKISHLIRA
-                }</span>
-              </div>`;
-      })
-      .join("");
-    const totalSection = `<div class="total-section">
-                          <span>Toplam:</span>
-                          <span>${
-                            totalAmount.toFixed(2) + " " + TURKISHLIRA
-                          }</span>
-                        </div>`;
-
-    const doc = printFrame.contentWindow?.document;
-    doc?.open();
-    doc?.write(`
-    <html>
-      <head>
-        <title>Print Receipt</title>
-          <style>
-          body { font-family: 'Courier New', Courier, monospace; margin: 20px; background-color: #f9f9f9; }
-          .receipt-item, .total-section { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; }
-          .total-section { font-weight: bold; margin-top: 10px; }
-          .item-name { text-align: left; }
-          .original-price { text-decoration: line-through;margin-left:auto ; margin-right: 10px; }
-          .discounted-price { text-align: right; }
-          h1 { text-align: left; border-bottom: 2px solid black; padding-bottom: 10px; }
-          .receipt-item { border-bottom: 1px dashed #ccc; }
-        </style>
-      </head>
-      <body onload="window.print(); window.close();">
-        <h1>Siparişler</h1>
-        ${content}
-        ${totalSection}
-      </body>
-    </html>
-  `);
-    doc?.close();
+    printTableReceipt({
+      tableName: table?.name ?? "",
+      orders: orders ?? [],
+      items: items ?? [],
+      title: "Siparişler",
+      showLogo: false,
+      showDate: false,
+      showTableInfo: false,
+      showOriginalPrice: true,
+      showNotes: false,
+    });
   };
   const buttons: ButtonType[] = [
     {

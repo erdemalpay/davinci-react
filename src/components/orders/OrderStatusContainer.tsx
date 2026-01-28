@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MdOutlinePrint } from "react-icons/md";
+import { useDataContext } from "../../context/Data.context";
 import { useUserContext } from "../../context/User.context";
 import { Kitchen, Order, OrderStatus, Table } from "../../types";
 import { useUpdateMultipleOrderMutation } from "../../utils/api/order/order";
+import { printTableReceipt } from "../../utils/printReceipt";
 import SingleOrderCard from "./SingleOrderCard";
 
 type Props = {
@@ -22,6 +25,7 @@ const OrderStatusContainer = ({
 }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const { menuItems: items } = useDataContext();
   if (!user) return <></>;
   const [expandedTables, setExpandedTables] = useState<{
     [key: string]: boolean;
@@ -97,6 +101,11 @@ const OrderStatusContainer = ({
   }, [orders]);
 
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
+  const showPrint = useMemo(() => {
+    const kitchenName = kitchen?.name?.toLowerCase() ?? "";
+    return kitchenName.includes("farm") || kitchenName.includes("burger");
+  }, [kitchen?.name]);
+  const canPrint = showPrint && (items?.length ?? 0) > 0;
 
   return (
     <div className="w-full min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-lg __className_a182b8 mx-auto h-full pb-4 mb-4">
@@ -122,17 +131,39 @@ const OrderStatusContainer = ({
         {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
           <div key={tableId} className=" flex flex-col gap-1 px-1 ">
             <div className="flex justify-between">
-              <h2
-                onClick={() => toggleTable(tableId)}
-                className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
-              >
-                {t("Table")} {(tableOrders[0]?.table as Table)?.name}
-                <span // Toggle icon
-                  className="inline-flex  cursor-pointer"
+              <div className="flex items-center gap-2">
+                <h2
+                  onClick={() => toggleTable(tableId)}
+                  className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
                 >
-                  {expandedTables[tableId] ? "▲" : "▼"}
-                </span>
-              </h2>
+                  {t("Table")} {(tableOrders[0]?.table as Table)?.name}
+                  <span // Toggle icon
+                    className="inline-flex  cursor-pointer"
+                  >
+                    {expandedTables[tableId] ? "▲" : "▼"}
+                  </span>
+                </h2>
+                {canPrint && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const receiptOrders = tableOrders;
+                      const tableName =
+                        (tableOrders[0]?.table as Table)?.name ?? tableId;
+                      if (receiptOrders.length === 0) return;
+                      printTableReceipt({
+                        tableName: String(tableName),
+                        orders: receiptOrders,
+                        items: items ?? [],
+                      });
+                    }}
+                    className="p-1 rounded-md border border-gray-300 text-gray-600 hover:text-black hover:border-gray-400"
+                    title={t("Print")}
+                  >
+                    <MdOutlinePrint className="text-lg" />
+                  </button>
+                )}
+              </div>
               {/* pending case all ready button */}
               {status === "Pending" && (
                 <button
