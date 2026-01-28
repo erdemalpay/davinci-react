@@ -142,6 +142,7 @@ const Shifts = () => {
 
           // Sort by shift start time
           return shiftsArray.sort((a, b) => {
+            if (!a.shift || !b.shift) return 0;
             const [aHour, aMin] = a.shift.split(":").map(Number);
             const [bHour, bMin] = b.shift.split(":").map(Number);
             return aHour * 60 + aMin - (bHour * 60 + bMin);
@@ -851,6 +852,15 @@ const Shifts = () => {
                         );
                       }
                       return true;
+                    })
+                    ?.filter((user) => {
+                      const dayShifts = shifts?.find((s) => s.day === row.day);
+                      if (!dayShifts) return true;
+
+                      const userInOtherShifts = dayShifts.shifts?.some(
+                        (s: any) => s.shift !== shift.shift && s.user?.includes(user._id)
+                      );
+                      return !userInOtherShifts;
                     })
                     ?.map((user) => ({
                       value: user._id,
