@@ -13,6 +13,7 @@ import {
 } from "../../utils/api/shiftChangeRequest";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
+import Loading from "../common/Loading";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -56,8 +57,10 @@ const ChangeRequestManagement = () => {
   const rows = listResponse?.data?.data || [];
 
   // Approve/Reject mutations and modal
-  const { mutate: approve } = useApproveShiftChangeRequest();
-  const { mutate: reject } = useRejectShiftChangeRequest();
+  const { mutate: approve, isPending: isApproving } = useApproveShiftChangeRequest();
+  const { mutate: reject, isPending: isRejecting } = useRejectShiftChangeRequest();
+
+  const isLoading = isApproving || isRejecting;
 
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
@@ -481,6 +484,7 @@ const ChangeRequestManagement = () => {
 
   return (
     <div className="w-[95%] my-5 mx-auto">
+      {isLoading && <Loading />}
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}

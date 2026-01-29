@@ -82,7 +82,7 @@ export function useGetShiftChangeRequests(params: {
 }) {
   const path = buildQuery(params || {});
   return useQuery<PaginatedResponse<ShiftChangeRequestType>>({
-    queryKey: [path],
+    queryKey: [Paths.ShiftChangeRequest, params],
     queryFn: () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
     staleTime: 0,
   });
@@ -110,7 +110,7 @@ export function useGetMyShiftChangeRequests(params?: {
 
   const path = buildMyRequestsQuery();
   return useQuery<PaginatedResponse<ShiftChangeRequestType>>({
-    queryKey: [path],
+    queryKey: [Paths.ShiftChangeRequest, "my-requests", params],
     queryFn: () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
     staleTime: 0,
   });
