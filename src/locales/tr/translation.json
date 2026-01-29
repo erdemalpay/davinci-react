@@ -1247,5 +1247,8 @@
   "Apply Discount": "İndirim Uygula",
   "face_recognition": "Yüz Okutma",
   "panel": "Panel",
-  "ShopifyOrderReceived": "Shopify'dan #{{orderNumber}} numaralı gel-al sipariş geldi. Ürünler: {{products}}"
+  "ShopifyOrderReceived": "Shopify'dan #{{orderNumber}} numaralı gel-al sipariş geldi. Ürünler: {{products}}",
+  "ApproveShiftChangeConfirmation": "Shift değiştirme talebi onaylanacaktır, emin misiniz?",
+  "RejectShiftChangeConfirmation": "Shift değiştirme talebi reddedilecektir, emin misiniz?",
+  "CancelShiftChangeConfirmation": "Shift değiştirme talebiniz iptal edilecektir, emin misiniz?"
 }
