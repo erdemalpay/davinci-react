@@ -14,6 +14,7 @@ import {
   DateRangeKey,
   DisabledConditionEnum,
   OptionType,
+  ShiftValue,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -142,6 +143,7 @@ const Shifts = () => {
 
           // Sort by shift start time
           return shiftsArray.sort((a, b) => {
+            if (!a.shift || !b.shift) return 0;
             const [aHour, aMin] = a.shift.split(":").map(Number);
             const [bHour, bMin] = b.shift.split(":").map(Number);
             return aHour * 60 + aMin - (bHour * 60 + bMin);
@@ -181,7 +183,7 @@ const Shifts = () => {
             > = {};
 
             dayShifts.forEach((shiftRecord) => {
-              shiftRecord.shifts?.forEach((s: any) => {
+              shiftRecord.shifts?.forEach((s: ShiftValue) => {
                 const shiftKey = buildShiftKey(s, shiftRecord.location);
                 if (!shiftsByLocation[shiftKey]) {
                   shiftsByLocation[shiftKey] = [];
@@ -276,7 +278,7 @@ const Shifts = () => {
             > = {};
 
             dayShifts.forEach((shiftRecord) => {
-              shiftRecord.shifts?.forEach((s: any) => {
+              shiftRecord.shifts?.forEach((s: ShiftValue) => {
                 const shiftKey = buildShiftKey(s, shiftRecord.location);
                 if (!shiftsByLocation[shiftKey]) {
                   shiftsByLocation[shiftKey] = [];
@@ -592,7 +594,7 @@ const Shifts = () => {
                                       // Update the shifts array for this location
                                       const updatedShifts =
                                         locationShiftRecord.shifts?.map(
-                                          (s: any) => {
+                                          (s: ShiftValue) => {
                                             // Only update the current shift
                                             if (
                                               s.shift === shift.shift &&
@@ -793,7 +795,7 @@ const Shifts = () => {
 
                           // Update the shifts array for this specific location
                           const updatedShifts =
-                            locationShiftRecord?.shifts?.map((s: any) => {
+                            locationShiftRecord?.shifts?.map((s: ShiftValue) => {
                               if (
                                 s.shift === shift.shift &&
                                 s.shiftEndHour === shift.shiftEndHour
@@ -851,6 +853,15 @@ const Shifts = () => {
                         );
                       }
                       return true;
+                    })
+                    ?.filter((user) => {
+                      const dayShifts = shifts?.find((s) => s.day === row.day);
+                      if (!dayShifts) return true;
+
+                      const userInOtherShifts = dayShifts.shifts?.some(
+                        (s: ShiftValue) => s.shift !== shift.shift && s.user?.includes(user._id)
+                      );
+                      return !userInOtherShifts;
                     })
                     ?.map((user) => ({
                       value: user._id,
