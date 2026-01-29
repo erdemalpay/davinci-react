@@ -128,7 +128,9 @@ export function useManagerApproveShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.success(t("Request approved")), 200);
-      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ predicate: (query) =>
+        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
+      });
       client.invalidateQueries({ queryKey: [Paths.Shift] });
     },
       onError: (err: any) => {
@@ -152,7 +154,9 @@ export function useManagerRejectShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.warning(t("Request rejected")), 200);
-      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ predicate: (query) =>
+        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
+      });
     },
       onError: (err: any) => {
         const msg =
@@ -175,7 +179,9 @@ export function useTargetApproveShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.success(t("Request approved")), 200);
-      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ predicate: (query) =>
+        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
+      });
       client.invalidateQueries({ queryKey: [Paths.Shift] });
     },
       onError: (err: any) => {
@@ -199,7 +205,9 @@ export function useTargetRejectShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.warning(t("Request rejected")), 200);
-      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ predicate: (query) =>
+        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
+      });
     },
       onError: (err: any) => {
         const msg =
@@ -222,7 +230,9 @@ export function useCancelShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.success(t("Request cancelled")), 200);
-      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
+      client.invalidateQueries({ predicate: (query) =>
+        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
+      });
       client.invalidateQueries({ queryKey: [Paths.Shift] });
     },
       onError: (err: any) => {
