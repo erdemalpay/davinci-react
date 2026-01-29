@@ -58,6 +58,16 @@ export function reopenTable({ id }: TablePayloadWithId): Promise<Table> {
   });
 }
 
+export function updateTable({
+  id,
+  updates,
+}: UpdateTablePayload): Promise<Table> {
+  return patch<Partial<Table>, Table>({
+    path: `/tables/${id}`,
+    payload: updates,
+  });
+}
+
 export function useCloseTableMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
@@ -206,6 +216,43 @@ export function useReopenTableMutation() {
   });
 }
 
+export function useUpdateTableMutation() {
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  const queryKey = [Paths.Tables, selectedLocationId, selectedDate];
+
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTable,
+    onMutate: async ({ id, updates }: UpdateTablePayload) => {
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
+      console.log("Previous tables before update:", previousTables);
+      console.log("Updates to be applied:", updates);
+      const updatedTables = previousTables.map((table) =>
+        table._id === id ? { ...table, ...updates } : table
+      );
+      console.log("Updated tables after update:", updatedTables);
+      updatedTables.sort(sortTable);
+
+      queryClient.setQueryData(queryKey, updatedTables);
+
+      return { previousTables };
+    },
+    onError: (_err: any, _variables, context) => {
+      const previousTableContext = context as { previousTables: Table[] };
+      if (previousTableContext?.previousTables) {
+        const { previousTables } = previousTableContext;
+        queryClient.setQueryData<Table[]>(queryKey, previousTables);
+      }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useCreateTableMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
@@ -275,13 +322,13 @@ export function useTableMutations() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
 
-  const { deleteItem: deleteTable, updateItem: updateTable } =
-    useMutationApi<Table>({
-      baseQuery: Paths.Tables,
-      queryKey: [Paths.Tables, selectedLocationId, selectedDate],
-      sortFunction: sortTable,
-    });
+  const { deleteItem: deleteTable } = useMutationApi<Table>({
+    baseQuery: Paths.Tables,
+    queryKey: [Paths.Tables, selectedLocationId, selectedDate],
+    sortFunction: sortTable,
+  });
   const { mutate: createTable } = useCreateTableMutation();
+  const { mutate: updateTable } = useUpdateTableMutation();
   return { deleteTable, updateTable, createTable };
 }
 
