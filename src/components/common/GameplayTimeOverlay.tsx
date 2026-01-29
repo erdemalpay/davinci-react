@@ -69,10 +69,6 @@ export const GameplayTimeOverlay = () => {
   const getGameplayDuration = () => {
     if (!currentGameplayTime || !currentGameplayTime.startHour) return "0";
 
-    const [startHour, startMinute] = currentGameplayTime.startHour
-      .split(":")
-      .map(Number);
-
     const today = format(new Date(), "yyyy-MM-dd");
     const startTime = new Date(`${today}T${currentGameplayTime.startHour}:00`);
 
