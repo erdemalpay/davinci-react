@@ -1254,5 +1254,8 @@
   "Stock Histories Reports": "Stock Histories Reports",
   "panel": "Panel",
   "Shopify Order": "Shopify Order",
-  "ShopifyOrderReceived": "Order #{{orderNumber}} received from Shopify. Products: {{products}}. Total: {{amount}}₺ ({{itemCount}} items)"
+  "ShopifyOrderReceived": "Order #{{orderNumber}} received from Shopify. Products: {{products}}. Total: {{amount}}₺ ({{itemCount}} items)",
+  "ApproveShiftChangeConfirmation": "Your shift change request will be approved, are you sure?",
+  "RejectShiftChangeConfirmation": "Your shift change request will be rejected, are you sure?",
+  "CancelShiftChangeConfirmation": "Your shift change request will be canceled, are you sure?"
 }

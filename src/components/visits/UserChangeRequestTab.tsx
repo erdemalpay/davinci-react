@@ -15,6 +15,7 @@ import {
 } from "../../utils/api/shiftChangeRequest";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import Loading from "../common/Loading";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -69,6 +70,49 @@ const UserChangeRequestTab = () => {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
   const isLoading = isApproving || isRejecting || isCancelling;
+
+  // Confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    mode: "APPROVE" | "REJECT" | "CANCEL" | null;
+    requestId: number | null;
+  }>({ isOpen: false, mode: null, requestId: null });
+
+  const handleConfirm = () => {
+    if (!confirmDialog.requestId) return;
+
+    const id = confirmDialog.requestId;
+    if (confirmDialog.mode === "APPROVE") {
+      approve({ id });
+    } else if (confirmDialog.mode === "REJECT") {
+      reject({ id });
+    } else if (confirmDialog.mode === "CANCEL") {
+      cancel({ id });
+    }
+    setConfirmDialog({ isOpen: false, mode: null, requestId: null });
+  };
+
+  const getConfirmationText = () => {
+    if (confirmDialog.mode === "APPROVE") {
+      return t("ApproveShiftChangeConfirmation");
+    } else if (confirmDialog.mode === "REJECT") {
+      return t("RejectShiftChangeConfirmation");
+    } else if (confirmDialog.mode === "CANCEL") {
+      return t("CancelShiftChangeConfirmation");
+    }
+    return "";
+  };
+
+  const getConfirmationTitle = () => {
+    if (confirmDialog.mode === "APPROVE") {
+      return t("Approve");
+    } else if (confirmDialog.mode === "REJECT") {
+      return t("Reject");
+    } else if (confirmDialog.mode === "CANCEL") {
+      return t("Cancel");
+    }
+    return "";
+  };
 
   // Helpers
   const getUserName = (id?: string | { _id: string; name: string }) => {
@@ -331,7 +375,7 @@ const UserChangeRequestTab = () => {
                   title={t("Cancel")}
                   disabled={!canRequesterCancel || isCanceled || isRejected}
                   className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                  onClick={() => cancel({ id: row._id })}
+                  onClick={() => setConfirmDialog({ isOpen: true, mode: "CANCEL", requestId: row._id })}
                 >
                   {/* use same reject icon */}
                   <svg
@@ -361,7 +405,7 @@ const UserChangeRequestTab = () => {
                   title={t("Approve")}
                   disabled={!canTargetAct || isCanceled || isRejected}
                   className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                  onClick={() => approve({ id: row._id })}
+                  onClick={() => setConfirmDialog({ isOpen: true, mode: "APPROVE", requestId: row._id })}
                 >
                   {/* check icon */}
                   <svg
@@ -384,7 +428,7 @@ const UserChangeRequestTab = () => {
                   title={t("Reject")}
                   disabled={!canTargetAct || isCanceled || isRejected}
                   className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                  onClick={() => reject({ id: row._id })}
+                  onClick={() => setConfirmDialog({ isOpen: true, mode: "REJECT", requestId: row._id })}
                 >
                   {/* x icon */}
                   <svg
@@ -521,6 +565,14 @@ const UserChangeRequestTab = () => {
           activeTab === "PENDING" ? t("Pending Requests") : t("All Changes")
         }
         filterPanel={filterPanel}
+      />
+
+      <ConfirmationDialog
+        isOpen={confirmDialog.isOpen}
+        close={() => setConfirmDialog({ isOpen: false, mode: null, requestId: null })}
+        confirm={handleConfirm}
+        title={getConfirmationTitle()}
+        text={getConfirmationText()}
       />
     </div>
   );
