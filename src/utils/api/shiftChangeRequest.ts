@@ -82,7 +82,7 @@ export function useGetShiftChangeRequests(params: {
 }) {
   const path = buildQuery(params || {});
   return useQuery<PaginatedResponse<ShiftChangeRequestType>>({
-    queryKey: [path],
+    queryKey: [Paths.ShiftChangeRequest, params],
     queryFn: () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
     staleTime: 0,
   });
@@ -110,7 +110,7 @@ export function useGetMyShiftChangeRequests(params?: {
 
   const path = buildMyRequestsQuery();
   return useQuery<PaginatedResponse<ShiftChangeRequestType>>({
-    queryKey: [path],
+    queryKey: [Paths.ShiftChangeRequest, "my-requests", params],
     queryFn: () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
     staleTime: 0,
   });
@@ -128,9 +128,7 @@ export function useManagerApproveShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.success(t("Request approved")), 200);
-      client.invalidateQueries({ predicate: (query) =>
-        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
-      });
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
       client.invalidateQueries({ queryKey: [Paths.Shift] });
     },
       onError: (err: any) => {
@@ -154,9 +152,7 @@ export function useManagerRejectShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.warning(t("Request rejected")), 200);
-      client.invalidateQueries({ predicate: (query) =>
-        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
-      });
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
     },
       onError: (err: any) => {
         const msg =
@@ -179,9 +175,7 @@ export function useTargetApproveShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.success(t("Request approved")), 200);
-      client.invalidateQueries({ predicate: (query) =>
-        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
-      });
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
       client.invalidateQueries({ queryKey: [Paths.Shift] });
     },
       onError: (err: any) => {
@@ -205,9 +199,7 @@ export function useTargetRejectShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.warning(t("Request rejected")), 200);
-      client.invalidateQueries({ predicate: (query) =>
-        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
-      });
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
     },
       onError: (err: any) => {
         const msg =
@@ -230,9 +222,7 @@ export function useCancelShiftChangeRequest() {
       }),
     onSuccess: () => {
       setTimeout(() => toast.success(t("Request cancelled")), 200);
-      client.invalidateQueries({ predicate: (query) =>
-        !!query.queryKey[0]?.toString().includes(Paths.ShiftChangeRequest)
-      });
+      client.invalidateQueries({ queryKey: [Paths.ShiftChangeRequest] });
       client.invalidateQueries({ queryKey: [Paths.Shift] });
     },
       onError: (err: any) => {
