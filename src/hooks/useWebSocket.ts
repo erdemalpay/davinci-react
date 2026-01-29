@@ -497,20 +497,12 @@ export function useWebSocket() {
     );
 
     socket.on("singleTableChanged", ({ table }: { table: Table }) => {
+      const { queryClient } = latestValuesRef.current;
       const locationId = table.location;
       const date = table.date;
-      queryClient.setQueryData<Table[]>(
-        [Paths.Tables, locationId, date],
-        (old) => {
-          if (!old) return [table];
-          return old.map((prevTable) => {
-            if (prevTable?._id === table._id) {
-              return { ...prevTable, ...table };
-            }
-            return prevTable;
-          });
-        }
-      );
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Tables, locationId, date],
+      });
     });
 
     socket.on("stockChanged", () => {
@@ -522,200 +514,75 @@ export function useWebSocket() {
       });
     });
 
-    socket.on(
-      "tableCreated",
-      ({ table, user }: { table: Table; user: User }) => {
-        if (user._id === latestValuesRef.current.user?._id) return;
-        const locationId = table.location;
-        const date = table.date;
-        queryClient.setQueryData<Table[]>(
-          [Paths.Tables, locationId, date],
-          (old) => {
-            if (!old) return [table];
-            // Check if table already exists to avoid duplicates
-            if (old.some((t) => t._id === table._id)) {
-              return old;
-            }
-            return [...old, table];
-          }
-        );
-      }
-    );
+    socket.on("tableCreated", ({ table }: { table: Table }) => {
+      const { queryClient } = latestValuesRef.current;
+      const locationId = table.location;
+      const date = table.date;
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Tables, locationId, date],
+      });
+    });
+    socket.on("tableDeleted", ({ table: deletedTable }: { table: Table }) => {
+      const { queryClient } = latestValuesRef.current;
+      const locationId = deletedTable.location;
+      const date = deletedTable.date;
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Tables, locationId, date],
+      });
+    });
 
-    socket.on("locationChanged", ({ user }: { user: User }) => {
-      console.log("locationChanged event received");
-      if (user._id !== latestValuesRef.current.user?._id) {
-        queryClient.invalidateQueries({ queryKey: [`${Paths.Location}/all`] });
-      }
-      const invalidateKeys = [
-        `${Paths.Location}/stock`,
-        `${Paths.Location}/sell`,
-        `${Paths.Location}`,
-      ];
-      invalidateKeys.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: [key] });
+    socket.on("tableClosed", ({ table: closedTable }: { table: Table }) => {
+      const { queryClient } = latestValuesRef.current;
+      const locationId = closedTable.location;
+      const date = closedTable.date;
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Tables, locationId, date],
+      });
+    });
+
+    socket.on("tableChanged", ({ table }: { table: Table }) => {
+      const locationId = table.location;
+      const date = table.date;
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Tables, locationId, date],
       });
     });
 
     socket.on(
-      "tableDeleted",
-      ({ table: deletedTable, user }: { table: Table; user: User }) => {
-        if (user._id === latestValuesRef.current.user?._id) return;
-        console.log("tableDeleted", deletedTable);
-        const locationId = deletedTable.location;
-        const date = deletedTable.date;
-        queryClient.setQueryData<Table[]>(
-          [Paths.Tables, locationId, date],
-          (old) => {
-            if (!old) return [];
-            return old.filter((table) => table?._id !== deletedTable?._id);
-          }
-        );
-      }
-    );
-
-    socket.on(
-      "tableClosed",
-      ({ table: closedTable, user }: { table: Table; user: User }) => {
-        if (user._id === latestValuesRef.current.user?._id) return;
-        const locationId = closedTable.location;
-        const date = closedTable.date;
-        queryClient.setQueryData<Table[]>(
-          [Paths.Tables, locationId, date],
-          (old) => {
-            if (!old) return [];
-            return old.map((table) => {
-              if (table?._id === closedTable?._id) {
-                return {
-                  ...table,
-                  finishHour: closedTable.finishHour,
-                };
-              }
-              return table;
-            });
-          }
-        );
-      }
-    );
-
-    socket.on(
       "gameplayCreated",
-      ({
-        gameplay,
-        user: creatingUser,
-        tableId,
-      }: {
-        gameplay: Gameplay;
-        user: User;
-        tableId: number;
-      }) => {
-        const { queryClient, user } = latestValuesRef.current;
-
-        // Only update cache for other users' actions
-        if (creatingUser._id === user?._id) return;
-
+      ({ gameplay }: { gameplay: Gameplay; tableId: number }) => {
+        const { queryClient } = latestValuesRef.current;
         const locationId = gameplay.location;
         const date = gameplay.date;
         if (!gameplay || !locationId || !date) return;
 
-        queryClient.setQueryData<Table[]>(
-          [Paths.Tables, locationId, date],
-          (old) => {
-            if (!old) return [];
-            return old.map((t) => {
-              if (t?._id === Number(tableId)) {
-                return {
-                  ...t,
-                  gameplays: [...t.gameplays, gameplay],
-                };
-              }
-              return t;
-            });
-          }
-        );
+        queryClient.invalidateQueries({
+          queryKey: [Paths.Tables, locationId, date],
+        });
       }
     );
 
     socket.on(
       "gameplayDeleted",
-      ({
-        gameplay,
-        user: deletingUser,
-        tableId,
-      }: {
-        gameplay: Gameplay;
-        user: User;
-        tableId: number;
-      }) => {
-        const { queryClient, user } = latestValuesRef.current;
-
-        // Only update cache for other users' actions
-        if (deletingUser._id === user?._id) return;
-
-        const gameplayId = gameplay?._id;
-        const locationId = gameplay.location;
-        const date = gameplay.date;
-        if (!gameplayId || !locationId || !date) return;
-
-        queryClient.setQueryData<Table[]>(
-          [Paths.Tables, locationId, date],
-          (old) => {
-            if (!old) return [];
-            return old.map((t) => {
-              if (t?._id === Number(tableId)) {
-                return {
-                  ...t,
-                  gameplays: t.gameplays.filter((g) => g?._id !== gameplayId),
-                };
-              }
-              return t;
-            });
-          }
-        );
-      }
-    );
-
-    socket.on(
-      "gameplayUpdated",
-      ({
-        gameplay,
-        user: updatingUser,
-      }: {
-        gameplay: Gameplay;
-        user: User;
-      }) => {
-        const { queryClient, user } = latestValuesRef.current;
-
-        // Only update cache for other users' actions
-        if (updatingUser._id === user?._id) return;
+      ({ gameplay }: { gameplay: Gameplay; tableId: number }) => {
+        const { queryClient } = latestValuesRef.current;
 
         const locationId = gameplay.location;
         const date = gameplay.date;
         if (!gameplay || !locationId || !date) return;
 
-        queryClient.setQueryData<Table[]>(
-          [Paths.Tables, locationId, date],
-          (old) => {
-            if (!old) return [];
-            return old.map((t) => {
-              if (t?.gameplays.some((g) => g._id === gameplay._id)) {
-                return {
-                  ...t,
-                  gameplays: t.gameplays.map((g) =>
-                    g?._id === gameplay?._id ? gameplay : g
-                  ),
-                };
-              }
-              return t;
-            });
-          }
-        );
+        queryClient.invalidateQueries({
+          queryKey: [Paths.Tables, locationId, date],
+        });
       }
     );
 
-    socket.on("tableChanged", ({ table }: { table: Table }) => {
-      const locationId = table.location;
-      const date = table.date;
+    socket.on("gameplayUpdated", ({ gameplay }: { gameplay: Gameplay }) => {
+      const { queryClient } = latestValuesRef.current;
+      const locationId = gameplay.location;
+      const date = gameplay.date;
+      if (!gameplay || !locationId || !date) return;
+
       queryClient.invalidateQueries({
         queryKey: [Paths.Tables, locationId, date],
       });

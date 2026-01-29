@@ -269,6 +269,15 @@ export const socketEventListeners: SocketEventType[] = [
     ],
   },
   {
+    event: "locationChanged",
+    invalidateKeys: [
+      `${Paths.Location}/stock`,
+      `${Paths.Location}/sell`,
+      `${Paths.Location}`,
+      `${Paths.Location}/all`,
+    ],
+  },
+  {
     event: "consumerChanged",
     invalidateKeys: [`${Paths.Consumers}`, `${Paths.Consumers}/full-names`],
   },
