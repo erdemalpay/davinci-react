@@ -15,6 +15,7 @@ import {
 } from "../../utils/api/shiftChangeRequest";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
+import Loading from "../common/Loading";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -62,10 +63,12 @@ const UserChangeRequestTab = () => {
   );
 
   // Approve/Reject mutations
-  const { mutate: approve } = useTargetApproveShiftChangeRequest();
-  const { mutate: reject } = useTargetRejectShiftChangeRequest();
-  const { mutate: cancel } = useCancelShiftChangeRequest();
+  const { mutate: approve, isPending: isApproving } = useTargetApproveShiftChangeRequest();
+  const { mutate: reject, isPending: isRejecting } = useTargetRejectShiftChangeRequest();
+  const { mutate: cancel, isPending: isCancelling } = useCancelShiftChangeRequest();
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+
+  const isLoading = isApproving || isRejecting || isCancelling;
 
   // Helpers
   const getUserName = (id?: string | { _id: string; name: string }) => {
@@ -507,6 +510,7 @@ const UserChangeRequestTab = () => {
 
   return (
     <div className="w-[95%] my-5 mx-auto">
+      {isLoading && <Loading />}
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}
