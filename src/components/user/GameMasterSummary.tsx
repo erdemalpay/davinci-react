@@ -132,7 +132,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       icon: <MdOutlineTimelapse />,
       title: t("Days of Part-time Attendance"),
       value: partTimeAttendance,
-      color: "purple",
+      color: "blue",
     },
     {
       icon: <LuTimerOff />,
@@ -166,7 +166,7 @@ const GameMasterSummary = ({ userId }: Props) => {
               .toFixed(2)
               .replace(/\.?0+$/, "")
           : "",
-      color: "blue",
+      color: "purple",
     },
     {
       icon: <GiStorkDelivery />,

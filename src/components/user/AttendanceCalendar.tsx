@@ -198,7 +198,7 @@ const AttendanceCalendar = ({
             className="w-4 h-4 cursor-pointer"
           />
           <span className="text-sm">{t("Full-time")}</span>
-          <div className="w-4 h-4" style={{ backgroundColor: "#4ade80" }}></div>
+          <div className="w-4 h-4" style={{ backgroundColor: "#22c55e" }}></div>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -208,7 +208,7 @@ const AttendanceCalendar = ({
             className="w-4 h-4 cursor-pointer"
           />
           <span className="text-sm">{t("Part-time")}</span>
-          <div className="w-4 h-4" style={{ backgroundColor: "#60a5fa" }}></div>
+          <div className="w-4 h-4" style={{ backgroundColor: "#3b82f6" }}></div>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -218,7 +218,7 @@ const AttendanceCalendar = ({
             className="w-4 h-4 cursor-pointer"
           />
           <span className="text-sm">{t("Unknown")}</span>
-          <div className="w-4 h-4" style={{ backgroundColor: "#f87171" }}></div>
+          <div className="w-4 h-4" style={{ backgroundColor: "#ef4444" }}></div>
         </label>
         {selectedDays.length > 0 && (
           <button
@@ -242,7 +242,9 @@ const AttendanceCalendar = ({
             from={format(addDays(startOfYear(new Date()), 1), "yyyy-MM-dd")}
             to={format(new Date(), "yyyy-MM-dd")}
             emptyColor="#eeeeee"
-            colors={["#f87171", "#60a5fa", "#4ade80", "#9333ea"]}
+            minValue={0}
+            maxValue={3}
+            colors={["#ef4444", "#3b82f6", "#22c55e", "#a855f7"]}
             margin={
               isSmallScreen
                 ? { top: 5, right: 5, bottom: 20, left: 25 }
