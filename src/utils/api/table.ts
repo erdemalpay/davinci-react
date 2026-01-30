@@ -90,8 +90,6 @@ export function useCloseTableMutation() {
           updatedTables[i] = { ...updatedTables[i], ...updates };
         }
       }
-      console.log("Updated tables after close:", updatedTables);
-      console.log(updates);
       updatedTables.sort(sortTable);
 
       // Optimistically update to the new value
@@ -228,12 +226,9 @@ export function useUpdateTableMutation() {
       await queryClient.cancelQueries({ queryKey });
 
       const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
-      console.log("Previous tables before update:", previousTables);
-      console.log("Updates to be applied:", updates);
       const updatedTables = previousTables.map((table) =>
         table._id === id ? { ...table, ...updates } : table
       );
-      console.log("Updated tables after update:", updatedTables);
       updatedTables.sort(sortTable);
 
       queryClient.setQueryData(queryKey, updatedTables);
@@ -249,6 +244,16 @@ export function useUpdateTableMutation() {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
+    },
+    // Update cache with server response on success
+    onSettled: async (updatedTable, error, _variables, context) => {
+      if (error || !updatedTable) return;
+
+      const previousTableContext = context as { previousTables: Table[] };
+      const updatedTables = (previousTableContext?.previousTables || []).map(
+        (table) => (table._id === updatedTable._id ? updatedTable : table)
+      );
+      queryClient.setQueryData(queryKey, updatedTables);
     },
   });
 }
