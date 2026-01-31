@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
@@ -6,23 +5,18 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { MdCancel } from "react-icons/md";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { toast } from "react-toastify";
-import { GenericButton } from "../common/GenericButton";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
-import { OrderDiscountStatus, OrderStatus } from "../../types";
+import { OrderStatus } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { getItem } from "../../utils/getItem";
-import SharedDiscountNoteScreen from "../common/SharedDiscountNoteScreen";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
-import NewOrderDiscounts from "./NewOrderDiscounts";
 import NewOrderProductSelect from "./NewOrderProductSelect";
 
 const NewOrderListPanel = () => {
   const items = useGetMenuItems();
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const [isDiscountSectionOpen, setIsDiscountSectionOpen] = useState(false);
   const {
     orderCreateBulk,
     setOrderCreateBulk,
@@ -39,9 +33,7 @@ const NewOrderListPanel = () => {
     selectedOrders,
     setSelectedOrders,
   } = useOrderContext();
-  const discounts = useGetOrderDiscounts()?.filter(
-    (discount) => discount?.status !== OrderDiscountStatus.DELETED
-  );
+  
 
   // Buton yönetimi
   const buttons = [
@@ -272,34 +264,7 @@ const NewOrderListPanel = () => {
               );
             })}
           </div>
-
-          {orderCreateBulk?.length > 0 && (
-            !isDiscountSectionOpen ? (
-              <GenericButton
-                onClick={() => setIsDiscountSectionOpen(true)}
-                variant="primary"
-                size="lg"
-                fullWidth
-                customHeight="h-8"
-                className="shadow-md"
-              >
-                {t("Apply Discount")}
-              </GenericButton>
-            ) : (
-              <NewOrderDiscounts />
-            )
-          )}
         </>
-      )}
-
-      {isDiscountNoteOpen && (
-        <SharedDiscountNoteScreen
-          discountNote={discountNote}
-          setDiscountNote={setDiscountNote}
-          selectedDiscount={selectedDiscount}
-          showHeader={true}
-          headerText="Discount Note"
-        />
       )}
 
       {isProductSelectionOpen && <NewOrderProductSelect />}
