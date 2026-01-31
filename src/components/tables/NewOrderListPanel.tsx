@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { MdCancel } from "react-icons/md";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../context/Order.context";
@@ -22,14 +21,8 @@ const NewOrderListPanel = () => {
     setOrderCreateBulk,
     setSelectedNewOrders,
     selectedNewOrders,
-    isDiscountNoteOpen,
-    setIsDiscountNoteOpen,
     isProductSelectionOpen,
     setIsProductSelectionOpen,
-    selectedDiscount,
-    setSelectedDiscount,
-    discountNote,
-    setDiscountNote,
     selectedOrders,
     setSelectedOrders,
   } = useOrderContext();
@@ -40,25 +33,16 @@ const NewOrderListPanel = () => {
     {
       label: t("Cancel"),
       onClick: () => {
-        setIsDiscountNoteOpen(false);
         setIsProductSelectionOpen(false);
-        setSelectedDiscount(null);
-        setDiscountNote("");
         setSelectedOrders([]);
       },
-      isActive: isDiscountNoteOpen || isProductSelectionOpen,
+      isActive: isProductSelectionOpen,
     },
     {
       label: t("Back"),
       onClick: () => {
         if (isProductSelectionOpen) {
-          if (selectedDiscount?.isNoteRequired) {
-            setIsProductSelectionOpen(false);
-            setIsDiscountNoteOpen(true);
-          } else {
-            setIsProductSelectionOpen(false);
-            setSelectedDiscount(null);
-          }
+          setIsProductSelectionOpen(false);
         }
       },
       isActive: isProductSelectionOpen,
@@ -66,14 +50,9 @@ const NewOrderListPanel = () => {
     {
       label: t("Forward"),
       onClick: () => {
-        if (!discountNote && selectedDiscount?.isNoteRequired) {
-          toast.error(t("Please enter a discount note"));
-          return;
-        }
-        setIsDiscountNoteOpen(false);
         setIsProductSelectionOpen(true);
       },
-      isActive: isDiscountNoteOpen,
+      isActive: isProductSelectionOpen,
     },
     {
       label: t("Apply"),
@@ -108,8 +87,6 @@ const NewOrderListPanel = () => {
             newOrders.push({
               ...order,
               quantity: selectedQuantity,
-              discount: selectedDiscount?._id,
-              discountNote: discountNote || undefined,
             });
 
             newSelectedIndexes.push(newOrders.length - 1);
@@ -117,16 +94,12 @@ const NewOrderListPanel = () => {
             newOrders.push({
               ...order,
               quantity: selectedQuantity,
-              discount: selectedDiscount?._id,
-              discountNote: discountNote || undefined,
             });
             newSelectedIndexes.push(newOrders.length - 1); // İndirimli seçili
 
             newOrders.push({
               ...order,
               quantity: remainingQuantity,
-              discount: undefined,
-              discountNote: undefined,
             });
             newSelectedIndexes.push(newOrders.length - 1); // İndirimsiz de seçili
           }
@@ -135,8 +108,6 @@ const NewOrderListPanel = () => {
         setOrderCreateBulk(newOrders);
 
         setIsProductSelectionOpen(false);
-        setSelectedDiscount(null);
-        setDiscountNote("");
         setSelectedOrders([]);
         setSelectedNewOrders(newSelectedIndexes);
       },
@@ -145,14 +116,11 @@ const NewOrderListPanel = () => {
   ];
   return (
     <div className="flex flex-col justify-between  px-2   gap-3 ">
-      {!isDiscountNoteOpen && !isProductSelectionOpen && (
+      {!isProductSelectionOpen && (
         <>
           <div className="flex flex-col  gap-1  text-sm ">
             {orderCreateBulk?.map((order, index) => {
               const orderItem = getItem(order?.item, items);
-              const orderDiscount = order?.discount
-                ? discounts?.find((d) => d._id === order?.discount)
-                : null;
               return (
                 <div
                   key={index}
@@ -169,26 +137,6 @@ const NewOrderListPanel = () => {
                           <p>{orderItem?.name}</p>
                           <h1 className="text-xs">({order?.quantity})</h1>
                         </div>
-
-                        {orderDiscount && (
-                          <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap flex items-center gap-1 w-fit">
-                            {orderDiscount.name}
-                            <MdCancel
-                              className="cursor-pointer hover:scale-110"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // İndirimi kaldır
-                                const newOrders = [...orderCreateBulk];
-                                newOrders[index] = {
-                                  ...newOrders[index],
-                                  discount: undefined,
-                                  discountNote: undefined,
-                                };
-                                setOrderCreateBulk(newOrders);
-                              }}
-                            />
-                          </span>
-                        )}
                       </div>
 
                       <div className="flex flex-row gap-2 items-center">
