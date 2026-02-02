@@ -755,6 +755,7 @@ export type MenuItem = {
   createdAt?: Date;
   startDate?: string;
   endDate?: string;
+  trendyolSku?: string;
 };
 export type ShiftValue = {
   shift: string;
