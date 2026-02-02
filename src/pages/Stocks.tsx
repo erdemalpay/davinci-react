@@ -26,6 +26,7 @@ import LossProduct from "../components/stocks/LossProduct";
 import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
 import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
 import ShopifyStockComparision from "../components/stocks/ShopifyStockComparision";
+import TrendyolStockComparision from "../components/stocks/TrendyolStockComparision";
 import VendorOrder from "../components/stocks/VendorOrder";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -116,6 +117,13 @@ export const StockPageTabs = [
     label: "Shopify Price Comparision",
     icon: <MdOutlinePriceChange className="text-lg font-thin" />,
     content: <ShopifyPriceComparision />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.TRENDYOLSTOCKCOMPARISION,
+    label: "Trendyol Stock Comparision",
+    icon: <MdOutlineCompare className="text-lg font-thin" />,
+    content: <TrendyolStockComparision />,
     isDisabled: false,
   },
   {

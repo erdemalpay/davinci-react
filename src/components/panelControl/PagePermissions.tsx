@@ -45,15 +45,14 @@ const PagePermissions = () => {
   const fillMissingPages = () => {
     const missedRoutes = [];
     for (const route of allRoutes) {
-      if (route?.children) {
-        continue;
-      }
       const currentPage = pages.find((page) => page.name === route.name);
       const routeTabs = route?.tabs;
+
       const isAllTabsSame =
         routeTabs?.every((tab: any) => {
           return currentPage?.tabs?.find((t) => t.name === tab.label);
         }) ?? true;
+
       if (!currentPage || !isAllTabsSame) {
         missedRoutes.push({
           name: route.name,
@@ -69,14 +68,14 @@ const PagePermissions = () => {
         });
       }
     }
+
     if (missedRoutes.length > 0) {
-      createMultiplePage(missedRoutes); 
+      createMultiplePage(missedRoutes);
     }
   };
 
   useEffect(() => {
     fillMissingPages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { columns, rowKeys } = useMemo(() => {
@@ -115,7 +114,7 @@ const PagePermissions = () => {
             <CheckSwitch
               checked={hasPermission}
               onChange={() => {
-                handleRolePermission(row, role._id)
+                handleRolePermission(row, role._id);
               }}
             />
           ) : hasPermission ? (
