@@ -1259,5 +1259,8 @@
   "ShopifyOrderReceived": "Order #{{orderNumber}} received from Shopify. Products: {{products}}. Total: {{amount}}₺ ({{itemCount}} items)",
   "ApproveShiftChangeConfirmation": "Your shift change request will be approved, are you sure?",
   "RejectShiftChangeConfirmation": "Your shift change request will be rejected, are you sure?",
-  "CancelShiftChangeConfirmation": "Your shift change request will be canceled, are you sure?"
+  "CancelShiftChangeConfirmation": "Your shift change request will be canceled, are you sure?",
+  "Update All Trendyol Products" : "Update All Trendyol Products",
+  "Trendyol Stock Comparision" : "Trendyol Stock Comparision",
+  "Trendyol Barcode" : "Trendyol Barcode"
 }
