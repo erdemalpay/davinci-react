@@ -348,7 +348,6 @@ const OrderPaymentModal = ({
       showLogo: false,
       showDate: false,
       showTableInfo: false,
-      showOriginalPrice: true,
       showNotes: false,
     });
   };
