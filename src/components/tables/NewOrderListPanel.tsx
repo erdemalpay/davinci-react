@@ -1,72 +1,48 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { MdCancel } from "react-icons/md";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { toast } from "react-toastify";
-import { GenericButton } from "../common/GenericButton";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
-import { OrderDiscountStatus, OrderStatus } from "../../types";
+import { OrderStatus } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { getItem } from "../../utils/getItem";
-import SharedDiscountNoteScreen from "../common/SharedDiscountNoteScreen";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
-import NewOrderDiscounts from "./NewOrderDiscounts";
 import NewOrderProductSelect from "./NewOrderProductSelect";
 
 const NewOrderListPanel = () => {
   const items = useGetMenuItems();
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const [isDiscountSectionOpen, setIsDiscountSectionOpen] = useState(false);
   const {
     orderCreateBulk,
     setOrderCreateBulk,
     setSelectedNewOrders,
     selectedNewOrders,
-    isDiscountNoteOpen,
-    setIsDiscountNoteOpen,
     isProductSelectionOpen,
     setIsProductSelectionOpen,
-    selectedDiscount,
-    setSelectedDiscount,
-    discountNote,
-    setDiscountNote,
     selectedOrders,
     setSelectedOrders,
   } = useOrderContext();
-  const discounts = useGetOrderDiscounts()?.filter(
-    (discount) => discount?.status !== OrderDiscountStatus.DELETED
-  );
+  
 
   // Buton yönetimi
   const buttons = [
     {
       label: t("Cancel"),
       onClick: () => {
-        setIsDiscountNoteOpen(false);
         setIsProductSelectionOpen(false);
-        setSelectedDiscount(null);
-        setDiscountNote("");
         setSelectedOrders([]);
       },
-      isActive: isDiscountNoteOpen || isProductSelectionOpen,
+      isActive: isProductSelectionOpen,
     },
     {
       label: t("Back"),
       onClick: () => {
         if (isProductSelectionOpen) {
-          if (selectedDiscount?.isNoteRequired) {
-            setIsProductSelectionOpen(false);
-            setIsDiscountNoteOpen(true);
-          } else {
-            setIsProductSelectionOpen(false);
-            setSelectedDiscount(null);
-          }
+          setIsProductSelectionOpen(false);
         }
       },
       isActive: isProductSelectionOpen,
@@ -74,14 +50,9 @@ const NewOrderListPanel = () => {
     {
       label: t("Forward"),
       onClick: () => {
-        if (!discountNote && selectedDiscount?.isNoteRequired) {
-          toast.error(t("Please enter a discount note"));
-          return;
-        }
-        setIsDiscountNoteOpen(false);
         setIsProductSelectionOpen(true);
       },
-      isActive: isDiscountNoteOpen,
+      isActive: isProductSelectionOpen,
     },
     {
       label: t("Apply"),
@@ -116,8 +87,6 @@ const NewOrderListPanel = () => {
             newOrders.push({
               ...order,
               quantity: selectedQuantity,
-              discount: selectedDiscount?._id,
-              discountNote: discountNote || undefined,
             });
 
             newSelectedIndexes.push(newOrders.length - 1);
@@ -125,16 +94,12 @@ const NewOrderListPanel = () => {
             newOrders.push({
               ...order,
               quantity: selectedQuantity,
-              discount: selectedDiscount?._id,
-              discountNote: discountNote || undefined,
             });
             newSelectedIndexes.push(newOrders.length - 1); // İndirimli seçili
 
             newOrders.push({
               ...order,
               quantity: remainingQuantity,
-              discount: undefined,
-              discountNote: undefined,
             });
             newSelectedIndexes.push(newOrders.length - 1); // İndirimsiz de seçili
           }
@@ -143,8 +108,6 @@ const NewOrderListPanel = () => {
         setOrderCreateBulk(newOrders);
 
         setIsProductSelectionOpen(false);
-        setSelectedDiscount(null);
-        setDiscountNote("");
         setSelectedOrders([]);
         setSelectedNewOrders(newSelectedIndexes);
       },
@@ -153,14 +116,11 @@ const NewOrderListPanel = () => {
   ];
   return (
     <div className="flex flex-col justify-between  px-2   gap-3 ">
-      {!isDiscountNoteOpen && !isProductSelectionOpen && (
+      {!isProductSelectionOpen && (
         <>
           <div className="flex flex-col  gap-1  text-sm ">
             {orderCreateBulk?.map((order, index) => {
               const orderItem = getItem(order?.item, items);
-              const orderDiscount = order?.discount
-                ? discounts?.find((d) => d._id === order?.discount)
-                : null;
               return (
                 <div
                   key={index}
@@ -177,26 +137,6 @@ const NewOrderListPanel = () => {
                           <p>{orderItem?.name}</p>
                           <h1 className="text-xs">({order?.quantity})</h1>
                         </div>
-
-                        {orderDiscount && (
-                          <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap flex items-center gap-1 w-fit">
-                            {orderDiscount.name}
-                            <MdCancel
-                              className="cursor-pointer hover:scale-110"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // İndirimi kaldır
-                                const newOrders = [...orderCreateBulk];
-                                newOrders[index] = {
-                                  ...newOrders[index],
-                                  discount: undefined,
-                                  discountNote: undefined,
-                                };
-                                setOrderCreateBulk(newOrders);
-                              }}
-                            />
-                          </span>
-                        )}
                       </div>
 
                       <div className="flex flex-row gap-2 items-center">
@@ -272,34 +212,7 @@ const NewOrderListPanel = () => {
               );
             })}
           </div>
-
-          {orderCreateBulk?.length > 0 && (
-            !isDiscountSectionOpen ? (
-              <GenericButton
-                onClick={() => setIsDiscountSectionOpen(true)}
-                variant="primary"
-                size="lg"
-                fullWidth
-                customHeight="h-8"
-                className="shadow-md"
-              >
-                {t("Apply Discount")}
-              </GenericButton>
-            ) : (
-              <NewOrderDiscounts />
-            )
-          )}
         </>
-      )}
-
-      {isDiscountNoteOpen && (
-        <SharedDiscountNoteScreen
-          discountNote={discountNote}
-          setDiscountNote={setDiscountNote}
-          selectedDiscount={selectedDiscount}
-          showHeader={true}
-          headerText="Discount Note"
-        />
       )}
 
       {isProductSelectionOpen && <NewOrderProductSelect />}

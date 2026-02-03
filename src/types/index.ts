@@ -755,6 +755,7 @@ export type MenuItem = {
   createdAt?: Date;
   startDate?: string;
   endDate?: string;
+  trendyolSku?: string;
 };
 export type ShiftValue = {
   shift: string;
@@ -1345,6 +1346,7 @@ export enum StocksPageTabEnum {
   IKASPRICECOMPARISION,
   SHOPIFYSTOCKCOMPARISION,
   SHOPIFYPRICECOMPARISION,
+  TRENDYOLSTOCKCOMPARISION,
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,

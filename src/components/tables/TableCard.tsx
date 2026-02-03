@@ -28,7 +28,6 @@ import {
   MenuItem,
   OnlineLocationId,
   Order,
-  OrderDiscountStatus,
   OrderStatus,
   TURKISHLIRA,
   Table,
@@ -46,7 +45,6 @@ import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { formatDate } from "../../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
@@ -87,7 +85,6 @@ export function TableCard({
     games,
     kitchens,
     products,
-    discounts,
     stockLocations,
     storeLocations,
     orderNotes,
@@ -156,8 +153,6 @@ export function TableCard({
     quantity: 0,
     note: "",
     category: "",
-    discount: undefined,
-    discountNote: "",
     isOnlinePrice: false,
     location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
     stockLocation: selectedLocationId,
@@ -294,14 +289,7 @@ export function TableCard({
         .map((name) => ({ value: name, label: name })) ?? []
     );
   }, [storeLocations, selectedLocationId, activeTables]);
-  const filteredDiscounts = useMemo(() => {
-    if (!discounts) return [];
-    return discounts.filter(
-      (discount) =>
-        discount?.status !== OrderDiscountStatus.DELETED &&
-        (table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder)
-    );
-  }, [discounts, table?.isOnlineSale]);
+  
   const isOnlinePrice = useMemo(() => {
     if (!menuItems || !categories) return false;
     const menuItem = getItem(orderForm.item, menuItems);
@@ -340,10 +328,6 @@ export function TableCard({
     [storeLocations, selectedLocationId, tables, t]
   );
   const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
-  const MEMBERDISCOUNTID = 8;
-  const memberDiscount = useMemo(() => {
-    return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
-  }, [discounts]);
   const isMobile = useMemo(() => window.innerWidth <= 768, []);
 
   const orderInputs = useMemo(
@@ -378,8 +362,6 @@ export function TableCard({
         isSortDisabled: true,
         invalidateKeys: [
           { key: "item", defaultValue: 0 },
-          { key: "discount", defaultValue: undefined },
-          { key: "discountNote", defaultValue: "" },
           { key: "isOnlinePrice", defaultValue: false },
           { key: "stockLocation", defaultValue: selectedLocationId },
         ],
@@ -444,27 +426,9 @@ export function TableCard({
         formKey: "item",
         options: menuItemOptions,
         invalidateKeys: [
-          { key: "discount", defaultValue: undefined },
-          { key: "discountNote", defaultValue: "" },
           { key: "isOnlinePrice", defaultValue: false },
           { key: "stockLocation", defaultValue: selectedLocationId },
         ],
-        // isExtraModalOpen: isExtraModalOpen,
-        // setIsExtraModalOpen: setIsExtraModalOpen as any,
-        // extraModal: (
-        //   <SuggestedDiscountModal
-        //     isOpen={isExtraModalOpen}
-        //     items={menuItems}
-        //     itemId={orderForm.item as number}
-        //     closeModal={() => {
-        //       setIsExtraModalOpen(false);
-        //       setIsTabInputScreenOpen(false);
-        //       setTabInputScreenOptions([]);
-        //     }}
-        //     orderForm={orderForm}
-        //     setOrderForm={setOrderForm}
-        //   />
-        // ),
         placeholder: t("Product"),
         required: true,
         isTopFlexRow: true,
@@ -478,93 +442,7 @@ export function TableCard({
         isNumberButtonsActive: true,
         isOnClearActive: false,
         isTopFlexRow: true,
-      },
-      {
-        type: InputTypes.TAB,
-        formKey: "discount",
-        placeholder: t("Discount"),
-        options: orderForm?.item
-          ? filteredDiscounts
-              .filter((discount) => {
-                const menuItem = menuItems?.find(
-                  (item) => item._id === orderForm.item
-                );
-                return categories
-                  ? getItem(
-                      menuItem?.category,
-                      categories
-                    )?.discounts?.includes(discount._id)
-                  : false;
-              })
-              ?.map((option) => {
-                return {
-                  value: option?._id,
-                  label: option?.name,
-                };
-              })
-          : [],
-        suggestedOption:
-          orderForm?.item && menuItems
-            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
-              ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
-                  (discountId: number) => ({
-                    value: discountId as any,
-                    label:
-                      filteredDiscounts?.find(
-                        (discount) => discount._id === discountId
-                      )?.name || "",
-                  })
-                )
-              : []
-            : [],
-        invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
-        isAutoFill: false,
-        required: false,
-        isTopFlexRow: true,
-      },
-      {
-        type: InputTypes.TEXT,
-        formKey: "discountNote",
-        label: t("Discount Note"),
-        placeholder:
-          orderForm?.discount &&
-          discounts?.find((discount) => discount._id === orderForm.discount)
-            ?.note
-            ? discounts?.find((discount) => discount._id === orderForm.discount)
-                ?.note
-            : t("What is the reason for the discount?"),
-        required:
-          (orderForm?.discount &&
-            orderForm?.discount !== MEMBERDISCOUNTID &&
-            discounts?.find((discount) => discount._id === orderForm.discount)
-              ?.isNoteRequired) ??
-          false,
-        isDisabled:
-          (orderForm?.discount === MEMBERDISCOUNTID ||
-            (orderForm?.discount &&
-              !discounts?.find(
-                (discount) => discount._id === orderForm.discount
-              )?.isNoteRequired)) ??
-          true,
-      },
-
-      {
-        type: InputTypes.SELECT,
-        formKey: "discountNote",
-        label: t("Discount Note"),
-        placeholder: memberDiscount?.note,
-        options: memberships
-          ?.filter((membership) => membership.endDate >= formatDate(new Date()))
-          ?.map((membership) => ({
-            value: membership.name,
-            label: membership.name,
-          })),
-        isMultiple: true,
-        required: orderForm?.discount === MEMBERDISCOUNTID,
-        isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
-        isOnClearActive: true,
-      },
-      {
+      },{
         type: InputTypes.SELECT,
         formKey: "stockLocation",
         options: stockLocations?.map((input) => {
@@ -652,11 +530,9 @@ export function TableCard({
     [
       orderForm.category,
       orderForm.item,
-      orderForm.discount,
       orderForm.stockLocation,
       orderForm.isOnlinePrice,
       selectedLocationId,
-      filteredDiscounts,
       menuItems,
       storeLocations,
       orderNotes,
@@ -667,8 +543,6 @@ export function TableCard({
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-    { key: "discount", type: FormKeyTypeEnum.NUMBER },
-    { key: "discountNote", type: FormKeyTypeEnum.STRING },
     { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "activityTableName", type: FormKeyTypeEnum.STRING },

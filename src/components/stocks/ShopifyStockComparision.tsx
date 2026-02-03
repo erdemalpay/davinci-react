@@ -69,14 +69,21 @@ const ShopifyStockComparision = () => {
             shopifyProduct.id.split("/").pop() === foundMenuItem?.shopifyId
         );
 
-        // Get on_hand quantity from inventoryLevels
+        // Get on_hand and available quantities from inventoryLevels
         const inventoryLevels =
           foundShopifyProduct?.variants?.edges?.[0]?.node?.inventoryItem
             ?.inventoryLevels?.edges?.[0]?.node;
         const onHandQuantity = inventoryLevels?.quantities?.find(
           (q) => q.name === "on_hand"
         )?.quantity;
+        const availableQuantity = inventoryLevels?.quantities?.find(
+          (q) => q.name === "available"
+        )?.quantity;
         const shopifyStock =
+          availableQuantity ??
+          onHandQuantity ??
+          foundShopifyProduct?.variants?.edges?.[0]?.node?.inventoryQuantity;
+        const shopifyOnHandStock =
           onHandQuantity ??
           foundShopifyProduct?.variants?.edges?.[0]?.node?.inventoryQuantity;
 
@@ -86,6 +93,7 @@ const ShopifyStockComparision = () => {
         return {
           ...shopifyItemProduct,
           shopifyStock: shopifyStock,
+          shopifyOnHandStock: shopifyOnHandStock,
           shopifyVariantId: shopifyVariantId,
           storeStock: foundStock?.quantity,
           storeStockId: foundStock?._id,
@@ -104,7 +112,8 @@ const ShopifyStockComparision = () => {
   const columns = useMemo(
     () => [
       { key: t("Product"), isSortable: true },
-      { key: t("Shopify Stock"), isSortable: true },
+      { key: t("Shopify On Hand"), isSortable: true },
+      { key: t("Shopify Available"), isSortable: true },
       { key: t("Store Stock"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
@@ -112,7 +121,12 @@ const ShopifyStockComparision = () => {
   );
 
   const rowKeys = useMemo(
-    () => [{ key: "name" }, { key: "shopifyStock" }, { key: "storeStock" }],
+    () => [
+      { key: "name" },
+      { key: "shopifyOnHandStock" },
+      { key: "shopifyStock" },
+      { key: "storeStock" },
+    ],
     []
   );
 
@@ -219,6 +233,7 @@ const ShopifyStockComparision = () => {
           isActionsActive={true}
           actions={actions}
           rowClassNameFunction={(row: any) => {
+            // Compare using available quantity (shopifyStock)
             if (row?.shopifyStock > row?.storeStock) {
               return "bg-red-200";
             }

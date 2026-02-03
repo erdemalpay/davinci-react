@@ -287,6 +287,6 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "shopifyProductStockChanged",
-    invalidateKeys: [`${Paths.Shopify}/product`],
+    invalidateKeys: [`${Paths.Shopify}/product`, `${Paths.Accounting}/stocks`],
   },
 ];
