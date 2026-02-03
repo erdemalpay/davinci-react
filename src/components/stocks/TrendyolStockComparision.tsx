@@ -26,7 +26,7 @@ const TrendyolStockComparision = () => {
 
   const trendyolItemsProductsIds = useMemo(() => {
     return items
-      ?.filter((item) => item.trendyolSku)
+      ?.filter((item) => item.trendyolBarcode)
       ?.map((item) => item.matchedProduct);
   }, [items]);
 
@@ -48,7 +48,9 @@ const TrendyolStockComparision = () => {
         );
         const foundTrendyolProduct = trendyolProducts?.find(
           (trendyolProduct) =>
-            trendyolProduct.productMainId === foundMenuItem?.trendyolSku
+            trendyolProduct.productMainId === foundMenuItem?.trendyolBarcode ||
+            trendyolProduct.barcode === foundMenuItem?.trendyolBarcode ||
+            trendyolProduct.stockCode === foundMenuItem?.trendyolBarcode
         );
 
         const trendyolStock = foundTrendyolProduct?.quantity ?? 0;

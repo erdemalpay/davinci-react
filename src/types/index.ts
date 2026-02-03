@@ -720,6 +720,7 @@ export type Kitchen = {
 };
 
 export type MenuItem = {
+  trendyolBarcode: unknown;
   _id: number;
   name: string;
   description: string;
