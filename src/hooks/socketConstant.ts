@@ -58,7 +58,10 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "stockChanged",
-    invalidateKeys: [`${Paths.Accounting}/stocks`],
+    invalidateKeys: [
+      `${Paths.Accounting}/stocks`,
+      `${Paths.Accounting}/stocks/query`,
+    ],
   },
   {
     event: "gameChanged",

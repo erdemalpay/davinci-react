@@ -505,15 +505,6 @@ export function useWebSocket() {
       });
     });
 
-    socket.on("stockChanged", () => {
-      queryClient.invalidateQueries({
-        queryKey: [`${Paths.Accounting}/stocks`],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${Paths.Accounting}/stocks/query`],
-      });
-    });
-
     socket.on("tableCreated", ({ table }: { table: Table }) => {
       const { queryClient } = latestValuesRef.current;
       const locationId = table.location;
@@ -661,7 +652,7 @@ export function useWebSocket() {
       socket.on(eventConfig.event, () => {
         const { queryClient } = latestValuesRef.current;
         eventConfig.invalidateKeys.forEach((key) => {
-          queryClient.invalidateQueries({ queryKey: [key] });
+          queryClient.invalidateQueries({ queryKey: [key], exact: false });
         });
       });
     });
