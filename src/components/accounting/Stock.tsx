@@ -55,6 +55,7 @@ const Stock = () => {
     filterStockPanelFormElements.after,
     filterStockPanelFormElements.location
   );
+
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();

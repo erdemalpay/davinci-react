@@ -46,11 +46,21 @@ export function useGetFilteredStocks(after?: string, location?: string) {
   const query = params.toString();
   const url = `${Paths.Accounting}/stocks/query${query ? `?${query}` : ""}`;
 
-  return useGetList<AccountStock>(url, [
+  console.log("[useGetFilteredStocks] Query key:", [
     `${Paths.Accounting}/stocks/query`,
     after,
     location,
   ]);
+
+  const result = useGetList<AccountStock>(url, [
+    `${Paths.Accounting}/stocks/query`,
+    after,
+    location,
+  ]);
+
+  console.log("[useGetFilteredStocks] Data length:", result?.length);
+
+  return result;
 }
 
 export function useGetSummaryStockTotal() {
