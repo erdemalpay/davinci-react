@@ -20,7 +20,7 @@ const LocationContext = createContext<LocationContextType>({
 export const LocationContextProvider = ({ children }: PropsWithChildren) => {
   const locationId = Number(localStorage.getItem(LOCATION_LOCAL_STORAGE_KEY));
   const [selectedLocationId, setSelectedLocationId] = useState<number>(
-    locationId || 1
+    locationId || 2
   );
   const locations = useGetStoreLocations();
   function selectLocation(locationId: number) {
