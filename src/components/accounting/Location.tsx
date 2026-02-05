@@ -33,7 +33,7 @@ const LocationPage = () => {
   const initialForm = {
     type: [],
     tableCount: 0,
-    ikasId: "",
+    // ikasId: "",
     shopifyId: "",
   };
   const [form, setForm] = useState(initialForm as Partial<Location>);
@@ -81,7 +81,7 @@ const LocationPage = () => {
       { key: t("Active"), isSortable: false },
       { key: t("Activity Note"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
-      { key: "Ikas ID", isSortable: false },
+      // { key: "Ikas ID", isSortable: false },
       { key: "Shopify ID", isSortable: false },
       { key: t("Fallback Location"), isSortable: false },
       { key: t("Actions"), isSortable: false },
@@ -386,10 +386,10 @@ const LocationPage = () => {
           );
         },
       },
-      {
-        key: "ikasId",
-        className: "min-w-32 pr-1",
-      },
+      // {
+      //   key: "ikasId",
+      //   className: "min-w-32 pr-1",
+      // },
       {
         key: "shopifyId",
         className: "min-w-32 pr-1",
@@ -435,13 +435,13 @@ const LocationPage = () => {
         required: false,
         isDisabled: isAddModalOpen || !form?.type?.includes(1),
       },
-      {
-        type: InputTypes.TEXT,
-        formKey: "ikasId",
-        label: "Ikas ID",
-        placeholder: "Ikas ID",
-        required: false,
-      },
+      // {
+      //   type: InputTypes.TEXT,
+      //   formKey: "ikasId",
+      //   label: "Ikas ID",
+      //   placeholder: "Ikas ID",
+      //   required: false,
+      // },
       {
         type: InputTypes.TEXT,
         formKey: "shopifyId",
@@ -491,13 +491,13 @@ const LocationPage = () => {
         placeholder: t("Map Location"),
         required: false,
       },
-      {
-        type: InputTypes.TEXT,
-        formKey: "ikasId",
-        label: "Ikas ID",
-        placeholder: "Ikas ID",
-        required: false,
-      },
+      // {
+      //   type: InputTypes.TEXT,
+      //   formKey: "ikasId",
+      //   label: "Ikas ID",
+      //   placeholder: "Ikas ID",
+      //   required: false,
+      // },
       {
         type: InputTypes.TEXT,
         formKey: "shopifyId",
@@ -551,7 +551,7 @@ const LocationPage = () => {
       { key: "tableCount", type: FormKeyTypeEnum.NUMBER },
       { key: "phoneNumber", type: FormKeyTypeEnum.STRING },
       { key: "googleMapsUrl", type: FormKeyTypeEnum.STRING },
-      { key: "ikasId", type: FormKeyTypeEnum.STRING },
+      // { key: "ikasId", type: FormKeyTypeEnum.STRING },
       { key: "shopifyId", type: FormKeyTypeEnum.STRING },
       { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
       { key: "dailyHours", type: FormKeyTypeEnum.STRING },

@@ -23,7 +23,6 @@ import ExpirationList from "../pages/ExpirationList";
 import Feedback from "../pages/Feedback";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
-import IkasPickUp from "../pages/IkasPickUp";
 import Images from "../pages/Images";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Memberships from "../pages/Memberships";
@@ -233,12 +232,12 @@ export const allRoutes: {
     isOnSidebar: false,
     tabs: OrderDataTabs,
   },
-  {
-    name: "Ikas Pick Up",
-    path: Routes.IkasPickUp,
-    element: IkasPickUp,
-    isOnSidebar: true,
-  },
+  // {
+  //   name: "Ikas Pick Up",
+  //   path: Routes.IkasPickUp,
+  //   element: IkasPickUp,
+  //   isOnSidebar: true,
+  // },
   {
     name: "Shopify Pick Up",
     path: Routes.ShopifyPickUp,
