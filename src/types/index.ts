@@ -947,6 +947,7 @@ export type OrderCollection = {
   ikasOrderNumber?: string;
   shopifyOrderNumber?: string;
   shopifyShippingAmount?: number;
+  shopifyDiscountAmount?: number;
 };
 
 export type OrderNote = {
