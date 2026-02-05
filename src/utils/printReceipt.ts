@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { MenuItem, Order, OrderStatus, TURKISHLIRA } from "../types";
+import { MenuItem, Order, OrderStatus } from "../types";
 import { getItem } from "./getItem";
 
 type PrintTableReceiptParams = {
@@ -12,7 +12,6 @@ type PrintTableReceiptParams = {
   showLogo?: boolean;
   showDate?: boolean;
   showTableInfo?: boolean;
-  showOriginalPrice?: boolean;
   showNotes?: boolean;
 };
 
@@ -29,14 +28,6 @@ const formatNoteHtml = (note?: string) => {
   return escapeHtml(note).replace(/\n/g, "<br />");
 };
 
-const getOrderLineTotal = (order: Order) => {
-  const quantity = Number(order?.quantity ?? 0);
-  const discountValue =
-    (order?.unitPrice * quantity * (order?.discountPercentage ?? 0)) / 100 +
-    (order?.discountAmount ?? 0) * quantity;
-  return order?.unitPrice * quantity - discountValue;
-};
-
 export const printTableReceipt = ({
   tableName,
   orders,
@@ -46,7 +37,6 @@ export const printTableReceipt = ({
   showLogo = true,
   showDate = true,
   showTableInfo = true,
-  showOriginalPrice = false,
   showNotes = true,
 }: PrintTableReceiptParams) => {
   const filteredOrders = (orders ?? []).filter(
@@ -61,28 +51,15 @@ export const printTableReceipt = ({
   printFrame.style.height = "0";
   document.body.appendChild(printFrame);
 
-  let totalAmount = 0;
   const content = filteredOrders
     .map((order) => {
       const quantity = Number(order?.quantity ?? 0);
       const itemName = getItem(order?.item, items)?.name || "Ürün";
-      const lineTotal = getOrderLineTotal(order);
-      const originalTotal = order?.unitPrice * quantity;
-      const hasDiscount = originalTotal > lineTotal;
-      totalAmount += lineTotal;
       const noteHtml = showNotes ? formatNoteHtml(order?.note) : "";
-
-      // Orijinal fiyat gösterimi (indirim varsa)
-      const originalPriceHtml =
-        showOriginalPrice && hasDiscount
-          ? `<span class="original-price">${originalTotal.toFixed(2)} ${TURKISHLIRA}</span>`
-          : "";
 
       return `<div class="item-block">
         <div class="item-row">
           <span class="item-name">(${quantity}) ${escapeHtml(itemName)}</span>
-          ${originalPriceHtml}
-          <span class="item-amount">${lineTotal.toFixed(2)} ${TURKISHLIRA}</span>
         </div>
         ${noteHtml ? `<div class="item-note">- ${noteHtml}</div>` : ""}
       </div>`;
@@ -99,10 +76,10 @@ export const printTableReceipt = ({
     ? `<div class="logo-row"><img class="logo" src="/logo.svg" alt="Logo" /></div>`
     : "";
   const dateSection = showDate
-    ? `<div class="section">Tarih: ${formattedDate}</div>`
+    ? `<div class="section bold">Tarih: ${formattedDate}</div>`
     : "";
   const tableInfoSection = showTableInfo
-    ? `<div class="section">${safeTableName} numaralı masa</div><div class="divider"></div>`
+    ? `<div class="section bold">${safeTableName} numaralı masa</div><div class="divider"></div>`
     : "";
 
   const htmlContent = `
@@ -113,13 +90,14 @@ export const printTableReceipt = ({
           * { box-sizing: border-box; }
           @page { margin: 6mm; }
           body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 8px; background: #fff; color: #000; }
-          .receipt { width: 260px; margin: 0 auto; }
+          .receipt { width: 320px; margin: 0 auto; }
           .logo-row { display: flex; justify-content: center; margin-bottom: 4px; }
           .logo { width: 56px; height: 56px; object-fit: contain; }
           .title { text-align: center; font-size: 13px; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 10px; }
-          .section { margin-top: 6px; font-size: 12px; }
+          .section { margin-top: 6px; font-size: 14px; }
+          .section.bold { font-weight: 700; }
           .divider { border-top: 1px dashed #000; margin: 6px 0; }
-          .header-row, .item-row, .total-row { display: flex; justify-content: space-between; font-size: 12px; }
+          .header-row, .item-row, .total-row { display: flex; justify-content: space-between; font-size: 14px; }
           .item-row { font-weight: 700; }
           .item-note { font-size: 10px; margin-left: 8px; margin-top: 2px; }
           .total-row { font-weight: 700; margin-top: 6px; }
@@ -133,11 +111,7 @@ export const printTableReceipt = ({
           ${dateSection}
           ${showDate || showTableInfo ? '<div class="divider"></div>' : ""}
           ${tableInfoSection}
-          <div class="header-row"><span>Ürün</span><span>Tutar</span></div>
-          <div class="divider"></div>
           ${content}
-          <div class="divider"></div>
-          <div class="total-row"><span>Toplam</span><span>${totalAmount.toFixed(2)} ${TURKISHLIRA}</span></div>
         </div>
       </body>
     </html>

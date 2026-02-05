@@ -17,6 +17,7 @@ import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import IkasOrders from "../components/orderDatas/IkasOrders";
 import ShopifyOrders from "../components/orderDatas/ShopifyOrders";
+import TrendyolOrders from "../components/orderDatas/TrendyolOrders";
 import KitchenDataPage from "../components/orderDatas/KitchenDataPage";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
@@ -98,6 +99,13 @@ export const OrderDataTabs = [
     label: "Shopify Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <ShopifyOrders />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.TRENDYOLORDERS,
+    label: "Trendyol Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <TrendyolOrders />,
     isDisabled: false,
   },
   {

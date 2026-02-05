@@ -6,6 +6,7 @@ import { Paths } from "./factory";
 export interface TrendyolProduct {
   barcode: string;
   productMainId: string;
+  stockCode: string;
   quantity: number;
   salePrice: number;
   listPrice: number;

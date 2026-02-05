@@ -571,9 +571,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       {
         type: InputTypes.TEXT,
-        formKey: "trendyolSku",
-        label: "Trendyol Sku",
-        placeholder: "Trendyol Sku",
+        formKey: "trendyolBarcode",
+        label: "Trendyol Barkodu",
+        placeholder: "Trendyol Barkodu",
         required: false,
       },
       {
@@ -627,7 +627,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "productCategories", type: FormKeyTypeEnum.STRING },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
       { key: "shopifyId", type: FormKeyTypeEnum.STRING },
-      { key: "trendyolSku", type: FormKeyTypeEnum.STRING },
+      { key: "trendyolBarcode", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
       { key: "startDate", type: FormKeyTypeEnum.STRING },
@@ -662,7 +662,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         : []),
       { key: "Ikas ID", isSortable: true },
       { key: "Shopify ID", isSortable: true },
-      { key: t("Trendyol Sku"), isSortable: true },
+      { key: t("Trendyol Barcode"), isSortable: false },
       { key: t("Created At"), isSortable: true },
       ...(showMenuBarcodeInfo
         ? [
@@ -787,7 +787,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         key: "shopifyId",
         className: "min-w-32 pr-1",
       },
-      { key: "trendyolSku", className: "min-w-32 pr-1" },
+      { key: "trendyolBarcode", className: "min-w-32 pr-1" },
       {
         key: "createdAt",
         node: (row: any) => {

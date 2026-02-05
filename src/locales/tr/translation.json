@@ -1252,5 +1252,8 @@
   "ShopifyOrderReceived": "Shopify'dan #{{orderNumber}} numaralı gel-al sipariş geldi. Ürünler: {{products}}",
   "ApproveShiftChangeConfirmation": "Shift değiştirme talebi onaylanacaktır, emin misiniz?",
   "RejectShiftChangeConfirmation": "Shift değiştirme talebi reddedilecektir, emin misiniz?",
-  "CancelShiftChangeConfirmation": "Shift değiştirme talebiniz iptal edilecektir, emin misiniz?"
+  "CancelShiftChangeConfirmation": "Shift değiştirme talebiniz iptal edilecektir, emin misiniz?",
+  "Update All Trendyol Products" : "Trendyol Stok/Fiyat Güncelle",
+  "Trendyol Stock Comparision" : "Trendyol Stok Karşılaştırma",
+  "Trendyol Barcode" : "Trendyol Barkod"
 }
