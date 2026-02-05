@@ -122,10 +122,10 @@ interface UpdateMultipleOrder {
   ids: number[];
   updates: Partial<Order>;
 }
-interface CancelIkasOrder {
-  ikasId: string;
-  quantity: number;
-}
+// interface CancelIkasOrder {
+//   ikasId: string;
+//   quantity: number;
+// }
 interface CancelShopifyOrder {
   shopifyOrderLineItemId: string;
   quantity: number;
@@ -435,35 +435,35 @@ export function createMultipleOrder(payload: CreateMultipleOrderPayload) {
     payload,
   });
 }
-export function cancelIkasOrder(payload: CancelIkasOrder) {
-  return post({
-    path: `/order/cancel-ikas-order`,
-    payload,
-  });
-}
-export function useCancelIkasOrderMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: cancelIkasOrder,
-    onMutate: async () => {
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({
-        queryKey: [`${Paths.Order}/collection/query`],
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({
-        queryKey: [`${Paths.Order}/collection/query`],
-      });
-    },
-    onError: (_err: any) => {
-      const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
-      setTimeout(() => toast.error(errorMessage), 200);
-    },
-  });
-}
+// export function cancelIkasOrder(payload: CancelIkasOrder) {
+//   return post({
+//     path: `/order/cancel-ikas-order`,
+//     payload,
+//   });
+// }
+// export function useCancelIkasOrderMutation() {
+//   const queryClient = useQueryClient();
+//   return useMutation({
+//     mutationFn: cancelIkasOrder,
+//     onMutate: async () => {
+//       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+//       queryClient.invalidateQueries({
+//         queryKey: [`${Paths.Order}/collection/query`],
+//       });
+//     },
+//     onSettled: () => {
+//       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+//       queryClient.invalidateQueries({
+//         queryKey: [`${Paths.Order}/collection/query`],
+//       });
+//     },
+//     onError: (_err: any) => {
+//       const errorMessage =
+//         _err?.response?.data?.message || "An unexpected error occurred";
+//       setTimeout(() => toast.error(errorMessage), 200);
+//     },
+//   });
+// }
 export function cancelShopifyOrder(payload: CancelShopifyOrder) {
   return post({
     path: `/order/cancel-shopify-order`,

@@ -25,12 +25,10 @@ import {
   useAccountProductMutations,
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
-import { useGetIkasCategories } from "../../utils/api/account/productCategories";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import {
-  useCreateMultipleIkasProductMutation,
   useCreateMultipleShopifyProductMutation,
   useGetAllMenuItems,
   useMenuItemMutations,
@@ -60,7 +58,6 @@ type Props = {
 const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const { i18n } = useTranslation();
   const { selectedRows, setSelectedRows, setIsSelectionActive } =
     useGeneralContext();
   const products = useGetAllAccountProducts();
@@ -68,8 +65,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     setSelectedMenuItem,
     isShownInMenu,
     setIsShownInMenu,
-    isMenuShowIkasCategories,
-    setIsMenuShowIkasCategories,
+    // isMenuShowIkasCategories,
+    // setIsMenuShowIkasCategories,
     isMenuLocationEdit,
     setIsMenuLocationEdit,
   } = useGeneralContext();
@@ -89,15 +86,15 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
   const { mutate: updateItemsSlugs } = useUpdateItemsSlugsMutation();
   const [isEditSelectionCompeted, setIsEditSelectionCompeted] = useState(false);
-  const productCategories = useGetIkasCategories();
+  // const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
-  const ikasCategories = useGetIkasCategories();
+  // const ikasCategories = useGetIkasCategories();
   const { mutate: updateItemsOrder } = useUpdateItemsOrderMutation();
   const { createPopular, deletePopular } = usePopularMutations();
-  const { mutate: createMultipleIkasProduct } =
-    useCreateMultipleIkasProductMutation();
+  // const { mutate: createMultipleIkasProduct } =
+  //   useCreateMultipleIkasProductMutation();
   const { mutate: createMultipleShopifyProduct } =
     useCreateMultipleShopifyProductMutation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -337,10 +334,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
 
   const bulkEditSelectionsOptions = useMemo(
     () => [
-      {
-        _id: "productCategories",
-        label: t("Ikas Category"),
-      },
+      // {
+      //   _id: "productCategories",
+      //   label: t("Ikas Category"),
+      // },
       {
         _id: "price",
         label: t("Price"),
@@ -364,23 +361,23 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isMultiple: true,
         isDisabled: isEditSelectionCompeted,
       },
-      {
-        type: InputTypes.SELECT,
-        formKey: "productCategories",
-        label: t("Ikas Category"),
-        options: ikasCategories?.map((category) => ({
-          value: category._id,
-          label: category.name,
-        })),
-        placeholder: t("Ikas Category"),
-        required: false,
-        isMultiple: true,
-        isDisabled:
-          !isEditSelectionCompeted ||
-          !(bulkInputForm?.bulkEditSelection as string[])?.includes(
-            "productCategories"
-          ),
-      },
+      // {
+      //   type: InputTypes.SELECT,
+      //   formKey: "productCategories",
+      //   label: t("Ikas Category"),
+      //   options: ikasCategories?.map((category) => ({
+      //     value: category._id,
+      //     label: category.name,
+      //   })),
+      //   placeholder: t("Ikas Category"),
+      //   required: false,
+      //   isMultiple: true,
+      //   isDisabled:
+      //     !isEditSelectionCompeted ||
+      //     !(bulkInputForm?.bulkEditSelection as string[])?.includes(
+      //       "productCategories"
+      //     ),
+      // },
       {
         type: InputTypes.NUMBER,
         formKey: "price",
@@ -395,7 +392,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     [
       t,
       bulkEditSelectionsOptions,
-      ikasCategories,
+      // ikasCategories,
       isEditSelectionCompeted,
       bulkInputForm,
     ]
@@ -404,7 +401,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const bulkEditFormKeys = useMemo(
     () => [
       { key: "bulkEditSelection", type: FormKeyTypeEnum.STRING },
-      { key: "productCategories", type: FormKeyTypeEnum.STRING },
+      // { key: "productCategories", type: FormKeyTypeEnum.STRING },
       { key: "price", type: FormKeyTypeEnum.NUMBER },
     ],
     []
@@ -505,14 +502,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         required: false,
         isDisabled: isAddModalOpen,
       },
-      {
-        type: InputTypes.NUMBER,
-        formKey: "ikasDiscountedPrice",
-        label: `${t("Ikas Discounted Price")}`,
-        placeholder: `${t("Ikas Discounted Price")}`,
-        required: false,
-        isDisabled: !singleItemGroup?.category?.isOnlineOrder,
-      },
+      // {
+      //   type: InputTypes.NUMBER,
+      //   formKey: "ikasDiscountedPrice",
+      //   label: `${t("Ikas Discounted Price")}`,
+      //   placeholder: `${t("Ikas Discounted Price")}`,
+      //   required: false,
+      //   isDisabled: !singleItemGroup?.category?.isOnlineOrder,
+      // },
       {
         type: InputTypes.IMAGE,
         formKey: "imageUrl",
@@ -543,25 +540,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         placeholder: t("Matched Product"),
         required: false,
       },
-      {
-        type: InputTypes.SELECT,
-        formKey: "productCategories",
-        label: t("Product Categories"),
-        options: productCategories.map((productCategory) => ({
-          value: productCategory._id,
-          label: productCategory.name,
-        })),
-        placeholder: t("Product Categories"),
-        isMultiple: true,
-        required: false,
-      },
-      {
-        type: InputTypes.TEXT,
-        formKey: "ikasId",
-        label: "Ikas ID",
-        placeholder: "Ikas ID",
-        required: false,
-      },
+      // {
+      //   type: InputTypes.SELECT,
+      //   formKey: "productCategories",
+      //   label: t("Product Categories"),
+      //   options: productCategories.map((productCategory) => ({
+      //     value: productCategory._id,
+      //     label: productCategory.name,
+      //   })),
+      //   placeholder: t("Product Categories"),
+      //   isMultiple: true,
+      //   required: false,
+      // },
+      // {
+      //   type: InputTypes.TEXT,
+      //   formKey: "ikasId",
+      //   label: "Ikas ID",
+      //   placeholder: "Ikas ID",
+      //   required: false,
+      // },
       {
         type: InputTypes.TEXT,
         formKey: "shopifyId",
@@ -610,7 +607,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           ]
         : []),
     ],
-    [t, singleItemGroup, discounts, products, productCategories]
+    [t, singleItemGroup, discounts, products]
   );
 
   const formKeys = useMemo(
@@ -620,12 +617,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "price", type: FormKeyTypeEnum.NUMBER },
       { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
       { key: "category", type: FormKeyTypeEnum.NUMBER },
-      { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },
+      // { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },
       { key: "imageUrl", type: FormKeyTypeEnum.STRING },
       { key: "suggestedDiscount", type: FormKeyTypeEnum.STRING },
       { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
       { key: "productCategories", type: FormKeyTypeEnum.STRING },
-      { key: "ikasId", type: FormKeyTypeEnum.STRING },
+      // { key: "ikasId", type: FormKeyTypeEnum.STRING },
       { key: "shopifyId", type: FormKeyTypeEnum.STRING },
       { key: "trendyolBarcode", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
@@ -646,9 +643,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ...(singleItemGroup?.category?.isOnlineOrder
         ? [{ key: `${t("Online Price")}`, isSortable: true }]
         : []),
-      ...(singleItemGroup?.category?.isOnlineOrder
-        ? [{ key: `${t("Ikas Discounted Price")}`, isSortable: true }]
-        : []),
+      // ...(singleItemGroup?.category?.isOnlineOrder
+      //   ? [{ key: `${t("Ikas Discounted Price")}`, isSortable: true }]
+      //   : []),
       ...(menuPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -657,9 +654,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       )
         ? []
         : [{ key: t("Cost"), isSortable: false }]),
-      ...(isMenuShowIkasCategories
-        ? [{ key: t("Ikas Categories"), isSortable: false }]
-        : []),
+      // ...(isMenuShowIkasCategories
+      //   ? [{ key: t("Ikas Categories"), isSortable: false }]
+      //   : []),
       { key: "Ikas ID", isSortable: true },
       { key: "Shopify ID", isSortable: true },
       { key: t("Trendyol Barcode"), isSortable: false },
@@ -723,20 +720,20 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             },
           ]
         : []),
-      ...(singleItemGroup?.category?.isOnlineOrder
-        ? [
-            {
-              key: "ikasDiscountedPrice",
-              node: (item: MenuItem) => {
-                return `${
-                  item?.ikasDiscountedPrice
-                    ? item?.ikasDiscountedPrice + TURKISHLIRA
-                    : "-"
-                } `;
-              },
-            },
-          ]
-        : []),
+      // ...(singleItemGroup?.category?.isOnlineOrder
+      //   ? [
+      //       {
+      //         key: "ikasDiscountedPrice",
+      //         node: (item: MenuItem) => {
+      //           return `${
+      //             item?.ikasDiscountedPrice
+      //               ? item?.ikasDiscountedPrice + TURKISHLIRA
+      //               : "-"
+      //           } `;
+      //         },
+      //       },
+      //     ]
+      //   : []),
       ...(menuPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -761,28 +758,28 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               },
             },
           ]),
-      ...(isMenuShowIkasCategories
-        ? [
-            {
-              key: "productCategories",
-              node: (item: MenuItem) => {
-                return item?.productCategories
-                  ?.map((productCategory) => {
-                    const foundProductCategory = getItem(
-                      productCategory,
-                      productCategories
-                    );
-                    return foundProductCategory?.name;
-                  })
-                  ?.join(", ");
-              },
-            },
-          ]
-        : []),
-      {
-        key: "ikasId",
-        className: "min-w-32 pr-1",
-      },
+      // ...(isMenuShowIkasCategories
+      //   ? [
+      //       {
+      //         key: "productCategories",
+      //         node: (item: MenuItem) => {
+      //           return item?.productCategories
+      //             ?.map((productCategory) => {
+      //               const foundProductCategory = getItem(
+      //                 productCategory,
+      //                 productCategories
+      //               );
+      //               return foundProductCategory?.name;
+      //             })
+      //             ?.join(", ");
+      //         },
+      //       },
+      //     ]
+      //   : []),
+      // {
+      //   key: "ikasId",
+      //   className: "min-w-32 pr-1",
+      // },
       {
         key: "shopifyId",
         className: "min-w-32 pr-1",
@@ -899,12 +896,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     singleItemGroup,
     menuPageDisabledCondition,
     user,
-    isMenuShowIkasCategories,
+    // isMenuShowIkasCategories,
     showMenuBarcodeInfo,
     items,
     setSelectedMenuItem,
     products,
-    productCategories,
+    // productCategories,
     isShownInMenu,
     updateItem,
     locations,
@@ -1269,24 +1266,24 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
-      {
-        label: t("Show Ikas Categories"),
-        isUpperSide: false,
-        node: (
-          <SwitchButton
-            checked={isMenuShowIkasCategories}
-            onChange={() => {
-              setIsMenuShowIkasCategories(!isMenuShowIkasCategories);
-            }}
-          />
-        ),
-        isDisabled: menuPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_IKAS_CATEGORIES &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
-      },
+      // {
+      //   label: t("Show Ikas Categories"),
+      //   isUpperSide: false,
+      //   node: (
+      //     <SwitchButton
+      //       checked={isMenuShowIkasCategories}
+      //       onChange={() => {
+      //         setIsMenuShowIkasCategories(!isMenuShowIkasCategories);
+      //       }}
+      //     />
+      //   ),
+      //   isDisabled: menuPageDisabledCondition?.actions?.some(
+      //     (ac) =>
+      //       ac.action === ActionEnum.SHOW_IKAS_CATEGORIES &&
+      //       user?.role?._id &&
+      //       !ac?.permissionsRoles?.includes(user?.role?._id)
+      //   ),
+      // },
       {
         label: t("Show Barcode Info"),
         isUpperSide: true,
@@ -1345,8 +1342,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       setIsMenuLocationEdit,
       isShownInMenu,
       setIsShownInMenu,
-      isMenuShowIkasCategories,
-      setIsMenuShowIkasCategories,
+      // isMenuShowIkasCategories,
+      // setIsMenuShowIkasCategories,
       showMenuBarcodeInfo,
       setShowMenuBarcodeInfo,
       showDeletedItems,
@@ -1430,26 +1427,26 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
-      {
-        name: t("Create Ikas Product"),
-        isButton: true,
-        buttonClassName:
-          "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
-        onClick: () => {
-          createMultipleIkasProduct({
-            itemIds: selectedRows?.map((row) => row._id),
-          } as any);
-          setSelectedRows([]);
-          setIsSelectionActive(false);
-          setIsEditSelectionCompeted(false);
-        },
-        isDisabled: menuPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
-      },
+      // {
+      //   name: t("Create Ikas Product"),
+      //   isButton: true,
+      //   buttonClassName:
+      //     "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+      //   onClick: () => {
+      //     createMultipleIkasProduct({
+      //       itemIds: selectedRows?.map((row) => row._id),
+      //     } as any);
+      //     setSelectedRows([]);
+      //     setIsSelectionActive(false);
+      //     setIsEditSelectionCompeted(false);
+      //   },
+      //   isDisabled: menuPageDisabledCondition?.actions?.some(
+      //     (ac) =>
+      //       ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+      //       user?.role?._id &&
+      //       !ac?.permissionsRoles?.includes(user?.role?._id)
+      //   ),
+      // },
       {
         name: t("Create Shopify Product"),
         isButton: true,
@@ -1484,7 +1481,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       selectedRows,
       setSelectedRows,
       setIsSelectionActive,
-      createMultipleIkasProduct,
+      // createMultipleIkasProduct,
       createMultipleShopifyProduct,
       menuPageDisabledCondition,
       user,

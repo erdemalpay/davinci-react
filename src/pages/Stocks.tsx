@@ -20,8 +20,6 @@ import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation"
 import ColdDrinkStock from "../components/stocks/ColdDrinkStocks";
 import DessertStock from "../components/stocks/DessertStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
-import IkasPriceComparision from "../components/stocks/IkasPriceComparision";
-import IkasStockComparision from "../components/stocks/IkasStockComparision";
 import LossProduct from "../components/stocks/LossProduct";
 import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
 import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
@@ -90,21 +88,21 @@ export const StockPageTabs = [
     content: <VendorOrder />,
     isDisabled: false,
   },
-  {
-    number: StocksPageTabEnum.IKASSTOCKCOMPARISION,
-    label: "Ikas Stock Comparision",
-    icon: <MdOutlineCompare className="text-lg font-thin" />,
-    content: <IkasStockComparision />,
-    isDisabled: false,
-  },
+  // {
+  //   number: StocksPageTabEnum.IKASSTOCKCOMPARISION,
+  //   label: "Ikas Stock Comparision",
+  //   icon: <MdOutlineCompare className="text-lg font-thin" />,
+  //   content: <IkasStockComparision />,
+  //   isDisabled: false,
+  // },
 
-  {
-    number: StocksPageTabEnum.IKASPRICECOMPARISION,
-    label: "Ikas Price Comparision",
-    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
-    content: <IkasPriceComparision />,
-    isDisabled: false,
-  },
+  // {
+  //   number: StocksPageTabEnum.IKASPRICECOMPARISION,
+  //   label: "Ikas Price Comparision",
+  //   icon: <MdOutlinePriceChange className="text-lg font-thin" />,
+  //   content: <IkasPriceComparision />,
+  //   isDisabled: false,
+  // },
   {
     number: StocksPageTabEnum.SHOPIFYSTOCKCOMPARISION,
     label: "Shopify Stock Comparision",

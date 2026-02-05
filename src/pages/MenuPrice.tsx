@@ -35,8 +35,8 @@ const MenuPrice = () => {
       ...item,
       category: getItem(item.category, categories)?.name,
       onlinePrice: item?.onlinePrice ?? "",
-      ikasId: item?.ikasId ?? "",
-      ikasDiscountedPrice: item?.ikasDiscountedPrice ?? "",
+      // ikasId: item?.ikasId ?? "",
+      // ikasDiscountedPrice: item?.ikasDiscountedPrice ?? "",
       totalStock: item?.matchedProduct
         ? getProductTotalStock(item.matchedProduct)
         : "",
@@ -53,16 +53,16 @@ const MenuPrice = () => {
         isSortable: true,
         correspondingKey: "onlinePrice",
       },
-      {
-        key: t("Ikas Discounted Price"),
-        isSortable: true,
-        correspondingKey: "ikasDiscountedPrice",
-      },
+      // {
+      //   key: t("Ikas Discounted Price"),
+      //   isSortable: true,
+      //   correspondingKey: "ikasDiscountedPrice",
+      // },
       { key: t("Category"), isSortable: true, correspondingKey: "category" },
       { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
       { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
       { key: t("Stock"), isSortable: true, correspondingKey: "totalStock" },
-      { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
+      // { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
     ],
     [t]
   );
@@ -73,12 +73,12 @@ const MenuPrice = () => {
       { key: "name" },
       { key: "price" },
       { key: "onlinePrice" },
-      { key: "ikasDiscountedPrice" },
+      // { key: "ikasDiscountedPrice" },
       { key: "category" },
       { key: "sku" },
       { key: "barcode" },
       { key: "totalStock" },
-      { key: "ikasId" },
+      // { key: "ikasId" },
     ],
     []
   );

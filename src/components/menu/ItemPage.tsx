@@ -5,10 +5,10 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { TURKISHLIRA } from "../../types";
-import {
-  updateIkasProductImage,
-  useUpdateIkasProductImageMutation,
-} from "../../utils/api/ikas";
+// import {
+//   updateIkasProductImage,
+//   useUpdateIkasProductImageMutation,
+// } from "../../utils/api/ikas";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import {
@@ -32,7 +32,7 @@ const ItemPage = () => {
   const foundItem = getItem(selectedMenuItem?._id, items);
   const [componentKey, setComponentKey] = useState(0);
   const stockLocations = useGetStockLocations();
-  const { mutate: updateProductImage } = useUpdateIkasProductImageMutation();
+  // const { mutate: updateProductImage } = useUpdateIkasProductImageMutation();
   const { mutate: createDamagedItem } = useCreateDamagedItemMutation();
   const { updateItem } = useMenuItemMutations();
   const [isCreateDamagedItemOpen, setIsCreateDamagedItemOpen] = useState(false);
@@ -137,12 +137,12 @@ const ItemPage = () => {
     },
   ];
   const buttons = [
-    {
-      className:
-        "px-2 mt-auto  ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
-      onClick: () => updateIkasProductImage({ itemId: selectedMenuItem._id }),
-      text: t("Update Ikas Images"),
-    },
+    // {
+    //   className:
+    //     "px-2 mt-auto  ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+    //   onClick: () => updateIkasProductImage({ itemId: selectedMenuItem._id }),
+    //   text: t("Update Ikas Images"),
+    // },
     {
       className:
         "px-2 mt-auto  ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
