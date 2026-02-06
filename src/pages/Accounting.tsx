@@ -1,5 +1,4 @@
 import { AiOutlinePercentage } from "react-icons/ai";
-import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaServicestack, FaShopify } from "react-icons/fa";
 import { FaKitchenSet } from "react-icons/fa6";
 import { GrActions } from "react-icons/gr";
@@ -22,10 +21,9 @@ import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import OrderNotes from "../components/accounting/OrderNotes";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
-import ProductCategoriesPage from "../components/accounting/ProductCategories";
-import ShopifyCollectionsPage from "../components/accounting/ShopifyCollections";
 import Roles from "../components/accounting/Roles";
 import Service from "../components/accounting/Service";
+import ShopifyCollectionsPage from "../components/accounting/ShopifyCollections";
 import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
@@ -64,13 +62,13 @@ export const AccountingPageTabs = [
     content: <Product />,
     isDisabled: false,
   },
-  {
-    number: AccountingPageTabEnum.PRODUCTCATEGORIES,
-    label: "Ikas Categories",
-    icon: <BiSolidCategoryAlt className="text-lg font-thin" />,
-    content: <ProductCategoriesPage />,
-    isDisabled: false,
-  },
+  // {
+  //   number: AccountingPageTabEnum.PRODUCTCATEGORIES,
+  //   label: "Ikas Categories",
+  //   icon: <BiSolidCategoryAlt className="text-lg font-thin" />,
+  //   content: <ProductCategoriesPage />,
+  //   isDisabled: false,
+  // },
   {
     number: AccountingPageTabEnum.SHOPIFYCOLLECTIONS,
     label: "Shopify Collections",

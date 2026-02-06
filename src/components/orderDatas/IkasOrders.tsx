@@ -2,8 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { HiOutlineTrash } from "react-icons/hi2";
-import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
@@ -22,7 +20,7 @@ import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
-  useCancelIkasOrderMutation,
+  // useCancelIkasOrderMutation,
   useGetOrders,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -31,11 +29,10 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { InputTypes } from "../panelComponents/shared/types";
 
 const IkasOrders = () => {
   const { t } = useTranslation();
@@ -46,7 +43,7 @@ const IkasOrders = () => {
   const categories = useGetAllCategories();
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
-  const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
+  // const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
@@ -210,7 +207,7 @@ const IkasOrders = () => {
       },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
-      { key: t("Actions"), isSortable: false },
+      // { key: t("Actions"), isSortable: false },
     ],
     [t]
   );
@@ -263,26 +260,26 @@ const IkasOrders = () => {
     []
   );
 
-  const cancelInputs = useMemo(
-    () => [
-      {
-        type: InputTypes.NUMBER,
-        formKey: "quantity",
-        label: t("Quantity"),
-        placeholder: t("Quantity"),
-        minNumber: 1,
-        required: true,
-        isNumberButtonsActive: true,
-        isOnClearActive: false,
-      },
-    ],
-    [t]
-  );
+  // const cancelInputs = useMemo(
+  //   () => [
+  //     {
+  //       type: InputTypes.NUMBER,
+  //       formKey: "quantity",
+  //       label: t("Quantity"),
+  //       placeholder: t("Quantity"),
+  //       minNumber: 1,
+  //       required: true,
+  //       isNumberButtonsActive: true,
+  //       isOnClearActive: false,
+  //     },
+  //   ],
+  //   [t]
+  // );
 
-  const cancelFormKeys = useMemo(
-    () => [{ key: "quantity", type: FormKeyTypeEnum.NUMBER }],
-    []
-  );
+  // const cancelFormKeys = useMemo(
+  //   () => [{ key: "quantity", type: FormKeyTypeEnum.NUMBER }],
+  //   []
+  // );
 
   const filterPanelInputs = useMemo(
     () => [
@@ -532,64 +529,64 @@ const IkasOrders = () => {
     ]
   );
 
-  const actions = useMemo(
-    () => [
-      {
-        name: t("Cancel"),
-        icon: <HiOutlineTrash />,
-        setRow: setRowToAction,
-        className: "text-red-500 cursor-pointer text-2xl  ",
-        modal: rowToAction ? (
-          <GenericAddEditPanel
-            isOpen={isCancelOrderModalOpen}
-            topClassName="flex flex-col gap-2 "
-            close={() => setIsCancelOrderModalOpen(false)}
-            inputs={cancelInputs}
-            formKeys={cancelFormKeys}
-            setForm={setCancelForm}
-            submitItem={cancelIkasOrder as any}
-            constantValues={{
-              status: rowToAction.status,
-              paidQuantity: rowToAction.paidQuantity,
-            }}
-            submitFunction={() => {
-              if (cancelForm.quantity > rowToAction.quantity) {
-                toast.error(
-                  t("Quantity cannot be greater than the order quantity.")
-                );
-                return;
-              }
-              cancelIkasOrder({
-                ikasId: rowToAction.ikasId,
-                quantity: cancelForm.quantity,
-              });
-            }}
-            isEditMode={false}
-          />
-        ) : null,
-        isModal: true,
-        isModalOpen: isCancelOrderModalOpen,
-        setIsModal: setIsCancelOrderModalOpen,
-        isDisabled: ikasOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
-      },
-    ],
-    [
-      t,
-      rowToAction,
-      isCancelOrderModalOpen,
-      cancelInputs,
-      cancelFormKeys,
-      cancelForm,
-      cancelIkasOrder,
-      ikasOrdersPageDisabledCondition,
-      user,
-    ]
-  );
+  // const actions = useMemo(
+  //   () => [
+  //     {
+  //       name: t("Cancel"),
+  //       icon: <HiOutlineTrash />,
+  //       setRow: setRowToAction,
+  //       className: "text-red-500 cursor-pointer text-2xl  ",
+  //       modal: rowToAction ? (
+  //         <GenericAddEditPanel
+  //           isOpen={isCancelOrderModalOpen}
+  //           topClassName="flex flex-col gap-2 "
+  //           close={() => setIsCancelOrderModalOpen(false)}
+  //           inputs={cancelInputs}
+  //           formKeys={cancelFormKeys}
+  //           setForm={setCancelForm}
+  //           submitItem={cancelIkasOrder as any}
+  //           constantValues={{
+  //             status: rowToAction.status,
+  //             paidQuantity: rowToAction.paidQuantity,
+  //           }}
+  //           submitFunction={() => {
+  //             if (cancelForm.quantity > rowToAction.quantity) {
+  //               toast.error(
+  //                 t("Quantity cannot be greater than the order quantity.")
+  //               );
+  //               return;
+  //             }
+  //             cancelIkasOrder({
+  //               ikasId: rowToAction.ikasId,
+  //               quantity: cancelForm.quantity,
+  //             });
+  //           }}
+  //           isEditMode={false}
+  //         />
+  //       ) : null,
+  //       isModal: true,
+  //       isModalOpen: isCancelOrderModalOpen,
+  //       setIsModal: setIsCancelOrderModalOpen,
+  //       isDisabled: ikasOrdersPageDisabledCondition?.actions?.some(
+  //         (ac) =>
+  //           ac.action === ActionEnum.DELETE &&
+  //           user?.role?._id &&
+  //           !ac?.permissionsRoles?.includes(user?.role?._id)
+  //       ),
+  //     },
+  //   ],
+  //   [
+  //     t,
+  //     rowToAction,
+  //     isCancelOrderModalOpen,
+  //     cancelInputs,
+  //     cancelFormKeys,
+  //     cancelForm,
+  //     cancelIkasOrder,
+  //     ikasOrdersPageDisabledCondition,
+  //     user,
+  //   ]
+  // );
 
   return (
     <>
@@ -599,8 +596,7 @@ const IkasOrders = () => {
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
-          isActionsActive={true}
-          actions={actions}
+          isActionsActive={false}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={

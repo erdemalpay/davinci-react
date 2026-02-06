@@ -61,7 +61,7 @@ const PaymentMethods = () => {
       { key: t("Payment Made"), isSortable: false },
       { key: t("Used at Expense"), isSortable: false },
       { key: t("Point Payment"), isSortable: false },
-      { key: "Ikas ID", isSortable: false },
+      // { key: "Ikas ID", isSortable: false },
       { key: t("Actions"), isSortable: false },
     ];
     return cols;
@@ -111,7 +111,7 @@ const PaymentMethods = () => {
             <IoCloseOutline className="text-red-800 text-2xl " />
           ),
       },
-      { key: "ikasId" },
+      // { key: "ikasId" },
     ],
     [t]
   );
@@ -156,13 +156,13 @@ const PaymentMethods = () => {
         required: true,
         isTopFlexRow: true,
       },
-      {
-        type: InputTypes.TEXT,
-        formKey: "ikasId",
-        label: "Ikas ID",
-        placeholder: "Ikas ID",
-        required: false,
-      },
+      // {
+      //   type: InputTypes.TEXT,
+      //   formKey: "ikasId",
+      //   label: "Ikas ID",
+      //   placeholder: "Ikas ID",
+      //   required: false,
+      // },
     ],
     [t]
   );
@@ -173,7 +173,7 @@ const PaymentMethods = () => {
       { key: "isPaymentMade", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isUsedAtExpense", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isPointPayment", type: FormKeyTypeEnum.BOOLEAN },
-      { key: "ikasId", type: FormKeyTypeEnum.STRING },
+      // { key: "ikasId", type: FormKeyTypeEnum.STRING },
     ],
     []
   );

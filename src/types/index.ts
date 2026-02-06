@@ -947,6 +947,7 @@ export type OrderCollection = {
   ikasOrderNumber?: string;
   shopifyOrderNumber?: string;
   shopifyShippingAmount?: number;
+  shopifyDiscountAmount?: number;
 };
 
 export type OrderNote = {
@@ -1313,7 +1314,7 @@ export enum AccountingPageTabEnum {
   VENDOR,
   BRAND,
   PRODUCT,
-  PRODUCTCATEGORIES,
+  // PRODUCTCATEGORIES,
   SHOPIFYCOLLECTIONS,
   SERVICES,
   DISCOUNTS,
@@ -1344,8 +1345,8 @@ export enum StocksPageTabEnum {
   BASEQUANTITYBYLOCATION,
   PRODUCTSHELFINFO,
   VENDORORDER,
-  IKASSTOCKCOMPARISION,
-  IKASPRICECOMPARISION,
+  // IKASSTOCKCOMPARISION,
+  // IKASPRICECOMPARISION,
   SHOPIFYSTOCKCOMPARISION,
   SHOPIFYPRICECOMPARISION,
   TRENDYOLSTOCKCOMPARISION,
