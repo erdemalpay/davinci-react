@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { TbTag } from "react-icons/tb";
 import { useUserContext } from "../../context/User.context";
 import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -8,7 +9,10 @@ import {
   useUpdateShopifyPricesMutation,
 } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetShopifyProducts } from "../../utils/api/shopify";
+import {
+  useGetShopifyProducts,
+  useUpdateShopifyProductPriceMutation,
+} from "../../utils/api/shopify";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -21,6 +25,8 @@ const ShopifyPriceComparision = () => {
   const products = useGetAccountProducts();
   const disabledConditions = useGetDisabledConditions();
   const { mutate: updateShopifyPrices } = useUpdateShopifyPricesMutation();
+  const { mutate: updateShopifyProductPrice } =
+    useUpdateShopifyProductPriceMutation();
 
   const shopifyPriceComparisionPageDisabledCondition = useMemo(() => {
     return getItem(
@@ -58,6 +64,8 @@ const ShopifyPriceComparision = () => {
           ),
           itemPrice: foundItem?.price,
           itemOnlinePrice: foundItem?.onlinePrice,
+          productId: foundShopifyProduct?.id,
+          variantId: foundShopifyProduct?.variants?.edges?.[0]?.node?.id,
         };
       })
       .sort((a, b) => {
@@ -75,6 +83,7 @@ const ShopifyPriceComparision = () => {
       { key: t("Shopify Price"), isSortable: true },
       { key: t("Item Price"), isSortable: true },
       { key: t("Item Online Price"), isSortable: true },
+      { key: t("Actions"), isSortable: false },
     ],
     [t]
   );
@@ -87,6 +96,30 @@ const ShopifyPriceComparision = () => {
       { key: "itemOnlinePrice" },
     ],
     []
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Update Shopify Price"),
+        icon: <TbTag />,
+        className: "cursor-pointer text-2xl",
+        onClick: (row: any) => {
+          if (
+            row.shopifyPrice === row.itemPrice ||
+            !row.productId ||
+            !row.variantId
+          )
+            return;
+          updateShopifyProductPrice({
+            productId: row.productId,
+            variantId: row.variantId,
+            newPrice: row.itemPrice,
+          });
+        },
+      },
+    ],
+    [t, updateShopifyProductPrice]
   );
 
   const filters = useMemo(
@@ -121,7 +154,8 @@ const ShopifyPriceComparision = () => {
           rows={rows}
           title={t("Shopify Price Comparision")}
           filters={filters}
-          isActionsActive={false}
+          isActionsActive={true}
+          actions={actions}
           rowClassNameFunction={(row: any) => {
             if (row?.shopifyPrice > row?.itemPrice) {
               return "bg-red-200";

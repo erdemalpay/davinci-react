@@ -12,6 +12,11 @@ interface UpdateShopifyProductPayload {
 interface UpdateShopifyProductImage {
   itemId: number;
 }
+interface UpdateShopifyProductPricePayload {
+  productId: string;
+  variantId: string;
+  newPrice: number;
+}
 export function useGetShopifyProducts() {
   return useGetList<ShopifyProduct>(`${Paths.Shopify}/product`);
 }
@@ -27,6 +32,15 @@ export function updateShopifyProductStock(
 export function updateShopifyProductImage(payload: UpdateShopifyProductImage) {
   return post({
     path: `${Paths.Shopify}/product-image`,
+    payload: payload,
+  });
+}
+
+export function updateShopifyProductPrice(
+  payload: UpdateShopifyProductPricePayload
+) {
+  return patch({
+    path: `${Paths.Shopify}/product-price`,
     payload: payload,
   });
 }
@@ -52,6 +66,23 @@ export function useUpdateShopifyProductImageMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateShopifyProductImage,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+    },
+
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateShopifyProductPriceMutation() {
+  const queryKey = [`${Paths.Shopify}/product-price`];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateShopifyProductPrice,
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey });
     },
