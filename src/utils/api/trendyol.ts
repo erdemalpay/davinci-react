@@ -62,3 +62,34 @@ export function useUpdateTrendyolStocksMutation() {
     },
   });
 }
+
+export function processAcceptedClaims() {
+  return post<any, any>({
+    path: `${Paths.Trendyol}/process-accepted-claims`,
+    payload: {},
+  });
+}
+
+export function useProcessAcceptedClaimsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: processAcceptedClaims,
+    onSuccess: (data) => {
+      const stats = data?.stats;
+      const message = stats
+        ? `İade işleme tamamlandı: ${stats.cancelled} sipariş iptal edildi, ${stats.skipped} atlandı`
+        : "İade işleme başarıyla tamamlandı";
+
+      setTimeout(() => toast.success(message), 200);
+
+      // Orders ve collections'ı yenile
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "İade işleme sırasında hata oluştu";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
