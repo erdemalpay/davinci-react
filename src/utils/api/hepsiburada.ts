@@ -54,11 +54,10 @@ export function updateHepsiburadaProductStock(
   });
 }
 
-export function updateAllHepsiburadaStocks(stockQuantity?: number) {
+export function updateAllHepsiburadaStocks() {
   return post({
     path: `${Paths.Hepsiburada}/update-all-stocks`,
     payload: {},
-    params: stockQuantity ? { stockQuantity: stockQuantity.toString() } : {},
   });
 }
 
@@ -123,8 +122,7 @@ export function useUpdateHepsiburadaProductStockMutation() {
 export function useUpdateAllHepsiburadaStocksMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ stockQuantity }: { stockQuantity?: number }) =>
-      updateAllHepsiburadaStocks(stockQuantity),
+    mutationFn: () => updateAllHepsiburadaStocks(),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [`${Paths.Hepsiburada}/listings`],
