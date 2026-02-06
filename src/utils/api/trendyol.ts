@@ -63,6 +63,112 @@ export function useUpdateTrendyolStocksMutation() {
   });
 }
 
+export function updateTrendyolInventoryOnly() {
+  return post<any, any>({
+    path: `${Paths.Trendyol}/product/update-inventory`,
+    payload: {},
+  });
+}
+
+export function useUpdateTrendyolInventoryOnlyMutation() {
+  const queryKey = [`${Paths.Trendyol}/product`];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTrendyolInventoryOnly,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+    },
+    onSuccess: () => {
+      setTimeout(
+        () => toast.success("Trendyol inventory updated successfully"),
+        200
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function updateTrendyolPriceOnly() {
+  return post<any, any>({
+    path: `${Paths.Trendyol}/product/update-price`,
+    payload: {},
+  });
+}
+
+export function useUpdateTrendyolPriceOnlyMutation() {
+  const queryKey = [`${Paths.Trendyol}/product`];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTrendyolPriceOnly,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+    },
+    onSuccess: () => {
+      setTimeout(
+        () => toast.success("Trendyol prices updated successfully"),
+        200
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+// Tekil ürün güncelleme için interface ve fonksiyonlar
+export interface UpdateTrendyolProductPayload {
+  barcode: string;
+  quantity: number;
+  salePrice: number;
+  listPrice: number;
+}
+
+export function updateTrendyolProductStock(
+  payload: UpdateTrendyolProductPayload
+) {
+  return post<any, any>({
+    path: `${Paths.Trendyol}/product/update-price-and-inventory`,
+    payload: { items: [payload] },
+  });
+}
+
+export function useUpdateTrendyolProductStockMutation() {
+  const queryKey = [`${Paths.Trendyol}/product`];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTrendyolProductStock,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+    },
+    onSuccess: () => {
+      setTimeout(
+        () => toast.success("Trendyol product stock updated successfully"),
+        200
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function processAcceptedClaims() {
   return post<any, any>({
     path: `${Paths.Trendyol}/process-accepted-claims`,
@@ -84,7 +190,9 @@ export function useProcessAcceptedClaimsMutation() {
 
       // Orders ve collections'ı yenile
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
     },
     onError: (_err: any) => {
       const errorMessage =
