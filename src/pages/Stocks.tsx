@@ -20,6 +20,7 @@ import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation"
 import ColdDrinkStock from "../components/stocks/ColdDrinkStocks";
 import DessertStock from "../components/stocks/DessertStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
+import HepsiBuradaPriceComparision from "../components/stocks/HepsiBuradaPriceComparision";
 import LossProduct from "../components/stocks/LossProduct";
 import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
 import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
@@ -122,6 +123,13 @@ export const StockPageTabs = [
     label: "Trendyol Stock Comparision",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <TrendyolStockComparision />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.HEPSIBURADAPRICECOMPARISION,
+    label: "HepsiBurada Price Comparision",
+    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
+    content: <HepsiBuradaPriceComparision />,
     isDisabled: false,
   },
   {
