@@ -559,6 +559,7 @@ export enum DisabledConditionEnum {
   STOCK_IKASPRICECOMPARISION = "ikaspricecomparision",
   STOCK_SHOPIFYSTOCKCOMPARISION = "shopifystockcomparision",
   STOCK_SHOPIFYPRICECOMPARISION = "shopifypricecomparision",
+  STOCK_HEPSIBURADAPRICECOMPARISION = "hepsiburadapricecomparision",
   STOCK_ENTERCONSUMPTION = "enterconsumption",
   STOCK_LOSSPRODUCT = "lossproduct",
   ORDERDATAS_DAILYINCOME = "dailyincome",
@@ -722,6 +723,7 @@ export type Kitchen = {
 
 export type MenuItem = {
   trendyolBarcode: unknown;
+  hepsiBuradaSku?: unknown;
   _id: number;
   name: string;
   description: string;
@@ -1350,6 +1352,7 @@ export enum StocksPageTabEnum {
   SHOPIFYSTOCKCOMPARISION,
   SHOPIFYPRICECOMPARISION,
   TRENDYOLSTOCKCOMPARISION,
+  HEPSIBURADAPRICECOMPARISION,
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
