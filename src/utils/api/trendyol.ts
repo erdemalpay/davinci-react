@@ -169,6 +169,41 @@ export function useUpdateTrendyolProductStockMutation() {
   });
 }
 
+/** Tek ürünün sadece fiyatını Trendyol'da günceller (stok aynı kalır). */
+export function updateTrendyolProductPrice(
+  payload: UpdateTrendyolProductPayload
+) {
+  return post<any, any>({
+    path: `${Paths.Trendyol}/product/update-price`,
+    payload: { items: [payload] },
+  });
+}
+
+export function useUpdateTrendyolProductPriceMutation() {
+  const queryKey = [`${Paths.Trendyol}/product`];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTrendyolProductPrice,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+    },
+    onSuccess: () => {
+      setTimeout(
+        () => toast.success("Trendyol product price updated successfully"),
+        200
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function processAcceptedClaims() {
   return post<any, any>({
     path: `${Paths.Trendyol}/process-accepted-claims`,

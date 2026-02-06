@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { RiFileTransferFill } from "react-icons/ri";
-import { TbTransferOut } from "react-icons/tb";
+import { TbTag, TbTransferOut } from "react-icons/tb";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -12,6 +12,7 @@ import {
   useGetTrendyolProducts,
   useUpdateTrendyolInventoryOnlyMutation,
   useUpdateTrendyolPriceOnlyMutation,
+  useUpdateTrendyolProductPriceMutation,
   useUpdateTrendyolProductStockMutation,
 } from "../../utils/api/trendyol";
 import Loading from "../common/Loading";
@@ -34,6 +35,8 @@ const TrendyolStockComparision = () => {
   } = useUpdateTrendyolPriceOnlyMutation();
   const { mutate: updateTrendyolProductStock } =
     useUpdateTrendyolProductStockMutation();
+  const { mutate: updateTrendyolProductPrice } =
+    useUpdateTrendyolProductPriceMutation();
   const { updateAccountStock } = useAccountStockMutations();
 
   const trendyolItemsProductsIds = useMemo(() => {
@@ -146,8 +149,27 @@ const TrendyolStockComparision = () => {
           });
         },
       },
+      {
+        name: t("Update Trendyol Price"),
+        icon: <TbTag />,
+        className: "cursor-pointer text-2xl",
+        onClick: (row: any) => {
+          if (row.trendyolPrice === row.menuPrice || !row.barcode) return;
+          updateTrendyolProductPrice({
+            barcode: row.barcode,
+            quantity: row.trendyolStock,
+            salePrice: row.menuPrice,
+            listPrice: row.menuPrice,
+          });
+        },
+      },
     ],
-    [t, updateAccountStock, updateTrendyolProductStock]
+    [
+      t,
+      updateAccountStock,
+      updateTrendyolProductStock,
+      updateTrendyolProductPrice,
+    ]
   );
 
   const isUpdatingAny =
