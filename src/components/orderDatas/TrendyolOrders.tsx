@@ -26,6 +26,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
+import { useProcessAcceptedClaimsMutation } from "../../utils/api/trendyol";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
@@ -49,6 +50,7 @@ const TrendyolOrders = () => {
   const items = useGetMenuItems();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
+  const { mutate: processAcceptedClaims } = useProcessAcceptedClaimsMutation();
 
   const {
     filterPanelFormElements,
@@ -462,6 +464,23 @@ const TrendyolOrders = () => {
         isUpperSide: false,
         node: (
           <ButtonFilter
+            buttonName={t("Process Refund Requests")}
+            onclick={() => {
+              processAcceptedClaims();
+            }}
+          />
+        ),
+        isDisabled: trendyolOrdersPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.REFRESH &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        isUpperSide: false,
+        node: (
+          <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
               queryClient.invalidateQueries({
@@ -500,6 +519,7 @@ const TrendyolOrders = () => {
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      processAcceptedClaims,
     ]
   );
 
