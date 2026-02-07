@@ -79,6 +79,8 @@ type GeneralContextType = {
   setExpensesActiveTab: (tab: number) => void;
   stocksActiveTab: number;
   setStocksActiveTab: (tab: number) => void;
+  integrationActiveTab: number;
+  setIntegrationActiveTab: (tab: number) => void;
   stockHistoriesReportsActiveTab: number;
   setStockHistoriesReportsActiveTab: (tab: number) => void;
   pointsActiveTab: number;
@@ -166,6 +168,8 @@ const GeneralContext = createContext<GeneralContextType>({
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
   stocksActiveTab: StocksPageTabEnum.STOCK,
+  setIntegrationActiveTab: () => {},
+  integrationActiveTab: 0,
   setStockHistoriesReportsActiveTab: () => {},
   stockHistoriesReportsActiveTab:
     StockHistoriesReportsPageTabEnum.LOSSPRODUCTREPORT,
@@ -334,6 +338,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [stocksActiveTab, setStocksActiveTab] = useState<number>(
     StocksPageTabEnum.STOCK
   );
+  const [integrationActiveTab, setIntegrationActiveTab] = useState<number>(0);
   const [stockHistoriesReportsActiveTab, setStockHistoriesReportsActiveTab] =
     useState<number>(StockHistoriesReportsPageTabEnum.LOSSPRODUCTREPORT);
   const [pointsActiveTab, setPointsActiveTab] = useState<number>(0);
@@ -436,6 +441,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         expandedRows,
         stocksActiveTab,
         setStocksActiveTab,
+        integrationActiveTab,
+        setIntegrationActiveTab,
         stockHistoriesReportsActiveTab,
         setStockHistoriesReportsActiveTab,
         pointsActiveTab,

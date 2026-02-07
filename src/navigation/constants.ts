@@ -24,6 +24,7 @@ import Feedback from "../pages/Feedback";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Images from "../pages/Images";
+import Integration, { IntegrationPageTabs } from "../pages/Integration";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
@@ -94,6 +95,7 @@ export enum Routes {
   Accounting = "/accounting",
   Expenses = "/expenses",
   Stocks = "/stocks",
+  Integration = "/integration",
   StockHistoriesReports = "/stock-histories-reports",
   Count = "/count/:location/:countListId",
   Check = "/check/:location/:checklistId",
@@ -507,6 +509,13 @@ export const allRoutes: {
         tabs: StockPageTabs,
       },
       {
+        name: "Integration",
+        path: Routes.Integration,
+        element: Integration,
+        isOnSidebar: true,
+        tabs: IntegrationPageTabs,
+      },
+      {
         name: "Stock Histories Reports",
         path: Routes.StockHistoriesReports,
         element: StockHistoriesReports,
@@ -514,6 +523,13 @@ export const allRoutes: {
         tabs: StockHistoriesReportsPageTabs,
       },
     ],
+  },
+  {
+    name: "Integration",
+    path: Routes.Integration,
+    element: Integration,
+    isOnSidebar: false,
+    tabs: IntegrationPageTabs,
   },
   {
     name: "Stock Histories Reports",
