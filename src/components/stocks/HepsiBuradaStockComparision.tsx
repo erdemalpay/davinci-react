@@ -167,7 +167,7 @@ const HepsiBuradaStockComparision = () => {
                 : t("Update HepsiBurada Stocks")
             }
             onclick={() => {
-              updateAllHepsiburadaStocks({});
+              updateAllHepsiburadaStocks();
             }}
           />
         ),
