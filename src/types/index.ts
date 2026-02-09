@@ -1360,6 +1360,7 @@ export enum IntegrationPageTabEnum {
   TRENDYOLSTOCKCOMPARISION,
   HEPSIBURADAPRICECOMPARISION,
   HEPSIBURADASTOCKCOMPARISION,
+  BACKINSTOCK,
 }
 
 export enum StockHistoriesReportsPageTabEnum {
