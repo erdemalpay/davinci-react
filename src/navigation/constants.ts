@@ -132,6 +132,7 @@ export enum Routes {
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
   Consumers = "/consumers",
+  BackInStock = "/back-in-stock",
 }
 
 export const allRoutes: {
