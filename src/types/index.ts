@@ -1454,6 +1454,8 @@ export enum StockHistoryStatusEnum {
   IKASORDERCANCEL = "IKASORDERCANCEL",
   SHOPIFYORDERCREATE = "SHOPIFYORDERCREATE",
   SHOPIFYORDERCANCEL = "SHOPIFYORDERCANCEL",
+  TRENDYOLORDERCREATE = "TRENDYOLORDERCREATE",
+  TRENDYOLORDERCANCEL = "TRENDYOLORDERCANCEL",
   LOSSPRODUCTCANCEL = "LOSSPRODUCTCANCEL",
   CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
 }
@@ -1588,6 +1590,16 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.SHOPIFYORDERCANCEL,
     label: "Shopify Order Cancel",
     backgroundColor: "bg-cyan-800",
+  },
+  {
+    value: StockHistoryStatusEnum.TRENDYOLORDERCREATE,
+    label: "Trendyol Order Create",
+    backgroundColor: "bg-amber-900",
+  },
+  {
+    value: StockHistoryStatusEnum.TRENDYOLORDERCANCEL,
+    label: "Trendyol Order Cancel",
+    backgroundColor: "bg-amber-600"
   },
 ];
 
