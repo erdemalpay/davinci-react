@@ -1,26 +1,23 @@
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { commonDateOptions, WebhookLog } from "../types";
-import { useGetQueryWebhookLogs } from "../utils/api/webhookLog";
+import { WebhookLog, commonDateOptions } from "../types";
 import { dateRanges } from "../utils/api/dateRanges";
+import { useGetQueryWebhookLogs } from "../utils/api/webhookLog";
 import { formatAsLocalDate } from "../utils/format";
 
 type FormElementsState = {
   [key: string]: any;
 };
 
-// WebhookSource ve WebhookStatus enum değerlerini backend'den öğrenmeniz gerekiyor
-// Şimdilik genel değerler kullanıyoruz, backend enum'larına göre güncelleyin
 const WEBHOOK_SOURCES = [
   { value: "SHOPIFY", label: "Shopify" },
   { value: "TRENDYOL", label: "Trendyol" },
-  { value: "IKAS", label: "Ikas" },
   { value: "HEPSIBURADA", label: "Hepsiburada" },
 ];
 
@@ -67,11 +64,6 @@ export default function WebhookLogs() {
       // Trendyol format
       if (log.source === 'TRENDYOL' || log.source === 'trendyol') {
         return body.items || body.orderLines || [];
-      }
-      
-      // Ikas format
-      if (log.source === 'IKAS' || log.source === 'ikas') {
-        return body.items || body.products || [];
       }
       
       // Hepsiburada format
@@ -185,7 +177,7 @@ export default function WebhookLogs() {
                 const adjustedDate = new Date(date.getTime() + offset * 60 * 1000);
                 return (
                   <div>
-                    <div>{formatAsLocalDate(row.createdAt)}</div>
+                    <div>{formatAsLocalDate(row.createdAt.toString())}</div>
                     <div className="text-xs text-gray-500">
                       {format(adjustedDate, "HH:mm:ss")}
                     </div>
