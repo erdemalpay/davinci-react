@@ -60,6 +60,7 @@ import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
+import WebhookLogs from "./../pages/WebhookLogs";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
@@ -132,6 +133,7 @@ export enum Routes {
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
   Consumers = "/consumers",
+  WebhookLogs = "/webhook-logs",
 }
 
 export const allRoutes: {
@@ -756,6 +758,13 @@ export const allRoutes: {
         isOnSidebar: true,
       },
       {
+        name: "Webhook Logs",
+        path: Routes.WebhookLogs,
+        element: WebhookLogs,
+        isOnSidebar: true,
+        exceptionalRoles: [RoleEnum.MANAGER],
+      },
+      {
         name: "Notifications",
         path: Routes.Notifications,
         element: Notifications,
@@ -768,6 +777,13 @@ export const allRoutes: {
     name: "Panel Control",
     path: Routes.PanelControl,
     element: PanelControl,
+    isOnSidebar: false,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Webhook Logs",
+    path: Routes.WebhookLogs,
+    element: WebhookLogs,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },

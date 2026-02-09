@@ -54,6 +54,7 @@ export const Paths = {
   Point: "/point",
   Consumers: "/consumers",
   Breaks: "/breaks",
+  WebhookLog: "/webhook-log",
 };
 
 interface Props<T> {

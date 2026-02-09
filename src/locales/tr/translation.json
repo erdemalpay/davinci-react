@@ -1260,5 +1260,10 @@
   "Update Trendyol Price": "Trendyol Fiyatını Güncelle",
   "Trendyol Stock Comparision": "Trendyol Stok Karşılaştırma",
   "Trendyol Barcode": "Trendyol Barkod",
-  "Process Refund Requests": "İade Taleplerini İşle"
+  "Process Refund Requests": "İade Taleplerini İşle",
+  "Webhook Logs": "Webhook Logları",
+  "Status Code": "Durum Kodu",
+  "Error": "Hata",
+  "Source": "Kaynak",
+  "Endpoint": "Endpoint"
 }
