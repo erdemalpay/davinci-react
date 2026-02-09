@@ -570,6 +570,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_CATEGORYBASEDSALESREPORT = "categorybasedsalesreport",
   ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
   ORDERDATAS_COLLECTIONS = "collections",
+  ORDERDATAS_HEPSIBURADAORDERS = "hepsiburadaorders",
   ORDERDATAS_ORDERS = "orders",
   ORDERDATAS_IKASORDERS = "ikasorders",
   ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
@@ -1427,6 +1428,7 @@ export enum OrderDataTabEnum {
   IKASORDERS,
   SHOPIFYORDERS,
   TRENDYOLORDERS,
+  HEPSIBURADAORDERS,
   PERSONALORDERDATAS,
 }
 export enum StockHistoryStatusEnum {
