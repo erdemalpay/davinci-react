@@ -559,6 +559,8 @@ export enum DisabledConditionEnum {
   STOCK_IKASPRICECOMPARISION = "ikaspricecomparision",
   STOCK_SHOPIFYSTOCKCOMPARISION = "shopifystockcomparision",
   STOCK_SHOPIFYPRICECOMPARISION = "shopifypricecomparision",
+  STOCK_HEPSIBURADAPRICECOMPARISION = "hepsiburadapricecomparision",
+  STOCK_HEPSIBURADASTOCKCOMPARISION = "hepsiburadastockcomparision",
   STOCK_ENTERCONSUMPTION = "enterconsumption",
   STOCK_LOSSPRODUCT = "lossproduct",
   ORDERDATAS_DAILYINCOME = "dailyincome",
@@ -568,6 +570,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_CATEGORYBASEDSALESREPORT = "categorybasedsalesreport",
   ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
   ORDERDATAS_COLLECTIONS = "collections",
+  ORDERDATAS_HEPSIBURADAORDERS = "hepsiburadaorders",
   ORDERDATAS_ORDERS = "orders",
   ORDERDATAS_IKASORDERS = "ikasorders",
   ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
@@ -722,6 +725,7 @@ export type Kitchen = {
 
 export type MenuItem = {
   trendyolBarcode: unknown;
+  hepsiBuradaSku?: unknown;
   _id: number;
   name: string;
   description: string;
@@ -1345,14 +1349,18 @@ export enum StocksPageTabEnum {
   BASEQUANTITYBYLOCATION,
   PRODUCTSHELFINFO,
   VENDORORDER,
-  // IKASSTOCKCOMPARISION,
-  // IKASPRICECOMPARISION,
-  SHOPIFYSTOCKCOMPARISION,
-  SHOPIFYPRICECOMPARISION,
-  TRENDYOLSTOCKCOMPARISION,
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
+}
+
+export enum IntegrationPageTabEnum {
+  SHOPIFYSTOCKCOMPARISION,
+  SHOPIFYPRICECOMPARISION,
+  TRENDYOLSTOCKCOMPARISION,
+  HEPSIBURADAPRICECOMPARISION,
+  HEPSIBURADASTOCKCOMPARISION,
+  BACKINSTOCK,
 }
 
 export enum StockHistoriesReportsPageTabEnum {
@@ -1421,6 +1429,7 @@ export enum OrderDataTabEnum {
   IKASORDERS,
   SHOPIFYORDERS,
   TRENDYOLORDERS,
+  HEPSIBURADAORDERS,
   PERSONALORDERDATAS,
 }
 export enum StockHistoryStatusEnum {
@@ -1448,8 +1457,12 @@ export enum StockHistoryStatusEnum {
   IKASORDERCANCEL = "IKASORDERCANCEL",
   SHOPIFYORDERCREATE = "SHOPIFYORDERCREATE",
   SHOPIFYORDERCANCEL = "SHOPIFYORDERCANCEL",
+  TRENDYOLORDERCREATE = "TRENDYOLORDERCREATE",
+  TRENDYOLORDERCANCEL = "TRENDYOLORDERCANCEL",
   LOSSPRODUCTCANCEL = "LOSSPRODUCTCANCEL",
   CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
+  HEPSIBURADAORDERCREATE = "HEPSIBURADAORDERCREATE",
+  HEPSIBURADAORDERCANCEL = "HEPSIBURADAORDERCANCEL",
 }
 
 export const stockHistoryStatuses = [
@@ -1582,6 +1595,26 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.SHOPIFYORDERCANCEL,
     label: "Shopify Order Cancel",
     backgroundColor: "bg-cyan-800",
+  },
+  {
+    value: StockHistoryStatusEnum.TRENDYOLORDERCREATE,
+    label: "Trendyol Order Create",
+    backgroundColor: "bg-amber-900",
+  },
+  {
+    value: StockHistoryStatusEnum.TRENDYOLORDERCANCEL,
+    label: "Trendyol Order Cancel",
+    backgroundColor: "bg-amber-600",
+  },
+  {
+    value: StockHistoryStatusEnum.HEPSIBURADAORDERCREATE,
+    label: "Hepsiburada Order Create",
+    backgroundColor: "bg-orange-600",
+  },
+  {
+    value: StockHistoryStatusEnum.HEPSIBURADAORDERCANCEL,
+    label: "Hepsiburada Order Cancel",
+    backgroundColor: "bg-orange-900",
   },
 ];
 
@@ -2300,3 +2333,20 @@ export type PaginatedResponse<T> = {
 };
 
 export const OnlineLocationId = 4; //TODO: bu moduler yapiya uygun degil
+
+export type WebhookLog = {
+  _id: number;
+  source: string;
+  endpoint: string;
+  requestBody?: any;
+  status: string;
+  orderIds?: number[];
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+  errorMessage?: string;
+  externalOrderId?: string;
+  processedAt?: string | Date;
+  processingTimeMs?: number;
+  responseBody?: any;
+  statusCode?: number;
+};

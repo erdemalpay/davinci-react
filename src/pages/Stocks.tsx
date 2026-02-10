@@ -9,7 +9,6 @@ import { CiMoneyCheck1 } from "react-icons/ci";
 import { DiDatabase } from "react-icons/di";
 import { FaGamepad } from "react-icons/fa";
 import { LuDessert } from "react-icons/lu";
-import { MdOutlineCompare, MdOutlinePriceChange } from "react-icons/md";
 import GameStock from "../components/accounting/GameStock";
 import GameStockLocation from "../components/accounting/GameStockLocation";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
@@ -22,9 +21,6 @@ import DessertStock from "../components/stocks/DessertStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import LossProduct from "../components/stocks/LossProduct";
 import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
-import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
-import ShopifyStockComparision from "../components/stocks/ShopifyStockComparision";
-import TrendyolStockComparision from "../components/stocks/TrendyolStockComparision";
 import VendorOrder from "../components/stocks/VendorOrder";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -86,42 +82,6 @@ export const StockPageTabs = [
     label: "Vendor Order",
     icon: <CiMoneyCheck1 className="text-lg font-thin" />,
     content: <VendorOrder />,
-    isDisabled: false,
-  },
-  // {
-  //   number: StocksPageTabEnum.IKASSTOCKCOMPARISION,
-  //   label: "Ikas Stock Comparision",
-  //   icon: <MdOutlineCompare className="text-lg font-thin" />,
-  //   content: <IkasStockComparision />,
-  //   isDisabled: false,
-  // },
-
-  // {
-  //   number: StocksPageTabEnum.IKASPRICECOMPARISION,
-  //   label: "Ikas Price Comparision",
-  //   icon: <MdOutlinePriceChange className="text-lg font-thin" />,
-  //   content: <IkasPriceComparision />,
-  //   isDisabled: false,
-  // },
-  {
-    number: StocksPageTabEnum.SHOPIFYSTOCKCOMPARISION,
-    label: "Shopify Stock Comparision",
-    icon: <MdOutlineCompare className="text-lg font-thin" />,
-    content: <ShopifyStockComparision />,
-    isDisabled: false,
-  },
-  {
-    number: StocksPageTabEnum.SHOPIFYPRICECOMPARISION,
-    label: "Shopify Price Comparision",
-    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
-    content: <ShopifyPriceComparision />,
-    isDisabled: false,
-  },
-  {
-    number: StocksPageTabEnum.TRENDYOLSTOCKCOMPARISION,
-    label: "Trendyol Stock Comparision",
-    icon: <MdOutlineCompare className="text-lg font-thin" />,
-    content: <TrendyolStockComparision />,
     isDisabled: false,
   },
   {

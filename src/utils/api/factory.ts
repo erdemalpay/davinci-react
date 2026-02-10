@@ -44,6 +44,7 @@ export const Paths = {
   Ikas: "/ikas",
   Shopify: "/shopify",
   Trendyol: "/trendy",
+  Hepsiburada: "/hepsiburada",
   Redis: "/redis",
   ButtonCalls: "/button-calls",
   Notification: "/notification",
@@ -53,6 +54,7 @@ export const Paths = {
   Point: "/point",
   Consumers: "/consumers",
   Breaks: "/breaks",
+  WebhookLog: "/webhook-log",
 };
 
 interface Props<T> {
