@@ -63,7 +63,7 @@ export default function WebhookLogs() {
       
       // Trendyol format
       if (log.source === 'TRENDYOL' || log.source === 'trendyol') {
-        return body.items || body.orderLines || [];
+        return body.lines || body.items || body.orderLines || [];
       }
       
       // Hepsiburada format
@@ -94,6 +94,30 @@ export default function WebhookLogs() {
     }
   };
 
+  // Helper function to get order number from log
+  const getOrderNumber = (log: WebhookLog) => {
+    try {
+      const body = typeof log.requestBody === 'string' 
+        ? JSON.parse(log.requestBody) 
+        : log.requestBody;
+      
+      // Trendyol format
+      if (log.source === 'TRENDYOL' || log.source === 'trendyol') {
+        return body.orderNumber || '-';
+      }
+      
+      // Shopify format
+      if (log.source === 'SHOPIFY' || log.source === 'shopify') {
+        return body.order_number || body.name || body.number || '-';
+      }
+      
+      // Generic fallback
+      return body.orderNumber || body.order_number || body.name || body.number || '-';
+    } catch (e) {
+      return '-';
+    }
+  };
+
   // Group logs by order ID
   const groupedRows = useMemo(() => {
     const allLogs = webhookLogsPayload?.logs || [];
@@ -101,10 +125,13 @@ export default function WebhookLogs() {
     
     allLogs.forEach((log) => {
       const orderId = getOrderId(log);
-      if (!grouped.has(orderId)) {
-        grouped.set(orderId, []);
+      // If orderId is missing or '-', use log._id to ensure each log gets its own group
+      const groupKey = (orderId && orderId !== '-') ? orderId : `log_${log._id}`;
+      
+      if (!grouped.has(groupKey)) {
+        grouped.set(groupKey, []);
       }
-      grouped.get(orderId)?.push(log);
+      grouped.get(groupKey)?.push(log);
     });
     
     return grouped;
@@ -132,13 +159,14 @@ export default function WebhookLogs() {
       sortedLogs.forEach((log) => {
         const logProducts = extractProducts(log);
         logProducts.forEach((product: any) => {
-          const productKey = product.sku || product.variant_sku || product.productCode || product.name || product.title;
+          // For Trendyol, use barcode or sku as key
+          const productKey = product.sku || product.barcode || product.variant_sku || product.productCode || product.name || product.title || product.productName;
           if (productKey && !allProducts.has(productKey)) {
             allProducts.set(productKey, {
               name: product.name || product.title || product.productName || '-',
-              sku: product.sku || product.variant_sku || product.productCode || '-',
+              sku: product.sku || product.barcode || product.variant_sku || product.productCode || '-',
               quantity: product.quantity || product.qty || 0,
-              price: product.price || product.unit_price || product.unitPrice || 0,
+              price: product.price || product.unit_price || product.unitPrice || product.lineUnitPrice || 0,
             });
           }
         });
@@ -151,6 +179,7 @@ export default function WebhookLogs() {
         statusDisplay: mainLog.status || "unknown",
         hasError: !!mainLog.errorMessage,
         orderId: orderId,
+        orderNumber: getOrderNumber(mainLog), // Store order number
         products: productsArray, // Store products for display in main row
         requestCount: sortedLogs.length, // Store request count
         // Make it collapsible always
@@ -270,6 +299,7 @@ export default function WebhookLogs() {
     () => [
       { key: t("Date"), isSortable: true, correspondingKey: "createdAt" },
       { key: t("Order ID"), isSortable: true, correspondingKey: "orderId" },
+      { key: t("Order Number"), isSortable: true, correspondingKey: "orderNumber" },
       { key: t("Products"), isSortable: false, correspondingKey: "products" },
       { key: t("Requests"), isSortable: true, correspondingKey: "requestCount" },
       { key: t("Source"), isSortable: true, correspondingKey: "source" },
@@ -293,6 +323,15 @@ export default function WebhookLogs() {
         node: (row: any) => {
           return (
             <div className="font-medium text-blue-600">{row.orderId || "-"}</div>
+          );
+        },
+      },
+      {
+        key: "orderNumber",
+        className: "min-w-32",
+        node: (row: any) => {
+          return (
+            <div className="font-medium text-gray-700">{row.orderNumber || "-"}</div>
           );
         },
       },
