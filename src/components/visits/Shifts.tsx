@@ -39,7 +39,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Shifts = () => {
   const { t } = useTranslation();
-  const [tableKey, setTableKey] = useState(0);
+  // const [tableKey, setTableKey] = useState(0); NOT: Daha önce burada tableKey state'i vardı:
   const users = useGetUsersMinimal();
   const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
@@ -768,7 +768,7 @@ const Shifts = () => {
                   );
 
                   return (
-                    <div key={idx} className="w-full max-w-40">
+                    <div key={idx} className="w-full min-w-52">
                       <SelectInput
                         options={users
                           ?.filter((user) => {
@@ -784,6 +784,7 @@ const Shifts = () => {
                             label: user.name,
                           }))}
                         isMultiple={true}
+                        isExpandedMultiValueLabel={true}
                         value={normalizedValue}
                         placeholder=""
                         isOnClearActive={false}
@@ -795,18 +796,20 @@ const Shifts = () => {
 
                           // Update the shifts array for this specific location
                           const updatedShifts =
-                            locationShiftRecord?.shifts?.map((s: ShiftValue) => {
-                              if (
-                                s.shift === shift.shift &&
-                                s.shiftEndHour === shift.shiftEndHour
-                              ) {
-                                return {
-                                  ...s,
-                                  user: newValue,
-                                };
+                            locationShiftRecord?.shifts?.map(
+                              (s: ShiftValue) => {
+                                if (
+                                  s.shift === shift.shift &&
+                                  s.shiftEndHour === shift.shiftEndHour
+                                ) {
+                                  return {
+                                    ...s,
+                                    user: newValue,
+                                  };
+                                }
+                                return s;
                               }
-                              return s;
-                            });
+                            );
 
                           if (locationShiftRecord) {
                             updateShift({
@@ -843,7 +846,10 @@ const Shifts = () => {
                 }
               : null;
             return (
-              <div key={`${row.day}${shiftValue}`} className="overflow-visible">
+              <div
+                key={`${row.day}${shiftValue}`}
+                className="overflow-visible min-w-52"
+              >
                 <SelectInput
                   options={users
                     ?.filter((user) => {
@@ -859,7 +865,8 @@ const Shifts = () => {
                       if (!dayShifts) return true;
 
                       const userInOtherShifts = dayShifts.shifts?.some(
-                        (s: ShiftValue) => s.shift !== shift.shift && s.user?.includes(user._id)
+                        (s: ShiftValue) =>
+                          s.shift !== shift.shift && s.user?.includes(user._id)
                       );
                       return !userInOtherShifts;
                     })
@@ -868,6 +875,7 @@ const Shifts = () => {
                       label: user.name,
                     }))}
                   isMultiple={true}
+                  isExpandedMultiValueLabel={true}
                   value={normalizedValue}
                   placeholder=""
                   isOnClearActive={false}
@@ -1011,7 +1019,9 @@ const Shifts = () => {
               if (!rowToAction?._id && foundLocation) {
                 const shifts = foundLocation?.shifts?.map((shift) => ({
                   shift: shift.shift,
-                  ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
+                  ...(shift.shiftEndHour && {
+                    shiftEndHour: shift.shiftEndHour,
+                  }),
                   user: form?.[shift.shift],
                 }));
                 createShift({
@@ -1024,7 +1034,9 @@ const Shifts = () => {
               else {
                 const shifts = foundLocation?.shifts?.map((shift) => ({
                   shift: shift.shift,
-                  ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
+                  ...(shift.shiftEndHour && {
+                    shiftEndHour: shift.shiftEndHour,
+                  }),
                   user: form?.[shift.shift],
                 }));
                 updateShift({
@@ -1114,7 +1126,7 @@ const Shifts = () => {
               !ac?.permissionsRoles?.includes(user?.role?._id)
           ),
       },
-  ],
+    ],
     [
       t,
       isShiftsEditModalOpen,
@@ -1141,18 +1153,19 @@ const Shifts = () => {
       name: t(`Copy Shift Interval`),
       isModal: true,
       modal: (
-      <GenericAddEditPanel
-        isOpen={isCopyShiftIntervalModalOpen}
-        close={() => setIsCopyShiftIntervalModalOpen(false)}
-        setForm={setCopyShiftIntervalForm}
-        constantValues={{
-          location: selectedLocationId !== -1 ? selectedLocationId : undefined,
-        }}
-        inputs={copyShifIntervaltInputs}
-        formKeys={copyShiftIntervalFormKeys}
-        submitItem={copyShiftInterval as any}
-        topClassName="flex flex-col gap-2 "
-      />
+        <GenericAddEditPanel
+          isOpen={isCopyShiftIntervalModalOpen}
+          close={() => setIsCopyShiftIntervalModalOpen(false)}
+          setForm={setCopyShiftIntervalForm}
+          constantValues={{
+            location:
+              selectedLocationId !== -1 ? selectedLocationId : undefined,
+          }}
+          inputs={copyShifIntervaltInputs}
+          formKeys={copyShiftIntervalFormKeys}
+          submitItem={copyShiftInterval as any}
+          topClassName="flex flex-col gap-2 "
+        />
       ),
       isModalOpen: isCopyShiftIntervalModalOpen,
       setIsModal: setIsCopyShiftIntervalModalOpen,
@@ -1193,70 +1206,70 @@ const Shifts = () => {
           />
         ),
       },
-    ...locations.map((location) => {
-      return {
+      ...locations.map((location) => {
+        return {
+          isUpperSide: true,
+          node: (
+            <ButtonFilter
+              buttonName={location.name}
+              onclick={() => {
+                setSelectedLocationId(location._id);
+              }}
+              backgroundColor={location.backgroundColor}
+              isActive={selectedLocationId === location._id}
+            />
+          ),
+        };
+      }),
+      {
+        label: t("Show Filters"),
         isUpperSide: true,
         node: (
-          <ButtonFilter
-            buttonName={location.name}
-            onclick={() => {
-              setSelectedLocationId(location._id);
+          <SwitchButton
+            checked={showShiftsFilters}
+            onChange={() => {
+              setShowShiftsFilters(!showShiftsFilters);
             }}
-            backgroundColor={location.backgroundColor}
-            isActive={selectedLocationId === location._id}
           />
         ),
-      };
-    }),
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showShiftsFilters}
-          onChange={() => {
-            setShowShiftsFilters(!showShiftsFilters);
-          }}
-        />
-      ),
-    },
-    {
-      label: t("Chef Assign"),
-      isUpperSide: false,
-      node: (
-        <SwitchButton
-          checked={isChefAssignOpen}
-          onChange={() => {
-            setIsChefAssignOpen(!isChefAssignOpen);
-          }}
-        />
-      ),
-      isDisabled: shiftsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ASSIGN_CHEF &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={isShiftsEnableEdit}
-          onChange={() => {
-            setIsShiftsEnableEdit(!isShiftsEnableEdit);
-          }}
-        />
-      ),
-      isDisabled: shiftsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ENABLEEDIT &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-  ],
+      },
+      {
+        label: t("Chef Assign"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={isChefAssignOpen}
+            onChange={() => {
+              setIsChefAssignOpen(!isChefAssignOpen);
+            }}
+          />
+        ),
+        isDisabled: shiftsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ASSIGN_CHEF &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={isShiftsEnableEdit}
+            onChange={() => {
+              setIsShiftsEnableEdit(!isShiftsEnableEdit);
+            }}
+          />
+        ),
+        isDisabled: shiftsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ENABLEEDIT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+    ],
     [
       t,
       selectedLocationId,
@@ -1362,7 +1375,8 @@ const Shifts = () => {
 
   useEffect(() => {
     setRows(allRows);
-    setTableKey((prev) => prev + 1);
+    // NOT: Daha önce burada setTableKey((prev) => prev + 1) vardı.
+    // Kaldırıldı çünkü her veri güncellemesinde GenericTable'ı remount ettiriyordu ve scroll sıfırlanıyordu.
   }, [
     shifts,
     users,
@@ -1372,9 +1386,9 @@ const Shifts = () => {
     filterPanelFormElements,
   ]);
   return (
-    <div className="w-[95%] my-5 mx-auto">
+    <div className="w-[95%] my-5 mx-auto overflow-x-auto">
+      {/* NOT: Daha önce burada key={tableKey} prop'u vardı. Scroll sıfırlanma sorunu nedeniyle kaldırıldı. */}
       <GenericTable
-        key={tableKey}
         rowKeys={rowKeys}
         columns={columns}
         addButton={copyShiftIntervalButton}
