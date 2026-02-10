@@ -1461,6 +1461,8 @@ export enum StockHistoryStatusEnum {
   TRENDYOLORDERCANCEL = "TRENDYOLORDERCANCEL",
   LOSSPRODUCTCANCEL = "LOSSPRODUCTCANCEL",
   CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
+  HEPSIBURADAORDERCREATE = "HEPSIBURADAORDERCREATE",
+  HEPSIBURADAORDERCANCEL = "HEPSIBURADAORDERCANCEL",
 }
 
 export const stockHistoryStatuses = [
@@ -1602,7 +1604,17 @@ export const stockHistoryStatuses = [
   {
     value: StockHistoryStatusEnum.TRENDYOLORDERCANCEL,
     label: "Trendyol Order Cancel",
-    backgroundColor: "bg-amber-600"
+    backgroundColor: "bg-amber-600",
+  },
+  {
+    value: StockHistoryStatusEnum.HEPSIBURADAORDERCREATE,
+    label: "Hepsiburada Order Create",
+    backgroundColor: "bg-orange-600",
+  },
+  {
+    value: StockHistoryStatusEnum.HEPSIBURADAORDERCANCEL,
+    label: "Hepsiburada Order Cancel",
+    backgroundColor: "bg-orange-900",
   },
 ];
 
