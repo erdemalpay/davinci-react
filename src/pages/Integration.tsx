@@ -10,6 +10,7 @@ import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { IntegrationPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+import BackInStock from "./BackInStock";
 
 export const IntegrationPageTabs = [
   {
@@ -45,6 +46,13 @@ export const IntegrationPageTabs = [
     label: "HepsiBurada Stock Comparision",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <HepsiBuradaStockComparision />,
+    isDisabled: false,
+  },
+  {
+    number: IntegrationPageTabEnum.BACKINSTOCK,
+    label: "Back In Stock",
+    icon: <MdOutlineCompare className="text-lg font-thin" />,
+    content: <BackInStock />,
     isDisabled: false,
   },
 ];

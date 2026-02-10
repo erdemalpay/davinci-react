@@ -60,13 +60,13 @@ import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
-import WebhookLogs from "./../pages/WebhookLogs";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
+import WebhookLogs from "./../pages/WebhookLogs";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -134,6 +134,7 @@ export enum Routes {
   Points = "/points",
   Consumers = "/consumers",
   WebhookLogs = "/webhook-logs",
+  BackInStock = "/back-in-stock",
 }
 
 export const allRoutes: {
