@@ -303,7 +303,6 @@ export default function WebhookLogs() {
       { key: t("Products"), isSortable: false, correspondingKey: "products" },
       { key: t("Requests"), isSortable: true, correspondingKey: "requestCount" },
       { key: t("Source"), isSortable: true, correspondingKey: "source" },
-      { key: t("Endpoint"), isSortable: true, correspondingKey: "endpoint" },
     ],
     [t]
   );
@@ -385,17 +384,6 @@ export default function WebhookLogs() {
         node: (row: any) => {
           return (
             <div className="capitalize font-medium">{row.source || "-"}</div>
-          );
-        },
-      },
-      {
-        key: "endpoint",
-        className: "min-w-48 max-w-96 truncate",
-        node: (row: WebhookLog) => {
-          return (
-            <div className="truncate" title={row.endpoint}>
-              {row.endpoint || "-"}
-            </div>
           );
         },
       },
