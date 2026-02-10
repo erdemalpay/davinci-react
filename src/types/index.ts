@@ -2321,3 +2321,20 @@ export type PaginatedResponse<T> = {
 };
 
 export const OnlineLocationId = 4; //TODO: bu moduler yapiya uygun degil
+
+export type WebhookLog = {
+  _id: number;
+  source: string;
+  endpoint: string;
+  requestBody?: any;
+  status: string;
+  orderIds?: number[];
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+  errorMessage?: string;
+  externalOrderId?: string;
+  processedAt?: string | Date;
+  processingTimeMs?: number;
+  responseBody?: any;
+  statusCode?: number;
+};

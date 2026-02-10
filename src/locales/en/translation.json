@@ -1265,5 +1265,11 @@
   "Update Trendyol Price": "Update Trendyol Price",
   "Trendyol Stock Comparision": "Trendyol Stock Comparision",
   "Trendyol Barcode": "Trendyol Barcode",
-  "Process Refund Requests": "Process Refund Requests"
+  "Process Refund Requests": "Process Refund Requests",
+  "Webhook Logs": "Webhook Logs",
+  "URL": "URL",
+  "Status Code": "Status Code",
+  "Error": "Error",
+  "Source": "Source",
+  "Endpoint": "Endpoint"
 }
