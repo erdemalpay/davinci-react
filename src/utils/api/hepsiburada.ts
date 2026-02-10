@@ -23,6 +23,7 @@ interface UpdateHepsiburadaProductStockPayload {
   hepsiburadaSku?: string;
   merchantSku?: string;
   availableStock: number;
+  price?: number;
 }
 
 export function useGetHepsiburadaListings() {
