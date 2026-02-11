@@ -50,27 +50,28 @@ export default function WebhookLogs() {
   // Helper function to extract products from requestBody based on source
   const extractProducts = (log: WebhookLog) => {
     if (!log.requestBody) return [];
-    
+
     try {
-      const body = typeof log.requestBody === 'string' 
-        ? JSON.parse(log.requestBody) 
-        : log.requestBody;
-      
+      const body =
+        typeof log.requestBody === "string"
+          ? JSON.parse(log.requestBody)
+          : log.requestBody;
+
       // Shopify format
-      if (log.source === 'SHOPIFY' || log.source === 'shopify') {
+      if (log.source === "SHOPIFY" || log.source === "shopify") {
         return body.line_items || body.items || [];
       }
-      
+
       // Trendyol format
-      if (log.source === 'TRENDYOL' || log.source === 'trendyol') {
+      if (log.source === "TRENDYOL" || log.source === "trendyol") {
         return body.lines || body.items || body.orderLines || [];
       }
-      
+
       // Hepsiburada format
-      if (log.source === 'HEPSIBURADA' || log.source === 'hepsiburada') {
+      if (log.source === "HEPSIBURADA" || log.source === "hepsiburada") {
         return body.items || body.orderItems || [];
       }
-      
+
       // Generic fallback
       return body.items || body.line_items || body.products || [];
     } catch (e) {
@@ -82,39 +83,43 @@ export default function WebhookLogs() {
   const getOrderId = (log: WebhookLog) => {
     if (log.externalOrderId) return log.externalOrderId;
     if (log.orderIds && log.orderIds.length > 0) return String(log.orderIds[0]);
-    
+
     try {
-      const body = typeof log.requestBody === 'string' 
-        ? JSON.parse(log.requestBody) 
-        : log.requestBody;
-      
-      return body.order_id || body.orderId || body.id || body.number || '-';
+      const body =
+        typeof log.requestBody === "string"
+          ? JSON.parse(log.requestBody)
+          : log.requestBody;
+
+      return body.order_id || body.orderId || body.id || body.number || "-";
     } catch (e) {
-      return '-';
+      return "-";
     }
   };
 
   // Helper function to get order number from log
   const getOrderNumber = (log: WebhookLog) => {
     try {
-      const body = typeof log.requestBody === 'string' 
-        ? JSON.parse(log.requestBody) 
-        : log.requestBody;
-      
+      const body =
+        typeof log.requestBody === "string"
+          ? JSON.parse(log.requestBody)
+          : log.requestBody;
+
       // Trendyol format
-      if (log.source === 'TRENDYOL' || log.source === 'trendyol') {
-        return body.orderNumber || '-';
+      if (log.source === "TRENDYOL" || log.source === "trendyol") {
+        return body.orderNumber || "-";
       }
-      
+
       // Shopify format
-      if (log.source === 'SHOPIFY' || log.source === 'shopify') {
-        return body.order_number || body.name || body.number || '-';
+      if (log.source === "SHOPIFY" || log.source === "shopify") {
+        return body.order_number || body.name || body.number || "-";
       }
-      
+
       // Generic fallback
-      return body.orderNumber || body.order_number || body.name || body.number || '-';
+      return (
+        body.orderNumber || body.order_number || body.name || body.number || "-"
+      );
     } catch (e) {
-      return '-';
+      return "-";
     }
   };
 
@@ -122,58 +127,75 @@ export default function WebhookLogs() {
   const groupedRows = useMemo(() => {
     const allLogs = webhookLogsPayload?.logs || [];
     const grouped = new Map<string, WebhookLog[]>();
-    
+
     allLogs.forEach((log) => {
       const orderId = getOrderId(log);
       // If orderId is missing or '-', use log._id to ensure each log gets its own group
-      const groupKey = (orderId && orderId !== '-') ? orderId : `log_${log._id}`;
-      
+      const groupKey = orderId && orderId !== "-" ? orderId : `log_${log._id}`;
+
       if (!grouped.has(groupKey)) {
         grouped.set(groupKey, []);
       }
       grouped.get(groupKey)?.push(log);
     });
-    
+
     return grouped;
   }, [webhookLogsPayload]);
 
   const rows = useMemo(() => {
     const result: any[] = [];
-    
+
     groupedRows.forEach((logs, orderId) => {
       if (logs.length === 0) return;
-      
+
       // Sort logs by createdAt (newest first)
       const sortedLogs = [...logs].sort((a, b) => {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
         return dateB - dateA;
       });
-      
+
       // First log is the main row
       const mainLog = sortedLogs[0];
       const products = extractProducts(mainLog);
-      
+
       // Combine all products from all logs for this order
       const allProducts = new Map<string, any>();
       sortedLogs.forEach((log) => {
         const logProducts = extractProducts(log);
         logProducts.forEach((product: any) => {
           // For Trendyol, use barcode or sku as key
-          const productKey = product.sku || product.barcode || product.variant_sku || product.productCode || product.name || product.title || product.productName;
+          const productKey =
+            product.sku ||
+            product.barcode ||
+            product.variant_sku ||
+            product.productCode ||
+            product.name ||
+            product.title ||
+            product.productName;
           if (productKey && !allProducts.has(productKey)) {
             allProducts.set(productKey, {
-              name: product.name || product.title || product.productName || '-',
-              sku: product.sku || product.barcode || product.variant_sku || product.productCode || '-',
+              name: product.name || product.title || product.productName || "-",
+              sku:
+                product.sku ||
+                product.barcode ||
+                product.variant_sku ||
+                product.productCode ||
+                "-",
               quantity: product.quantity || product.qty || 0,
-              price: product.price || product.unit_price || product.unitPrice || product.lineUnitPrice || 0,
+              price:
+                product.price ||
+                product.unit_price ||
+                product.unitPrice ||
+                product.lineUnitPrice ||
+                0,
             });
           }
         });
       });
-      
+
       const productsArray = Array.from(allProducts.values());
-      
+
       const mainRow: any = {
         ...mainLog,
         statusDisplay: mainLog.status || "unknown",
@@ -184,7 +206,9 @@ export default function WebhookLogs() {
         requestCount: sortedLogs.length, // Store request count
         // Make it collapsible always
         collapsible: {
-          collapsibleHeader: t("Webhook Requests for Order {{orderId}}", { orderId }),
+          collapsibleHeader: t("Webhook Requests for Order {{orderId}}", {
+            orderId,
+          }),
           collapsibleColumns: [
             { key: t("Date"), isSortable: true },
             { key: t("Endpoint"), isSortable: true },
@@ -203,7 +227,9 @@ export default function WebhookLogs() {
               node: (row: WebhookLog) => {
                 const date = new Date(row.createdAt);
                 const offset = date.getTimezoneOffset();
-                const adjustedDate = new Date(date.getTime() + offset * 60 * 1000);
+                const adjustedDate = new Date(
+                  date.getTime() + offset * 60 * 1000
+                );
                 return (
                   <div>
                     <div>{formatAsLocalDate(row.createdAt.toString())}</div>
@@ -288,10 +314,10 @@ export default function WebhookLogs() {
           ],
         },
       };
-      
+
       result.push(mainRow);
     });
-    
+
     return result;
   }, [groupedRows, t]);
 
@@ -299,9 +325,17 @@ export default function WebhookLogs() {
     () => [
       { key: t("Date"), isSortable: true, correspondingKey: "createdAt" },
       { key: t("Order ID"), isSortable: true, correspondingKey: "orderId" },
-      { key: t("Order Number"), isSortable: true, correspondingKey: "orderNumber" },
+      {
+        key: t("Order Number"),
+        isSortable: true,
+        correspondingKey: "orderNumber",
+      },
       { key: t("Products"), isSortable: false, correspondingKey: "products" },
-      { key: t("Requests"), isSortable: true, correspondingKey: "requestCount" },
+      {
+        key: t("Requests"),
+        isSortable: true,
+        correspondingKey: "requestCount",
+      },
       { key: t("Source"), isSortable: true, correspondingKey: "source" },
     ],
     [t]
@@ -321,7 +355,9 @@ export default function WebhookLogs() {
         className: "min-w-32",
         node: (row: any) => {
           return (
-            <div className="font-medium text-blue-600">{row.orderId || "-"}</div>
+            <div className="font-medium text-blue-600">
+              {row.orderId || "-"}
+            </div>
           );
         },
       },
@@ -330,7 +366,9 @@ export default function WebhookLogs() {
         className: "min-w-32",
         node: (row: any) => {
           return (
-            <div className="font-medium text-gray-700">{row.orderNumber || "-"}</div>
+            <div className="font-medium text-gray-700">
+              {row.orderNumber || "-"}
+            </div>
           );
         },
       },
@@ -348,11 +386,17 @@ export default function WebhookLogs() {
                 <div key={index} className="text-sm">
                   <span className="font-medium">{product.name || "-"}</span>
                   {product.quantity > 0 && (
-                    <span className="text-gray-600 ml-2">x{product.quantity}</span>
+                    <span className="text-gray-600 ml-2">
+                      x{product.quantity}
+                    </span>
                   )}
                   {product.price > 0 && (
                     <span className="text-gray-600 ml-2">
-                      ({typeof product.price === 'number' ? product.price.toFixed(2) : product.price} ₺)
+                      (
+                      {typeof product.price === "number"
+                        ? product.price.toFixed(2)
+                        : product.price}{" "}
+                      ₺)
                     </span>
                   )}
                 </div>
@@ -371,11 +415,7 @@ export default function WebhookLogs() {
         className: "min-w-24",
         node: (row: any) => {
           const count = row.requestCount || 0;
-          return (
-            <div className="font-medium text-center">
-              {count}
-            </div>
-          );
+          return <div className="font-medium ">{count}</div>;
         },
       },
       {
