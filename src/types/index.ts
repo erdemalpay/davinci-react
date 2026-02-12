@@ -1709,6 +1709,10 @@ export enum ActivityType {
   DELETE_VISIT = "DELETE_VISIT",
   CREATE_VISIT = "CREATE_VISIT",
   FINISH_VISIT = "FINISH_VISIT",
+  START_BREAK = "START_BREAK",
+  FINISH_BREAK = "FINISH_BREAK",
+  START_GAMEPLAY_TIME = "START_GAMEPLAY_TIME",
+  FINISH_GAMEPLAY_TIME = "FINISH_GAMEPLAY_TIME",
 }
 export const activityTypeDetails = [
   {
@@ -1970,6 +1974,26 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_VISIT,
     label: "Visit Exit",
     bgColor: "bg-blue-500",
+  },
+  {
+    value: ActivityType.START_BREAK,
+    label: "Start Break",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.FINISH_BREAK,
+    label: "Finish Break",
+    bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.START_GAMEPLAY_TIME,
+    label: "Start Gameplay Time",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.FINISH_GAMEPLAY_TIME,
+    label: "Finish Gameplay Time",
+    bgColor: "bg-red-500",
   },
 ];
 
