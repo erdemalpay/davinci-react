@@ -138,3 +138,62 @@ export function useUpdateAllHepsiburadaStocksMutation() {
     },
   });
 }
+
+export function matchHepsiburadaItemsByBarcode(itemIds: number[]) {
+  return post({
+    path: `${Paths.Hepsiburada}/match-items-by-barcode`,
+    payload: { itemIds },
+  });
+}
+
+export function useMatchHepsiburadaItemsByBarcodeMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: matchHepsiburadaItemsByBarcode,
+    onSuccess: (data: any) => {
+      const matchedResults: Array<{ itemId: any; hbSku?: string; status: string }> =
+        data?.results ?? [];
+
+      // Try all known query keys for menu items
+      const possibleKeys = [
+        [`${Paths.MenuItems}/all`],
+        [Paths.MenuItems],
+      ];
+
+      for (const queryKey of possibleKeys) {
+        const previousItems = queryClient.getQueryData<any[]>(queryKey);
+        if (previousItems && previousItems.length > 0) {
+          const updatedItems = previousItems.map((item) => {
+            const result = matchedResults.find(
+              (r) =>
+                String(r.itemId) === String(item._id) &&
+                r.status === "matched"
+            );
+            if (result?.hbSku) {
+              return { ...item, hepsiBuradaSku: result.hbSku };
+            }
+            return item;
+          });
+          queryClient.setQueryData(queryKey, updatedItems);
+        }
+      }
+
+      const matched = data?.matched ?? 0;
+      const notFound = data?.notFound ?? 0;
+      const noBarcode = data?.noBarcode ?? 0;
+      setTimeout(
+        () =>
+          toast.success(
+            `Matched: ${matched}, Not found: ${notFound}, No barcode: ${noBarcode}`
+          ),
+        200
+      );
+    },
+    onError: (_err: unknown) => {
+      const errorMessage =
+        (_err as any)?.response?.data?.message ||
+        "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
