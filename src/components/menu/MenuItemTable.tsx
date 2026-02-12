@@ -28,6 +28,7 @@ import {
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
+import { useMatchHepsiburadaItemsByBarcodeMutation } from "../../utils/api/hepsiburada";
 import {
   useCreateMultipleShopifyProductMutation,
   useGetAllMenuItems,
@@ -97,6 +98,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   //   useCreateMultipleIkasProductMutation();
   const { mutate: createMultipleShopifyProduct } =
     useCreateMultipleShopifyProductMutation();
+  const { mutate: matchHepsiburadaByBarcode } =
+    useMatchHepsiburadaItemsByBarcodeMutation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
@@ -1461,11 +1464,59 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         name: t("Create Shopify Product"),
         isButton: true,
         buttonClassName:
-          "px-2 ml-auto bg-blue-500 hover:text-green-500 hover:border-green-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+          "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
         onClick: () => {
           createMultipleShopifyProduct({
             itemIds: selectedRows?.map((row) => row._id),
           } as any);
+          setSelectedRows([]);
+          setIsSelectionActive(false);
+          setIsEditSelectionCompeted(false);
+        },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        name: t("Trendyol Match"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-orange-600 hover:text-orange-600 hover:border-orange-600 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+        onClick: () => {
+          selectedRows.forEach((row) => {
+            if (row.barcode) {
+              updateItem({
+                id: row._id,
+                updates: {
+                  ...row,
+                  trendyolBarcode: row.barcode,
+                },
+              });
+            }
+          });
+          setSelectedRows([]);
+          setIsSelectionActive(false);
+          setIsEditSelectionCompeted(false);
+        },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        name: t("Hepsiburada Match"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-orange-500 hover:text-orange-500 hover:border-orange-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+        onClick: () => {
+          matchHepsiburadaByBarcode(
+            selectedRows.map((row) => row._id)
+          );
           setSelectedRows([]);
           setIsSelectionActive(false);
           setIsEditSelectionCompeted(false);
@@ -1493,6 +1544,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       setIsSelectionActive,
       // createMultipleIkasProduct,
       createMultipleShopifyProduct,
+      updateItem,
+      matchHepsiburadaByBarcode,
       menuPageDisabledCondition,
       user,
     ]
