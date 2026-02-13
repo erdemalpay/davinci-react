@@ -1709,6 +1709,8 @@ export enum ActivityType {
   DELETE_VISIT = "DELETE_VISIT",
   CREATE_VISIT = "CREATE_VISIT",
   FINISH_VISIT = "FINISH_VISIT",
+  CLOSED_TABLE = "CLOSED_TABLE",
+  REOPENED_TABLE = "REOPENED_TABLE",
 }
 export const activityTypeDetails = [
   {
@@ -1730,6 +1732,16 @@ export const activityTypeDetails = [
     value: ActivityType.DELETE_TABLE,
     label: "Delete Table",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.CLOSED_TABLE,
+    label: "Closed Table",
+    bgColor: "bg-orange-500",
+  },
+  {
+    value: ActivityType.REOPENED_TABLE,
+    label: "Reopened Table",
+    bgColor: "bg-teal-500",
   },
   {
     value: ActivityType.CREATE_GAMEPLAY,
