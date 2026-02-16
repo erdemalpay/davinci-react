@@ -34,6 +34,7 @@ interface HepsiburadaStockRow {
   merchantSku?: string;
   hepsiburadaSku?: string;
   foundStock?: any;
+  itemPrice?: number;
 }
 
 const HepsiBuradaStockComparision = () => {
@@ -90,6 +91,7 @@ const HepsiBuradaStockComparision = () => {
           merchantSku: foundHepsiburadaListing?.merchantSku,
           hepsiburadaSku: foundHepsiburadaListing?.hepsiburadaSku,
           foundStock: foundStock,
+          itemPrice: foundMenuItem?.onlinePrice || foundMenuItem?.price,
         };
       })
       .sort((a, b) => {
@@ -147,6 +149,7 @@ const HepsiBuradaStockComparision = () => {
             merchantSku: row.merchantSku,
             hepsiburadaSku: row.hepsiburadaSku,
             availableStock: row.storeStock,
+            price: row.itemPrice ?? 0,
           });
         },
       },

@@ -1258,12 +1258,19 @@
   "Update All Trendyol Price": "Trendyol Fiyatlarını Güncelle",
   "Update Trendyol Stock": "Trendyol Stokunu Güncelle",
   "Update Trendyol Price": "Trendyol Fiyatını Güncelle",
-  "Trendyol Stock Comparision": "Trendyol Stok Karşılaştırma",
+  "Trendyol Stock Comparision": "Trendyol Stok/Fiyat Karşılaştırma",
   "Trendyol Barcode": "Trendyol Barkod",
   "Process Refund Requests": "İade Taleplerini İşle",
   "Webhook Logs": "Webhook Logları",
   "Status Code": "Durum Kodu",
   "Error": "Hata",
   "Source": "Kaynak",
-  "Endpoint": "Endpoint"
+  "Endpoint": "Endpoint",
+  "TY - HB Match" : "TY - HB Ürün Eşleştir",
+  "Trendyol Orders" : "Trendyol Siparişleri",
+  "Hepsiburada Orders": "Hepsiburada Siparişleri",
+  "Integration": "Entegrasyonlar",
+  "Back In Stock" : "Gelince Haber Ver",
+  "HepsiBurada Stock Comparision" : "Hepsiburada Stok Karşılaştırma",
+  "HepsiBurada Price Comparision" : "Hepsiburada Fiyat Karşılaştırma"
 }

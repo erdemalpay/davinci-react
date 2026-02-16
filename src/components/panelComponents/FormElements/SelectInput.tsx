@@ -3,6 +3,7 @@ import { IoIosClose } from "react-icons/io";
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
+  CSSObjectWithLabel,
   GroupBase,
   InputActionMeta,
   MultiValue,
@@ -53,6 +54,7 @@ interface SelectInputProps {
   suggestedOption?: { value: string; label: string }[] | null;
   isSortDisabled?: boolean;
   customControlBackgroundColor?: string;
+  isExpandedMultiValueLabel?: boolean;
 }
 
 const normalizeText = (text: string) => {
@@ -107,6 +109,7 @@ const SelectInput = ({
   isSortDisabled = false,
   suggestedOption,
   customControlBackgroundColor,
+  isExpandedMultiValueLabel = false,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -158,6 +161,23 @@ const SelectInput = ({
     singleValue: (base: any) => ({
       ...base,
       fontSize: "16px",
+    }),
+    ...(isExpandedMultiValueLabel && {
+      multiValue: (base: CSSObjectWithLabel) => ({
+        ...base,
+        maxWidth: "none",
+        backgroundColor: "#E5E7EB",
+        borderRadius: "4px",
+      }),
+      multiValueLabel: (base: CSSObjectWithLabel) => ({
+        ...base,
+        maxWidth: "none",
+        overflow: "visible",
+        textOverflow: "unset",
+        whiteSpace: "nowrap",
+        fontSize: "14px",
+        padding: "2px 6px",
+      }),
     }),
   };
 
