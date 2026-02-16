@@ -65,7 +65,7 @@ const PointUserSelectionModal = ({
         ?.filter((user) => userPointsMap[user._id] > 0)
         ?.map((user) => ({
           value: user._id,
-          label: `${user.name} (${userPointsMap[user._id]?.toFixed(0) || 0})`,
+          label: `${user.name}`,
           type: "user",
         })) || [];
 
