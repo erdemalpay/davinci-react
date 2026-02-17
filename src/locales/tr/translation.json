@@ -1272,5 +1272,7 @@
   "Integration": "Entegrasyonlar",
   "Back In Stock" : "Gelince Haber Ver",
   "HepsiBurada Stock Comparision" : "Hepsiburada Stok Karşılaştırma",
-  "HepsiBurada Price Comparision" : "Hepsiburada Fiyat Karşılaştırma"
+  "HepsiBurada Price Comparision" : "Hepsiburada Fiyat Karşılaştırma",
+  "No Fallback Location": "Seçilmedi",
+  "Fallback Location": "MenüStoğuYedekDeposu "
 }

@@ -53,7 +53,11 @@ import {
   useOrderMutations,
 } from "../utils/api/order/order";
 import { useGetReservations } from "../utils/api/reservations";
-import { useGetTables, useTableMutations } from "../utils/api/table";
+import {
+  getOpenTableDates,
+  useGetTables,
+  useTableMutations,
+} from "../utils/api/table";
 import { MinimalUser } from "../utils/api/user";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../utils/getItem";
@@ -102,6 +106,27 @@ const Tables = () => {
   const [showServedOrders, setShowServedOrders] = useState(true);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
+  const [openTableDates, setOpenTableDates] = useState<string[]>([]);
+
+  const handleCalendarMonthChange = async (month: Date) => {
+    if (!selectedLocationId) return;
+    const year = month.getFullYear();
+    const m = String(month.getMonth() + 1).padStart(2, "0");
+    const lastDay = new Date(year, month.getMonth() + 1, 0).getDate();
+    const dateFrom = `${year}-${m}-01`;
+    const dateTo = `${year}-${m}-${String(lastDay).padStart(2, "0")}`;
+    try {
+      const dates = await getOpenTableDates(selectedLocationId, dateFrom, dateTo);
+      setOpenTableDates(dates);
+    } catch {
+      // sessizce geç
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedLocationId || !selectedDate) return;
+    handleCalendarMonthChange(parseDate(selectedDate));
+  }, [selectedLocationId]);
 
   // Time tracker for icon animation after 2 minutes
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -1671,6 +1696,8 @@ const Tables = () => {
               <DateInput
                 date={parseDate(selectedDate)}
                 setDate={setSelectedDate}
+                onMonthChange={handleCalendarMonthChange}
+                openTableDates={openTableDates}
               />
               <IoIosArrowForward
                 className="text-xl"

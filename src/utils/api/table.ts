@@ -391,3 +391,13 @@ export function useGetTablePlayerCounts(month: string, year: string) {
     true
   );
 }
+
+export async function getOpenTableDates(
+  location: number,
+  dateFrom: string,
+  dateTo: string
+): Promise<string[]> {
+  return get<string[]>({
+    path: `${Paths.Tables}/open-dates?location=${location}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+  });
+}
