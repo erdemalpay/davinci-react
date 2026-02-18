@@ -122,12 +122,15 @@ export function useUpdateShopifyStocksMutation() {
   return useMutation({
     mutationFn: updateShopifyStocks,
     onMutate: async () => {
+      console.log("🟡 [SHOPIFY] onMutate - Başladı");
       await queryClient.cancelQueries({ queryKey });
     },
     onSettled: () => {
+      console.log("🔵 [SHOPIFY] onSettled - İÇİNE GİRDİ!");
       queryClient.invalidateQueries({ queryKey });
     },
     onError: (_err: any) => {
+      console.log("🔴 [SHOPIFY] onError - Hata:", _err);
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
