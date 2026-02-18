@@ -1272,11 +1272,12 @@
   "Error": "Error",
   "Source": "Source",
   "Endpoint": "Endpoint",
-  "TY - HB Match" : "TY - HB Match",
-  "Trendyol Orders" : "Trendyol Orders",
-  "Hepsiburada Orders" : "Hepsiburada Orders",
-  "Integration" : "Integrations",
-  "Back In Stock" : "Back In Stock",
-  "HepsiBurada Stock Comparision" : "Hepsiburada Stock Comparision",
-  "HepsiBurada Price Comparision" : "Hepsiburada Price Comparision"
+  "TY - HB Match": "TY - HB Match",
+  "Trendyol Orders": "Trendyol Orders",
+  "Hepsiburada Orders": "Hepsiburada Orders",
+  "Integration": "Integrations",
+  "Back In Stock": "Back In Stock",
+  "HepsiBurada Stock Comparision": "Hepsiburada Stock Comparision",
+  "HepsiBurada Price Comparision": "Hepsiburada Price Comparision",
+  "Insufficient points. Payment cannot be processed.": "Insufficient points. Payment cannot be processed."
 }
