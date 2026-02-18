@@ -71,7 +71,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     isMenuLocationEdit,
     setIsMenuLocationEdit,
   } = useGeneralContext();
-  const { deleteItem, updateItem, createItem } = useMenuItemMutations();
+  const { deleteItem, updateItem, updateItemAsync, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const discounts = useGetOrderDiscounts();
@@ -98,7 +98,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   //   useCreateMultipleIkasProductMutation();
   const { mutate: createMultipleShopifyProduct } =
     useCreateMultipleShopifyProductMutation();
-  const { mutate: matchHepsiburadaByBarcode } =
+  const { mutateAsync: matchHepsiburadaByBarcodeAsync } =
     useMatchHepsiburadaItemsByBarcodeMutation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const initialBulkInputForm = {
@@ -1464,7 +1464,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         name: t("Create Shopify Product"),
         isButton: true,
         buttonClassName:
-          "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+          "px-2 ml-auto bg-green-400 hover:text-green-500 hover:border-green-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
         onClick: () => {
           createMultipleShopifyProduct({
             itemIds: selectedRows?.map((row) => row._id),
@@ -1481,40 +1481,27 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         ),
       },
       {
-        name: t("Trendyol Match"),
+        name: t("TY - HB Match"),
         isButton: true,
         buttonClassName:
           "px-2 ml-auto bg-orange-600 hover:text-orange-600 hover:border-orange-600 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
-        onClick: () => {
-          selectedRows.forEach((row) => {
-            if (row.barcode) {
-              updateItem({
-                id: row._id,
-                updates: {
-                  ...row,
-                  trendyolBarcode: row.barcode,
-                },
-              });
-            }
-          });
-          setSelectedRows([]);
-          setIsSelectionActive(false);
-          setIsEditSelectionCompeted(false);
-        },
-        isDisabled: menuPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
-      },
-      {
-        name: t("Hepsiburada Match"),
-        isButton: true,
-        buttonClassName:
-          "px-2 ml-auto bg-orange-500 hover:text-orange-500 hover:border-orange-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
-        onClick: () => {
-          matchHepsiburadaByBarcode(
+        onClick: async () => {
+          // 1) Trendyol: barcode → trendyolBarcode, tüm güncellemelerin onSettled'ı bitsin
+          await Promise.all(
+            selectedRows
+              .filter((row) => row.barcode)
+              .map((row) =>
+                updateItemAsync({
+                  id: row._id,
+                  updates: {
+                    ...row,
+                    trendyolBarcode: row.barcode,
+                  },
+                })
+              )
+          );
+          // 2) Trendyol onSettled cache'i yazdıktan sonra HB'yi çalıştır
+          await matchHepsiburadaByBarcodeAsync(
             selectedRows.map((row) => row._id)
           );
           setSelectedRows([]);
@@ -1545,7 +1532,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       // createMultipleIkasProduct,
       createMultipleShopifyProduct,
       updateItem,
-      matchHepsiburadaByBarcode,
+      updateItemAsync,
+      matchHepsiburadaByBarcodeAsync,
       menuPageDisabledCondition,
       user,
     ]

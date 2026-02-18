@@ -254,12 +254,13 @@ export function useMutationApi<T extends { _id: number | string }>({
   }
 
   const { mutate: deleteItem } = useDeleteItemMutation();
-  const { mutate: updateItem } = useUpdateItemMutation();
+  const { mutate: updateItem, mutateAsync: updateItemAsync } = useUpdateItemMutation();
   const { mutate: createItem } = useCreateItemMutation();
 
   return {
     deleteItem,
     updateItem,
+    updateItemAsync,
     createItem,
   };
 }

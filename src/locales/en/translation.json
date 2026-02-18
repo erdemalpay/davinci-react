@@ -1267,7 +1267,7 @@
   "Update All Trendyol Products": "Update Trendyol Products",
   "Update Trendyol Stock": "Update Trendyol Stock",
   "Update Trendyol Price": "Update Trendyol Price",
-  "Trendyol Stock Comparision": "Trendyol Stock Comparision",
+  "Trendyol Stock Comparision": "Trendyol Stock/Price Comparision",
   "Trendyol Barcode": "Trendyol Barcode",
   "Process Refund Requests": "Process Refund Requests",
   "Webhook Logs": "Webhook Logs",
@@ -1275,5 +1275,13 @@
   "Status Code": "Status Code",
   "Error": "Error",
   "Source": "Source",
-  "Endpoint": "Endpoint"
+  "Endpoint": "Endpoint",
+  "TY - HB Match": "TY - HB Match",
+  "Trendyol Orders": "Trendyol Orders",
+  "Hepsiburada Orders": "Hepsiburada Orders",
+  "Integration": "Integrations",
+  "Back In Stock": "Back In Stock",
+  "HepsiBurada Stock Comparision": "Hepsiburada Stock Comparision",
+  "HepsiBurada Price Comparision": "Hepsiburada Price Comparision",
+  "Insufficient points. Payment cannot be processed.": "Insufficient points. Payment cannot be processed."
 }
