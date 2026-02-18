@@ -38,7 +38,6 @@ export interface BackInStockQueryParams {
   before?: string;
   sort?: string;
   asc?: 1 | -1;
-  isGame?: boolean;
 }
 
 export interface BackInStockResponse {
