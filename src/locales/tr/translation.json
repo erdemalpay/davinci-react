@@ -1266,11 +1266,15 @@
   "Error": "Hata",
   "Source": "Kaynak",
   "Endpoint": "Endpoint",
-  "TY - HB Match" : "TY - HB Ürün Eşleştir",
-  "Trendyol Orders" : "Trendyol Siparişleri",
+  "TY - HB Match": "TY - HB Ürün Eşleştir",
+  "Trendyol Orders": "Trendyol Siparişleri",
   "Hepsiburada Orders": "Hepsiburada Siparişleri",
   "Integration": "Entegrasyonlar",
-  "Back In Stock" : "Gelince Haber Ver",
-  "HepsiBurada Stock Comparision" : "Hepsiburada Stok Karşılaştırma",
-  "HepsiBurada Price Comparision" : "Hepsiburada Fiyat Karşılaştırma"
+  "Back In Stock": "Gelince Haber Ver",
+  "HepsiBurada Stock Comparision": "Hepsiburada Stok Karşılaştırma",
+  "HepsiBurada Price Comparision": "Hepsiburada Fiyat Karşılaştırma",
+  "Request Count": "Talep Sayısı",
+  "Game Based": "Oyun Bazlı",
+  "Subscriptions for {{gameName}}": "{{gameName}} için Abonelikler",
+  "Subscriptions for {{name}}": "{{name}} için Abonelikler"
 }

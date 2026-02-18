@@ -5,10 +5,13 @@ import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import {
+  BackInStockSubscription,
   SubscriptionStatus,
   useGetBackInStockSubscriptions,
 } from "../utils/api/backInStock";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { formatAsLocalDate } from "../utils/format";
+import { getItem } from "../utils/getItem";
 
 type FormElementsState = {
   [key: string]: any;
@@ -17,6 +20,7 @@ type FormElementsState = {
 export default function BackInStock() {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
+  const [isGameGrouped, setIsGameGrouped] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       email: "",
@@ -30,6 +34,7 @@ export default function BackInStock() {
       asc: -1,
     });
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+  const menuItems = useGetMenuItems();
 
   const subscriptionsPayload = useGetBackInStockSubscriptions(
     currentPage,
@@ -37,72 +42,186 @@ export default function BackInStock() {
     filterPanelFormElements
   );
 
+  // Group subscriptions by productTitle (when toggle is off) or menuItemId (when toggle is on)
+  const groupedByProduct = useMemo(() => {
+    if (!subscriptionsPayload?.subscriptions) return new Map<string, BackInStockSubscription[]>();
+    const grouped = new Map<string, BackInStockSubscription[]>();
+    
+    subscriptionsPayload.subscriptions.forEach((subscription) => {
+      const groupKey = subscription.productTitle || subscription.productId;
+      if (!grouped.has(groupKey)) {
+        grouped.set(groupKey, []);
+      }
+      grouped.get(groupKey)?.push(subscription);
+    });
+    
+    return grouped;
+  }, [subscriptionsPayload?.subscriptions]);
+
+  const groupedByGame = useMemo(() => {
+    if (!subscriptionsPayload?.subscriptions) return new Map<number, BackInStockSubscription[]>();
+    const grouped = new Map<number, BackInStockSubscription[]>();
+    
+    subscriptionsPayload.subscriptions.forEach((subscription) => {
+      if (subscription.menuItemId) {
+        if (!grouped.has(subscription.menuItemId)) {
+          grouped.set(subscription.menuItemId, []);
+        }
+        grouped.get(subscription.menuItemId)?.push(subscription);
+      }
+    });
+    
+    return grouped;
+  }, [subscriptionsPayload?.subscriptions]);
+
+  // Helper function to create collapsible row structure
+  const createCollapsibleRow = (
+    subscriptions: BackInStockSubscription[],
+    mainKey: string,
+    mainValue: string
+  ) => {
+    const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+      const dateA = new Date(a.subscribedAt).getTime();
+      const dateB = new Date(b.subscribedAt).getTime();
+      return dateB - dateA;
+    });
+
+    // Count only ACTIVE subscriptions
+    const activeCount = sortedSubscriptions.filter(
+      (s) => s.status === SubscriptionStatus.ACTIVE
+    ).length;
+
+    return {
+      ...sortedSubscriptions[0],
+      [mainKey]: mainValue,
+      requestCount: activeCount,
+      collapsible: {
+        collapsibleHeader: t("Subscriptions for {{name}}", { name: mainValue }),
+        collapsibleColumns: [
+          { key: t("Email"), isSortable: true },
+          { key: t("Product"), isSortable: true },
+          { key: t("Status"), isSortable: true },
+          { key: t("Subscribed At"), isSortable: true },
+        ],
+        collapsibleRows: sortedSubscriptions,
+        collapsibleRowKeys: [
+          { key: "email" },
+          { key: "productTitle" },
+          {
+            key: "status",
+            node: (row: any) => {
+              const statusColors = {
+                [SubscriptionStatus.ACTIVE]: "bg-green-500",
+                [SubscriptionStatus.NOTIFIED]: "bg-blue-500",
+                [SubscriptionStatus.CANCELLED]: "bg-red-500",
+              };
+              return (
+                <span
+                  className={`${
+                    statusColors[row.status as SubscriptionStatus]
+                  } w-fit px-2 py-1 rounded-md text-white`}
+                >
+                  {row.status}
+                </span>
+              );
+            },
+          },
+          {
+            key: "subscribedAt",
+            node: (row: any) => formatAsLocalDate(row.subscribedAt),
+          },
+        ],
+      },
+    };
+  };
+
+  // Process rows based on toggle state
+  const rows = useMemo(() => {
+    if (!subscriptionsPayload?.subscriptions) return [];
+
+    if (isGameGrouped) {
+      // Group by menuItemId (game)
+      const result: any[] = [];
+      
+      groupedByGame.forEach((subscriptions, menuItemId) => {
+        if (subscriptions.length === 0) return;
+        
+        const menuItem = getItem(menuItemId, menuItems || []);
+        const gameName = menuItem?.name || `Game ID: ${menuItemId}`;
+        
+        const mainRow = createCollapsibleRow(subscriptions, "gameName", gameName);
+        mainRow.menuItemId = menuItemId;
+        result.push(mainRow);
+      });
+      
+      // Add subscriptions without menuItemId grouped by productTitle
+      const subscriptionsWithoutGame = subscriptionsPayload.subscriptions.filter(
+        (s) => !s.menuItemId
+      );
+      
+      if (subscriptionsWithoutGame.length > 0) {
+        const groupedWithoutGame = new Map<string, BackInStockSubscription[]>();
+        subscriptionsWithoutGame.forEach((subscription) => {
+          const groupKey = subscription.productTitle || subscription.productId;
+          if (!groupedWithoutGame.has(groupKey)) {
+            groupedWithoutGame.set(groupKey, []);
+          }
+          groupedWithoutGame.get(groupKey)?.push(subscription);
+        });
+        
+        groupedWithoutGame.forEach((subscriptions, productTitle) => {
+          const mainRow = createCollapsibleRow(subscriptions, "productTitle", productTitle);
+          result.push(mainRow);
+        });
+      }
+      
+      return result;
+    } else {
+      // Group by productTitle
+      const result: any[] = [];
+      
+      groupedByProduct.forEach((subscriptions, productTitle) => {
+        if (subscriptions.length === 0) return;
+        
+        const mainRow = createCollapsibleRow(subscriptions, "productTitle", productTitle);
+        result.push(mainRow);
+      });
+      
+      return result;
+    }
+  }, [subscriptionsPayload?.subscriptions, isGameGrouped, groupedByGame, groupedByProduct, menuItems, t]);
+
   const columns = useMemo(
     () => [
-      { key: t("Email"), isSortable: true, correspondingKey: "email" },
-      { key: t("Product"), isSortable: true, correspondingKey: "productTitle" },
-      { key: t("Variant"), isSortable: true, correspondingKey: "variantTitle" },
-      { key: t("Price"), isSortable: false },
-      { key: t("Status"), isSortable: true, correspondingKey: "status" },
-      {
-        key: t("Subscribed At"),
-        isSortable: true,
-        correspondingKey: "subscribedAt",
+      { 
+        key: isGameGrouped ? t("Game") : t("Product"), 
+        isSortable: true, 
+        correspondingKey: isGameGrouped ? "gameName" : "productTitle" 
       },
-      { key: t("Shop"), isSortable: true, correspondingKey: "shop" },
+      { key: t("Request Count"), isSortable: false },
     ],
-    [t]
+    [t, isGameGrouped]
   );
 
   const rowKeys = useMemo(
     () => [
       {
-        key: "email",
+        key: isGameGrouped ? "gameName" : "productTitle",
         className: "min-w-48",
       },
       {
-        key: "productTitle",
-        className: "min-w-48",
-      },
-      {
-        key: "variantTitle",
-        className: "min-w-32",
-      },
-      {
-        key: "variantPrice",
+        key: "requestCount",
         className: "min-w-24",
-      },
-      {
-        key: "status",
-        className: "min-w-32",
         node: (row: any) => {
-          const statusColors = {
-            [SubscriptionStatus.ACTIVE]: "bg-green-500",
-            [SubscriptionStatus.NOTIFIED]: "bg-blue-500",
-            [SubscriptionStatus.CANCELLED]: "bg-red-500",
-          };
           return (
-            <span
-              className={`${
-                statusColors[row.status as SubscriptionStatus]
-              } w-fit px-2 py-1 rounded-md text-white`}
-            >
-              {row.status}
+            <span className="font-medium text-gray-700">
+              {row.requestCount || 0}
             </span>
           );
         },
       },
-      {
-        key: "subscribedAt",
-        className: "min-w-32",
-        node: (row: any) => formatAsLocalDate(row.subscribedAt),
-      },
-      {
-        key: "shop",
-        className: "min-w-32",
-      },
     ],
-    []
+    [isGameGrouped]
   );
 
   const filterPanelInputs = useMemo(
@@ -182,12 +301,17 @@ export default function BackInStock() {
   const filters = useMemo(
     () => [
       {
+        label: t("Game Based"),
+        isUpperSide: true,
+        node: <SwitchButton checked={isGameGrouped} onChange={setIsGameGrouped} />,
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
       },
     ],
-    [t, showFilters]
+    [t, showFilters, isGameGrouped]
   );
 
   const outsideSort = useMemo(
@@ -217,14 +341,14 @@ export default function BackInStock() {
 
   useMemo(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements, setCurrentPage]);
+  }, [filterPanelFormElements, isGameGrouped, setCurrentPage]);
 
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}
-        rows={subscriptionsPayload?.subscriptions || []}
+        rows={rows}
         outsideSearchProps={outsideSearchProps}
         isSearch={false}
         title={t("Back In Stock Subscriptions")}
@@ -232,6 +356,7 @@ export default function BackInStock() {
         filters={filters}
         isActionsActive={false}
         outsideSortProps={outsideSort}
+        isCollapsible={true}
         {...(pagination && { pagination })}
         isAllRowPerPageOption={false}
       />
