@@ -507,6 +507,10 @@
   "Delete Visit": "Giriş Çıkışı Sil",
   "Visit Entry": "Giriş",
   "Visit Exit": "Çıkış",
+  "Start Break": "Mola Başlat",
+  "Finish Break": "Mola Bitir",
+  "Start Gameplay Time": "Oyun Anlatımı Başlat",
+  "Finish Gameplay Time": "Oyun Anlatımı Bitir",
   "Visit": "Giriş Çıkış",
   "Create Table": "Masa Oluştur",
   "Update Table": "Masa Güncelle",
@@ -1276,5 +1280,6 @@
   "Request Count": "Talep Sayısı",
   "Game Based": "Oyun Bazlı",
   "Subscriptions for {{gameName}}": "{{gameName}} için Abonelikler",
-  "Subscriptions for {{name}}": "{{name}} için Abonelikler"
+  "Subscriptions for {{name}}": "{{name}} için Abonelikler",
+  "Insufficient points. Payment cannot be processed.": "Yetersiz puan. Ödeme işlemi yapılamıyor."
 }
