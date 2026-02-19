@@ -1349,7 +1349,7 @@ const Tables = () => {
       <div
         className={`border w-fit min-w-fit border-gray-400 rounded-md ${className}`}
       >
-        <div className="grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
+        <div className="hidden sm:grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
           {cafeInfos.map((info, index) =>
             info?.tooltip ? (
               <Tooltip
@@ -1522,7 +1522,9 @@ const Tables = () => {
       hideOnMobile: true,
     },
     {
-      label: t("Open Reservations"),
+      label: `${t(
+        "Open Reservations"
+      )} ${waitingReservations} / ${comingReservations}`,
       onClick: () => {
         navigate(Routes.Reservations);
       },
@@ -1788,14 +1790,16 @@ const Tables = () => {
                 </div>
               )}
               {/* buttons - original layout preserved */}
-              <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 md:mr-40 flex-1">
+              <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 md:mr-40 flex-1 mt-4 sm:mt-0">
                 {buttons.map((button, index) => (
                   <GenericButton
                     key={index}
                     onClick={button.onClick}
                     variant="ghost"
                     className={`min-w-fit transition duration-150 ease-in-out hover:translate-y-0.5 active:translate-y-1 rounded-lg border border-gray-800 text-gray-800 hover:text-gray-800 px-4 py-2 text-sm ${
-                      button.hideOnMobile ? "hidden md:block" : "w-full md:w-auto"
+                      button.hideOnMobile
+                        ? "hidden md:block"
+                        : "w-full md:w-auto"
                     }`}
                   >
                     {button.label}
@@ -1896,10 +1900,7 @@ const Tables = () => {
                 <>
                   <PreviousVisitList visits={visits} />
                   {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos(
-                    "hidden mt-4",
-                    "cafeinfo-mobile-previous"
-                  )}
+                  {renderCafeInfos("hidden mt-4", "cafeinfo-mobile-previous")}
                 </>
               )}
               {/* filters */}

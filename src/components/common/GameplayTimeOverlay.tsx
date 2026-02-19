@@ -12,6 +12,7 @@ import {
   useGameplayTimeMutations,
   useGetGameplayTimesByDate,
 } from "../../utils/api/gameplaytime";
+import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 
@@ -24,7 +25,7 @@ export const GameplayTimeOverlay = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { isModalHidden, handleHideModal, handleShowModal } =
     useTemporarilyHiddenModal(!!currentGameplayTime);
-
+  const tables = useGetTables();
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const games = useGetGames();
@@ -80,7 +81,7 @@ export const GameplayTimeOverlay = () => {
 
   const getGameplayDetails = () => {
     if (!currentGameplayTime) return null;
-
+    const table = getItem(currentGameplayTime.table, tables);
     const gameplay =
       typeof currentGameplayTime.gameplay === "object"
         ? currentGameplayTime.gameplay
@@ -108,6 +109,7 @@ export const GameplayTimeOverlay = () => {
       mentorName: mentor?.name,
       gameName: game?.name,
       playerCount: gameplay?.playerCount,
+      tableName: table?.name,
     };
   };
 
@@ -179,6 +181,14 @@ export const GameplayTimeOverlay = () => {
                 <span className="text-gray-600">{t("Players")}:</span>
                 <span className="font-semibold text-gray-800">
                   {details.playerCount}
+                </span>
+              </div>
+            )}
+            {details.tableName && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">{t("Table")}:</span>
+                <span className="font-semibold text-gray-800">
+                  {details.tableName}
                 </span>
               </div>
             )}
