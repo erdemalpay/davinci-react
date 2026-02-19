@@ -119,7 +119,11 @@ const Tables = () => {
     const dateFrom = `${year}-${m}-01`;
     const dateTo = `${year}-${m}-${String(lastDay).padStart(2, "0")}`;
     try {
-      const dates = await getOpenTableDates(selectedLocationId, dateFrom, dateTo);
+      const dates = await getOpenTableDates(
+        selectedLocationId,
+        dateFrom,
+        dateTo
+      );
       setOpenTableDates(dates);
     } catch (error) {
       console.error("Failed to fetch open table dates:", error);
@@ -1514,11 +1518,16 @@ const Tables = () => {
   const reservedTableClass = "bg-purple-400 text-white hover:bg-purple-500";
 
   const todayActiveActivities = useMemo(() => {
-    if (!cafeActivities || !selectedDate) return [];
+    if (!cafeActivities || !selectedDate || !selectedLocationId) return [];
     return cafeActivities
-      .filter((a) => a.date === selectedDate && !a.isCompleted)
+      .filter(
+        (a) =>
+          a.date === selectedDate &&
+          !a.isCompleted &&
+          a.location === selectedLocationId
+      )
       .sort((a, b) => a.hour.localeCompare(b.hour));
-  }, [cafeActivities, selectedDate]);
+  }, [cafeActivities, selectedDate, selectedLocationId]);
 
   const buttons: {
     label: string;
