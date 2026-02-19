@@ -1277,5 +1277,9 @@
   "Back In Stock": "Gelince Haber Ver",
   "HepsiBurada Stock Comparision": "Hepsiburada Stok Karşılaştırma",
   "HepsiBurada Price Comparision": "Hepsiburada Fiyat Karşılaştırma",
+  "Request Count": "Talep Sayısı",
+  "Game Based": "Oyun Bazlı",
+  "Subscriptions for {{gameName}}": "{{gameName}} için Abonelikler",
+  "Subscriptions for {{name}}": "{{name}} için Abonelikler",
   "Insufficient points. Payment cannot be processed.": "Yetersiz puan. Ödeme işlemi yapılamıyor."
 }
