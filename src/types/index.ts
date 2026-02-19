@@ -865,6 +865,7 @@ export type CafeActivity = {
   groupName: string;
   price?: number;
   complimentary?: string;
+  contact: string;
   isCompleted?: boolean;
 };
 export type IkasCustomer = {
