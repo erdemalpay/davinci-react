@@ -25,6 +25,7 @@ import DailyHoursInput from "./DailyHoursInput";
 import DateInput from "./DateInput";
 import HourInput from "./HourInput";
 import MonthYearInput from "./MonthYearInput";
+import QuickSelectInput from "./QuickSelectInput";
 import SelectInput from "./SelectInput";
 import TabInput from "./TabInput";
 import TabInputScreen from "./TabInputScreen";
@@ -717,6 +718,62 @@ const GenericAddEditPanel = <T,>({
                           formElements={formElements}
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           isReadOnly={input.isReadOnly ?? false}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
+                        />
+                      )}
+                      {input.type === InputTypes.QUICKSELECT && (
+                        <QuickSelectInput
+                          key={input.formKey + formElements[input.formKey]}
+                          value={
+                            input.allOptions?.find(
+                              (option) =>
+                                option?.value === formElements[input.formKey]
+                            ) || null
+                          }
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
+                          quickOptions={input.quickOptions ?? []}
+                          allOptions={input.allOptions ?? []}
+                          placeholder={input.placeholder ?? ""}
+                          requiredField={input.required}
+                          onChange={(selectedValue) => {
+                            if (Array.isArray(selectedValue)) {
+                              const values = selectedValue.map(
+                                (option) => option.value
+                              );
+                              setFormElements((prev) => ({
+                                ...prev,
+                                [input.formKey]: values,
+                              }));
+                            } else if (selectedValue) {
+                              setFormElements((prev) => ({
+                                ...prev,
+                                [input.formKey]: (selectedValue as OptionType)
+                                  ?.value,
+                              }));
+                            } else {
+                              setFormElements((prev) => ({
+                                ...prev,
+                                [input.formKey]: "",
+                              }));
+                            }
+                            if (input?.invalidateKeys) {
+                              input.invalidateKeys.forEach((key) => {
+                                setFormElements((prev) => ({
+                                  ...prev,
+                                  [key.key]: key.defaultValue,
+                                }));
+                              });
+                            }
+                          }}
+                          isTopFlexRow={input.isTopFlexRow ?? false}
+                          isReadOnly={input.isReadOnly ?? false}
+                          disabled={input.isDisabled ?? false}
                           onClear={() => {
                             handleInputClear(input);
                           }}
