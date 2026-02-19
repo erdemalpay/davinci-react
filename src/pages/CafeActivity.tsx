@@ -72,6 +72,7 @@ const CafeActivity = () => {
       { key: t("Price"), isSortable: true },
       { key: t("Group Name"), isSortable: true },
       { key: t("Complimentary"), isSortable: true },
+      { key: t("Contact"), isSortable: true },
       { key: t("Actions"), isSortable: true },
     ],
     [t]
@@ -86,6 +87,7 @@ const CafeActivity = () => {
       { key: "price" },
       { key: "groupName" },
       { key: "complimentary" },
+      { key: "contact" },
     ],
     []
   );
@@ -144,6 +146,13 @@ const CafeActivity = () => {
         placeholder: t("Complimentary"),
         required: false,
       },
+      {
+        type: InputTypes.TEXT,
+        formKey: "contact",
+        label: t("Contact"),
+        placeholder: t("Contact"),
+        required: true,
+      },
     ],
     [t, locations]
   );
@@ -157,6 +166,7 @@ const CafeActivity = () => {
       { key: "price", type: FormKeyTypeEnum.NUMBER },
       { key: "groupName", type: FormKeyTypeEnum.STRING },
       { key: "complimentary", type: FormKeyTypeEnum.STRING },
+      { key: "contact", type: FormKeyTypeEnum.STRING },
       { key: "isCompleted", type: FormKeyTypeEnum.BOOLEAN },
     ],
     []

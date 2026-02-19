@@ -1067,7 +1067,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           <ConfirmationDialog
             isOpen={isCloseAllConfirmationDialogOpen}
             close={() => setIsCloseAllConfirmationDialogOpen(false)}
-            confirm={() => deleteItem(rowToAction?._id)}
+            confirm={() => {
+              deleteItem(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
             title={t("Delete Item")}
             text={`${rowToAction?.name} ${t("GeneralDeleteMessage")}`}
           />

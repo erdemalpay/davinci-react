@@ -24,10 +24,12 @@ const PaidOrders = ({ tableOrders }: Props) => {
       return (
         <p>
           {order?.discountPercentage
-            ? order.unitPrice *
-              (100 - (order?.discountPercentage ?? 0)) *
-              (1 / 100) *
-              order.paidQuantity
+            ? (
+                order.unitPrice *
+                (100 - (order?.discountPercentage ?? 0)) *
+                (1 / 100) *
+                order.paidQuantity
+              ).toFixed(2)
             : (
                 (order.unitPrice - (order?.discountAmount ?? 0)) *
                 order.paidQuantity
