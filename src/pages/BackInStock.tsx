@@ -166,20 +166,7 @@ export default function BackInStock() {
       {
         key: "requestCount",
         className: "min-w-24",
-<<<<<<< Updated upstream
         node: (row: any) => {
-=======
-      },
-      {
-        key: "status",
-        className: "min-w-32",
-        node: (row: BackInStockSubscription) => {
-          const statusColors = {
-            [SubscriptionStatus.ACTIVE]: "bg-green-500",
-            [SubscriptionStatus.NOTIFIED]: "bg-blue-500",
-            [SubscriptionStatus.CANCELLED]: "bg-red-500",
-          };
->>>>>>> Stashed changes
           return (
             <span className="font-medium text-gray-700">
               {row.requestCount || 0}
@@ -187,18 +174,6 @@ export default function BackInStock() {
           );
         },
       },
-<<<<<<< Updated upstream
-=======
-      {
-        key: "subscribedAt",
-        className: "min-w-32",
-        node: (row: BackInStockSubscription) => formatAsLocalDate(row.subscribedAt.toString()),
-      },
-      {
-        key: "shop",
-        className: "min-w-32",
-      },
->>>>>>> Stashed changes
     ],
     []
   );
