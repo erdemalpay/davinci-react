@@ -289,7 +289,7 @@ export function TableCard({
         .map((name) => ({ value: name, label: name })) ?? []
     );
   }, [storeLocations, selectedLocationId, activeTables]);
-  
+
   const isOnlinePrice = useMemo(() => {
     if (!menuItems || !categories) return false;
     const menuItem = getItem(orderForm.item, menuItems);
@@ -442,7 +442,8 @@ export function TableCard({
         isNumberButtonsActive: true,
         isOnClearActive: false,
         isTopFlexRow: true,
-      },{
+      },
+      {
         type: InputTypes.SELECT,
         formKey: "stockLocation",
         options: stockLocations?.map((input) => {
@@ -866,13 +867,15 @@ export function TableCard({
               value={table.startHour}
               onChange={handleInputChange}
             />
-            <InputWithLabel
-              name="finishHour"
-              label={t("End Time")}
-              type="time"
-              value={table.finishHour}
-              onChange={handleInputChange}
-            />
+            {table?.finishHour && (
+              <InputWithLabel
+                name="finishHour"
+                label={t("End Time")}
+                type="time"
+                value={table.finishHour}
+                onChange={handleInputChange}
+              />
+            )}
           </div>
           <div className="flex flex-col gap-4">
             <InputWithLabel
