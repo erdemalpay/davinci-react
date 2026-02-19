@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { MultiValue, SingleValue } from "react-select";
 import { OptionType } from "../../../types";
 import { GenericButton } from "../../common/GenericButton";
@@ -32,10 +32,14 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
   isReadOnly = false,
   isTopFlexRow = false,
 }) => {
+  const [showOthers, setShowOthers] = useState(false);
+
   const handleQuickSelect = (option: OptionType) => {
     if (disabled || isReadOnly) return;
     onChange(option);
   };
+
+  const isQuickOption = quickOptions.some((opt) => opt.value === value?.value);
 
   return (
     <div
@@ -69,18 +73,32 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
               </GenericButton>
             );
           })}
+          <GenericButton
+            onClick={() => setShowOthers(!showOthers)}
+            disabled={disabled || isReadOnly}
+            variant={!isQuickOption && value ? "primary" : "outline"}
+            size="sm"
+            className={`px-4 py-2 transition-all ${
+              !isQuickOption && value
+                ? "ring-2 ring-blue-300"
+                : "hover:border-blue-400"
+            }`}
+          >
+            Others
+          </GenericButton>
         </div>
-        <SelectInput
-          value={value}
-          options={allOptions}
-          placeholder={placeholder}
-          isMultiple={false}
-          onChange={onChange}
-          onClear={onClear}
-          //   disabled={disabled}
-          isReadOnly={isReadOnly}
-          isAutoFill={false}
-        />
+        {showOthers && (
+          <SelectInput
+            value={value}
+            options={allOptions}
+            placeholder={placeholder}
+            isMultiple={false}
+            onChange={onChange}
+            onClear={onClear}
+            isReadOnly={isReadOnly}
+            isAutoFill={false}
+          />
+        )}
       </div>
     </div>
   );
