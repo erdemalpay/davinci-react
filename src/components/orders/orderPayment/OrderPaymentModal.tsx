@@ -855,6 +855,8 @@ const OrderPaymentModal = ({
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
           : selectedMenuItem.price,
         paidQuantity: 0,
+        preparedAt: new Date(),
+        preparedBy: user._id,
         status: OrderStatus.READYTOSERVE,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
