@@ -54,7 +54,9 @@ const DailyIncome = () => {
     if (!collections || !sellLocations || !paymentMethods) return [];
     const allRows = collections
       ?.filter(
-        (collection) => collection.status !== OrderCollectionStatus.CANCELLED
+        (collection) =>
+          collection.status !== OrderCollectionStatus.CANCELLED &&
+          collection.status !== OrderCollectionStatus.RETURNED
       )
       ?.reduce((acc, collection) => {
         if (!collection?.tableDate) return acc;
