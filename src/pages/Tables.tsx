@@ -121,8 +121,8 @@ const Tables = () => {
     try {
       const dates = await getOpenTableDates(selectedLocationId, dateFrom, dateTo);
       setOpenTableDates(dates);
-    } catch {
-      // sessizce geç
+    } catch (error) {
+      console.error("Failed to fetch open table dates:", error);
     }
   };
 
