@@ -16,6 +16,7 @@ interface Props {
   setDate: (date: string) => void;
   onMonthChange?: (month: Date) => void;
   openTableDates?: string[];
+  compact?: boolean;
 }
 
 export function DateInput({ date, setDate, onMonthChange, openTableDates }: Props) {
