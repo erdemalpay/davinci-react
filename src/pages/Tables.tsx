@@ -46,6 +46,7 @@ import {
 } from "../types";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetBreaksByDate } from "../utils/api/break";
+import { useGetCafeActivitys } from "../utils/api/cafeActivity";
 import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
 import { useGetAllLocations } from "../utils/api/location";
 import {
@@ -87,6 +88,7 @@ const Tables = () => {
     number | null
   >(null);
   const reservations = useGetReservations();
+  const cafeActivities = useGetCafeActivitys();
   const [isTableOrderPaymentModalOpen, setIsTableOrderPaymentModalOpen] =
     useState(false);
   const { resetOrderContext } = useOrderContext();
@@ -101,6 +103,7 @@ const Tables = () => {
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [isActivityExpanded, setIsActivityExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
 
   // Time tracker for icon animation after 2 minutes
@@ -1346,7 +1349,7 @@ const Tables = () => {
       <div
         className={`border w-fit min-w-fit border-gray-400 rounded-md ${className}`}
       >
-        <div className="grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
+        <div className="hidden sm:grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
           {cafeInfos.map((info, index) =>
             info?.tooltip ? (
               <Tooltip
@@ -1485,6 +1488,13 @@ const Tables = () => {
 
   const reservedTableClass = "bg-purple-400 text-white hover:bg-purple-500";
 
+  const todayActiveActivities = useMemo(() => {
+    if (!cafeActivities || !selectedDate) return [];
+    return cafeActivities
+      .filter((a) => a.date === selectedDate && !a.isCompleted)
+      .sort((a, b) => a.hour.localeCompare(b.hour));
+  }, [cafeActivities, selectedDate]);
+
   const buttons: {
     label: string;
     onClick: () => void;
@@ -1512,7 +1522,9 @@ const Tables = () => {
       hideOnMobile: true,
     },
     {
-      label: t("Open Reservations"),
+      label: `${t(
+        "Open Reservations"
+      )} ${waitingReservations} / ${comingReservations}`,
       onClick: () => {
         navigate(Routes.Reservations);
       },
@@ -1657,11 +1669,16 @@ const Tables = () => {
   ];
   return (
     <>
-      <Header />
-      <div className=" py-4 px-2 lg:px-6 w-[95%] sm:w-[90%] mx-auto">
+      <Header
+        dateProps={{
+          date: parseDate(selectedDate),
+          setDate: setSelectedDate,
+        }}
+      />
+      <div className="py-2 sm:py-4 px-2 lg:px-6 w-[95%] sm:w-[90%] mx-auto">
         <div className="h-full flex w-full flex-wrap flex-col">
           <div className="flex lg:justify-between justify-center flex-col lg:flex-row">
-            <div className="flex flex-row items-center w-full text-3xl">
+            <div className="hidden sm:flex flex-row items-center w-full text-3xl">
               <IoIosArrowBack
                 className="text-xl"
                 onClick={() => {
@@ -1682,85 +1699,113 @@ const Tables = () => {
             {/* Table name buttons for small screen */}
             <div
               key={activeTableCount + "small"}
-              className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden"
+              className="flex flex-col gap-2 mt-1 sm:hidden"
             >
-              <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
+              <div className="mb-2 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList />
               </div>
-              <div className="flex flex-row gap-2">
-                {/* inactive tables */}
-                <div
-                  key={selectedLocationId + "tables-small"}
-                  className="flex gap-2 flex-wrap"
-                >
-                  {storeLocations
-                    ?.find((location) => location._id === selectedLocationId)
-                    ?.tableNames?.map((tableName, index) => {
-                      const table = tables?.find(
-                        (table) =>
-                          table.name === tableName ||
-                          table?.tables?.includes(tableName)
-                      );
-                      if (table && !table?.finishHour) {
-                        // ✅ Use helper function (OPTIMIZATION 1 - eliminates code duplication)
-                        const { buttonColor, hoverClass, kitchenIcon } =
-                          getTableButtonProps(table, tableName);
+              <div
+                key={selectedLocationId + "tables-small"}
+                className="grid grid-cols-6 gap-1.5"
+              >
+                {storeLocations
+                  ?.find((location) => location._id === selectedLocationId)
+                  ?.tableNames?.map((tableName, index) => {
+                    const table = tables?.find(
+                      (table) =>
+                        table.name === tableName ||
+                        table?.tables?.includes(tableName)
+                    );
+                    if (table && !table?.finishHour) {
+                      const { buttonColor, hoverClass, kitchenIcon } =
+                        getTableButtonProps(table, tableName);
+                      const isActivity = table?.type === TableTypes.ACTIVITY;
 
-                        return (
-                          <a
-                            key={`${table._id}-${tableName}-tableselector-small`}
-                            className={`px-4 py-2 rounded-lg focus:outline-none ${hoverClass} text-white font-medium ${buttonColor}`}
-                            {...makePressHandlers(
-                              table._id,
-                              `table-${table._id}`
-                            )}
-                          >
-                            {table?.type === TableTypes.ACTIVITY
-                              ? `${tableName} (${table?.name})`
-                              : table?.name}
-                            {kitchenIcon}
-                          </a>
-                        );
-                      }
-                      const isReservedComing =
-                        comingReservedTableNames.has(tableName);
                       return (
                         <a
-                          key={tableName + "-tableselector-small"}
-                          onClick={() => {
-                            setTableForm({
-                              ...tableForm,
-                              name: tableName,
-                            });
-                            setIsCreateTableDialogOpen(true);
-                          }}
-                          className={`px-4 py-2 rounded-lg focus:outline-none font-medium cursor-pointer ${
-                            isReservedComing
-                              ? reservedTableClass
-                              : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black"
+                          key={`${table._id}-${tableName}-tableselector-small`}
+                          className={`py-2 rounded-lg focus:outline-none ${hoverClass} text-white font-medium ${buttonColor} text-center text-sm ${
+                            isActivity ? "col-span-2" : ""
                           }`}
+                          {...makePressHandlers(
+                            table._id,
+                            `table-${table._id}`
+                          )}
                         >
-                          {tableName}
+                          {isActivity
+                            ? `${tableName} (${table?.name})`
+                            : table?.name}
+                          {kitchenIcon}
                         </a>
                       );
-                    })}
-                </div>
+                    }
+                    const isReservedComing =
+                      comingReservedTableNames.has(tableName);
+                    return (
+                      <a
+                        key={tableName + "-tableselector-small"}
+                        onClick={() => {
+                          setTableForm({
+                            ...tableForm,
+                            name: tableName,
+                          });
+                          setIsCreateTableDialogOpen(true);
+                        }}
+                        className={`py-2 rounded-lg focus:outline-none font-medium cursor-pointer text-center text-sm ${
+                          isReservedComing
+                            ? reservedTableClass
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black"
+                        }`}
+                      >
+                        {tableName}
+                      </a>
+                    );
+                  })}
               </div>
             </div>
-            {/* buttons */}
-            <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
-              {buttons.map((button, index) => (
-                <GenericButton
-                  key={index}
-                  onClick={button.onClick}
-                  variant="ghost"
-                  className={`min-w-fit transition duration-150 ease-in-out hover:translate-y-0.5 active:translate-y-1 rounded-lg border border-gray-800 text-gray-800 hover:text-gray-800 px-4 py-2 text-sm ${
-                    button.hideOnMobile ? "hidden md:block" : "w-full md:w-auto"
-                  }`}
+            {/* activity badge + buttons row */}
+            <div className="flex flex-col md:flex-row md:items-start gap-2 mt-2 md:mt-0">
+              {todayActiveActivities.length > 0 && (
+                <div
+                  className="flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 cursor-pointer select-none md:shrink-0"
+                  onClick={() => setIsActivityExpanded((prev) => !prev)}
                 >
-                  {button.label}
-                </GenericButton>
-              ))}
+                  <span className="text-red-500 font-semibold text-xs text-center">
+                    {t("Today's Activities")}
+                  </span>
+                  {todayActiveActivities.map((activity) => (
+                    <span
+                      key={activity._id}
+                      className={`text-red-500 text-sm md:whitespace-nowrap ${
+                        !isActivityExpanded
+                          ? "md:max-w-[17.5rem] md:truncate"
+                          : ""
+                      }`}
+                    >
+                      {todayActiveActivities.length > 1 && "• "}
+                      {activity.hour} - {activity.groupName} (
+                      {activity.personCount} {t("people")})
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* buttons - original layout preserved */}
+              <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 md:mr-40 flex-1 mt-4 sm:mt-0">
+                {buttons.map((button, index) => (
+                  <GenericButton
+                    key={index}
+                    onClick={button.onClick}
+                    variant="ghost"
+                    className={`min-w-fit transition duration-150 ease-in-out hover:translate-y-0.5 active:translate-y-1 rounded-lg border border-gray-800 text-gray-800 hover:text-gray-800 px-4 py-2 text-sm ${
+                      button.hideOnMobile
+                        ? "hidden md:block"
+                        : "w-full md:w-auto"
+                    }`}
+                  >
+                    {button.label}
+                  </GenericButton>
+                ))}
+              </div>
             </div>
           </div>
           {/* Table name buttons for tablet and desktop screen */}
@@ -1849,16 +1894,13 @@ const Tables = () => {
                     visits={visits}
                   />
                   {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos("md:hidden mt-4", "cafeinfo-mobile-today")}
+                  {renderCafeInfos("hidden mt-4", "cafeinfo-mobile-today")}
                 </div>
               ) : (
                 <>
                   <PreviousVisitList visits={visits} />
                   {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos(
-                    "md:hidden mt-4",
-                    "cafeinfo-mobile-previous"
-                  )}
+                  {renderCafeInfos("hidden mt-4", "cafeinfo-mobile-previous")}
                 </>
               )}
               {/* filters */}

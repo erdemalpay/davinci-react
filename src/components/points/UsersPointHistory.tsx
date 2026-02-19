@@ -41,8 +41,16 @@ const UsersPointHistoryComponent = () => {
           usr: pointHistory?.pointUser?.name || "",
           consumer: pointHistory?.pointConsumer?.fullName || "",
           createdByUser: pointHistory?.createdBy?.name,
-          oldAmount:
-            (pointHistory?.currentAmount ?? 0) - (pointHistory?.change ?? 0),
+          oldAmount: parseFloat(
+            (
+              (pointHistory?.currentAmount ?? 0) -
+              (pointHistory?.change ?? 0)
+            ).toFixed(2)
+          ),
+          change: parseFloat((pointHistory?.change ?? 0).toFixed(2)),
+          currentAmount: parseFloat(
+            (pointHistory?.currentAmount ?? 0).toFixed(2)
+          ),
           date: format(pointHistory?.createdAt, "yyyy-MM-dd"),
           formattedDate: formatAsLocalDate(
             format(pointHistory?.createdAt, "yyyy-MM-dd")

@@ -37,6 +37,7 @@ const UsersPointComponent = () => {
         const foundUser = getItem(point.user, users);
         return {
           ...point,
+          amount: parseFloat((point.amount ?? 0).toFixed(2)),
           userName: foundUser?.name || String(point.user),
         };
       });

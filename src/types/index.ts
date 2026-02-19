@@ -865,6 +865,7 @@ export type CafeActivity = {
   groupName: string;
   price?: number;
   complimentary?: string;
+  contact: string;
   isCompleted?: boolean;
 };
 export type IkasCustomer = {
@@ -1709,6 +1710,12 @@ export enum ActivityType {
   DELETE_VISIT = "DELETE_VISIT",
   CREATE_VISIT = "CREATE_VISIT",
   FINISH_VISIT = "FINISH_VISIT",
+  CLOSED_TABLE = "CLOSED_TABLE",
+  REOPENED_TABLE = "REOPENED_TABLE",
+  START_BREAK = "START_BREAK",
+  FINISH_BREAK = "FINISH_BREAK",
+  START_GAMEPLAY_TIME = "START_GAMEPLAY_TIME",
+  FINISH_GAMEPLAY_TIME = "FINISH_GAMEPLAY_TIME",
 }
 export const activityTypeDetails = [
   {
@@ -1730,6 +1737,16 @@ export const activityTypeDetails = [
     value: ActivityType.DELETE_TABLE,
     label: "Delete Table",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.CLOSED_TABLE,
+    label: "Closed Table",
+    bgColor: "bg-orange-500",
+  },
+  {
+    value: ActivityType.REOPENED_TABLE,
+    label: "Reopened Table",
+    bgColor: "bg-teal-500",
   },
   {
     value: ActivityType.CREATE_GAMEPLAY,
@@ -1970,6 +1987,26 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_VISIT,
     label: "Visit Exit",
     bgColor: "bg-blue-500",
+  },
+  {
+    value: ActivityType.START_BREAK,
+    label: "Start Break",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.FINISH_BREAK,
+    label: "Finish Break",
+    bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.START_GAMEPLAY_TIME,
+    label: "Start Gameplay Time",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.FINISH_GAMEPLAY_TIME,
+    label: "Finish Gameplay Time",
+    bgColor: "bg-red-500",
   },
 ];
 
