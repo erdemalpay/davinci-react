@@ -130,6 +130,17 @@
   will-change: background;
 }
 
+/* react-day-picker: open table indicator dot */
+.rdp-day.has-open-table::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  margin: 1px auto 0;
+}
+
 /* Additional styling for specific elements */
 body {
   overflow-x: hidden;
