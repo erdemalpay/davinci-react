@@ -81,7 +81,11 @@ const CategoryBasedSalesReport = () => {
   const rows = useMemo(() => {
     if (!orders || !categories || !sellLocations) return [];
     const allRows = orders
-      ?.filter((order) => order?.status !== OrderStatus.CANCELLED)
+      ?.filter(
+        (order) =>
+          order?.status !== OrderStatus.CANCELLED &&
+          order?.status !== OrderStatus.RETURNED
+      )
       ?.reduce((acc, order) => {
         if (!order || order?.paidQuantity === 0) return acc;
         // Date filters
@@ -90,27 +94,20 @@ const CategoryBasedSalesReport = () => {
         const existingEntry = acc.find(
           (item) => item?.categoryId === getItem(order?.item, items)?.category
         );
+        const orderAmount = order?.paidQuantity * order?.unitPrice;
+        const orderDiscount = order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+            order?.paidQuantity *
+            order?.unitPrice *
+            0.01
+          : (order?.discountAmount ?? 0) * order?.paidQuantity;
+
         if (existingEntry) {
-          existingEntry.paidQuantity +=
-            order?.status !== OrderStatus.RETURNED
-              ? order?.paidQuantity
-              : -order?.quantity;
-          existingEntry.discount += order?.discountPercentage
-            ? (order?.discountPercentage ?? 0) *
-              order?.paidQuantity *
-              order?.unitPrice *
-              0.01
-            : (order?.discountAmount ?? 0) * order?.paidQuantity;
-          existingEntry.amount += order?.paidQuantity * order?.unitPrice;
-          existingEntry.totalAmountWithDiscount =
-            existingEntry.totalAmountWithDiscount +
-            order?.paidQuantity * order?.unitPrice -
-            (order?.discountPercentage
-              ? (order?.discountPercentage ?? 0) *
-                order?.paidQuantity *
-                order?.unitPrice *
-                0.01
-              : (order?.discountAmount ?? 0) * order?.paidQuantity);
+          existingEntry.paidQuantity += order?.paidQuantity;
+          existingEntry.discount += orderDiscount;
+          existingEntry.amount += orderAmount;
+          existingEntry.totalAmountWithDiscount +=
+            orderAmount - orderDiscount;
           const existingItem = existingEntry.itemQuantity.find(
             (itemQuantityIteration) =>
               itemQuantityIteration.itemId === getItem(order?.item, items)?._id
@@ -122,10 +119,7 @@ const CategoryBasedSalesReport = () => {
                   ? {
                       ...itemQuantityIteration,
                       quantity:
-                        itemQuantityIteration.quantity +
-                        (order?.status !== OrderStatus.RETURNED
-                          ? order?.paidQuantity
-                          : -order?.quantity),
+                        itemQuantityIteration.quantity + order?.paidQuantity,
                     }
                   : itemQuantityIteration
             );
@@ -133,10 +127,7 @@ const CategoryBasedSalesReport = () => {
             existingEntry.itemQuantity.push({
               itemId: order?.item,
               itemName: getItem(order?.item, items)?.name ?? "",
-              quantity:
-                order?.status !== OrderStatus.RETURNED
-                  ? order?.paidQuantity
-                  : -order?.quantity,
+              quantity: order?.paidQuantity,
             });
           }
           existingEntry.collapsible = {
@@ -157,18 +148,10 @@ const CategoryBasedSalesReport = () => {
           acc.push({
             item: order?.item,
             itemName: getItem(order?.item, items)?.name ?? "",
-            paidQuantity:
-              order?.status !== OrderStatus.RETURNED
-                ? order?.paidQuantity
-                : -order?.quantity,
+            paidQuantity: order?.paidQuantity,
             location: order?.location,
-            discount: order?.discountPercentage
-              ? (order?.discountPercentage ?? 0) *
-                order?.paidQuantity *
-                order?.unitPrice *
-                0.01
-              : (order?.discountAmount ?? 0) * order?.paidQuantity,
-            amount: order?.paidQuantity * order?.unitPrice,
+            discount: orderDiscount,
+            amount: orderAmount,
             date: format(orderDate, "yyyy-MM-dd"),
             category:
               categories?.find(
@@ -180,10 +163,7 @@ const CategoryBasedSalesReport = () => {
               {
                 itemId: order?.item,
                 itemName: getItem(order?.item, items)?.name ?? "",
-                quantity:
-                  order?.status !== OrderStatus.RETURNED
-                    ? order?.paidQuantity
-                    : -order?.quantity,
+                quantity: order?.paidQuantity,
               },
             ],
             collapsible: {
@@ -195,26 +175,17 @@ const CategoryBasedSalesReport = () => {
               collapsibleRows: [
                 {
                   product: getItem(order?.item, items)?.name,
-                  quantity:
-                    order?.status !== OrderStatus.RETURNED
-                      ? order?.paidQuantity
-                      : -order?.quantity,
+                  quantity: order?.paidQuantity,
                 },
               ],
               collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
             },
-            totalAmountWithDiscount:
-              order?.paidQuantity * order?.unitPrice -
-              (order?.discountPercentage
-                ? (order?.discountPercentage ?? 0) *
-                  order?.paidQuantity *
-                  order?.unitPrice *
-                  0.01
-                : (order?.discountAmount ?? 0) * order?.paidQuantity),
+            totalAmountWithDiscount: orderAmount - orderDiscount,
           });
         }
         return acc;
-      }, [] as OrderWithPaymentInfo[]);
+      }, [] as OrderWithPaymentInfo[])
+      ?.filter((row) => row.paidQuantity > 0);
 
     if (allRows.length > 0) {
       allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);

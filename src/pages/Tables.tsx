@@ -1767,7 +1767,7 @@ const Tables = () => {
             <div className="flex flex-col md:flex-row md:items-start gap-2 mt-2 md:mt-0">
               {todayActiveActivities.length > 0 && (
                 <div
-                  className="flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 cursor-pointer select-none md:shrink-0"
+                  className="flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none md:shrink-0"
                   onClick={() => setIsActivityExpanded((prev) => !prev)}
                 >
                   <span className="text-red-500 font-semibold text-xs text-center">
