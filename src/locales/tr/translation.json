@@ -431,7 +431,7 @@
   "Cancel Note": "İptal Notu",
   "Create Hour": "Oluşturma Saati",
   "Cancelled By": "İptal Eden",
-  "Cancelled At": "İptal Saati",
+  "Cancelled At": "İptal Tarihi",
   "Collections Income": "Tahsilat Geliri",
   "Close": "Kapat",
   "Reopen": "Yeniden Aç",
@@ -1281,5 +1281,11 @@
   "Game Based": "Oyun Bazlı",
   "Subscriptions for {{gameName}}": "{{gameName}} için Abonelikler",
   "Subscriptions for {{name}}": "{{name}} için Abonelikler",
+<<<<<<< Updated upstream
   "Insufficient points. Payment cannot be processed.": "Yetersiz puan. Ödeme işlemi yapılamıyor."
 }
+=======
+  "Subscribed At": "Abone Olma Tarihi",
+  "Notified At": "Bildirim Tarihi"
+}
+>>>>>>> Stashed changes

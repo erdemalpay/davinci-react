@@ -9,9 +9,7 @@ import {
   SubscriptionStatus,
   useGetBackInStockSubscriptions,
 } from "../utils/api/backInStock";
-import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { formatAsLocalDate } from "../utils/format";
-import { getItem } from "../utils/getItem";
 
 type FormElementsState = {
   [key: string]: any;
@@ -20,7 +18,6 @@ type FormElementsState = {
 export default function BackInStock() {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
-  const [isGameGrouped, setIsGameGrouped] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       email: "",
@@ -34,7 +31,6 @@ export default function BackInStock() {
       asc: -1,
     });
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
-  const menuItems = useGetMenuItems();
 
   const subscriptionsPayload = useGetBackInStockSubscriptions(
     currentPage,
@@ -42,7 +38,7 @@ export default function BackInStock() {
     filterPanelFormElements
   );
 
-  // Group subscriptions by productTitle (when toggle is off) or menuItemId (when toggle is on)
+  // Group subscriptions by productTitle
   const groupedByProduct = useMemo(() => {
     if (!subscriptionsPayload?.subscriptions) return new Map<string, BackInStockSubscription[]>();
     const grouped = new Map<string, BackInStockSubscription[]>();
@@ -53,22 +49,6 @@ export default function BackInStock() {
         grouped.set(groupKey, []);
       }
       grouped.get(groupKey)?.push(subscription);
-    });
-    
-    return grouped;
-  }, [subscriptionsPayload?.subscriptions]);
-
-  const groupedByGame = useMemo(() => {
-    if (!subscriptionsPayload?.subscriptions) return new Map<number, BackInStockSubscription[]>();
-    const grouped = new Map<number, BackInStockSubscription[]>();
-    
-    subscriptionsPayload.subscriptions.forEach((subscription) => {
-      if (subscription.menuItemId) {
-        if (!grouped.has(subscription.menuItemId)) {
-          grouped.set(subscription.menuItemId, []);
-        }
-        grouped.get(subscription.menuItemId)?.push(subscription);
-      }
     });
     
     return grouped;
@@ -102,6 +82,8 @@ export default function BackInStock() {
           { key: t("Product"), isSortable: true },
           { key: t("Status"), isSortable: true },
           { key: t("Subscribed At"), isSortable: true },
+          { key: t("Notified At"), isSortable: true },
+          { key: t("Cancelled At"), isSortable: true },
         ],
         collapsibleRows: sortedSubscriptions,
         collapsibleRowKeys: [
@@ -130,83 +112,55 @@ export default function BackInStock() {
             key: "subscribedAt",
             node: (row: any) => formatAsLocalDate(row.subscribedAt),
           },
+          {
+            key: "notifiedAt",
+            node: (row: any) => row.notifiedAt ? formatAsLocalDate(row.notifiedAt) : "-",
+          },
+          {
+            key: "cancelledAt",
+            node: (row: any) => row.cancelledAt ? formatAsLocalDate(row.cancelledAt) : "-",
+          },
         ],
       },
     };
   };
 
-  // Process rows based on toggle state
+  // Process rows - always group by productTitle
   const rows = useMemo(() => {
     if (!subscriptionsPayload?.subscriptions) return [];
 
-    if (isGameGrouped) {
-      // Group by menuItemId (game)
-      const result: any[] = [];
+    const result: any[] = [];
+    
+    groupedByProduct.forEach((subscriptions, productTitle) => {
+      if (subscriptions.length === 0) return;
       
-      groupedByGame.forEach((subscriptions, menuItemId) => {
-        if (subscriptions.length === 0) return;
-        
-        const menuItem = getItem(menuItemId, menuItems || []);
-        const gameName = menuItem?.name || `Game ID: ${menuItemId}`;
-        
-        const mainRow = createCollapsibleRow(subscriptions, "gameName", gameName);
-        mainRow.menuItemId = menuItemId;
-        result.push(mainRow);
-      });
-      
-      // Add subscriptions without menuItemId grouped by productTitle
-      const subscriptionsWithoutGame = subscriptionsPayload.subscriptions.filter(
-        (s) => !s.menuItemId
-      );
-      
-      if (subscriptionsWithoutGame.length > 0) {
-        const groupedWithoutGame = new Map<string, BackInStockSubscription[]>();
-        subscriptionsWithoutGame.forEach((subscription) => {
-          const groupKey = subscription.productTitle || subscription.productId;
-          if (!groupedWithoutGame.has(groupKey)) {
-            groupedWithoutGame.set(groupKey, []);
-          }
-          groupedWithoutGame.get(groupKey)?.push(subscription);
-        });
-        
-        groupedWithoutGame.forEach((subscriptions, productTitle) => {
-          const mainRow = createCollapsibleRow(subscriptions, "productTitle", productTitle);
-          result.push(mainRow);
-        });
-      }
-      
-      return result;
-    } else {
-      // Group by productTitle
-      const result: any[] = [];
-      
-      groupedByProduct.forEach((subscriptions, productTitle) => {
-        if (subscriptions.length === 0) return;
-        
-        const mainRow = createCollapsibleRow(subscriptions, "productTitle", productTitle);
-        result.push(mainRow);
-      });
-      
-      return result;
-    }
-  }, [subscriptionsPayload?.subscriptions, isGameGrouped, groupedByGame, groupedByProduct, menuItems, t]);
+      const mainRow = createCollapsibleRow(subscriptions, "productTitle", productTitle);
+      result.push(mainRow);
+    });
+    
+    return result;
+  }, [subscriptionsPayload?.subscriptions, groupedByProduct, t]);
 
   const columns = useMemo(
     () => [
       { 
-        key: isGameGrouped ? t("Game") : t("Product"), 
+        key: t("Product"), 
         isSortable: true, 
-        correspondingKey: isGameGrouped ? "gameName" : "productTitle" 
+        correspondingKey: "productTitle" 
       },
-      { key: t("Request Count"), isSortable: false },
+      { 
+        key: t("Request Count"), 
+        isSortable: true,
+        correspondingKey: "requestCount"
+      },
     ],
-    [t, isGameGrouped]
+    [t]
   );
 
   const rowKeys = useMemo(
     () => [
       {
-        key: isGameGrouped ? "gameName" : "productTitle",
+        key: "productTitle",
         className: "min-w-48",
       },
       {
@@ -221,7 +175,7 @@ export default function BackInStock() {
         },
       },
     ],
-    [isGameGrouped]
+    []
   );
 
   const filterPanelInputs = useMemo(
@@ -301,17 +255,12 @@ export default function BackInStock() {
   const filters = useMemo(
     () => [
       {
-        label: t("Game Based"),
-        isUpperSide: true,
-        node: <SwitchButton checked={isGameGrouped} onChange={setIsGameGrouped} />,
-      },
-      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
       },
     ],
-    [t, showFilters, isGameGrouped]
+    [t, showFilters]
   );
 
   const outsideSort = useMemo(
@@ -341,7 +290,7 @@ export default function BackInStock() {
 
   useMemo(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements, isGameGrouped, setCurrentPage]);
+  }, [filterPanelFormElements, setCurrentPage]);
 
   return (
     <div className="w-[95%] mx-auto">
