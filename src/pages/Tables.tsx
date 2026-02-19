@@ -129,7 +129,7 @@ const Tables = () => {
   useEffect(() => {
     if (!selectedLocationId || !selectedDate) return;
     handleCalendarMonthChange(parseDate(selectedDate));
-  }, [selectedLocationId]);
+  }, [selectedLocationId, selectedDate]);
 
   // Time tracker for icon animation after 2 minutes
   const [currentTime, setCurrentTime] = useState(Date.now());
