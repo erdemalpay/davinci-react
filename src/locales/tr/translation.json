@@ -1281,11 +1281,7 @@
   "Game Based": "Oyun Bazlı",
   "Subscriptions for {{gameName}}": "{{gameName}} için Abonelikler",
   "Subscriptions for {{name}}": "{{name}} için Abonelikler",
-<<<<<<< Updated upstream
-  "Insufficient points. Payment cannot be processed.": "Yetersiz puan. Ödeme işlemi yapılamıyor."
-}
-=======
+  "Insufficient points. Payment cannot be processed.": "Yetersiz puan. Ödeme işlemi yapılamıyor.",
   "Subscribed At": "Abone Olma Tarihi",
   "Notified At": "Bildirim Tarihi"
 }
->>>>>>> Stashed changes
