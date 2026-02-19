@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { endOfDay, format } from "date-fns";
 import { get } from ".";
 import { FormElementsState, WebhookLog } from "../../types";
 import { Paths } from "./factory";
@@ -17,6 +18,18 @@ export function useGetQueryWebhookLogs(
   limit: number,
   filters: FormElementsState
 ) {
+  // Format endDate to end of day (23:59:59)
+  const formatEndDate = (dateString: string | undefined) => {
+    if (!dateString) return undefined;
+    try {
+      const date = new Date(dateString);
+      const endOfDayDate = endOfDay(date);
+      return format(endOfDayDate, "yyyy-MM-dd'T'HH:mm:ss");
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   const parts = [
     `page=${page}`,
     `limit=${limit}`,
@@ -24,7 +37,7 @@ export function useGetQueryWebhookLogs(
     filters.status && `status=${filters.status}`,
     filters.endpoint && `endpoint=${filters.endpoint}`,
     filters.startDate && `startDate=${filters.startDate}`,
-    filters.endDate && `endDate=${filters.endDate}`,
+    filters.endDate && `endDate=${formatEndDate(filters.endDate)}`,
   ];
 
   const queryString = parts.filter(Boolean).join("&");

@@ -27,7 +27,7 @@ const PointUserSelectionModal = ({
 }: Props) => {
   const { t } = useTranslation();
   const { users } = useDataContext();
-  const consumers=useGetConsumersWithFullNames();
+  const consumers = useGetConsumersWithFullNames();
   const points = useGetPoints();
   const [selectedUser, setSelectedUser] = useState<string>("");
 
@@ -65,7 +65,7 @@ const PointUserSelectionModal = ({
         ?.filter((user) => userPointsMap[user._id] > 0)
         ?.map((user) => ({
           value: user._id,
-          label: `${user.name} (${userPointsMap[user._id]?.toFixed(0) || 0})`,
+          label: `${user.name}`,
           type: "user",
         })) || [];
 
@@ -91,7 +91,8 @@ const PointUserSelectionModal = ({
       ? userPointsMap[selectedOption.value] || 0
       : consumerPointsMap[Number(selectedOption.value)] || 0
     : 0;
-  const actualAmount = Math.min(selectedUserPoints, requiredAmount);
+  const hasSufficientPoints = selectedUserPoints >= requiredAmount;
+  const actualAmount = hasSufficientPoints ? requiredAmount : 0;
 
   const handleSelectChange = (
     value: SingleValue<OptionType> | MultiValue<OptionType>
@@ -103,10 +104,8 @@ const PointUserSelectionModal = ({
     }
   };
 
-
-
   const handleConfirm = () => {
-    if (!selectedUser) {
+    if (!selectedUser || !hasSufficientPoints) {
       return;
     }
     if (selectedOption?.type === "user") {
@@ -187,20 +186,23 @@ const PointUserSelectionModal = ({
                             {selectedUserPoints.toFixed(2)} ₺
                           </span>
                         </div>
-                        <div className="flex justify-between items-center border-t pt-2">
-                          <span className="text-sm font-medium">
-                            {t("Amount to be Paid")}:
-                          </span>
-                          <span className="font-bold text-blue-600">
-                            {actualAmount.toFixed(2)} ₺
-                          </span>
-                        </div>
-                        {selectedUserPoints < requiredAmount && (
-                          <p className="text-xs text-orange-600 mt-2">
-                            {t(
-                              "Insufficient points. Only available amount will be used."
-                            )}
-                          </p>
+                        {hasSufficientPoints ? (
+                          <div className="flex justify-between items-center border-t pt-2">
+                            <span className="text-sm font-medium">
+                              {t("Amount to be Paid")}:
+                            </span>
+                            <span className="font-bold text-blue-600">
+                              {actualAmount.toFixed(2)} ₺
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="border-t pt-2">
+                            <p className="text-sm text-red-600 font-medium">
+                              {t(
+                                "Insufficient points. Payment cannot be processed."
+                              )}
+                            </p>
+                          </div>
                         )}
                       </div>
                     )}
@@ -220,9 +222,11 @@ const PointUserSelectionModal = ({
                         variant="primary"
                         size="sm"
                         className={`px-6 py-3 ${
-                          !selectedUser ? "opacity-50 cursor-not-allowed" : ""
+                          !selectedUser || !hasSufficientPoints
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
                         }`}
-                        disabled={!selectedUser}
+                        disabled={!selectedUser || !hasSufficientPoints}
                       >
                         {t("Confirm")}
                       </GenericButton>
