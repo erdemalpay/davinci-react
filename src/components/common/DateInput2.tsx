@@ -10,6 +10,7 @@ import { tr } from "date-fns/locale";
 import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { useTranslation } from "react-i18next";
+import { IoCalendarOutline } from "react-icons/io5";
 
 interface Props {
   date: Date;
@@ -19,7 +20,13 @@ interface Props {
   compact?: boolean;
 }
 
-export function DateInput({ date, setDate, onMonthChange, openTableDates }: Props) {
+export function DateInput({
+  date,
+  setDate,
+  onMonthChange,
+  openTableDates,
+  compact = false,
+}: Props) {
   const { t } = useTranslation();
 
   const [month, setMonth] = useState<Date>(date);
@@ -40,17 +47,26 @@ export function DateInput({ date, setDate, onMonthChange, openTableDates }: Prop
     : [];
 
   return (
-    <div className="p-2">
-      <Popover placement="bottom">
+    <div className={compact ? "" : "p-2"}>
+      <Popover placement={compact ? "bottom-end" : "bottom"}>
         <PopoverHandler>
-          <Input
-            label={t("Select a Date")}
-            readOnly
-            value={date ? format(date, "dd/MM/yyyy") : ""}
-            onChange={() => null}
-          />
+          {compact ? (
+            <div className="flex items-center gap-1 cursor-pointer hover:scale-110 transition-transform duration-200">
+              <IoCalendarOutline className="text-2xl text-white" />
+              <span className="text-white text-xs font-medium">
+                {format(date, "dd/MM")}
+              </span>
+            </div>
+          ) : (
+            <Input
+              label={t("Select a Date")}
+              readOnly
+              value={date ? format(date, "dd/MM/yyyy") : ""}
+              onChange={() => null}
+            />
+          )}
         </PopoverHandler>
-        <PopoverContent className="p-2 space-y-2">
+        <PopoverContent className={`p-2 space-y-2 ${compact ? "z-[200]" : ""}`}>
           <DayPicker
             month={month}
             onMonthChange={handleMonthChange}
