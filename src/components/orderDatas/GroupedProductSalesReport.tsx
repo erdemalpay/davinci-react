@@ -82,7 +82,11 @@ const GroupedProductSalesReport = () => {
   const rows = useMemo(() => {
     if (!orders || !categories || !sellLocations) return [];
     const allRows = orders
-      ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+      ?.filter(
+        (order) =>
+          order.status !== OrderStatus.CANCELLED &&
+          order.status !== OrderStatus.RETURNED
+      )
       ?.reduce((acc, order) => {
         if (!order || order?.paidQuantity === 0) return acc;
         const zonedTime = toZonedTime(order.createdAt, "UTC");
