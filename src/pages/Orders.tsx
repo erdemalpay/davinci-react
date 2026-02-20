@@ -143,7 +143,7 @@ function Orders() {
           }
           return null;
         })}
-      <div className="flex flex-row items-center w-fit ml-auto text-3xl  ">
+      <div className="hidden sm:flex flex-row items-center w-fit ml-auto text-3xl  ">
         <IoIosArrowBack
           className="text-xl"
           onClick={() => {
