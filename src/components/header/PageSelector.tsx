@@ -21,6 +21,7 @@ import { useGetBreaksByDate } from "../../utils/api/break";
 import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
+import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
 
 export function PageSelector() {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ export function PageSelector() {
   };
 
   function logout() {
-    localStorage.clear();
+    clearLocalStoragePreservingOnboarding();
     localStorage.setItem("loggedOut", "true");
     setTimeout(() => localStorage.removeItem("loggedOut"), 500);
     Cookies.remove("jwt");

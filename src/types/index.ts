@@ -56,6 +56,20 @@ export type TaskTrack = {
   createdAt: Date;
 };
 
+export type ReleaseNoteItem = {
+  title: string;
+  description?: string;
+};
+
+export type ReleaseNote = {
+  _id: number;
+  releaseId: string;
+  title: string;
+  date: string;
+  items: ReleaseNoteItem[];
+  isPublished: boolean;
+};
+
 export type Point = {
   _id: number;
   user?: string;
@@ -1303,6 +1317,7 @@ export enum ExpirationPageTabEnum {
 }
 export enum PanelControlPageTabEnum {
   TASKTRACK,
+  RELEASENOTES,
   PAGEPERMISSIONS,
   DISABLEDCONDITIONS,
   ROUTEAUTHORIZATIONPERMISSIONS,

@@ -1,7 +1,7 @@
 import { FaTasks } from "react-icons/fa";
 import { GrConfigure } from "react-icons/gr";
 import { IoIosSettings } from "react-icons/io";
-import { MdManageAccounts, MdSchool } from "react-icons/md";
+import { MdManageAccounts, MdOutlineNewReleases, MdSchool } from "react-icons/md";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -9,12 +9,15 @@ import DisabledConditions from "../components/panelControl/DisabledConditions";
 import EducationPermissions from "../components/panelControl/EducationPermissions";
 import PagePermissions from "../components/panelControl/PagePermissions";
 import PanelSettings from "../components/panelControl/PanelSettings";
+import ReleaseNotesTab from "../components/panelControl/ReleaseNotesTab";
 import RouteAuthorizationPermissions from "../components/panelControl/RouteAuthorizationPermissions";
 import TaskTrackPage from "../components/panelControl/TaskTrack";
+import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../context/General.context";
 import { PanelControlPageTabEnum } from "../types";
 
 const PanelControl = () => {
+  const { t } = useTranslation();
   const {
     resetGeneralContext,
     panelControlActiveTab,
@@ -26,6 +29,13 @@ const PanelControl = () => {
       label: "Task Track",
       icon: <FaTasks className="text-lg font-thin" />,
       content: <TaskTrackPage />,
+      isDisabled: false,
+    },
+    {
+      number: PanelControlPageTabEnum.RELEASENOTES,
+      label: t("ReleaseNotesTitleTab"),
+      icon: <MdOutlineNewReleases className="text-lg font-thin" />,
+      content: <ReleaseNotesTab />,
       isDisabled: false,
     },
     {
