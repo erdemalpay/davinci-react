@@ -286,6 +286,7 @@ const ColdDrinkStock = () => {
     ];
 
     if (
+      !showColdDrinkStockPrices ||
       coldDrinkStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -297,7 +298,7 @@ const ColdDrinkStock = () => {
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
     return cols;
-  }, [t, coldDrinkStockPageDisabledCondition, user]);
+  }, [t, coldDrinkStockPageDisabledCondition, user, showColdDrinkStockPrices]);
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -323,6 +324,7 @@ const ColdDrinkStock = () => {
     ];
 
     if (
+      !showColdDrinkStockPrices ||
       coldDrinkStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -334,7 +336,7 @@ const ColdDrinkStock = () => {
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
     return keys;
-  }, [coldDrinkStockPageDisabledCondition, user]);
+  }, [coldDrinkStockPageDisabledCondition, user, showColdDrinkStockPrices]);
 
   const addButton = useMemo(
     () => ({

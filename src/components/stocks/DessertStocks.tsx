@@ -290,6 +290,7 @@ const DessertStock = () => {
     ];
 
     if (
+      !showDesertStockPrices ||
       dessertStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -301,7 +302,7 @@ const DessertStock = () => {
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
     return cols;
-  }, [t, dessertStockPageDisabledCondition, user]);
+  }, [t, dessertStockPageDisabledCondition, user, showDesertStockPrices]);
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -327,6 +328,7 @@ const DessertStock = () => {
     ];
 
     if (
+      !showDesertStockPrices ||
       dessertStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -338,7 +340,7 @@ const DessertStock = () => {
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
     return keys;
-  }, [dessertStockPageDisabledCondition, user]);
+  }, [dessertStockPageDisabledCondition, user, showDesertStockPrices]);
 
   const addButton = useMemo(
     () => ({
