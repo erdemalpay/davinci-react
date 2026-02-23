@@ -92,7 +92,8 @@ const DiscountBasedSales = () => {
     const allRows = orders
       ?.filter(
         (order) =>
-          ![OrderStatus.CANCELLED].includes(order.status as OrderStatus)
+          ![OrderStatus.CANCELLED].includes(order.status as OrderStatus) &&
+          ![OrderStatus.RETURNED].includes(order.status as OrderStatus)
       )
       ?.reduce((acc, order) => {
         if (!order?.discount || order?.paidQuantity === 0) {
