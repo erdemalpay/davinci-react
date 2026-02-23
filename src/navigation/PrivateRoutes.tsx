@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import { matchPath, Navigate, Outlet, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { OnboardingModalWrapper } from "../components/onboarding/OnboardingModalWrapper";
 import { useUserContext } from "../context/User.context";
 import useAuth from "../hooks/useAuth";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -25,7 +27,12 @@ export function PrivateRoutes() {
       ?.find((route) => route.name === currentRoute?.name)
       ?.exceptionalRoles?.includes(user.role._id)
   ) {
-    return <Outlet />;
+    return (
+      <Fragment>
+        <OnboardingModalWrapper />
+        <Outlet />
+      </Fragment>
+    );
   } else {
     toast.error(
       `You don't have rights to see this page ${location.pathname}. Login with a user that has the required permissions.`
