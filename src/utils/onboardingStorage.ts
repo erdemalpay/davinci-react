@@ -10,7 +10,9 @@ export function getSeenReleaseIds(userId: string): string[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [parsed];
-  } catch {
+  } catch (error) {
+    console.error("[Onboarding] localStorage parse hatası:", error);
+    localStorage.removeItem(getOnboardingStorageKey(userId));
     return [];
   }
 }
