@@ -281,6 +281,7 @@ const Stock = () => {
     ];
 
     if (
+      !showStockPrices ||
       stockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -288,11 +289,11 @@ const Stock = () => {
           !ac?.permissionsRoles?.includes(user?.role?._id)
       )
     ) {
-      const splicedColumns = ["Unit Price", "Menu Price", "Total Price"];
+      const splicedColumns = ["Unit Price", "Total Price"];
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
     return cols;
-  }, [t, stockPageDisabledCondition, user]);
+  }, [t, stockPageDisabledCondition, user, showStockPrices]);
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -320,6 +321,7 @@ const Stock = () => {
     ];
 
     if (
+      !showStockPrices ||
       stockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -327,11 +329,11 @@ const Stock = () => {
           !ac?.permissionsRoles?.includes(user?.role?._id)
       )
     ) {
-      const splicedRowKeys = ["unitPrice", "menuPrice", "totalGroupPrice"];
+      const splicedRowKeys = ["unitPrice", "totalGroupPrice"];
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
     return keys;
-  }, [stockPageDisabledCondition, user]);
+  }, [stockPageDisabledCondition, user, showStockPrices]);
 
   const addButton = useMemo(
     () => ({
