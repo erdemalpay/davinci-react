@@ -1019,6 +1019,7 @@
   "ReleaseNotesNoItems": "No items in this release.",
   "ReleaseNotesGotIt": "Got it",
   "ReleaseNotesNext": "Next",
+  "ReleaseNotesEmpty": "No releases yet.",
   "Order Number": "Order Number",
   "UncompletedDuties": "{{count}} uncompleted {{dutyWord}} in checklist {{checklist}} for user {{user}}",
   "StockZeroReached": "{{product}} has reached zero stock in {{location}}",
