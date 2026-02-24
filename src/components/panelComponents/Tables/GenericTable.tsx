@@ -192,7 +192,7 @@ const GenericTable = <T,>({
         direction: sortConfigKey.direction,
       });
     }
-  }, [sortConfigKey, outsideSortProps, columns]);
+  }, [sortConfigKey]);
 
   const checkHeaderScrollButtons = () => {
     if (headerScrollRef.current) {
