@@ -256,6 +256,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.PanelControl}/task-tracks`],
   },
   {
+    event: "releaseNoteChanged",
+    invalidateKeys: [`${Paths.PanelControl}/release-notes`],
+  },
+  {
     event: "pointChanged",
     invalidateKeys: [`${Paths.Point}`],
   },

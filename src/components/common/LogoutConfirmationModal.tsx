@@ -12,6 +12,7 @@ import {
   useGameplayTimeMutations,
   useGetGameplayTimesByDate,
 } from "../../utils/api/gameplaytime";
+import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
 
 export const LogoutConfirmationModal = () => {
   const { t } = useTranslation();
@@ -46,7 +47,7 @@ export const LogoutConfirmationModal = () => {
   const hasActiveSession = userActiveBreak || userActiveGameplayTime;
 
   const performLogout = () => {
-    localStorage.clear();
+    clearLocalStoragePreservingOnboarding();
     localStorage.setItem("loggedOut", "true");
     setTimeout(() => localStorage.removeItem("loggedOut"), 500);
     Cookies.remove("jwt");
