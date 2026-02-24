@@ -187,18 +187,10 @@ const GenericTable = <T,>({
 
   useEffect(() => {
     if (sortConfigKey) {
-      // If outsideSortProps exists, only use context sortConfigKey for API-sortable columns
-      // Otherwise, use it for all columns
-      const shouldUseContextSort =
-        !outsideSortProps ||
-        columns?.some((col) => col.correspondingKey === sortConfigKey.key);
-
-      if (shouldUseContextSort) {
-        setSortConfig({
-          key: sortConfigKey.key,
-          direction: sortConfigKey.direction,
-        });
-      }
+      setSortConfig({
+        key: sortConfigKey.key,
+        direction: sortConfigKey.direction,
+      });
     }
   }, [sortConfigKey, outsideSortProps, columns]);
 
@@ -281,15 +273,7 @@ const GenericTable = <T,>({
 
   const sortRows = (key: string, direction: "ascending" | "descending") => {
     setSortConfig({ key, direction });
-    // Only update context if this is an API-sortable column
-    const column = usedColumns?.find(
-      (col, idx) => usedRowKeys[idx]?.key === key
-    );
-    if (column?.correspondingKey && outsideSortProps) {
-      setSortConfigKey({ key, direction });
-    } else if (!outsideSortProps) {
-      setSortConfigKey({ key, direction });
-    }
+    setSortConfigKey({ key, direction });
   };
 
   const handleDragStart = (
