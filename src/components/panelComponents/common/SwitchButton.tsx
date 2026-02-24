@@ -2,14 +2,14 @@ import { Switch } from "@headlessui/react";
 
 type Props = {
   checked: boolean;
-  onChange: (value: (prev: boolean) => boolean) => void;
+  onChange: (value: boolean) => void;
 };
 
 const SwitchButton = ({ checked, onChange }: Props) => {
   return (
     <Switch
       checked={checked}
-      onChange={() => onChange((value) => !value)}
+      onChange={() => onChange(!checked)}
       className={`${checked ? "bg-green-500" : "bg-red-500"}
           relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
     >

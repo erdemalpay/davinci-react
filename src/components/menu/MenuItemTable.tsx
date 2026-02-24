@@ -1261,9 +1261,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         node: (
           <SwitchButton
             checked={showMenuCostPrices}
-            onChange={() => {
-              setShowMenuCostPrices(!showMenuCostPrices);
-            }}
+            onChange={setShowMenuCostPrices}
           />
         ),
         isDisabled: menuPageDisabledCondition?.actions?.some(
