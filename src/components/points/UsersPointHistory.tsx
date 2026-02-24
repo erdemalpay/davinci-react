@@ -45,7 +45,9 @@ const UsersPointHistoryComponent = () => {
   const paymentMethods = useGetAccountPaymentMethods();
   const orders = useGetOrders();
   const items = useGetMenuItems();
-  const collectionData = useGetCollectionByTableId(selectedTableId);
+  const collectionDataRaw = useGetCollectionByTableId(selectedTableId);
+  // API returns array, take first element
+  const collectionData = Array.isArray(collectionDataRaw) ? collectionDataRaw[0] : collectionDataRaw;
 
   const rows = useMemo(() => {
     return pointHistoriesPayload?.data
