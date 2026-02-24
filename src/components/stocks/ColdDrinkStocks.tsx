@@ -294,7 +294,7 @@ const ColdDrinkStock = () => {
           !ac?.permissionsRoles?.includes(user?.role?._id)
       )
     ) {
-      const splicedColumns = ["Unit Price", "Total Price"];
+      const splicedColumns = [t("Unit Price"), t("Total Price")];
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
     return cols;
