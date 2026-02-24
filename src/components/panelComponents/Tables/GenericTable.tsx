@@ -1073,7 +1073,8 @@ const GenericTable = <T,>({
                                     outsideSortProps.setFilterPanelFormElements
                                   )}
                                 {column.isSortable &&
-                                  !outsideSortProps &&
+                                  (!outsideSortProps ||
+                                    !column?.correspondingKey) &&
                                   (sortConfig?.key ===
                                     usedRowKeys[index]?.key &&
                                   sortConfig?.direction === "ascending" ? (

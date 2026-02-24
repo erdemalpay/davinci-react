@@ -41,8 +41,14 @@ const AllBreaks = () => {
   const [showFilters, setShowFilters] = useState(false);
   const locations = useGetStoreLocations();
 
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
   const rows = useMemo(() => {
-    return (
+    const allRows =
       breakData?.data?.map((breakRecord) => {
         return {
           ...breakRecord,
@@ -51,9 +57,74 @@ const AllBreaks = () => {
             getItem(breakRecord?.location, locations)?.name ?? "",
           formattedDate: formatAsLocalDate(breakRecord.date),
           status: breakRecord.finishHour ? t("Completed") : t("Active"),
+          durationFormatted: formatDuration(breakRecord.duration || 0),
         };
-      }) ?? []
-    );
+      }) ?? [];
+
+    // Group by user, location, and date to create collapsible rows
+    const groupedRows = new Map<string, any[]>();
+    allRows.forEach((row) => {
+      const userId =
+        typeof row.user === "object" ? row.user._id : row.user;
+      const locationId = row.location;
+      const key = `${userId}-${locationId}-${row.date}`;
+      if (!groupedRows.has(key)) {
+        groupedRows.set(key, []);
+      }
+      groupedRows.get(key)!.push(row);
+    });
+
+    // Create collapsible rows with daily duration
+    const collapsibleRows: any[] = [];
+    groupedRows.forEach((groupRows) => {
+      const firstRow = groupRows[0];
+      // Calculate daily duration from all breaks in the group
+      const dailyDurationMinutes = groupRows.reduce(
+        (sum, row) => sum + (row.duration || 0),
+        0
+      );
+      const dailyDurationFormatted = formatDuration(dailyDurationMinutes);
+
+      collapsibleRows.push({
+        ...firstRow,
+        dailyDuration: dailyDurationFormatted,
+        dailyDurationMinutes: dailyDurationMinutes,
+        collapsible: {
+          collapsibleHeader: `${firstRow.userDisplayName} - ${firstRow.formattedDate}`,
+          collapsibleColumns: [
+            { key: t("Start Time"), isSortable: false },
+            { key: t("End Time"), isSortable: false },
+            { key: t("Duration"), isSortable: false },
+            { key: t("Status"), isSortable: false },
+          ],
+          collapsibleRows: groupRows,
+          collapsibleRowKeys: [
+            { key: "startHour" },
+            {
+              key: "finishHour",
+              node: (row: any) => row.finishHour || t("Active"),
+            },
+            { key: "durationFormatted" },
+            {
+              key: "status",
+              node: (row: any) => (
+                <span
+                  className={`px-2 py-1 rounded text-sm ${
+                    row.finishHour
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {row.status}
+                </span>
+              ),
+            },
+          ],
+        },
+      });
+    });
+
+    return collapsibleRows;
   }, [breakData, users, locations, t]);
 
   const columns = useMemo(
@@ -61,11 +132,7 @@ const AllBreaks = () => {
       { key: t("User"), isSortable: true, correspondingKey: "user" },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Date"), isSortable: true, correspondingKey: "date" },
-      { key: t("Start Time"), isSortable: true, correspondingKey: "startHour" },
-      { key: t("End Time"), isSortable: true, correspondingKey: "finishHour" },
-      { key: t("Duration"), isSortable: false },
-      { key: t("Daily Duration"), isSortable: false },
-      { key: t("Status"), isSortable: false },
+      { key: t("Daily Duration"), isSortable: true },
     ],
     [t]
   );
@@ -75,26 +142,9 @@ const AllBreaks = () => {
       { key: "userDisplayName" },
       { key: "locationDisplayName" },
       { key: "formattedDate" },
-      { key: "startHour" },
-      {
-        key: "finishHour",
-        node: (row: any) => row.finishHour || t("Active"),
-      },
-      { key: "duration" },
-      { key: "dailyDuration" },
-      {
-        key: "status",
-        node: (row: any) => (
-          <span
-            className={`px-2 py-1 rounded text-sm ${
-              row.finishHour
-                ? "bg-green-100 text-green-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
-          >
-            {row.status}
-          </span>
-        ),
+      { 
+        key: "dailyDurationMinutes",
+        node: (row: any) => row.dailyDuration
       },
     ],
     [t]
@@ -250,6 +300,7 @@ const AllBreaks = () => {
           title={t("All Breaks")}
           isActionsActive={false}
           isSearch={false}
+          isCollapsible={true}
           outsideSortProps={outsideSort}
           outsideSearchProps={outsideSearchProps}
           {...(pagination && { pagination })}
