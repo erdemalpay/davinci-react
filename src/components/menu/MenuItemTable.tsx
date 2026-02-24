@@ -83,6 +83,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     setShowDeletedItems,
     showMenuBarcodeInfo,
     setShowMenuBarcodeInfo,
+    showMenuCostPrices,
+    setShowMenuCostPrices,
   } = useFilterContext();
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
   const { mutate: updateItemsSlugs } = useUpdateItemsSlugsMutation();
@@ -162,7 +164,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           collapsibleColumns: [
             { key: t("Product"), isSortable: true },
             { key: t("Quantity"), isSortable: true },
-            ...(menuPageDisabledCondition?.actions?.some(
+            ...(!showMenuCostPrices ||
+            menuPageDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.SHOWPRICES &&
                 user?.role?._id &&
@@ -183,7 +186,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               (product: AccountProduct) =>
                 product._id === itemProduction.product
             )?.name,
-            ...(menuPageDisabledCondition?.actions?.some(
+            ...(!showMenuCostPrices ||
+            menuPageDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.SHOWPRICES &&
                 user?.role?._id &&
@@ -212,7 +216,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           collapsibleRowKeys: [
             { key: "name" },
             { key: "quantity" },
-            ...(menuPageDisabledCondition?.actions?.some(
+            ...(!showMenuCostPrices ||
+            menuPageDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.SHOWPRICES &&
                 user?.role?._id &&
@@ -265,6 +270,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     menuPageDisabledCondition,
     user,
     updateItem,
+    showMenuCostPrices,
   ]);
 
   const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
@@ -657,7 +663,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       // ...(singleItemGroup?.category?.isOnlineOrder
       //   ? [{ key: `${t("Ikas Discounted Price")}`, isSortable: true }]
       //   : []),
-      ...(menuPageDisabledCondition?.actions?.some(
+      ...(!showMenuCostPrices ||
+      menuPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
           user?.role?._id &&
@@ -746,7 +753,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       //       },
       //     ]
       //   : []),
-      ...(menuPageDisabledCondition?.actions?.some(
+      ...(!showMenuCostPrices ||
+      menuPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
           user?.role?._id &&
@@ -911,6 +919,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     user,
     // isMenuShowIkasCategories,
     showMenuBarcodeInfo,
+    showMenuCostPrices,
     items,
     setSelectedMenuItem,
     products,
@@ -1247,6 +1256,22 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const filters = useMemo(
     () => [
       {
+        label: t("Show Prices"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={showMenuCostPrices}
+            onChange={setShowMenuCostPrices}
+          />
+        ),
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOWPRICES &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
         label: t("Location Edit"),
         isUpperSide: false,
         node: (
@@ -1354,6 +1379,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     ],
     [
       t,
+      showMenuCostPrices,
+      setShowMenuCostPrices,
       isMenuLocationEdit,
       setIsMenuLocationEdit,
       isShownInMenu,

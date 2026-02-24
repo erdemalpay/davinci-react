@@ -299,6 +299,7 @@ const GameStock = () => {
     ];
 
     if (
+      !showGameStockPrices ||
       gameStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -306,11 +307,11 @@ const GameStock = () => {
           !ac?.permissionsRoles?.includes(user?.role?._id)
       )
     ) {
-      const splicedColumns = ["Unit Price", "Online Price", "Total Price"];
+      const splicedColumns = [t("Unit Price"), t("Total Price")];
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
     return cols;
-  }, [t, gameStockPageDisabledCondition, user]);
+  }, [t, gameStockPageDisabledCondition, user, showGameStockPrices]);
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -347,6 +348,7 @@ const GameStock = () => {
     ];
 
     if (
+      !showGameStockPrices ||
       gameStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -356,13 +358,12 @@ const GameStock = () => {
     ) {
       const splicedRowKeys = [
         "unitPrice",
-        "onlineMenuPrice",
         "totalGroupPrice",
       ];
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
     return keys;
-  }, [gameStockPageDisabledCondition, user]);
+  }, [gameStockPageDisabledCondition, user, showGameStockPrices]);
 
   const addButton = useMemo(
     () => ({
