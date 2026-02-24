@@ -177,6 +177,8 @@ type FilterContextType = {
   setShowActivityFilters: (state: boolean) => void;
   showMenuBarcodeInfo: boolean;
   setShowMenuBarcodeInfo: (state: boolean) => void;
+  showMenuCostPrices: boolean;
+  setShowMenuCostPrices: (state: boolean) => void;
   initialFilterPanelInvoiceFormElements: FormElementsState;
 };
 
@@ -606,6 +608,8 @@ const FilterContext = createContext<FilterContextType>({
   setShowActivityFilters: () => {},
   showMenuBarcodeInfo: false,
   setShowMenuBarcodeInfo: () => {},
+  showMenuCostPrices: false,
+  setShowMenuCostPrices: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -630,6 +634,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showActivityFilters, setShowActivityFilters] = useState(false);
   const [showMenuBarcodeInfo, setShowMenuBarcodeInfo] = useState(false);
+  const [showMenuCostPrices, setShowMenuCostPrices] = useState(false);
   const initialFilterFeedbackPanelFormElements: FormElementsState = {
     location: selectedLocationId,
     after: dateRanges.thisMonth().after,
@@ -1162,6 +1167,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         initialFilterActivityFormElements: initialFilterActivityFormElements,
         showMenuBarcodeInfo: showMenuBarcodeInfo,
         setShowMenuBarcodeInfo: setShowMenuBarcodeInfo,
+        showMenuCostPrices: showMenuCostPrices,
+        setShowMenuCostPrices: setShowMenuCostPrices,
         initialFilterPanelInvoiceFormElements:
           initialFilterPanelInvoiceFormElements,
         initialFilterPanelServiceInvoiceFormElements:

@@ -290,6 +290,7 @@ const DessertStock = () => {
     ];
 
     if (
+      !showDesertStockPrices ||
       dessertStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -297,11 +298,11 @@ const DessertStock = () => {
           !ac?.permissionsRoles?.includes(user?.role?._id)
       )
     ) {
-      const splicedColumns = ["Unit Price", "Total Price"];
+      const splicedColumns = [t("Unit Price"), t("Total Price")];
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
     return cols;
-  }, [t, dessertStockPageDisabledCondition, user]);
+  }, [t, dessertStockPageDisabledCondition, user, showDesertStockPrices]);
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -327,6 +328,7 @@ const DessertStock = () => {
     ];
 
     if (
+      !showDesertStockPrices ||
       dessertStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
@@ -338,7 +340,7 @@ const DessertStock = () => {
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
     return keys;
-  }, [dessertStockPageDisabledCondition, user]);
+  }, [dessertStockPageDisabledCondition, user, showDesertStockPrices]);
 
   const addButton = useMemo(
     () => ({

@@ -596,7 +596,7 @@
   "Product already deleted from the list!": "Ürün zaten listeden silindi!",
   "Show Inactive CountLists": "Aktif Olmayan Sayım Listelerini Göster",
   "Refresh Data": "Verileri Yenile",
-  "Menu Price": "Online Fiyatı",
+  "Menu Price": "Menü Fiyatı",
   "Online Price": "Online Fiyat",
   "Print": "Yazdır",
   "Finish Hour": "Bitiş Saati",
@@ -1020,6 +1020,7 @@
   "ReleaseNotesNoItems": "Bu sürümde liste bulunmuyor.",
   "ReleaseNotesGotIt": "Tamam",
   "ReleaseNotesNext": "Sonraki",
+  "ReleaseNotesEmpty": "Henüz release yok.",
   "Order Number": "Sipariş Numarası",
   "UncompletedDuties": "{{user}} kullanıcısı için {{checklist}} kontrol listesinde {{count}} tamamlanmamış görev var",
   "StockZeroReached": "{{product}} ürünü {{location}} stoklarında sıfıra düştü",
@@ -1308,5 +1309,11 @@
   "Insufficient points. Payment cannot be processed.": "Yetersiz puan. Ödeme işlemi yapılamıyor.",
   "Subscribed At": "Abone Olma Tarihi",
   "Notified At": "Bildirim Tarihi",
-  "Collection Details" : "Tahsilat Detayları"
+  "Collection Details" : "Tahsilat Detayları",
+  "Trendyol Stock" : "Trendyol Stok",
+  "Trendyol Price" : "Trendyol Fiyat",
+  "HepsiBurada Price" : "Hepsiburada Fiyat",
+  "HepsiBurada Stock" : "Hepsiburada Stok",
+  "Back In Stock Subscriptions" : "Gelince Haber Ver"
+
 }

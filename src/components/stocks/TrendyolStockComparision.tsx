@@ -100,7 +100,7 @@ const TrendyolStockComparision = () => {
       { key: t("Trendyol Stock"), isSortable: true },
       { key: t("Store Stock"), isSortable: true },
       { key: t("Trendyol Price"), isSortable: true },
-      { key: t("Menu Price"), isSortable: true },
+      { key: t("Online Price"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
     [t]

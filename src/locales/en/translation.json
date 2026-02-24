@@ -1019,6 +1019,7 @@
   "ReleaseNotesNoItems": "No items in this release.",
   "ReleaseNotesGotIt": "Got it",
   "ReleaseNotesNext": "Next",
+  "ReleaseNotesEmpty": "No releases yet.",
   "Order Number": "Order Number",
   "UncompletedDuties": "{{count}} uncompleted {{dutyWord}} in checklist {{checklist}} for user {{user}}",
   "StockZeroReached": "{{product}} has reached zero stock in {{location}}",
@@ -1306,5 +1307,10 @@
   "HepsiBurada Stock Comparision": "Hepsiburada Stock Comparision",
   "HepsiBurada Price Comparision": "Hepsiburada Price Comparision",
   "Insufficient points. Payment cannot be processed.": "Insufficient points. Payment cannot be processed.",
-  "Collection Details" : "Collection Details"
+  "Collection Details" : "Collection Details",
+  "Trendyol Stock" : "Trendyol Stock",
+  "Trendyol Price" : "Trendyol Price",
+  "HepsiBurada Price" : "Hepsiburada Price",
+  "HepsiBurada Stock" : "Hepsiburada Stock",
+  "Back In Stock Subscriptions" : "Back In Stock Subscriptions"
 }
