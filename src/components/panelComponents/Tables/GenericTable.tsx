@@ -187,12 +187,26 @@ const GenericTable = <T,>({
 
   useEffect(() => {
     if (sortConfigKey) {
-      setSortConfig({
-        key: sortConfigKey.key,
-        direction: sortConfigKey.direction,
-      });
+      if (outsideSortProps) {
+        // Only use context sortConfigKey if it matches a column with correspondingKey
+        const hasMatchingColumn = columns?.some(
+          (col) => col.correspondingKey === sortConfigKey.key
+        );
+        if (hasMatchingColumn) {
+          setSortConfig({
+            key: sortConfigKey.key,
+            direction: sortConfigKey.direction,
+          });
+        }
+      } else {
+        // No outsideSortProps, use context sortConfigKey for all columns
+        setSortConfig({
+          key: sortConfigKey.key,
+          direction: sortConfigKey.direction,
+        });
+      }
     }
-  }, [sortConfigKey]);
+  }, [sortConfigKey, outsideSortProps, columns]);
 
   const checkHeaderScrollButtons = () => {
     if (headerScrollRef.current) {
@@ -273,7 +287,15 @@ const GenericTable = <T,>({
 
   const sortRows = (key: string, direction: "ascending" | "descending") => {
     setSortConfig({ key, direction });
-    setSortConfigKey({ key, direction });
+    // Only update context if this is an API-sortable column
+    const column = usedColumns?.find(
+      (col, idx) => usedRowKeys[idx]?.key === key
+    );
+    if (column?.correspondingKey && outsideSortProps) {
+      setSortConfigKey({ key, direction });
+    } else if (!outsideSortProps) {
+      setSortConfigKey({ key, direction });
+    }
   };
 
   const handleDragStart = (
@@ -1073,7 +1095,8 @@ const GenericTable = <T,>({
                                     outsideSortProps.setFilterPanelFormElements
                                   )}
                                 {column.isSortable &&
-                                  !outsideSortProps &&
+                                  (!outsideSortProps ||
+                                    !column?.correspondingKey) &&
                                   (sortConfig?.key ===
                                     usedRowKeys[index]?.key &&
                                   sortConfig?.direction === "ascending" ? (
