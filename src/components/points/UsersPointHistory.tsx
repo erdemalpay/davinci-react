@@ -393,118 +393,122 @@ const UsersPointHistoryComponent = () => {
           }}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-lg w-11/12 md:w-3/4 lg:w-3/5 xl:w-2/5 max-w-3xl max-h-[90vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">{t("Collection Details")}</h3>
+            <div className="p-6 flex-1 overflow-y-auto">
+              <h3 className="text-lg font-semibold mb-4">{t("Collection Details")}</h3>
+
+              {/* Collection Info Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Date")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.date}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Create Hour")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.hour}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Table Id")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.tableId}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Table Name")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.tableName}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Location")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.locationName}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Created By")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.cashier}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Payment Method")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.paymentMethod}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Amount")}</label>
+                  <p className="text-sm text-gray-900">{formattedCollectionData.amount?.toFixed(2)} ₺</p>
+                </div>
+                {formattedCollectionData.shopifyShippingAmount !== undefined && formattedCollectionData.shopifyShippingAmount !== null && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">{t("Shipping Cost")}</label>
+                    <p className="text-sm text-gray-900">{formattedCollectionData.shopifyShippingAmount?.toFixed(2)} ₺</p>
+                  </div>
+                )}
+                {formattedCollectionData.shopifyDiscountAmount !== undefined && formattedCollectionData.shopifyDiscountAmount !== null && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">{t("Discount")}</label>
+                    <p className="text-sm text-gray-900">{formattedCollectionData.shopifyDiscountAmount?.toFixed(2)} ₺</p>
+                  </div>
+                )}
+                <div>
+                  <label className="text-sm font-medium text-gray-700">{t("Status")}</label>
+                  <p className="text-sm text-gray-900">{t(formattedCollectionData.status)}</p>
+                </div>
+                {formattedCollectionData.cancelledBy && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">{t("Cancelled By")}</label>
+                    <p className="text-sm text-gray-900">{formattedCollectionData.cancelledBy}</p>
+                  </div>
+                )}
+                {formattedCollectionData.cancelledAt && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">{t("Cancelled At")}</label>
+                    <p className="text-sm text-gray-900">{formattedCollectionData.cancelledAt}</p>
+                  </div>
+                )}
+                {formattedCollectionData.cancelNote && (
+                  <div className="col-span-2">
+                    <label className="text-sm font-medium text-gray-700">{t("Cancel Note")}</label>
+                    <p className="text-sm text-gray-900">{formattedCollectionData.cancelNote}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Orders Table */}
+              {formattedCollectionData.orders && formattedCollectionData.orders.length > 0 && (
+                <div className="border-t pt-4">
+                  <h4 className="text-md font-semibold mb-3">{t("Orders")}</h4>
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t("Product")}
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t("Quantity")}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {formattedCollectionData.orders.map((order: any, index: number) => (
+                        <tr key={index}>
+                          <td className="px-4 py-2 text-sm text-gray-900">{order.product}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900">{order.quantity}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Footer with Close button on the right */}
+            <div className="px-6 py-4 border-t flex justify-end">
               <button
                 onClick={() => {
                   setIsCollectionModalOpen(false);
                   setSelectedTableId(undefined);
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
               >
-                ✕
+                {t("Close")}
               </button>
             </div>
-
-            {/* Collection Info Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Date")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.date}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Create Hour")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.hour}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Table Id")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.tableId}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Table Name")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.tableName}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Location")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.locationName}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Created By")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.cashier}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Payment Method")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.paymentMethod}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Amount")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.amount?.toFixed(2)} ₺</p>
-              </div>
-              {formattedCollectionData.shopifyShippingAmount !== undefined && formattedCollectionData.shopifyShippingAmount !== null && (
-                <div>
-                  <label className="text-sm font-medium text-gray-700">{t("Shipping Cost")}</label>
-                  <p className="text-sm text-gray-900">{formattedCollectionData.shopifyShippingAmount?.toFixed(2)} ₺</p>
-                </div>
-              )}
-              {formattedCollectionData.shopifyDiscountAmount !== undefined && formattedCollectionData.shopifyDiscountAmount !== null && (
-                <div>
-                  <label className="text-sm font-medium text-gray-700">{t("Discount")}</label>
-                  <p className="text-sm text-gray-900">{formattedCollectionData.shopifyDiscountAmount?.toFixed(2)} ₺</p>
-                </div>
-              )}
-              <div>
-                <label className="text-sm font-medium text-gray-700">{t("Status")}</label>
-                <p className="text-sm text-gray-900">{t(formattedCollectionData.status)}</p>
-              </div>
-              {formattedCollectionData.cancelledBy && (
-                <div>
-                  <label className="text-sm font-medium text-gray-700">{t("Cancelled By")}</label>
-                  <p className="text-sm text-gray-900">{formattedCollectionData.cancelledBy}</p>
-                </div>
-              )}
-              {formattedCollectionData.cancelledAt && (
-                <div>
-                  <label className="text-sm font-medium text-gray-700">{t("Cancelled At")}</label>
-                  <p className="text-sm text-gray-900">{formattedCollectionData.cancelledAt}</p>
-                </div>
-              )}
-              {formattedCollectionData.cancelNote && (
-                <div className="col-span-2">
-                  <label className="text-sm font-medium text-gray-700">{t("Cancel Note")}</label>
-                  <p className="text-sm text-gray-900">{formattedCollectionData.cancelNote}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Orders Table */}
-            {formattedCollectionData.orders && formattedCollectionData.orders.length > 0 && (
-              <div className="border-t pt-4">
-                <h4 className="text-md font-semibold mb-3">{t("Orders")}</h4>
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t("Product")}
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t("Quantity")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {formattedCollectionData.orders.map((order: any, index: number) => (
-                      <tr key={index}>
-                        <td className="px-4 py-2 text-sm text-gray-900">{order.product}</td>
-                        <td className="px-4 py-2 text-sm text-gray-900">{order.quantity}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
         </div>
       )}
