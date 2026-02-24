@@ -187,19 +187,13 @@ const GenericTable = <T,>({
 
   useEffect(() => {
     if (sortConfigKey) {
-      if (outsideSortProps) {
-        // Only use context sortConfigKey if it matches a column with correspondingKey
-        const hasMatchingColumn = columns?.some(
-          (col) => col.correspondingKey === sortConfigKey.key
-        );
-        if (hasMatchingColumn) {
-          setSortConfig({
-            key: sortConfigKey.key,
-            direction: sortConfigKey.direction,
-          });
-        }
-      } else {
-        // No outsideSortProps, use context sortConfigKey for all columns
+      // If outsideSortProps exists, only use context sortConfigKey for API-sortable columns
+      // Otherwise, use it for all columns
+      const shouldUseContextSort =
+        !outsideSortProps ||
+        columns?.some((col) => col.correspondingKey === sortConfigKey.key);
+
+      if (shouldUseContextSort) {
         setSortConfig({
           key: sortConfigKey.key,
           direction: sortConfigKey.direction,
