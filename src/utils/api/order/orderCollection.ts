@@ -67,6 +67,17 @@ export function useGetTableCollections(tableId: number) {
   ]);
 }
 
+export function useGetCollectionByTableId(tableId: number | undefined) {
+  return useGet<OrderCollection>(
+    `${collectionBaseUrl}/${tableId}`,
+    [`${collectionBaseUrl}/single`, tableId],
+    false,
+    {
+      enabled: !!tableId,
+    }
+  );
+}
+
 export function useGetAllOrderCollections() {
   const { filterPanelFormElements } = useOrderContext();
   let url = `${Paths.Order}/collection/query?after=${filterPanelFormElements.after}`;
