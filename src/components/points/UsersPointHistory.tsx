@@ -346,7 +346,7 @@ const UsersPointHistoryComponent = () => {
       cancelNote: collectionData.cancelNote,
       status: collectionData.status,
       orders:
-        collectionData.orders?.map((orderCollectionItem) => ({
+        collectionData.orders?.map((orderCollectionItem: any) => ({
           product: getItem(
             orders?.find((order) => order._id === orderCollectionItem.order)?.item,
             items
@@ -486,7 +486,7 @@ const UsersPointHistoryComponent = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {formattedCollectionData.orders.map((order, index) => (
+                    {formattedCollectionData.orders.map((order: any, index: number) => (
                       <tr key={index}>
                         <td className="px-4 py-2 text-sm text-gray-900">{order.product}</td>
                         <td className="px-4 py-2 text-sm text-gray-900">{order.quantity}</td>
