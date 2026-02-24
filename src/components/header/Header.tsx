@@ -113,15 +113,17 @@ export function Header({
                 />
               </div>
             )}
-            <div
+            <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsReleasesOpen((prev) => !prev);
               }}
-              className="relative cursor-pointer hover:scale-110 transition-transform duration-200"
+              className="relative cursor-pointer hover:scale-110 transition-transform duration-200 border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded"
+              aria-label={t("ReleaseNotesTitleTab")}
             >
               <MdOutlineNewReleases className="text-2xl sm:text-3xl text-white" />
-            </div>
+            </button>
             {isReleasesOpen && (
               <div className="absolute top-14 sm:top-16 right-2 sm:right-4 lg:right-8 flex flex-col gap-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-[100] min-w-[280px] max-w-[95vw] sm:w-[320px] max-h-[60vh] overflow-y-auto p-4">
                 <h3 className="text-base font-semibold text-gray-800">
