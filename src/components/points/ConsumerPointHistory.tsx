@@ -411,10 +411,6 @@ const ConsumerPointHistoryComponent = () => {
                 <p className="text-sm text-gray-900">{formattedCollectionData.cashier}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">{t("Payment Method")}</label>
-                <p className="text-sm text-gray-900">{formattedCollectionData.paymentMethod}</p>
-              </div>
-              <div>
                 <label className="text-sm font-medium text-gray-700">{t("Amount")}</label>
                 <p className="text-sm text-gray-900">{formattedCollectionData.amount?.toFixed(2)} ₺</p>
               </div>
