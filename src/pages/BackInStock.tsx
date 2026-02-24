@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -288,7 +288,7 @@ export default function BackInStock() {
     };
   }, [t, filterPanelFormElements]);
 
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements, setCurrentPage]);
 

@@ -75,7 +75,11 @@ const UpperCategoryBasedSalesReport = () => {
 
   const allCategoryRows = useMemo(() => {
     return orders
-      ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+      ?.filter(
+        (order) =>
+          order.status !== OrderStatus.CANCELLED &&
+          order.status !== OrderStatus.RETURNED
+      )
       ?.reduce((acc, order) => {
         if (!order || order.paidQuantity === 0) return acc;
         // Date filters
@@ -85,52 +89,29 @@ const UpperCategoryBasedSalesReport = () => {
           (item) => item?.categoryId === getItem(order?.item, items)?.category
         );
 
+        const orderAmount = order.paidQuantity * order.unitPrice;
+        const orderDiscount = order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+          order.paidQuantity *
+          order.unitPrice *
+          0.01
+          : (order?.discountAmount ?? 0) * order.paidQuantity;
+
         if (existingEntry) {
-          existingEntry.paidQuantity +=
-            order.status !== OrderStatus.RETURNED
-              ? order.paidQuantity
-              : -order.quantity;
-          existingEntry.discount += order?.discountPercentage
-            ? (order?.discountPercentage ?? 0) *
-              order.paidQuantity *
-              order.unitPrice *
-              0.01
-            : (order?.discountAmount ?? 0) * order.paidQuantity;
-          existingEntry.amount += order.paidQuantity * order.unitPrice;
-          existingEntry.totalAmountWithDiscount =
-            existingEntry.totalAmountWithDiscount +
-            order.paidQuantity * order.unitPrice -
-            (order?.discountPercentage
-              ? (order?.discountPercentage ?? 0) *
-                order.paidQuantity *
-                order.unitPrice *
-                0.01
-              : (order?.discountAmount ?? 0) * order.paidQuantity);
+          existingEntry.paidQuantity += order.paidQuantity;
+          existingEntry.discount += orderDiscount;
+          existingEntry.amount += orderAmount;
+          existingEntry.totalAmountWithDiscount += orderAmount - orderDiscount;
         } else {
           acc.push({
             item: order?.item,
-            paidQuantity:
-              order.status !== OrderStatus.RETURNED
-                ? order.paidQuantity
-                : -order.quantity,
+            paidQuantity: order.paidQuantity,
             location: order.location,
-            discount: order?.discountPercentage
-              ? (order?.discountPercentage ?? 0) *
-                order.paidQuantity *
-                order.unitPrice *
-                0.01
-              : (order?.discountAmount ?? 0) * order.paidQuantity,
-            amount: order.paidQuantity * order.unitPrice,
+            discount: orderDiscount,
+            amount: orderAmount,
             date: format(orderDate, "yyyy-MM-dd"),
             categoryId: getItem(order?.item, items)?.category ?? 0,
-            totalAmountWithDiscount:
-              order.paidQuantity * order.unitPrice -
-              (order?.discountPercentage
-                ? (order?.discountPercentage ?? 0) *
-                  order.paidQuantity *
-                  order.unitPrice *
-                  0.01
-                : (order?.discountAmount ?? 0) * order.paidQuantity),
+            totalAmountWithDiscount: orderAmount - orderDiscount,
           });
         }
 
@@ -192,8 +173,8 @@ const UpperCategoryBasedSalesReport = () => {
               return (
                 acc +
                 (category?.totalAmountWithDiscount ?? 0) *
-                  categoryGroupItem?.percentage *
-                  0.01
+                categoryGroupItem?.percentage *
+                0.01
               );
             },
             0
@@ -329,8 +310,8 @@ const UpperCategoryBasedSalesReport = () => {
             <p className={`${row?.className}`}>
               {row?.discount > 0 &&
                 row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
-                  " " +
-                  TURKISHLIRA}
+                " " +
+                TURKISHLIRA}
             </p>
           );
         },
@@ -402,9 +383,9 @@ const UpperCategoryBasedSalesReport = () => {
         placeholder: t("Date"),
         required: true,
         additionalOnChange: ({
-          value,
-          label,
-        }: {
+                               value,
+                               label,
+                             }: {
           value: string;
           label: string;
         }) => {

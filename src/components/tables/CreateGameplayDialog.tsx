@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
-import { Gameplay, Table, User, Visit } from "../../types";
+import { Gameplay, RoleEnum, Table, User, Visit } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -30,7 +30,11 @@ export function CreateGameplayDialog({
   const [data, setData] = useState<Partial<Gameplay>>(gameplay);
   const { users } = useDataContext();
   const { mutate: createGameplay } = useCreateGameplayMutation();
-
+  const gameRelatedRoles = [
+    RoleEnum.GAMEMANAGER,
+    RoleEnum.GAMEMASTER,
+    RoleEnum.MANAGER,
+  ];
   // Helper function to check if a specific mentor has an active visit
   const checkMentorHasActiveVisit = (mentorId: string | undefined) => {
     if (!mentorId || !visits || visits.length === 0) return false;
@@ -100,11 +104,27 @@ export function CreateGameplayDialog({
         isNumberButtonsActive: true,
       },
       {
-        type: InputTypes.SELECT,
+        type: InputTypes.QUICKSELECT,
         formKey: "mentor",
         label: t("Mentor"),
-        placeholder: t("Mentor"),
-        options: mentors
+        placeholder: t("All"),
+        quickOptions: mentors
+          .map((mentor) => {
+            const foundUser = users?.find(
+              (user) =>
+                user._id === mentor._id &&
+                gameRelatedRoles.includes(user.role._id)
+            );
+            if (foundUser) {
+              return {
+                value: foundUser._id,
+                label: `${foundUser.name}`,
+              };
+            }
+            return null;
+          })
+          .filter(Boolean),
+        allOptions: mentors
           .map((mentor) => {
             const foundUser = users?.find((user) => user._id === mentor._id);
             if (foundUser) {

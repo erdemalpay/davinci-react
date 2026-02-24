@@ -54,7 +54,9 @@ const DailyIncome = () => {
     if (!collections || !sellLocations || !paymentMethods) return [];
     const allRows = collections
       ?.filter(
-        (collection) => collection.status !== OrderCollectionStatus.CANCELLED
+        (collection) =>
+          collection.status !== OrderCollectionStatus.CANCELLED &&
+          collection.status !== OrderCollectionStatus.RETURNED
       )
       ?.reduce((acc, collection) => {
         if (!collection?.tableDate) return acc;
@@ -65,29 +67,33 @@ const DailyIncome = () => {
           collection?.paymentMethod,
           paymentMethods
         );
+        // Calculate adjusted amount with shipping and discount
+        const adjustedAmount =
+          (collection.amount || 0) +
+          (collection.shopifyShippingAmount || 0) -
+          (collection.shopifyDiscountAmount || 0);
+
         const existingEntry = acc.find((item) => item.date === tableDate);
         if (existingEntry) {
           paymentMethods.forEach((method) => {
             if (collection.paymentMethod === method._id) {
               existingEntry[method._id] =
-                (existingEntry[method._id] || 0) + collection.amount;
+                (existingEntry[method._id] || 0) + adjustedAmount;
             }
           });
           existingEntry.total += !foundPaymentMethod?.isPaymentMade
             ? 0
-            : collection?.amount || 0;
+            : adjustedAmount;
         } else {
           const newEntry: any = {
             date: tableDate,
             formattedDate: formatAsLocalDate(tableDate),
             location: collection.location,
-            total: !foundPaymentMethod?.isPaymentMade
-              ? 0
-              : collection?.amount || 0,
+            total: !foundPaymentMethod?.isPaymentMade ? 0 : adjustedAmount,
           };
           paymentMethods.forEach((method) => {
             newEntry[method._id] =
-              collection.paymentMethod === method._id ? collection.amount : 0;
+              collection.paymentMethod === method._id ? adjustedAmount : 0;
           });
 
           acc.push(newEntry);

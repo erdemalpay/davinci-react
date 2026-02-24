@@ -54,7 +54,11 @@ import {
   useOrderMutations,
 } from "../utils/api/order/order";
 import { useGetReservations } from "../utils/api/reservations";
-import { useGetTables, useTableMutations } from "../utils/api/table";
+import {
+  getOpenTableDates,
+  useGetTables,
+  useTableMutations,
+} from "../utils/api/table";
 import { MinimalUser } from "../utils/api/user";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../utils/getItem";
@@ -105,6 +109,31 @@ const Tables = () => {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isActivityExpanded, setIsActivityExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
+  const [openTableDates, setOpenTableDates] = useState<string[]>([]);
+
+  const handleCalendarMonthChange = async (month: Date) => {
+    if (!selectedLocationId) return;
+    const year = month.getFullYear();
+    const m = String(month.getMonth() + 1).padStart(2, "0");
+    const lastDay = new Date(year, month.getMonth() + 1, 0).getDate();
+    const dateFrom = `${year}-${m}-01`;
+    const dateTo = `${year}-${m}-${String(lastDay).padStart(2, "0")}`;
+    try {
+      const dates = await getOpenTableDates(
+        selectedLocationId,
+        dateFrom,
+        dateTo
+      );
+      setOpenTableDates(dates);
+    } catch (error) {
+      console.error("Failed to fetch open table dates:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedLocationId || !selectedDate) return;
+    handleCalendarMonthChange(parseDate(selectedDate));
+  }, [selectedLocationId, selectedDate]);
 
   // Time tracker for icon animation after 2 minutes
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -1489,11 +1518,16 @@ const Tables = () => {
   const reservedTableClass = "bg-purple-400 text-white hover:bg-purple-500";
 
   const todayActiveActivities = useMemo(() => {
-    if (!cafeActivities || !selectedDate) return [];
+    if (!cafeActivities || !selectedDate || !selectedLocationId) return [];
     return cafeActivities
-      .filter((a) => a.date === selectedDate && !a.isCompleted)
+      .filter(
+        (a) =>
+          a.date === selectedDate &&
+          !a.isCompleted &&
+          a.location === selectedLocationId
+      )
       .sort((a, b) => a.hour.localeCompare(b.hour));
-  }, [cafeActivities, selectedDate]);
+  }, [cafeActivities, selectedDate, selectedLocationId]);
 
   const buttons: {
     label: string;
@@ -1688,6 +1722,8 @@ const Tables = () => {
               <DateInput
                 date={parseDate(selectedDate)}
                 setDate={setSelectedDate}
+                onMonthChange={handleCalendarMonthChange}
+                openTableDates={openTableDates}
               />
               <IoIosArrowForward
                 className="text-xl"
@@ -1767,7 +1803,7 @@ const Tables = () => {
             <div className="flex flex-col md:flex-row md:items-start gap-2 mt-2 md:mt-0">
               {todayActiveActivities.length > 0 && (
                 <div
-                  className="flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 cursor-pointer select-none md:shrink-0"
+                  className="flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none md:shrink-0"
                   onClick={() => setIsActivityExpanded((prev) => !prev)}
                 >
                   <span className="text-red-500 font-semibold text-xs text-center">

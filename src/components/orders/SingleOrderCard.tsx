@@ -43,7 +43,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
     if (order?.status === OrderStatus.PENDING) {
       return order?.createdAt;
     } else if (order?.status === OrderStatus.READYTOSERVE) {
-      return order?.preparedAt;
+      return order?.preparedAt || order?.createdAt;
     } else {
       return order?.createdAt;
     }

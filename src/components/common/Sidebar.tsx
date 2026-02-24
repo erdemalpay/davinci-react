@@ -15,6 +15,7 @@ import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 import { getMenuIcon } from "../../utils/menuIcons";
+import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
 import SidebarTooltip from "./SidebarTooltip";
 
 export const Sidebar = () => {
@@ -74,7 +75,7 @@ export const Sidebar = () => {
   }
 
   const logout = () => {
-    localStorage.clear();
+    clearLocalStoragePreservingOnboarding();
     localStorage.setItem("loggedOut", "true");
     setTimeout(() => localStorage.removeItem("loggedOut"), 500);
     Cookies.remove("jwt");
