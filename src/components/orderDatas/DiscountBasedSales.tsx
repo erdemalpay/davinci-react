@@ -86,23 +86,29 @@ const DiscountBasedSales = () => {
       disabledConditions
     );
   }, [disabledConditions]);
-
   const rows = useMemo(() => {
-    if (!orders || !sellLocations || !discounts || !items || !tables) return [];
     const allRows = orders
       ?.filter(
         (order) =>
-          ![OrderStatus.CANCELLED].includes(order.status as OrderStatus) &&
-          ![OrderStatus.RETURNED].includes(order.status as OrderStatus)
+          ![OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(
+            order.status as OrderStatus
+          )
       )
       ?.reduce((acc, order) => {
         if (!order?.discount || order?.paidQuantity === 0) {
           return acc;
         }
+
         // Date filters
         const zonedTime = toZonedTime(order.createdAt, "UTC");
         const orderDate = new Date(zonedTime);
-        if (!passesFilter(filterPanelFormElements.discount, order?.discount)) {
+
+        if (
+          filterPanelFormElements.discount &&
+          Array.isArray(filterPanelFormElements.discount) &&
+          filterPanelFormElements.discount.length > 0 &&
+          !passesFilter(filterPanelFormElements.discount, order?.discount)
+        ) {
           return acc;
         }
         const existingEntry = acc.find(
@@ -320,7 +326,7 @@ const DiscountBasedSales = () => {
     setSelectedTableId,
     setIsOrderPaymentModalOpen,
   ]);
-
+  console.log("rows", rows);
   const columns = useMemo(
     () => [
       { key: t("Discount"), isSortable: true },
@@ -549,11 +555,11 @@ const DiscountBasedSales = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
               queryClient.invalidateQueries({
-                queryKey: [
-                  `${Paths.Order}/collection/query`,
-                ],
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
               });
             }}
           />
