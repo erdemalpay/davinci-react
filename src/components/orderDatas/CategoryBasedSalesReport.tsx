@@ -83,8 +83,9 @@ const CategoryBasedSalesReport = () => {
     const allRows = orders
       ?.filter(
         (order) =>
-          order?.status !== OrderStatus.CANCELLED &&
-          order?.status !== OrderStatus.RETURNED
+          ![OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(
+            order.status as OrderStatus
+          )
       )
       ?.reduce((acc, order) => {
         if (!order || order?.paidQuantity === 0) return acc;
@@ -106,8 +107,7 @@ const CategoryBasedSalesReport = () => {
           existingEntry.paidQuantity += order?.paidQuantity;
           existingEntry.discount += orderDiscount;
           existingEntry.amount += orderAmount;
-          existingEntry.totalAmountWithDiscount +=
-            orderAmount - orderDiscount;
+          existingEntry.totalAmountWithDiscount += orderAmount - orderDiscount;
           const existingItem = existingEntry.itemQuantity.find(
             (itemQuantityIteration) =>
               itemQuantityIteration.itemId === getItem(order?.item, items)?._id

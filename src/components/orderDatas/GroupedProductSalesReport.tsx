@@ -84,8 +84,9 @@ const GroupedProductSalesReport = () => {
     const allRows = orders
       ?.filter(
         (order) =>
-          order.status !== OrderStatus.CANCELLED &&
-          order.status !== OrderStatus.RETURNED
+          ![OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(
+            order.status as OrderStatus
+          )
       )
       ?.reduce((acc, order) => {
         if (!order || order?.paidQuantity === 0) return acc;
