@@ -1731,6 +1731,8 @@ export enum ActivityType {
   FINISH_BREAK = "FINISH_BREAK",
   START_GAMEPLAY_TIME = "START_GAMEPLAY_TIME",
   FINISH_GAMEPLAY_TIME = "FINISH_GAMEPLAY_TIME",
+  SHIFT_CHANGE_APPROVED = "SHIFT_CHANGE_APPROVED",
+  SHIFT_CHANGE_REJECTED = "SHIFT_CHANGE_REJECTED",
 }
 export const activityTypeDetails = [
   {
@@ -2022,6 +2024,16 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_GAMEPLAY_TIME,
     label: "Finish Gameplay Time",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.SHIFT_CHANGE_APPROVED,
+    label: "Shift Change Approved",
+    bgColor: "bg-green-600",
+  },
+  {
+    value: ActivityType.SHIFT_CHANGE_REJECTED,
+    label: "Shift Change Rejected",
+    bgColor: "bg-red-600",
   },
 ];
 
