@@ -1070,9 +1070,13 @@ const Tables = () => {
     (storeLocations
       ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0
       : 0) - activeTableCount;
-  const totalTableCount = storeLocations
-    ? getItem(selectedLocationId, storeLocations)?.tableCount ?? 0
-    : 0;
+  const totalTableCount =
+    tables?.filter(
+      (table) =>
+        ![TableTypes.TAKEOUT, TableTypes.ONLINE]?.includes(
+          table.type as TableTypes
+        )
+    )?.length ?? 0;
 
   const activeCustomerCount =
     activeTables?.reduce((prev: number, curr: Table) => {
