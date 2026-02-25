@@ -84,6 +84,16 @@ const CountArchive = () => {
     return getItem(DisabledConditionEnum.COUNTARCHIVE, disabledConditions);
   }, [disabledConditions]);
 
+  function getBgColor(row: CountArchiveRow) {
+    const isDifferentStockQuantities = row?.products?.some(
+      (product: AccountCountProduct) =>
+        product.stockQuantity !== product.countQuantity
+    );
+    if (row?.isCompleted && isDifferentStockQuantities) {
+      return "bg-yellow-100";
+    }
+    return "";
+  }
   const rows = useMemo(() => {
     const allRows =
       countsPayload?.data
@@ -136,7 +146,6 @@ const CountArchive = () => {
       { key: t("Actions"), isSortable: false },
     ];
   }, [t]);
-
   const rowKeys = useMemo(
     () => [
       {
@@ -406,6 +415,7 @@ const CountArchive = () => {
           isActionsActive={true}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
+          rowClassNameFunction={getBgColor}
           isAllRowPerPageOption={false}
         />
       </div>
