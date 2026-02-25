@@ -315,7 +315,7 @@ const Product = () => {
   );
 
   const columns = useMemo(() => {
-    return [
+    const baseColumns = [
       { key: t("Name"), isSortable: true, correspondingKey: "name" },
       {
         key: t("Expense Type"),
@@ -324,14 +324,40 @@ const Product = () => {
       },
       { key: t("Brand"), isSortable: true, correspondingKey: "brand" },
       { key: t("Vendor"), isSortable: true, correspondingKey: "vendor" },
-      { key: t("Unit Price"), isSortable: true, correspondingKey: "unitPrice" },
+    ];
+
+    const unitPriceColumn = {
+      key: t("Unit Price"),
+      isSortable: true,
+      correspondingKey: "unitPrice"
+    };
+
+    const endColumns = [
       { key: t("Matched Menu Item"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ];
-  }, [t]);
+
+    const isUnitPriceVisible = !productDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOW_UNIT_PRICES &&
+        user?.role?._id &&
+        !ac.permissionsRoles.includes(user.role._id)
+    );
+
+    return isUnitPriceVisible
+      ? [...baseColumns, unitPriceColumn, ...endColumns]
+      : [...baseColumns, ...endColumns];
+  }, [t, productDisabledCondition, user]);
 
   const rowKeys = useMemo(() => {
-    return [
+    const isUnitPriceVisible = !productDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOW_UNIT_PRICES &&
+        user?.role?._id &&
+        !ac.permissionsRoles.includes(user.role._id)
+    );
+
+    const baseRowKeys = [
       {
         key: "name",
         className: "min-w-32 pr-1",
@@ -413,14 +439,18 @@ const Product = () => {
             );
           }),
       },
-      {
-        key: "unitPrice",
-        node: (row: AccountProduct) => (
-          <div className="min-w-32">
-            <P1>{row.unitPrice} ₺</P1>
-          </div>
-        ),
-      },
+    ];
+
+    const unitPriceRowKey = {
+      key: "unitPrice",
+      node: (row: AccountProduct) => (
+        <div className="min-w-32">
+          <P1>{row.unitPrice} ₺</P1>
+        </div>
+      ),
+    };
+
+    const endRowKeys = [
       {
         key: "matchedMenuItem",
         node: (row: AccountProduct) => (
@@ -430,6 +460,10 @@ const Product = () => {
         ),
       },
     ];
+
+    return isUnitPriceVisible
+      ? [...baseRowKeys, unitPriceRowKey, ...endRowKeys]
+      : [...baseRowKeys, ...endRowKeys];
   }, [
     user,
     pages,
@@ -441,6 +475,7 @@ const Product = () => {
     brands,
     vendors,
     items,
+    productDisabledCondition,
   ]);
 
   const addButton = useMemo(
