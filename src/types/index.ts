@@ -627,6 +627,10 @@ export enum DisabledConditionEnum {
   EXPIRATIONS_COUNTARCHIVE = "expirations_countarchive",
   EXPIRATIONS_EXPIRATIONLISTS = "expirations_expirationlists",
   EXPIRATIONS_EXPIRATIONLISTPRODUCTS = "expirations_expirationlistproducts",
+  CHECKOUT_INCOME = "checkout_income",
+  CHECKOUT_EXPENSE = "checkout_expense",
+  CHECKOUT_CASHOUT = "checkout_cashout",
+  CHECKOUT_CHECKOUT_CONTROL = "checkout_checkout_control",
 }
 
 export enum ActionEnum {

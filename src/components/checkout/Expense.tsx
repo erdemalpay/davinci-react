@@ -5,8 +5,11 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountExpenseType,
+  ActionEnum,
+  DisabledConditionEnum,
   ExpenseTypes,
   commonDateOptions,
 } from "../../types";
@@ -22,6 +25,7 @@ import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import {
@@ -43,6 +47,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Expenses = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const {
     rowsPerPage,
@@ -72,6 +77,11 @@ const Expenses = () => {
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountExpenseSimple } = useAccountExpenseSimpleMutations();
+  const disabledConditions = useGetDisabledConditions();
+
+  const expensePageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.CHECKOUT_EXPENSE, disabledConditions);
+  }, [disabledConditions]);
   const [showFilters, setShowFilters] = useState(false);
   const { createAccountExpense, deleteAccountExpense } =
     useAccountExpenseMutations();
@@ -551,11 +561,23 @@ const Expenses = () => {
           </p>
         </div>
       ),
+      isDisabled: expensePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWTOTAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      isDisabled: expensePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -649,11 +671,22 @@ const Expenses = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: expensePageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const actions = [
     {
       name: t("Delete"),
-      isDisabled: !isEnableEdit,
+      isDisabled: expensePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (

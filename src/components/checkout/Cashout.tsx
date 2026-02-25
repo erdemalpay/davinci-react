@@ -1,17 +1,19 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutCashout } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, CheckoutCashout, DisabledConditionEnum } from "../../types";
 import {
   useCheckoutCashoutMutations,
   useGetCheckoutCashouts,
 } from "../../utils/api/checkout/cashout";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -25,10 +27,16 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Cashout = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const cashouts = useGetCheckoutCashouts();
   const locations = useGetStockLocations();
   const { selectedLocationId } = useLocationContext();
   const users = useGetUsersMinimal();
+  const disabledConditions = useGetDisabledConditions();
+
+  const cashoutPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.CHECKOUT_CASHOUT, disabledConditions);
+  }, [disabledConditions]);
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -204,6 +212,12 @@ const Cashout = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: cashoutPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const actions = [
     {
@@ -227,6 +241,12 @@ const Cashout = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: cashoutPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Edit"),
@@ -252,6 +272,12 @@ const Cashout = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: cashoutPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
 
@@ -287,6 +313,12 @@ const Cashout = () => {
             ₺
           </p>
         </div>
+      ),
+      isDisabled: cashoutPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWTOTAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
     },
   ];
