@@ -1124,11 +1124,12 @@ const GenericTable = <T,>({
               </div>
             </div>
             {rows.length > 0 && isRowsPerPage && (
-              <div className="w-fit ml-auto flex flex-row gap-4">
-                <div className="flex flex-row gap-2 px-6 items-center">
-                  <Caption>{t("Rows per page")}:</Caption>
+              <div className="w-full sm:w-fit ml-auto flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3 sm:gap-4 px-4 sm:px-6">
+                {/* Mobile: first row – Rows per page */}
+                <div className="flex flex-row gap-2 items-center w-full sm:w-auto justify-end">
+                  <Caption className="text-xs sm:text-inherit">{t("Rows per page")}:</Caption>
                   <select
-                    className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
+                    className="rounded-md border border-gray-200 bg-white py-1.5 px-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 focus:border-blue-400 cursor-pointer min-h-8"
                     value={rowsPerPage}
                     onChange={(e) => {
                       setRowsPerPage(Number(e.target.value));
@@ -1150,9 +1151,10 @@ const GenericTable = <T,>({
                     )}
                   </select>
                 </div>
+                {/* Mobile: second row – Range text + prev/next */}
                 {isPagination && (
-                  <div className=" flex flex-row gap-2 items-center">
-                    <Caption>
+                  <div className="flex flex-row gap-2 sm:gap-4 items-center w-full sm:w-auto justify-end">
+                    <Caption className="text-xs sm:text-inherit whitespace-nowrap">
                       {Math.min(
                         (currentPage - 1) * rowsPerPage + 1,
                         usedTotalRows
@@ -1160,7 +1162,7 @@ const GenericTable = <T,>({
                       –{Math.min(currentPage * rowsPerPage, usedTotalRows)}{" "}
                       {"of"} {usedTotalRows}
                     </Caption>
-                    <div className="flex flex-row gap-4">
+                    <div className="flex flex-row gap-1">
                       <GenericButton
                         onClick={() => {
                           if (currentPage > 1) {
@@ -1171,6 +1173,8 @@ const GenericTable = <T,>({
                         variant="ghost"
                         size="sm"
                         disabled={currentPage === 1}
+                        aria-label={t("Previous page")}
+                        className="min-w-8 h-8 p-0 shrink-0"
                       >
                         {"<"}
                       </GenericButton>
@@ -1184,6 +1188,8 @@ const GenericTable = <T,>({
                         variant="ghost"
                         size="sm"
                         disabled={currentPage === usedTotalPages}
+                        aria-label={t("Next page")}
+                        className="min-w-8 h-8 p-0 shrink-0"
                       >
                         {">"}
                       </GenericButton>
