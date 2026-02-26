@@ -36,13 +36,13 @@ const Actions = () => {
 
   const rows = useMemo(() => panelControlActions, [panelControlActions]);
 
-  const columns = useMemo(() => {
-    const cols = [
+  const columns = useMemo(
+    () => [
       { key: t("Name"), isSortable: true },
       { key: t("Actions"), isSortable: false },
-    ];
-    return cols;
-  }, [t]);
+    ],
+    [t]
+  );
 
   const rowKeys = useMemo(() => [{ key: "name" }], []);
 
