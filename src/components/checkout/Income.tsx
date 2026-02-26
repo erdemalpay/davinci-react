@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -7,10 +7,11 @@ import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   CheckoutIncome,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderCollectionStatus,
-  RoleEnum,
   commonDateOptions,
 } from "../../types";
 import {
@@ -20,6 +21,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
@@ -41,6 +43,11 @@ const Income = () => {
   const [tableKey, setTableKey] = useState(0);
   const { selectedLocationId } = useLocationContext();
   const collections = useGetAllOrderCollections();
+  const disabledConditions = useGetDisabledConditions();
+
+  const incomePageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.CHECKOUT_INCOME, disabledConditions);
+  }, [disabledConditions]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [generalTotal, setGeneralTotal] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -182,16 +189,6 @@ const Income = () => {
       },
     },
   ];
-  if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
-    columns.splice(
-      columns.findIndex((column) => column.key === "Collections Income"),
-      1
-    );
-    rowKeys.splice(
-      rowKeys.findIndex((rowKey) => rowKey.key === "collectionIncome"),
-      1
-    );
-  }
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -255,6 +252,12 @@ const Income = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: incomePageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const actions = [
     {
@@ -278,6 +281,12 @@ const Income = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: incomePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Edit"),
@@ -304,6 +313,12 @@ const Income = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: incomePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   const filters = [
@@ -321,6 +336,12 @@ const Income = () => {
             {generalTotal.toFixed(2).replace(/\.?0*$/, "")} ₺
           </p>
         </div>
+      ),
+      isDisabled: incomePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWTOTAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
     },
   ];
