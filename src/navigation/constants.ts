@@ -1,4 +1,5 @@
 import { Tab } from "../components/panelComponents/shared/types";
+import ExpenseTypeRoles from "../components/accounting/ExpenseTypeRoles";
 import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
@@ -113,6 +114,7 @@ export enum Routes {
   PanelControl = "/panel-control",
   PageDetails = "/page-details/:pageDetailsId",
   DisabledConditionActions = "/disabled-condition/:disabledConditionId",
+  ExpenseTypeRoles = "/expense-type-roles/:expenseTypeId",
   OrderDatas = "/order-datas",
   UserActivities = "/user-activities",
   OrdersSummary = "/orders-summary",
@@ -799,6 +801,13 @@ export const allRoutes: {
     name: "Disabled Condition Actions",
     path: Routes.DisabledConditionActions,
     element: DisabledConditionActions,
+    isOnSidebar: false,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Expense Type Roles",
+    path: Routes.ExpenseTypeRoles,
+    element: ExpenseTypeRoles,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },

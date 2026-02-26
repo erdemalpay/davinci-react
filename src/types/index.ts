@@ -368,6 +368,8 @@ export type AccountExpenseType = {
   _id: string;
   name: string;
   backgroundColor: string;
+  isRoleRestricted: boolean;
+  pagePermissions: { page: string; allowedRoles: number[] }[];
 };
 
 export type ProductCategories = {
