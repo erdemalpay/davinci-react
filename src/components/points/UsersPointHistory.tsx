@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { pointHistoryStatuses, Table } from "../../types";
+import { PointHistory, pointHistoryStatuses, PointHistoryStatusEnum, Table } from "../../types";
 import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -186,13 +186,15 @@ const UsersPointHistoryComponent = () => {
       {
         key: "collectionId",
         className: "min-w-32 pr-1",
-        node: (row: any) => {
-          const isCollectionCreated = row.status === "COLLECTIONCREATED" || "COLLECTIONCANCELLED";
-          const hasTableId = row.tableId !== undefined && row.tableId !== null;
-          if (!isCollectionCreated || !row.collectionId) return <p>{row.collectionId ?? ""}</p>;
+        node: (row: PointHistory) => {
+          const isCollectionStatus =
+            row.status === PointHistoryStatusEnum.COLLECTIONCREATED ||
+            row.status === PointHistoryStatusEnum.COLLECTIONCANCELLED;
+          if (!isCollectionStatus || !row.collectionId) return <p></p>;
+          const hasTableId = row.tableId != null;
           return (
             <p
-              className={`text-blue-500 underline cursor-pointer hover:text-blue-700 w-fit${hasTableId ? "" : " opacity-50 pointer-events-none"}`}
+              className={`text-blue-500 underline w-fit ${hasTableId ? "cursor-pointer hover:text-blue-700" : "opacity-50 pointer-events-none"}`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (hasTableId) {
@@ -204,7 +206,7 @@ const UsersPointHistoryComponent = () => {
               {row.collectionId}
             </p>
           );
-        },
+        }
       },
       {
         key: "tableId",
