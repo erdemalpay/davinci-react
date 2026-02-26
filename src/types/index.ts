@@ -627,6 +627,7 @@ export enum DisabledConditionEnum {
   EXPIRATIONS_COUNTARCHIVE = "expirations_countarchive",
   EXPIRATIONS_EXPIRATIONLISTS = "expirations_expirationlists",
   EXPIRATIONS_EXPIRATIONLISTPRODUCTS = "expirations_expirationlistproducts",
+  MAILSUBSCRIPTIONS = "mailsubscriptions",
 }
 
 export enum ActionEnum {
@@ -1377,6 +1378,7 @@ export enum IntegrationPageTabEnum {
   HEPSIBURADAPRICECOMPARISION,
   HEPSIBURADASTOCKCOMPARISION,
   BACKINSTOCK,
+  MAILSUBSCRIPTIONS,
 }
 
 export enum StockHistoriesReportsPageTabEnum {
