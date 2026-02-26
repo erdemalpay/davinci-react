@@ -1,4 +1,8 @@
-import { MdOutlineCompare, MdOutlinePriceChange } from "react-icons/md";
+import {
+  MdOutlineCompare,
+  MdOutlineMail,
+  MdOutlinePriceChange,
+} from "react-icons/md";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import HepsiBuradaPriceComparision from "../components/stocks/HepsiBuradaPriceComparision";
@@ -11,6 +15,7 @@ import { useUserContext } from "../context/User.context";
 import { IntegrationPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import BackInStock from "./BackInStock";
+import MailSubscriptions from "./MailSubscriptions";
 
 export const IntegrationPageTabs = [
   {
@@ -53,6 +58,13 @@ export const IntegrationPageTabs = [
     label: "Back In Stock",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <BackInStock />,
+    isDisabled: false,
+  },
+  {
+    number: IntegrationPageTabEnum.MAILSUBSCRIPTIONS,
+    label: "Mail Subscriptions",
+    icon: <MdOutlineMail className="text-lg font-thin" />,
+    content: <MailSubscriptions />,
     isDisabled: false,
   },
 ];
