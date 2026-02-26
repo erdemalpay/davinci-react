@@ -186,6 +186,25 @@ const UsersPointHistoryComponent = () => {
       {
         key: "collectionId",
         className: "min-w-32 pr-1",
+        node: (row: any) => {
+          const isCollectionCreated = row.status === "COLLECTIONCREATED" || "COLLECTIONCANCELLED";
+          const hasTableId = row.tableId !== undefined && row.tableId !== null;
+          if (!isCollectionCreated || !row.collectionId) return <p>{row.collectionId ?? ""}</p>;
+          return (
+            <p
+              className={`text-blue-500 underline cursor-pointer hover:text-blue-700 w-fit${hasTableId ? "" : " opacity-50 pointer-events-none"}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (hasTableId) {
+                  setSelectedTableId(row.tableId);
+                  setIsCollectionModalOpen(true);
+                }
+              }}
+            >
+              {row.collectionId}
+            </p>
+          );
+        },
       },
       {
         key: "tableId",
@@ -212,28 +231,9 @@ const UsersPointHistoryComponent = () => {
           );
           if (!status) return null;
 
-          const isCollectionCreated = row.status === "COLLECTIONCREATED";
-          const hasTableId = row.tableId !== undefined && row.tableId !== null;
-
           return (
             <div
-              className={`w-fit rounded-md text-sm px-2 py-1 font-semibold ${status?.backgroundColor} text-white ${
-                isCollectionCreated && hasTableId ? "cursor-pointer hover:opacity-80" : ""
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log("Badge clicked!", {
-                  isCollectionCreated,
-                  hasTableId,
-                  tableId: row.tableId,
-                  status: row.status
-                });
-                if (isCollectionCreated && hasTableId) {
-                  console.log("Opening modal for tableId:", row.tableId);
-                  setSelectedTableId(row.tableId);
-                  setIsCollectionModalOpen(true);
-                }
-              }}
+              className={`w-fit rounded-md text-sm px-2 py-1 font-semibold ${status?.backgroundColor} text-white`}
             >
               {t(status?.label)}
             </div>
