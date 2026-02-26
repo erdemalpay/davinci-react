@@ -4,7 +4,7 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType, AccountingPageTabEnum } from "../../types";
+import { AccountingPageTabEnum } from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
@@ -16,6 +16,14 @@ import { Routes } from "../../navigation/constants";
 import PageNavigator from "../panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+
+type PageRow = { key: string; label: string };
+
+const EXPENSE_TYPE_PAGES: PageRow[] = [
+  { key: "product", label: "Products" },
+  { key: "service", label: "Services" },
+  { key: "expense", label: "Expenses" },
+];
 
 const ExpenseTypeRoles = () => {
   const { t } = useTranslation();
@@ -37,34 +45,38 @@ const ExpenseTypeRoles = () => {
     [expenseTypes, expenseTypeId]
   );
 
-  function handleRoleToggle(roleId: number) {
+  function handleRoleToggle(pageKey: string, roleId: number) {
     if (!currentExpenseType?._id) return;
-    const current = currentExpenseType.allowedRoles ?? [];
-    const has = current.includes(roleId);
-    const updatedRoles = has
-      ? current.filter((r) => r !== roleId)
-      : [...current, roleId];
-
+    const currentPerms = currentExpenseType.pagePermissions ?? [];
+    const pageIndex = currentPerms.findIndex((p) => p.page === pageKey);
+    let updatedPerms;
+    if (pageIndex === -1) {
+      // No entry yet for this page → create one with this role
+      updatedPerms = [...currentPerms, { page: pageKey, allowedRoles: [roleId] }];
+    } else {
+      const existing = currentPerms[pageIndex];
+      const hasRole = existing.allowedRoles.includes(roleId);
+      const updatedAllowedRoles = hasRole
+        ? existing.allowedRoles.filter((r) => r !== roleId)
+        : [...existing.allowedRoles, roleId];
+      updatedPerms = currentPerms.map((p) =>
+        p.page === pageKey ? { ...p, allowedRoles: updatedAllowedRoles } : p
+      );
+    }
     updateAccountExpenseType({
       id: currentExpenseType._id,
-      updates: { allowedRoles: updatedRoles },
+      updates: { pagePermissions: updatedPerms },
     });
     toast.success(t("Role permissions updated successfully."));
   }
 
-  // columns: first col = expense type name, rest = one column per role
-  const columns = [{ key: t("Expense Type"), isSortable: false }];
-  // rowKeys: first cell = styled name badge, rest = checkmark/switch per role
-  const rowKeys: { key: string; node?: (row: AccountExpenseType) => JSX.Element }[] = [
+  // columns: first col = page name, rest = one per role
+  const columns = [{ key: t("Page"), isSortable: false }];
+  const rowKeys: { key: string; node?: (row: PageRow) => JSX.Element }[] = [
     {
-      key: "name",
-      node: (row: AccountExpenseType) => (
-        <div
-          className="px-2 py-1 rounded-md w-fit text-white text-sm font-semibold"
-          style={{ backgroundColor: row.backgroundColor }}
-        >
-          {row.name}
-        </div>
+      key: "label",
+      node: (row: PageRow) => (
+        <p className="font-medium text-gray-700">{t(row.label)}</p>
       ),
     },
   ];
@@ -73,13 +85,16 @@ const ExpenseTypeRoles = () => {
     columns.push({ key: role.name, isSortable: false });
     rowKeys.push({
       key: role._id.toString(),
-      node: (row: AccountExpenseType) => {
-        const hasPermission = (row.allowedRoles ?? []).includes(role._id);
+      node: (row: PageRow) => {
+        const pagePerm = (currentExpenseType?.pagePermissions ?? []).find(
+          (p) => p.page === row.key
+        );
+        const hasPermission = pagePerm?.allowedRoles?.includes(role._id) ?? false;
         return isEnableEdit ? (
           <div>
             <CheckSwitch
               checked={hasPermission}
-              onChange={() => handleRoleToggle(role._id)}
+              onChange={() => handleRoleToggle(row.key, role._id)}
             />
           </div>
         ) : hasPermission ? (
@@ -118,9 +133,6 @@ const ExpenseTypeRoles = () => {
     },
   ];
 
-  // Single row: the expense type itself
-  const rows = currentExpenseType ? [currentExpenseType] : [];
-
   useEffect(() => {
     setTableKey((k) => k + 1);
   }, [expenseTypes, currentExpenseType, expenseTypeId, roles, isEnableEdit]);
@@ -134,7 +146,7 @@ const ExpenseTypeRoles = () => {
           key={tableKey}
           rowKeys={rowKeys as any}
           columns={columns}
-          rows={rows}
+          rows={EXPENSE_TYPE_PAGES}
           filters={filters}
           title={
             currentExpenseType
