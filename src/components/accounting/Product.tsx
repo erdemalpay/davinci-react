@@ -314,8 +314,15 @@ const Product = () => {
     []
   );
 
+  const isUnitPriceHidden = productDisabledCondition?.actions?.some(
+    (ac) =>
+      ac.action === ActionEnum.SHOW_UNIT_PRICES &&
+      user?.role?._id &&
+      !ac.permissionsRoles.includes(user.role._id)
+  );
+
   const columns = useMemo(() => {
-    return [
+    const cols = [
       { key: t("Name"), isSortable: true, correspondingKey: "name" },
       {
         key: t("Expense Type"),
@@ -328,10 +335,14 @@ const Product = () => {
       { key: t("Matched Menu Item"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ];
-  }, [t]);
+    if (isUnitPriceHidden) {
+      return cols.filter((col) => col.correspondingKey !== "unitPrice");
+    }
+    return cols;
+  }, [t, isUnitPriceHidden]);
 
   const rowKeys = useMemo(() => {
-    return [
+    const keys = [
       {
         key: "name",
         className: "min-w-32 pr-1",
@@ -430,6 +441,10 @@ const Product = () => {
         ),
       },
     ];
+    if (isUnitPriceHidden) {
+      return keys.filter((k) => k.key !== "unitPrice");
+    }
+    return keys;
   }, [
     user,
     pages,
@@ -441,6 +456,7 @@ const Product = () => {
     brands,
     vendors,
     items,
+    isUnitPriceHidden,
   ]);
 
   const addButton = useMemo(
