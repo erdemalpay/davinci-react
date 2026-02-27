@@ -111,6 +111,15 @@ const EnterConsumption = () => {
     );
   }, [enterConsumptionPageDisabledCondition, user]);
 
+  const isUnitPriceHidden = useMemo(() => {
+    return enterConsumptionPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOW_UNIT_PRICES &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    );
+  }, [enterConsumptionPageDisabledCondition, user]);
+
   const consumptInputs = useMemo(
     () => [
       {
@@ -309,11 +318,9 @@ const EnterConsumption = () => {
         isSortable: false,
         correspondingKey: "location",
       },
+      ...(!isUnitPriceHidden ? [{ key: t("Cost"), isSortable: false }] : []),
       ...(!isShowPricesDisabled
-        ? [
-            { key: t("Cost"), isSortable: false },
-            { key: t("Old Quantity"), isSortable: false },
-          ]
+        ? [{ key: t("Old Quantity"), isSortable: false }]
         : []),
       { key: t("Changed"), isSortable: false },
       ...(!isShowPricesDisabled
@@ -329,7 +336,7 @@ const EnterConsumption = () => {
         isSortable: false,
       },
     ],
-    [t, isShowPricesDisabled]
+    [t, isShowPricesDisabled, isUnitPriceHidden]
   );
 
   const addButton = useMemo(
@@ -396,18 +403,11 @@ const EnterConsumption = () => {
         key: "lctn",
         className: "min-w-32 pr-1",
       },
+      ...(!isUnitPriceHidden
+        ? [{ key: "productCost", className: "min-w-32 pr-1", isParseFloat: true }]
+        : []),
       ...(!isShowPricesDisabled
-        ? [
-            {
-              key: "productCost",
-              className: "min-w-32 pr-1",
-              isParseFloat: true,
-            },
-            {
-              key: "currentAmount",
-              className: "min-w-32 pr-1",
-            },
-          ]
+        ? [{ key: "currentAmount", className: "min-w-32 pr-1" }]
         : []),
       {
         key: "change",
@@ -439,7 +439,7 @@ const EnterConsumption = () => {
         },
       },
     ],
-    [isShowPricesDisabled, t]
+    [isShowPricesDisabled, isUnitPriceHidden, t]
   );
 
   const filters = useMemo(
