@@ -26,7 +26,6 @@ import {
   useMenuItemMutations,
 } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -47,7 +46,6 @@ const Product = () => {
   const categories = useGetCategories();
   const navigate = useNavigate();
   const vendors = useGetAccountVendors();
-  const pages = useGetPanelControlPages();
   const disabledConditions = useGetDisabledConditions();
 
   const productDisabledCondition = useMemo(() => {
@@ -346,12 +344,14 @@ const Product = () => {
       {
         key: "name",
         className: "min-w-32 pr-1",
-        node: (row: AccountProduct) =>
-          user &&
-          pages &&
-          pages
-            ?.find((page) => page._id === "product")
-            ?.permissionRoles?.includes(user.role._id) ? (
+        node: (row: AccountProduct) => {
+          const isClickable = !productDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.CLICKABLE_ROWS &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return isClickable ? (
             <p
               className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
               onClick={() => {
@@ -365,7 +365,8 @@ const Product = () => {
             </p>
           ) : (
             <p>{row.name}</p>
-          ),
+          );
+        },
       },
       {
         key: "expenseType",
@@ -447,7 +448,7 @@ const Product = () => {
     return keys;
   }, [
     user,
-    pages,
+    productDisabledCondition,
     setCurrentPage,
     setSearchQuery,
     setSortConfigKey,
