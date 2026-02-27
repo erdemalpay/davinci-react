@@ -23,8 +23,6 @@ const VendorPayments = () => {
   const locations = useGetStockLocations();
   const users = useGetUsersMinimal();
   const paymentMethods = useGetAccountPaymentMethods();
-  const selectedVendor = vendors?.find((item) => item._id === vendorId);
-  if (!selectedVendor) return <></>;
   const payments = useGetAccountPayments();
   const [tableKey, setTableKey] = useState(0);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -35,12 +33,19 @@ const VendorPayments = () => {
       before: "",
       after: "",
     });
+  const [showFilters, setShowFilters] = useState(false);
+
+  const selectedVendor = vendors?.find((item) => item._id === vendorId);
+
   const allRows = payments
     ?.filter((i) => i?.vendor === selectedVendor?._id)
     ?.map((payment) => {
       return {
         ...payment,
-        formattedDate: formatAsLocalDate(payment?.date),
+        formattedDate:
+          payment?.date && !isNaN(new Date(payment.date).getTime())
+            ? formatAsLocalDate(payment.date)
+            : "",
         usr: getItem(payment?.user, users)?.name,
         userId: payment?.user,
         pymntMthd: t(
@@ -51,8 +56,9 @@ const VendorPayments = () => {
         lctnId: payment?.location,
       };
     });
-  const [showFilters, setShowFilters] = useState(false);
-  const [rows, setRows] = useState(allRows);
+  const [rows, setRows] = useState(allRows ?? []);
+
+  if (!selectedVendor) return <></>;
   const columns = [
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true, className: "min-w-32 pr-2" },
@@ -140,7 +146,7 @@ const VendorPayments = () => {
   ];
 
   useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
+    const filteredRows = (allRows ?? []).filter((row) => {
       if (!row?.date) {
         return false;
       }
