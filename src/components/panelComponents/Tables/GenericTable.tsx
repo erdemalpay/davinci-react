@@ -822,7 +822,7 @@ const GenericTable = <T,>({
             )}
           </div>
           {!(selectionActions && isSelectionActive) && (
-            <div className="hidden sm:flex flex-row flex-wrap gap-4 ml-auto">
+            <div className="flex flex-row flex-wrap gap-4 ml-auto">
               {renderFilters(true)}
             </div>
           )}
@@ -1127,7 +1127,9 @@ const GenericTable = <T,>({
               <div className="w-full sm:w-fit ml-auto flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3 sm:gap-4 px-4 sm:px-6">
                 {/* Mobile: first row – Rows per page */}
                 <div className="flex flex-row gap-2 items-center w-full sm:w-auto justify-end">
-                  <Caption className="text-xs sm:text-inherit">{t("Rows per page")}:</Caption>
+                  <Caption className="text-xs sm:text-inherit">
+                    {t("Rows per page")}:
+                  </Caption>
                   <select
                     className="rounded-md border border-gray-200 bg-white py-1.5 px-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 focus:border-blue-400 cursor-pointer min-h-8"
                     value={rowsPerPage}
