@@ -14,7 +14,6 @@ import {
 } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -26,7 +25,6 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Service = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const pages = useGetPanelControlPages();
   const services = useGetAccountServices();
   const { user } = useUserContext();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -172,12 +170,14 @@ const Service = () => {
       {
         key: "name",
         className: "min-w-32 pr-1",
-        node: (row: any) =>
-          user &&
-          pages &&
-          pages
-            ?.find((page) => page._id === "service")
-            ?.permissionRoles?.includes(user.role._id) ? (
+        node: (row: any) => {
+          const isClickable = !servicesDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.CLICKABLE_ROWS &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return isClickable ? (
             <p
               className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
               onClick={() => {
@@ -191,7 +191,8 @@ const Service = () => {
             </p>
           ) : (
             <p>{row.name}</p>
-          ),
+          );
+        },
       },
       {
         key: "expenseType",
@@ -239,7 +240,7 @@ const Service = () => {
     ];
   }, [
     user,
-    pages,
+    servicesDisabledCondition,
     setCurrentPage,
     setSearchQuery,
     setSortConfigKey,
