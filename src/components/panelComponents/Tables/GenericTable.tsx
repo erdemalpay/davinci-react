@@ -822,7 +822,7 @@ const GenericTable = <T,>({
             )}
           </div>
           {!(selectionActions && isSelectionActive) && (
-            <div className="flex flex-row flex-wrap gap-4 ml-auto">
+            <div className="hidden sm:flex flex-row flex-wrap gap-4 ml-auto">
               {renderFilters(true)}
             </div>
           )}
