@@ -686,6 +686,7 @@ export enum ActionEnum {
   COPY_SHIFT = "copy_shift",
   CHECK = "check",
   SHOW_ALL = "show_all",
+  NOTIFY = "notify",
 }
 
 export type Membership = {
