@@ -686,6 +686,8 @@ export enum ActionEnum {
   COPY_SHIFT = "copy_shift",
   CHECK = "check",
   SHOW_ALL = "show_all",
+  SHOW_UNIT_PRICES = "show_unit_prices",
+  CLICKABLE_ROWS = "clickable_rows"
 }
 
 export type Membership = {

@@ -24,7 +24,6 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -36,7 +35,6 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const pages = useGetPanelControlPages();
   const navigate = useNavigate();
   const { mutate: createMultipleBrand } = useCreateMultipleBrandMutation();
   const brands = useGetAccountBrands();
@@ -91,12 +89,14 @@ const Brand = () => {
       {
         key: "name",
         className: "min-w-32 pr-1",
-        node: (row: AccountBrand) =>
-          user &&
-          pages &&
-          pages
-            ?.find((page) => page._id === "brand")
-            ?.permissionRoles?.includes(user.role._id) ? (
+        node: (row: AccountBrand) => {
+          const isClickable = !brandDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.CLICKABLE_ROWS &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return isClickable ? (
             <p
               className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
               onClick={() => {
@@ -110,11 +110,12 @@ const Brand = () => {
             </p>
           ) : (
             <p>{row.name}</p>
-          ),
+          );
+        },
       },
       { key: "productCount" },
     ],
-    [user, pages, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
+    [user, brandDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
   );
 
   const inputs = [NameInput()];

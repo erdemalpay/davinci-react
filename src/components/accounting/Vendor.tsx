@@ -22,7 +22,6 @@ import {
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -35,7 +34,6 @@ const Vendor = () => {
   const navigate = useNavigate();
   const { user } = useUserContext();
   const vendors = useGetAccountVendors();
-  const pages = useGetPanelControlPages();
   const services = useGetAccountServices();
   const products = useGetAccountProducts();
   const { updateAccountProduct } = useAccountProductMutations();
@@ -85,12 +83,14 @@ const Vendor = () => {
       {
         key: "name",
         className: "min-w-32 pr-1",
-        node: (row: AccountVendor) =>
-          user &&
-          pages &&
-          pages
-            ?.find((page) => page._id === "vendor")
-            ?.permissionRoles?.includes(user.role._id) ? (
+        node: (row: AccountVendor) => {
+          const isClickable = !vendorDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.CLICKABLE_ROWS &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return isClickable ? (
             <p
               className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
               onClick={() => {
@@ -104,12 +104,13 @@ const Vendor = () => {
             </p>
           ) : (
             <p>{row.name}</p>
-          ),
+          );
+        },
       },
       { key: "productCount" },
       { key: "serviceCount" },
     ],
-    [user, pages, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
+    [user, vendorDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
   );
 
   const inputs = [NameInput()];
