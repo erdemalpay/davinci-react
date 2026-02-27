@@ -1386,6 +1386,7 @@ export enum IntegrationPageTabEnum {
   HEPSIBURADASTOCKCOMPARISION,
   BACKINSTOCK,
   MAILSUBSCRIPTIONS,
+  MAILLOGS,
 }
 
 export enum StockHistoriesReportsPageTabEnum {

@@ -5,6 +5,7 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
+import { FormElementsState } from "../types";
 import {
   MailLog,
   MailLogStatus,
@@ -13,16 +14,12 @@ import {
 } from "../utils/api/mail";
 import { formatAsLocalDate } from "../utils/format";
 
-type FormElementsState = {
-  [key: string]: any;
-};
-
 type CollapsibleRow = {
   collapsibleColumns: { key: string; isSortable: boolean }[];
-  collapsibleRows: { metadata: any }[];
+  collapsibleRows: { metadata: Record<string, unknown> }[];
   collapsibleRowKeys: {
     key: string;
-    node: (row: any) => React.ReactNode;
+    node: (row: MailLogRow) => React.ReactNode;
   }[];
 };
 
@@ -93,7 +90,7 @@ const MailLogs = () => {
 
   const rows = useMemo(() => {
     const allRows =
-      mailLogsPayload?.data?.map((log) => ({
+      mailLogsPayload?.data?.map((log: MailLog) => ({
         ...log,
         formattedSentAt: log.sentAt
           ? formatAsLocalDate(format(log.sentAt, "yyyy-MM-dd"))
