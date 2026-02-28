@@ -224,6 +224,28 @@ export function useNotifyBackInStockSubscribersMutation() {
   });
 }
 
+export function notifyBackInStockSubscribersBulk(menuItemIds: number[]) {
+  return post<{ menuItemIds: number[] }, any>({
+    path: `${Paths.Accounting}/stocks/notify-back-in-stock-bulk`,
+    payload: { menuItemIds },
+  });
+}
+
+export function useNotifyBackInStockSubscribersBulkMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: notifyBackInStockSubscribersBulk,
+    onSuccess: () => {
+      toast.success("Bulk back in stock notifications sent successfully");
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useGetAccountStocks() {
   return useGetList<AccountStock>(baseUrl);
 }

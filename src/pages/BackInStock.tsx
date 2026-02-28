@@ -8,7 +8,10 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuItem } from "../types";
-import { useNotifyBackInStockSubscribersMutation } from "../utils/api/account/stock";
+import {
+  useNotifyBackInStockSubscribersBulkMutation,
+  useNotifyBackInStockSubscribersMutation,
+} from "../utils/api/account/stock";
 import {
   BackInStockSubscription,
   SubscriptionStatus,
@@ -25,6 +28,16 @@ export default function BackInStock() {
   const [showFilters, setShowFilters] = useState(false);
   const { mutate: notifyBackInStockSubscribers } =
     useNotifyBackInStockSubscribersMutation();
+  const { mutate: notifyBackInStockSubscribersBulk } =
+    useNotifyBackInStockSubscribersBulkMutation();
+  const {
+    selectedRows,
+    setSelectedRows,
+    setIsSelectionActive,
+    rowsPerPage,
+    currentPage,
+    setCurrentPage,
+  } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       email: "",
@@ -37,7 +50,6 @@ export default function BackInStock() {
       sort: "createdAt",
       asc: -1,
     });
-  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
 
   const subscriptionsPayload = useGetBackInStockSubscriptions(
     currentPage,
@@ -328,6 +340,34 @@ export default function BackInStock() {
     };
   }, [t, filterPanelFormElements]);
 
+  const selectionActions = useMemo(
+    () => [
+      {
+        name: t("Notify Back In Stock"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-purple-600 hover:text-purple-600 hover:border-purple-600 sm:px-3 py-1 h-fit w-fit text-white hover:bg-white transition-transform border rounded-md cursor-pointer",
+        onClick: () => {
+          const menuItemIds = selectedRows
+            .map((row: any) => (row.menuItemId as MenuItem)?._id)
+            .filter(Boolean);
+          if (menuItemIds.length > 0) {
+            notifyBackInStockSubscribersBulk(menuItemIds);
+            setSelectedRows([]);
+            setIsSelectionActive(false);
+          }
+        },
+      },
+    ],
+    [
+      t,
+      selectedRows,
+      notifyBackInStockSubscribersBulk,
+      setSelectedRows,
+      setIsSelectionActive,
+    ]
+  );
+
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements, setCurrentPage]);
@@ -345,6 +385,7 @@ export default function BackInStock() {
         filters={filters}
         isActionsActive={true}
         actions={actions}
+        selectionActions={selectionActions}
         outsideSortProps={outsideSort}
         isCollapsible={true}
         {...(pagination && { pagination })}
