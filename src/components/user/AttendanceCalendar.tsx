@@ -2,8 +2,9 @@ import { ResponsiveCalendar } from "@nivo/calendar";
 import { addDays, format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../context/User.context";
 import useIsSmallScreen from "../../hooks/useIsSmallScreen";
-import { LocationShiftType } from "../../types";
+import { LocationShiftType, RoleEnum } from "../../types";
 import { useShiftMutations } from "../../utils/api/shift";
 
 const VISIT_TYPE = {
@@ -53,6 +54,7 @@ const AttendanceCalendar = ({
 }: AttendanceCalendarProps) => {
   const { t } = useTranslation();
   const isSmallScreen = useIsSmallScreen();
+  const { user } = useUserContext();
   const [showFullTime, setShowFullTime] = useState(true);
   const [showPartTime, setShowPartTime] = useState(true);
   const [showUnknown, setShowUnknown] = useState(true);
@@ -60,6 +62,12 @@ const AttendanceCalendar = ({
 
   // Get shift mutations for updating notInAverage field
   const { updateShift } = useShiftMutations();
+
+  // Check if user has permission to update notInAverage
+  const canUpdateNotInAverage = [
+    RoleEnum.MANAGER,
+    RoleEnum.GAMEMANAGER,
+  ].includes(user?.role?._id as RoleEnum);
 
   // Initialize selectedDays from shifts with notInAverage = true
   useEffect(() => {
@@ -185,6 +193,11 @@ const AttendanceCalendar = ({
 
   const handleDayClick = (data: { day?: string; value?: number }) => {
     if (data?.day) {
+      // Only allow MANAGER or GAMEMANAGER to update notInAverage
+      if (!canUpdateNotInAverage) {
+        return;
+      }
+
       const dayValue = data.day;
       const isCurrentlySelected = selectedDays.includes(dayValue);
 
@@ -226,6 +239,39 @@ const AttendanceCalendar = ({
     }
   };
 
+  const handleClearSelectedDays = () => {
+    // Update all selected shifts in the database to set notInAverage to false
+    selectedDays.forEach((dayValue) => {
+      const shiftForDay = shifts?.find(
+        (shift) =>
+          shift.day === dayValue &&
+          shift.shifts?.some((s: any) => s.user?.includes(userId))
+      );
+
+      if (shiftForDay) {
+        const updatedShifts = shiftForDay.shifts.map((s: any) => {
+          if (s.user?.includes(userId)) {
+            return {
+              ...s,
+              notInAverage: false,
+            };
+          }
+          return s;
+        });
+
+        updateShift({
+          id: shiftForDay._id,
+          updates: {
+            shifts: updatedShifts,
+          },
+        });
+      }
+    });
+
+    // Clear local state
+    setSelectedDays([]);
+  };
+
   if (!visitCalendarData || visitCalendarData.length === 0) {
     return null;
   }
@@ -236,7 +282,9 @@ const AttendanceCalendar = ({
         {t("Attendance Calendar")}
       </h3>
       <p className="text-sm text-gray-600 mb-3">
-        {t("Click on days to exclude them from attendance calculations")}
+        {canUpdateNotInAverage
+          ? t("Click on days to exclude them from attendance calculations")
+          : t("Only managers can exclude days from attendance calculations")}
       </p>
       {/* Filter toggles */}
       <div className="flex flex-wrap items-center gap-4 mb-3">
@@ -270,9 +318,9 @@ const AttendanceCalendar = ({
           <span className="text-sm">{t("Unknown")}</span>
           <div className="w-4 h-4" style={{ backgroundColor: "#ef4444" }}></div>
         </label>
-        {selectedDays.length > 0 && (
+        {canUpdateNotInAverage && selectedDays.length > 0 && (
           <button
-            onClick={() => setSelectedDays([])}
+            onClick={handleClearSelectedDays}
             className="text-sm text-blue-600 hover:text-blue-800 underline"
           >
             {t("Clear Selected Days")} ({selectedDays.length})
@@ -284,6 +332,7 @@ const AttendanceCalendar = ({
           style={{
             height: isSmallScreen ? "15rem" : "18rem",
             minWidth: isSmallScreen ? "60.25rem" : "100%",
+            cursor: canUpdateNotInAverage ? "pointer" : "default",
           }}
         >
           <ResponsiveCalendar
