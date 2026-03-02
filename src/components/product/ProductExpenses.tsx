@@ -84,9 +84,9 @@ const ProductExpenses = () => {
       brnd: getItem(invoice?.brand, brands),
       vndr: getItem(invoice?.vendor, vendors),
       prdct: getItem(invoice?.product, products),
-      paymentMethodName: t(
+      paymentMethodName:
         getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-      ),
+      ,
     };
   });
   const [rows, setRows] = useState(allRows);

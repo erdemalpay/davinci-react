@@ -1319,5 +1319,13 @@
   "Previous page" : "Previous page",
   "Next page" : "Next page",
   "Shopify Collections" : "Shopify Collections",
-  "Add Shopify Collection" : "Add Shopify Collection"
+  "Add Shopify Collection" : "Add Shopify Collection",
+  "Hepsiburada Order Create" : "Hepsiburada Order Create",
+  "Hepsiburada Order Cancel" : "Hepsiburada Order Cancel",
+  "Trendyol Order Create" : "Trendyol Order Create",
+  "Trendyol Order Cancel" : "Trendyol Order Cancel",
+  "Shopify Order Create" : "Shopify Order Create",
+  "Shopify Order Cancel" : "Shopify Order Cancel",
+  "Ikas Order Create" : "Ikas Order Create",
+  "Ikas Order Cancel" : "Ikas Order Cancel"
 }

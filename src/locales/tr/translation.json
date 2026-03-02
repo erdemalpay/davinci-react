@@ -1321,6 +1321,13 @@
   "Previous page" : "Önceki Sayfa",
   "Next page" : "Sonraki Sayfa",
   "Shopify Collections" : "Shopify Kategorileri",
-  "Add Shopify Collection" : "Shopify Kategorisi Ekle"
-
+  "Add Shopify Collection" : "Shopify Kategorisi Ekle",
+  "Hepsiburada Order Create" : "Hepsiburada Sipariş Oluşturma",
+  "Hepsiburada Order Cancel" : "Hepsiburada Sipariş İptali",
+  "Trendyol Order Create" : "Trendyol Sipariş Oluşturma",
+  "Trendyol Order Cancel" : "Trendyol Sipariş İptali",
+  "Shopify Order Create" : "Shopify Sipariş Oluşturma",
+  "Shopify Order Cancel" : "Shopify Sipariş İptali",
+  "Ikas Order Create" : "Ikas Sipariş Oluşturma",
+  "Ikas Order Cancel" : "Ikas Sipariş İptali"
 }

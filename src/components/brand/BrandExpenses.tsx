@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
@@ -23,7 +23,6 @@ const BrandExpenses = () => {
   const products = useGetAccountProducts();
   const locations = useGetStockLocations();
   const vendors = useGetAccountVendors();
-  if (!brandId) return null;
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
@@ -42,48 +41,47 @@ const BrandExpenses = () => {
       search: "",
     });
 
-  const filterPanelInputs = useMemo(
-    () => [
-      ProductInput({
-        products: products.filter((p) => p.brand?.includes(brandId)),
-        required: true,
-      }),
-      VendorInput({ vendors, required: true }),
-      StockLocationInput({ locations }),
-      {
-        type: InputTypes.SELECT,
-        formKey: "date",
-        label: t("Date"),
-        options: commonDateOptions.map((o) => ({
-          value: o.value,
-          label: t(o.label),
-        })),
-        placeholder: t("Date"),
-        required: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "after",
-        label: t("Start Date"),
-        placeholder: t("Start Date"),
-        required: true,
-        isDatePicker: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "before",
-        label: t("End Date"),
-        placeholder: t("End Date"),
-        required: true,
-        isDatePicker: true,
-      },
-    ],
-    [products, brandId, vendors, locations, t]
-  );
+  const filterPanelInputs = [
+    ProductInput({
+      products: products.filter((p) => p.brand?.includes(brandId ?? "")),
+      required: true,
+    }),
+    VendorInput({ vendors, required: true }),
+    StockLocationInput({ locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((o) => ({
+        value: o.value,
+        label: t(o.label),
+      })),
+      placeholder: t("Date"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
 
   useEffect(() => {
     setFilterPanelFormElements((prev) => ({ ...prev, brand: brandId }));
   }, [brandId]);
+
+  if (!brandId) return null;
 
   return (
     <GenericExpenses
