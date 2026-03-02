@@ -2,8 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
-import { InputTypes } from "../components/panelComponents/shared/types";
+import {
+  ColumnType,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
+import { MenuItem } from "../types";
+import {
+  useNotifyBackInStockSubscribersBulkMutation,
+  useNotifyBackInStockSubscribersMutation,
+} from "../utils/api/account/stock";
 import {
   BackInStockSubscription,
   SubscriptionStatus,
@@ -18,6 +26,18 @@ type FormElementsState = {
 export default function BackInStock() {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
+  const { mutate: notifyBackInStockSubscribers } =
+    useNotifyBackInStockSubscribersMutation();
+  const { mutate: notifyBackInStockSubscribersBulk } =
+    useNotifyBackInStockSubscribersBulkMutation();
+  const {
+    selectedRows,
+    setSelectedRows,
+    setIsSelectionActive,
+    rowsPerPage,
+    currentPage,
+    setCurrentPage,
+  } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       email: "",
@@ -30,7 +50,6 @@ export default function BackInStock() {
       sort: "createdAt",
       asc: -1,
     });
-  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
 
   const subscriptionsPayload = useGetBackInStockSubscriptions(
     currentPage,
@@ -40,9 +59,10 @@ export default function BackInStock() {
 
   // Group subscriptions by productTitle
   const groupedByProduct = useMemo(() => {
-    if (!subscriptionsPayload?.subscriptions) return new Map<string, BackInStockSubscription[]>();
+    if (!subscriptionsPayload?.subscriptions)
+      return new Map<string, BackInStockSubscription[]>();
     const grouped = new Map<string, BackInStockSubscription[]>();
-    
+
     subscriptionsPayload.subscriptions.forEach((subscription) => {
       const groupKey = subscription.productTitle || subscription.productId;
       if (!grouped.has(groupKey)) {
@@ -50,7 +70,7 @@ export default function BackInStock() {
       }
       grouped.get(groupKey)?.push(subscription);
     });
-    
+
     return grouped;
   }, [subscriptionsPayload?.subscriptions]);
 
@@ -114,11 +134,13 @@ export default function BackInStock() {
           },
           {
             key: "notifiedAt",
-            node: (row: any) => row.notifiedAt ? formatAsLocalDate(row.notifiedAt) : "-",
+            node: (row: any) =>
+              row.notifiedAt ? formatAsLocalDate(row.notifiedAt) : "-",
           },
           {
             key: "cancelledAt",
-            node: (row: any) => row.cancelledAt ? formatAsLocalDate(row.cancelledAt) : "-",
+            node: (row: any) =>
+              row.cancelledAt ? formatAsLocalDate(row.cancelledAt) : "-",
           },
         ],
       },
@@ -130,28 +152,34 @@ export default function BackInStock() {
     if (!subscriptionsPayload?.subscriptions) return [];
 
     const result: any[] = [];
-    
+
     groupedByProduct.forEach((subscriptions, productTitle) => {
       if (subscriptions.length === 0) return;
-      
-      const mainRow = createCollapsibleRow(subscriptions, "productTitle", productTitle);
+
+      const mainRow = createCollapsibleRow(
+        subscriptions,
+        "productTitle",
+        productTitle
+      );
       result.push(mainRow);
     });
-    
+
     return result;
   }, [subscriptionsPayload?.subscriptions, groupedByProduct, t]);
-
   const columns = useMemo(
     () => [
-      { 
-        key: t("Product"), 
-        isSortable: true, 
-        correspondingKey: "productTitle" 
-      },
-      { 
-        key: t("Request Count"), 
+      {
+        key: t("Product"),
         isSortable: true,
-        correspondingKey: "requestCount"
+        correspondingKey: "productTitle",
+      },
+      {
+        key: t("Request Count"),
+        isSortable: true,
+        correspondingKey: "requestCount",
+      },
+      {
+        key: t("Actions"),
       },
     ],
     [t]
@@ -176,6 +204,30 @@ export default function BackInStock() {
       },
     ],
     []
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Notify Subscribers"),
+        isModal: false,
+        isPath: false,
+        icon: null,
+        node: (row: any) => (
+          <button
+            onClick={() => {
+              if (row.productId) {
+                notifyBackInStockSubscribers((row.menuItemId as MenuItem)?._id);
+              }
+            }}
+            className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm font-medium"
+          >
+            {t("Notify")}
+          </button>
+        ),
+      },
+    ],
+    [t, notifyBackInStockSubscribers]
   );
 
   const filterPanelInputs = useMemo(
@@ -288,6 +340,34 @@ export default function BackInStock() {
     };
   }, [t, filterPanelFormElements]);
 
+  const selectionActions = useMemo(
+    () => [
+      {
+        name: t("Notify Back In Stock"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-purple-600 hover:text-purple-600 hover:border-purple-600 sm:px-3 py-1 h-fit w-fit text-white hover:bg-white transition-transform border rounded-md cursor-pointer",
+        onClick: () => {
+          const menuItemIds = selectedRows
+            .map((row: any) => (row.menuItemId as MenuItem)?._id)
+            .filter(Boolean);
+          if (menuItemIds.length > 0) {
+            notifyBackInStockSubscribersBulk(menuItemIds);
+            setSelectedRows([]);
+            setIsSelectionActive(false);
+          }
+        },
+      },
+    ],
+    [
+      t,
+      selectedRows,
+      notifyBackInStockSubscribersBulk,
+      setSelectedRows,
+      setIsSelectionActive,
+    ]
+  );
+
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements, setCurrentPage]);
@@ -296,14 +376,16 @@ export default function BackInStock() {
     <div className="w-[95%] mx-auto">
       <GenericTable
         rowKeys={rowKeys}
-        columns={columns}
+        columns={columns as ColumnType[]}
         rows={rows}
         outsideSearchProps={outsideSearchProps}
         isSearch={false}
         title={t("Back In Stock Subscriptions")}
         filterPanel={filterPanel}
         filters={filters}
-        isActionsActive={false}
+        isActionsActive={true}
+        actions={actions}
+        selectionActions={selectionActions}
         outsideSortProps={outsideSort}
         isCollapsible={true}
         {...(pagination && { pagination })}

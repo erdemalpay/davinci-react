@@ -634,6 +634,7 @@ export enum DisabledConditionEnum {
   CHECKOUT_CASHOUT = "checkout_cashout",
   CHECKOUT_CHECKOUT_CONTROL = "checkout_checkout_control",
   MAILSUBSCRIPTIONS = "mailsubscriptions",
+  MAILLOGS = "maillogs",
 }
 
 export enum ActionEnum {
@@ -686,6 +687,7 @@ export enum ActionEnum {
   COPY_SHIFT = "copy_shift",
   CHECK = "check",
   SHOW_ALL = "show_all",
+  NOTIFY = "notify",
 }
 
 export type Membership = {
@@ -1385,6 +1387,7 @@ export enum IntegrationPageTabEnum {
   HEPSIBURADASTOCKCOMPARISION,
   BACKINSTOCK,
   MAILSUBSCRIPTIONS,
+  MAILLOGS,
 }
 
 export enum StockHistoriesReportsPageTabEnum {
