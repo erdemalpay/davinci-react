@@ -26,6 +26,7 @@ import {
   useMenuItemMutations,
 } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -46,6 +47,7 @@ const Product = () => {
   const categories = useGetCategories();
   const navigate = useNavigate();
   const vendors = useGetAccountVendors();
+  const pages = useGetPanelControlPages();
   const disabledConditions = useGetDisabledConditions();
 
   const productDisabledCondition = useMemo(() => {
@@ -448,6 +450,7 @@ const Product = () => {
     return keys;
   }, [
     user,
+    pages,
     productDisabledCondition,
     setCurrentPage,
     setSearchQuery,

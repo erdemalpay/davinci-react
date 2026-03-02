@@ -14,6 +14,7 @@ import {
 } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -25,6 +26,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Service = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const pages = useGetPanelControlPages();
   const services = useGetAccountServices();
   const { user } = useUserContext();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -240,6 +242,7 @@ const Service = () => {
     ];
   }, [
     user,
+    pages,
     servicesDisabledCondition,
     setCurrentPage,
     setSearchQuery,

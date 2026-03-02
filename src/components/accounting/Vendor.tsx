@@ -22,6 +22,7 @@ import {
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -34,6 +35,7 @@ const Vendor = () => {
   const navigate = useNavigate();
   const { user } = useUserContext();
   const vendors = useGetAccountVendors();
+  const pages = useGetPanelControlPages();
   const services = useGetAccountServices();
   const products = useGetAccountProducts();
   const { updateAccountProduct } = useAccountProductMutations();
@@ -110,7 +112,7 @@ const Vendor = () => {
       { key: "productCount" },
       { key: "serviceCount" },
     ],
-    [user, vendorDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
+    [user, pages, vendorDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
   );
 
   const inputs = [NameInput()];

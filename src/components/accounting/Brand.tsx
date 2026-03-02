@@ -24,6 +24,7 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -36,6 +37,7 @@ const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const navigate = useNavigate();
+  const pages = useGetPanelControlPages();
   const { mutate: createMultipleBrand } = useCreateMultipleBrandMutation();
   const brands = useGetAccountBrands();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -115,7 +117,7 @@ const Brand = () => {
       },
       { key: "productCount" },
     ],
-    [user, brandDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
+    [user, pages, brandDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
   );
 
   const inputs = [NameInput()];
