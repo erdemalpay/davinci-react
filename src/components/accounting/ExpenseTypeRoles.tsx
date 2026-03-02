@@ -24,6 +24,7 @@ const EXPENSE_TYPE_PAGES: PageRow[] = [
   { key: "service", label: "Services" },
   { key: "expense", label: "Expenses" },
   { key: "vendor-expense", label: "Vendor Expenses" },
+  { key: "brand-expense", label: "Brand Expenses" },
 ];
 
 const ExpenseTypeRoles = () => {
