@@ -1,9 +1,10 @@
 import { ResponsiveCalendar } from "@nivo/calendar";
 import { addDays, format, startOfYear } from "date-fns";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useIsSmallScreen from "../../hooks/useIsSmallScreen";
 import { LocationShiftType } from "../../types";
+import { useShiftMutations } from "../../utils/api/shift";
 
 const VISIT_TYPE = {
   FULLTIME: "fulltime",
@@ -56,6 +57,25 @@ const AttendanceCalendar = ({
   const [showPartTime, setShowPartTime] = useState(true);
   const [showUnknown, setShowUnknown] = useState(true);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+
+  // Get shift mutations for updating notInAverage field
+  const { updateShift } = useShiftMutations();
+
+  // Initialize selectedDays from shifts with notInAverage = true
+  useEffect(() => {
+    if (shifts && userId) {
+      const daysNotInAverage: string[] = [];
+      shifts.forEach((shift) => {
+        const userShift = shift.shifts?.find(
+          (s: any) => s.user?.includes(userId) && s.notInAverage === true
+        );
+        if (userShift) {
+          daysNotInAverage.push(shift.day);
+        }
+      });
+      setSelectedDays(daysNotInAverage);
+    }
+  }, [shifts, userId]);
 
   // Categorize visits by type
   const categorizedVisits: CategorizedVisit[] =
@@ -112,7 +132,7 @@ const AttendanceCalendar = ({
   });
 
   // Notify parent component of attendance changes
-  React.useEffect(() => {
+  useEffect(() => {
     onAttendanceChange({
       fullTimeAttendance,
       partTimeAttendance,
@@ -166,6 +186,9 @@ const AttendanceCalendar = ({
   const handleDayClick = (data: { day?: string; value?: number }) => {
     if (data?.day) {
       const dayValue = data.day;
+      const isCurrentlySelected = selectedDays.includes(dayValue);
+
+      // Update local state
       setSelectedDays((prev) => {
         if (prev.includes(dayValue)) {
           return prev.filter((d) => d !== dayValue);
@@ -173,6 +196,33 @@ const AttendanceCalendar = ({
           return [...prev, dayValue];
         }
       });
+
+      // Find the shift for this day and user
+      const shiftForDay = shifts?.find(
+        (shift) =>
+          shift.day === dayValue &&
+          shift.shifts?.some((s: any) => s.user?.includes(userId))
+      );
+
+      if (shiftForDay) {
+        // Update the shift's notInAverage field in the database
+        const updatedShifts = shiftForDay.shifts.map((s: any) => {
+          if (s.user?.includes(userId)) {
+            return {
+              ...s,
+              notInAverage: !isCurrentlySelected, // Toggle the value
+            };
+          }
+          return s;
+        });
+
+        updateShift({
+          id: shiftForDay._id,
+          updates: {
+            shifts: updatedShifts,
+          },
+        });
+      }
     }
   };
 

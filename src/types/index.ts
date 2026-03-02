@@ -791,6 +791,7 @@ export type ShiftValue = {
   shiftEndHour?: string;
   user: string[];
   chefUser?: string;
+  notInAverage?: boolean;
 };
 
 export type Shift = {
