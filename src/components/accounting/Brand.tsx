@@ -36,8 +36,8 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const navigate = useNavigate();
   const pages = useGetPanelControlPages();
+  const navigate = useNavigate();
   const { mutate: createMultipleBrand } = useCreateMultipleBrandMutation();
   const brands = useGetAccountBrands();
   const inputRef = useRef<HTMLInputElement>(null);
