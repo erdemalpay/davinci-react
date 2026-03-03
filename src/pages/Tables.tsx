@@ -48,6 +48,7 @@ import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetBreaksByDate } from "../utils/api/break";
 import { useGetCafeActivitys } from "../utils/api/cafeActivity";
 import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
+import { useGetMiddlemanByDate } from "../utils/api/middleman";
 import { useGetAllLocations } from "../utils/api/location";
 import {
   useCreateMultipleOrderMutation,
@@ -172,6 +173,11 @@ const Tables = () => {
 
   // Get active gameplay times for today
   const activeGameplayTimes = useGetGameplayTimesByDate(
+    selectedDate || formatDate(new Date())
+  );
+
+  // Get active middlemen for today
+  const activeMiddlemen = useGetMiddlemanByDate(
     selectedDate || formatDate(new Date())
   );
 
@@ -1123,11 +1129,26 @@ const Tables = () => {
         );
       };
 
+      // Helper: Check if user is an active middleman
+      const isUserMiddleman = (userId: string) => {
+        if (!activeMiddlemen) return false;
+        return activeMiddlemen.some(
+          (m) =>
+            (typeof m.user === "string" ? m.user : m.user._id) === userId &&
+            m.location === selectedLocationId &&
+            !m.finishHour
+        );
+      };
+
       visits.forEach((visit) => {
         const user = getItem(visit.user, users) as User;
         if (user && !visit?.finishHour && !newMentors.includes(user)) {
-          // Filter out users who are on break or in gameplay time
-          if (!isUserOnBreak(user._id) && !isUserInGameplayTime(user._id)) {
+          // Filter out users who are on break, in gameplay time, or are middleman
+          if (
+            !isUserOnBreak(user._id) &&
+            !isUserInGameplayTime(user._id) &&
+            !isUserMiddleman(user._id)
+          ) {
             newMentors.push(user);
           }
         }
@@ -1145,6 +1166,7 @@ const Tables = () => {
     visits,
     todayBreaks,
     activeGameplayTimes,
+    activeMiddlemen,
     selectedLocationId,
     users,
   ]);

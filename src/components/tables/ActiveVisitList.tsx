@@ -3,12 +3,13 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
-import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
+import { GiPerspectiveDiceSixFacesRandom, GiRoundTable } from "react-icons/gi";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { Break, GameplayTime, Visit, VisitSource } from "../../types";
+import { Break, GameplayTime, Middleman, Visit, VisitSource } from "../../types";
 import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
+import { useGetMiddlemanByDate } from "../../utils/api/middleman";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
@@ -41,9 +42,10 @@ export function ActiveVisitList({
   const { selectedLocationId } = useLocationContext();
   const isDisabledCondition = panelSettings?.isVisitEntryDisabled;
 
-  // Get active gameplay times for today
+  // Get active gameplay times and middleman sessions for today
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
+  const activeMiddlemen = useGetMiddlemanByDate(todayDate);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
@@ -144,6 +146,18 @@ export function ActiveVisitList({
       ) || null
     );
   };
+
+  const isUserMiddleman = (userId: string): Middleman | null => {
+    if (!activeMiddlemen || activeMiddlemen.length === 0) return null;
+    return (
+      activeMiddlemen.find(
+        (m) =>
+          (typeof m.user === "string" ? m.user : m.user._id) === userId &&
+          m.location === selectedLocationId &&
+          !m.finishHour
+      ) || null
+    );
+  };
   const uniqueVisits = visits.reduce(
     (acc: { unique: typeof visits; seenUsers: SeenUsers }, visit) => {
       acc.seenUsers = acc.seenUsers || {}; // Initialize if not already initialized
@@ -161,21 +175,23 @@ export function ActiveVisitList({
   const getVisitBadgePriority = (visit: Visit) => {
     const userBreak = isUserOnBreak(visit.user);
     const userInGameplayTime = isUserInGameplayTime(visit.user);
+    const userMiddleman = isUserMiddleman(visit.user);
     const userActive = isUserActive(visit.user);
 
     if (userActive) {
-      if (!userBreak && !userInGameplayTime) return 1;
+      if (!userBreak && !userInGameplayTime && !userMiddleman) return 1;
       if (userInGameplayTime) return 2;
       if (userBreak) return 3;
+      if (userMiddleman) return 4;
     }
-    return 4;
+    return 5;
   };
 
   const sortedVisits = useMemo(() => {
     return [...uniqueVisits].sort((a, b) => {
       return getVisitBadgePriority(a) - getVisitBadgePriority(b);
     });
-  }, [uniqueVisits, breaks, activeGameplayTimes]);
+  }, [uniqueVisits, breaks, activeGameplayTimes, activeMiddlemen]);
 
   if (isConfirmationDialogOpen) {
     return (
@@ -232,6 +248,7 @@ export function ActiveVisitList({
 
           const userBreak = isUserOnBreak(visit.user);
           const userGameplayTime = isUserInGameplayTime(visit.user);
+          const userMiddleman = isUserMiddleman(visit.user);
           const userName = userOnVisit.name ?? "";
           const userRole = userOnVisit.role?.name ?? "";
 
@@ -241,6 +258,8 @@ export function ActiveVisitList({
             tooltipContent = `${userRole}  •  ${t("On Break")}`;
           } else if (userGameplayTime) {
             tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
+          } else if (userMiddleman) {
+            tooltipContent = `${userRole}  •  ${t("Middleman")}`;
           }
 
           const getChipValue = () => {
@@ -260,6 +279,14 @@ export function ActiveVisitList({
                 </span>
               );
             }
+            if (userMiddleman) {
+              return (
+                <span className="flex items-center gap-1">
+                  <GiRoundTable className="text-sm" />
+                  {userName}
+                </span>
+              );
+            }
             return userName;
           };
 
@@ -268,6 +295,8 @@ export function ActiveVisitList({
               return "#F97316";
             } else if (userBreak) {
               return "#255691";
+            } else if (userMiddleman) {
+              return "#0D9488";
             } else return "#288809";
           };
 

@@ -54,6 +54,7 @@ export const Paths = {
   Point: "/point",
   Consumers: "/consumers",
   Breaks: "/breaks",
+  Middlemen: "/middlemen",
   WebhookLog: "/webhook-log",
   Mail: "/mail",
 };

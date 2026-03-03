@@ -12,6 +12,7 @@ import { useGetUserNewNotifications } from "../../utils/api/notification";
 import { useGetReleaseNotes } from "../../utils/api/panelControl/releaseNote";
 import { useGetUser } from "../../utils/api/user";
 import { BreakButton } from "./BreakButton";
+import { MiddlemanButton } from "./MiddlemanButton";
 import { LocationSelector } from "./LocationSelector";
 import logo from "./logo.svg";
 import NotificationModal from "./NotificationModal";
@@ -85,6 +86,7 @@ export function Header({
               <LocationSelector allowedLocations={allowedLocations} />
             )}
             <BreakButton />
+            <MiddlemanButton />
             {dateProps && (
               <div className="sm:hidden">
                 <DateInput date={dateProps.date} setDate={dateProps.setDate} compact />

@@ -130,6 +130,10 @@ interface CancelShopifyOrder {
   shopifyOrderLineItemId: string;
   quantity: number;
 }
+interface CancelTrendyolOrder {
+  trendyolLineItemId: string;
+  quantity: number;
+}
 
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
@@ -497,7 +501,75 @@ export function useCancelShopifyOrderMutation() {
     },
   });
 }
+interface CancelHepsiburadaOrder {
+  hepsiburadaLineItemId: string;
+  quantity: number;
+}
+export function cancelTrendyolOrder(payload: CancelTrendyolOrder) {
+  return post({
+    path: `/order/cancel-trendyol-order`,
+    payload: {
+      trendyolLineItemId: payload.trendyolLineItemId,
+      quantity: Number(payload.quantity),
+    },
+  });
+}
+export function useCancelTrendyolOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: cancelTrendyolOrder,
+    onMutate: async () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 
+export function cancelHepsiburadaOrder(payload: CancelHepsiburadaOrder) {
+  return post({
+    path: `/order/cancel-hepsiburada-order`,
+    payload: {
+      hepsiburadaLineItemId: payload.hepsiburadaLineItemId,
+      quantity: Number(payload.quantity),
+    },
+  });
+}
+export function useCancelHepsiburadaOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: cancelHepsiburadaOrder,
+    onMutate: async () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 export function useCreateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();

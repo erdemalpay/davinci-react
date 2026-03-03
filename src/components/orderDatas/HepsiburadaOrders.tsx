@@ -1,7 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
+import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
@@ -19,15 +21,19 @@ import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetOrders } from "../../utils/api/order/order";
+import {
+  useCancelHepsiburadaOrderMutation,
+  useGetOrders,
+} from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const HepsiburadaOrders = () => {
   const { t } = useTranslation();
@@ -37,6 +43,10 @@ const HepsiburadaOrders = () => {
   const users = useGetUsersMinimal();
   const categories = useGetAllCategories();
   const discounts = useGetOrderDiscounts();
+  const [rowToAction, setRowToAction] = useState<any>({});
+  const { mutate: cancelHepsiburadaOrder } = useCancelHepsiburadaOrderMutation();
+  const [cancelForm, setCancelForm] = useState({ quantity: 1 });
+  const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const items = useGetMenuItems();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
@@ -194,6 +204,7 @@ const HepsiburadaOrders = () => {
       },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
+      { key: t("Actions"), isSortable: false },
     ],
     [t]
   );
@@ -244,6 +255,86 @@ const HepsiburadaOrders = () => {
       { key: "statusLabel", className: "min-w-32 pr-2" },
     ],
     []
+  );
+
+  const cancelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.NUMBER,
+        formKey: "quantity",
+        label: t("Quantity"),
+        placeholder: t("Quantity"),
+        minNumber: 1,
+        required: true,
+        isNumberButtonsActive: true,
+        isOnClearActive: false,
+      },
+    ],
+    [t]
+  );
+
+  const cancelFormKeys = useMemo(
+    () => [{ key: "quantity", type: FormKeyTypeEnum.NUMBER }],
+    []
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Cancel"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        className: "text-red-500 cursor-pointer text-2xl  ",
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isCancelOrderModalOpen}
+            topClassName="flex flex-col gap-2 "
+            close={() => setIsCancelOrderModalOpen(false)}
+            inputs={cancelInputs}
+            formKeys={cancelFormKeys}
+            setForm={setCancelForm}
+            submitItem={cancelHepsiburadaOrder as any}
+            constantValues={{
+              status: rowToAction.status,
+              paidQuantity: rowToAction.paidQuantity,
+            }}
+            submitFunction={() => {
+              if (cancelForm.quantity > rowToAction.quantity) {
+                toast.error(
+                  t("Quantity cannot be greater than the order quantity.")
+                );
+                return;
+              }
+              cancelHepsiburadaOrder({
+                hepsiburadaLineItemId: rowToAction.hepsiburadaLineItemId,
+                quantity: cancelForm.quantity,
+              });
+            }}
+            isEditMode={false}
+          />
+        ) : null,
+        isModal: true,
+        isModalOpen: isCancelOrderModalOpen,
+        setIsModal: setIsCancelOrderModalOpen,
+        isDisabled: hepsiburadaOrdersPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isCancelOrderModalOpen,
+      cancelInputs,
+      cancelFormKeys,
+      cancelForm,
+      cancelHepsiburadaOrder,
+      hepsiburadaOrdersPageDisabledCondition,
+      user,
+    ]
   );
 
   const filterPanelInputs = useMemo(
@@ -502,7 +593,8 @@ const HepsiburadaOrders = () => {
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
-          isActionsActive={false}
+          isActionsActive={true}
+          actions={actions}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
