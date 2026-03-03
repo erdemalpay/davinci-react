@@ -296,4 +296,19 @@ export const socketEventListeners: SocketEventType[] = [
     event: "shopifyProductStockChanged",
     invalidateKeys: [`${Paths.Shopify}/product`, `${Paths.Accounting}/stocks`],
   },
+  {
+    event: "backInStockChanged",
+    invalidateKeys: ["/back-in-stock/query", "back-in-stock"],
+  },
+  {
+    event: "mailSubscriptionChanged",
+    invalidateKeys: [
+      `${Paths.Mail}/subscriptions`,
+      `${Paths.Mail}/logs-paginated`,
+    ],
+  },
+  {
+    event: "mailTemplateChanged",
+    invalidateKeys: [`${Paths.Mail}/templates`],
+  },
 ];

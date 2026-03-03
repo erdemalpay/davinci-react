@@ -1366,8 +1366,13 @@ const Tables = () => {
     },
   ];
 
-  const renderCafeInfos = (className: string, keyPrefix: string) => {
+  const renderCafeInfos = (
+    className: string,
+    keyPrefix: string,
+    alwaysShow = false
+  ) => {
     if (
+      !alwaysShow &&
       !(
         activeTableCount > 0 ||
         totalTableCount > 0 ||
@@ -1382,7 +1387,7 @@ const Tables = () => {
       <div
         className={`border w-fit min-w-fit border-gray-400 rounded-md ${className}`}
       >
-        <div className="hidden sm:grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
+        <div className="grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
           {cafeInfos.map((info, index) =>
             info?.tooltip ? (
               <Tooltip
@@ -1918,7 +1923,7 @@ const Tables = () => {
 
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
             {/*Cafe info opentables ...  */}
-            {renderCafeInfos("hidden md:block", "cafeinfo-desktop")}
+            {renderCafeInfos("hidden md:block", "cafeinfo-desktop", true)}
             <div className="flex flex-col md:ml-8 justify-between w-full px-2 md:px-0 mt-2 md:mt-0">
               {/* who is/was at the cafe */}
               {selectedDate && isToday(selectedDate) ? (
@@ -1934,13 +1939,13 @@ const Tables = () => {
                     visits={visits}
                   />
                   {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos("hidden mt-4", "cafeinfo-mobile-today")}
+                  {renderCafeInfos("md:hidden mt-4", "cafeinfo-mobile-today")}
                 </div>
               ) : (
                 <>
                   <PreviousVisitList visits={visits} />
                   {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos("hidden mt-4", "cafeinfo-mobile-previous")}
+                  {renderCafeInfos("md:hidden mt-4", "cafeinfo-mobile-previous")}
                 </>
               )}
               {/* filters */}

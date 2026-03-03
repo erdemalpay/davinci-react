@@ -202,6 +202,50 @@ export function useStockTransferMutation() {
   });
 }
 
+export function notifyBackInStockSubscribers(menuItemId: number) {
+  return post<{ menuItemId: number }, any>({
+    path: `${Paths.Accounting}/stocks/notify-back-in-stock`,
+    payload: { menuItemId },
+  });
+}
+
+export function useNotifyBackInStockSubscribersMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: notifyBackInStockSubscribers,
+    onSuccess: () => {
+      toast.success("Back in stock notifications sent successfully");
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function notifyBackInStockSubscribersBulk(menuItemIds: number[]) {
+  return post<{ menuItemIds: number[] }, any>({
+    path: `${Paths.Accounting}/stocks/notify-back-in-stock-bulk`,
+    payload: { menuItemIds },
+  });
+}
+
+export function useNotifyBackInStockSubscribersBulkMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: notifyBackInStockSubscribersBulk,
+    onSuccess: () => {
+      toast.success("Bulk back in stock notifications sent successfully");
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useGetAccountStocks() {
   return useGetList<AccountStock>(baseUrl);
 }

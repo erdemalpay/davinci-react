@@ -178,6 +178,7 @@ const PointUserSelectionModal = ({
                             {requiredAmount.toFixed(2)} ₺
                           </span>
                         </div>
+                        {selectedOption?.type === "consumer" && (
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">
                             {t("Available Points")}:
@@ -186,6 +187,7 @@ const PointUserSelectionModal = ({
                             {selectedUserPoints.toFixed(2)} ₺
                           </span>
                         </div>
+                        )}
                         {hasSufficientPoints ? (
                           <div className="flex justify-between items-center border-t pt-2">
                             <span className="text-sm font-medium">

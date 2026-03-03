@@ -511,6 +511,8 @@
   "Finish Break": "Mola Bitir",
   "Start Gameplay Time": "Oyun Anlatımı Başlat",
   "Finish Gameplay Time": "Oyun Anlatımı Bitir",
+  "Shift Change Approved": "Vardiya Değişimi Onaylandı",
+  "Shift Change Rejected": "Vardiya Değişimi Reddedildi",
   "Visit": "Giriş Çıkış",
   "Create Table": "Masa Oluştur",
   "Update Table": "Masa Güncelle",
@@ -1314,5 +1316,6 @@
   "Trendyol Price": "Trendyol Fiyat",
   "HepsiBurada Price": "Hepsiburada Fiyat",
   "HepsiBurada Stock": "Hepsiburada Stok",
-  "Back In Stock Subscriptions": "Gelince Haber Ver"
+  "Back In Stock Subscriptions": "Gelince Haber Ver",
+  "Role Restriction": "Rol Kısıtlama"
 }

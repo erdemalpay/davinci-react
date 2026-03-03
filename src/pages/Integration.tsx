@@ -1,4 +1,8 @@
-import { MdOutlineCompare, MdOutlinePriceChange } from "react-icons/md";
+import {
+  MdOutlineCompare,
+  MdOutlineMail,
+  MdOutlinePriceChange,
+} from "react-icons/md";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import HepsiBuradaPriceComparision from "../components/stocks/HepsiBuradaPriceComparision";
@@ -11,6 +15,8 @@ import { useUserContext } from "../context/User.context";
 import { IntegrationPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import BackInStock from "./BackInStock";
+import MailLogs from "./MailLogs";
+import MailSubscriptions from "./MailSubscriptions";
 
 export const IntegrationPageTabs = [
   {
@@ -55,6 +61,20 @@ export const IntegrationPageTabs = [
     content: <BackInStock />,
     isDisabled: false,
   },
+  {
+    number: IntegrationPageTabEnum.MAILSUBSCRIPTIONS,
+    label: "Mail Subscriptions",
+    icon: <MdOutlineMail className="text-lg font-thin" />,
+    content: <MailSubscriptions />,
+    isDisabled: false,
+  },
+  {
+    number: IntegrationPageTabEnum.MAILLOGS,
+    label: "Mail Logs",
+    icon: <MdOutlineMail className="text-lg font-thin" />,
+    content: <MailLogs />,
+    isDisabled: false,
+  },
 ];
 
 export default function Integration() {
@@ -72,13 +92,12 @@ export default function Integration() {
     (page) => page._id === currentPageId
   )?.tabs;
   const tabs = IntegrationPageTabs.map((tab) => {
+    const foundTab = currentPageTabs?.find((item) => item.name === tab.label);
     return {
       ...tab,
-      isDisabled: currentPageTabs
-        ?.find((item) => item.name === tab.label)
-        ?.permissionRoles?.includes(user.role._id)
-        ? false
-        : true,
+      isDisabled: foundTab
+        ? !foundTab.permissionRoles?.includes(user.role._id)
+        : false, // Show tabs that aren't configured in backend yet
     };
   });
   return (

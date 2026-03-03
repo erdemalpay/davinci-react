@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import {
   AccountExpenseType,
@@ -25,10 +27,14 @@ import { BackgroundColorInput, NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const ExpenseType = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { setCurrentPage, setSortConfigKey, setSearchQuery } =
+    useGeneralContext();
   const expenseTypes = useGetAccountExpenseTypes();
   const products = useGetAccountProducts();
   const services = useGetAccountServices();
@@ -76,6 +82,7 @@ const ExpenseType = () => {
       { key: t("Name"), isSortable: true },
       { key: t("Product Count"), isSortable: true },
       { key: t("Service Count"), isSortable: true },
+      { key: t("Role Restriction"), isSortable: false },
       { key: t("Actions"), isSortable: false },
     ];
   }, [t]);
@@ -85,18 +92,54 @@ const ExpenseType = () => {
       {
         key: "name",
         node: (row: AccountExpenseType) => (
-          <div
-            className="px-2 py-1 rounded-md w-fit text-white"
-            style={{ backgroundColor: row.backgroundColor }}
-          >
-            {row.name}
+          <div className="flex items-center gap-2">
+            <div
+              className="w-1 h-5 rounded-full flex-shrink-0"
+              style={{ backgroundColor: row.backgroundColor }}
+            />
+            {row.isRoleRestricted ? (
+              <p
+                className="text-blue-700 underline cursor-pointer hover:text-blue-500 transition-colors"
+                onClick={() => {
+                  setCurrentPage(1);
+                  setSearchQuery("");
+                  setSortConfigKey(null);
+                  navigate(`/expense-type-roles/${row._id}`);
+                }}
+              >
+                {row.name}
+              </p>
+            ) : (
+              <p className="text-black">{row.name}</p>
+            )}
           </div>
         ),
       },
       { key: "productCount" },
       { key: "serviceCount" },
+      {
+        key: "isRoleRestricted",
+        node: (row: AccountExpenseType) => (
+          <SwitchButton
+            checked={row.isRoleRestricted ?? false}
+            onChange={() => {
+              updateAccountExpenseType({
+                id: row._id,
+                updates: { isRoleRestricted: !row.isRoleRestricted },
+              });
+            }}
+          />
+        ),
+      },
     ],
-    []
+    [
+      t,
+      navigate,
+      setCurrentPage,
+      setSearchQuery,
+      setSortConfigKey,
+      updateAccountExpenseType,
+    ]
   );
 
   const inputs = [NameInput(), BackgroundColorInput()];

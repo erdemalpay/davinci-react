@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { pointHistoryStatuses, Table } from "../../types";
+import { PointHistory, pointHistoryStatuses, PointHistoryStatusEnum, Table } from "../../types";
 import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -178,6 +178,27 @@ const ConsumerPointHistoryComponent = () => {
       {
         key: "collectionId",
         className: "min-w-32 pr-1",
+        node: (row: PointHistory) => {
+          const isCollectionStatus =
+            row.status === PointHistoryStatusEnum.COLLECTIONCREATED ||
+            row.status === PointHistoryStatusEnum.COLLECTIONCANCELLED;
+          if (!isCollectionStatus || !row.collectionId) return <p></p>;
+          const hasTableId = row.tableId != null;
+          return (
+            <p
+              className={`text-blue-500 underline w-fit ${hasTableId ? "cursor-pointer hover:text-blue-700" : "opacity-50 pointer-events-none"}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (hasTableId) {
+                  setSelectedTableId(row.tableId);
+                  setIsCollectionModalOpen(true);
+                }
+              }}
+            >
+              {row.collectionId}
+            </p>
+          );
+        }
       },
       {
         key: "tableId",
@@ -204,21 +225,9 @@ const ConsumerPointHistoryComponent = () => {
           );
           if (!status) return null;
 
-          const isCollectionCreated = row.status === "COLLECTIONCREATED";
-          const hasTableId = row.tableId !== undefined && row.tableId !== null;
-
           return (
             <div
-              className={`w-fit rounded-md text-sm px-2 py-1 font-semibold ${status?.backgroundColor} text-white ${
-                isCollectionCreated && hasTableId ? "cursor-pointer hover:opacity-80" : ""
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (isCollectionCreated && hasTableId) {
-                  setSelectedTableId(row.tableId);
-                  setIsCollectionModalOpen(true);
-                }
-              }}
+              className={`w-fit rounded-md text-sm px-2 py-1 font-semibold ${status?.backgroundColor} text-white`}
             >
               {t(status?.label)}
             </div>

@@ -16,6 +16,7 @@ interface AddShiftPayload {
   shift: string;
   userId: string;
   shiftEndHour?: string;
+  notInAverage?: boolean;
 }
 
 interface CopyShiftIntervalPayload {
@@ -80,7 +81,11 @@ export function useGetUserShifts(
 }
 export function useGetUsersFutureShifts(after?: string) {
   const url = `${Paths.Shift}/users-future-shifts/${after}`;
-  return useGetList<Shift>(url, [`${Paths.Shift}`, "users-future-shifts", after], true);
+  return useGetList<Shift>(
+    url,
+    [`${Paths.Shift}`, "users-future-shifts", after],
+    true
+  );
 }
 export function useGetLocationShifts(location: number) {
   const { filterPanelFormElements } = useShiftContext();

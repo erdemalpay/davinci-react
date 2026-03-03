@@ -368,6 +368,8 @@ export type AccountExpenseType = {
   _id: string;
   name: string;
   backgroundColor: string;
+  isRoleRestricted: boolean;
+  pagePermissions: { page: string; allowedRoles: number[] }[];
 };
 
 export type ProductCategories = {
@@ -627,6 +629,12 @@ export enum DisabledConditionEnum {
   EXPIRATIONS_COUNTARCHIVE = "expirations_countarchive",
   EXPIRATIONS_EXPIRATIONLISTS = "expirations_expirationlists",
   EXPIRATIONS_EXPIRATIONLISTPRODUCTS = "expirations_expirationlistproducts",
+  CHECKOUT_INCOME = "checkout_income",
+  CHECKOUT_EXPENSE = "checkout_expense",
+  CHECKOUT_CASHOUT = "checkout_cashout",
+  CHECKOUT_CHECKOUT_CONTROL = "checkout_checkout_control",
+  MAILSUBSCRIPTIONS = "mailsubscriptions",
+  MAILLOGS = "maillogs",
 }
 
 export enum ActionEnum {
@@ -679,6 +687,7 @@ export enum ActionEnum {
   COPY_SHIFT = "copy_shift",
   CHECK = "check",
   SHOW_ALL = "show_all",
+  NOTIFY = "notify",
 }
 
 export type Membership = {
@@ -782,6 +791,7 @@ export type ShiftValue = {
   shiftEndHour?: string;
   user: string[];
   chefUser?: string;
+  notInAverage?: boolean;
 };
 
 export type Shift = {
@@ -1377,6 +1387,8 @@ export enum IntegrationPageTabEnum {
   HEPSIBURADAPRICECOMPARISION,
   HEPSIBURADASTOCKCOMPARISION,
   BACKINSTOCK,
+  MAILSUBSCRIPTIONS,
+  MAILLOGS,
 }
 
 export enum StockHistoriesReportsPageTabEnum {
@@ -1731,6 +1743,8 @@ export enum ActivityType {
   FINISH_BREAK = "FINISH_BREAK",
   START_GAMEPLAY_TIME = "START_GAMEPLAY_TIME",
   FINISH_GAMEPLAY_TIME = "FINISH_GAMEPLAY_TIME",
+  SHIFT_CHANGE_APPROVED = "SHIFT_CHANGE_APPROVED",
+  SHIFT_CHANGE_REJECTED = "SHIFT_CHANGE_REJECTED",
 }
 export const activityTypeDetails = [
   {
@@ -2022,6 +2036,16 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_GAMEPLAY_TIME,
     label: "Finish Gameplay Time",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.SHIFT_CHANGE_APPROVED,
+    label: "Shift Change Approved",
+    bgColor: "bg-green-600",
+  },
+  {
+    value: ActivityType.SHIFT_CHANGE_REJECTED,
+    label: "Shift Change Rejected",
+    bgColor: "bg-red-600",
   },
 ];
 

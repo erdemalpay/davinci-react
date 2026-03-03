@@ -1,11 +1,17 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutControl, commonDateOptions } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import {
+  ActionEnum,
+  CheckoutControl,
+  DisabledConditionEnum,
+  commonDateOptions,
+} from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
 import { useGetQueryPayments } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
@@ -16,6 +22,7 @@ import {
 } from "../../utils/api/checkout/checkoutControl";
 import { useGetQueryIncomes } from "../../utils/api/checkout/income";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
@@ -29,6 +36,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const paymentMethods = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
   const {
@@ -49,6 +57,14 @@ const CheckoutControlPage = () => {
   const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsersMinimal();
+  const disabledConditions = useGetDisabledConditions();
+
+  const checkoutControlPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.CHECKOUT_CHECKOUT_CONTROL,
+      disabledConditions
+    );
+  }, [disabledConditions]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutControl>();
@@ -453,6 +469,12 @@ const CheckoutControlPage = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: checkoutControlPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const actions = [
     {
@@ -476,6 +498,12 @@ const CheckoutControlPage = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: checkoutControlPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Edit"),
@@ -502,6 +530,12 @@ const CheckoutControlPage = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: checkoutControlPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   const filters = [
