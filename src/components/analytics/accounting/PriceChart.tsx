@@ -72,6 +72,12 @@ const PriceChart = ({
     return `${value.toLocaleString("tr-TR")} ${TURKISHLIRA}`;
   };
 
+  const hasData =
+    nivoLineData.length > 0 && nivoLineData[0]?.data?.length > 0;
+  const isSinglePoint = nivoLineData[0]?.data?.length === 1;
+
+  if (!hasData) return <></>;
+
   return (
     <Card className="shadow-none">
       <CardHeader
@@ -128,7 +134,7 @@ const PriceChart = ({
               max: "auto",
               stacked: false,
             }}
-            curve="monotoneX"
+            curve={isSinglePoint ? "linear" : "monotoneX"}
             axisBottom={{
               tickSize: 5,
               tickPadding: 5,

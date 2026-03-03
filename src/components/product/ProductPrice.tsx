@@ -63,7 +63,11 @@ const ProductPrice = () => {
               fontWeight: 400,
             },
           },
-          categories: dates.map((date) => formatAsLocalDate(date)),
+          categories: dates.map((date) =>
+            date && !isNaN(new Date(date).getTime())
+              ? formatAsLocalDate(date)
+              : ""
+          ),
         },
         yaxis: {
           labels: {

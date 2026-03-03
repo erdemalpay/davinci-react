@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ExpenseTypes,
@@ -17,11 +17,10 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   const { t } = useTranslation();
   const vendors = useGetAccountVendors();
   const locations = useGetStockLocations();
-  if (!selectedService?._id) return null;
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
-      service: selectedService._id,
+      service: selectedService?._id ?? "",
       type: ExpenseTypes.NONSTOCKABLE,
       vendor: "",
       brand: "",
@@ -35,46 +34,44 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       asc: 1,
       search: "",
     });
-  const filterPanelInputs = useMemo(
-    () => [
-      VendorInput({ vendors, required: true }),
-      StockLocationInput({ locations }),
-      {
-        type: InputTypes.SELECT,
-        formKey: "date",
-        label: t("Date"),
-        options: commonDateOptions.map((o) => ({
-          value: o.value,
-          label: t(o.label),
-        })),
-        placeholder: t("Date"),
-        required: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "after",
-        label: t("Start Date"),
-        placeholder: t("Start Date"),
-        required: true,
-        isDatePicker: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "before",
-        label: t("End Date"),
-        placeholder: t("End Date"),
-        required: true,
-        isDatePicker: true,
-      },
-    ],
-    [vendors, locations, t]
-  );
+  const filterPanelInputs = [
+    VendorInput({ vendors, required: true }),
+    StockLocationInput({ locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((o) => ({
+        value: o.value,
+        label: t(o.label),
+      })),
+      placeholder: t("Date"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
   useEffect(() => {
     setFilterPanelFormElements((prev) => ({
       ...prev,
-      service: selectedService._id,
+      service: selectedService?._id ?? "",
     }));
   }, [selectedService?._id]);
+  if (!selectedService?._id) return null;
   return (
     <GenericExpenses
       title={t("Service Expenses")}
