@@ -172,12 +172,14 @@ const Service = () => {
       {
         key: "name",
         className: "min-w-32 pr-1",
-        node: (row: any) =>
-          user &&
-          pages &&
-          pages
-            ?.find((page) => page._id === "service")
-            ?.permissionRoles?.includes(user.role._id) ? (
+        node: (row: any) => {
+          const isClickable = !servicesDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.CLICKABLE_ROWS &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return isClickable ? (
             <p
               className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
               onClick={() => {
@@ -191,7 +193,8 @@ const Service = () => {
             </p>
           ) : (
             <p>{row.name}</p>
-          ),
+          );
+        },
       },
       {
         key: "expenseType",
@@ -240,6 +243,7 @@ const Service = () => {
   }, [
     user,
     pages,
+    servicesDisabledCondition,
     setCurrentPage,
     setSearchQuery,
     setSortConfigKey,
