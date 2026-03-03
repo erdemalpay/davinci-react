@@ -11,6 +11,7 @@ import {
   useBreakMutations,
   useGetBreaksByLocation,
 } from "../../utils/api/break";
+import { useGetMiddlemanByLocation } from "../../utils/api/middleman";
 
 interface BreakButtonProps {
   onBreakStart?: () => void;
@@ -27,6 +28,9 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
 
   // Get active breaks for current location
   const activeBreaks = useGetBreaksByLocation(selectedLocationId || 0);
+
+  // Get active middlemen for current location
+  const activeMiddlemen = useGetMiddlemanByLocation(selectedLocationId || 0);
 
   // Check if current user has an active visit (is at the cafe)
   const hasActiveVisit = useMemo(() => {
@@ -61,6 +65,17 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     if (isOnBreak) {
       // User is already on break, don't start another one
       toast.warning(t("You are already on a break"));
+      return;
+    }
+
+    // Check if user is currently a middleman
+    const isCurrentUserMiddleman = activeMiddlemen?.some(
+      (m) =>
+        (typeof m.user === "string" ? m.user : m.user._id) === user._id &&
+        !m.finishHour
+    );
+    if (isCurrentUserMiddleman) {
+      toast.error(t("You cannot start a break while you are the middleman"));
       return;
     }
 
