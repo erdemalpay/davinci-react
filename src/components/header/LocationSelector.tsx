@@ -30,21 +30,23 @@ export function LocationSelector({ allowedLocations }: Props) {
   }, [allowedLocations, selectedLocationId, setSelectedLocationId]);
 
   return (
-    <>
+    <select
+      value={selectedLocationId}
+      onChange={(e) => {
+        setSelectedLocationId(Number(e.target.value));
+        window.scrollTo({ top: 0, behavior: "auto" });
+      }}
+      className="text-sm px-2 py-1 rounded-lg text-white bg-transparent border border-white/30"
+    >
       {showedLocations?.map((location) => (
-        <button
+        <option
           key={location._id}
-          onClick={() => {
-            setSelectedLocationId(location._id);
-            window.scrollTo({ top: 0, behavior: "auto" });
-          }}
-          className={`text-sm ${
-            selectedLocationId === location._id ? "border-2" : "border-0"
-          }  px-2 py-1 rounded-lg  text-white`}
+          value={location._id}
+          className="text-gray-900 bg-white"
         >
           {location.name}
-        </button>
+        </option>
       ))}
-    </>
+    </select>
   );
 }
