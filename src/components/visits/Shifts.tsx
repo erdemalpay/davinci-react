@@ -59,7 +59,7 @@ function getUserBadgeClasses(
 
 const Shifts = () => {
   const { t } = useTranslation();
-  // const [tableKey, setTableKey] = useState(0); NOT: Daha önce burada tableKey state'i vardı:
+  // const [tableKey, setTableKey] = useState(0); NOT: Daha önce burada tableKey state'i vardı
   const users = useGetUsersMinimal();
   const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
