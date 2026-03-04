@@ -711,7 +711,7 @@ export enum ActionEnum {
   SHOW_ALL = "show_all",
   SHOW_UNIT_PRICES = "show_unit_prices",
   NOTIFY = "notify",
-  CLICKABLE_ROWS = "clickable_rows"
+  CLICKABLE_ROWS = "clickable_rows",
 }
 
 export type Membership = {
@@ -1402,6 +1402,7 @@ export enum StocksPageTabEnum {
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
+  GAMEBATCHESFIFO,
 }
 
 export enum IntegrationPageTabEnum {
