@@ -85,12 +85,14 @@ const Vendor = () => {
       {
         key: "name",
         className: "min-w-32 pr-1",
-        node: (row: AccountVendor) =>
-          user &&
-          pages &&
-          pages
-            ?.find((page) => page._id === "vendor")
-            ?.permissionRoles?.includes(user.role._id) ? (
+        node: (row: AccountVendor) => {
+          const isClickable = !vendorDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.CLICKABLE_ROWS &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return isClickable ? (
             <p
               className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
               onClick={() => {
@@ -104,12 +106,13 @@ const Vendor = () => {
             </p>
           ) : (
             <p>{row.name}</p>
-          ),
+          );
+        },
       },
       { key: "productCount" },
       { key: "serviceCount" },
     ],
-    [user, pages, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
+    [user, pages, vendorDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
   );
 
   const inputs = [NameInput()];

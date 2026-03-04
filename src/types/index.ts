@@ -505,6 +505,28 @@ export type CreateBreakDto = {
   startHour: string;
 };
 
+export type Middleman = {
+  _id: number;
+  user: User | string;
+  location: number;
+  date: string;
+  startHour: string;
+  finishHour?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export type CreateMiddlemanDto = {
+  user: string;
+  location: number;
+  date: string;
+  startHour: string;
+};
+
+export type UpdateMiddlemanDto = {
+  finishHour?: string;
+};
+
 export type UpdateBreakDto = {
   finishHour?: string;
   startHour?: string;
@@ -687,7 +709,9 @@ export enum ActionEnum {
   COPY_SHIFT = "copy_shift",
   CHECK = "check",
   SHOW_ALL = "show_all",
+  SHOW_UNIT_PRICES = "show_unit_prices",
   NOTIFY = "notify",
+  CLICKABLE_ROWS = "clickable_rows"
 }
 
 export type Membership = {
@@ -1745,6 +1769,8 @@ export enum ActivityType {
   FINISH_GAMEPLAY_TIME = "FINISH_GAMEPLAY_TIME",
   SHIFT_CHANGE_APPROVED = "SHIFT_CHANGE_APPROVED",
   SHIFT_CHANGE_REJECTED = "SHIFT_CHANGE_REJECTED",
+  START_MIDDLEMAN = "START_MIDDLEMAN",
+  FINISH_MIDDLEMAN = "FINISH_MIDDLEMAN",
 }
 export const activityTypeDetails = [
   {
@@ -2046,6 +2072,16 @@ export const activityTypeDetails = [
     value: ActivityType.SHIFT_CHANGE_REJECTED,
     label: "Shift Change Rejected",
     bgColor: "bg-red-600",
+  },
+  {
+    value: ActivityType.START_MIDDLEMAN,
+    label: "Start Middleman",
+    bgColor: "bg-teal-500",
+  },
+  {
+    value: ActivityType.FINISH_MIDDLEMAN,
+    label: "Finish Middleman",
+    bgColor: "bg-teal-700",
   },
 ];
 

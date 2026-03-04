@@ -8,9 +8,9 @@ const VendorServices = () => {
   const { t } = useTranslation();
   const { vendorId } = useParams();
   const vendors = useGetAccountVendors();
+  const services = useGetAccountServices();
   const selectedVendor = vendors?.find((item) => item._id === vendorId);
   if (!selectedVendor) return <></>;
-  const services = useGetAccountServices();
   const vendorServices = services.filter((o) =>
     o?.vendor?.includes(selectedVendor?._id)
   );

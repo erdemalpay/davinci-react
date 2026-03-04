@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
@@ -23,13 +23,12 @@ const VendorExpenses = () => {
   const brands = useGetAccountBrands();
   const products = useGetAccountProducts();
   const locations = useGetStockLocations();
-  if (!vendorId) return null;
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
       service: "",
       type: ExpenseTypes.STOCKABLE,
-      vendor: vendorId,
+      vendor: vendorId ?? "",
       brand: "",
       expenseType: "",
       paymentMethod: "",
@@ -41,47 +40,47 @@ const VendorExpenses = () => {
       asc: 1,
       search: "",
     });
-  const filterPanelInputs = useMemo(
-    () => [
-      ProductInput({
-        products: products.filter((p) => p.vendor?.includes(vendorId)),
-        required: true,
-      }),
-      BrandInput({ brands, required: true }),
-      StockLocationInput({ locations }),
-      {
-        type: InputTypes.SELECT,
-        formKey: "date",
-        label: t("Date"),
-        options: commonDateOptions.map((o) => ({
-          value: o.value,
-          label: t(o.label),
-        })),
-        placeholder: t("Date"),
-        required: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "after",
-        label: t("Start Date"),
-        placeholder: t("Start Date"),
-        required: true,
-        isDatePicker: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "before",
-        label: t("End Date"),
-        placeholder: t("End Date"),
-        required: true,
-        isDatePicker: true,
-      },
-    ],
-    [products, vendorId, brands, locations, t]
-  );
+  const filterPanelInputs = [
+    ProductInput({
+      products: products.filter((p) => p.vendor?.includes(vendorId ?? "")),
+      required: true,
+    }),
+    BrandInput({ brands, required: true }),
+    StockLocationInput({ locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((o) => ({
+        value: o.value,
+        label: t(o.label),
+      })),
+      placeholder: t("Date"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
   useEffect(() => {
-    setFilterPanelFormElements((prev) => ({ ...prev, vendor: vendorId }));
+    if (vendorId) {
+      setFilterPanelFormElements((prev) => ({ ...prev, vendor: vendorId }));
+    }
   }, [vendorId]);
+  if (!vendorId) return null;
 
   return (
     <GenericExpenses

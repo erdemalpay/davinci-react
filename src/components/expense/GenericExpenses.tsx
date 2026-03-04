@@ -73,7 +73,7 @@ const GenericExpenses = ({
           brnd: brand,
           vndr: vendor,
           prdct: product,
-          paymentMethodName: t(paymentMethod?.name ?? ""),
+          paymentMethodName: paymentMethod?.name ?? "",
         };
       }) ?? [],
     [
