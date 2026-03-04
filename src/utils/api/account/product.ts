@@ -28,6 +28,17 @@ export interface JoinProductsRequest {
   stayedProduct: string;
   removedProduct: string;
 }
+
+export interface GameBatchFIFO {
+  productId: string;
+  purchasedQuantity: number;
+  startDate: string;
+  endDate: string;
+  duration: number;
+  averageSalesPerDay: number;
+  remainingQuantity: number;
+  purchaseDate: string;
+}
 export function useAccountProductMutations() {
   const {
     deleteItem: deleteAccountProduct,
@@ -170,4 +181,12 @@ export function useGetAccountProducts() {
 
 export function useGetAllAccountProducts() {
   return useGetList<AccountProduct>(allProductsBaseUrl);
+}
+
+export function useGetGameBatchesWithFIFO(location?: number) {
+  let gameBatchesUrl = `${Paths.Accounting}/game-batches`;
+  if (location) {
+    gameBatchesUrl += `?location=${location}`;
+  }
+  return useGetList<GameBatchFIFO>(gameBatchesUrl);
 }
