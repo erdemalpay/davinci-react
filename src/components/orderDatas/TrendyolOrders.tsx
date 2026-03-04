@@ -58,7 +58,7 @@ const TrendyolOrders = () => {
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
   const { mutate: processAcceptedClaims } = useProcessAcceptedClaimsMutation();
-
+  //deneme
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
