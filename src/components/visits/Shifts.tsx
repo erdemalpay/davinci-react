@@ -37,6 +37,26 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
+function getUserBadgeClasses(
+  isFiltered: boolean,
+  isChef: boolean,
+  isMiddleman: boolean,
+  withTransparentFallback = false
+): string {
+  const filterClass = isFiltered ? "font-bold underline" : "";
+  let borderClass = "";
+  if (isChef && isMiddleman) {
+    borderClass = "border-2 border-yellow-600 ring-2 ring-purple-500";
+  } else if (isChef) {
+    borderClass = "border-2 border-yellow-600";
+  } else if (isMiddleman) {
+    borderClass = "border-2 border-purple-500";
+  } else if (withTransparentFallback) {
+    borderClass = "border border-transparent";
+  }
+  return [filterClass, borderClass].filter(Boolean).join(" ");
+}
+
 const Shifts = () => {
   const { t } = useTranslation();
   // const [tableKey, setTableKey] = useState(0); NOT: Daha önce burada tableKey state'i vardı:
@@ -569,21 +589,11 @@ const Shifts = () => {
                               return (
                                 <div
                                   key={userIdx}
-                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white ${
-                                    filterPanelFormElements.user ===
-                                    foundUser?._id
-                                      ? "font-bold underline"
-                                      : ""
-                                  } ${
-                                    foundChefUser === foundUser?._id &&
+                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white ${getUserBadgeClasses(
+                                    filterPanelFormElements.user === foundUser?._id,
+                                    foundChefUser === foundUser?._id,
                                     foundMiddlemanUser === foundUser?._id
-                                      ? "border-2 border-yellow-600 ring-2 ring-purple-500"
-                                      : foundChefUser === foundUser?._id
-                                      ? "border-2 border-yellow-600"
-                                      : foundMiddlemanUser === foundUser?._id
-                                      ? "border-2 border-purple-500"
-                                      : ""
-                                  }`}
+                                  )}`}
                                   style={{
                                     backgroundColor: foundUser?.role?.color,
                                   }}
@@ -716,20 +726,12 @@ const Shifts = () => {
                       return (
                         <div
                           key={`${row.day}${foundUser?._id}${index}`}
-                          className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white ${
-                            filterPanelFormElements.user === foundUser?._id
-                              ? "font-bold underline"
-                              : ""
-                          } ${
-                            foundChefUser === foundUser?._id &&
-                            foundMiddlemanUser === foundUser?._id
-                              ? "border-2 border-yellow-600 ring-2 ring-purple-500"
-                              : foundChefUser === foundUser?._id
-                              ? "border-2 border-yellow-600"
-                              : foundMiddlemanUser === foundUser?._id
-                              ? "border-2 border-purple-500"
-                              : "border border-transparent"
-                          }`}
+                          className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white ${getUserBadgeClasses(
+                            filterPanelFormElements.user === foundUser?._id,
+                            foundChefUser === foundUser?._id,
+                            foundMiddlemanUser === foundUser?._id,
+                            true
+                          )}`}
                           style={{ backgroundColor: foundUser?.role?.color }}
                         >
                           {foundUser?.name}
