@@ -711,7 +711,8 @@ export enum ActionEnum {
   SHOW_ALL = "show_all",
   SHOW_UNIT_PRICES = "show_unit_prices",
   NOTIFY = "notify",
-  CLICKABLE_ROWS = "clickable_rows"
+  CLICKABLE_ROWS = "clickable_rows",
+  ASSIGN_MIDDLEMAN = "assign_middleman"
 }
 
 export type Membership = {
@@ -815,6 +816,7 @@ export type ShiftValue = {
   shiftEndHour?: string;
   user: string[];
   chefUser?: string;
+  middlemanUser?: string;
   notInAverage?: boolean;
 };
 
