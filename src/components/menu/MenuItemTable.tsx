@@ -26,9 +26,9 @@ import {
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useMatchHepsiburadaItemsByBarcodeMutation } from "../../utils/api/hepsiburada";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useMatchHepsiburadaItemsByBarcodeMutation } from "../../utils/api/hepsiburada";
 import {
   useCreateMultipleShopifyProductMutation,
   useGetAllMenuItems,
@@ -71,7 +71,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     isMenuLocationEdit,
     setIsMenuLocationEdit,
   } = useGeneralContext();
-  const { deleteItem, updateItem, updateItemAsync, createItem } = useMenuItemMutations();
+  const { deleteItem, updateItem, updateItemAsync, createItem } =
+    useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const discounts = useGetOrderDiscounts();
@@ -1261,7 +1262,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         node: (
           <SwitchButton
             checked={showMenuCostPrices}
-            onChange={setShowMenuCostPrices}
+            onChange={() => {
+              setShowMenuCostPrices(!showMenuCostPrices);
+            }}
           />
         ),
         isDisabled: menuPageDisabledCondition?.actions?.some(

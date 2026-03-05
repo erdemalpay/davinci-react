@@ -10,7 +10,6 @@ import { tr } from "date-fns/locale";
 import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { useTranslation } from "react-i18next";
-import { IoCalendarOutline } from "react-icons/io5";
 
 interface Props {
   date: Date;
@@ -51,11 +50,8 @@ export function DateInput({
       <Popover placement={compact ? "bottom-end" : "bottom"}>
         <PopoverHandler>
           {compact ? (
-            <div className="flex items-center gap-1 cursor-pointer hover:scale-110 transition-transform duration-200">
-              <IoCalendarOutline className="text-2xl text-white" />
-              <span className="text-white text-xs font-medium">
-                {format(date, "dd/MM")}
-              </span>
+            <div className="flex items-center justify-center min-w-[2rem] cursor-pointer hover:scale-110 transition-transform duration-200 text-white text-lg font-medium">
+              {format(date, "d")}
             </div>
           ) : (
             <Input

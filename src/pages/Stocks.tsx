@@ -9,6 +9,7 @@ import { CiMoneyCheck1 } from "react-icons/ci";
 import { DiDatabase } from "react-icons/di";
 import { FaGamepad } from "react-icons/fa";
 import { LuDessert } from "react-icons/lu";
+import { TbPackages } from "react-icons/tb";
 import GameStock from "../components/accounting/GameStock";
 import GameStockLocation from "../components/accounting/GameStockLocation";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
@@ -19,6 +20,7 @@ import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation"
 import ColdDrinkStock from "../components/stocks/ColdDrinkStocks";
 import DessertStock from "../components/stocks/DessertStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
+import GameBatchesFIFO from "../components/stocks/GameBatchesFIFO";
 import LossProduct from "../components/stocks/LossProduct";
 import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
 import VendorOrder from "../components/stocks/VendorOrder";
@@ -103,6 +105,13 @@ export const StockPageTabs = [
     label: "Product Stock History",
     icon: <GiArchiveResearch className="text-lg font-thin" />,
     content: <ProductStockHistory />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.GAMEBATCHESFIFO,
+    label: "Game Batches (FIFO)",
+    icon: <TbPackages className="text-lg font-thin" />,
+    content: <GameBatchesFIFO />,
     isDisabled: false,
   },
 ];

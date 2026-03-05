@@ -23,6 +23,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { formatCurrency, formatPercentage } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -33,6 +34,7 @@ type ItemQuantity = {
   itemId: number;
   itemName: string;
   quantity: number;
+  totalAmountWithDiscount: number;
 };
 type OrderWithPaymentInfo = {
   item: number;
@@ -45,8 +47,14 @@ type OrderWithPaymentInfo = {
   category: string;
   categoryId: number;
   totalAmountWithDiscount: number;
+  ratioToTotal?: number;
   itemQuantity: ItemQuantity[];
-  collapsible: any;
+  collapsible: {
+    collapsibleHeader: string;
+    collapsibleColumns: { key: string; isSortable: boolean }[];
+    collapsibleRows: { product?: string; quantity: number; ratioToTotal?: string }[];
+    collapsibleRowKeys: { key: string }[];
+  };
   className?: string;
   isSortable?: boolean;
 };
@@ -120,6 +128,9 @@ const CategoryBasedSalesReport = () => {
                       ...itemQuantityIteration,
                       quantity:
                         itemQuantityIteration.quantity + order?.paidQuantity,
+                      totalAmountWithDiscount:
+                        itemQuantityIteration.totalAmountWithDiscount +
+                        (orderAmount - orderDiscount),
                     }
                   : itemQuantityIteration
             );
@@ -128,6 +139,7 @@ const CategoryBasedSalesReport = () => {
               itemId: order?.item,
               itemName: getItem(order?.item, items)?.name ?? "",
               quantity: order?.paidQuantity,
+              totalAmountWithDiscount: orderAmount - orderDiscount,
             });
           }
           existingEntry.collapsible = {
@@ -164,6 +176,7 @@ const CategoryBasedSalesReport = () => {
                 itemId: order?.item,
                 itemName: getItem(order?.item, items)?.name ?? "",
                 quantity: order?.paidQuantity,
+                totalAmountWithDiscount: orderAmount - orderDiscount,
               },
             ],
             collapsible: {
@@ -187,19 +200,62 @@ const CategoryBasedSalesReport = () => {
       }, [] as OrderWithPaymentInfo[])
       ?.filter((row) => row.paidQuantity > 0);
 
-    if (allRows.length > 0) {
-      allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);
-      allRows.unshift({
+    const grandTotal =
+      allRows?.reduce(
+        (acc, row) => acc + (row.totalAmountWithDiscount ?? 0),
+        0
+      ) ?? 0;
+
+    const allRowsWithRatio = allRows?.map((row) => ({
+      ...row,
+      ratioToTotal:
+        grandTotal > 0 ? (row.totalAmountWithDiscount / grandTotal) * 100 : 0,
+      collapsible: {
+        collapsibleHeader: t("Products"),
+        collapsibleColumns: [
+          { key: t("Product"), isSortable: true },
+          { key: t("Quantity"), isSortable: true },
+          { key: t("Ratio to Total"), isSortable: true },
+        ],
+        collapsibleRows: row.itemQuantity
+          .map((itemQuantityIteration) => ({
+            product: itemQuantityIteration.itemName,
+            quantity: itemQuantityIteration.quantity,
+            ratioToTotal:
+              grandTotal > 0
+                ? formatPercentage((itemQuantityIteration.totalAmountWithDiscount / grandTotal) * 100)
+                : "0%",
+          }))
+          .sort((a, b) => b.quantity - a.quantity),
+        collapsibleRowKeys: [
+          { key: "product" },
+          { key: "quantity" },
+          { key: "ratioToTotal" },
+        ],
+      },
+    }));
+
+    if (allRowsWithRatio && allRowsWithRatio.length > 0) {
+      allRowsWithRatio.sort((a, b) => b.paidQuantity - a.paidQuantity);
+      const totals = allRowsWithRatio.reduce(
+        (acc, item) => {
+          acc.paidQuantity += item.paidQuantity;
+          acc.discount += item.discount;
+          acc.amount += item.amount;
+          acc.totalAmountWithDiscount += item.totalAmountWithDiscount;
+          return acc;
+        },
+        { paidQuantity: 0, discount: 0, amount: 0, totalAmountWithDiscount: 0 }
+      );
+      allRowsWithRatio.unshift({
         item: 0,
         itemName: "",
-        paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
+        paidQuantity: totals.paidQuantity,
         className: "font-semibold",
-        discount: allRows.reduce((acc, item) => acc + item.discount, 0),
-        amount: allRows.reduce((acc, item) => acc + item.amount, 0),
-        totalAmountWithDiscount: allRows.reduce(
-          (acc, item) => acc + item.totalAmountWithDiscount,
-          0
-        ),
+        discount: totals.discount,
+        amount: totals.amount,
+        totalAmountWithDiscount: totals.totalAmountWithDiscount,
+        ratioToTotal: 100,
         location: 4,
         date: "",
         category: t("Total"),
@@ -209,16 +265,21 @@ const CategoryBasedSalesReport = () => {
         collapsible: {
           collapsibleHeader: t("Products"),
           collapsibleColumns: [
-            { key: t("Product"), isSortable: true },
-            { key: t("Quantity"), isSortable: true },
+            { key: t("Product"), isSortable: false },
+            { key: t("Quantity"), isSortable: false },
+            { key: t("Ratio to Total"), isSortable: false },
           ],
           collapsibleRows: [],
-          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+          collapsibleRowKeys: [
+            { key: "product" },
+            { key: "quantity" },
+            { key: "ratioToTotal" },
+          ],
         },
       });
     }
 
-    return allRows;
+    return allRowsWithRatio;
   }, [orders, categories, items, t]);
 
   const columns = useMemo(
@@ -228,6 +289,7 @@ const CategoryBasedSalesReport = () => {
       { key: t("Discount"), isSortable: true },
       { key: t("Total Amount"), isSortable: true },
       { key: t("General Amount"), isSortable: true },
+      { key: t("Ratio to Total"), isSortable: true },
     ],
     [t]
   );
@@ -237,13 +299,13 @@ const CategoryBasedSalesReport = () => {
       {
         key: "category",
         className: "min-w-32 pr-2",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return <p className={`${row?.className}`}>{row?.category}</p>;
         },
       },
       {
         key: "paidQuantity",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p key={"paidQuantity" + row?.item} className={`${row?.className}`}>
               {row?.paidQuantity}
@@ -253,23 +315,34 @@ const CategoryBasedSalesReport = () => {
       },
       {
         key: "discount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"discount" + row?.item}>
               {row?.discount > 0 &&
-                row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
-                  " " +
-                  TURKISHLIRA}
+                formatCurrency(row?.discount) + " " + TURKISHLIRA}
             </p>
           );
         },
       },
       {
         key: "amount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"amount" + row?.item}>
-              {row?.amount?.toFixed(2).replace(/\.?0*$/, "") +
+              {formatCurrency(row?.amount ?? 0) + " " + TURKISHLIRA}
+            </p>
+          );
+        },
+      },
+      {
+        key: "totalAmountWithDiscount",
+        node: (row: OrderWithPaymentInfo) => {
+          return (
+            <p
+              className={`${row?.className}`}
+              key={"totalAmountWithDiscount" + row?.item}
+            >
+              {formatCurrency(row?.totalAmountWithDiscount ?? 0) +
                 " " +
                 TURKISHLIRA}
             </p>
@@ -277,16 +350,12 @@ const CategoryBasedSalesReport = () => {
         },
       },
       {
-        key: "totalAmountWithDiscount",
-        node: (row: any) => {
+        key: "ratioToTotal",
+        node: (row: OrderWithPaymentInfo) => {
           return (
-            <p
-              className={`${row?.className}`}
-              key={"totalAmountWithDiscount" + row?.item}
-            >
-              {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+            <p className={`${row?.className}`} key={"ratioToTotal" + row?.item}>
+              {row?.ratioToTotal !== undefined &&
+                formatPercentage(row.ratioToTotal)}
             </p>
           );
         },
@@ -542,6 +611,9 @@ const CategoryBasedSalesReport = () => {
   return (
     <>
       <div className="w-[95%] mx-auto ">
+        <p className="text-base text-gray-500 italic mb-2">
+          * {t("Discount and shipping costs are not included in the calculations shown here")}
+        </p>
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}
