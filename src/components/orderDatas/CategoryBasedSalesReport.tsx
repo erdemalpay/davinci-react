@@ -23,7 +23,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, formatPercentage } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -218,7 +218,7 @@ const CategoryBasedSalesReport = () => {
             quantity: itemQuantityIteration.quantity,
             ratioToTotal:
               grandTotal > 0
-                ? `${((itemQuantityIteration.totalAmountWithDiscount / grandTotal) * 100).toFixed(2).replace(/\.?0*$/, "")}%`
+                ? formatPercentage((itemQuantityIteration.totalAmountWithDiscount / grandTotal) * 100)
                 : "0%",
           }))
           .sort((a, b) => b.quantity - a.quantity),
@@ -350,7 +350,7 @@ const CategoryBasedSalesReport = () => {
           return (
             <p className={`${row?.className}`} key={"ratioToTotal" + row?.item}>
               {row?.ratioToTotal !== undefined &&
-                row?.ratioToTotal?.toFixed(2).replace(/\.?0*$/, "") + "%"}
+                formatPercentage(row.ratioToTotal)}
             </p>
           );
         },
@@ -606,6 +606,9 @@ const CategoryBasedSalesReport = () => {
   return (
     <>
       <div className="w-[95%] mx-auto ">
+        <p className="text-base text-gray-500 italic mb-2">
+          * {t("Discount and shipping costs are not included in the calculations shown here")}
+        </p>
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}

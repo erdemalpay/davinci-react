@@ -24,7 +24,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, formatPercentage } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -228,7 +228,7 @@ const UpperCategoryBasedSalesReport = () => {
                     0.01,
                   ratioToTotal:
                     grandTotal > 0
-                      ? `${((categoryAmount / grandTotal) * 100).toFixed(2).replace(/\.?0*$/, "")}%`
+                      ? formatPercentage((categoryAmount / grandTotal) * 100)
                       : "0%",
                 };
               })
@@ -380,7 +380,7 @@ const UpperCategoryBasedSalesReport = () => {
           return (
             <p className={`${row?.className}`}>
               {row?.ratioToTotal !== undefined &&
-                row?.ratioToTotal?.toFixed(2).replace(/\.?0*$/, "") + "%"}
+                formatPercentage(row?.ratioToTotal)}
             </p>
           );
         },
@@ -634,6 +634,9 @@ const UpperCategoryBasedSalesReport = () => {
   return (
     <>
       <div className="w-[95%] mx-auto ">
+        <p className="text-base text-gray-500 italic mb-2">
+          * {t("Discount and shipping costs are not included in the calculations shown here")}
+        </p>
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}

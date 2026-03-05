@@ -1351,6 +1351,6 @@
   "Gross Amount": "Brüt Tutar",
   "Shipping Cost": "Kargo Ücreti",
   "Cancelled Amount" : "İptal Tutarı",
-  "Ratio to Total" : "Toplama Göre Oran"
-
+  "Ratio to Total" : "Toplama Göre Oran",
+  "Discount and shipping costs are not included in the calculations shown here": "Burada görüntülenen kayıtlarda indirim ve kargo ücretleri hesaplamaya dahil değildir"
 }

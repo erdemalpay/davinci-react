@@ -1343,5 +1343,6 @@
   "Gross Amount" : "Gross Amount",
   "Shipping Cost": "Shipping Cost",
   "Cancelled Amount" : "Cancelled Amount",
-  "Ratio to Total" : "Ratio to Total"
+  "Ratio to Total" : "Ratio to Total",
+  "Discount and shipping costs are not included in the calculations shown here": "Discount and shipping costs are not included in the calculations shown here"
 }
