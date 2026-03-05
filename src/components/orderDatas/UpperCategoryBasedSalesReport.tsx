@@ -11,6 +11,7 @@ import {
   DisabledConditionEnum,
   OrderStatus,
   TURKISHLIRA,
+  UpperCategory,
   commonDateOptions,
   orderFilterStatusOptions,
 } from "../../types";
@@ -41,6 +42,23 @@ type OrderWithPaymentInfo = {
   categoryId: number;
   totalAmountWithDiscount: number;
 };
+
+interface UpperCategoryReportRow extends UpperCategory {
+  paidQuantity: number;
+  discount: number;
+  amount: number;
+  totalAmountWithDiscount: number;
+  ratioToTotal?: number;
+  percentageGeneralAmount: number;
+  collapsible: {
+    collapsibleHeader: string;
+    collapsibleColumns: { key: string; isSortable: boolean }[];
+    collapsibleRows: Record<string, unknown>[];
+    collapsibleRowKeys: { key: string }[];
+  };
+  className?: string;
+  isSortable?: boolean;
+}
 
 const UpperCategoryBasedSalesReport = () => {
   const { t } = useTranslation();
@@ -303,7 +321,7 @@ const UpperCategoryBasedSalesReport = () => {
     () => [
       {
         key: "name",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`min-w-32 pr-2 ${row?.className}`}>{row?.name}</p>
           );
@@ -311,13 +329,13 @@ const UpperCategoryBasedSalesReport = () => {
       },
       {
         key: "paidQuantity",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return <p className={`${row?.className}`}>{row?.paidQuantity}</p>;
         },
       },
       {
         key: "discount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
               {row?.discount > 0 &&
@@ -328,7 +346,7 @@ const UpperCategoryBasedSalesReport = () => {
       },
       {
         key: "amount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
               {formatCurrency(row?.amount ?? 0) + " " + TURKISHLIRA}
@@ -338,7 +356,7 @@ const UpperCategoryBasedSalesReport = () => {
       },
       {
         key: "totalAmountWithDiscount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
               {formatCurrency(row?.totalAmountWithDiscount ?? 0) +
@@ -350,7 +368,7 @@ const UpperCategoryBasedSalesReport = () => {
       },
       {
         key: "percentageGeneralAmount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
               {formatCurrency(row?.percentageGeneralAmount ?? 0) +
@@ -362,7 +380,7 @@ const UpperCategoryBasedSalesReport = () => {
       },
       {
         key: "ratioToTotal",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
               {row?.ratioToTotal !== undefined &&
