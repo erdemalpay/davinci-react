@@ -1350,5 +1350,7 @@
   "Net Amount": "Net Değer",
   "Gross Amount": "Brüt Tutar",
   "Shipping Cost": "Kargo Ücreti",
-  "Cancelled Amount" : "İptal Tutarı"
+  "Cancelled Amount" : "İptal Tutarı",
+  "Ratio to Total" : "Toplama Göre Oran"
+
 }
