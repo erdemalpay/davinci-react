@@ -1338,5 +1338,9 @@
   "HepsiBurada Price": "Hepsiburada Price",
   "HepsiBurada Stock": "Hepsiburada Stock",
   "Back In Stock Subscriptions": "Back In Stock Subscriptions",
-  "Role Restriction": "Role Restriction"
+  "Role Restriction": "Role Restriction",
+  "Net Amount" : "Net Amount",
+  "Gross Amount" : "Gross Amount",
+  "Shipping Cost": "Shipping Cost",
+  "Cancelled Amount" : "Cancelled Amount"
 }

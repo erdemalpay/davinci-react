@@ -1346,5 +1346,9 @@
   "HepsiBurada Price": "Hepsiburada Fiyat",
   "HepsiBurada Stock": "Hepsiburada Stok",
   "Back In Stock Subscriptions": "Gelince Haber Ver",
-  "Role Restriction": "Rol Kısıtlama"
+  "Role Restriction": "Rol Kısıtlama",
+  "Net Amount": "Net Değer",
+  "Gross Amount": "Brüt Tutar",
+  "Shipping Cost": "Kargo Ücreti",
+  "Cancelled Amount" : "İptal Tutarı"
 }
