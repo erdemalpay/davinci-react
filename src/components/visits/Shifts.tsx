@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaRegStar, FaStar } from "react-icons/fa";
+import { FaCircle, FaRegCircle, FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { LuCopyPlus } from "react-icons/lu";
@@ -37,9 +37,29 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
+function getUserBadgeClasses(
+  isFiltered: boolean,
+  isChef: boolean,
+  isMiddleman: boolean,
+  withTransparentFallback = false
+): string {
+  const filterClass = isFiltered ? "font-bold underline" : "";
+  let borderClass = "";
+  if (isChef && isMiddleman) {
+    borderClass = "border-2 border-yellow-600 ring-2 ring-purple-500";
+  } else if (isChef) {
+    borderClass = "border-2 border-yellow-600";
+  } else if (isMiddleman) {
+    borderClass = "border-2 border-purple-500";
+  } else if (withTransparentFallback) {
+    borderClass = "border border-transparent";
+  }
+  return [filterClass, borderClass].filter(Boolean).join(" ");
+}
+
 const Shifts = () => {
   const { t } = useTranslation();
-  // const [tableKey, setTableKey] = useState(0); NOT: Daha önce burada tableKey state'i vardı:
+  // const [tableKey, setTableKey] = useState(0); NOT: Daha önce burada tableKey state'i vardı
   const users = useGetUsersMinimal();
   const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
@@ -115,6 +135,8 @@ const Shifts = () => {
     setIsShiftsEnableEdit,
     isChefAssignOpen,
     setIsChefAssignOpen,
+    isMiddlemanAssignOpen,
+    setIsMiddlemanAssignOpen
   } = useFilterContext();
   const foundLocation = getItem(selectedLocationId, locations);
 
@@ -178,6 +200,7 @@ const Shifts = () => {
                 location: number;
                 users: string[];
                 chefUser?: string;
+                middlemanUser?: string;
                 _id: string;
               }>
             > = {};
@@ -217,6 +240,7 @@ const Shifts = () => {
                         return foundUser;
                       }) || [],
                     chefUser: s.chefUser,
+                    middlemanUser: s.middlemanUser,
                     _id: shiftRecord._id,
                   });
                 }
@@ -273,6 +297,7 @@ const Shifts = () => {
                 location: number;
                 users: string[];
                 chefUser?: string;
+                middlemanUser?: string;
                 _id: string;
               }>
             > = {};
@@ -319,6 +344,7 @@ const Shifts = () => {
                         );
                       }) || [],
                     chefUser: s.chefUser,
+                    middlemanUser: s.middlemanUser,
                     _id: shiftRecord._id,
                   });
                 }
@@ -538,6 +564,7 @@ const Shifts = () => {
                   {shiftLocations.map((shiftLocation: any, idx: number) => {
                     const location = getItem(shiftLocation.location, locations);
                     const foundChefUser = shiftLocation.chefUser;
+                    const foundMiddlemanUser = shiftLocation.middlemanUser;
 
                     if (
                       !shiftLocation.users ||
@@ -562,27 +589,21 @@ const Shifts = () => {
                               return (
                                 <div
                                   key={userIdx}
-                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white border-white ${
-                                    filterPanelFormElements.user ===
-                                    foundUser?._id
-                                      ? "font-bold underline"
-                                      : ""
-                                  } ${
-                                    foundChefUser === foundUser?._id
-                                      ? "border-2 border-yellow-600"
-                                      : ""
-                                  }`}
+                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white ${getUserBadgeClasses(
+                                    filterPanelFormElements.user === foundUser?._id,
+                                    foundChefUser === foundUser?._id,
+                                    foundMiddlemanUser === foundUser?._id
+                                  )}`}
                                   style={{
                                     backgroundColor: foundUser?.role?.color,
                                   }}
                                 >
                                   {foundUser?.name}
                                   <span
-                                    className="text-yellow-600 cursor-pointer"
+                                    className={`text-yellow-600 ${isChefAssignOpen ? "cursor-pointer" : "cursor-default"}`}
                                     onClick={() => {
                                       if (!isChefAssignOpen) return;
 
-                                      // Find the shift record for this specific location
                                       const locationShiftRecord = shifts?.find(
                                         (s) =>
                                           s.day === row.day &&
@@ -591,11 +612,9 @@ const Shifts = () => {
 
                                       if (!locationShiftRecord) return;
 
-                                      // Update the shifts array for this location
                                       const updatedShifts =
                                         locationShiftRecord.shifts?.map(
                                           (s: ShiftValue) => {
-                                            // Only update the current shift
                                             if (
                                               s.shift === shift.shift &&
                                               s.shiftEndHour ===
@@ -627,6 +646,54 @@ const Shifts = () => {
                                       <FaRegStar />
                                     ) : null}
                                   </span>
+                                  <span
+                                    className={`text-purple-500 ${isMiddlemanAssignOpen ? "cursor-pointer" : "cursor-default"}`}
+                                    onClick={() => {
+                                      if (!isMiddlemanAssignOpen) return;
+
+                                      const locationShiftRecord = shifts?.find(
+                                        (s) =>
+                                          s.day === row.day &&
+                                          s.location === shiftLocation.location
+                                      );
+
+                                      if (!locationShiftRecord) return;
+
+                                      const updatedShifts =
+                                        locationShiftRecord.shifts?.map(
+                                          (s: ShiftValue) => {
+                                            if (
+                                              s.shift === shift.shift &&
+                                              s.shiftEndHour ===
+                                                shift.shiftEndHour
+                                            ) {
+                                              return {
+                                                ...s,
+                                                middlemanUser:
+                                                  s.middlemanUser ===
+                                                  foundUser?._id
+                                                    ? ""
+                                                    : foundUser?._id,
+                                              };
+                                            }
+                                            return s;
+                                          }
+                                        );
+
+                                      updateShift({
+                                        id: shiftLocation._id,
+                                        updates: {
+                                          shifts: updatedShifts,
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    {foundMiddlemanUser === foundUser?._id ? (
+                                      <FaCircle />
+                                    ) : isMiddlemanAssignOpen ? (
+                                      <FaRegCircle />
+                                    ) : null}
+                                  </span>
                                 </div>
                               );
                             }
@@ -646,6 +713,9 @@ const Shifts = () => {
               const foundChefUser = currentShifts?.find(
                 (shift) => shift?.chefUser
               )?.chefUser;
+              const foundMiddlemanUser = currentShifts?.find(
+                (shift) => shift?.middlemanUser
+              )?.middlemanUser;
               if (Array.isArray(shiftValue) && shiftValue.length > 0) {
                 return (
                   <div
@@ -656,21 +726,18 @@ const Shifts = () => {
                       return (
                         <div
                           key={`${row.day}${foundUser?._id}${index}`}
-                          className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
-                            filterPanelFormElements.user === foundUser?._id
-                              ? "font-bold underline"
-                              : ""
-                          } ${
-                            foundChefUser === foundUser?._id
-                              ? "border-2 border-yellow-600"
-                              : ""
-                          }`}
+                          className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white ${getUserBadgeClasses(
+                            filterPanelFormElements.user === foundUser?._id,
+                            foundChefUser === foundUser?._id,
+                            foundMiddlemanUser === foundUser?._id,
+                            true
+                          )}`}
                           style={{ backgroundColor: foundUser?.role?.color }}
                         >
                           {foundUser?.name}
 
                           <span
-                            className="text-yellow-600 cursor-pointer"
+                            className={`text-yellow-600 ${isChefAssignOpen ? "cursor-pointer" : "cursor-default"}`}
                             onClick={() => {
                               if (!isChefAssignOpen) return;
                               const currentShifts = shifts
@@ -701,6 +768,41 @@ const Shifts = () => {
                               <FaStar />
                             ) : isChefAssignOpen ? (
                               <FaRegStar />
+                            ) : null}
+                          </span>
+                          <span
+                            className={`text-purple-500 ${isMiddlemanAssignOpen ? "cursor-pointer" : "cursor-default"}`}
+                            onClick={() => {
+                              if (!isMiddlemanAssignOpen) return;
+                              const currentShifts = shifts
+                                ?.find((s) => s.day === row.day)
+                                ?.shifts?.map((shiftObj) => {
+                                  return {
+                                    ...shiftObj,
+                                    middlemanUser:
+                                      shiftObj.shift === shift.shift
+                                        ? shiftObj?.middlemanUser ===
+                                          foundUser?._id
+                                          ? ""
+                                          : foundUser?._id
+                                        : shiftObj.middlemanUser,
+                                  };
+                                });
+
+                              if (row?._id) {
+                                updateShift({
+                                  id: row._id,
+                                  updates: {
+                                    shifts: currentShifts,
+                                  },
+                                });
+                              }
+                            }}
+                          >
+                            {foundMiddlemanUser === foundUser?._id ? (
+                              <FaCircle />
+                            ) : isMiddlemanAssignOpen ? (
+                              <FaRegCircle />
                             ) : null}
                           </span>
                         </div>
@@ -1252,6 +1354,24 @@ const Shifts = () => {
         ),
       },
       {
+        label: t("Assign Middleman"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={isMiddlemanAssignOpen}
+            onChange={() => {
+              setIsMiddlemanAssignOpen(!isMiddlemanAssignOpen);
+            }}
+          />
+        ),
+        isDisabled: shiftsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ASSIGN_MIDDLEMAN &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
         label: t("Enable Edit"),
         isUpperSide: true,
         node: (
@@ -1278,6 +1398,8 @@ const Shifts = () => {
       setShowShiftsFilters,
       isChefAssignOpen,
       setIsChefAssignOpen,
+      isMiddlemanAssignOpen,
+      setIsMiddlemanAssignOpen,
       shiftsDisabledCondition,
       user,
       isShiftsEnableEdit,
