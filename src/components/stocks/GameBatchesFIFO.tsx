@@ -19,7 +19,7 @@ const GameBatchesFIFO = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filterFormElements, setFilterFormElements] =
     useState<FormElementsState>({
-      location: 6,
+      location: "",
     });
   const gameBatches = useGetGameBatchesWithFIFO(filterFormElements.location);
 
