@@ -1,20 +1,23 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineNewReleases, MdOutlineNotificationsNone } from "react-icons/md";
+import {
+  MdOutlineNewReleases,
+  MdOutlineNotificationsNone,
+} from "react-icons/md";
 import { Link } from "react-router-dom";
-import { ReleaseNote } from "../../types";
-import { DateInput } from "../common/DateInput2";
 import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
-import { OnboardingModal } from "../onboarding/OnboardingModal";
 import { useGeneralContext } from "../../context/General.context";
 import { Routes } from "../../navigation/constants";
+import { ReleaseNote } from "../../types";
 import { useGetUserNewNotifications } from "../../utils/api/notification";
 import { useGetReleaseNotes } from "../../utils/api/panelControl/releaseNote";
 import { useGetUser } from "../../utils/api/user";
+import { DateInput } from "../common/DateInput2";
+import { OnboardingModal } from "../onboarding/OnboardingModal";
 import { BreakButton } from "./BreakButton";
-import { MiddlemanButton } from "./MiddlemanButton";
 import { LocationSelector } from "./LocationSelector";
 import logo from "./logo.svg";
+import { MiddlemanButton } from "./MiddlemanButton";
 import NotificationModal from "./NotificationModal";
 import { PageSelector } from "./PageSelector";
 
@@ -40,7 +43,8 @@ export function Header({
   const user = useGetUser();
   const allReleases = useGetReleaseNotes() ?? [];
   const [isReleasesOpen, setIsReleasesOpen] = useState(false);
-  const [selectedReleaseForModal, setSelectedReleaseForModal] = useState<ReleaseNote | null>(null);
+  const [selectedReleaseForModal, setSelectedReleaseForModal] =
+    useState<ReleaseNote | null>(null);
 
   const publishedReleases = useMemo(
     () =>
@@ -58,7 +62,11 @@ export function Header({
   return (
     <div className="sticky top-0 z-50">
       <nav className="w-full bg-gray-800 shadow">
-        <div className={`${dateProps ? "h-12 sm:h-16" : "h-16"} flex justify-between pl-2 lg:pl-4 pr-2 lg:pr-6 mr-2 lg:mr-20`}>
+        <div
+          className={`${
+            dateProps ? "h-12 sm:h-16" : "h-16"
+          } flex justify-between pl-2 lg:pl-4 pr-2 lg:pr-6 mr-2 lg:mr-20`}
+        >
           <div className="flex flex-row gap-2 items-center">
             <Link to={Routes.Tables} onClick={handleScrollToTop}>
               <img
@@ -74,7 +82,10 @@ export function Header({
             </Link>
           </div>
           <div className="w-auto h-full flex items-center justify-end gap-x-2 sm:gap-x-4">
-            <Link to={Routes.Profile} className="flex items-center gap-2">
+            <Link
+              to={Routes.Profile}
+              className="hidden sm:flex items-center gap-2"
+            >
               <img
                 src={user?.imageUrl ?? user1}
                 alt="profile"
@@ -89,7 +100,11 @@ export function Header({
             <MiddlemanButton />
             {dateProps && (
               <div className="sm:hidden">
-                <DateInput date={dateProps.date} setDate={dateProps.setDate} compact />
+                <DateInput
+                  date={dateProps.date}
+                  setDate={dateProps.setDate}
+                  compact
+                />
               </div>
             )}
             <div
@@ -132,7 +147,9 @@ export function Header({
                   {t("ReleaseNotesTitleTab")}
                 </h3>
                 {publishedReleases.length === 0 ? (
-                  <p className="text-sm text-gray-500 py-2">{t("ReleaseNotesEmpty")}</p>
+                  <p className="text-sm text-gray-500 py-2">
+                    {t("ReleaseNotesEmpty")}
+                  </p>
                 ) : (
                   <ul className="flex flex-col gap-0.5">
                     {publishedReleases.map((release) => (
@@ -147,10 +164,15 @@ export function Header({
                         <span className="text-sm font-semibold text-indigo-600 shrink-0">
                           {release.releaseId}
                         </span>
-                        <span className="text-gray-400 text-xs select-none" aria-hidden>
+                        <span
+                          className="text-gray-400 text-xs select-none"
+                          aria-hidden
+                        >
                           –
                         </span>
-                        <span className="text-sm text-gray-600 truncate">{release.title}</span>
+                        <span className="text-sm text-gray-600 truncate">
+                          {release.title}
+                        </span>
                       </li>
                     ))}
                   </ul>
