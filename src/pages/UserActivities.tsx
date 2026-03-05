@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import ActivityPayloadRenderer from "../components/activity/ActivityPayloadRenderer";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -19,10 +20,13 @@ const USER_ACTIVITIES_ROWS_PER_PAGE_OPTIONS: number[] = [
 
 type CollapsibleRow = {
   collapsibleColumns: { key: string; isSortable: boolean }[];
-  collapsibleRows: { payload: any }[]; // payload can be any type
+  collapsibleRows: {
+    activityType: string;
+    payload: unknown;
+  }[];
   collapsibleRowKeys: {
     key: string;
-    node: (row: any) => React.ReactNode;
+    node: (row: { activityType: string; payload: unknown }) => React.ReactNode;
   }[];
 };
 type ActivityRow = Activity & {
@@ -66,10 +70,11 @@ const UserActivities = () => {
           ? format(activity.createdAt, "HH:mm")
           : "",
         collapsible: {
-          collapsibleColumns: [{ key: t("Payload"), isSortable: false }],
+          collapsibleColumns: [{ key: t("Details"), isSortable: false }],
           collapsibleRows: activity?.payload
             ? [
                 {
+                  activityType: activity.type,
                   payload: activity.payload,
                 },
               ]
@@ -77,8 +82,13 @@ const UserActivities = () => {
           collapsibleRowKeys: [
             {
               key: "payload",
-              node: (row: ActivityRow) => {
-                return <pre>{JSON.stringify(row?.payload, null, 2)}</pre>;
+              node: (row: { activityType: string; payload: unknown }) => {
+                return (
+                  <ActivityPayloadRenderer
+                    activityType={row.activityType}
+                    payload={row?.payload}
+                  />
+                );
               },
             },
           ],
