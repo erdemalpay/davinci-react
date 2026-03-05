@@ -657,6 +657,7 @@ export enum DisabledConditionEnum {
   CHECKOUT_CHECKOUT_CONTROL = "checkout_checkout_control",
   MAILSUBSCRIPTIONS = "mailsubscriptions",
   MAILLOGS = "maillogs",
+  EDUCATION = "education",
 }
 
 export enum ActionEnum {
