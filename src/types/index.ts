@@ -657,6 +657,7 @@ export enum DisabledConditionEnum {
   CHECKOUT_CHECKOUT_CONTROL = "checkout_checkout_control",
   MAILSUBSCRIPTIONS = "mailsubscriptions",
   MAILLOGS = "maillogs",
+  EDUCATION = "education",
 }
 
 export enum ActionEnum {
@@ -712,6 +713,7 @@ export enum ActionEnum {
   SHOW_UNIT_PRICES = "show_unit_prices",
   NOTIFY = "notify",
   CLICKABLE_ROWS = "clickable_rows",
+  ASSIGN_MIDDLEMAN = "assign_middleman",
 }
 
 export type Membership = {
@@ -815,6 +817,7 @@ export type ShiftValue = {
   shiftEndHour?: string;
   user: string[];
   chefUser?: string;
+  middlemanUser?: string;
   notInAverage?: boolean;
 };
 

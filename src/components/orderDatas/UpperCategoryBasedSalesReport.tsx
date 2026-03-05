@@ -11,6 +11,7 @@ import {
   DisabledConditionEnum,
   OrderStatus,
   TURKISHLIRA,
+  UpperCategory,
   commonDateOptions,
   orderFilterStatusOptions,
 } from "../../types";
@@ -24,6 +25,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { formatCurrency, formatPercentage } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -40,6 +42,23 @@ type OrderWithPaymentInfo = {
   categoryId: number;
   totalAmountWithDiscount: number;
 };
+
+interface UpperCategoryReportRow extends UpperCategory {
+  paidQuantity: number;
+  discount: number;
+  amount: number;
+  totalAmountWithDiscount: number;
+  ratioToTotal?: number;
+  percentageGeneralAmount: number;
+  collapsible: {
+    collapsibleHeader: string;
+    collapsibleColumns: { key: string; isSortable: boolean }[];
+    collapsibleRows: Record<string, unknown>[];
+    collapsibleRowKeys: { key: string }[];
+  };
+  className?: string;
+  isSortable?: boolean;
+}
 
 const UpperCategoryBasedSalesReport = () => {
   const { t } = useTranslation();
@@ -120,56 +139,58 @@ const UpperCategoryBasedSalesReport = () => {
   }, [orders, items]);
 
   const rows = useMemo(() => {
+    const categoryMap = new Map(
+      allCategoryRows?.map((row) => [row.categoryId, row]) ?? []
+    );
+
+    const grandTotal =
+      allCategoryRows?.reduce(
+        (acc, row) => acc + (row.totalAmountWithDiscount ?? 0),
+        0
+      ) ?? 0;
+
     const allRows = upperCategories
       ?.map((upperCategory) => {
+        const upperTotalAmountWithDiscount =
+          upperCategory?.categoryGroup?.reduce(
+            (acc, categoryGroupItem) => {
+              const category = categoryMap.get(categoryGroupItem?.category);
+              return acc + (category?.totalAmountWithDiscount ?? 0);
+            },
+            0
+          ) ?? 0;
+
         return {
           ...upperCategory,
           paidQuantity: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return acc + (category?.paidQuantity ?? 0);
             },
             0
           ),
           discount: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return acc + (category?.discount ?? 0);
             },
             0
           ),
           amount: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return acc + (category?.amount ?? 0);
             },
             0
           ),
-          totalAmountWithDiscount: upperCategory?.categoryGroup?.reduce(
-            (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
-              return acc + (category?.totalAmountWithDiscount ?? 0);
-            },
-            0
-          ),
+          totalAmountWithDiscount: upperTotalAmountWithDiscount,
+          ratioToTotal:
+            grandTotal > 0
+              ? (upperTotalAmountWithDiscount / grandTotal) * 100
+              : 0,
           percentageGeneralAmount: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return (
                 acc +
                 (category?.totalAmountWithDiscount ?? 0) *
@@ -189,13 +210,13 @@ const UpperCategoryBasedSalesReport = () => {
               { key: t("Total Amount"), isSortable: true },
               { key: t("General Amount"), isSortable: true },
               { key: t("Percentage General Amount"), isSortable: true },
+              { key: t("Ratio to Total"), isSortable: true },
             ],
             collapsibleRows: upperCategory?.categoryGroup
               ?.map((categoryGroupItem) => {
-                const category = allCategoryRows?.find(
-                  (categoryRow) =>
-                    categoryRow.categoryId === categoryGroupItem?.category
-                );
+                const category = categoryMap.get(categoryGroupItem?.category);
+                const categoryAmount =
+                  category?.totalAmountWithDiscount ?? 0;
 
                 return {
                   category: getItem(categoryGroupItem?.category, categories)
@@ -204,11 +225,15 @@ const UpperCategoryBasedSalesReport = () => {
                   quantity: category?.paidQuantity ?? 0,
                   discount: category?.discount ?? 0,
                   totalAmount: category?.amount ?? 0,
-                  generalAmount: category?.totalAmountWithDiscount ?? 0,
+                  generalAmount: categoryAmount,
                   percentageGeneralAmount:
-                    (category?.totalAmountWithDiscount ?? 0) *
+                    categoryAmount *
                     categoryGroupItem?.percentage *
                     0.01,
+                  ratioToTotal:
+                    grandTotal > 0
+                      ? formatPercentage((categoryAmount / grandTotal) * 100)
+                      : "0%",
                 };
               })
               .sort((a, b) => b.quantity - a.quantity)
@@ -221,12 +246,93 @@ const UpperCategoryBasedSalesReport = () => {
               { key: "totalAmount" },
               { key: "generalAmount" },
               { key: "percentageGeneralAmount" },
+              { key: "ratioToTotal" },
             ],
           },
         };
       })
       ?.filter((row) => row.paidQuantity > 0)
       ?.sort((a, b) => b.paidQuantity - a.paidQuantity);
+
+    const assignedCategoryIds = new Set(
+      upperCategories.flatMap(
+        (uc) => uc.categoryGroup?.map((cg) => cg.category) ?? []
+      )
+    );
+
+    const unassignedCategoryRows =
+      allCategoryRows?.filter(
+        (row) => !assignedCategoryIds.has(row.categoryId)
+      ) ?? [];
+
+    if (unassignedCategoryRows.length > 0) {
+      const unassignedTotal = unassignedCategoryRows.reduce(
+        (acc, row) => acc + row.totalAmountWithDiscount,
+        0
+      );
+      allRows.push({
+        _id: -1,
+        name: t("Unassigned"),
+        categoryGroup: [],
+        paidQuantity: unassignedCategoryRows.reduce(
+          (acc, row) => acc + row.paidQuantity,
+          0
+        ),
+        discount: unassignedCategoryRows.reduce(
+          (acc, row) => acc + row.discount,
+          0
+        ),
+        amount: unassignedCategoryRows.reduce(
+          (acc, row) => acc + row.amount,
+          0
+        ),
+        totalAmountWithDiscount: unassignedTotal,
+        ratioToTotal:
+          grandTotal > 0 ? (unassignedTotal / grandTotal) * 100 : 0,
+        percentageGeneralAmount: 0,
+        collapsible: {
+          collapsibleHeader: t("Categories"),
+          collapsibleColumns: [
+            { key: t("Category"), isSortable: true },
+            { key: t("Percentage"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+            { key: t("Discount"), isSortable: true },
+            { key: t("Total Amount"), isSortable: true },
+            { key: t("General Amount"), isSortable: true },
+            { key: t("Percentage General Amount"), isSortable: true },
+            { key: t("Ratio to Total"), isSortable: true },
+          ],
+          collapsibleRows: unassignedCategoryRows
+            .map((row) => ({
+              category:
+                getItem(row.categoryId, categories)?.name ?? t("Unknown"),
+              percentage: 0,
+              quantity: row.paidQuantity,
+              discount: row.discount,
+              totalAmount: row.amount,
+              generalAmount: row.totalAmountWithDiscount,
+              percentageGeneralAmount: 0,
+              ratioToTotal:
+                grandTotal > 0
+                  ? formatPercentage(
+                      (row.totalAmountWithDiscount / grandTotal) * 100
+                    )
+                  : "0%",
+            }))
+            .sort((a, b) => b.quantity - a.quantity),
+          collapsibleRowKeys: [
+            { key: "category" },
+            { key: "percentage" },
+            { key: "quantity" },
+            { key: "discount" },
+            { key: "totalAmount" },
+            { key: "generalAmount" },
+            { key: "percentageGeneralAmount" },
+            { key: "ratioToTotal" },
+          ],
+        },
+      });
+    }
 
     const totalRow = {
       name: t("Total"),
@@ -243,6 +349,7 @@ const UpperCategoryBasedSalesReport = () => {
         (acc, row) => acc + row.percentageGeneralAmount,
         0
       ),
+      ratioToTotal: 100,
       collapsible: {
         collapsibleHeader: t("Categories"),
         collapsibleColumns: [
@@ -253,6 +360,7 @@ const UpperCategoryBasedSalesReport = () => {
           { key: t("Total Amount"), isSortable: false },
           { key: t("General Amount"), isSortable: false },
           { key: t("Percentage General Amount"), isSortable: false },
+          { key: t("Ratio to Total"), isSortable: false },
         ],
         collapsibleRows: [],
         collapsibleRowKeys: [
@@ -263,6 +371,7 @@ const UpperCategoryBasedSalesReport = () => {
           { key: "totalAmount" },
           { key: "generalAmount" },
           { key: "percentageGeneralAmount" },
+          { key: "ratioToTotal" },
         ],
       },
     };
@@ -283,6 +392,7 @@ const UpperCategoryBasedSalesReport = () => {
       { key: t("Total Amount"), isSortable: true },
       { key: t("General Amount"), isSortable: true },
       { key: t("Percentage General Amount"), isSortable: true },
+      { key: t("Ratio to Total"), isSortable: true },
     ],
     [t]
   );
@@ -291,7 +401,7 @@ const UpperCategoryBasedSalesReport = () => {
     () => [
       {
         key: "name",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`min-w-32 pr-2 ${row?.className}`}>{row?.name}</p>
           );
@@ -299,41 +409,37 @@ const UpperCategoryBasedSalesReport = () => {
       },
       {
         key: "paidQuantity",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return <p className={`${row?.className}`}>{row?.paidQuantity}</p>;
         },
       },
       {
         key: "discount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
               {row?.discount > 0 &&
-                row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+                formatCurrency(row?.discount) + " " + TURKISHLIRA}
             </p>
           );
         },
       },
       {
         key: "amount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
-              {row?.amount?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+              {formatCurrency(row?.amount ?? 0) + " " + TURKISHLIRA}
             </p>
           );
         },
       },
       {
         key: "totalAmountWithDiscount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
-              {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") +
+              {formatCurrency(row?.totalAmountWithDiscount ?? 0) +
                 " " +
                 TURKISHLIRA}
             </p>
@@ -342,12 +448,23 @@ const UpperCategoryBasedSalesReport = () => {
       },
       {
         key: "percentageGeneralAmount",
-        node: (row: any) => {
+        node: (row: UpperCategoryReportRow) => {
           return (
             <p className={`${row?.className}`}>
-              {row?.percentageGeneralAmount?.toFixed(2).replace(/\.?0*$/, "") +
+              {formatCurrency(row?.percentageGeneralAmount ?? 0) +
                 " " +
                 TURKISHLIRA}
+            </p>
+          );
+        },
+      },
+      {
+        key: "ratioToTotal",
+        node: (row: UpperCategoryReportRow) => {
+          return (
+            <p className={`${row?.className}`}>
+              {row?.ratioToTotal !== undefined &&
+                formatPercentage(row?.ratioToTotal)}
             </p>
           );
         },
@@ -601,6 +718,9 @@ const UpperCategoryBasedSalesReport = () => {
   return (
     <>
       <div className="w-[95%] mx-auto ">
+        <p className="text-base text-gray-500 italic mb-2">
+          * {t("Discount and shipping costs are not included in the calculations shown here")}
+        </p>
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}

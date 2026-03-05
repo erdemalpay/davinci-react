@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { useMemo } from "react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCircleChevDown, CiCircleChevUp } from "react-icons/ci";
@@ -9,7 +10,9 @@ import {
   useGetEducations,
   useUpdateEducationsOrderMutation,
 } from "../../utils/api/education";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAllUserRoles } from "../../utils/api/user";
+import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -18,7 +21,11 @@ import { H5 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-import { Education, RoleEnum } from "./../../types/index";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  Education,
+} from "./../../types/index";
 import UpdateHistory from "./UpdateHistory";
 
 interface DraggableHeaderItemProps {
@@ -79,15 +86,29 @@ const EducationDashboard = () => {
   const { user } = useUserContext();
   const educations = useGetEducations();
   const roles = useGetAllUserRoles();
+  const disabledConditions = useGetDisabledConditions();
   const [isUpdateHistoryOpen, setIsUpdateHistoryOpen] = useState(false);
   const [selectedUpdateHistory, setSelectedUpdateHistory] = useState<any>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const disabledUsers = user?.role?._id
-    ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
-    : true;
-  const isDisabledCondition = isEnableEdit && user ? disabledUsers : true;
+
+  const educationPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.EDUCATION, disabledConditions);
+  }, [disabledConditions]);
+
+  const isActionDisabled = (action: ActionEnum) =>
+    !educationPageDisabledCondition ||
+    educationPageDisabledCondition.actions.some(
+      (ac) =>
+        ac.action === action &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    );
+
+  const isEnableEditDisabled = isActionDisabled(ActionEnum.ENABLEEDIT);
+  const isAddDisabled = isActionDisabled(ActionEnum.ADD);
+  const isDisabledCondition = isEnableEdit && !isEnableEditDisabled ? false : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
   const { updateEducation, createEducation, deleteEducation } =
@@ -115,11 +136,7 @@ const EducationDashboard = () => {
   const userRoleId = user?.role?._id;
   const filteredEducations: Education[] =
     educations?.filter((edu: Education) =>
-      isEnableEdit
-        ? true
-        : userRoleId
-        ? edu?.permissionRoles?.includes(userRoleId)
-        : false
+      userRoleId ? edu?.permissionRoles?.includes(userRoleId) : false
     ) || [];
   filteredEducations.sort((a, b) => a.order - b.order);
   const [headerForm, setHeaderForm] = useState({
@@ -294,7 +311,7 @@ const EducationDashboard = () => {
             )}
           </div>
         ))}
-        {!isDisabledCondition && (
+        {!isDisabledCondition && !isAddDisabled && (
           <ButtonFilter
             buttonName={"+ " + t("Add New Header")}
             onclick={() => {
@@ -319,12 +336,12 @@ const EducationDashboard = () => {
                 {edu?.updateHistory && (
                   <span
                     onClick={() => {
-                      if (disabledUsers) return;
+                      if (isEnableEditDisabled) return;
                       setSelectedUpdateHistory(edu?.updateHistory);
                       setIsUpdateHistoryOpen(true);
                     }}
                     className={`text-xs text-gray-500 whitespace-nowrap ${
-                      !disabledUsers && "cursor-pointer hover:text-blue-500"
+                      !isEnableEditDisabled && "cursor-pointer hover:text-blue-500"
                     }`}
                   >
                     {edu.updateHistory.length > 0
@@ -395,7 +412,7 @@ const EducationDashboard = () => {
               )}
           </div>
         ))}
-        {!isDisabledCondition && (
+        {!isDisabledCondition && !isAddDisabled && (
           <ButtonFilter
             buttonName={"+ " + t("Add New Header")}
             onclick={() => {
@@ -412,11 +429,11 @@ const EducationDashboard = () => {
         className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full relative"
       >
         {/* Placeholder to prevent layout shift */}
-        <div className={`h-12 mb-4 ${disabledUsers ? "hidden" : ""}`}></div>
+        <div className={`h-12 mb-4 ${isEnableEditDisabled ? "hidden" : ""}`}></div>
         {/* Fixed switch button */}
         <div
           className={`fixed top-20 right-4 z-50 bg-white shadow-md rounded-lg px-4 py-2 flex flex-row gap-2 items-center ${
-            disabledUsers ? "hidden" : ""
+            isEnableEditDisabled ? "hidden" : ""
           }`}
         >
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />

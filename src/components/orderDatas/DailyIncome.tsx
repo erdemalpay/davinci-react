@@ -19,12 +19,23 @@ import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate, formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
+type DailyIncomeRow = {
+  date: string;
+  formattedDate: string;
+  location: number;
+  total: number;
+  paymentMethod?: string;
+  className?: string;
+  isSortable?: boolean;
+  [key: string]: number | string | boolean | undefined;
+};
 
 const DailyIncome = () => {
   const { t } = useTranslation();
@@ -78,14 +89,14 @@ const DailyIncome = () => {
           paymentMethods.forEach((method) => {
             if (collection.paymentMethod === method._id) {
               existingEntry[method._id] =
-                (existingEntry[method._id] || 0) + adjustedAmount;
+                ((existingEntry[method._id] as number) || 0) + adjustedAmount;
             }
           });
           existingEntry.total += !foundPaymentMethod?.isPaymentMade
             ? 0
             : adjustedAmount;
         } else {
-          const newEntry: any = {
+          const newEntry: DailyIncomeRow = {
             date: tableDate,
             formattedDate: formatAsLocalDate(tableDate),
             location: collection.location,
@@ -99,7 +110,7 @@ const DailyIncome = () => {
           acc.push(newEntry);
         }
         return acc;
-      }, [] as any[]);
+      }, [] as DailyIncomeRow[]);
 
     allRows.unshift({
       date: t("Total"),
@@ -108,11 +119,11 @@ const DailyIncome = () => {
       paymentMethod: "",
       ...paymentMethods.reduce((acc, method) => {
         acc[method._id] = allRows.reduce(
-          (sum, row) => sum + row[method._id],
+          (sum, row) => sum + ((row[method._id] as number) ?? 0),
           0
         );
         return acc;
-      }, {} as any),
+      }, {} as Record<string, number>),
       total: allRows.reduce((acc, row) => acc + row?.total, 0),
       className: "font-semibold",
       isSortable: false,
@@ -140,13 +151,11 @@ const DailyIncome = () => {
   const paymentMethodRowKeys = useMemo(() => {
     return paymentMethods.map((method) => ({
       key: method._id,
-      node: (row: any) => {
+      node: (row: DailyIncomeRow) => {
         return (
           <p className={`${row?.className}`}>
             {row[method._id] !== 0 &&
-              row[method._id]?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+              formatCurrency((row[method._id] as number) ?? 0) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -158,20 +167,18 @@ const DailyIncome = () => {
       {
         key: "date",
         className: "min-w-32 pr-2",
-        node: (row: any) => {
+        node: (row: DailyIncomeRow) => {
           return <p className={`${row?.className}`}>{row?.formattedDate}</p>;
         },
       },
       ...paymentMethodRowKeys,
       {
         key: "total",
-        node: (row: any) => {
+        node: (row: DailyIncomeRow) => {
           return (
             <p className={`${row?.className}`}>
               {row?.total !== 0 &&
-                row?.total?.toFixed(2).replace(/\.?0*$/, "") +
-                  " " +
-                  TURKISHLIRA}
+                formatCurrency(row?.total ?? 0) + " " + TURKISHLIRA}
             </p>
           );
         },

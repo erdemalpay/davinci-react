@@ -27,7 +27,7 @@ import {
 } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate, formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -62,11 +62,8 @@ type CollectionRow = Omit<
   };
   className?: string;
   isSortable?: boolean;
-  breakdown?: {
-    paidTotal: number;
-    cancelledTotal: number;
-    returnedTotal: number;
-  };
+  netAmount?: number;
+  cancelledAmount?: number;
 };
 
 const Collections = () => {
@@ -98,6 +95,16 @@ const Collections = () => {
       disabledConditions
     );
   }, [disabledConditions]);
+
+  const unpaidMethodIds = useMemo(
+    () =>
+      new Set(
+        paymentMethods
+          .filter((m) => m.isPaymentMade === false)
+          .map((m) => m._id)
+      ),
+    [paymentMethods]
+  );
 
   const collectionStatus = useMemo(
     () => [
@@ -181,6 +188,10 @@ const Collections = () => {
                 })) || [],
               collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
             },
+            netAmount:
+              (collection?.amount ?? 0) -
+              (collection?.shopifyDiscountAmount ?? 0) +
+              (collection?.shopifyShippingAmount ?? 0),
           };
         })
         ?.filter((item): item is CollectionRow => item !== null) || []
@@ -206,25 +217,21 @@ const Collections = () => {
       );
     });
 
-    const paidTotal = filteredRows.reduce(
-      (acc, row) =>
-        row?.status === OrderCollectionStatus.PAID ? acc + row?.amount : acc,
-      0
-    );
-    const cancelledTotal = filteredRows.reduce(
-      (acc, row) =>
-        row?.status === OrderCollectionStatus.CANCELLED
-          ? acc + row?.amount
-          : acc,
-      0
-    );
-    const returnedTotal = filteredRows.reduce(
-      (acc, row) =>
-        row?.status === OrderCollectionStatus.RETURNED
-          ? acc + row?.amount
-          : acc,
-      0
-    );
+    const { paidTotal, totalShippingCost, totalDiscount, totalNetAmount } =
+      filteredRows.reduce(
+        (totals, row) => {
+          if (row?.status === OrderCollectionStatus.PAID) {
+            totals.paidTotal += row?.amount ?? 0;
+            totals.totalShippingCost += row?.shopifyShippingAmount ?? 0;
+            totals.totalDiscount += row?.shopifyDiscountAmount ?? 0;
+            if (!unpaidMethodIds.has(row?.paymentMethodId ?? "")) {
+              totals.totalNetAmount += row?.netAmount ?? 0;
+            }
+          }
+          return totals;
+        },
+        { paidTotal: 0, totalShippingCost: 0, totalDiscount: 0, totalNetAmount: 0 }
+      );
 
     const totalRow: CollectionRow = {
       _id: "total",
@@ -245,16 +252,28 @@ const Collections = () => {
       cancelledAt: "",
       className: "font-semibold",
       isSortable: false,
-      amount: paidTotal + cancelledTotal + returnedTotal,
-      breakdown: {
-        paidTotal,
-        cancelledTotal,
-        returnedTotal,
+      collapsible: {
+        collapsibleHeader: "",
+        collapsibleColumns: [],
+        collapsibleRows: [],
+        collapsibleRowKeys: [],
       },
+      amount: paidTotal,
+      cancelledAmount: filteredRows.reduce(
+        (acc, row) =>
+          row?.status === OrderCollectionStatus.CANCELLED ||
+          row?.status === OrderCollectionStatus.RETURNED
+            ? acc + (row?.netAmount ?? 0)
+            : acc,
+        0
+      ),
+      shopifyShippingAmount: totalShippingCost,
+      shopifyDiscountAmount: totalDiscount,
+      netAmount: totalNetAmount,
     };
     filteredRows.unshift(totalRow);
     return filteredRows;
-  }, [allRows, filterPanelFormElements, t]);
+  }, [allRows, filterPanelFormElements, unpaidMethodIds, t]);
 
   const editInputs = useMemo(
     () => [
@@ -283,9 +302,11 @@ const Collections = () => {
       { key: t("Location"), isSortable: true },
       { key: t("Created By"), isSortable: true },
       { key: t("Payment Method"), isSortable: true },
-      { key: t("Amount"), isSortable: true },
-      { key: t("Shipping Cost"), isSortable: true },
+      { key: t("Gross Amount"), isSortable: true },
       { key: t("Discount"), isSortable: true },
+      { key: t("Shipping Cost"), isSortable: true },
+      { key: t("Cancelled Amount"), isSortable: true },
+      { key: t("Net Amount"), isSortable: true },
       { key: t("Cancelled By"), isSortable: true },
       { key: t("Cancelled At"), isSortable: true },
       { key: t("Cancel Note"), isSortable: true },
@@ -312,54 +333,61 @@ const Collections = () => {
       { key: "paymentMethod" },
       {
         key: "amount",
+        node: (row: CollectionRow) => (
+          <p className={row?.className}>{formatCurrency(row?.amount ?? 0)} ₺</p>
+        ),
+      },
+      {
+        key: "shopifyDiscountAmount",
         node: (row: CollectionRow) => {
-          // Türkçe format: binlik nokta, ondalık virgül
-          const formatAmount = (amount: number) => {
-            return amount
-              .toFixed(2)
-              .replace(".", ",")
-              .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-          };
-
-          // Total satırı için özel render
-          if (row?._id === "total" && row?.breakdown) {
-            const { paidTotal, cancelledTotal, returnedTotal } = row.breakdown;
-            return (
-              <div className={row?.className}>
-                <div className="font-semibold mb-1">
-                  {formatAmount(row?.amount ?? 0)} ₺
-                </div>
-                <div className="text-xs flex flex-wrap gap-1">
-                  {paidTotal > 0 && (
-                    <span className="bg-blue-50 px-2 py-0.5 rounded">
-                      Ödenen: {formatAmount(paidTotal)} ₺
-                    </span>
-                  )}
-                  {cancelledTotal > 0 && (
-                    <span className="bg-red-50 px-2 py-0.5 rounded">
-                      İptal: {formatAmount(cancelledTotal)} ₺
-                    </span>
-                  )}
-                  {returnedTotal > 0 && (
-                    <span className="bg-purple-50 px-2 py-0.5 rounded">
-                      İade: {formatAmount(returnedTotal)} ₺
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
+          const value = row?.shopifyDiscountAmount ?? 0;
+          if (value === 0 && row?._id !== "total") return null;
+          return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
+        },
+      },
+      {
+        key: "shopifyShippingAmount",
+        node: (row: CollectionRow) => {
+          const value = row?.shopifyShippingAmount ?? 0;
+          if (value === 0 && row?._id !== "total") return null;
+          return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
+        },
+      },
+      {
+        key: "cancelledAmount",
+        node: (row: CollectionRow) => {
+          if (row?._id === "total") {
+            const value = row?.cancelledAmount ?? 0;
+            if (value === 0) return null;
+            return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
           }
-
-          // Normal satırlar için
+          const isCancelledOrReturned =
+            row?.status === OrderCollectionStatus.CANCELLED ||
+            row?.status === OrderCollectionStatus.RETURNED;
+          if (!isCancelledOrReturned) return null;
           return (
-            <p className={row?.className} key={row?._id + "amount"}>
-              {formatAmount(row?.amount ?? 0)} ₺
+            <p className={row?.className}>
+              {formatCurrency(row?.netAmount ?? 0)} ₺
             </p>
           );
         },
       },
-      { key: "shopifyShippingAmount" },
-      { key: "shopifyDiscountAmount" },
+      {
+        key: "netAmount",
+        node: (row: CollectionRow) => {
+          if (
+            row?._id !== "total" &&
+            (row?.status === OrderCollectionStatus.CANCELLED ||
+              row?.status === OrderCollectionStatus.RETURNED)
+          ) {
+            return <p className={row?.className}>{formatCurrency(0)} ₺</p>;
+          }
+          const value = row?.netAmount ?? 0;
+          return (
+            <p className={row?.className}>{formatCurrency(value)} ₺</p>
+          );
+        },
+      },
       { key: "cancelledBy" },
       { key: "cancelledAt" },
       { key: "cancelNote" },
@@ -641,7 +669,10 @@ const Collections = () => {
           filters={filters}
           rowClassNameFunction={(row: CollectionRow) =>
             row?._id !== "total" &&
-            row?.status === OrderCollectionStatus.CANCELLED
+            (row?.status === OrderCollectionStatus.CANCELLED ||
+              row?.status === OrderCollectionStatus.RETURNED ||
+              (row?.status === OrderCollectionStatus.PAID &&
+                unpaidMethodIds.has(row?.paymentMethodId ?? "")))
               ? "bg-red-50"
               : ""
           }

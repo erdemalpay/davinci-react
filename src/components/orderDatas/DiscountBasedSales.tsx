@@ -255,7 +255,7 @@ const DiscountBasedSales = () => {
                   key: "tables",
                   node: (row: any) => {
                     return (
-                      <div className="flex flex-row border-4 ">
+                      <div className="flex flex-row  ">
                         {row?.tables?.map((table: Table) => (
                           <p
                             key={table?._id}
