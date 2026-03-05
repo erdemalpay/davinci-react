@@ -96,6 +96,16 @@ const Collections = () => {
     );
   }, [disabledConditions]);
 
+  const unpaidMethodIds = useMemo(
+    () =>
+      new Set(
+        paymentMethods
+          .filter((m) => m.isPaymentMade === false)
+          .map((m) => m._id)
+      ),
+    [paymentMethods]
+  );
+
   const collectionStatus = useMemo(
     () => [
       {
@@ -230,7 +240,8 @@ const Collections = () => {
 
     const totalNetAmount = filteredRows.reduce(
       (acc, row) =>
-        row?.status === OrderCollectionStatus.PAID
+        row?.status === OrderCollectionStatus.PAID &&
+        !unpaidMethodIds.has(row?.paymentMethodId ?? "")
           ? acc + (row?.netAmount ?? 0)
           : acc,
       0
@@ -276,7 +287,7 @@ const Collections = () => {
     };
     filteredRows.unshift(totalRow);
     return filteredRows;
-  }, [allRows, filterPanelFormElements, t]);
+  }, [allRows, filterPanelFormElements, unpaidMethodIds, t]);
 
   const editInputs = useMemo(
     () => [
@@ -710,7 +721,9 @@ const Collections = () => {
           rowClassNameFunction={(row: CollectionRow) =>
             row?._id !== "total" &&
             (row?.status === OrderCollectionStatus.CANCELLED ||
-              row?.status === OrderCollectionStatus.RETURNED)
+              row?.status === OrderCollectionStatus.RETURNED ||
+              (row?.status === OrderCollectionStatus.PAID &&
+                unpaidMethodIds.has(row?.paymentMethodId ?? "")))
               ? "bg-red-50"
               : ""
           }
