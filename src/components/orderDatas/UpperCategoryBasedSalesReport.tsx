@@ -254,6 +254,86 @@ const UpperCategoryBasedSalesReport = () => {
       ?.filter((row) => row.paidQuantity > 0)
       ?.sort((a, b) => b.paidQuantity - a.paidQuantity);
 
+    const assignedCategoryIds = new Set(
+      upperCategories.flatMap(
+        (uc) => uc.categoryGroup?.map((cg) => cg.category) ?? []
+      )
+    );
+
+    const unassignedCategoryRows =
+      allCategoryRows?.filter(
+        (row) => !assignedCategoryIds.has(row.categoryId)
+      ) ?? [];
+
+    if (unassignedCategoryRows.length > 0) {
+      const unassignedTotal = unassignedCategoryRows.reduce(
+        (acc, row) => acc + row.totalAmountWithDiscount,
+        0
+      );
+      allRows.push({
+        _id: -1,
+        name: t("Unassigned"),
+        categoryGroup: [],
+        paidQuantity: unassignedCategoryRows.reduce(
+          (acc, row) => acc + row.paidQuantity,
+          0
+        ),
+        discount: unassignedCategoryRows.reduce(
+          (acc, row) => acc + row.discount,
+          0
+        ),
+        amount: unassignedCategoryRows.reduce(
+          (acc, row) => acc + row.amount,
+          0
+        ),
+        totalAmountWithDiscount: unassignedTotal,
+        ratioToTotal:
+          grandTotal > 0 ? (unassignedTotal / grandTotal) * 100 : 0,
+        percentageGeneralAmount: 0,
+        collapsible: {
+          collapsibleHeader: t("Categories"),
+          collapsibleColumns: [
+            { key: t("Category"), isSortable: true },
+            { key: t("Percentage"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+            { key: t("Discount"), isSortable: true },
+            { key: t("Total Amount"), isSortable: true },
+            { key: t("General Amount"), isSortable: true },
+            { key: t("Percentage General Amount"), isSortable: true },
+            { key: t("Ratio to Total"), isSortable: true },
+          ],
+          collapsibleRows: unassignedCategoryRows
+            .map((row) => ({
+              category:
+                getItem(row.categoryId, categories)?.name ?? t("Unknown"),
+              percentage: 0,
+              quantity: row.paidQuantity,
+              discount: row.discount,
+              totalAmount: row.amount,
+              generalAmount: row.totalAmountWithDiscount,
+              percentageGeneralAmount: 0,
+              ratioToTotal:
+                grandTotal > 0
+                  ? formatPercentage(
+                      (row.totalAmountWithDiscount / grandTotal) * 100
+                    )
+                  : "0%",
+            }))
+            .sort((a, b) => b.quantity - a.quantity),
+          collapsibleRowKeys: [
+            { key: "category" },
+            { key: "percentage" },
+            { key: "quantity" },
+            { key: "discount" },
+            { key: "totalAmount" },
+            { key: "generalAmount" },
+            { key: "percentageGeneralAmount" },
+            { key: "ratioToTotal" },
+          ],
+        },
+      });
+    }
+
     const totalRow = {
       name: t("Total"),
       className: "font-semibold",
