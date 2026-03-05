@@ -97,15 +97,17 @@ const EducationDashboard = () => {
     return getItem(DisabledConditionEnum.EDUCATION, disabledConditions);
   }, [disabledConditions]);
 
-  const isEnableEditDisabled =
+  const isActionDisabled = (action: ActionEnum) =>
     !educationPageDisabledCondition ||
     educationPageDisabledCondition.actions.some(
       (ac) =>
-        ac.action === ActionEnum.ENABLEEDIT &&
+        ac.action === action &&
         user?.role?._id &&
         !ac?.permissionsRoles?.includes(user?.role?._id)
     );
 
+  const isEnableEditDisabled = isActionDisabled(ActionEnum.ENABLEEDIT);
+  const isAddDisabled = isActionDisabled(ActionEnum.ADD);
   const isDisabledCondition = isEnableEdit && !isEnableEditDisabled ? false : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
@@ -309,7 +311,7 @@ const EducationDashboard = () => {
             )}
           </div>
         ))}
-        {!isDisabledCondition && (
+        {!isDisabledCondition && !isAddDisabled && (
           <ButtonFilter
             buttonName={"+ " + t("Add New Header")}
             onclick={() => {
@@ -410,7 +412,7 @@ const EducationDashboard = () => {
               )}
           </div>
         ))}
-        {!isDisabledCondition && (
+        {!isDisabledCondition && !isAddDisabled && (
           <ButtonFilter
             buttonName={"+ " + t("Add New Header")}
             onclick={() => {
