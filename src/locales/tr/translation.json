@@ -914,6 +914,7 @@
   "Clear Selected Days": "Seçili Günleri Temizle",
   "Average": "Ortalama",
   "Unknown": "Bilinmeyen",
+  "Unassigned": "Atanmamış",
   "Select Table": "Masa Seç",
   "Ikas Pick Up": "Ikas Gel Al",
   "Shopify Pick Up": "Shopify Gel Al",
@@ -1350,5 +1351,11 @@
   "HepsiBurada Price": "Hepsiburada Fiyat",
   "HepsiBurada Stock": "Hepsiburada Stok",
   "Back In Stock Subscriptions": "Gelince Haber Ver",
-  "Role Restriction": "Rol Kısıtlama"
+  "Role Restriction": "Rol Kısıtlama",
+  "Net Amount": "Net Değer",
+  "Gross Amount": "Brüt Tutar",
+  "Shipping Cost": "Kargo Ücreti",
+  "Cancelled Amount" : "İptal Tutarı",
+  "Ratio to Total" : "Toplama Göre Oran",
+  "Discount and shipping costs are not included in the calculations shown here": "Burada görüntülenen kayıtlarda indirim ve kargo ücretleri hesaplamaya dahil değildir"
 }
