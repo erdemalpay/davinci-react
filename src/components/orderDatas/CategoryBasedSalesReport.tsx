@@ -49,7 +49,12 @@ type OrderWithPaymentInfo = {
   totalAmountWithDiscount: number;
   ratioToTotal?: number;
   itemQuantity: ItemQuantity[];
-  collapsible: any;
+  collapsible: {
+    collapsibleHeader: string;
+    collapsibleColumns: { key: string; isSortable: boolean }[];
+    collapsibleRows: { product?: string; quantity: number; ratioToTotal?: string }[];
+    collapsibleRowKeys: { key: string }[];
+  };
   className?: string;
   isSortable?: boolean;
 };
@@ -294,13 +299,13 @@ const CategoryBasedSalesReport = () => {
       {
         key: "category",
         className: "min-w-32 pr-2",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return <p className={`${row?.className}`}>{row?.category}</p>;
         },
       },
       {
         key: "paidQuantity",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p key={"paidQuantity" + row?.item} className={`${row?.className}`}>
               {row?.paidQuantity}
@@ -310,7 +315,7 @@ const CategoryBasedSalesReport = () => {
       },
       {
         key: "discount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"discount" + row?.item}>
               {row?.discount > 0 &&
@@ -321,7 +326,7 @@ const CategoryBasedSalesReport = () => {
       },
       {
         key: "amount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"amount" + row?.item}>
               {formatCurrency(row?.amount ?? 0) + " " + TURKISHLIRA}
@@ -331,7 +336,7 @@ const CategoryBasedSalesReport = () => {
       },
       {
         key: "totalAmountWithDiscount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p
               className={`${row?.className}`}
