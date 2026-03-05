@@ -121,6 +121,10 @@ const UpperCategoryBasedSalesReport = () => {
   }, [orders, items]);
 
   const rows = useMemo(() => {
+    const categoryMap = new Map(
+      allCategoryRows?.map((row) => [row.categoryId, row]) ?? []
+    );
+
     const grandTotal =
       allCategoryRows?.reduce(
         (acc, row) => acc + (row.totalAmountWithDiscount ?? 0),
@@ -132,10 +136,7 @@ const UpperCategoryBasedSalesReport = () => {
         const upperTotalAmountWithDiscount =
           upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return acc + (category?.totalAmountWithDiscount ?? 0);
             },
             0
@@ -145,30 +146,21 @@ const UpperCategoryBasedSalesReport = () => {
           ...upperCategory,
           paidQuantity: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return acc + (category?.paidQuantity ?? 0);
             },
             0
           ),
           discount: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return acc + (category?.discount ?? 0);
             },
             0
           ),
           amount: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return acc + (category?.amount ?? 0);
             },
             0
@@ -180,10 +172,7 @@ const UpperCategoryBasedSalesReport = () => {
               : 0,
           percentageGeneralAmount: upperCategory?.categoryGroup?.reduce(
             (acc, categoryGroupItem) => {
-              const category = allCategoryRows?.find(
-                (categoryRow) =>
-                  categoryRow.categoryId === categoryGroupItem?.category
-              );
+              const category = categoryMap.get(categoryGroupItem?.category);
               return (
                 acc +
                 (category?.totalAmountWithDiscount ?? 0) *
@@ -207,10 +196,7 @@ const UpperCategoryBasedSalesReport = () => {
             ],
             collapsibleRows: upperCategory?.categoryGroup
               ?.map((categoryGroupItem) => {
-                const category = allCategoryRows?.find(
-                  (categoryRow) =>
-                    categoryRow.categoryId === categoryGroupItem?.category
-                );
+                const category = categoryMap.get(categoryGroupItem?.category);
                 const categoryAmount =
                   category?.totalAmountWithDiscount ?? 0;
 

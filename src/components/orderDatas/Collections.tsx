@@ -383,9 +383,6 @@ const Collections = () => {
             return <p className={row?.className}>{formatCurrency(0)} ₺</p>;
           }
           const value = row?.netAmount ?? 0;
-          if (value === 0 && row?._id !== "total") {
-            return <p className={row?.className}>{formatCurrency(0)} ₺</p>;
-          }
           return (
             <p className={row?.className}>{formatCurrency(value)} ₺</p>
           );
