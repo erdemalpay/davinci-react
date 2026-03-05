@@ -19,6 +19,13 @@ export function formatDateInTurkey(dateStr: Date) {
   return format(zonedDate, "yyyy-MM-dd");
 }
 
+export function formatCurrency(value: number): string {
+  return (value ?? 0)
+    .toFixed(2)
+    .replace(".", ",")
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 export function getFirstDayOfCurrentMonth() {
   const now = new Date(); // Gets the current date and time
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);

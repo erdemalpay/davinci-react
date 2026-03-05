@@ -19,7 +19,7 @@ import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate, formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -144,9 +144,7 @@ const DailyIncome = () => {
         return (
           <p className={`${row?.className}`}>
             {row[method._id] !== 0 &&
-              row[method._id]?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+              formatCurrency(row[method._id] ?? 0) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -169,9 +167,7 @@ const DailyIncome = () => {
           return (
             <p className={`${row?.className}`}>
               {row?.total !== 0 &&
-                row?.total?.toFixed(2).replace(/\.?0*$/, "") +
-                  " " +
-                  TURKISHLIRA}
+                formatCurrency(row?.total ?? 0) + " " + TURKISHLIRA}
             </p>
           );
         },

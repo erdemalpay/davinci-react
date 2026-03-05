@@ -24,6 +24,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -227,7 +228,7 @@ const UpperCategoryBasedSalesReport = () => {
                     0.01,
                   ratioToTotal:
                     grandTotal > 0
-                      ? `${((categoryAmount / grandTotal) * 100).toFixed(2)}%`
+                      ? `${((categoryAmount / grandTotal) * 100).toFixed(2).replace(/\.?0*$/, "")}%`
                       : "0%",
                 };
               })
@@ -334,9 +335,7 @@ const UpperCategoryBasedSalesReport = () => {
           return (
             <p className={`${row?.className}`}>
               {row?.discount > 0 &&
-                row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+                formatCurrency(row?.discount) + " " + TURKISHLIRA}
             </p>
           );
         },
@@ -346,9 +345,7 @@ const UpperCategoryBasedSalesReport = () => {
         node: (row: any) => {
           return (
             <p className={`${row?.className}`}>
-              {row?.amount?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+              {formatCurrency(row?.amount ?? 0) + " " + TURKISHLIRA}
             </p>
           );
         },
@@ -358,7 +355,7 @@ const UpperCategoryBasedSalesReport = () => {
         node: (row: any) => {
           return (
             <p className={`${row?.className}`}>
-              {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") +
+              {formatCurrency(row?.totalAmountWithDiscount ?? 0) +
                 " " +
                 TURKISHLIRA}
             </p>
@@ -370,7 +367,7 @@ const UpperCategoryBasedSalesReport = () => {
         node: (row: any) => {
           return (
             <p className={`${row?.className}`}>
-              {row?.percentageGeneralAmount?.toFixed(2).replace(/\.?0*$/, "") +
+              {formatCurrency(row?.percentageGeneralAmount ?? 0) +
                 " " +
                 TURKISHLIRA}
             </p>

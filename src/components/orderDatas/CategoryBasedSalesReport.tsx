@@ -23,6 +23,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -217,7 +218,7 @@ const CategoryBasedSalesReport = () => {
             quantity: itemQuantityIteration.quantity,
             ratioToTotal:
               grandTotal > 0
-                ? `${((itemQuantityIteration.totalAmountWithDiscount / grandTotal) * 100).toFixed(2)}%`
+                ? `${((itemQuantityIteration.totalAmountWithDiscount / grandTotal) * 100).toFixed(2).replace(/\.?0*$/, "")}%`
                 : "0%",
           }))
           .sort((a, b) => b.quantity - a.quantity),
@@ -231,20 +232,24 @@ const CategoryBasedSalesReport = () => {
 
     if (allRowsWithRatio && allRowsWithRatio.length > 0) {
       allRowsWithRatio.sort((a, b) => b.paidQuantity - a.paidQuantity);
+      const totals = allRowsWithRatio.reduce(
+        (acc, item) => {
+          acc.paidQuantity += item.paidQuantity;
+          acc.discount += item.discount;
+          acc.amount += item.amount;
+          acc.totalAmountWithDiscount += item.totalAmountWithDiscount;
+          return acc;
+        },
+        { paidQuantity: 0, discount: 0, amount: 0, totalAmountWithDiscount: 0 }
+      );
       allRowsWithRatio.unshift({
         item: 0,
         itemName: "",
-        paidQuantity: allRowsWithRatio.reduce(
-          (acc, item) => acc + item.paidQuantity,
-          0
-        ),
+        paidQuantity: totals.paidQuantity,
         className: "font-semibold",
-        discount: allRowsWithRatio.reduce((acc, item) => acc + item.discount, 0),
-        amount: allRowsWithRatio.reduce((acc, item) => acc + item.amount, 0),
-        totalAmountWithDiscount: allRowsWithRatio.reduce(
-          (acc, item) => acc + item.totalAmountWithDiscount,
-          0
-        ),
+        discount: totals.discount,
+        amount: totals.amount,
+        totalAmountWithDiscount: totals.totalAmountWithDiscount,
         ratioToTotal: 100,
         location: 4,
         date: "",
@@ -309,9 +314,7 @@ const CategoryBasedSalesReport = () => {
           return (
             <p className={`${row?.className}`} key={"discount" + row?.item}>
               {row?.discount > 0 &&
-                row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
-                  " " +
-                  TURKISHLIRA}
+                formatCurrency(row?.discount) + " " + TURKISHLIRA}
             </p>
           );
         },
@@ -321,9 +324,7 @@ const CategoryBasedSalesReport = () => {
         node: (row: any) => {
           return (
             <p className={`${row?.className}`} key={"amount" + row?.item}>
-              {row?.amount?.toFixed(2).replace(/\.?0*$/, "") +
-                " " +
-                TURKISHLIRA}
+              {formatCurrency(row?.amount ?? 0) + " " + TURKISHLIRA}
             </p>
           );
         },
@@ -336,7 +337,7 @@ const CategoryBasedSalesReport = () => {
               className={`${row?.className}`}
               key={"totalAmountWithDiscount" + row?.item}
             >
-              {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") +
+              {formatCurrency(row?.totalAmountWithDiscount ?? 0) +
                 " " +
                 TURKISHLIRA}
             </p>
@@ -345,7 +346,7 @@ const CategoryBasedSalesReport = () => {
       },
       {
         key: "ratioToTotal",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"ratioToTotal" + row?.item}>
               {row?.ratioToTotal !== undefined &&

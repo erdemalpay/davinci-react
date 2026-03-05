@@ -27,7 +27,7 @@ import {
 } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate, formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -217,35 +217,21 @@ const Collections = () => {
       );
     });
 
-    const paidTotal = filteredRows.reduce(
-      (acc, row) =>
-        row?.status === OrderCollectionStatus.PAID ? acc + row?.amount : acc,
-      0
-    );
-    const totalShippingCost = filteredRows.reduce(
-      (acc, row) =>
-        row?.status === OrderCollectionStatus.PAID
-          ? acc + (row?.shopifyShippingAmount ?? 0)
-          : acc,
-      0
-    );
-
-    const totalDiscount = filteredRows.reduce(
-      (acc, row) =>
-        row?.status === OrderCollectionStatus.PAID
-          ? acc + (row?.shopifyDiscountAmount ?? 0)
-          : acc,
-      0
-    );
-
-    const totalNetAmount = filteredRows.reduce(
-      (acc, row) =>
-        row?.status === OrderCollectionStatus.PAID &&
-        !unpaidMethodIds.has(row?.paymentMethodId ?? "")
-          ? acc + (row?.netAmount ?? 0)
-          : acc,
-      0
-    );
+    const { paidTotal, totalShippingCost, totalDiscount, totalNetAmount } =
+      filteredRows.reduce(
+        (totals, row) => {
+          if (row?.status === OrderCollectionStatus.PAID) {
+            totals.paidTotal += row?.amount ?? 0;
+            totals.totalShippingCost += row?.shopifyShippingAmount ?? 0;
+            totals.totalDiscount += row?.shopifyDiscountAmount ?? 0;
+            if (!unpaidMethodIds.has(row?.paymentMethodId ?? "")) {
+              totals.totalNetAmount += row?.netAmount ?? 0;
+            }
+          }
+          return totals;
+        },
+        { paidTotal: 0, totalShippingCost: 0, totalDiscount: 0, totalNetAmount: 0 }
+      );
 
     const totalRow: CollectionRow = {
       _id: "total",
@@ -347,28 +333,16 @@ const Collections = () => {
       { key: "paymentMethod" },
       {
         key: "amount",
-        node: (row: CollectionRow) => {
-          const formatted = (row?.amount ?? 0)
-            .toFixed(2)
-            .replace(".", ",")
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-          return <p className={row?.className}>{formatted} ₺</p>;
-        },
+        node: (row: CollectionRow) => (
+          <p className={row?.className}>{formatCurrency(row?.amount ?? 0)} ₺</p>
+        ),
       },
       {
         key: "shopifyDiscountAmount",
         node: (row: CollectionRow) => {
           const value = row?.shopifyDiscountAmount ?? 0;
           if (value === 0 && row?._id !== "total") return null;
-          const formatted = value
-            .toFixed(2)
-            .replace(".", ",")
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-          return (
-            <p className={row?.className}>
-              {formatted} ₺
-            </p>
-          );
+          return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
         },
       },
       {
@@ -376,15 +350,7 @@ const Collections = () => {
         node: (row: CollectionRow) => {
           const value = row?.shopifyShippingAmount ?? 0;
           if (value === 0 && row?._id !== "total") return null;
-          const formatted = value
-            .toFixed(2)
-            .replace(".", ",")
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-          return (
-            <p className={row?.className}>
-              {formatted} ₺
-            </p>
-          );
+          return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
         },
       },
       {
@@ -393,25 +359,17 @@ const Collections = () => {
           if (row?._id === "total") {
             const value = row?.cancelledAmount ?? 0;
             if (value === 0) return null;
-            const formatted = value
-              .toFixed(2)
-              .replace(".", ",")
-              .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            return <p className={row?.className}>{formatted} ₺</p>;
+            return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
           }
           const isCancelledOrReturned =
             row?.status === OrderCollectionStatus.CANCELLED ||
             row?.status === OrderCollectionStatus.RETURNED;
           if (!isCancelledOrReturned) return null;
-          const cancelledNet =
-            (row?.amount ?? 0) -
-            (row?.shopifyDiscountAmount ?? 0) +
-            (row?.shopifyShippingAmount ?? 0);
-          const formatted = cancelledNet
-            .toFixed(2)
-            .replace(".", ",")
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-          return <p className={row?.className}>{formatted} ₺</p>;
+          return (
+            <p className={row?.className}>
+              {formatCurrency(row?.netAmount ?? 0)} ₺
+            </p>
+          );
         },
       },
       {
@@ -428,14 +386,8 @@ const Collections = () => {
           if (value === 0 && row?._id !== "total") {
             return <p className={row?.className}>0,00 ₺</p>;
           }
-          const formatted = value
-            .toFixed(2)
-            .replace(".", ",")
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
           return (
-            <p className={row?.className}>
-              {formatted} ₺
-            </p>
+            <p className={row?.className}>{formatCurrency(value)} ₺</p>
           );
         },
       },
