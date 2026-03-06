@@ -648,6 +648,7 @@ export enum DisabledConditionEnum {
   VISITS_SHIFTS = "visits_shifts",
   CHECKLISTS_CHECKARCHIVE = "checklists_checkarchive",
   CHECKLISTS_CHECKLISTS = "checklists_checklists",
+  CHECKLISTS_CHECKLISTS_INNERPAGE = "checklists_checklists_innerpage",
   EXPIRATIONS_COUNTARCHIVE = "expirations_countarchive",
   EXPIRATIONS_EXPIRATIONLISTS = "expirations_expirationlists",
   EXPIRATIONS_EXPIRATIONLISTPRODUCTS = "expirations_expirationlistproducts",
