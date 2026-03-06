@@ -64,7 +64,7 @@ const Checklist = () => {
         (ac) => ac.action === actionType
       );
       if (!action) {
-        return false;
+        return true;
       }
       return !action.permissionsRoles?.includes(user.role._id);
     },
