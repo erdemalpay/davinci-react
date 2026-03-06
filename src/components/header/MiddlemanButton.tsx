@@ -13,6 +13,7 @@ import {
   useMiddlemanMutations,
   useGetMiddlemanByLocation,
 } from "../../utils/api/middleman";
+import { getRefId } from "../../utils/getItem";
 import CustomTooltip from "../panelComponents/Tables/Tooltip";
 
 export const MiddlemanButton = () => {
@@ -52,14 +53,10 @@ export const MiddlemanButton = () => {
     }
 
     const myRecord = activeMiddlemen.find(
-      (m) =>
-        (typeof m.user === "string" ? m.user : m.user._id) === user._id &&
-        !m.finishHour
+      (m) => getRefId(m.user) === user._id && !m.finishHour
     );
     const othersRecord = activeMiddlemen.find(
-      (m) =>
-        (typeof m.user === "string" ? m.user : m.user._id) !== user._id &&
-        !m.finishHour
+      (m) => getRefId(m.user) !== user._id && !m.finishHour
     );
 
     setIsMiddleman(!!myRecord);
@@ -67,7 +64,7 @@ export const MiddlemanButton = () => {
 
     if (othersRecord) {
       const name =
-        typeof othersRecord.user === "object"
+        typeof othersRecord.user === "object" && othersRecord.user !== null && "name" in othersRecord.user
           ? (othersRecord.user as User).name || t("Someone")
           : t("Someone");
       setOtherMiddlemanName(name);
@@ -76,7 +73,7 @@ export const MiddlemanButton = () => {
     }
   }, [activeMiddlemen, user]);
 
-  if (!isGameRole || !hasActiveVisit) return null;
+  if (!(isGameRole && hasActiveVisit)) return null;
 
   const handleStart = () => {
     if (!user || !selectedLocationId) {
@@ -86,9 +83,7 @@ export const MiddlemanButton = () => {
 
     // Cannot start middleman while on break
     const isOnBreak = activeBreaks?.some(
-      (b) =>
-        (typeof b.user === "string" ? b.user : b.user._id) === user._id &&
-        !b.finishHour
+      (b) => getRefId(b.user) === user._id && !b.finishHour
     );
     if (isOnBreak) {
       toast.error(t("You cannot be a middleman while you are on a break"));
@@ -98,10 +93,8 @@ export const MiddlemanButton = () => {
     // Cannot start middleman while in active gameplay time
     const isInGameplay = activeGameplayTimes?.some(
       (g) =>
-        (typeof g.user === "string" ? g.user : g.user._id) === user._id &&
-        (typeof g.location === "number"
-          ? g.location
-          : g.location._id) === selectedLocationId &&
+        getRefId(g.user) === user._id &&
+        (typeof g.location === "number" ? g.location : g.location._id) === selectedLocationId &&
         !g.finishHour
     );
     if (isInGameplay) {

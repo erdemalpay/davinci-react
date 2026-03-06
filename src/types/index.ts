@@ -1775,6 +1775,7 @@ export enum ActivityType {
   SHIFT_CHANGE_REJECTED = "SHIFT_CHANGE_REJECTED",
   START_MIDDLEMAN = "START_MIDDLEMAN",
   FINISH_MIDDLEMAN = "FINISH_MIDDLEMAN",
+  FINISH_MIDDLEMAN_BY_MANAGER = "FINISH_MIDDLEMAN_BY_MANAGER",
 }
 export const activityTypeDetails = [
   {
@@ -2086,6 +2087,11 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_MIDDLEMAN,
     label: "Finish Middleman",
     bgColor: "bg-teal-700",
+  },
+  {
+    value: ActivityType.FINISH_MIDDLEMAN_BY_MANAGER,
+    label: "Finish Middleman By Manager",
+    bgColor: "bg-amber-600",
   },
 ];
 

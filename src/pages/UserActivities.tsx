@@ -23,10 +23,17 @@ type CollapsibleRow = {
   collapsibleRows: {
     activityType: string;
     payload: unknown;
+    actorName?: string;
+    middlemanUserName?: string;
   }[];
   collapsibleRowKeys: {
     key: string;
-    node: (row: { activityType: string; payload: unknown }) => React.ReactNode;
+    node: (row: {
+      activityType: string;
+      payload: unknown;
+      actorName?: string;
+      middlemanUserName?: string;
+    }) => React.ReactNode;
   }[];
 };
 type ActivityRow = Activity & {
@@ -76,17 +83,32 @@ const UserActivities = () => {
                 {
                   activityType: activity.type,
                   payload: activity.payload,
+                  actorName: getItem(activity.user, users)?.name,
+                  middlemanUserName:
+                    activity.type === "FINISH_MIDDLEMAN_BY_MANAGER"
+                      ? getItem(
+                          (activity.payload as { user?: string })?.user,
+                          users
+                        )?.name
+                      : undefined,
                 },
               ]
             : [],
           collapsibleRowKeys: [
             {
               key: "payload",
-              node: (row: { activityType: string; payload: unknown }) => {
+              node: (row: {
+                activityType: string;
+                payload: unknown;
+                actorName?: string;
+                middlemanUserName?: string;
+              }) => {
                 return (
                   <ActivityPayloadRenderer
                     activityType={row.activityType}
                     payload={row?.payload}
+                    actorName={row.actorName}
+                    middlemanUserName={row.middlemanUserName}
                   />
                 );
               },
