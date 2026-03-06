@@ -1,4 +1,12 @@
-import { MenuItem, MenuCategory } from "../types";
+import { MenuCategory, MenuItem } from "../types";
+
+export function getRefId(
+  ref: string | number | { _id: string | number }
+): string | number {
+  return typeof ref === "object" && ref !== null && "_id" in ref
+    ? ref._id
+    : ref;
+}
 
 export const getItem = <T extends { _id: any }>(
   _id: any,
@@ -22,7 +30,6 @@ export function getMenuItemSubText(
 
   const subProductNames = menuItem.itemProduction
     .map((prod) => {
-
       const subMenuItem = allMenuItems?.find(
         (item) => item.matchedProduct === prod.product
       );
@@ -39,4 +46,3 @@ export function getMenuItemSubText(
 
   return subProductNames.join("|||");
 }
-
