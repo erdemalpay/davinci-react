@@ -1,5 +1,5 @@
 import { Switch } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -20,13 +20,18 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { ChecklistType, RoleEnum } from "../types";
+import {
+  ActionEnum,
+  ChecklistType,
+  DisabledConditionEnum,
+} from "../types";
 import { useCheckMutations, useGetChecks } from "../utils/api/checklist/check";
 import {
   useChecklistMutations,
   useGetChecklists,
 } from "../utils/api/checklist/checklist";
 import { useGetStoreLocations } from "../utils/api/location";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
 import { LocationInput } from "../utils/panelInputs";
 
@@ -41,9 +46,30 @@ const Checklist = () => {
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
-  const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
-    : true;
+  const disabledConditions = useGetDisabledConditions();
+
+  const checklistsInnerpageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.CHECKLISTS_CHECKLISTS_INNERPAGE,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+      if (!user?.role?._id) {
+        return true;
+      }
+      const action = checklistsInnerpageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+      if (!action) {
+        return false;
+      }
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [checklistsInnerpageDisabledCondition, user]
+  );
   const { createCheck } = useCheckMutations();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -202,9 +228,7 @@ const Checklist = () => {
         ),
     });
   });
-  if (!isDisabledCondition) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
+  columns.push({ key: t("Actions"), isSortable: false });
 
   const addButton = {
     name: t("Add Task"),
@@ -254,6 +278,7 @@ const Checklist = () => {
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
+    isDisabled: isActionDisabled(ActionEnum.ADD),
   };
 
   const actions = [
@@ -290,6 +315,7 @@ const Checklist = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: isActionDisabled(ActionEnum.DELETE),
     },
     {
       name: t("Edit"),
@@ -342,6 +368,7 @@ const Checklist = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: isActionDisabled(ActionEnum.UPDATE),
     },
   ];
 
@@ -360,7 +387,7 @@ const Checklist = () => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: isActionDisabled(ActionEnum.UPDATE_LOCATION),
       node: (
         <Switch
           checked={isLocationEdit}
@@ -424,8 +451,8 @@ const Checklist = () => {
             columns={columns}
             isToolTipEnabled={false}
             rows={rows()}
-            actions={!isDisabledCondition ? actions : undefined}
-            addButton={!isDisabledCondition ? addButton : undefined}
+            actions={actions}
+            addButton={addButton}
             filters={filters}
             title={checklists?.find((p) => p._id === checklistId)?.name}
             isActionsActive={true}
