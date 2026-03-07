@@ -307,6 +307,7 @@ export type AccountCountList = {
   }[];
   active: boolean;
   expenseTypes?: string[];
+  permissionRoles: number[];
 };
 export type ExpirationListType = {
   _id: string;

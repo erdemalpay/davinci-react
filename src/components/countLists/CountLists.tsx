@@ -12,6 +12,7 @@ import {
   AccountCountList,
   ActionEnum,
   DisabledConditionEnum,
+  RoleEnum,
 } from "../../types";
 import {
   useAccountCountMutations,
@@ -24,6 +25,7 @@ import {
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetAllUserRoles } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -43,11 +45,13 @@ const CountLists = () => {
   const countLists = useGetAccountCountLists();
   const locations = useGetStockLocations();
   const counts = useGetAccountCounts();
+  const roles = useGetAllUserRoles();
   const [showInactiveCountLists, setShowInactiveCountLists] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const expenseTypes = useGetAccountExpenseTypes();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isAdjustRoles, setIsAdjustRoles] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountCountList>();
   const { createAccountCount } = useAccountCountMutations();
   const { resetGeneralContext } = useGeneralContext();
@@ -85,6 +89,21 @@ const CountLists = () => {
       updates: { locations: newLocations },
     });
     toast.success(`${t("Count List updated successfully")}`);
+  }
+
+  function handleRolePermission(row: AccountCountList, roleKey: number) {
+    const newPermissionRoles = row?.permissionRoles || [];
+    const index = newPermissionRoles.indexOf(roleKey);
+    if (index === -1) {
+      newPermissionRoles.push(roleKey);
+    } else {
+      newPermissionRoles.splice(index, 1);
+    }
+    updateAccountCountList({
+      id: row._id,
+      updates: { permissionRoles: newPermissionRoles },
+    });
+    toast.success(`${t("Role permissions updated successfully.")}`);
   }
 
   const { columns, rowKeys } = useMemo(() => {
@@ -128,23 +147,44 @@ const CountLists = () => {
       },
     ];
 
-    // Adding location columns and rowkeys
-    for (const location of locations) {
-      cols.push({ key: location?.name, isSortable: true });
-      keys.push({
-        key: String(location._id),
-        node: (row: AccountCountList) =>
-          isEnableEdit ? (
-            <CheckSwitch
-              checked={row?.locations?.includes(location._id)}
-              onChange={() => handleLocationUpdate(row, location?._id)}
-            />
-          ) : row?.locations?.includes(location?._id) ? (
-            <IoCheckmark className="text-blue-500 text-2xl " />
-          ) : (
-            <IoCloseOutline className="text-red-800 text-2xl" />
-          ),
-      });
+    if (isAdjustRoles) {
+      // Show role columns when adjust roles is enabled
+      for (const role of roles) {
+        cols.push({ key: role.name, isSortable: true });
+        keys.push({
+          key: role._id.toString(),
+          node: (row: AccountCountList) => {
+            const hasPermission = row?.permissionRoles?.includes(role._id);
+            return (
+              <CheckSwitch
+                checked={hasPermission}
+                onChange={() => {
+                  handleRolePermission(row, role._id);
+                }}
+              />
+            );
+          },
+        });
+      }
+    } else {
+      // Show location columns when adjust roles is disabled
+      for (const location of locations) {
+        cols.push({ key: location?.name, isSortable: true });
+        keys.push({
+          key: String(location._id),
+          node: (row: AccountCountList) =>
+            isEnableEdit ? (
+              <CheckSwitch
+                checked={row?.locations?.includes(location._id)}
+                onChange={() => handleLocationUpdate(row, location?._id)}
+              />
+            ) : row?.locations?.includes(location?._id) ? (
+              <IoCheckmark className="text-blue-500 text-2xl " />
+            ) : (
+              <IoCloseOutline className="text-red-800 text-2xl" />
+            ),
+        });
+      }
     }
     cols.push({ key: t("Actions"), isSortable: false });
 
@@ -152,7 +192,9 @@ const CountLists = () => {
   }, [
     t,
     locations,
+    roles,
     isEnableEdit,
+    isAdjustRoles,
     resetGeneralContext,
     navigate,
     updateAccountCountList,
@@ -469,17 +511,33 @@ const CountLists = () => {
           />
         ),
       },
+      ...(!isAdjustRoles
+        ? [
+            {
+              label: t("Location Edit"),
+              isDisabled: countListsDisabledCondition?.actions?.some(
+                (ac) =>
+                  ac.action === ActionEnum.UPDATE_LOCATION &&
+                  user?.role?._id &&
+                  !ac?.permissionsRoles?.includes(user?.role?._id)
+              ),
+              isUpperSide: true,
+              node: (
+                <SwitchButton
+                  checked={isEnableEdit}
+                  onChange={setIsEnableEdit}
+                />
+              ),
+            },
+          ]
+        : []),
       {
-        label: t("Location Edit"),
-        isDisabled: countListsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE_LOCATION &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        label: t("Adjust Roles"),
+        // TODO: countListsDisabledCondition should be added AKA
+        isDisabled: RoleEnum.MANAGER !== user?.role?._id, //temporary
         isUpperSide: true,
         node: (
-          <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+          <SwitchButton checked={isAdjustRoles} onChange={setIsAdjustRoles} />
         ),
       },
     ],
@@ -487,6 +545,7 @@ const CountLists = () => {
       t,
       showInactiveCountLists,
       isEnableEdit,
+      isAdjustRoles,
       countListsDisabledCondition,
       user,
     ]
