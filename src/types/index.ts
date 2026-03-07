@@ -714,7 +714,7 @@ export enum ActionEnum {
   SHOW_UNIT_PRICES = "show_unit_prices",
   NOTIFY = "notify",
   CLICKABLE_ROWS = "clickable_rows",
-  ASSIGN_MIDDLEMAN = "assign_middleman"
+  ASSIGN_MIDDLEMAN = "assign_middleman",
 }
 
 export type Membership = {
@@ -1281,6 +1281,7 @@ export enum RoleEnum {
   CLEANING,
   KITCHEN2,
   KITCHEN3,
+  BARCHEF,
 }
 
 export enum RoleNameEnum {
