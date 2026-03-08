@@ -100,6 +100,18 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "locations",
+      label: t("Locations"),
+      options: locations?.map((location) => ({
+        value: location._id,
+        label: location.name,
+      })),
+      placeholder: t("Locations"),
+      isMultiple: true,
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "discounts",
       label: t("Discount"),
       options: discounts?.map((discount) => ({
@@ -209,7 +221,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "kitchen", type: FormKeyTypeEnum.STRING },
-    { key: "discounts", type: FormKeyTypeEnum.STRING },
+    { key: "discounts", type: FormKeyTypeEnum.ARRAY },
     { key: "isAutoServed", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isKitchenMenu", type: FormKeyTypeEnum.BOOLEAN },
@@ -426,10 +438,13 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
         additionalSubmitFunction={() => {
           setMenuActiveTab(menuActiveTab + 1);
         }}
+        constantValues={{ locations: [1, 2] }}
         inputs={inputs}
         formKeys={formKeys}
-        generalClassName="max-h-[90vh] overflow-y-auto"
+        generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"
+        anotherPanelTopClassName=""
         topClassName="flex flex-col gap-2"
+        nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
       />
     ),
     isModalOpen: isAddModalOpen,

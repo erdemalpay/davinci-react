@@ -166,6 +166,9 @@ const GenericAddEditPanel = <T,>({
         case FormKeyTypeEnum.DATE:
           defaultValue = "";
           break;
+        case FormKeyTypeEnum.ARRAY:
+          defaultValue = [];
+          break;
         default:
           defaultValue = null;
       }
@@ -881,7 +884,7 @@ const GenericAddEditPanel = <T,>({
           </div>
         </div>
         <div
-          className={`px-4 py-4 flex flex-row gap-4 justify-center sm:justify-start sm:ml-auto mx-auto sm:mx-0 ${
+          className={`px-4 py-4 flex flex-row gap-4 justify-center sm:justify-end items-end sm:ml-auto mx-auto sm:mx-0 ${
             stickyFooterButtons
               ? "bg-white mt-auto flex-shrink-0"
               : "mt-auto relative"
