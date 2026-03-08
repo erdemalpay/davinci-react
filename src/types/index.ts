@@ -742,6 +742,7 @@ export type MenuCategory = {
   kitchen: string;
   isAutoServed: boolean;
   isOnlineOrder?: boolean;
+  isDeleted?: boolean;
   isKitchenMenu?: boolean;
   discounts?: number[];
   active: boolean;
