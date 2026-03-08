@@ -48,8 +48,8 @@ import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetBreaksByDate } from "../utils/api/break";
 import { useGetCafeActivitys } from "../utils/api/cafeActivity";
 import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
-import { useGetMiddlemanByDate } from "../utils/api/middleman";
 import { useGetAllLocations } from "../utils/api/location";
+import { useGetMiddlemanByDate } from "../utils/api/middleman";
 import {
   useCreateMultipleOrderMutation,
   useOrderMutations,
@@ -1302,8 +1302,6 @@ const Tables = () => {
         paidQuantity: 0,
         deliveredAt: new Date(),
         deliveredBy: user?._id,
-        preparedAt: new Date(),
-        preparedBy: user?._id,
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
@@ -1967,7 +1965,10 @@ const Tables = () => {
                 <>
                   <PreviousVisitList visits={visits} />
                   {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos("md:hidden mt-4", "cafeinfo-mobile-previous")}
+                  {renderCafeInfos(
+                    "md:hidden mt-4",
+                    "cafeinfo-mobile-previous"
+                  )}
                 </>
               )}
               {/* filters */}
