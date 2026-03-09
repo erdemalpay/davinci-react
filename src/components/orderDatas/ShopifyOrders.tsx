@@ -20,7 +20,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCancelShopifyOrderMutation,
   useGetOrders,
@@ -53,7 +53,7 @@ const ShopifyOrders = () => {
   const { resetOrderContext } = useOrderContext();
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const tables = useGetTables();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
 

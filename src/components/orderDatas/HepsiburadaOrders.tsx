@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
-import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -20,7 +19,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCancelHepsiburadaOrderMutation,
   useGetOrders,
@@ -44,13 +43,13 @@ const HepsiburadaOrders = () => {
   const categories = useGetAllCategories();
   const discounts = useGetOrderDiscounts();
   const [rowToAction, setRowToAction] = useState<any>({});
-  const { mutate: cancelHepsiburadaOrder } = useCancelHepsiburadaOrderMutation();
+  const { mutate: cancelHepsiburadaOrder } =
+    useCancelHepsiburadaOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
-
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,

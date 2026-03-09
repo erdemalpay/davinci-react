@@ -19,7 +19,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useGetOrders,
   useReturnOrdersMutation,
@@ -50,7 +50,7 @@ const OrdersReport = () => {
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
   const tables = useGetTables();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const [isReturnOrderModalOpen, setIsReturnOrderModalOpen] = useState(false);
   const { mutate: returnOrder } = useReturnOrdersMutation();
   const [returnOrderForm, setReturnOrderForm] = useState<any>({

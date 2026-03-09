@@ -17,7 +17,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
@@ -49,7 +49,7 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
   const tables = useGetTables();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { user: currentUser } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
 

@@ -7,7 +7,6 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
-  Order,
   User,
   commonDateOptions,
 } from "../../types";
@@ -47,31 +46,6 @@ interface PersonalOrderData {
   tableCount: number;
   gameplayCount: number;
 }
-interface RoleDetail {
-  key: keyof Order;
-  countProp: keyof PersonalOrderDataCounts;
-  tableProp: keyof PersonalOrderDataTables;
-  tableCountProp: keyof PersonalOrderDataCounts;
-}
-
-type PersonalOrderDataCounts = Pick<
-  PersonalOrderData,
-  | "createdByCount"
-  | "preparedByCount"
-  | "cancelledByCount"
-  | "deliveredByCount"
-  | "createdByTableCount"
-  | "preparedByTableCount"
-  | "cancelledByTableCount"
-  | "deliveredByTableCount"
->;
-type PersonalOrderDataTables = Pick<
-  PersonalOrderData,
-  | "createdByTables"
-  | "preparedByTables"
-  | "cancelledByTables"
-  | "deliveredByTables"
->;
 
 const PersonalOrderDatas = () => {
   const { t } = useTranslation();
@@ -304,11 +278,11 @@ const PersonalOrderDatas = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
               queryClient.invalidateQueries({
-                queryKey: [
-                  `${Paths.Order}/collection/query`,
-                ],
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
               });
             }}
           />

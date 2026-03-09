@@ -16,12 +16,11 @@ import {
   commonDateOptions,
   orderFilterStatusOptions,
 } from "../../types";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCancelTrendyolOrderMutation,
   useGetOrders,
@@ -37,6 +36,7 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const TrendyolOrders = () => {
   const { t } = useTranslation();
@@ -54,7 +54,7 @@ const TrendyolOrders = () => {
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
   const tables = useGetTables();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
   const { mutate: processAcceptedClaims } = useProcessAcceptedClaimsMutation();

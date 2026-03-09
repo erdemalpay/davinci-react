@@ -246,7 +246,7 @@ const VisitScheduleOverview = () => {
         }),
         placeholder: t("Shift"),
         isMultiple: false,
-        required: false,
+        required: true,
       },
     ],
     [t, rowToAction, addShiftForm.day, addShiftForm.location, locations]
