@@ -18,7 +18,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
@@ -52,7 +52,11 @@ type OrderWithPaymentInfo = {
   collapsible: {
     collapsibleHeader: string;
     collapsibleColumns: { key: string; isSortable: boolean }[];
-    collapsibleRows: { product?: string; quantity: number; ratioToTotal?: string }[];
+    collapsibleRows: {
+      product?: string;
+      quantity: number;
+      ratioToTotal?: string;
+    }[];
     collapsibleRowKeys: { key: string }[];
   };
   className?: string;
@@ -63,7 +67,7 @@ const CategoryBasedSalesReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const categories = useGetAllCategories();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const sellLocations = useGetSellLocations();
   const discounts = useGetOrderDiscounts();
   const users = useGetUsersMinimal();
@@ -223,7 +227,11 @@ const CategoryBasedSalesReport = () => {
             quantity: itemQuantityIteration.quantity,
             ratioToTotal:
               grandTotal > 0
-                ? formatPercentage((itemQuantityIteration.totalAmountWithDiscount / grandTotal) * 100)
+                ? formatPercentage(
+                    (itemQuantityIteration.totalAmountWithDiscount /
+                      grandTotal) *
+                      100
+                  )
                 : "0%",
           }))
           .sort((a, b) => b.quantity - a.quantity),
@@ -612,7 +620,10 @@ const CategoryBasedSalesReport = () => {
     <>
       <div className="w-[95%] mx-auto ">
         <p className="text-base text-gray-500 italic mb-2">
-          * {t("Discount and shipping costs are not included in the calculations shown here")}
+          *{" "}
+          {t(
+            "Discount and shipping costs are not included in the calculations shown here"
+          )}
         </p>
         <GenericTable
           rowKeys={rowKeys}

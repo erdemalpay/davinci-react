@@ -19,7 +19,7 @@ import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMeth
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import {
   useCollectionMutation,
@@ -74,7 +74,7 @@ const Collections = () => {
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsersMinimal();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const [rowToAction, setRowToAction] = useState<CollectionRow>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateCollection } = useCollectionMutation();
@@ -230,7 +230,12 @@ const Collections = () => {
           }
           return totals;
         },
-        { paidTotal: 0, totalShippingCost: 0, totalDiscount: 0, totalNetAmount: 0 }
+        {
+          paidTotal: 0,
+          totalShippingCost: 0,
+          totalDiscount: 0,
+          totalNetAmount: 0,
+        }
       );
 
     const totalRow: CollectionRow = {
@@ -383,9 +388,7 @@ const Collections = () => {
             return <p className={row?.className}>{formatCurrency(0)} ₺</p>;
           }
           const value = row?.netAmount ?? 0;
-          return (
-            <p className={row?.className}>{formatCurrency(value)} ₺</p>
-          );
+          return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
         },
       },
       { key: "cancelledBy" },
