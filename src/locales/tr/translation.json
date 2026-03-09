@@ -1330,8 +1330,12 @@
   "Start Middleman": "Ortacı Ol",
   "End Middleman": "Ortacılığı Bitir",
   "Finish Middleman": "Ortacılığı Bitir",
+  "Finish Middleman By Manager": "Ortacılık Yönetici Tarafından Bitir",
   "Middleman started": "Ortacılık başlatıldı",
   "Middleman ended": "Ortacılık bitirildi",
+  "Do you want to end middleman session for {{name}}?": "{{name}} için ortacılığı bitirmek istiyor musunuz?",
+  "Click to end middleman": "Ortacılığı bitirmek için tıklayın",
+  "Middleman session of {{name}} closed by {{actor}}": "Ortacılık {{name}} — {{actor}} tarafından kapatıldı",
   "No active middleman session found": "Aktif ortacılık oturumu bulunamadı",
   "Someone": "Biri",
   "is the middleman": "ortacı",
@@ -1356,7 +1360,8 @@
   "Net Amount": "Net Değer",
   "Gross Amount": "Brüt Tutar",
   "Shipping Cost": "Kargo Ücreti",
-  "Cancelled Amount" : "İptal Tutarı",
-  "Ratio to Total" : "Toplama Göre Oran",
+  "Cancelled Amount": "İptal Tutarı",
+  "Ratio to Total": "Toplama Göre Oran",
+  "Adjust Roles": "Rolleri Düzenle",
   "Discount and shipping costs are not included in the calculations shown here": "Burada görüntülenen kayıtlarda indirim ve kargo ücretleri hesaplamaya dahil değildir"
 }

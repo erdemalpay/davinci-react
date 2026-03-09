@@ -307,6 +307,7 @@ export type AccountCountList = {
   }[];
   active: boolean;
   expenseTypes?: string[];
+  permissionRoles: number[];
 };
 export type ExpirationListType = {
   _id: string;
@@ -648,6 +649,7 @@ export enum DisabledConditionEnum {
   VISITS_SHIFTS = "visits_shifts",
   CHECKLISTS_CHECKARCHIVE = "checklists_checkarchive",
   CHECKLISTS_CHECKLISTS = "checklists_checklists",
+  CHECKLISTS_CHECKLISTS_INNERPAGE = "checklists_checklists_innerpage",
   EXPIRATIONS_COUNTARCHIVE = "expirations_countarchive",
   EXPIRATIONS_EXPIRATIONLISTS = "expirations_expirationlists",
   EXPIRATIONS_EXPIRATIONLISTPRODUCTS = "expirations_expirationlistproducts",
@@ -740,6 +742,7 @@ export type MenuCategory = {
   kitchen: string;
   isAutoServed: boolean;
   isOnlineOrder?: boolean;
+  isDeleted?: boolean;
   isKitchenMenu?: boolean;
   discounts?: number[];
   active: boolean;
@@ -1280,6 +1283,7 @@ export enum RoleEnum {
   CLEANING,
   KITCHEN2,
   KITCHEN3,
+  BARCHEF,
 }
 
 export enum RoleNameEnum {
@@ -1775,6 +1779,7 @@ export enum ActivityType {
   SHIFT_CHANGE_REJECTED = "SHIFT_CHANGE_REJECTED",
   START_MIDDLEMAN = "START_MIDDLEMAN",
   FINISH_MIDDLEMAN = "FINISH_MIDDLEMAN",
+  FINISH_MIDDLEMAN_BY_MANAGER = "FINISH_MIDDLEMAN_BY_MANAGER",
 }
 export const activityTypeDetails = [
   {
@@ -2086,6 +2091,11 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_MIDDLEMAN,
     label: "Finish Middleman",
     bgColor: "bg-teal-700",
+  },
+  {
+    value: ActivityType.FINISH_MIDDLEMAN_BY_MANAGER,
+    label: "Finish Middleman By Manager",
+    bgColor: "bg-amber-600",
   },
 ];
 

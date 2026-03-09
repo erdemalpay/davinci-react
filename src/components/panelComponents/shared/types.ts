@@ -161,6 +161,7 @@ export enum FormKeyTypeEnum {
   DATE = "date",
   BOOLEAN = "boolean",
   CHECKBOX = "checkbox",
+  ARRAY = "array",
 }
 
 export interface NavigationType {

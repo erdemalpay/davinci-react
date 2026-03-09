@@ -6,6 +6,8 @@ import { formatAsLocalDate } from "../../utils/format";
 type Props = {
   activityType?: string;
   payload: unknown;
+  actorName?: string;
+  middlemanUserName?: string;
 };
 
 type DetailField = {
@@ -168,9 +170,24 @@ const getActionAndEntity = (activityType: string) => {
   };
 };
 
-const ActivityPayloadRenderer = ({ payload, activityType }: Props) => {
+const ActivityPayloadRenderer = ({
+  payload,
+  activityType,
+  actorName,
+  middlemanUserName,
+}: Props) => {
   const { t } = useTranslation();
   const resolvedType = activityType ?? "";
+
+  const isFinishMiddlemanByManager =
+    resolvedType === "FINISH_MIDDLEMAN_BY_MANAGER";
+  const summaryLine =
+    isFinishMiddlemanByManager && (actorName || middlemanUserName)
+      ? t("Middleman session of {{name}} closed by {{actor}}", {
+          name: middlemanUserName ?? t("Someone"),
+          actor: actorName ?? t("Someone"),
+        })
+      : null;
 
   const {
     action,
@@ -215,6 +232,9 @@ const ActivityPayloadRenderer = ({ payload, activityType }: Props) => {
 
   return (
     <div className="w-full rounded-md border border-gray-200 bg-gray-50 p-3">
+      {summaryLine && (
+        <p className="mb-3 text-sm font-medium text-gray-800">{summaryLine}</p>
+      )}
       {(action || entity) && (
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {action && (

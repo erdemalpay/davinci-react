@@ -4,17 +4,28 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
 import { GiPerspectiveDiceSixFacesRandom, GiRoundTable } from "react-icons/gi";
+import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { Break, GameplayTime, Middleman, Visit, VisitSource } from "../../types";
+import {
+  Break,
+  GameplayTime,
+  Middleman,
+  RoleEnum,
+  Visit,
+  VisitSource,
+} from "../../types";
 import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
-import { useGetMiddlemanByDate } from "../../utils/api/middleman";
+import {
+  useGetMiddlemanByDate,
+  useMiddlemanMutations,
+} from "../../utils/api/middleman";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
 } from "../../utils/api/visit";
-import { getItem } from "../../utils/getItem";
+import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
 import Loading from "../common/Loading";
@@ -36,9 +47,8 @@ export function ActiveVisitList({
   const { t } = useTranslation();
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
-  const { users = [] } = useDataContext();
+  const { users = [], panelSettings } = useDataContext();
   const { user } = useUserContext();
-  const { panelSettings } = useDataContext();
   const { selectedLocationId } = useLocationContext();
   const isDisabledCondition = panelSettings?.isVisitEntryDisabled;
 
@@ -46,12 +56,22 @@ export function ActiveVisitList({
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const activeMiddlemen = useGetMiddlemanByDate(todayDate);
+  const { updateMiddleman } = useMiddlemanMutations();
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
   const [closedVisitFinishHour, setClosedVisitFinishHour] =
     useState<string>("");
   const [isCreatingVisit, setIsCreatingVisit] = useState(false);
+  const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
+
+  const canEndOthersMiddleman = useMemo(() => {
+    if (!user) return false;
+    return (
+      user.role._id === RoleEnum.MANAGER ||
+      user.role._id === RoleEnum.GAMEMANAGER
+    );
+  }, [user]);
 
   function handleChipClose(userId: string) {
     if (!isUserActive(userId)) {
@@ -152,7 +172,7 @@ export function ActiveVisitList({
     return (
       activeMiddlemen.find(
         (m) =>
-          (typeof m.user === "string" ? m.user : m.user._id) === userId &&
+          getRefId(m.user) === userId &&
           m.location === selectedLocationId &&
           !m.finishHour
       ) || null
@@ -192,6 +212,36 @@ export function ActiveVisitList({
       return getVisitBadgePriority(a) - getVisitBadgePriority(b);
     });
   }, [uniqueVisits, breaks, activeGameplayTimes, activeMiddlemen]);
+
+  if (middlemanToEnd) {
+    const userRef = middlemanToEnd.user;
+    const middlemanUserName =
+      (typeof userRef === "object" &&
+        userRef !== null &&
+        "name" in userRef &&
+        (userRef as { name?: string }).name) ||
+      getItem(getRefId(userRef), users)?.name ||
+      t("Someone");
+    return (
+      <ConfirmationDialog
+        isOpen
+        close={() => setMiddlemanToEnd(null)}
+        confirm={() => {
+          if (!middlemanToEnd) return;
+          updateMiddleman({
+            id: middlemanToEnd._id,
+            updates: { finishHour: format(new Date(), "HH:mm") },
+          });
+          toast.success(t("Middleman ended"));
+          setMiddlemanToEnd(null);
+        }}
+        title={t("End Middleman")}
+        text={t("Do you want to end middleman session for {{name}}?", {
+          name: middlemanUserName,
+        })}
+      />
+    );
+  }
 
   if (isConfirmationDialogOpen) {
     return (
@@ -300,9 +350,30 @@ export function ActiveVisitList({
             } else return "#288809";
           };
 
+          const canClickToEndMiddleman =
+            canEndOthersMiddleman &&
+            !!userMiddleman &&
+            visit.user !== user?._id;
+
           return (
-            <Tooltip key={visit?.user} content={tooltipContent}>
-              <div>
+            <Tooltip
+              key={visit?.user}
+              content={
+                canClickToEndMiddleman
+                  ? `${tooltipContent} — ${t("Click to end middleman")}`
+                  : tooltipContent
+              }
+            >
+              <div
+                onClick={
+                  canClickToEndMiddleman && userMiddleman
+                    ? () => setMiddlemanToEnd(userMiddleman)
+                    : undefined
+                }
+                className={
+                  canClickToEndMiddleman ? "cursor-pointer" : undefined
+                }
+              >
                 <Chip
                   value={getChipValue()}
                   style={{

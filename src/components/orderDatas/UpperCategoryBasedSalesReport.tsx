@@ -19,7 +19,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetUpperCategories } from "../../utils/api/menu/upperCategory";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -65,14 +65,13 @@ const UpperCategoryBasedSalesReport = () => {
   const orders = useGetOrders();
   const upperCategories = useGetUpperCategories();
   const categories = useGetAllCategories();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const users = useGetUsersMinimal();
   const sellLocations = useGetSellLocations();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
-
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -111,9 +110,9 @@ const UpperCategoryBasedSalesReport = () => {
         const orderAmount = order.paidQuantity * order.unitPrice;
         const orderDiscount = order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          0.01
+            order.paidQuantity *
+            order.unitPrice *
+            0.01
           : (order?.discountAmount ?? 0) * order.paidQuantity;
 
         if (existingEntry) {
@@ -152,13 +151,10 @@ const UpperCategoryBasedSalesReport = () => {
     const allRows = upperCategories
       ?.map((upperCategory) => {
         const upperTotalAmountWithDiscount =
-          upperCategory?.categoryGroup?.reduce(
-            (acc, categoryGroupItem) => {
-              const category = categoryMap.get(categoryGroupItem?.category);
-              return acc + (category?.totalAmountWithDiscount ?? 0);
-            },
-            0
-          ) ?? 0;
+          upperCategory?.categoryGroup?.reduce((acc, categoryGroupItem) => {
+            const category = categoryMap.get(categoryGroupItem?.category);
+            return acc + (category?.totalAmountWithDiscount ?? 0);
+          }, 0) ?? 0;
 
         return {
           ...upperCategory,
@@ -194,8 +190,8 @@ const UpperCategoryBasedSalesReport = () => {
               return (
                 acc +
                 (category?.totalAmountWithDiscount ?? 0) *
-                categoryGroupItem?.percentage *
-                0.01
+                  categoryGroupItem?.percentage *
+                  0.01
               );
             },
             0
@@ -215,8 +211,7 @@ const UpperCategoryBasedSalesReport = () => {
             collapsibleRows: upperCategory?.categoryGroup
               ?.map((categoryGroupItem) => {
                 const category = categoryMap.get(categoryGroupItem?.category);
-                const categoryAmount =
-                  category?.totalAmountWithDiscount ?? 0;
+                const categoryAmount = category?.totalAmountWithDiscount ?? 0;
 
                 return {
                   category: getItem(categoryGroupItem?.category, categories)
@@ -227,9 +222,7 @@ const UpperCategoryBasedSalesReport = () => {
                   totalAmount: category?.amount ?? 0,
                   generalAmount: categoryAmount,
                   percentageGeneralAmount:
-                    categoryAmount *
-                    categoryGroupItem?.percentage *
-                    0.01,
+                    categoryAmount * categoryGroupItem?.percentage * 0.01,
                   ratioToTotal:
                     grandTotal > 0
                       ? formatPercentage((categoryAmount / grandTotal) * 100)
@@ -287,8 +280,7 @@ const UpperCategoryBasedSalesReport = () => {
           0
         ),
         totalAmountWithDiscount: unassignedTotal,
-        ratioToTotal:
-          grandTotal > 0 ? (unassignedTotal / grandTotal) * 100 : 0,
+        ratioToTotal: grandTotal > 0 ? (unassignedTotal / grandTotal) * 100 : 0,
         percentageGeneralAmount: 0,
         collapsible: {
           collapsibleHeader: t("Categories"),
@@ -500,9 +492,9 @@ const UpperCategoryBasedSalesReport = () => {
         placeholder: t("Date"),
         required: true,
         additionalOnChange: ({
-                               value,
-                               label,
-                             }: {
+          value,
+          label,
+        }: {
           value: string;
           label: string;
         }) => {
@@ -719,7 +711,10 @@ const UpperCategoryBasedSalesReport = () => {
     <>
       <div className="w-[95%] mx-auto ">
         <p className="text-base text-gray-500 italic mb-2">
-          * {t("Discount and shipping costs are not included in the calculations shown here")}
+          *{" "}
+          {t(
+            "Discount and shipping costs are not included in the calculations shown here"
+          )}
         </p>
         <GenericTable
           rowKeys={rowKeys}

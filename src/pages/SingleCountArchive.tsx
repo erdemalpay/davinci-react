@@ -333,7 +333,9 @@ const SingleCountArchive = () => {
 
   const rowClassNameFunction = useMemo(() => {
     return user?.role?._id &&
-      [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+      [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.BARCHEF].includes(
+        user?.role?._id
+      )
       ? getBgColor
       : undefined;
   }, [user]);
