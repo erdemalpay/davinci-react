@@ -83,7 +83,7 @@ const CountArchive = () => {
   const countArchivePageDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.COUNTARCHIVE, disabledConditions);
   }, [disabledConditions]);
-  //deneme
+
   const canShowAll = useMemo(() => {
     const showAllAction = countArchivePageDisabledCondition?.actions?.find(
       (ac) => ac.action === ActionEnum.SHOW_ALL
