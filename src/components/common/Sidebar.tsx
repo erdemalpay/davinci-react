@@ -29,7 +29,7 @@ export const Sidebar = () => {
     resetGeneralContext,
     setIsLogoutModalOpen,
   } = useGeneralContext();
-  const { setUser } = useUserContext();
+  const { setUser, user: contextUser } = useUserContext();
   const user = useGetUser();
   const currentRoute = location.pathname;
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
@@ -37,9 +37,8 @@ export const Sidebar = () => {
   );
 
   const routes = useFilteredRoutes();
-  const pages = useGetPanelControlPages();
+  const pages = useGetPanelControlPages(!!contextUser);
 
-  // Active session checks
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeBreaks = useGetBreaksByDate(todayDate);
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);

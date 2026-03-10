@@ -8,13 +8,14 @@ import { useUserContext } from "../../context/User.context";
 import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
 import { Middleman } from "../../types";
 import {
-  useMiddlemanMutations,
   useGetMiddlemanByDate,
+  useMiddlemanMutations,
 } from "../../utils/api/middleman";
 
 export const MiddlemanOverlay = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  if (!user) return null;
   const { updateMiddleman } = useMiddlemanMutations();
   const [currentMiddleman, setCurrentMiddleman] = useState<Middleman | null>(
     null

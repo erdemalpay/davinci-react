@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { shouldEnableQuery } from "../../auth";
 import { post } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { PanelControlPage } from "./../../../types/index";
@@ -47,6 +48,9 @@ export function useCreateMultiplePageMutation() {
     },
   });
 }
-export function useGetPanelControlPages() {
-  return useGetList<PanelControlPage>(baseUrl);
+export function useGetPanelControlPages(enabled?: boolean) {
+  const finalEnabled = shouldEnableQuery(enabled);
+  return useGetList<PanelControlPage>(baseUrl, undefined, undefined, {
+    enabled: finalEnabled,
+  });
 }

@@ -4,8 +4,8 @@ import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BreakOverlay } from "./components/common/BreakOverlay";
 import { GameplayTimeOverlay } from "./components/common/GameplayTimeOverlay";
-import { MiddlemanOverlay } from "./components/common/MiddlemanOverlay";
 import { LogoutConfirmationModal } from "./components/common/LogoutConfirmationModal";
+import { MiddlemanOverlay } from "./components/common/MiddlemanOverlay";
 import { Sidebar } from "./components/common/Sidebar";
 import { DataContextProvider } from "./context/Data.context";
 import { DateContextProvider } from "./context/Date.context";
@@ -21,12 +21,21 @@ import { UserContextProvider, useUserContext } from "./context/User.context";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   const { isSidebarOpen } = useGeneralContext();
   const { user } = useUserContext();
-  useWebSocket();
+
+  // Only connect to WebSocket when user is authenticated
+  useWebSocket(!!user);
 
   return (
     <div className="App">
@@ -54,25 +63,51 @@ function App() {
   );
 }
 
+function AppWrapper() {
+  const { user } = useUserContext();
+
+  // Only load data when user is authenticated
+  if (!user) {
+    return <App />;
+  }
+
+  return (
+    <OrderContextProvider>
+      <ShiftContextProvider>
+        <FilterContextProvider>
+          <DataContextProvider>
+            <App />
+          </DataContextProvider>
+        </FilterContextProvider>
+      </ShiftContextProvider>
+    </OrderContextProvider>
+  );
+}
+
+function ContextWrapper() {
+  const { user } = useUserContext();
+
+  // Only load location context when user is authenticated
+  if (!user) {
+    return <AppWrapper />;
+  }
+
+  return (
+    <LocationContextProvider>
+      <AppWrapper />
+    </LocationContextProvider>
+  );
+}
+
 function Wrapper() {
   return (
     <QueryClientProvider client={queryClient}>
       <DateContextProvider>
-        <LocationContextProvider>
-          <UserContextProvider>
-            <GeneralContextProvider>
-              <OrderContextProvider>
-                <ShiftContextProvider>
-                  <FilterContextProvider>
-                    <DataContextProvider>
-                      <App />
-                    </DataContextProvider>
-                  </FilterContextProvider>
-                </ShiftContextProvider>
-              </OrderContextProvider>
-            </GeneralContextProvider>
-          </UserContextProvider>
-        </LocationContextProvider>
+        <UserContextProvider>
+          <GeneralContextProvider>
+            <ContextWrapper />
+          </GeneralContextProvider>
+        </UserContextProvider>
       </DateContextProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

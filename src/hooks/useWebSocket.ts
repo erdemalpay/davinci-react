@@ -30,7 +30,7 @@ const GESTURE_EVENTS = [
   "keydown",
 ] as const;
 
-export function useWebSocket() {
+export function useWebSocket(shouldConnect = false) {
   const queryClient = useQueryClient();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
@@ -134,6 +134,11 @@ export function useWebSocket() {
         passive: true,
       })
     );
+
+    // Don't connect if user is not authenticated
+    if (!shouldConnect) {
+      return;
+    }
 
     // If socket already exists, don't recreate it
     if (socketRef.current) {
@@ -664,5 +669,5 @@ export function useWebSocket() {
         socketRef.current = null;
       }
     };
-  }, []); // Empty dependency array - only runs on mount/unmount
+  }, [shouldConnect]); // Connect when user is authenticated
 }
