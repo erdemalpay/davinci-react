@@ -1953,6 +1953,7 @@ const Tables = () => {
                     label={t("I checked in")}
                     visits={visits}
                     breaks={todayBreaks}
+                    tables={tables}
                   />
                   <ShiftList
                     key={selectedDate + selectedLocationId + "active"}
