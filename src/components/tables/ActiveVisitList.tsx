@@ -13,6 +13,7 @@ import {
   GameplayTime,
   Middleman,
   RoleEnum,
+  Table,
   Visit,
   VisitSource,
 } from "../../types";
@@ -33,6 +34,7 @@ import Loading from "../common/Loading";
 interface ActiveMentorListProps extends InputWithLabelProps {
   visits: Visit[];
   breaks?: Break[];
+  tables?: Table[];
 }
 interface SeenUsers {
   [key: string]: boolean;
@@ -43,6 +45,7 @@ export function ActiveVisitList({
   label,
   visits,
   breaks = [],
+  tables = [],
 }: ActiveMentorListProps) {
   const { t } = useTranslation();
   const { mutate: createVisit } = useCreateVisitMutation();
@@ -307,7 +310,15 @@ export function ActiveVisitList({
           if (userBreak) {
             tooltipContent = `${userRole}  •  ${t("On Break")}`;
           } else if (userGameplayTime) {
-            tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
+            const tableId =
+              typeof userGameplayTime.table === "object"
+                ? userGameplayTime.table._id
+                : userGameplayTime.table;
+            const table = getItem(tableId, tables);
+            const tableName = table?.name || `Table ${tableId}`;
+            tooltipContent = `${userRole}  •  ${t(
+              "In Gameplay"
+            )}  •  ${tableName}`;
           } else if (userMiddleman) {
             tooltipContent = `${userRole}  •  ${t("Middleman")}`;
           }
