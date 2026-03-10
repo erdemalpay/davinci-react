@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { GenericButton } from "../components/common/GenericButton";
-import { RoleEnum } from "../types";
-import { LoginCredentials, useLogin } from "../utils/api/auth";
-import { ACCESS_TOKEN } from "../utils/api/axiosClient";
-import { Paths } from "../utils/api/factory";
-import { getUserWithToken } from "../utils/api/user";
-import logoImage from "../assets/login/logo.png";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import davinciImage from "../assets/login/davinci.png";
 import davinci2Image from "../assets/login/davinci2.png";
+import logoImage from "../assets/login/logo.png";
+import { GenericButton } from "../components/common/GenericButton";
+import { LoginCredentials, useLogin } from "../utils/api/auth";
 
 interface FormElements extends HTMLFormControlsCollection {
   username: HTMLInputElement;
@@ -28,7 +24,6 @@ type RedirectLocationState = {
 const Login = () => {
   const { t } = useTranslation();
   const { state: locationState } = useLocation();
-  const navigate = useNavigate();
   const from = locationState
     ? (locationState as RedirectLocationState).from
     : undefined;
@@ -53,31 +48,6 @@ const Login = () => {
     setError(false);
     login(payload);
   };
-  useEffect(() => {
-    const checkAuthentication = async () => {
-      try {
-        const token = localStorage.getItem(ACCESS_TOKEN);
-        if (token && localStorage.getItem("loggedIn")) {
-          const loggedInUser = await getUserWithToken();
-
-          if (
-            loggedInUser &&
-            [RoleEnum.KITCHEN, RoleEnum.KITCHEN2, RoleEnum.KITCHEN3].includes(
-              loggedInUser.role._id
-            )
-          ) {
-            navigate("/orders", { replace: true });
-          } else if (loggedInUser) {
-            navigate(Paths.Tables, { replace: true });
-          }
-        }
-      } catch (error) {
-        return;
-      }
-    };
-
-    checkAuthentication();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f5f5f0] via-[#e8e8dd] to-[#f5f5f0] relative flex items-center justify-center overflow-hidden">
@@ -86,18 +56,27 @@ const Login = () => {
         className="absolute inset-0 opacity-[0.03] pointer-events-none animate-pulse"
         style={{
           backgroundImage: `url(${logoImage})`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '250px auto',
-          backgroundPosition: '-25px 0',
-          filter: 'grayscale(1) brightness(0.5)',
-          animation: 'float 20s ease-in-out infinite',
+          backgroundRepeat: "repeat",
+          backgroundSize: "250px auto",
+          backgroundPosition: "-25px 0",
+          filter: "grayscale(1) brightness(0.5)",
+          animation: "float 20s ease-in-out infinite",
         }}
       />
 
       {/* Floating orbs */}
-      <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-gray-200/30 to-transparent rounded-full blur-3xl animate-bounce" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-tl from-gray-300/20 to-transparent rounded-full blur-3xl animate-bounce" style={{ animationDuration: '12s', animationDelay: '2s' }} />
-      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-gray-200/20 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+      <div
+        className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-gray-200/30 to-transparent rounded-full blur-3xl animate-bounce"
+        style={{ animationDuration: "8s" }}
+      />
+      <div
+        className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-tl from-gray-300/20 to-transparent rounded-full blur-3xl animate-bounce"
+        style={{ animationDuration: "12s", animationDelay: "2s" }}
+      />
+      <div
+        className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-gray-200/20 to-transparent rounded-full blur-3xl animate-pulse"
+        style={{ animationDuration: "6s" }}
+      />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-lg mx-auto px-4 flex items-center justify-center min-h-screen">
@@ -106,7 +85,7 @@ const Login = () => {
           className="w-full text-gray-800 bg-white rounded-3xl p-8 py-12 shadow-2xl border border-gray-100 transition-all duration-300 relative overflow-hidden"
           onSubmit={handleSubmit}
           style={{
-            animation: 'slideUp 0.6s ease-out',
+            animation: "slideUp 0.6s ease-out",
           }}
         >
           {/* Card background image */}
@@ -115,35 +94,35 @@ const Login = () => {
             style={{
               opacity: 0.2,
               transform: showPassword
-                ? 'scaleX(-1) translate(-12px, -8px)'
-                : 'scaleX(-1) translate(0px, 0px)',
-              transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-              top: '-10px',
+                ? "scaleX(-1) translate(-12px, -8px)"
+                : "scaleX(-1) translate(0px, 0px)",
+              transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+              top: "-10px",
               left: 0,
               right: 0,
-              height: '500px',
+              height: "500px",
             }}
           >
             <div
               className="absolute inset-0"
               style={{
                 backgroundImage: `url(${davinciImage})`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: '-80px center',
-                backgroundSize: 'contain',
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "-80px center",
+                backgroundSize: "contain",
                 opacity: showPassword ? 0 : 1,
-                transition: 'opacity 0.4s ease-in-out',
+                transition: "opacity 0.4s ease-in-out",
               }}
             />
             <div
               className="absolute inset-0"
               style={{
                 backgroundImage: `url(${davinci2Image})`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: '-80px center',
-                backgroundSize: 'contain',
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "-80px center",
+                backgroundSize: "contain",
                 opacity: showPassword ? 1 : 0,
-                transition: 'opacity 0.4s ease-in-out',
+                transition: "opacity 0.4s ease-in-out",
               }}
             />
           </div>
@@ -151,12 +130,11 @@ const Login = () => {
             <h2
               className="text-4xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900 leading-tight font-bold text-center sm:text-left cursor-default select-none drop-shadow-sm"
               style={{
-                animation: 'fadeInScale 0.8s ease-out 0.2s both',
+                animation: "fadeInScale 0.8s ease-out 0.2s both",
               }}
             >
               Da Vinci Panel
             </h2>
-
           </div>
           <div className="mt-12 w-full relative z-10">
             <div className="flex flex-col mt-5">
@@ -171,10 +149,12 @@ const Login = () => {
                 name="username"
                 id="username"
                 className={`h-12 px-4 w-full rounded-xl mt-2 text-gray-700 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-gray-800 ${
-                  error ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"
+                  error
+                    ? "border-red-400 ring-2 ring-red-200"
+                    : "border-gray-200"
                 } border-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-gray-800`}
                 type="text"
-                style={{ animation: 'fadeInUp 0.6s ease-out 0.4s both' }}
+                style={{ animation: "fadeInUp 0.6s ease-out 0.4s both" }}
               />
             </div>
             <div className="flex flex-col mt-5">
@@ -184,13 +164,18 @@ const Login = () => {
               >
                 {t("Password")}
               </label>
-              <div className="relative" style={{ animation: 'fadeInUp 0.6s ease-out 0.5s both' }}>
+              <div
+                className="relative"
+                style={{ animation: "fadeInUp 0.6s ease-out 0.5s both" }}
+              >
                 <input
                   required
                   name="password"
                   id="password"
                   className={`h-12 px-4 pr-12 w-full rounded-xl mt-2 text-gray-700 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-gray-800 ${
-                    error ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"
+                    error
+                      ? "border-red-400 ring-2 ring-red-200"
+                      : "border-gray-200"
                   } border-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-gray-800`}
                   type={showPassword ? "text" : "password"}
                   onKeyDown={(e) => {
@@ -225,7 +210,10 @@ const Login = () => {
               </div>
             )}
           </div>
-          <div className="w-full mt-8 relative z-10" style={{ animation: 'fadeInUp 0.6s ease-out 0.6s both' }}>
+          <div
+            className="w-full mt-8 relative z-10"
+            style={{ animation: "fadeInUp 0.6s ease-out 0.6s both" }}
+          >
             <GenericButton
               type="submit"
               fullWidth
