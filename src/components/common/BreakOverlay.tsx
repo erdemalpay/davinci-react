@@ -11,6 +11,7 @@ import { useBreakMutations, useGetBreaksByDate } from "../../utils/api/break";
 export const BreakOverlay = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  if (!user) return null;
   const { updateBreak } = useBreakMutations();
   const [currentBreak, setCurrentBreak] = useState<Break | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());

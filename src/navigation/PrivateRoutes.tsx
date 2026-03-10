@@ -9,14 +9,18 @@ import { allRoutes, PublicRoutes } from "./constants";
 
 export function PrivateRoutes() {
   useAuth();
-  const pages = useGetPanelControlPages();
   const location = useLocation();
   const { user } = useUserContext();
+
+  // Only fetch pages when user is authenticated
+  const pages = useGetPanelControlPages(!!user);
+
   const currentRoute = allRoutes
     .filter((route) => route.path)
     .find((route) =>
       matchPath({ path: route.path ?? "", end: false }, location.pathname)
     );
+
   if (!user || pages.length === 0 || !allRoutes || !currentRoute) return null;
 
   if (

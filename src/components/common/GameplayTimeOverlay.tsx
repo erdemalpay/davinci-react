@@ -19,6 +19,7 @@ import { getItem } from "../../utils/getItem";
 export const GameplayTimeOverlay = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  if (!user) return null;
   const { updateGameplayTime } = useGameplayTimeMutations();
   const [currentGameplayTime, setCurrentGameplayTime] =
     useState<GameplayTime | null>(null);
