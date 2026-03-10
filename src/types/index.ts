@@ -1007,6 +1007,7 @@ export type OrderCollection = {
   shopifyOrderNumber?: string;
   shopifyShippingAmount?: number;
   shopifyDiscountAmount?: number;
+  shopifyDiscountType?: string;
 };
 
 export type OrderNote = {
