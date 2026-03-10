@@ -18,7 +18,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import {
   // useCancelIkasOrderMutation,
   useGetOrders,
@@ -43,14 +43,11 @@ const IkasOrders = () => {
   const categories = useGetAllCategories();
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
-  // const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
-  const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
-  const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const tables = useGetTables();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
 

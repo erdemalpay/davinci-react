@@ -18,7 +18,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
@@ -56,7 +56,7 @@ const GroupedProductSalesReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const categories = useGetAllCategories();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const sellLocations = useGetSellLocations();
   const users = useGetUsersMinimal();
   const discounts = useGetOrderDiscounts();

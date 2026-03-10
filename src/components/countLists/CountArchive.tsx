@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
@@ -84,6 +84,33 @@ const CountArchive = () => {
     return getItem(DisabledConditionEnum.COUNTARCHIVE, disabledConditions);
   }, [disabledConditions]);
 
+  const canShowAll = useMemo(() => {
+    const showAllAction = countArchivePageDisabledCondition?.actions?.find(
+      (ac) => ac.action === ActionEnum.SHOW_ALL
+    );
+    return (
+      showAllAction &&
+      user?.role?._id &&
+      showAllAction.permissionsRoles?.includes(user.role._id)
+    );
+  }, [countArchivePageDisabledCondition, user]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+      if (!user?.role?._id) {
+        return true;
+      }
+      const action = countArchivePageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+      if (!action) {
+        return false;
+      }
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [countArchivePageDisabledCondition, user]
+  );
+
   function getBgColor(row: CountArchiveRow) {
     const isDifferentStockQuantities = row?.products?.some(
       (product: AccountCountProduct) =>
@@ -97,6 +124,12 @@ const CountArchive = () => {
   const rows = useMemo(() => {
     const allRows =
       countsPayload?.data
+        ?.filter((count) => {
+          if (canShowAll) {
+            return true;
+          }
+          return count?.user === user?._id;
+        })
         ?.map((count) => {
           if (!count?.createdAt) {
             return null;
@@ -131,7 +164,7 @@ const CountArchive = () => {
         })
         ?.filter((item) => item !== null) ?? [];
     return allRows;
-  }, [countsPayload, countLists, locations, users, pad]);
+  }, [countsPayload, countLists, locations, users, pad, canShowAll, user]);
 
   const columns = useMemo(() => {
     return [
@@ -319,21 +352,11 @@ const CountArchive = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: countArchivePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.DELETE),
       },
       {
         name: t("Toggle Active"),
-        isDisabled: countArchivePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TOGGLE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(ActionEnum.TOGGLE),
         isModal: false,
         isPath: false,
         icon: null,
@@ -365,8 +388,7 @@ const CountArchive = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteAccountCount,
-      countArchivePageDisabledCondition,
-      user,
+      isActionDisabled,
       updateAccountCount,
     ]
   );

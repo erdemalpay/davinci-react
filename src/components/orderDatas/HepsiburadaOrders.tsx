@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
-import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -20,7 +19,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCancelHepsiburadaOrderMutation,
   useGetOrders,
@@ -28,6 +27,7 @@ import {
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { useProcessHepsiburadaAcceptedClaimsMutation } from "../../utils/api/hepsiburada";
 import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -44,13 +44,15 @@ const HepsiburadaOrders = () => {
   const categories = useGetAllCategories();
   const discounts = useGetOrderDiscounts();
   const [rowToAction, setRowToAction] = useState<any>({});
-  const { mutate: cancelHepsiburadaOrder } = useCancelHepsiburadaOrderMutation();
+  const { mutate: cancelHepsiburadaOrder } =
+    useCancelHepsiburadaOrderMutation();
+  const { mutate: processAcceptedClaims } =
+    useProcessHepsiburadaAcceptedClaimsMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
-
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -544,6 +546,23 @@ const HepsiburadaOrders = () => {
         isUpperSide: false,
         node: (
           <ButtonFilter
+            buttonName={t("Process Refund Requests")}
+            onclick={() => {
+              processAcceptedClaims();
+            }}
+          />
+        ),
+        isDisabled: hepsiburadaOrdersPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.REFRESH &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        isUpperSide: false,
+        node: (
+          <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
               queryClient.invalidateQueries({
@@ -582,6 +601,7 @@ const HepsiburadaOrders = () => {
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      processAcceptedClaims,
     ]
   );
 
