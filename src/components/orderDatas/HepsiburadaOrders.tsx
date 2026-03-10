@@ -27,6 +27,7 @@ import {
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { useProcessHepsiburadaAcceptedClaimsMutation } from "../../utils/api/hepsiburada";
 import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -45,6 +46,8 @@ const HepsiburadaOrders = () => {
   const [rowToAction, setRowToAction] = useState<any>({});
   const { mutate: cancelHepsiburadaOrder } =
     useCancelHepsiburadaOrderMutation();
+  const { mutate: processAcceptedClaims } =
+    useProcessHepsiburadaAcceptedClaimsMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const items = useGetAllMenuItems();
@@ -543,6 +546,23 @@ const HepsiburadaOrders = () => {
         isUpperSide: false,
         node: (
           <ButtonFilter
+            buttonName={t("Process Refund Requests")}
+            onclick={() => {
+              processAcceptedClaims();
+            }}
+          />
+        ),
+        isDisabled: hepsiburadaOrdersPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.REFRESH &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        isUpperSide: false,
+        node: (
+          <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
               queryClient.invalidateQueries({
@@ -581,6 +601,7 @@ const HepsiburadaOrders = () => {
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      processAcceptedClaims,
     ]
   );
 
