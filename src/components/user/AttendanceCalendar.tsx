@@ -126,24 +126,31 @@ const AttendanceCalendar = ({
     return true;
   });
 
-  let fullTimeAttendance = 0;
-  let partTimeAttendance = 0;
-  let unknownAttendance = 0;
+  // Calculate unique days for each attendance type
+  const fullTimeAttendance = new Set(
+    filteredVisits
+      .filter((visit) => visit.visitType === VISIT_TYPE.FULLTIME)
+      .map((visit) => visit.date)
+  ).size;
 
-  filteredVisits.forEach((visit) => {
-    if (visit.visitType === VISIT_TYPE.FULLTIME) {
-      fullTimeAttendance++;
-    } else if (visit.visitType === VISIT_TYPE.PARTTIME) {
-      partTimeAttendance++;
-    } else {
-      unknownAttendance++;
-    }
-  });
+  const partTimeAttendance = new Set(
+    filteredVisits
+      .filter((visit) => visit.visitType === VISIT_TYPE.PARTTIME)
+      .map((visit) => visit.date)
+  ).size;
 
-  // Calculate off-shift coverage days (days marked as notInAverage)
-  const offShiftCoverageDays = categorizedVisits.filter((visit) =>
-    selectedDays.includes(visit.date)
-  ).length;
+  const unknownAttendance = new Set(
+    filteredVisits
+      .filter((visit) => visit.visitType === VISIT_TYPE.UNKNOWN)
+      .map((visit) => visit.date)
+  ).size;
+
+  // Calculate off-shift coverage days (unique days marked as notInAverage)
+  const offShiftCoverageDays = new Set(
+    categorizedVisits
+      .filter((visit) => selectedDays.includes(visit.date))
+      .map((visit) => visit.date)
+  ).size;
 
   // Notify parent component of attendance changes
   useEffect(() => {
