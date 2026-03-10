@@ -31,6 +31,7 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   const [fullTimeAttendance, setFullTimeAttendance] = React.useState(0);
   const [partTimeAttendance, setPartTimeAttendance] = React.useState(0);
   const [unknownAttendance, setUnknownAttendance] = React.useState(0);
+  const [offShiftCoverageDays, setOffShiftCoverageDays] = React.useState(0);
   const { showPersonalSummaryFilters, setShowPersonalSummaryFilters } =
     useFilterContext();
   const {
@@ -101,6 +102,12 @@ const ServicePersonalSummary = ({ userId }: Props) => {
           navigate(`/visits`);
         },
       }),
+    },
+    {
+      icon: <MdTimer />,
+      title: t("Off-Shift Coverage Days"),
+      value: offShiftCoverageDays,
+      color: "orange",
     },
     {
       icon: <MdOutlineFastfood />,
@@ -214,10 +221,12 @@ const ServicePersonalSummary = ({ userId }: Props) => {
           fullTimeAttendance: ft,
           partTimeAttendance: pt,
           unknownAttendance: ua,
+          offShiftCoverageDays: osc,
         }) => {
           setFullTimeAttendance(ft);
           setPartTimeAttendance(pt);
           setUnknownAttendance(ua);
+          setOffShiftCoverageDays(osc);
         }}
       />
       <div className="w-full flex flex-row gap-6">

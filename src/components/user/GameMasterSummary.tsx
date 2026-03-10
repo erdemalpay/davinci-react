@@ -52,6 +52,7 @@ const GameMasterSummary = ({ userId }: Props) => {
   const [fullTimeAttendance, setFullTimeAttendance] = useState(0);
   const [partTimeAttendance, setPartTimeAttendance] = useState(0);
   const [unknownAttendance, setUnknownAttendance] = useState(0);
+  const [offShiftCoverageDays, setOffShiftCoverageDays] = useState(0);
   const {
     setFilterVisitScheduleOverviewPanelFormElements,
     setShowVisitScheduleOverviewFilters,
@@ -153,6 +154,12 @@ const GameMasterSummary = ({ userId }: Props) => {
           navigate(`/visits`);
         },
       }),
+    },
+    {
+      icon: <MdTimer />,
+      title: t("Off-Shift Coverage Days"),
+      value: offShiftCoverageDays,
+      color: "orange",
     },
 
     {
@@ -381,10 +388,12 @@ const GameMasterSummary = ({ userId }: Props) => {
           fullTimeAttendance: ft,
           partTimeAttendance: pt,
           unknownAttendance: ua,
+          offShiftCoverageDays: osc,
         }) => {
           setFullTimeAttendance(ft);
           setPartTimeAttendance(pt);
           setUnknownAttendance(ua);
+          setOffShiftCoverageDays(osc);
         }}
       />
       <div

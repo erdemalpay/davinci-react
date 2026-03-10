@@ -42,6 +42,7 @@ interface AttendanceCalendarProps {
     fullTimeAttendance: number;
     partTimeAttendance: number;
     unknownAttendance: number;
+    offShiftCoverageDays: number;
   }) => void;
 }
 
@@ -139,17 +140,24 @@ const AttendanceCalendar = ({
     }
   });
 
+  // Calculate off-shift coverage days (days marked as notInAverage)
+  const offShiftCoverageDays = categorizedVisits.filter((visit) =>
+    selectedDays.includes(visit.date)
+  ).length;
+
   // Notify parent component of attendance changes
   useEffect(() => {
     onAttendanceChange({
       fullTimeAttendance,
       partTimeAttendance,
       unknownAttendance,
+      offShiftCoverageDays,
     });
   }, [
     fullTimeAttendance,
     partTimeAttendance,
     unknownAttendance,
+    offShiftCoverageDays,
     onAttendanceChange,
   ]);
 
