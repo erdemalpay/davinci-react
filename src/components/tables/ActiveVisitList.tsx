@@ -310,12 +310,9 @@ export function ActiveVisitList({
           if (userBreak) {
             tooltipContent = `${userRole}  •  ${t("On Break")}`;
           } else if (userGameplayTime) {
-            const tableId =
-              typeof userGameplayTime.table === "object"
-                ? userGameplayTime.table._id
-                : userGameplayTime.table;
+            const tableId = getRefId(userGameplayTime.table);
             const table = getItem(tableId, tables);
-            const tableName = table?.name || `Table ${tableId}`;
+            const tableName = table?.name || `${t("Table")} ${tableId}`;
             tooltipContent = `${userRole}  •  ${t(
               "In Gameplay"
             )}  •  ${tableName}`;
