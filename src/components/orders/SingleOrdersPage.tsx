@@ -3,7 +3,8 @@ import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
-import { Kitchen, Order, OrderStatus } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { Kitchen, Order, OrderStatus, RoleEnum } from "../../types";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { getItem } from "../../utils/getItem";
 import OrderStatusContainer from "../orders/OrderStatusContainer";
@@ -16,6 +17,7 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
   const { selectedLocationId } = useLocationContext();
   const categories = useGetAllCategories();
   const { menuItems: items } = useDataContext();
+  const { user } = useUserContext();
   if (!orders || !categories || !items) return <></>;
   const filteredOrders = orders?.filter(
     (order) =>
@@ -40,6 +42,12 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
       ),
       icon: <FaRegClock size={20} color="white" />,
       iconBackgroundColor: "bg-gradient-to-b from-blue-900 to-blue-500",
+      smallScreenOpenForRoles: [
+        RoleEnum.BARISTA,
+        RoleEnum.KITCHEN,
+        RoleEnum.KITCHEN2,
+        RoleEnum.KITCHEN3,
+      ],
     },
     {
       status: kitchen?.isConfirmationRequired ? "On the Way" : "Ready to Serve",
@@ -67,7 +75,7 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
             .map((orderStatus, index) => (
               <div
                 key={orderStatus.status + index}
-                className="flex flex-col items-center w-full sm:w-1/3"
+                className="flex flex-col items-center w-full sm:w-1/3 "
               >
                 <OrderStatusContainer
                   status={orderStatus.status}
@@ -77,6 +85,13 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
                   icon={orderStatus.icon}
                   iconBackgroundColor={orderStatus.iconBackgroundColor}
                   kitchen={kitchen}
+                  defaultCollapsed={
+                    orderStatus.smallScreenOpenForRoles
+                      ? !orderStatus.smallScreenOpenForRoles.includes(
+                          user?.role?._id ?? -1
+                        )
+                      : false
+                  }
                 />
               </div>
             ))}
