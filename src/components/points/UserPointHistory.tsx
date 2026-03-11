@@ -379,12 +379,13 @@ const UserPointHistory = () => {
       {/* Collection Details Modal */}
       {isCollectionModalOpen && formattedCollectionData && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          onClick={() => {
-            setIsCollectionModalOpen(false);
-            setSelectedTableId(undefined);
-          }}
-        >
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        onClick={() => {
+          setIsCollectionModalOpen(false);
+          setSelectedTableId(undefined);
+          setSelectedCollectionId(undefined);
+        }}
+      >
           <div
             className="bg-white rounded-lg w-11/12 md:w-3/4 lg:w-3/5 xl:w-2/5 max-w-3xl max-h-[90vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
@@ -489,12 +490,13 @@ const UserPointHistory = () => {
             {/* Footer with Close button on the right */}
             <div className="px-6 py-4 border-t flex justify-end">
               <button
-                onClick={() => {
-                  setIsCollectionModalOpen(false);
-                  setSelectedTableId(undefined);
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-              >
+              onClick={() => {
+                setIsCollectionModalOpen(false);
+                setSelectedTableId(undefined);
+                setSelectedCollectionId(undefined);
+              }}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
                 {t("Close")}
               </button>
             </div>
