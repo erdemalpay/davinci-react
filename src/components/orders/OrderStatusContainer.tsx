@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { MdOutlinePrint } from "react-icons/md";
 import { useDataContext } from "../../context/Data.context";
 import { useUserContext } from "../../context/User.context";
+import useIsSmallScreen from "../../hooks/useIsSmallScreen";
 import { Kitchen, Order, OrderStatus, Table } from "../../types";
 import { useUpdateMultipleOrderMutation } from "../../utils/api/order/order";
 import { printTableReceipt } from "../../utils/printReceipt";
@@ -14,6 +15,7 @@ type Props = {
   icon: React.ReactNode;
   iconBackgroundColor: string;
   kitchen: Kitchen;
+  defaultCollapsed?: boolean;
 };
 
 const OrderStatusContainer = ({
@@ -22,14 +24,27 @@ const OrderStatusContainer = ({
   icon,
   iconBackgroundColor,
   kitchen,
+  defaultCollapsed = false,
 }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { menuItems: items } = useDataContext();
+  const isSmallScreen = useIsSmallScreen();
   if (!user) return <></>;
   const [expandedTables, setExpandedTables] = useState<{
     [key: string]: boolean;
   }>({});
+  const [isContainerCollapsed, setIsContainerCollapsed] = useState(
+    defaultCollapsed && typeof window !== "undefined" && window.innerWidth < 640
+  );
+
+  useEffect(() => {
+    if (!isSmallScreen) {
+      setIsContainerCollapsed(false);
+    } else if (defaultCollapsed) {
+      setIsContainerCollapsed(true);
+    }
+  }, [isSmallScreen]);
   const toggleTable = (tableId: string) => {
     setExpandedTables((prev) => ({
       ...prev,
@@ -108,7 +123,7 @@ const OrderStatusContainer = ({
   const canPrint = showPrint && (items?.length ?? 0) > 0;
 
   return (
-    <div className="w-full min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-lg __className_a182b8 mx-auto h-full pb-4 mb-4">
+    <div className="w-full sm:min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-lg __className_a182b8 mx-auto h-full pb-4 mb-4">
       <div className="relative flex items-center mt-2 mb-4">
         {/* Icon - positioned absolutely within the container */}
         <div
@@ -122,97 +137,111 @@ const OrderStatusContainer = ({
           <div className="flex items-center space-x-2 text-lg sm:text-base font-medium">
             <h1>{t(status)}</h1>
             <h1>({orders.length})</h1>
+            {defaultCollapsed && isSmallScreen && (
+              <button
+                onClick={() => setIsContainerCollapsed((prev) => !prev)}
+                className="ml-auto text-gray-500 hover:text-gray-700 text-sm px-2"
+              >
+                {isContainerCollapsed ? "▼" : "▲"}
+              </button>
+            )}
           </div>
         </div>
       </div>
       {/* orders */}
-      <div className="flex flex-col gap-4 px-2">
-        {/* grouped tables  */}
-        {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
-          <div key={tableId} className=" flex flex-col gap-1 px-1 ">
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <h2
-                  onClick={() => toggleTable(tableId)}
-                  className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
-                >
-                  {t("Table")} {(tableOrders[0]?.table as Table)?.name}
-                  <span // Toggle icon
-                    className="inline-flex  cursor-pointer"
+      {!isContainerCollapsed && (
+        <div className="flex flex-col gap-4 px-2">
+          {/* grouped tables  */}
+          {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
+            <div key={tableId} className=" flex flex-col gap-1 px-1 ">
+              <div className="flex justify-between">
+                <div className="flex items-center gap-2">
+                  <h2
+                    onClick={() => toggleTable(tableId)}
+                    className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
                   >
-                    {expandedTables[tableId] ? "▲" : "▼"}
-                  </span>
-                </h2>
-                {canPrint && (
+                    {t("Table")} {(tableOrders[0]?.table as Table)?.name}
+                    <span // Toggle icon
+                      className="inline-flex  cursor-pointer"
+                    >
+                      {expandedTables[tableId] ? "▲" : "▼"}
+                    </span>
+                  </h2>
+                  {canPrint && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const receiptOrders = tableOrders;
+                        const tableName =
+                          (tableOrders[0]?.table as Table)?.name ?? tableId;
+                        if (receiptOrders.length === 0) return;
+                        printTableReceipt({
+                          tableName: String(tableName),
+                          orders: receiptOrders,
+                          items: items ?? [],
+                        });
+                      }}
+                      className="p-1 rounded-md border border-gray-300 text-gray-600 hover:text-black hover:border-gray-400"
+                      title={t("Print")}
+                    >
+                      <MdOutlinePrint className="text-lg" />
+                    </button>
+                  )}
+                </div>
+                {/* pending case all ready button */}
+                {status === "Pending" && (
                   <button
-                    type="button"
                     onClick={() => {
-                      const receiptOrders = tableOrders;
-                      const tableName =
-                        (tableOrders[0]?.table as Table)?.name ?? tableId;
-                      if (receiptOrders.length === 0) return;
-                      printTableReceipt({
-                        tableName: String(tableName),
-                        orders: receiptOrders,
-                        items: items ?? [],
+                      updateMultipleOrders({
+                        ids: tableOrders.map((order) => order._id),
+                        updates: {
+                          status: OrderStatus.READYTOSERVE,
+                          preparedAt: new Date(),
+                          preparedBy: user._id,
+                        },
                       });
                     }}
-                    className="p-1 rounded-md border border-gray-300 text-gray-600 hover:text-black hover:border-gray-400"
-                    title={t("Print")}
+                    className="bg-green-500 text-white px-2  rounded-lg"
                   >
-                    <MdOutlinePrint className="text-lg" />
+                    {t("All Ready")}
+                  </button>
+                )}
+                {/* TODO:Fix here  */}
+                {/* ready to serve case all served button */}
+                {status === "Ready to Serve" && (
+                  <button
+                    onClick={() => {
+                      updateMultipleOrders({
+                        ids: tableOrders.map((order) => order._id),
+                        updates: {
+                          status: OrderStatus.SERVED,
+                          deliveredAt: new Date(),
+                          deliveredBy: user._id,
+                        },
+                      });
+                    }}
+                    className="bg-green-500 text-white px-2  rounded-lg"
+                  >
+                    {t("All Served")}
                   </button>
                 )}
               </div>
-              {/* pending case all ready button */}
-              {status === "Pending" && (
-                <button
-                  onClick={() => {
-                    updateMultipleOrders({
-                      ids: tableOrders.map((order) => order._id),
-                      updates: {
-                        status: OrderStatus.READYTOSERVE,
-                        preparedAt: new Date(),
-                        preparedBy: user._id,
-                      },
-                    });
-                  }}
-                  className="bg-green-500 text-white px-2  rounded-lg"
-                >
-                  {t("All Ready")}
-                </button>
-              )}
-              {/* TODO:Fix here  */}
-              {/* ready to serve case all served button */}
-              {status === "Ready to Serve" && (
-                <button
-                  onClick={() => {
-                    updateMultipleOrders({
-                      ids: tableOrders.map((order) => order._id),
-                      updates: {
-                        status: OrderStatus.SERVED,
-                        deliveredAt: new Date(),
-                        deliveredBy: user._id,
-                      },
-                    });
-                  }}
-                  className="bg-green-500 text-white px-2  rounded-lg"
-                >
-                  {t("All Served")}
-                </button>
+              {/* single order card in a table  */}
+              {expandedTables[tableId] && (
+                <div className="flex flex-col gap-2">
+                  {[...tableOrders].reverse().map((order) => (
+                    <SingleOrderCard
+                      key={order._id}
+                      order={order}
+                      user={user}
+                    />
+                  ))}
+                </div>
               )}
             </div>
-            {/* single order card in a table  */}
-            {expandedTables[tableId] && (
-              <div className="flex flex-col gap-2">
-                {[...tableOrders].reverse().map((order) => (
-                  <SingleOrderCard key={order._id} order={order} user={user} />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
