@@ -61,7 +61,10 @@ export function useUpdatePasswordMutation() {
   const { t } = useTranslation();
   const { mutate: updatePassword } = useMutation({
     mutationFn: updateUserPasswordRequest,
-    onError: (_err: any, _newTable) => {
+    onSuccess: () => {
+      toast.success(t("Password changed successfully"));
+    },
+    onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(t(errorMessage)), 200);

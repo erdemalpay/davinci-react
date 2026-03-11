@@ -1372,5 +1372,6 @@
   "You must change your password" : "Şifrenizi değiştirmeniz gerekmektedir",
   "Please go to the following address to change your password." : "Lütfen aşağıdaki adrese giderek şifrenizi değiştiriniz.",
   "Later" : "Daha sonra",
-  "Go to profile page" : "Profil sayfasına git"
+  "Go to profile page" : "Profil sayfasına git",
+  "Password changed successfully" : "Şifre başarıyla değiştirildi"
 }

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import { UserInfoModal } from "../components/common/UserInfoModal";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
@@ -199,34 +200,15 @@ export default function Users() {
         setRow: setRowToAction,
         modal: rowToAction ? (
           resetedUserInfo ? (
-            <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-              <div className="bg-white rounded-lg shadow-xl p-6 flex flex-col gap-4 min-w-[320px]">
-                <p className="text-green-600 font-semibold text-lg">
-                  {t("Password reset successfully!")}
-                </p>
-                <div className="bg-gray-100 rounded-lg p-4 flex flex-col gap-2">
-                  <p>
-                    <span className="font-semibold">{t("Username")}: </span>
-                    <span className="font-mono">{resetedUserInfo.username}</span>
-                  </p>
-                  <p>
-                    <span className="font-semibold">{t("Password")}: </span>
-                    <span className="font-mono text-blue-700 text-xl tracking-widest">
-                      {resetedUserInfo.password}
-                    </span>
-                  </p>
-                </div>
-                <button
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 self-end"
-                  onClick={() => {
-                    setIsCloseAllConfirmationDialogOpen(false);
-                    setResetedUserInfo(null);
-                  }}
-                >
-                  {t("OK")}
-                </button>
-              </div>
-            </div>
+            <UserInfoModal
+              title={t("Password reset successfully!")}
+              username={resetedUserInfo.username}
+              password={resetedUserInfo.password}
+              onClose={() => {
+                setIsCloseAllConfirmationDialogOpen(false);
+                setResetedUserInfo(null);
+              }}
+            />
           ) : (
             <ConfirmationDialog
               isOpen={isCloseAllConfirmationDialogOpen}
@@ -318,34 +300,15 @@ export default function Users() {
       name: t("Add User"),
       isModal: true,
       modal: createdUserInfo ? (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 flex flex-col gap-4 min-w-[320px]">
-            <p className="text-green-600 font-semibold text-lg">
-              {t("New user created successfully!")}
-            </p>
-            <div className="bg-gray-100 rounded-lg p-4 flex flex-col gap-2">
-              <p>
-                <span className="font-semibold">{t("Username")}: </span>
-                <span className="font-mono">{createdUserInfo.username}</span>
-              </p>
-              <p>
-                <span className="font-semibold">{t("Password")}: </span>
-                <span className="font-mono text-blue-700 text-xl tracking-widest">
-                  {createdUserInfo.password}
-                </span>
-              </p>
-            </div>
-            <button
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 self-end"
-              onClick={() => {
-                setIsAddModalOpen(false);
-                setCreatedUserInfo(null);
-              }}
-            >
-              {t("OK")}
-            </button>
-          </div>
-        </div>
+        <UserInfoModal
+          title={t("New user created successfully!")}
+          username={createdUserInfo.username}
+          password={createdUserInfo.password}
+          onClose={() => {
+            setIsAddModalOpen(false);
+            setCreatedUserInfo(null);
+          }}
+        />
       ) : (
         <GenericAddEditPanel
           isOpen={isAddModalOpen}

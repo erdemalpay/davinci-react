@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -42,14 +42,6 @@ function ChangePasswordModal() {
     () => localStorage.getItem("mustChangePassword") === "true"
   );
 
-  useEffect(() => {
-    const handleStorage = () => {
-      setVisible(localStorage.getItem("mustChangePassword") === "true");
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
-
   if (!visible) return null;
 
   const handleClose = () => {
@@ -64,8 +56,8 @@ function ChangePasswordModal() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-60 z-[99999]">
-      <div className="bg-white rounded-xl shadow-2xl p-8 flex flex-col items-center gap-5 max-w-sm w-full mx-4 text-center">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-60 z-[99999] p-4">
+      <div className="bg-white rounded-xl shadow-2xl p-6 flex flex-col items-center gap-5 w-full max-w-sm text-center">
         <p className="text-blue-800 font-semibold text-lg">
           {t("You must change your password")}
         </p>
