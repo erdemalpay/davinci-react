@@ -310,12 +310,7 @@ export function ActiveVisitList({
           if (userBreak) {
             tooltipContent = `${userRole}  •  ${t("On Break")}`;
           } else if (userGameplayTime) {
-            const tableId = getRefId(userGameplayTime.table);
-            const table = getItem(tableId, tables);
-            const tableName = table?.name || `${t("Table")} ${tableId}`;
-            tooltipContent = `${userRole}  •  ${t(
-              "In Gameplay"
-            )}  •  ${tableName}`;
+            tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
           } else if (userMiddleman) {
             tooltipContent = `${userRole}  •  ${t("Middleman")}`;
           }
@@ -330,10 +325,14 @@ export function ActiveVisitList({
               );
             }
             if (userGameplayTime) {
+              const tableId = getRefId(userGameplayTime.table);
+              const table = getItem(tableId, tables);
+              const tableName = table?.name || `${t("Table")} ${tableId}`;
               return (
                 <span className="flex items-center gap-1">
-                  <GiPerspectiveDiceSixFacesRandom className="text-sm" />
                   {userName}
+                  <GiPerspectiveDiceSixFacesRandom className="text-sm" />
+                  {tableName}
                 </span>
               );
             }
