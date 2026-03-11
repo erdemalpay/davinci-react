@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -134,8 +135,10 @@ const CountArchive = () => {
           if (!count?.createdAt) {
             return null;
           }
-          const startDate = new Date(count?.createdAt);
-          const endDate = new Date(count?.completedAt ?? 0);
+          const startDate = toZonedTime(count?.createdAt, "Europe/Istanbul");
+          const endDate = count?.completedAt
+            ? toZonedTime(count?.completedAt, "Europe/Istanbul")
+            : null;
           return {
             ...count,
             cntLst: getItem(count?.countList, countLists)?.name,
@@ -154,10 +157,10 @@ const CountArchive = () => {
             endDate: count?.completedAt
               ? format(count?.completedAt, "yyyy-MM-dd")
               : "",
-            formattedEndDate: count?.completedAt
-              ? formatAsLocalDate(format(count?.completedAt, "yyyy-MM-dd"))
+            formattedEndDate: endDate
+              ? formatAsLocalDate(format(endDate, "yyyy-MM-dd"))
               : "-",
-            endHour: count?.completedAt
+            endHour: endDate
               ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
               : "-",
           };
