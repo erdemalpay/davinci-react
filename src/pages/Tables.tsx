@@ -87,8 +87,6 @@ const Tables = () => {
     user,
     visits = [],
   } = useDataContext();
-  const [showAllTables, setShowAllTables] = useState(true);
-  const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [tableOrderPaymentTableId, setTableOrderPaymentTableId] = useState<
     number | null
   >(null);
@@ -97,7 +95,17 @@ const Tables = () => {
   const [isTableOrderPaymentModalOpen, setIsTableOrderPaymentModalOpen] =
     useState(false);
   const { resetOrderContext } = useOrderContext();
-  const { setExpandedRows } = useGeneralContext();
+  const {
+    setExpandedRows,
+    showAllOrders,
+    setShowAllOrders,
+    showServedOrders,
+    setShowServedOrders,
+    showAllTables,
+    setShowAllTables,
+    showAllGameplays,
+    setShowAllGameplays,
+  } = useGeneralContext();
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
     useState(false);
   const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
@@ -105,8 +113,6 @@ const Tables = () => {
 
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
-  const [showAllOrders, setShowAllOrders] = useState(true);
-  const [showServedOrders, setShowServedOrders] = useState(true);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isActivityExpanded, setIsActivityExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
