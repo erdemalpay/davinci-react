@@ -132,6 +132,14 @@ type GeneralContextType = {
   setTabOrientation: (orientation: TabOrientation) => void;
   isLogoutModalOpen: boolean;
   setIsLogoutModalOpen: (open: boolean) => void;
+  showAllOrders: boolean;
+  setShowAllOrders: (show: boolean) => void;
+  showServedOrders: boolean;
+  setShowServedOrders: (show: boolean) => void;
+  showAllTables: boolean;
+  setShowAllTables: (show: boolean) => void;
+  showAllGameplays: boolean;
+  setShowAllGameplays: (show: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -272,6 +280,14 @@ const GeneralContext = createContext<GeneralContextType>({
   setTabOrientation: () => {},
   isLogoutModalOpen: false,
   setIsLogoutModalOpen: () => {},
+  showAllOrders: true,
+  setShowAllOrders: () => {},
+  showServedOrders: true,
+  setShowServedOrders: () => {},
+  showAllTables: true,
+  setShowAllTables: () => {},
+  showAllGameplays: true,
+  setShowAllGameplays: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -383,6 +399,42 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
 
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
 
+  const [showAllOrders, setShowAllOrdersState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("show-all-orders");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const setShowAllOrders = (show: boolean) => {
+    localStorage.setItem("show-all-orders", JSON.stringify(show));
+    setShowAllOrdersState(show);
+  };
+
+  const [showServedOrders, setShowServedOrdersState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("show-served-orders");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const setShowServedOrders = (show: boolean) => {
+    localStorage.setItem("show-served-orders", JSON.stringify(show));
+    setShowServedOrdersState(show);
+  };
+
+  const [showAllTables, setShowAllTablesState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("show-all-tables");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const setShowAllTables = (show: boolean) => {
+    localStorage.setItem("show-all-tables", JSON.stringify(show));
+    setShowAllTablesState(show);
+  };
+
+  const [showAllGameplays, setShowAllGameplaysState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("show-all-gameplays");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const setShowAllGameplays = (show: boolean) => {
+    localStorage.setItem("show-all-gameplays", JSON.stringify(show));
+    setShowAllGameplaysState(show);
+  };
+
   const resetGeneralContext = () => {
     setIsSelectionActive(false);
     setSelectedRows([]);
@@ -491,6 +543,14 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setTabOrientation,
         isLogoutModalOpen,
         setIsLogoutModalOpen,
+        showAllOrders,
+        setShowAllOrders,
+        showServedOrders,
+        setShowServedOrders,
+        showAllTables,
+        setShowAllTables,
+        showAllGameplays,
+        setShowAllGameplays,
       }}
     >
       {children}
