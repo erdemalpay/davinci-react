@@ -21,6 +21,29 @@ export function useUserMutations() {
   return { updateUser, createUser };
 }
 
+export function useCreateUserMutation(
+  onCreated: (username: string, tempPassword: string) => void
+) {
+  const queryClient = useQueryClient();
+  const { mutate: createUser } = useMutation({
+    mutationFn: (itemDetails: Partial<User>) =>
+      post<Partial<User>, User & { tempPassword: string }>({
+        path: Paths.Users,
+        payload: itemDetails,
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [Paths.Users] });
+      onCreated(data._id as string, data.tempPassword);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+  return { createUser };
+}
+
 function updateUserPasswordRequest({
   oldPassword,
   newPassword,
@@ -47,16 +70,25 @@ export function useUpdatePasswordMutation() {
 
   return { updatePassword };
 }
-function resetUserPasswordRequest({ id }: { id: string }) {
+function resetUserPasswordRequest({
+  id,
+}: {
+  id: string;
+}): Promise<User & { tempPassword: string }> {
   return post({
     path: `${Paths.Users}/resetPassword`,
     payload: { id },
   });
 }
 
-export function useResetPasswordMutation() {
+export function useResetPasswordMutation(
+  onReset?: (username: string, tempPassword: string) => void
+) {
   const { mutate: resetPassword } = useMutation({
     mutationFn: resetUserPasswordRequest,
+    onSuccess: (data) => {
+      onReset?.(data._id as string, data.tempPassword);
+    },
   });
   return { resetPassword };
 }
