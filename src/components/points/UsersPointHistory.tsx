@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { PointHistory, pointHistoryStatuses, PointHistoryStatusEnum, Table } from "../../types";
+import { OrderCollectionItem, PointHistory, pointHistoryStatuses, PointHistoryStatusEnum, Table } from "../../types";
 import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -39,6 +39,7 @@ const UsersPointHistoryComponent = () => {
   // Modal states for collection details
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<number | undefined>(undefined);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<number | undefined>(undefined);
 
   // Additional data for modal
   const sellLocations = useGetSellLocations();
@@ -46,8 +47,10 @@ const UsersPointHistoryComponent = () => {
   const orders = useGetOrders();
   const items = useGetMenuItems();
   const collectionDataRaw = useGetCollectionByTableId(selectedTableId);
-  // API returns array, take first element
-  const collectionData = Array.isArray(collectionDataRaw) ? collectionDataRaw[0] : collectionDataRaw;
+  // Find the specific collection by ID
+  const collectionData = Array.isArray(collectionDataRaw)
+    ? collectionDataRaw.find((c) => c._id === selectedCollectionId)
+    : collectionDataRaw;
 
   const rows = useMemo(() => {
     return pointHistoriesPayload?.data
@@ -167,7 +170,7 @@ const UsersPointHistoryComponent = () => {
       {
         key: "date",
         className: "min-w-32 pr-1",
-        node: (row: any) => {
+        node: (row: PointHistory & { formattedDate: string }) => {
           return <p>{row.formattedDate}</p>;
         },
       },
@@ -199,6 +202,7 @@ const UsersPointHistoryComponent = () => {
                 e.stopPropagation();
                 if (hasTableId) {
                   setSelectedTableId(row.tableId);
+                  setSelectedCollectionId(row.collectionId);
                   setIsCollectionModalOpen(true);
                 }
               }}
@@ -227,7 +231,7 @@ const UsersPointHistoryComponent = () => {
       {
         key: "status",
         className: "min-w-32 pr-1",
-        node: (row: any) => {
+        node: (row: PointHistory) => {
           const status = pointHistoryStatuses.find(
             (item) => item.value === row.status
           );
@@ -243,7 +247,7 @@ const UsersPointHistoryComponent = () => {
         },
       },
     ],
-    [t, setSelectedTableId, setIsCollectionModalOpen]
+    [t, setSelectedTableId, setSelectedCollectionId, setIsCollectionModalOpen]
   );
 
   const filters = useMemo(
@@ -348,7 +352,7 @@ const UsersPointHistoryComponent = () => {
       cancelNote: collectionData.cancelNote,
       status: collectionData.status,
       orders:
-        collectionData.orders?.map((orderCollectionItem: any) => ({
+        collectionData.orders?.map((orderCollectionItem: OrderCollectionItem) => ({
           product: getItem(
             orders?.find((order) => order._id === orderCollectionItem.order)?.item,
             items
@@ -483,7 +487,7 @@ const UsersPointHistoryComponent = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {formattedCollectionData.orders.map((order: any, index: number) => (
+                      {formattedCollectionData.orders.map((order: { product: string; quantity: number }, index: number) => (
                         <tr key={index}>
                           <td className="px-4 py-2 text-sm text-gray-900">{order.product}</td>
                           <td className="px-4 py-2 text-sm text-gray-900">{order.quantity}</td>
