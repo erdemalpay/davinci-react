@@ -1,14 +1,16 @@
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { pointHistoryStatuses } from "../../types";
+import { PointHistory, pointHistoryStatuses, PointHistoryStatusEnum } from "../../types";
 import { useGetPointHistories } from "../../utils/api/pointHistory";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { useFormattedCollectionData } from "../../hooks/useFormattedCollectionData";
+import CollectionDetailsModal from "./CollectionDetailsModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -38,6 +40,13 @@ const UserPointHistory = () => {
     userPointHistoryFilters
   );
   const users = useGetUsersMinimal();
+
+  // Modal states for collection details
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
+  const [selectedTableId, setSelectedTableId] = useState<number | undefined>(undefined);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<number | undefined>(undefined);
+
+  const formattedCollectionData = useFormattedCollectionData(selectedTableId, selectedCollectionId);
 
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
@@ -140,7 +149,7 @@ const UserPointHistory = () => {
       {
         key: "date",
         className: "min-w-32 pr-1",
-        node: (row: any) => {
+        node: (row: PointHistory & { formattedDate: string }) => {
           return <p>{row.formattedDate}</p>;
         },
       },
@@ -155,6 +164,28 @@ const UserPointHistory = () => {
       {
         key: "collectionId",
         className: "min-w-32 pr-1",
+        node: (row: PointHistory) => {
+          const isCollectionStatus =
+            row.status === PointHistoryStatusEnum.COLLECTIONCREATED ||
+            row.status === PointHistoryStatusEnum.COLLECTIONCANCELLED;
+          if (!isCollectionStatus || !row.collectionId) return <p></p>;
+          const hasTableId = row.tableId != null;
+          return (
+            <p
+              className={`text-blue-500 underline w-fit ${hasTableId ? "cursor-pointer hover:text-blue-700" : "opacity-50 pointer-events-none"}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (hasTableId) {
+                  setSelectedTableId(row.tableId);
+                  setSelectedCollectionId(row.collectionId);
+                  setIsCollectionModalOpen(true);
+                }
+              }}
+            >
+              {row.collectionId}
+            </p>
+          );
+        }
       },
       {
         key: "tableId",
@@ -175,7 +206,7 @@ const UserPointHistory = () => {
       {
         key: "status",
         className: "min-w-32 pr-1",
-        node: (row: any) => {
+        node: (row: PointHistory) => {
           const status = pointHistoryStatuses.find(
             (item) => item.value === row.status
           );
@@ -190,7 +221,7 @@ const UserPointHistory = () => {
         },
       },
     ],
-    [t]
+    [t, setSelectedTableId, setSelectedCollectionId, setIsCollectionModalOpen]
   );
 
   const filters = useMemo(
@@ -264,23 +295,38 @@ const UserPointHistory = () => {
     setCurrentPage(1);
   }, [filterUserPointHistoryPanelFormElements, setCurrentPage]);
 
+
   return (
-    <div className="w-[95%] mx-auto">
-      <GenericTable
-        rowKeys={rowKeys}
-        columns={columns}
-        rows={rows ?? []}
-        filterPanel={filterPanel}
-        filters={filters}
-        outsideSearchProps={outsideSearchProps}
-        isSearch={false}
-        title={t("My Point History")}
-        isActionsActive={false}
-        outsideSortProps={outsideSort}
-        {...(pagination && { pagination })}
-        isAllRowPerPageOption={false}
-      />
-    </div>
+    <>
+      <div className="w-[95%] mx-auto">
+        <GenericTable
+          rowKeys={rowKeys}
+          columns={columns}
+          rows={rows ?? []}
+          filterPanel={filterPanel}
+          filters={filters}
+          outsideSearchProps={outsideSearchProps}
+          isSearch={false}
+          title={t("My Point History")}
+          isActionsActive={false}
+          outsideSortProps={outsideSort}
+          {...(pagination && { pagination })}
+          isAllRowPerPageOption={false}
+        />
+      </div>
+
+      {formattedCollectionData && (
+        <CollectionDetailsModal
+          isOpen={isCollectionModalOpen}
+          onClose={() => {
+            setIsCollectionModalOpen(false);
+            setSelectedTableId(undefined);
+            setSelectedCollectionId(undefined);
+          }}
+          collectionData={formattedCollectionData}
+        />
+      )}
+    </>
   );
 };
 
