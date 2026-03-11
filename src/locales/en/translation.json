@@ -1358,5 +1358,9 @@
   "Adjust Roles": "Adjust Roles",
   "Discount and shipping costs are not included in the calculations shown here": "Discount and shipping costs are not included in the calculations shown here",
   "New user created successfully!" : "New user created successfully!",
-  "Password reset successfully!" : "Password reset successfully!"
+  "Password reset successfully!" : "Password reset successfully!",
+  "You must change your password" : "You must change your password",
+  "Please go to the following address to change your password." : "Please go to the following address to change your password.",
+  "Later" : "Later",
+  "Go to profile page" : "Go to profile page"
 }
