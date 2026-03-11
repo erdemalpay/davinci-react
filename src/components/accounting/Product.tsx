@@ -7,12 +7,9 @@ import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import {
-  AccountProduct,
-  ActionEnum,
-  DisabledConditionEnum,
-} from "../../types";
+import { AccountProduct, ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
+import { useGetAccountCountLists } from "../../utils/api/account/countList";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
@@ -20,6 +17,7 @@ import {
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetAllLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import {
   useGetMenuItems,
@@ -42,8 +40,10 @@ const Product = () => {
   const { user } = useUserContext();
   const products = useGetAllAccountProducts();
   const items = useGetMenuItems();
+  const locations = useGetAllLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
+  const countLists = useGetAccountCountLists();
   const categories = useGetCategories();
   const navigate = useNavigate();
   const vendors = useGetAccountVendors();
@@ -51,7 +51,10 @@ const Product = () => {
   const disabledConditions = useGetDisabledConditions();
 
   const productDisabledCondition = useMemo(() => {
-    return getItem(DisabledConditionEnum.ACCOUNTING_PRODUCT, disabledConditions);
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_PRODUCT,
+      disabledConditions
+    );
   }, [disabledConditions]);
 
   const [showInactiveProducts, setShowInactiveProducts] = useState(false);
@@ -80,6 +83,8 @@ const Product = () => {
     expenseType: [] as string[],
     name: "",
     matchedMenuItem: "",
+    countList: [] as string[],
+    locations: [],
   };
   const [inputForm, setInputForm] = useState(initialInputForm);
 
@@ -113,9 +118,20 @@ const Product = () => {
         )
       )
         return false;
+      if (
+        filterProductPanelFormElements.countList?.length &&
+        filterProductPanelFormElements.countList?.length > 0 &&
+        !product.countList?.includes(filterProductPanelFormElements.countList)
+      )
+        return false;
       return true;
     });
-  }, [products, showInactiveProducts, filterProductPanelFormElements]);
+  }, [
+    products,
+    showInactiveProducts,
+    filterProductPanelFormElements,
+    countLists,
+  ]);
 
   const joinProductInputs = useMemo(
     () => [
@@ -178,8 +194,20 @@ const Product = () => {
         placeholder: t("Expense Type"),
         required: true,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "countList",
+        label: t("Count List"),
+        options: countLists.map((countList) => ({
+          value: countList._id,
+          label: countList.name,
+        })),
+        placeholder: t("Count List"),
+        isMultiple: true,
+        required: true,
+      },
     ],
-    [brands, vendors, expenseTypes]
+    [brands, vendors, expenseTypes, countLists, t]
   );
 
   const inputs = useMemo(
@@ -229,6 +257,32 @@ const Product = () => {
       },
       {
         type: InputTypes.SELECT,
+        formKey: "countList",
+        label: t("Count List"),
+        options: countLists.map((countList) => ({
+          value: countList._id,
+          label: countList.name,
+        })),
+        placeholder: t("Count List"),
+        isMultiple: true,
+        required: false,
+        isDisabled: isEditModalOpen,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "locations",
+        label: t("Locations"),
+        options: locations.map((location) => ({
+          value: location._id,
+          label: location.name,
+        })),
+        placeholder: t("Locations"),
+        isMultiple: true,
+        required: inputForm?.countList?.length > 0 && isAddModalOpen,
+        isDisabled: inputForm?.countList?.length === 0 || isEditModalOpen,
+      },
+      {
+        type: InputTypes.SELECT,
         formKey: "matchedMenuItem",
         label: t("Matched Menu Item"),
         options: items.map((item) => ({ value: item._id, label: item.name })),
@@ -236,7 +290,7 @@ const Product = () => {
         required: false,
       },
     ],
-    [t, expenseTypes, vendors, brands, items]
+    [t, expenseTypes, vendors, brands, items, inputForm, locations, countLists]
   );
 
   const formKeys = useMemo(
@@ -245,6 +299,8 @@ const Product = () => {
       { key: "expenseType", type: FormKeyTypeEnum.STRING },
       { key: "vendor", type: FormKeyTypeEnum.STRING },
       { key: "brand", type: FormKeyTypeEnum.STRING },
+      { key: "countList", type: FormKeyTypeEnum.ARRAY },
+      { key: "locations", type: FormKeyTypeEnum.ARRAY },
       { key: "matchedMenuItem", type: FormKeyTypeEnum.STRING },
     ],
     []
@@ -329,8 +385,14 @@ const Product = () => {
         isSortable: true,
         correspondingKey: "expenseType",
       },
+
       { key: t("Brand"), isSortable: true, correspondingKey: "brand" },
       { key: t("Vendor"), isSortable: true, correspondingKey: "vendor" },
+      {
+        key: t("Count Lists"),
+        isSortable: true,
+        correspondingKey: "countList",
+      },
       { key: t("Unit Price"), isSortable: true, correspondingKey: "unitPrice" },
       { key: t("Matched Menu Item"), isSortable: true },
       { key: t("Actions"), isSortable: false },
@@ -428,6 +490,25 @@ const Product = () => {
           }),
       },
       {
+        key: "countList",
+        className: "min-w-32",
+        node: (row: AccountProduct) =>
+          row.countList?.map((count: string, index) => {
+            const foundCount = countLists.find((cl) => cl._id === count);
+            if (!foundCount)
+              return <div key={row._id + index + "countList"}>-</div>;
+            return (
+              <span
+                key={foundCount.name + foundCount._id + row._id}
+                className="text-sm mr-1 w-fit"
+              >
+                {foundCount?.name}
+                {(row?.countList?.length ?? 0) - 1 !== index && ","}
+              </span>
+            );
+          }),
+      },
+      {
         key: "unitPrice",
         node: (row: AccountProduct) => (
           <div className="min-w-32">
@@ -461,6 +542,8 @@ const Product = () => {
     vendors,
     items,
     isUnitPriceHidden,
+    countLists,
+    locations,
   ]);
 
   const addButton = useMemo(
@@ -594,6 +677,7 @@ const Product = () => {
               brand: rowToAction.brand,
               vendor: rowToAction.vendor,
               matchedMenuItem: rowToAction.matchedMenuItem,
+              countList: rowToAction.countList,
             }}
             handleUpdate={() => {
               updateAccountProduct({
