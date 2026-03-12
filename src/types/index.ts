@@ -284,6 +284,7 @@ export type AccountProduct = {
     minQuantity: number;
     maxQuantity: number;
   }[];
+  countList?: string[];
   shelfInfo?: {
     location: number;
     shelf: string;
@@ -306,7 +307,6 @@ export type AccountCountList = {
     locations: number[];
   }[];
   active: boolean;
-  expenseTypes?: string[];
   permissionRoles: number[];
 };
 export type ExpirationListType = {

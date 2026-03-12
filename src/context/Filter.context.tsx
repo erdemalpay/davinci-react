@@ -191,6 +191,7 @@ const FilterContext = createContext<FilterContextType>({
     vendor: "",
     expenseType: "",
     name: "",
+    countList: [],
   },
   setFilterProductPanelFormElements: () => {},
   filterCheckoutPanelFormElements: {
@@ -987,6 +988,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
       vendor: "",
       expenseType: "",
       name: "",
+      countList: [],
     });
   const [
     filterGameStockPanelFormElements,
