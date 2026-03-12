@@ -7,7 +7,15 @@ import { Gameplay, RoleEnum, Table, User, Visit } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import {
+  FormKeyTypeEnum,
+  GenericInputType,
+  InputTypes,
+} from "../panelComponents/shared/types";
+
+type CreateGameplayDto = Gameplay & {
+  isAutoEntry?: boolean;
+};
 
 export function CreateGameplayDialog({
   isOpen,
@@ -27,7 +35,11 @@ export function CreateGameplayDialog({
   visits?: Visit[];
 }) {
   const { t } = useTranslation();
-  const [data, setData] = useState<Partial<Gameplay>>(gameplay);
+  const [data, setData] = useState<Partial<CreateGameplayDto>>({
+    ...gameplay,
+    isGameplayTime: true,
+    isAutoEntry: true,
+  });
   const { users } = useDataContext();
   const { mutate: createGameplay } = useCreateGameplayMutation();
   const gameRelatedRoles = [
@@ -104,6 +116,16 @@ export function CreateGameplayDialog({
         isNumberButtonsActive: true,
       },
       {
+        type: InputTypes.CHECKBOX,
+        formKey: "isAutoEntry",
+        label: t("Is Auto Entry"),
+        placeholder: t("Is Auto Entry"),
+        required: data?.playerCount && table.playerCount < data?.playerCount,
+        isDisabled: !(
+          data?.playerCount && table.playerCount < data?.playerCount
+        ),
+      },
+      {
         type: InputTypes.QUICKSELECT,
         formKey: "mentor",
         label: t("Mentor"),
@@ -163,25 +185,22 @@ export function CreateGameplayDialog({
         placeholder: t("End Time"),
         required: false,
       },
-      // Only show "Is Gameplay Time" checkbox if selected mentor has an active visit
-      ...(doesMentorHaveActiveVisit
-        ? [
-            {
-              type: InputTypes.CHECKBOX,
-              formKey: "isGameplayTime",
-              label: t("Is Gameplay Time"),
-              placeholder: t("Is Gameplay Time"),
-              required: false,
-            },
-          ]
-        : []),
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isGameplayTime",
+        label: t("Is Gameplay Time"),
+        placeholder: t("Is Gameplay Time"),
+        required: false,
+        isDisabled: !doesMentorHaveActiveVisit,
+      },
     ],
-    [mentors, games, t, users, doesMentorHaveActiveVisit]
+    [mentors, games, t, users, doesMentorHaveActiveVisit, data]
   );
 
   const gameplayFormKeys = [
     { key: "tableName", type: FormKeyTypeEnum.STRING },
     { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
+    { key: "isAutoEntry", type: FormKeyTypeEnum.BOOLEAN },
     { key: "mentor", type: FormKeyTypeEnum.STRING },
     { key: "game", type: FormKeyTypeEnum.NUMBER },
     { key: "startHour", type: FormKeyTypeEnum.STRING },
@@ -200,7 +219,7 @@ export function CreateGameplayDialog({
       <GenericAddEditPanel
         isOpen={isOpen}
         close={close}
-        inputs={gameplayInputs}
+        inputs={gameplayInputs as GenericInputType[]}
         formKeys={gameplayFormKeys}
         setForm={setData}
         constantValues={{
@@ -208,6 +227,7 @@ export function CreateGameplayDialog({
           date: gameplay.date || table.date,
           location: gameplay.location || table.location,
           playerCount: gameplay.playerCount,
+          isAutoEntry: true,
           startHour: format(new Date(), "HH:mm"),
           mentor:
             typeof gameplay.mentor === "object"
@@ -217,7 +237,6 @@ export function CreateGameplayDialog({
             typeof gameplay.game === "object"
               ? gameplay.game?._id
               : gameplay.game,
-          isGameplayTime: gameplay.isGameplayTime ?? true,
         }}
         submitItem={handleCreate}
         submitFunction={handleCreate}
