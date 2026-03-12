@@ -63,7 +63,6 @@ import {
 import { MinimalUser } from "../utils/api/user";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem, getMenuItemSubText } from "../utils/getItem";
-import { LocationInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
 const Tables = () => {
   const { t } = useTranslation();
@@ -273,37 +272,52 @@ const Tables = () => {
     return 0;
   };
   const [orderForm, setOrderForm] = useState(initialOrderForm);
-  const consumptInputs = [
-    {
-      type: InputTypes.TAB,
-      formKey: "product",
-      label: t("Product"),
-      options: products?.map((product) => {
-        const matchedItem = menuItems?.find(
-          (item) => item.matchedProduct === product._id
-        );
-        return {
-          value: product._id,
-          label: product.name,
-          keywords: [matchedItem?.sku ?? "", matchedItem?.barcode ?? ""],
-        };
-      }),
-      placeholder: t("Product"),
-      required: true,
-      isTopFlexRow: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      minNumber: 0,
-      required: true,
-      isNumberButtonsActive: true,
-      isOnClearActive: false,
-    },
-    LocationInput({ locations: allLocations, isTopFlexRow: true }),
-  ];
+  const consumptInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TAB,
+        formKey: "product",
+        label: t("Product"),
+        options: products?.map((product) => {
+          const matchedItem = menuItems?.find(
+            (item) => item.matchedProduct === product._id
+          );
+          return {
+            value: product._id,
+            label: product.name,
+            keywords: [matchedItem?.sku ?? "", matchedItem?.barcode ?? ""],
+          };
+        }),
+        placeholder: t("Product"),
+        required: true,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "quantity",
+        label: t("Quantity"),
+        placeholder: t("Quantity"),
+        minNumber: 0,
+        required: true,
+        isNumberButtonsActive: true,
+        isOnClearActive: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: allLocations.map((input) => {
+          return {
+            value: input._id,
+            label: input.name,
+          };
+        }),
+        isTopFlexRow: true,
+        required: true,
+      },
+    ],
+    [allLocations, menuItems, products, t]
+  );
   const consumptFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
