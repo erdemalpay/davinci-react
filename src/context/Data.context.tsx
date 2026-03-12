@@ -15,7 +15,7 @@ import {
   User,
   Visit,
 } from "../types";
-import { useGetAllAccountProducts } from "../utils/api/account/product";
+import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetAccountStocks } from "../utils/api/account/stock";
 import { MinimalGame, useGetGamesMinimal } from "../utils/api/game";
 import {
@@ -82,7 +82,7 @@ export const DataContextProvider = ({ children }: PropsWithChildren) => {
   const categories = useGetAllCategories();
   const games = useGetGamesMinimal();
   const kitchens = useGetKitchens();
-  const products = useGetAllAccountProducts();
+  const products = useGetAccountProducts();
   const discounts = useGetOrderDiscounts();
   const stockLocations = useGetStockLocations();
   const storeLocations = useGetStoreLocations();
