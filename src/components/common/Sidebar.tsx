@@ -32,7 +32,7 @@ export const Sidebar = () => {
     setIsHoverExpanded,
   } = useGeneralContext();
   const { setUser, user: contextUser } = useUserContext();
-  const user = useGetUser();
+  const user = useGetUser(!!contextUser);
   const currentRoute = location.pathname;
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
     {}
@@ -60,8 +60,11 @@ export const Sidebar = () => {
   const pages = useGetPanelControlPages(!!contextUser);
 
   const todayDate = format(new Date(), "yyyy-MM-dd");
-  const activeBreaks = useGetBreaksByDate(todayDate);
-  const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
+  const activeBreaks = useGetBreaksByDate(todayDate, !!contextUser);
+  const activeGameplayTimes = useGetGameplayTimesByDate(
+    todayDate,
+    !!contextUser
+  );
 
   const userActiveBreak = activeBreaks?.find(
     (breakRecord) =>
@@ -119,7 +122,10 @@ export const Sidebar = () => {
       {isSidebarOpen && (
         <div
           className="hidden lg:block fixed inset-0 bg-black/20 transition-opacity duration-300 z-40"
-          onClick={() => { setIsSidebarOpen(false); setIsHoverExpanded(false); }}
+          onClick={() => {
+            setIsSidebarOpen(false);
+            setIsHoverExpanded(false);
+          }}
         />
       )}
 

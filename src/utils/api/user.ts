@@ -95,8 +95,13 @@ export function useGetUsersMinimal() {
   return useGetList<MinimalUser>(`${Paths.Users}/minimal`);
 }
 
-export function useGetUser() {
-  return useGet<User>(Paths.User, [Paths.Users, "me"]);
+export function useGetUser(enabled?: boolean) {
+  return useGet<User>(
+    Paths.User,
+    [Paths.Users, "me"],
+    undefined,
+    enabled !== undefined ? { enabled } : undefined
+  );
 }
 export function useGetUserWithId(id: string) {
   return useGet<User>(`${Paths.Users}/${id}`, [Paths.Users, id]);
