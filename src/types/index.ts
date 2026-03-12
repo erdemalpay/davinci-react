@@ -716,6 +716,7 @@ export enum ActionEnum {
   NOTIFY = "notify",
   CLICKABLE_ROWS = "clickable_rows",
   ASSIGN_MIDDLEMAN = "assign_middleman",
+  ADJUST_ROLES = "adjust_roles",
 }
 
 export type Membership = {
