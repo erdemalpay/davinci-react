@@ -1366,7 +1366,8 @@
   "Cancelled Amount": "İptal Tutarı",
   "Ratio to Total": "Toplama Göre Oran",
   "Adjust Roles": "Rolleri Düzenle",
-  "Discount and shipping costs are not included in the calculations shown here": "Burada görüntülenen kayıtlarda indirim ve kargo ücretleri hesaplamaya dahil değildir",
+  "Is Auto Entry": "Otomatik Giriş Ekle",
+  "Discount and shipping costs are not included in the calculations shown here": "Burada görüntülenen kayıtlarda indirim ve kargo ücretleri hesaplamaya dahil değildir"
   "New user created successfully!" : "Yeni Kullanıcı Başarıyla Oluşturuldu",
   "Password reset successfully!" : "Şifre başarıyla resetlendi",
   "You must change your password" : "Şifrenizi değiştirmeniz gerekmektedir",

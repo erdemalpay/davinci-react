@@ -1,3 +1,4 @@
+import { toZonedTime } from "date-fns-tz";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -99,6 +100,19 @@ const SingleCountArchive = () => {
     const formattedDate = `${pad(date.getDate())}-${pad(
       date.getMonth() + 1
     )}-${date.getFullYear()}`;
+    const istanbulStart = toZonedTime(
+      currentCount.createdAt,
+      "Europe/Istanbul"
+    );
+    const startHour = `${pad(istanbulStart.getHours())}:${pad(
+      istanbulStart.getMinutes()
+    )}`;
+    const endDate = currentCount.completedAt
+      ? toZonedTime(currentCount.completedAt, "Europe/Istanbul")
+      : null;
+    const endHour = endDate
+      ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+      : "-";
 
     return (
       currentCount.products
@@ -113,6 +127,8 @@ const SingleCountArchive = () => {
             sku: rowItem?.sku,
             productId: option.product,
             date: formattedDate,
+            startHour,
+            endHour,
             stockQuantity: option.stockQuantity,
             countQuantity: option.countQuantity,
             productDeleteRequest: option.productDeleteRequest
@@ -137,6 +153,8 @@ const SingleCountArchive = () => {
   const { columns, rowKeys } = useMemo(() => {
     let cols = [
       { key: t("Date"), isSortable: true },
+      { key: t("Start Hour"), isSortable: false },
+      { key: t("End Hour"), isSortable: false },
       { key: t("Product"), isSortable: true },
       { key: t("SKU"), isSortable: false },
       { key: t("Stock Quantity"), isSortable: true },
@@ -148,6 +166,8 @@ const SingleCountArchive = () => {
 
     let keys = [
       { key: "date", className: "min-w-32" },
+      { key: "startHour", className: "min-w-32 pr-1" },
+      { key: "endHour", className: "min-w-32 pr-1" },
       { key: "product" },
       { key: "sku" },
       { key: "stockQuantity" },

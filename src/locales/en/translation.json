@@ -1356,7 +1356,8 @@
   "Cancelled Amount": "Cancelled Amount",
   "Ratio to Total": "Ratio to Total",
   "Adjust Roles": "Adjust Roles",
-  "Discount and shipping costs are not included in the calculations shown here": "Discount and shipping costs are not included in the calculations shown here",
+  "Is Auto Entry": "Add Entry",
+  "Discount and shipping costs are not included in the calculations shown here": "Discount and shipping costs are not included in the calculations shown here"
   "New user created successfully!" : "New user created successfully!",
   "Password reset successfully!" : "Password reset successfully!",
   "You must change your password" : "You must change your password",
