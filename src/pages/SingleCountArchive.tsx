@@ -101,9 +101,7 @@ const SingleCountArchive = () => {
       date.getMonth() + 1
     )}-${date.getFullYear()}`;
     const istanbulStart = toZonedTime(
-      currentCount.completedAt
-        ? currentCount.completedAt
-        : currentCount.createdAt,
+      currentCount.completedAt ?? currentCount.createdAt,
       "Europe/Istanbul"
     );
     const startHour = `${pad(istanbulStart.getHours())}:${pad(
