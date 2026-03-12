@@ -16,6 +16,7 @@ import {
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   StockHistoryPayload,
   useAccountProductStockHistoryMutations,
@@ -61,6 +62,7 @@ const EnterConsumption = () => {
   const brands = useGetAccountBrands();
   stockHistoriesPayload as StockHistoryPayload;
   const products = useGetAccountProducts();
+  const menuItems = useGetMenuItems();
   const { user } = useUserContext();
   const users = useGetUsersMinimal();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -123,17 +125,22 @@ const EnterConsumption = () => {
   const consumptInputs = useMemo(
     () => [
       {
-        type: InputTypes.SELECT,
+        type: InputTypes.TAB,
         formKey: "product",
         label: t("Product"),
         options: products.map((product) => {
+          const matchedItem = menuItems?.find(
+            (item) => item.matchedProduct === product._id
+          );
           return {
             value: product._id,
             label: product.name,
+            keywords: [matchedItem?.sku ?? "", matchedItem?.barcode ?? ""],
           };
         }),
         placeholder: t("Product"),
         required: true,
+        isTopFlexRow: true,
       },
       {
         type: InputTypes.NUMBER,
@@ -156,7 +163,7 @@ const EnterConsumption = () => {
         required: true,
       },
     ],
-    [products, locations, t]
+    [products, menuItems, locations, t]
   );
 
   const consumptFormKeys = useMemo(
