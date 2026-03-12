@@ -19,6 +19,8 @@ export interface CreateBulkProductAndMenuItem {
   description?: string;
   image?: string;
   errorNote?: string;
+  countList?: string;
+  locations?: string;
 }
 export interface UpdateMultipleBaseQuantities {
   _id: number;
