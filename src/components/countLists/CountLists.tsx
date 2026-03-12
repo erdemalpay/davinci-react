@@ -12,7 +12,6 @@ import {
   AccountCountList,
   ActionEnum,
   DisabledConditionEnum,
-  RoleEnum,
 } from "../../types";
 import {
   useAccountCountMutations,
@@ -533,8 +532,12 @@ const CountLists = () => {
         : []),
       {
         label: t("Adjust Roles"),
-        // TODO: countListsDisabledCondition should be added AKA
-        isDisabled: RoleEnum.MANAGER !== user?.role?._id, //temporary
+        isDisabled: countListsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ADJUST_ROLES &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         isUpperSide: true,
         node: (
           <SwitchButton checked={isAdjustRoles} onChange={setIsAdjustRoles} />
