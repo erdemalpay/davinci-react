@@ -119,9 +119,10 @@ const Product = () => {
       )
         return false;
       if (
-        filterProductPanelFormElements.countList?.length &&
         filterProductPanelFormElements.countList?.length > 0 &&
-        !product.countList?.includes(filterProductPanelFormElements.countList)
+        !product.countList?.some((cl) =>
+          filterProductPanelFormElements.countList.includes(cl)
+        )
       )
         return false;
       return true;
