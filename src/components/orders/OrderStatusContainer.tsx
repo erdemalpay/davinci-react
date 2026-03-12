@@ -34,17 +34,11 @@ const OrderStatusContainer = ({
   const [expandedTables, setExpandedTables] = useState<{
     [key: string]: boolean;
   }>({});
-  const [isContainerCollapsed, setIsContainerCollapsed] = useState(
-    defaultCollapsed && typeof window !== "undefined" && window.innerWidth < 640
-  );
+  const [isContainerCollapsed, setIsContainerCollapsed] = useState(false);
 
   useEffect(() => {
-    if (!isSmallScreen) {
-      setIsContainerCollapsed(false);
-    } else if (defaultCollapsed) {
-      setIsContainerCollapsed(true);
-    }
-  }, [isSmallScreen]);
+    setIsContainerCollapsed(isSmallScreen ? defaultCollapsed : false);
+  }, [isSmallScreen, defaultCollapsed]);
   const toggleTable = (tableId: string) => {
     setExpandedTables((prev) => ({
       ...prev,
