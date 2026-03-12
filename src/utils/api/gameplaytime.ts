@@ -70,11 +70,12 @@ export const useGetGameplayTimesByLocation = (location: number) => {
 };
 
 // Get gameplay times by date
-export const useGetGameplayTimesByDate = (date: string) => {
+export const useGetGameplayTimesByDate = (date: string, enabled?: boolean) => {
   return useGet<GameplayTime[]>(
     `${gameplayTimeBaseUrl}/date/${date}`,
     [gameplayTimeBaseUrl, "date", date],
-    true
+    true,
+    enabled !== undefined ? { enabled } : undefined
   );
 };
 
