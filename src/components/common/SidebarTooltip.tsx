@@ -10,15 +10,16 @@ export default function SidebarTooltip({ children, content }: Props) {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
-  const { isSidebarOpen } = useGeneralContext();
+  const { isSidebarOpen, isHoverExpanded } = useGeneralContext();
+  const isExpanded = isSidebarOpen || isHoverExpanded;
 
   useEffect(() => {
-    if (!isSidebarOpen) {
+    if (!isExpanded) {
       setIsVisible(false);
     }
-  }, [isSidebarOpen]);
+  }, [isExpanded]);
 
-  if (!content || isSidebarOpen) {
+  if (!content || isExpanded) {
     return <>{children}</>;
   }
 

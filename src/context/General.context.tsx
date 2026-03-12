@@ -128,6 +128,8 @@ type GeneralContextType = {
   ) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
+  isHoverExpanded: boolean;
+  setIsHoverExpanded: (expanded: boolean) => void;
   tabOrientation: TabOrientation;
   setTabOrientation: (orientation: TabOrientation) => void;
   isLogoutModalOpen: boolean;
@@ -276,6 +278,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setTabInputInvalidateKeys: () => {},
   isSidebarOpen: true,
   setIsSidebarOpen: () => {},
+  isHoverExpanded: false,
+  setIsHoverExpanded: () => {},
   tabOrientation: "horizontal",
   setTabOrientation: () => {},
   isLogoutModalOpen: false,
@@ -384,6 +388,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     localStorage.setItem("sidebar-open", JSON.stringify(open));
     setIsSidebarOpenState(open);
   };
+
+  const [isHoverExpanded, setIsHoverExpanded] = useState<boolean>(false);
 
   const [tabOrientation, setTabOrientationState] = useState<TabOrientation>(
     () => {
@@ -539,6 +545,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setTabInputInvalidateKeys,
         isSidebarOpen,
         setIsSidebarOpen,
+        isHoverExpanded,
+        setIsHoverExpanded,
         tabOrientation,
         setTabOrientation,
         isLogoutModalOpen,
