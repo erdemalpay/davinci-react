@@ -122,6 +122,17 @@ const EnterConsumption = () => {
     );
   }, [enterConsumptionPageDisabledCondition, user]);
 
+  const menuItemsByProductId = useMemo(() => {
+    if (!menuItems) {
+      return new Map();
+    }
+    return new Map(
+      menuItems
+        .filter((item) => item.matchedProduct)
+        .map((item) => [item.matchedProduct, item])
+    );
+  }, [menuItems]);
+
   const consumptInputs = useMemo(
     () => [
       {
@@ -129,9 +140,7 @@ const EnterConsumption = () => {
         formKey: "product",
         label: t("Product"),
         options: products.map((product) => {
-          const matchedItem = menuItems?.find(
-            (item) => item.matchedProduct === product._id
-          );
+          const matchedItem = menuItemsByProductId.get(product._id);
           return {
             value: product._id,
             label: product.name,
@@ -163,7 +172,7 @@ const EnterConsumption = () => {
         required: true,
       },
     ],
-    [products, menuItems, locations, t]
+    [products, menuItemsByProductId, locations, t]
   );
 
   const consumptFormKeys = useMemo(
