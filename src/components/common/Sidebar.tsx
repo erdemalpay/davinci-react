@@ -139,9 +139,13 @@ export const Sidebar = () => {
         >
           <button
             onClick={() => {
-              const next = !isSidebarOpen;
-              setIsSidebarOpen(next);
-              if (!next) setIsHoverExpanded(false);
+              if (isHoverExpanded && !isSidebarOpen) {
+                setIsHoverExpanded(false);
+              } else {
+                const next = !isSidebarOpen;
+                setIsSidebarOpen(next);
+                if (!next) setIsHoverExpanded(false);
+              }
             }}
             className="flex items-center justify-center w-10 h-10 rounded-lg 
               text-white hover:bg-gray-700 transition-all duration-200"
