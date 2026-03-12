@@ -287,8 +287,7 @@ const CountLists = () => {
       isDisabled: countListsDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
       ),
     }),
     [
@@ -330,8 +329,7 @@ const CountLists = () => {
         isDisabled: countListsDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
         ),
       },
       {
@@ -374,8 +372,7 @@ const CountLists = () => {
         isDisabled: countListsDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
         ),
       },
       {
@@ -385,8 +382,7 @@ const CountLists = () => {
           countListsDisabledCondition?.actions?.some(
             (ac) =>
               ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
+              (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
           ),
         isModal: false,
         isPath: false,
@@ -464,8 +460,7 @@ const CountLists = () => {
         isDisabled: countListsDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.CREATE_COUNT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
         ),
       },
     ],
@@ -499,8 +494,7 @@ const CountLists = () => {
         isDisabled: countListsDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
         ),
         isUpperSide: true,
         node: (
@@ -517,8 +511,7 @@ const CountLists = () => {
               isDisabled: countListsDisabledCondition?.actions?.some(
                 (ac) =>
                   ac.action === ActionEnum.UPDATE_LOCATION &&
-                  user?.role?._id &&
-                  !ac?.permissionsRoles?.includes(user?.role?._id)
+                  (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
               ),
               isUpperSide: true,
               node: (
@@ -535,8 +528,7 @@ const CountLists = () => {
         isDisabled: countListsDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.ADJUST_ROLES &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
         ),
         isUpperSide: true,
         node: (
