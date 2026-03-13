@@ -235,7 +235,6 @@ export type User = {
   _id: string;
   name: string;
   fullName: string;
-  cafeId: string;
   active: boolean;
   role: Role;
   jobStartDate: Date;

@@ -1367,5 +1367,12 @@
   "Ratio to Total": "Toplama Göre Oran",
   "Adjust Roles": "Rolleri Düzenle",
   "Is Auto Entry": "Otomatik Giriş Ekle",
-  "Discount and shipping costs are not included in the calculations shown here": "Burada görüntülenen kayıtlarda indirim ve kargo ücretleri hesaplamaya dahil değildir"
+  "Discount and shipping costs are not included in the calculations shown here": "Burada görüntülenen kayıtlarda indirim ve kargo ücretleri hesaplamaya dahil değildir",
+  "New user created successfully!" : "Yeni Kullanıcı Başarıyla Oluşturuldu",
+  "Password reset successfully!" : "Şifre başarıyla resetlendi",
+  "You must change your password" : "Şifrenizi değiştirmeniz gerekmektedir",
+  "Please go to the following address to change your password." : "Lütfen aşağıdaki adrese giderek şifrenizi değiştiriniz.",
+  "Later" : "Daha sonra",
+  "Go to profile page" : "Profil sayfasına git",
+  "Password changed successfully" : "Şifre başarıyla değiştirildi"
 }
