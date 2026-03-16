@@ -228,6 +228,7 @@ export function CreateGameplayDialog({
           location: gameplay.location || table.location,
           playerCount: gameplay.playerCount,
           isAutoEntry: true,
+          isGameplayTime: true,
           startHour: format(new Date(), "HH:mm"),
           mentor:
             typeof gameplay.mentor === "object"
