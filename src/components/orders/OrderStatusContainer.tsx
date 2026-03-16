@@ -35,10 +35,47 @@ const OrderStatusContainer = ({
     [key: string]: boolean;
   }>({});
   const [isContainerCollapsed, setIsContainerCollapsed] = useState(false);
+  const [isCollapsePreferenceLoaded, setIsCollapsePreferenceLoaded] =
+    useState(false);
+  const collapsePreferenceKey = useMemo(
+    () => `order-status-collapse:${user._id}:${String(kitchen?._id)}:${status}`,
+    [user._id, kitchen?._id, status]
+  );
 
   useEffect(() => {
-    setIsContainerCollapsed(isSmallScreen ? defaultCollapsed : false);
-  }, [isSmallScreen, defaultCollapsed]);
+    if (!isSmallScreen) {
+      setIsContainerCollapsed(false);
+      setIsCollapsePreferenceLoaded(false);
+      return;
+    }
+
+    if (!defaultCollapsed) {
+      setIsContainerCollapsed(false);
+      setIsCollapsePreferenceLoaded(false);
+      return;
+    }
+
+    const savedPreference = localStorage.getItem(collapsePreferenceKey);
+    if (savedPreference !== null) {
+      setIsContainerCollapsed(savedPreference === "true");
+    } else {
+      setIsContainerCollapsed(defaultCollapsed);
+    }
+    setIsCollapsePreferenceLoaded(true);
+  }, [isSmallScreen, defaultCollapsed, collapsePreferenceKey]);
+
+  useEffect(() => {
+    if (!isSmallScreen || !defaultCollapsed || !isCollapsePreferenceLoaded) {
+      return;
+    }
+    localStorage.setItem(collapsePreferenceKey, String(isContainerCollapsed));
+  }, [
+    isSmallScreen,
+    defaultCollapsed,
+    isCollapsePreferenceLoaded,
+    collapsePreferenceKey,
+    isContainerCollapsed,
+  ]);
   const toggleTable = (tableId: string) => {
     setExpandedTables((prev) => ({
       ...prev,
