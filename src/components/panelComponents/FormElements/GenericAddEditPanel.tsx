@@ -34,6 +34,8 @@ import TextInput from "./TextInput";
 type Props<T> = {
   isOpen: boolean;
   close?: () => void;
+  header?: string;
+  headerClassName?: string;
   inputs: GenericInputType[];
   formKeys: FormKeyType[];
   topClassName?: string;
@@ -83,6 +85,8 @@ type AdditionalButtonProps = {
 const GenericAddEditPanel = <T,>({
   isOpen,
   close,
+  header,
+  headerClassName,
   inputs,
   formKeys,
   additionalButtons,
@@ -422,15 +426,18 @@ const GenericAddEditPanel = <T,>({
             : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
         }   ${
           stickyFooterButtons
-            ? "h-[90vh] flex flex-col"
-            : "max-h-[90vh] overflow-y-auto"
+            ? "max-h-[90vh] sm:max-h-full flex flex-col"
+            : " overflow-y-auto"
         }   ${generalClassName} `}
       >
         <div
           className={`rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 ${
-            stickyFooterButtons ? "overflow-y-auto" : "justify-between"
+            stickyFooterButtons ? "flex-1 overflow-y-auto" : "justify-between"
           }`}
         >
+          {header && (
+            <H6 className={headerClassName ?? "text-left"}>{header}</H6>
+          )}
           {upperMessage?.length && upperMessage?.length > 0 && (
             <div className="flex flex-col px-4 py-2 border-b space-y-1">
               {upperMessage.map((msg, index) => (
@@ -749,6 +756,12 @@ const GenericAddEditPanel = <T,>({
                           quickOptions={input.quickOptions ?? []}
                           allOptions={input.allOptions ?? []}
                           placeholder={input.placeholder ?? ""}
+                          isSelectAlwaysVisible={
+                            input.isSelectAlwaysVisible ?? false
+                          }
+                          isSelectBelow={input.isSelectBelow ?? false}
+                          gridRow={input.gridRow}
+                          gridCol={input.gridCol}
                           requiredField={input.required}
                           onChange={(selectedValue) => {
                             if (Array.isArray(selectedValue)) {

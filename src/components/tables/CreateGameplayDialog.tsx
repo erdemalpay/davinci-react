@@ -3,9 +3,13 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
+import useIsSmallScreen from "../../hooks/useIsSmallScreen";
 import { Gameplay, RoleEnum, Table, User, Visit } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
-import { useCreateGameplayMutation } from "../../utils/api/gameplay";
+import {
+  useCreateGameplayMutation,
+  useGetPopularGamesLast30Days,
+} from "../../utils/api/gameplay";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import {
   FormKeyTypeEnum,
@@ -35,12 +39,14 @@ export function CreateGameplayDialog({
   visits?: Visit[];
 }) {
   const { t } = useTranslation();
+  const isSmallScreen = useIsSmallScreen();
   const [data, setData] = useState<Partial<CreateGameplayDto>>({
     ...gameplay,
     isGameplayTime: true,
     isAutoEntry: true,
   });
   const { users } = useDataContext();
+  const popularGames = useGetPopularGamesLast30Days();
   const { mutate: createGameplay } = useCreateGameplayMutation();
   const gameRelatedRoles = [
     RoleEnum.GAMEMANAGER,
@@ -99,14 +105,6 @@ export function CreateGameplayDialog({
   const gameplayInputs = useMemo(
     () => [
       {
-        type: InputTypes.TEXT,
-        formKey: "tableName",
-        label: t("Table Name"),
-        placeholder: t("Table Name"),
-        required: false,
-        isReadOnly: true,
-      },
-      {
         type: InputTypes.NUMBER,
         formKey: "playerCount",
         label: t("Player Count"),
@@ -114,6 +112,7 @@ export function CreateGameplayDialog({
         required: true,
         minNumber: 0,
         isNumberButtonsActive: true,
+        isTopFlexRow: true,
       },
       {
         type: InputTypes.CHECKBOX,
@@ -146,44 +145,15 @@ export function CreateGameplayDialog({
             return null;
           })
           .filter(Boolean),
-        allOptions: mentors
-          .map((mentor) => {
-            const foundUser = users?.find((user) => user._id === mentor._id);
-            if (foundUser) {
-              return {
-                value: foundUser._id,
-                label: `${foundUser.name}`,
-              };
-            }
-            return null;
+        allOptions: users
+          ?.map((user) => {
+            return {
+              value: user._id,
+              label: `${user.name}`,
+            };
           })
           .filter(Boolean),
         required: true,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "game",
-        label: t("Game"),
-        placeholder: t("Game"),
-        options: games.map((game) => ({
-          value: game._id,
-          label: game.name,
-        })),
-        required: true,
-      },
-      {
-        type: InputTypes.HOUR,
-        formKey: "startHour",
-        label: t("Start Time"),
-        placeholder: t("Start Time"),
-        required: true,
-      },
-      {
-        type: InputTypes.HOUR,
-        formKey: "finishHour",
-        label: t("End Time"),
-        placeholder: t("End Time"),
-        required: false,
       },
       {
         type: InputTypes.CHECKBOX,
@@ -193,59 +163,77 @@ export function CreateGameplayDialog({
         required: false,
         isDisabled: !doesMentorHaveActiveVisit,
       },
+      {
+        type: InputTypes.QUICKSELECT,
+        formKey: "game",
+        label: t("Game"),
+        placeholder: t("Game"),
+        quickOptions: popularGames,
+        allOptions: games.map((game) => ({
+          value: game._id,
+          label: game.name,
+        })),
+        isSelectBelow: true,
+        required: true,
+        isSelectAlwaysVisible: true,
+        gridRow: isSmallScreen ? 5 : 3,
+        gridCol: isSmallScreen ? 3 : 5,
+      },
     ],
-    [mentors, games, t, users, doesMentorHaveActiveVisit, data]
+    [
+      mentors,
+      games,
+      t,
+      users,
+      doesMentorHaveActiveVisit,
+      data,
+      popularGames,
+      isSmallScreen,
+    ]
   );
 
   const gameplayFormKeys = [
-    { key: "tableName", type: FormKeyTypeEnum.STRING },
     { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
     { key: "isAutoEntry", type: FormKeyTypeEnum.BOOLEAN },
     { key: "mentor", type: FormKeyTypeEnum.STRING },
+    { key: "isGameplayTime", type: FormKeyTypeEnum.BOOLEAN },
     { key: "game", type: FormKeyTypeEnum.NUMBER },
     { key: "startHour", type: FormKeyTypeEnum.STRING },
-    { key: "finishHour", type: FormKeyTypeEnum.STRING },
-    { key: "isGameplayTime", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   if (!isOpen) return null;
 
   return (
-    <div
-      className="z-20 fixed w-full flex justify-center inset-0 items-center"
-      onClick={close}
-    >
-      <div className="w-full h-full bg-gray-500 bg-opacity-50 z-0 absolute inset-0" />
-      <GenericAddEditPanel
-        isOpen={isOpen}
-        close={close}
-        inputs={gameplayInputs as GenericInputType[]}
-        formKeys={gameplayFormKeys}
-        setForm={setData}
-        constantValues={{
-          tableName: table.name,
-          date: gameplay.date || table.date,
-          location: gameplay.location || table.location,
-          playerCount: gameplay.playerCount,
-          isAutoEntry: true,
-          startHour: format(new Date(), "HH:mm"),
-          mentor:
-            typeof gameplay.mentor === "object"
-              ? gameplay.mentor?._id
-              : gameplay.mentor,
-          game:
-            typeof gameplay.game === "object"
-              ? gameplay.game?._id
-              : gameplay.game,
-        }}
-        submitItem={handleCreate}
-        submitFunction={handleCreate}
-        buttonName={t("Create")}
-        cancelButtonLabel="Cancel"
-        topClassName="flex flex-col gap-2 [&>div]:grid [&>div]:grid-cols-1 sm:[&>div]:grid-cols-2 [&>div]:gap-4 [&>div>div]:col-span-1 sm:[&>div>div:not(:nth-child(5)):not(:nth-child(6))]:col-span-2"
-        generalClassName="shadow-none"
-        stickyFooterButtons={true}
-      />
-    </div>
+    <GenericAddEditPanel
+      header={t("Table") + `: ${table.name} `}
+      isOpen={isOpen}
+      close={close}
+      inputs={gameplayInputs as GenericInputType[]}
+      formKeys={gameplayFormKeys}
+      setForm={setData}
+      constantValues={{
+        date: gameplay.date || table.date,
+        location: gameplay.location || table.location,
+        playerCount: gameplay.playerCount,
+        isGameplayTime: true,
+        isAutoEntry: true,
+        startHour: format(new Date(), "HH:mm"),
+        mentor:
+          typeof gameplay.mentor === "object"
+            ? gameplay.mentor?._id
+            : gameplay.mentor,
+        game:
+          typeof gameplay.game === "object"
+            ? gameplay.game?._id
+            : gameplay.game,
+      }}
+      submitItem={handleCreate}
+      submitFunction={handleCreate}
+      buttonName={t("Create")}
+      topClassName="flex flex-col gap-0 "
+      cancelButtonLabel="Cancel"
+      generalClassName=" overflow-visible "
+      stickyFooterButtons={true}
+    />
   );
 }

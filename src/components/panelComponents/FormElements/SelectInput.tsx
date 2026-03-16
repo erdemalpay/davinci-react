@@ -306,8 +306,8 @@ const SelectInput = ({
         </H6>
       )}
 
-      <div className="flex flex-row gap-2 w-full ">
-        <div className="w-full ">
+      <div className="flex flex-row gap-2 w-full min-w-fit ">
+        <div className="w-full min-w-fit ">
           {isMultiple ? (
             <Select
               isMulti
