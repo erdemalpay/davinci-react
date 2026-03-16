@@ -89,6 +89,8 @@ export interface GenericInputType {
   label?: string;
   placeholder?: string;
   folderName?: string;
+  isSelectBelow?: boolean;
+  isSelectAlwaysVisible?: boolean;
   inputClassName?: string;
   isMultiple?: boolean;
   isDatePicker?: boolean;
@@ -96,6 +98,8 @@ export interface GenericInputType {
   isDateInitiallyOpen?: boolean;
   isTopFlexRow?: boolean;
   isDisabled?: boolean;
+  gridRow?: number;
+  gridCol?: number;
   minNumber?: number;
   isNumberButtonsActive?: boolean;
   isOnClearActive?: boolean;

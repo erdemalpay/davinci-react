@@ -91,6 +91,11 @@ export interface GameplayCountByDate {
   day: string;
 }
 
+export interface PopularGameLast30Days {
+  value: number;
+  label: string;
+}
+
 export function createGameplay({
   table,
   payload,
@@ -270,14 +275,17 @@ export function useCreateGameplayMutation() {
   const { selectedDate } = useDateContext();
   const queryClient = useQueryClient();
 
-  const tablesQueryKey: QueryKey = [Paths.Tables, selectedLocationId, selectedDate];
+  const tablesQueryKey: QueryKey = [
+    Paths.Tables,
+    selectedLocationId,
+    selectedDate,
+  ];
 
   return useMutation({
     mutationFn: createGameplay,
     onMutate: async (newGameplay) => {
       await queryClient.cancelQueries({ queryKey: tablesQueryKey });
-      const previousTables =
-        queryClient.getQueryData<Table[]>(tablesQueryKey);
+      const previousTables = queryClient.getQueryData<Table[]>(tablesQueryKey);
 
       if (!previousTables) {
         return { previousTables };
@@ -301,10 +309,7 @@ export function useCreateGameplayMutation() {
         updatedTable,
       ].sort(sortTable);
 
-      queryClient.setQueryData<Table[]>(
-        tablesQueryKey,
-        updatedTables
-      );
+      queryClient.setQueryData<Table[]>(tablesQueryKey, updatedTables);
 
       return { previousTables };
     },
@@ -343,10 +348,7 @@ export function useCreateGameplayMutation() {
             updatedTable,
           ].sort(sortTable);
 
-          queryClient.setQueryData<Table[]>(
-            tablesQueryKey,
-            updatedTables
-          );
+          queryClient.setQueryData<Table[]>(tablesQueryKey, updatedTables);
         }
       }
     },
@@ -357,7 +359,11 @@ export function useUpdateGameplayMutation() {
   const { selectedDate } = useDateContext();
   const queryClient = useQueryClient();
 
-  const tablesQueryKey: QueryKey = [Paths.Tables, selectedLocationId, selectedDate];
+  const tablesQueryKey: QueryKey = [
+    Paths.Tables,
+    selectedLocationId,
+    selectedDate,
+  ];
 
   return useMutation({
     mutationFn: updateGameplay,
@@ -367,8 +373,7 @@ export function useUpdateGameplayMutation() {
       await queryClient.cancelQueries({ queryKey: tablesQueryKey });
 
       // Snapshot the previous value
-      const previousTables =
-        queryClient.getQueryData<Table[]>(tablesQueryKey);
+      const previousTables = queryClient.getQueryData<Table[]>(tablesQueryKey);
 
       if (!previousTables) {
         return { previousTables };
@@ -399,10 +404,7 @@ export function useUpdateGameplayMutation() {
         updatedTable,
       ].sort(sortTable);
 
-      queryClient.setQueryData<Table[]>(
-        tablesQueryKey,
-        updatedTables
-      );
+      queryClient.setQueryData<Table[]>(tablesQueryKey, updatedTables);
 
       return { previousTables };
     },
@@ -449,10 +451,7 @@ export function useUpdateGameplayMutation() {
             updatedTable,
           ].sort(sortTable);
 
-          queryClient.setQueryData<Table[]>(
-            tablesQueryKey,
-            updatedTables
-          );
+          queryClient.setQueryData<Table[]>(tablesQueryKey, updatedTables);
         }
       }
     },
@@ -464,7 +463,11 @@ export function useDeleteGameplayMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
 
-  const tablesQueryKey: QueryKey = [Paths.Tables, selectedLocationId, selectedDate];
+  const tablesQueryKey: QueryKey = [
+    Paths.Tables,
+    selectedLocationId,
+    selectedDate,
+  ];
 
   return useMutation({
     mutationFn: deleteGameplay,
@@ -474,8 +477,7 @@ export function useDeleteGameplayMutation() {
       await queryClient.cancelQueries({ queryKey: tablesQueryKey });
 
       // Snapshot the previous value
-      const previousTables =
-        queryClient.getQueryData<Table[]>(tablesQueryKey);
+      const previousTables = queryClient.getQueryData<Table[]>(tablesQueryKey);
 
       if (!previousTables) {
         return { previousTables };
@@ -501,10 +503,7 @@ export function useDeleteGameplayMutation() {
         updatedTable,
       ].sort(sortTable);
 
-      queryClient.setQueryData<Table[]>(
-        tablesQueryKey,
-        updatedTables
-      );
+      queryClient.setQueryData<Table[]>(tablesQueryKey, updatedTables);
 
       return { previousTables };
     },
@@ -547,5 +546,12 @@ export function useGetPersonalGameplayMentoredData() {
       filterPanelFormElements.before,
     ],
     true
+  );
+}
+
+export function useGetPopularGamesLast30Days() {
+  return useGetList<PopularGameLast30Days>(
+    `${BASE_URL_GAMEPLAYS}/popular-games-last-30-days`,
+    [`${BASE_URL_GAMEPLAYS}/popular-games-last-30-days`]
   );
 }
