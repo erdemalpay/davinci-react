@@ -181,9 +181,16 @@ const OrdersReport = () => {
       ),
       formattedDate: "Total",
     };
-    allRows?.unshift(totalRow as any);
+    const isShowTotalDisabled = ordersPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOWTOTAL &&
+        (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
+    );
+    if (!isShowTotalDisabled) {
+      allRows?.unshift(totalRow as any);
+    }
     return allRows;
-  }, [orders, users, discounts, items, sellLocations, t]);
+  }, [orders, users, discounts, items, sellLocations, t, ordersPageDisabledCondition, user]);
 
   const columns = useMemo(
     () => [
@@ -545,8 +552,7 @@ const OrdersReport = () => {
         isDisabled: ordersPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
         ),
       },
       {
@@ -621,8 +627,7 @@ const OrdersReport = () => {
         isDisabled: ordersPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.REFUND &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
         ),
       },
     ],
@@ -656,8 +661,7 @@ const OrdersReport = () => {
             !ordersPageDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
+                (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
             )
           }
           excelFileName={t("Orders.xlsx")}
