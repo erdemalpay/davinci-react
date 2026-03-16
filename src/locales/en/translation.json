@@ -1364,5 +1364,18 @@
   "Please go to the following address to change your password." : "Please go to the following address to change your password.",
   "Later" : "Later",
   "Go to profile page" : "Go to profile page",
-  "Password changed successfully" : "Password changed successfully"
+  "Password changed successfully" : "Password changed successfully",
+  "Customer Popups": "Customer Popups",
+  "Add Popup": "Add Popup",
+  "Delete Popup": "Delete Popup",
+  "Popup deleted successfully": "Popup deleted successfully",
+  "Popup updated successfully": "Popup updated successfully",
+  "Trigger Type": "Trigger Type",
+  "Periodic Days": "Periodic Days",
+  "Special Date (DD-MM)": "Special Date (DD-MM)",
+  "Cooldown Hours": "Cooldown Hours",
+  "Cooldown (h)": "Cooldown (h)",
+  "Special Date": "Special Date",
+  "Title" : "Title",
+  "Content" : "Content"
 }

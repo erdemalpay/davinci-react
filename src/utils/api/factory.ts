@@ -58,6 +58,7 @@ export const Paths = {
   Middlemen: "/middlemen",
   WebhookLog: "/webhook-log",
   Mail: "/mail",
+  CustomerPopup: "/menu/customer-popup",
 };
 
 interface Props<T> {

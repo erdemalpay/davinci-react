@@ -2477,3 +2477,25 @@ export type WebhookLog = {
   responseBody?: any;
   statusCode?: number;
 };
+
+
+export enum CustomerPopupTriggerType {
+  PERIODIC = 'periodic',
+  SPECIAL_DAY = 'special_day',
+}
+
+export type CustomerPopup = {
+  _id: number;
+  title: string;
+  content: string;
+  imageUrl?: string;
+  isActive: boolean;
+  triggerType: CustomerPopupTriggerType;
+  periodicDays: number[];
+  specialDate?: string;
+  cooldownHours: number;
+  locations: number[];
+  isDeleted: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
