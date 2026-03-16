@@ -541,6 +541,12 @@ const GenericAddEditPanel = <T,>({
                         }));
                       });
                     }
+                    if (changedInput?.additionalOnChange) {
+                      const val = Array.isArray(selectedValue)
+                        ? selectedValue.map((o) => o.value)
+                        : (selectedValue as OptionType)?.value ?? "";
+                      changedInput.additionalOnChange(val);
+                    }
                   };
                 if (
                   input.type === InputTypes.SELECT &&

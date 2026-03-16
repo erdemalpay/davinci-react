@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
 import CategoryTable from "../components/menu/CategoryTable";
 import ClosedItems from "../components/menu/ClosedItems";
+import CustomerPopupTable from "../components/menu/CustomerPopupTable";
 import ItemPage from "../components/menu/ItemPage";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import PopularTable from "../components/menu/PopularTable";
@@ -141,6 +142,13 @@ export default function Menu() {
           label: t("Order Categories Order"),
           icon: null,
           content: <OrderCategoryOrder />,
+          isDisabled: false,
+        },
+        {
+          number: itemCategories?.length + emptyCategories?.length + 4,
+          label: t("Customer Popups"),
+          icon: null,
+          content: <CustomerPopupTable />,
           isDisabled: false,
         },
       ].sort((a, b) => a.number - b.number)
