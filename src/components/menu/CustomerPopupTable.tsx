@@ -93,13 +93,16 @@ const CustomerPopupTable = () => {
       type: InputTypes.SELECT,
       formKey: "periodicDays",
       label: t("Periodic Days"),
-      options: Object.entries(DAY_LABELS).map(([value, label]) => ({
-        value: Number(value),
-        label,
-      })),
+      options: Object.entries(DAY_LABELS)
+        .sort(([a], [b]) => Number(a) - Number(b))
+        .map(([value, label]) => ({
+          value: Number(value),
+          label,
+        })),
       placeholder: t("Periodic Days"),
       isMultiple: true,
       required: false,
+      isSortDisabled: true,
       isDisabled: hidePeriodicDays(triggerType),
     },
     {
