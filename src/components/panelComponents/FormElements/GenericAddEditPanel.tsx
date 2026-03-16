@@ -420,14 +420,14 @@ const GenericAddEditPanel = <T,>({
       <div
         onClick={(e) => e.stopPropagation()}
         ref={modalRef}
-        className={`bg-white rounded-md shadow-lg ${
+        className={`bg-white sm:rounded-md shadow-lg ${
           anotherPanelTopClassName
             ? ""
-            : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
+            : "w-full sm:w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
         }   ${
           stickyFooterButtons
-            ? "max-h-[90vh] sm:max-h-full flex flex-col"
-            : " overflow-y-auto"
+            ? "h-screen sm:h-auto max-h-screen sm:max-h-[90vh] flex flex-col"
+            : "max-h-screen sm:max-h-[90vh] overflow-y-auto"
         }   ${generalClassName} `}
       >
         <div

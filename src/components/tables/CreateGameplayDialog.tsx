@@ -127,7 +127,7 @@ export function CreateGameplayDialog({
       {
         type: InputTypes.QUICKSELECT,
         formKey: "mentor",
-        label: t("Mentor"),
+        isTopFlexRow: true,
         placeholder: t("All"),
         quickOptions: mentors
           .map((mentor) => {
@@ -166,7 +166,6 @@ export function CreateGameplayDialog({
       {
         type: InputTypes.QUICKSELECT,
         formKey: "game",
-        label: t("Game"),
         placeholder: t("Game"),
         quickOptions: popularGames,
         allOptions: games.map((game) => ({
@@ -214,7 +213,7 @@ export function CreateGameplayDialog({
       constantValues={{
         date: gameplay.date || table.date,
         location: gameplay.location || table.location,
-        playerCount: gameplay.playerCount,
+        playerCount: table.playerCount,
         isGameplayTime: true,
         isAutoEntry: true,
         startHour: format(new Date(), "HH:mm"),
