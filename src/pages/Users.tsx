@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import { UserInfoModal } from "../components/common/UserInfoModal";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
@@ -17,8 +18,10 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { WorkType } from "../types";
+import { User, WorkType } from "../types";
+import { UpdatePayload } from "../utils/api";
 import {
+  useCreateUserMutation,
   useGetAllUserRoles,
   useGetAllUsers,
   useResetPasswordMutation,
@@ -56,9 +59,22 @@ export default function Users() {
   const { resetGeneralContext } = useGeneralContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
-  const { resetPassword } = useResetPasswordMutation();
+  const [resetedUserInfo, setResetedUserInfo] = useState<{
+    username: string;
+    password: string;
+  } | null>(null);
+  const { resetPassword } = useResetPasswordMutation((username, tempPassword) => {
+    setResetedUserInfo({ username, password: tempPassword });
+  });
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
-  const { updateUser, createUser } = useUserMutations();
+  const { updateUser } = useUserMutations();
+  const [createdUserInfo, setCreatedUserInfo] = useState<{
+    username: string;
+    password: string;
+  } | null>(null);
+  const { createUser } = useCreateUserMutation((username, tempPassword) => {
+    setCreatedUserInfo({ username, password: tempPassword });
+  });
   const users = useGetAllUsers();
   const navigate = useNavigate();
   const [
@@ -91,21 +107,14 @@ export default function Users() {
       {
         type: InputTypes.TEXT,
         formKey: "name",
-        label: t("Name"),
-        placeholder: t("Name"),
+        label: t("Username"),
+        placeholder: t("Username"),
         required: true,
       },
       {
         type: InputTypes.TEXT,
         formKey: "fullName",
         label: t("Full Name"),
-        placeholder: t("Full Name"),
-        required: false,
-      },
-      {
-        type: InputTypes.TEXT,
-        formKey: "cafeId",
-        label: t("Cafe ID"),
         placeholder: t("Full Name"),
         required: false,
       },
@@ -135,7 +144,7 @@ export default function Users() {
     () => [
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "fullName", type: FormKeyTypeEnum.STRING },
-      { key: "cafeId", type: FormKeyTypeEnum.STRING },
+
       { key: "role", type: FormKeyTypeEnum.STRING },
       { key: "imageUrl", type: FormKeyTypeEnum.STRING },
     ],
@@ -146,7 +155,6 @@ export default function Users() {
     () => [
       { key: "", isSortable: false },
       { key: "ID", isSortable: true },
-      { key: t("Cafe ID"), isSortable: true },
       { key: t("Display Name"), isSortable: true },
       { key: t("Full Name"), isSortable: true },
       { key: t("Role"), isSortable: true },
@@ -172,7 +180,7 @@ export default function Users() {
           </p>
         ),
       },
-      { key: "cafeId" },
+
       { key: "name" },
       { key: "fullName" },
       {
@@ -191,23 +199,38 @@ export default function Users() {
         icon: <TbPasswordUser />,
         setRow: setRowToAction,
         modal: rowToAction ? (
-          <ConfirmationDialog
-            isOpen={isCloseAllConfirmationDialogOpen}
-            close={() => {
-              setIsCloseAllConfirmationDialogOpen(false);
-            }}
-            confirm={() => {
-              resetPassword({ id: rowToAction._id });
-              setIsCloseAllConfirmationDialogOpen(false);
-            }}
-            title={t("Reset User Password")}
-            text={t("Are you sure you want to reset the password ?")}
-          />
+          resetedUserInfo ? (
+            <UserInfoModal
+              title={t("Password reset successfully!")}
+              username={resetedUserInfo.username}
+              password={resetedUserInfo.password}
+              onClose={() => {
+                setIsCloseAllConfirmationDialogOpen(false);
+                setResetedUserInfo(null);
+              }}
+            />
+          ) : (
+            <ConfirmationDialog
+              isOpen={isCloseAllConfirmationDialogOpen}
+              close={() => {
+                setIsCloseAllConfirmationDialogOpen(false);
+              }}
+              confirm={() => {
+                resetPassword({ id: rowToAction._id });
+                setIsCloseAllConfirmationDialogOpen(false);
+              }}
+              title={t("Reset User Password")}
+              text={t("Are you sure you want to reset the password ?")}
+            />
+          )
         ) : null,
         className: "text-red-500 cursor-pointer text-2xl  ",
         isModal: true,
-        isModalOpen: isCloseAllConfirmationDialogOpen,
-        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isModalOpen: isCloseAllConfirmationDialogOpen || !!resetedUserInfo,
+        setIsModal: (val: boolean) => {
+          setIsCloseAllConfirmationDialogOpen(val);
+          if (!val) setResetedUserInfo(null);
+        },
         isPath: false,
         isDisabled: isDisabledCondition,
       },
@@ -224,13 +247,14 @@ export default function Users() {
             inputs={inputs}
             formKeys={formKeys}
             folderName="user"
-            submitItem={updateUser as any}
+            submitItem={updateUser as (item: User | UpdatePayload<User>) => void}
             isEditMode={true}
             itemToEdit={{
               id: rowToAction._id,
               updates: {
                 ...rowToAction,
-                role: roles.find((role) => role.name === rowToAction.role)?._id,
+                role: roles.find((role) => role.name === rowToAction.role)
+                  ?._id as unknown as User["role"],
               },
             }}
           />
@@ -260,6 +284,7 @@ export default function Users() {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       resetPassword,
+      resetedUserInfo,
       isDisabledCondition,
       isEditModalOpen,
       inputs,
@@ -274,14 +299,28 @@ export default function Users() {
     () => ({
       name: t("Add User"),
       isModal: true,
-      modal: (
+      modal: createdUserInfo ? (
+        <UserInfoModal
+          title={t("New user created successfully!")}
+          username={createdUserInfo.username}
+          password={createdUserInfo.password}
+          onClose={() => {
+            setIsAddModalOpen(false);
+            setCreatedUserInfo(null);
+          }}
+        />
+      ) : (
         <GenericAddEditPanel
           isOpen={isAddModalOpen}
-          close={() => setIsAddModalOpen(false)}
+          close={() => {
+            setIsAddModalOpen(false);
+            setCreatedUserInfo(null);
+          }}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={createUser as any}
+          submitItem={createUser as (item: User | UpdatePayload<User>) => void}
           folderName="user"
+          isCreateCloseActive={false}
         />
       ),
       isModalOpen: isAddModalOpen,
@@ -290,7 +329,7 @@ export default function Users() {
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createUser]
+    [t, isAddModalOpen, inputs, formKeys, createUser, createdUserInfo]
   );
 
   const filters = useMemo(

@@ -46,12 +46,15 @@ export function useLogin(
   >({
     mutationFn: loginMethod,
     // We are updating tables query data with new item
-    onSuccess: async (response) => {
+    onSuccess: async (response, variables) => {
       const { token, user } = response;
       Cookies.set("jwt", token);
       toast.success(t("Logged in successfully"));
       localStorage.setItem("jwt", token);
       localStorage.setItem("loggedIn", "true");
+      if (variables.password === "dv") {
+        localStorage.setItem("mustChangePassword", "true");
+      }
       const target = location
         ? `${location.pathname}${location.search}`
         : user?.role?._id === RoleEnum.KITCHEN
