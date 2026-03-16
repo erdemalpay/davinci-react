@@ -89,6 +89,7 @@ export interface GenericInputType {
   label?: string;
   placeholder?: string;
   folderName?: string;
+  isSelectAbove?: boolean;
   isSelectBelow?: boolean;
   isSelectAlwaysVisible?: boolean;
   inputClassName?: string;

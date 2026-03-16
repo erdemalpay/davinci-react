@@ -775,6 +775,7 @@ const GenericAddEditPanel = <T,>({
                           isSelectAlwaysVisible={
                             input.isSelectAlwaysVisible ?? false
                           }
+                          isSelectAbove={input.isSelectAbove ?? false}
                           isSelectBelow={input.isSelectBelow ?? false}
                           gridRow={input.gridRow}
                           gridCol={input.gridCol}
