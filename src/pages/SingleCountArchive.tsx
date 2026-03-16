@@ -101,7 +101,7 @@ const SingleCountArchive = () => {
       date.getMonth() + 1
     )}-${date.getFullYear()}`;
     const istanbulStart = toZonedTime(
-      currentCount.createdAt,
+      currentCount.completedAt ?? currentCount.createdAt,
       "Europe/Istanbul"
     );
     const startHour = `${pad(istanbulStart.getHours())}:${pad(
@@ -153,7 +153,6 @@ const SingleCountArchive = () => {
   const { columns, rowKeys } = useMemo(() => {
     let cols = [
       { key: t("Date"), isSortable: true },
-      { key: t("Start Hour"), isSortable: false },
       { key: t("End Hour"), isSortable: false },
       { key: t("Product"), isSortable: true },
       { key: t("SKU"), isSortable: false },
@@ -166,7 +165,6 @@ const SingleCountArchive = () => {
 
     let keys = [
       { key: "date", className: "min-w-32" },
-      { key: "startHour", className: "min-w-32 pr-1" },
       { key: "endHour", className: "min-w-32 pr-1" },
       { key: "product" },
       { key: "sku" },

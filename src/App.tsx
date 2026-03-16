@@ -84,8 +84,9 @@ function ChangePasswordModal() {
 }
 
 function App() {
-  const { isSidebarOpen } = useGeneralContext();
+  const { isSidebarOpen, isHoverExpanded } = useGeneralContext();
   const { user } = useUserContext();
+  const isExpanded = isSidebarOpen || isHoverExpanded;
 
   // Only connect to WebSocket when user is authenticated
   useWebSocket(!!user);
@@ -95,7 +96,7 @@ function App() {
       <Sidebar />
       <div
         className={`transition-all duration-300 ${
-          user ? (isSidebarOpen ? "lg:ml-64" : "lg:ml-16") : ""
+          user ? (isExpanded ? "lg:ml-64" : "lg:ml-16") : ""
         }`}
       >
         <RouterContainer />

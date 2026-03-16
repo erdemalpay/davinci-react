@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiChevronDown, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
@@ -28,20 +28,43 @@ export const Sidebar = () => {
     setIsSidebarOpen,
     resetGeneralContext,
     setIsLogoutModalOpen,
+    isHoverExpanded,
+    setIsHoverExpanded,
   } = useGeneralContext();
   const { setUser, user: contextUser } = useUserContext();
-  const user = useGetUser();
+  const user = useGetUser(!!contextUser);
   const currentRoute = location.pathname;
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
     {}
   );
 
+  const isExpanded = isSidebarOpen || isHoverExpanded;
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMouseEnter = () => {
+    if (isSidebarOpen) return;
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHoverExpanded(true);
+    }, 300);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsHoverExpanded(false);
+  };
+
   const routes = useFilteredRoutes();
   const pages = useGetPanelControlPages(!!contextUser);
 
   const todayDate = format(new Date(), "yyyy-MM-dd");
-  const activeBreaks = useGetBreaksByDate(todayDate);
-  const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
+  const activeBreaks = useGetBreaksByDate(todayDate, !!contextUser);
+  const activeGameplayTimes = useGetGameplayTimesByDate(
+    todayDate,
+    !!contextUser
+  );
 
   const userActiveBreak = activeBreaks?.find(
     (breakRecord) =>
@@ -99,7 +122,10 @@ export const Sidebar = () => {
       {isSidebarOpen && (
         <div
           className="hidden lg:block fixed inset-0 bg-black/20 transition-opacity duration-300 z-40"
-          onClick={() => setIsSidebarOpen(false)}
+          onClick={() => {
+            setIsSidebarOpen(false);
+            setIsHoverExpanded(false);
+          }}
         />
       )}
 
@@ -107,21 +133,31 @@ export const Sidebar = () => {
         className={`
           hidden lg:block fixed top-0 left-0 h-screen border-r border-gray-200
           transition-all duration-300 ease-in-out shadow-lg z-50
-          ${isSidebarOpen ? "w-64" : "w-16"}
+          ${isExpanded ? "w-64" : "w-16"}
         `}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div
           className={`h-16 bg-gray-800 flex items-center border-b border-gray-700 transition-all duration-200 ${
-            isSidebarOpen ? "justify-end pr-4" : "justify-center"
+            isExpanded ? "justify-end pr-4" : "justify-center"
           }`}
         >
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={() => {
+              if (isHoverExpanded && !isSidebarOpen) {
+                setIsHoverExpanded(false);
+              } else {
+                const next = !isSidebarOpen;
+                setIsSidebarOpen(next);
+                if (!next) setIsHoverExpanded(false);
+              }
+            }}
             className="flex items-center justify-center w-10 h-10 rounded-lg 
               text-white hover:bg-gray-700 transition-all duration-200"
             aria-label="Toggle Sidebar"
           >
-            {isSidebarOpen ? (
+            {isExpanded ? (
               <FiChevronLeft className="text-2xl" />
             ) : (
               <FiChevronRight className="text-2xl" />
@@ -165,9 +201,9 @@ export const Sidebar = () => {
                           <div className="flex items-center justify-center text-gray-700 flex-shrink-0">
                             <IconComponent className="text-xl" />
                           </div>
-                          {isSidebarOpen && <span>{t(route.name)}</span>}
+                          {isExpanded && <span>{t(route.name)}</span>}
                         </div>
-                        {isSidebarOpen &&
+                        {isExpanded &&
                           (openGroups[route.name] ? (
                             <FiChevronDown className="text-sm" />
                           ) : (
@@ -176,7 +212,7 @@ export const Sidebar = () => {
                       </button>
                     </SidebarTooltip>
 
-                    {isSidebarOpen &&
+                    {isExpanded &&
                       openGroups[route.name] &&
                       filteredRouteChildren
                         .filter((child) => child.isOnSidebar)
@@ -266,7 +302,7 @@ export const Sidebar = () => {
                       >
                         <IconComponent className="text-xl" />
                       </div>
-                      {isSidebarOpen && (
+                      {isExpanded && (
                         <span>{t(filteredRouteChildren[0].name)}</span>
                       )}
                     </button>
@@ -310,7 +346,7 @@ export const Sidebar = () => {
                     >
                       <IconComponent className="text-xl" />
                     </div>
-                    {isSidebarOpen && <span>{t(route.name)}</span>}
+                    {isExpanded && <span>{t(route.name)}</span>}
                   </button>
                 </SidebarTooltip>
               );
@@ -327,7 +363,7 @@ export const Sidebar = () => {
                 <div className="flex items-center justify-center text-red-600 flex-shrink-0">
                   <IoIosLogOut className="text-xl" />
                 </div>
-                {isSidebarOpen && <span>{t("Logout")}</span>}
+                {isExpanded && <span>{t("Logout")}</span>}
               </button>
             </SidebarTooltip>
           </div>

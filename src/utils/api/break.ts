@@ -68,11 +68,12 @@ export const useGetBreaksByLocation = (location: number) => {
 };
 
 // Get breaks by date (active breaks only)
-export const useGetBreaksByDate = (date: string) => {
+export const useGetBreaksByDate = (date: string, enabled?: boolean) => {
   return useGet<Break[]>(
     `${breakBaseUrl}/date/${date}`,
     [breakBaseUrl, "date", date],
-    true
+    true,
+    enabled !== undefined ? { enabled } : undefined
   );
 };
 
