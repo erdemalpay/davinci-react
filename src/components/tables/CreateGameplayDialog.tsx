@@ -172,7 +172,7 @@ export function CreateGameplayDialog({
           value: game._id,
           label: game.name,
         })),
-        isSelectBelow: true,
+        isSelectAbove: true,
         required: true,
         isSelectAlwaysVisible: true,
         gridRow: isSmallScreen ? 5 : 3,

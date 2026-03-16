@@ -92,6 +92,11 @@ interface DailySummary {
   };
 }
 
+export interface PopularOrderItemLast30Days {
+  value: number;
+  label: string;
+}
+
 interface TransferTablePayload {
   orders: Order[];
   oldTableId: number;
@@ -960,5 +965,14 @@ export function useGetCategorySummaryCompare(
 export function useGetPopularDiscounts() {
   return useGetList<PopularDiscounts>(`${baseUrl}/popular-discounts`, [
     `${baseUrl}/popular-discounts`,
+  ]);
+}
+
+export function useGetPopularItemsLast30Days() {
+  const { selectedLocationId } = useLocationContext();
+  const url = `${baseUrl}/popular-items-last-30-days?location=${selectedLocationId}`;
+  return useGetList<PopularOrderItemLast30Days>(url, [
+    `${baseUrl}/popular-items-last-30-days`,
+    selectedLocationId,
   ]);
 }

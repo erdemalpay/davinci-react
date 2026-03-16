@@ -17,6 +17,7 @@ interface QuickSelectInputProps {
   disabled?: boolean;
   isReadOnly?: boolean;
   isTopFlexRow?: boolean;
+  isSelectAbove?: boolean;
   isSelectBelow?: boolean;
   isSelectAlwaysVisible?: boolean;
   gridRow?: number;
@@ -35,6 +36,7 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
   disabled = false,
   isReadOnly = false,
   isTopFlexRow = false,
+  isSelectAbove = false,
   isSelectBelow = false,
   isSelectAlwaysVisible = false,
   gridRow,
@@ -54,13 +56,17 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
   const gridCols = gridCol ?? 0;
   const isGridLayout = gridRows > 0 && gridCols > 0;
   const gridCellHeightRem = 3.5;
+  const shouldShowInlineSelect = !isSelectAbove && !isSelectBelow;
+  const shouldShowTopSelect =
+    (isSelectAlwaysVisible || shouldShowOthersSelect) && isSelectAbove;
+  const shouldShowMiddleSelect =
+    (isSelectAlwaysVisible || shouldShowOthersSelect) && shouldShowInlineSelect;
+  const shouldShowBottomSelect =
+    (isSelectAlwaysVisible || shouldShowOthersSelect) && isSelectBelow;
   const quickOptionsContainerStyle = isGridLayout
     ? {
         gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`,
         gridAutoRows: `${gridCellHeightRem}rem`,
-        maxHeight: `calc(${gridRows} * ${gridCellHeightRem}rem + ${
-          (gridRows - 1) * 0.5
-        }rem)`,
       }
     : undefined;
 
@@ -79,10 +85,12 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
 
       <div
         className={`flex gap-4 w-full h-full ${
-          isSelectBelow ? "flex-col" : "flex-row justify-between"
+          isSelectAbove || isSelectBelow
+            ? "flex-col"
+            : "flex-row justify-between"
         }`}
       >
-        {isSelectAlwaysVisible && (
+        {shouldShowTopSelect && (
           <SelectInput
             value={value}
             options={allOptions}
@@ -140,7 +148,19 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
             </GenericButton>
           )}
         </div>
-        {shouldShowOthersSelect && (
+        {shouldShowMiddleSelect && (
+          <SelectInput
+            value={value}
+            options={allOptions}
+            placeholder={placeholder}
+            isMultiple={false}
+            onChange={onChange}
+            onClear={onClear}
+            isReadOnly={isReadOnly}
+            isAutoFill={false}
+          />
+        )}
+        {shouldShowBottomSelect && (
           <SelectInput
             value={value}
             options={allOptions}
