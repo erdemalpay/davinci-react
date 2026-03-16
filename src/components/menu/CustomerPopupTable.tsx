@@ -29,7 +29,6 @@ const DAY_LABELS: Record<number, string> = {
 const TRIGGER_TYPE_LABELS: Record<CustomerPopupTriggerType, string> = {
   [CustomerPopupTriggerType.PERIODIC]: "Periyodik",
   [CustomerPopupTriggerType.SPECIAL_DAY]: "Özel Gün",
-  [CustomerPopupTriggerType.BOTH]: "Her İkisi",
 };
 
 const CustomerPopupTable = () => {

@@ -2482,7 +2482,6 @@ export type WebhookLog = {
 export enum CustomerPopupTriggerType {
   PERIODIC = 'periodic',
   SPECIAL_DAY = 'special_day',
-  BOTH = 'both',
 }
 
 export type CustomerPopup = {
