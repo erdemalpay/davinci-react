@@ -48,6 +48,8 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
   };
 
   const isQuickOption = quickOptions.some((opt) => opt.value === value?.value);
+  const shouldShowOthersSelect =
+    !isSelectAlwaysVisible && (showOthers || (!!value && !isQuickOption));
   const gridRows = gridRow ?? 0;
   const gridCols = gridCol ?? 0;
   const isGridLayout = gridRows > 0 && gridCols > 0;
@@ -138,7 +140,7 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
             </GenericButton>
           )}
         </div>
-        {!isSelectAlwaysVisible && showOthers && (
+        {shouldShowOthersSelect && (
           <SelectInput
             value={value}
             options={allOptions}
