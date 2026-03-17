@@ -4,28 +4,39 @@ import { useTranslation } from "react-i18next";
 import { GiRoundTable } from "react-icons/gi";
 import { MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useUserContext } from "../../context/User.context";
 import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
+import { useUserContext } from "../../context/User.context";
 import { Middleman } from "../../types";
 import {
   useGetMiddlemanByDate,
   useMiddlemanMutations,
 } from "../../utils/api/middleman";
 
+const STRIP_HEIGHT_PX = 32;
+const BODY_ATTR = "data-middleman-strip";
+
 export const MiddlemanOverlay = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  if (!user) return null;
   const { updateMiddleman } = useMiddlemanMutations();
   const [currentMiddleman, setCurrentMiddleman] = useState<Middleman | null>(
     null
   );
   const [currentTime, setCurrentTime] = useState(new Date());
+  const todayDate = format(new Date(), "yyyy-MM-dd");
+  const activeMiddlemen = useGetMiddlemanByDate(todayDate);
   const { isModalHidden, handleHideModal, handleShowModal } =
     useTemporarilyHiddenModal(!!currentMiddleman);
 
-  const todayDate = format(new Date(), "yyyy-MM-dd");
-  const activeMiddlemen = useGetMiddlemanByDate(todayDate);
+  useEffect(() => {
+    const showStrip = !!user && !!currentMiddleman && isModalHidden;
+    if (showStrip) {
+      document.body.setAttribute(BODY_ATTR, "true");
+    } else {
+      document.body.removeAttribute(BODY_ATTR);
+    }
+    return () => document.body.removeAttribute(BODY_ATTR);
+  }, [user, currentMiddleman, isModalHidden]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -49,6 +60,8 @@ export const MiddlemanOverlay = () => {
     }
   }, [activeMiddlemen, user]);
 
+  if (!user) return null;
+
   const handleEnd = () => {
     if (!currentMiddleman) return;
     updateMiddleman({
@@ -70,21 +83,20 @@ export const MiddlemanOverlay = () => {
 
   if (isModalHidden) {
     return (
-      <div
-        onClick={handleShowModal}
-        className="fixed top-16 left-0 right-0 z-40 cursor-pointer"
-      >
-        <div className="bg-gradient-to-r from-teal-500 to-teal-700 animate-pulse shadow-sm">
-          <div className="px-4 py-1">
-            <div className="flex items-center justify-center gap-2">
-              <GiRoundTable className="text-white text-sm" />
-              <span className="text-white text-sm font-medium">
-                {t("You're the middleman")} - {getDuration()} {t("minutes")}
-              </span>
-              <span className="text-white/70 text-xs">
-                ({t("Click to open")})
-              </span>
-            </div>
+      <div className="fixed top-16 left-0 right-0 z-40 pointer-events-none">
+        <div
+          onClick={handleShowModal}
+          className="pointer-events-auto cursor-pointer bg-gradient-to-r from-teal-500 to-teal-700 animate-pulse shadow-sm py-1.5 md:py-1"
+          style={{ minHeight: STRIP_HEIGHT_PX }}
+        >
+          <div className="px-3 flex items-center justify-center gap-2">
+            <GiRoundTable className="text-white text-xs shrink-0 md:text-sm" />
+            <span className="text-white text-xs font-medium md:text-sm">
+              {t("You're the middleman")} – {getDuration()} {t("minutes")}
+            </span>
+            <span className="text-white/70 text-xs shrink-0 hidden sm:inline">
+              ({t("Click to open")})
+            </span>
           </div>
         </div>
       </div>
