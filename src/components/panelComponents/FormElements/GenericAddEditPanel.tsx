@@ -34,6 +34,8 @@ import TextInput from "./TextInput";
 type Props<T> = {
   isOpen: boolean;
   close?: () => void;
+  header?: string;
+  headerClassName?: string;
   inputs: GenericInputType[];
   formKeys: FormKeyType[];
   topClassName?: string;
@@ -83,6 +85,8 @@ type AdditionalButtonProps = {
 const GenericAddEditPanel = <T,>({
   isOpen,
   close,
+  header,
+  headerClassName,
   inputs,
   formKeys,
   additionalButtons,
@@ -249,6 +253,22 @@ const GenericAddEditPanel = <T,>({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isOpen]);
+
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
       setImageFormKey(input.formKey);
@@ -416,21 +436,24 @@ const GenericAddEditPanel = <T,>({
       <div
         onClick={(e) => e.stopPropagation()}
         ref={modalRef}
-        className={`bg-white rounded-md shadow-lg ${
+        className={`bg-white sm:rounded-md shadow-lg ${
           anotherPanelTopClassName
             ? ""
-            : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
+            : "w-full sm:w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
         }   ${
           stickyFooterButtons
-            ? "h-[90vh] flex flex-col"
-            : "max-h-[90vh] overflow-y-auto"
+            ? "h-screen sm:h-auto max-h-screen sm:max-h-[90vh] flex flex-col"
+            : "max-h-screen sm:max-h-[90vh] overflow-y-auto"
         }   ${generalClassName} `}
       >
         <div
           className={`rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 ${
-            stickyFooterButtons ? "overflow-y-auto" : "justify-between"
+            stickyFooterButtons ? "flex-1 overflow-y-auto" : "justify-between"
           }`}
         >
+          {header && (
+            <H6 className={headerClassName ?? "text-left"}>{header}</H6>
+          )}
           {upperMessage?.length && upperMessage?.length > 0 && (
             <div className="flex flex-col px-4 py-2 border-b space-y-1">
               {upperMessage.map((msg, index) => (
@@ -540,6 +563,12 @@ const GenericAddEditPanel = <T,>({
                           [key.key]: key.defaultValue,
                         }));
                       });
+                    }
+                    if (changedInput?.additionalOnChange) {
+                      const val = Array.isArray(selectedValue)
+                        ? selectedValue.map((o) => o.value)
+                        : (selectedValue as OptionType)?.value ?? "";
+                      changedInput.additionalOnChange(val);
                     }
                   };
                 if (
@@ -743,6 +772,13 @@ const GenericAddEditPanel = <T,>({
                           quickOptions={input.quickOptions ?? []}
                           allOptions={input.allOptions ?? []}
                           placeholder={input.placeholder ?? ""}
+                          isSelectAlwaysVisible={
+                            input.isSelectAlwaysVisible ?? false
+                          }
+                          isSelectAbove={input.isSelectAbove ?? false}
+                          isSelectBelow={input.isSelectBelow ?? false}
+                          gridRow={input.gridRow}
+                          gridCol={input.gridCol}
                           requiredField={input.required}
                           onChange={(selectedValue) => {
                             if (Array.isArray(selectedValue)) {

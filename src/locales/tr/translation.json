@@ -1374,5 +1374,20 @@
   "Please go to the following address to change your password." : "Lütfen aşağıdaki adrese giderek şifrenizi değiştiriniz.",
   "Later" : "Daha sonra",
   "Go to profile page" : "Profil sayfasına git",
-  "Password changed successfully" : "Şifre başarıyla değiştirildi"
+  "Password changed successfully" : "Şifre başarıyla değiştirildi",
+  "Customer Popups": "Müşteri Popupları",
+  "Add Popup": "Popup Ekle",
+  "Delete Popup": "Popup Sil",
+  "Popup deleted successfully": "Popup başarıyla silindi",
+  "Popup updated successfully": "Popup başarıyla güncellendi",
+  "Trigger Type": "Tetikleyici Türü",
+  "Periodic Days": "Periyodik Günler",
+  "Special Date (DD-MM)": "Özel Tarih (GG-AA)",
+  "Cooldown Hours": "Tekrar Gösterme Süresi (Saat)",
+  "Cooldown (h)": "Tekrar Gösterme Süresi (Saat)",
+  "Special Date": "Özel Tarih",
+  "Title" : "Başlık",
+  "Content" : "İçerik",
+  "Quick Order" : "Hızlı Sipariş",
+  "Today's Campaigns" : "Bugünün Kampanyaları"
 }

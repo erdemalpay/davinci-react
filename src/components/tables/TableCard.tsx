@@ -15,6 +15,7 @@ import { IoCloseOutline, IoReceipt } from "react-icons/io5";
 import {
   MdBorderColor,
   MdBrunchDining,
+  MdFlashOn,
   MdOutlineAddCircleOutline,
 } from "react-icons/md";
 import { RiFileTransferFill } from "react-icons/ri";
@@ -37,6 +38,7 @@ import {
 import {
   useCombineTableMutation,
   useCreateMultipleOrderMutation,
+  useGetPopularItemsLast30Days,
   useOrderMutations,
   useTransferTableMutations,
   useUpdateMultipleOrderMutation,
@@ -163,6 +165,7 @@ export function TableCard({
     isTableCardCreateOrderDialogOpen,
     setIsTableCardCreateOrderDialogOpen,
   ] = useState(false);
+  const [isQuickOrderDialogOpen, setIsQuickOrderDialogOpen] = useState(false);
   const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -172,6 +175,13 @@ export function TableCard({
     useGeneralContext();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
+  const [quickOrderForm, setQuickOrderForm] = useState({
+    item: 0,
+    quantity: 1,
+    isOnlinePrice: false,
+    location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+    stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+  });
   const [tableCombineForm, setTableCombineForm] = useState({
     table: "",
   });
@@ -276,6 +286,60 @@ export function TableCard({
     categories,
     inactiveCategoriesIds,
   ]);
+  const popularOrderItems = useGetPopularItemsLast30Days();
+  const quickOrderItemOptions = useMemo(() => {
+    if (!menuItems) {
+      return [];
+    }
+
+    return menuItems
+      .filter((menuItem) => {
+        if (inactiveCategoriesIds.includes(menuItem.category)) {
+          return false;
+        }
+
+        if (!menuItem?.locations?.includes(selectedLocationId)) {
+          return false;
+        }
+
+        if (
+          table?.isOnlineSale &&
+          !(categories
+            ? getItem(menuItem.category, categories)?.isOnlineOrder
+            : false)
+        ) {
+          return false;
+        }
+
+        const category = categories
+          ? getItem(menuItem.category, categories)
+          : undefined;
+        if (category?.isLimitedTime && menuItem.endDate) {
+          const today = new Date();
+          const endDate = new Date(menuItem.endDate);
+          if (today > endDate) {
+            return false;
+          }
+        }
+
+        return true;
+      })
+      .map((menuItem) => ({
+        value: menuItem?._id,
+        label: menuItem?.name,
+      }));
+  }, [
+    menuItems,
+    selectedLocationId,
+    table?.isOnlineSale,
+    categories,
+    inactiveCategoriesIds,
+  ]);
+  const filteredPopularOrderItems = useMemo(() => {
+    return popularOrderItems.filter((popularItem) =>
+      quickOrderItemOptions.some((option) => option.value === popularItem.value)
+    );
+  }, [popularOrderItems, quickOrderItemOptions]);
   const activeTables = useMemo(
     () => tables.filter((t) => !t.finishHour),
     [tables]
@@ -550,6 +614,38 @@ export function TableCard({
     { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
+  const quickOrderInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.NUMBER,
+        formKey: "quantity",
+        label: t("Quantity"),
+        placeholder: t("Quantity"),
+        minNumber: 0,
+        required: true,
+        isNumberButtonsActive: true,
+        isOnClearActive: false,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.QUICKSELECT,
+        formKey: "item",
+        placeholder: t("Product"),
+        quickOptions: filteredPopularOrderItems,
+        allOptions: quickOrderItemOptions,
+        isSelectBelow: true,
+        required: true,
+        isSelectAlwaysVisible: true,
+        gridRow: isMobile ? 5 : 3,
+        gridCol: isMobile ? 3 : 5,
+      },
+    ],
+    [t, filteredPopularOrderItems, quickOrderItemOptions, isMobile]
+  );
+  const quickOrderFormKeys = [
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "item", type: FormKeyTypeEnum.NUMBER },
+  ];
   const tableCombineInputs = useMemo(
     () => [
       {
@@ -771,12 +867,98 @@ export function TableCard({
     return null;
   };
 
+  const handleQuickOrderObject = () => {
+    if (!menuItems || !categories) return null;
+    const selectedMenuItem = getItem(quickOrderForm?.item, menuItems);
+    const selectedMenuItemCategory = getItem(
+      selectedMenuItem?.category,
+      categories
+    );
+    const selectedItemKitchen = kitchens
+      ? getItem(selectedMenuItemCategory?.kitchen, kitchens)
+      : undefined;
+    const isOrderConfirmationRequired =
+      selectedItemKitchen?.isConfirmationRequired;
+
+    if (!selectedMenuItem) {
+      return null;
+    }
+
+    if (
+      user &&
+      (selectedMenuItemCategory?.isAutoServed || selectedMenuItem?.isAutoServed)
+    ) {
+      return {
+        ...quickOrderForm,
+        createdAt: new Date(),
+        location: table?.isOnlineSale
+          ? OnlineLocationId
+          : quickOrderForm?.location ?? selectedLocationId,
+        table: table._id,
+        unitPrice: quickOrderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        deliveredAt: new Date(),
+        deliveredBy: user?._id,
+        preparedAt: new Date(),
+        preparedBy: user?._id,
+        status: OrderStatus.AUTOSERVED,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: quickOrderForm?.stockLocation ?? selectedLocationId,
+        tableDate: new Date(table.date),
+      };
+    }
+
+    if (user && selectedMenuItem?.isAutoPrepared) {
+      return {
+        ...quickOrderForm,
+        createdAt: new Date(),
+        location: table?.isOnlineSale
+          ? OnlineLocationId
+          : quickOrderForm?.location ?? selectedLocationId,
+        table: table._id,
+        unitPrice: quickOrderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        status: OrderStatus.READYTOSERVE,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: quickOrderForm?.stockLocation ?? selectedLocationId,
+        tableDate: new Date(table.date),
+      };
+    }
+
+    return {
+      ...quickOrderForm,
+      location: table?.isOnlineSale
+        ? OnlineLocationId
+        : quickOrderForm?.location ?? selectedLocationId,
+      table: table._id,
+      status: isOrderConfirmationRequired
+        ? OrderStatus.CONFIRMATIONREQ
+        : OrderStatus.PENDING,
+      unitPrice: quickOrderForm?.isOnlinePrice
+        ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+        : selectedMenuItem.price,
+      paidQuantity: 0,
+      kitchen: selectedMenuItemCategory?.kitchen,
+      stockLocation: quickOrderForm?.stockLocation ?? selectedLocationId,
+      tableDate: new Date(table.date),
+    };
+  };
+
   useEffect(() => {
-    setOrderForm({
-      ...orderForm,
+    setOrderForm((prev) => ({
+      ...prev,
       stockLocation: selectedLocationId,
-    });
-  }, [selectedLocationId]);
+    }));
+    setQuickOrderForm((prev) => ({
+      ...prev,
+      stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+      location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+    }));
+  }, [selectedLocationId, table?.isOnlineSale]);
   return (
     <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
       <div
@@ -788,6 +970,18 @@ export function TableCard({
             <Tooltip content={t("Add Gameplay")}>
               <span>
                 <CardAction onClick={createGameplay} IconComponent={PlusIcon} />
+              </span>
+            </Tooltip>
+          )}
+          {!table.finishHour && (
+            <Tooltip content={t("Quick Order")}>
+              <span>
+                <CardAction
+                  onClick={() => {
+                    setIsQuickOrderDialogOpen(true);
+                  }}
+                  IconComponent={MdFlashOn}
+                />
               </span>
             </Tooltip>
           )}
@@ -1135,6 +1329,39 @@ export function TableCard({
           }
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
           topClassName="flex flex-col gap-0  "
+        />
+      )}
+
+      {isQuickOrderDialogOpen && (
+        <GenericAddEditPanel
+          isOpen={isQuickOrderDialogOpen}
+          close={() => setIsQuickOrderDialogOpen(false)}
+          inputs={quickOrderInputs}
+          formKeys={quickOrderFormKeys}
+          submitItem={() => undefined}
+          submitFunction={() => {
+            const orderObject = handleQuickOrderObject();
+            if (orderObject) {
+              createOrder(orderObject);
+              setIsQuickOrderDialogOpen(false);
+            }
+          }}
+          setForm={(item) => {
+            setQuickOrderForm((prev) => ({ ...prev, ...(item as object) }));
+          }}
+          constantValues={{
+            quantity: 1,
+            stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+            location: table?.isOnlineSale
+              ? OnlineLocationId
+              : selectedLocationId,
+            isOnlinePrice: false,
+          }}
+          topClassName="flex flex-col gap-0 "
+          cancelButtonLabel="Cancel"
+          generalClassName="overflow-scroll min-w-[60%] min-h-[60%]"
+          buttonName={t("Create")}
+          stickyFooterButtons={true}
         />
       )}
 

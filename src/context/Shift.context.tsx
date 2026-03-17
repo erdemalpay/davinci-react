@@ -1,4 +1,4 @@
-import { endOfWeek, format, startOfWeek } from "date-fns";
+import { endOfMonth, format, startOfMonth } from "date-fns";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { useLocationContext } from "./Location.context";
 
@@ -30,8 +30,8 @@ export const ShiftContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
   const initialFilterPanelFormElements = {
     location: selectedLocationId,
-    after: format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
-    before: format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
+    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+    before: format(endOfMonth(new Date()), "yyyy-MM-dd"),
     user: "",
     date: "",
     role: [],

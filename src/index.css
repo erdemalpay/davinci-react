@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ortacı şeridi görünürken Tables sayfası içeriğini aşağı it */
+body[data-middleman-strip="true"] .tables-main-content {
+  padding-top: 32px;
+}
+
 @layer utilities {
   /* Utility to hide scrollbars across browsers */
   .no-scrollbar {

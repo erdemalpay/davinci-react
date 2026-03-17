@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const HIDE_TIMEOUT_MS = 60 * 1000;
+const HIDE_TIMEOUT_MS = 2 * 60 * 1000;
 
 export const useTemporarilyHiddenModal = (isActive: boolean) => {
   const [isModalHidden, setIsModalHidden] = useState(false);
