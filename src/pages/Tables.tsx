@@ -55,6 +55,7 @@ import {
   useOrderMutations,
 } from "../utils/api/order/order";
 import { useGetReservations } from "../utils/api/reservations";
+import { useGetActiveCustomerPopups } from "../utils/api/menu/customer-popup";
 import {
   getOpenTableDates,
   useGetTables,
@@ -115,6 +116,7 @@ const Tables = () => {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isActivityExpanded, setIsActivityExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
+  const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
 
   const handleCalendarMonthChange = async (month: Date) => {
@@ -1850,6 +1852,22 @@ const Tables = () => {
             </div>
             {/* activity badge + buttons row */}
             <div className="flex flex-col md:flex-row md:items-start gap-2 mt-2 md:mt-0">
+              {todayActivePopups.length > 0 && (
+                <div className="flex flex-col gap-1 border-2 border-navy-700 bg-white rounded-lg px-3 py-2 select-none md:shrink-0" style={{borderColor:"#1b2a6b"}}>
+                  <span className="font-semibold text-xs text-center" style={{color:"#1b2a6b"}}>
+                    {t("Today's Campaigns")}
+                  </span>
+                  {todayActivePopups.map((popup) => (
+                    <span
+                      key={popup._id}
+                      className="text-sm md:whitespace-nowrap md:max-w-[17.5rem] md:truncate" style={{color:"#1b2a6b"}}
+                    >
+                      {todayActivePopups.length > 1 && "• "}
+                      {popup.title}
+                    </span>
+                  ))}
+                </div>
+              )}
               {todayActiveActivities.length > 0 && (
                 <div
                   className="flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none md:shrink-0"
