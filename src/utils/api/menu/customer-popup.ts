@@ -18,3 +18,12 @@ export function useCustomerPopupMutations() {
 export function useGetCustomerPopups() {
   return useGetList<CustomerPopup>(CustomerPopupPath);
 }
+
+export function useGetActiveCustomerPopups(locationId: number | undefined) {
+  return useGetList<CustomerPopup>(
+    `${CustomerPopupPath}/active?location=${locationId ?? ""}`,
+    [`${CustomerPopupPath}/active`, locationId],
+    false,
+    { enabled: locationId !== undefined }
+  );
+}
