@@ -1760,7 +1760,7 @@ const Tables = () => {
           setDate: setSelectedDate,
         }}
       />
-      <div className="py-2 sm:py-4 px-2 lg:px-6 w-[95%] sm:w-[90%] mx-auto">
+      <div className="py-2 sm:py-4 px-2 lg:px-6 w-[95%] sm:w-[90%] mx-auto tables-main-content">
         <div className="h-full flex w-full flex-wrap flex-col">
           <div className="flex lg:justify-between justify-center flex-col lg:flex-row">
             <div className="hidden sm:flex flex-row items-center w-full text-3xl">
