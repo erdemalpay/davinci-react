@@ -117,16 +117,16 @@ const QuickSelectInput: React.FC<QuickSelectInputProps> = ({
                 size="sm"
                 className={`${
                   isGridLayout
-                    ? "w-full h-14 px-2 overflow-hidden"
+                    ? "w-full min-h-14 px-2 py-1"
                     : "px-4 py-2"
                 } transition-all ${
                   isSelected ? "ring-2 ring-blue-300" : "hover:border-blue-400"
                 }`}
                 title={option.label}
               >
-                {isGridLayout && option.label.length > 10
-                  ? option.label.slice(0, 10) + "…"
-                  : option.label}
+                <span className={isGridLayout ? "line-clamp-2 leading-tight text-center break-words" : ""}>
+                  {option.label}
+                </span>
               </GenericButton>
             );
           })}
