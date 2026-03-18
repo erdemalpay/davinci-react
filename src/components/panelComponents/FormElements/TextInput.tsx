@@ -65,7 +65,17 @@ const TextInput = ({
     setLocalValue(value);
   }, [value]);
 
-  const handleDivClick = () => {
+  const handleDivClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+
+    if (
+      target.closest(
+        "button, svg, path, input, textarea, select, [role='button']"
+      )
+    ) {
+      return;
+    }
+
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -108,13 +118,6 @@ const TextInput = ({
       } else {
         onChange(newValueStr);
       }
-
-      if (inputRef.current) {
-        inputRef.current.readOnly = true;
-        setTimeout(() => {
-          if (inputRef.current) inputRef.current.readOnly = false;
-        }, 0);
-      }
     }
   };
   const handleDecrement = () => {
@@ -133,13 +136,6 @@ const TextInput = ({
         setDebounceTimer(timer);
       } else {
         onChange(newValueStr);
-      }
-
-      if (inputRef.current) {
-        inputRef.current.readOnly = true;
-        setTimeout(() => {
-          if (inputRef.current) inputRef.current.readOnly = false;
-        }, 0);
       }
     }
   };
@@ -267,7 +263,11 @@ const TextInput = ({
         {isNumberButtonsActive && isCompactStyle && (
           <button
             type="button"
-            onClick={handleDecrement}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDecrement();
+            }}
             disabled={disabled || isReadOnly}
             className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-red-500 hover:text-red-700 transition-all duration-150 hover:scale-125 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
@@ -294,18 +294,30 @@ const TextInput = ({
           <>
             <FiMinusCircle
               className="w-8 h-8 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
-              onClick={handleDecrement}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDecrement();
+              }}
             />
             <GoPlusCircle
               className="w-8 h-8 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
-              onClick={handleIncrement}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleIncrement();
+              }}
             />
           </>
         )}
         {isNumberButtonsActive && isCompactStyle && (
           <button
             type="button"
-            onClick={handleIncrement}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleIncrement();
+            }}
             disabled={disabled || isReadOnly}
             className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-green-500 hover:text-green-700 transition-all duration-150 hover:scale-125 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
