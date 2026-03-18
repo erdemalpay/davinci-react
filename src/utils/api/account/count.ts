@@ -61,7 +61,7 @@ export const updateStockForStockCount = (payload: UpdateStockPayload) => {
 export function useGetCountById(id: string) {
   return useGet<AccountCount>(
     `${Paths.Accounting}/counts/${id}`,
-    [Paths.Accounting, "counts", id],
+    [`${Paths.Accounting}/counts`, id],
     true
   );
 }
