@@ -420,13 +420,21 @@ export function useGetTableOrders(tableId: number) {
 
 export function useGetPersonalOrderDatas() {
   const { filterPanelFormElements } = useOrderContext();
+
+  let url = `${baseUrl}/personal?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}&eliminatedDiscounts=${filterPanelFormElements.eliminatedDiscounts}`;
+
+  if (filterPanelFormElements.location) {
+    url = url.concat(`&location=${filterPanelFormElements.location}`);
+  }
+
   return useGetList<PersonalOrderDataType>(
-    `${baseUrl}/personal?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}&eliminatedDiscounts=${filterPanelFormElements.eliminatedDiscounts}`,
+    url,
     [
       `${Paths.Order}/personal`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
       filterPanelFormElements.eliminatedDiscounts,
+      filterPanelFormElements.location,
     ],
     true
   );

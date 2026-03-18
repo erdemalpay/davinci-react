@@ -525,12 +525,19 @@ export function useDeleteGameplayMutation() {
 
 export function useGetPersonalGameplayCreateData() {
   const { filterPanelFormElements } = useOrderContext();
+
+  let url = `${BASE_URL_GAMEPLAYS}/create_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`;
+  if (filterPanelFormElements?.location) {
+    url = url.concat(`&location=${filterPanelFormElements.location}`);
+  }
+
   return useGetList<GameplayPersonalCreatePayload>(
-    `${BASE_URL_GAMEPLAYS}/create_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    url,
     [
-      `${{ BASE_URL_GAMEPLAYS }}/create_count`,
+      `${BASE_URL_GAMEPLAYS}/create_count`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
+      filterPanelFormElements.location,
     ],
     true
   );
@@ -538,12 +545,19 @@ export function useGetPersonalGameplayCreateData() {
 
 export function useGetPersonalGameplayMentoredData() {
   const { filterPanelFormElements } = useOrderContext();
+
+  let url = `${BASE_URL_GAMEPLAYS}/mentored_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`;
+  if (filterPanelFormElements?.location) {
+    url = url.concat(`&location=${filterPanelFormElements.location}`);
+  }
+
   return useGetList<GameplayPersonalMentoredPayload>(
-    `${BASE_URL_GAMEPLAYS}/mentored_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    url,
     [
-      `${{ BASE_URL_GAMEPLAYS }}/mentored_count`,
+      `${BASE_URL_GAMEPLAYS}/mentored_count`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
+      filterPanelFormElements.location,
     ],
     true
   );

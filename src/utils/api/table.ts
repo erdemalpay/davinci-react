@@ -339,12 +339,20 @@ export function useTableMutations() {
 
 export function useGetPersonalTableCreateData() {
   const { filterPanelFormElements } = useOrderContext();
+
+  let url = `${Paths.Tables}/create_count?after=${filterPanelFormElements?.after}&before=${filterPanelFormElements?.before}`;
+
+  if (filterPanelFormElements?.location) {
+    url = url.concat(`&location=${filterPanelFormElements.location}`);
+  }
+
   return useGetList<TablePersonalCreatePayload>(
-    `${Paths.Tables}/create_count?after=${filterPanelFormElements?.after}&before=${filterPanelFormElements?.before}`,
+    url,
     [
       `${Paths.Tables}/create_count`,
       filterPanelFormElements?.after,
       filterPanelFormElements?.before,
+      filterPanelFormElements?.location,
     ],
     true
   );
