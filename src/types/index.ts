@@ -1092,6 +1092,7 @@ export type Notification = {
   selectedLocations?: number[];
   seenBy?: string[];
   isAssigned?: boolean;
+  isActive?: boolean;
 };
 
 export enum NotificationType {
@@ -2478,10 +2479,9 @@ export type WebhookLog = {
   statusCode?: number;
 };
 
-
 export enum CustomerPopupTriggerType {
-  PERIODIC = 'periodic',
-  SPECIAL_DAY = 'special_day',
+  PERIODIC = "periodic",
+  SPECIAL_DAY = "special_day",
 }
 
 export type CustomerPopup = {

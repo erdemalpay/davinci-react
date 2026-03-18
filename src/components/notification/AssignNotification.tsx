@@ -11,6 +11,7 @@ import {
 } from "../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -37,6 +38,7 @@ const AssignNotification = () => {
     type: "",
     message: "",
     event: "",
+    isActive: true,
   });
 
   const rows = useMemo(() => {
@@ -64,6 +66,7 @@ const AssignNotification = () => {
       { key: t("Selected Users"), isSortable: true },
       { key: t("Selected Roles"), isSortable: true },
       { key: t("Selected Locations"), isSortable: true },
+      { key: t("Active"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
@@ -126,8 +129,24 @@ const AssignNotification = () => {
           );
         },
       },
+      {
+        key: "isActive",
+        node: (row: any) => {
+          return (
+            <CheckSwitch
+              checked={Boolean(row?.isActive)}
+              onChange={() => {
+                updateNotification({
+                  id: row._id,
+                  updates: { isActive: !row?.isActive },
+                });
+              }}
+            />
+          );
+        },
+      },
     ],
-    [users, roles, locations]
+    [users, roles, locations, updateNotification]
   );
   const inputs = useMemo(
     () => [
@@ -227,6 +246,7 @@ const AssignNotification = () => {
       { key: "type", type: FormKeyTypeEnum.STRING },
       { key: "event", type: FormKeyTypeEnum.STRING },
       { key: "message", type: FormKeyTypeEnum.STRING },
+      { key: "isActive", type: FormKeyTypeEnum.BOOLEAN },
     ],
     []
   );
