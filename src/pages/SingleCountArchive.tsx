@@ -1,5 +1,5 @@
 import { toZonedTime } from "date-fns-tz";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
@@ -17,7 +17,7 @@ import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { RoleEnum } from "../types";
+import { ActionEnum, DisabledConditionEnum } from "../types";
 import {
   useAccountCountMutations,
   useGetCountById,
@@ -30,9 +30,9 @@ import {
 } from "../utils/api/account/countList";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
-import { isDisabledConditionSingleCountArchive } from "../utils/isDisabledConditions";
 
 const SingleCountArchive = () => {
   const { t } = useTranslation();
@@ -57,9 +57,30 @@ const SingleCountArchive = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
 
-  const isDisabledCondition = useMemo(() => {
-    return isDisabledConditionSingleCountArchive(user);
-  }, [user]);
+  const disabledConditions = useGetDisabledConditions();
+
+  const countArchiveInnerpageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.COUNTARCHIVE_INNERPAGE,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const isActionDisabled = useCallback(
+    (actionType: ActionEnum) => {
+      if (!user?.role?._id) {
+        return true;
+      }
+      const action = countArchiveInnerpageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
+      if (!action) {
+        return false;
+      }
+      return !action.permissionsRoles?.includes(user.role._id);
+    },
+    [countArchiveInnerpageDisabledCondition, user]
+  );
 
   const currentCount = useMemo(() => {
     return count;
@@ -151,7 +172,9 @@ const SingleCountArchive = () => {
   }, [currentCount, products, users, pad]);
 
   const { columns, rowKeys } = useMemo(() => {
-    let cols = [
+    const showInnerDatas = !isActionDisabled(ActionEnum.SHOW_INNER_DATAS);
+
+    const cols = [
       { key: t("Date"), isSortable: true },
       { key: t("End Hour"), isSortable: false },
       { key: t("Product"), isSortable: true },
@@ -159,11 +182,15 @@ const SingleCountArchive = () => {
       { key: t("Stock Quantity"), isSortable: true },
       { key: t("Count Quantity"), isSortable: true },
       { key: t("Delete Request"), isSortable: true },
-      { key: t("Stock Equalized"), isSortable: true },
-      { key: t("Actions"), isSortable: true },
+      ...(showInnerDatas
+        ? [
+            { key: t("Stock Equalized"), isSortable: true },
+            { key: t("Actions"), isSortable: true },
+          ]
+        : []),
     ];
 
-    let keys = [
+    const keys = [
       { key: "date", className: "min-w-32" },
       { key: "endHour", className: "min-w-32 pr-1" },
       { key: "product" },
@@ -171,27 +198,29 @@ const SingleCountArchive = () => {
       { key: "stockQuantity" },
       { key: "countQuantity" },
       { key: "productDeleteRequest" },
-      {
-        key: "isStockEqualized",
-        node: (row: any) => {
-          return row?.isStockEqualized ? (
-            <IoCheckmark className={`text-blue-500 text-2xl `} />
-          ) : (
-            <IoCloseOutline className={`text-red-800 text-2xl `} />
-          );
-        },
-      },
+      ...(showInnerDatas
+        ? [
+            {
+              key: "isStockEqualized",
+              node: (row: any) => {
+                return row?.isStockEqualized ? (
+                  <IoCheckmark className={`text-blue-500 text-2xl `} />
+                ) : (
+                  <IoCloseOutline className={`text-red-800 text-2xl `} />
+                );
+              },
+            },
+          ]
+        : []),
     ];
 
-    if (user?.role?._id !== RoleEnum.MANAGER) {
-      const splicedColumns = ["Stock Equalized", "Actions"];
-      const splicedRowKeys = ["isStockEqualized"];
-      cols = cols.filter((column) => !splicedColumns.includes(column.key));
-      keys = keys.filter((rowKey) => !splicedRowKeys.includes(rowKey.key));
-    }
-
     return { columns: cols, rowKeys: keys };
-  }, [t, user]);
+  }, [t, isActionDisabled]);
+
+  const displayRows = useMemo(() => {
+    if (isActionDisabled(ActionEnum.SHOW_INNER_DATAS)) return [];
+    return rows;
+  }, [rows, isActionDisabled]);
 
   function getBgColor(row: {
     stockQuantity: number;
@@ -279,6 +308,7 @@ const SingleCountArchive = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
+        isDisabled: isActionDisabled(ActionEnum.DELETE),
       },
       {
         name: t("Equalize"),
@@ -307,6 +337,7 @@ const SingleCountArchive = () => {
         className: "text-red-500 cursor-pointer text-2xl",
         isModal: false,
         isPath: false,
+        isDisabled: isActionDisabled(ActionEnum.EQUAL),
       },
     ],
     [
@@ -316,6 +347,7 @@ const SingleCountArchive = () => {
       currentCountList,
       updateAccountCountList,
       updateStockForStockCount,
+      isActionDisabled,
     ]
   );
 
@@ -323,7 +355,7 @@ const SingleCountArchive = () => {
     () => [
       {
         isUpperSide: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: isActionDisabled(ActionEnum.EQUAL_STOCKS),
         node: (
           <ButtonFilter
             buttonName={t("Stock Equalize")}
@@ -346,21 +378,14 @@ const SingleCountArchive = () => {
         ),
       },
     ],
-    [t, isDisabledCondition, count, archiveId, updateStockForStockCountBulk]
+    [t, isActionDisabled, currentCount, archiveId, updateStockForStockCountBulk]
   );
 
   const rowClassNameFunction = useMemo(() => {
-    return user?.role?._id &&
-      [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.BARCHEF].includes(
-        user?.role?._id
-      )
+    return !isActionDisabled(ActionEnum.SHOW_INNER_DATAS)
       ? getBgColor
       : undefined;
-  }, [user]);
-
-  const isManager = useMemo(() => {
-    return user && user?.role?._id === RoleEnum.MANAGER;
-  }, [user]);
+  }, [isActionDisabled]);
 
   return (
     <>
@@ -371,9 +396,9 @@ const SingleCountArchive = () => {
           <GenericTable
             rowKeys={rowKeys}
             columns={columns}
-            rows={rows}
-            actions={isManager ? actions : []}
-            isActionsActive={isManager ? true : false}
+            rows={displayRows}
+            actions={actions}
+            isActionsActive={true}
             rowClassNameFunction={rowClassNameFunction}
             filters={
               currentCount && !currentCount.isCompleted

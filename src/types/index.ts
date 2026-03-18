@@ -626,6 +626,7 @@ export enum DisabledConditionEnum {
   MEMBERSHIPS = "memberships",
   REWARDS = "rewards",
   COUNTARCHIVE = "countarchive",
+  COUNTARCHIVE_INNERPAGE = "countarchive_innerpage",
   COUNTLISTS = "countlists",
   COUNTLISTPRODUCTS = "countlistproducts",
   ACCOUNTING_EXPENSETYPE = "expensetype",
@@ -716,6 +717,13 @@ export enum ActionEnum {
   CLICKABLE_ROWS = "clickable_rows",
   ASSIGN_MIDDLEMAN = "assign_middleman",
   ADJUST_ROLES = "adjust_roles",
+  SHOW_INNER_DATAS = "show_inner_datas",
+  EQUAL = "equal",
+  EQUAL_STOCKS = "equal_stocks",
+
+
+
+
 }
 
 export type Membership = {
