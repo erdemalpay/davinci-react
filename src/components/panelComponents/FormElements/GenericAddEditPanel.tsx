@@ -442,8 +442,8 @@ const GenericAddEditPanel = <T,>({
             : "w-full sm:w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
         }   ${
           stickyFooterButtons
-            ? "h-screen sm:h-auto max-h-screen sm:max-h-[90vh] flex flex-col"
-            : "max-h-screen sm:max-h-[90vh] overflow-y-auto"
+            ? "h-[100dvh] max-h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col"
+            : "max-h-[100dvh] sm:max-h-[90vh] overflow-y-auto"
         }   ${generalClassName} `}
       >
         <div
@@ -922,7 +922,7 @@ const GenericAddEditPanel = <T,>({
         <div
           className={`px-4 py-4 flex flex-row gap-4 justify-center sm:justify-end items-end sm:ml-auto mx-auto sm:mx-0 ${
             stickyFooterButtons
-              ? "bg-white mt-auto flex-shrink-0"
+              ? "bg-white mt-auto flex-shrink-0 pb-[max(env(safe-area-inset-bottom),0.75rem)]"
               : "mt-auto relative"
           }`}
         >
@@ -1015,7 +1015,7 @@ const GenericAddEditPanel = <T,>({
   };
   return (
     <div
-      className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
+      className={`__className_a182b8 fixed inset-0 flex items-start sm:items-center justify-center overflow-y-auto bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
     >
