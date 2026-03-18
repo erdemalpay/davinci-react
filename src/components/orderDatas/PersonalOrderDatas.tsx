@@ -16,6 +16,7 @@ import {
   useGetPersonalGameplayCreateData,
   useGetPersonalGameplayMentoredData,
 } from "../../utils/api/gameplay";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -51,6 +52,7 @@ const PersonalOrderDatas = () => {
   const { t } = useTranslation();
   const users = useGetUsersMinimal();
   const personalOrderDatas = useGetPersonalOrderDatas();
+  const locations = useGetStoreLocations();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
@@ -185,6 +187,19 @@ const PersonalOrderDatas = () => {
       },
       {
         type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => {
+          return {
+            value: input._id,
+            label: input.name,
+          };
+        }),
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
         formKey: "eliminatedDiscounts",
         label: t("Eliminated Discounts"),
         options: discounts?.map((discount) => {
@@ -246,7 +261,14 @@ const PersonalOrderDatas = () => {
         isOnClearActive: false,
       },
     ],
-    [roles, discounts, t, filterPanelFormElements, setFilterPanelFormElements]
+    [
+      roles,
+      locations,
+      discounts,
+      t,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    ]
   );
 
   const filterPanel = useMemo(

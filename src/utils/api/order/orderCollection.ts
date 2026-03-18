@@ -50,12 +50,19 @@ export function useGetPersonalCollectionDatas() {
   if (filterPanelFormElements?.before) {
     url = url.concat(`&before=${filterPanelFormElements.before}`);
   }
+  if (
+    filterPanelFormElements?.location &&
+    filterPanelFormElements?.location !== ""
+  ) {
+    url = url.concat(`&location=${filterPanelFormElements.location}`);
+  }
   return useGetList<PersonalCollectionNumber>(
     url,
     [
       `${Paths.Order}/personal_collection`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
+      filterPanelFormElements.location,
     ],
     true
   );
