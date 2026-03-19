@@ -6,15 +6,19 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountExpense,
   AccountExpenseType,
   AccountProduct,
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   ExpenseTypes,
   NOTPAID,
   commonDateOptions,
 } from "../../types";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useAccountBrandMutations,
   useGetAccountBrands,
@@ -56,6 +60,11 @@ const Invoice = () => {
     setCurrentPage,
     setProductExpenseForm,
   } = useGeneralContext();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const invoicePageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.EXPENSES_INVOICE, disabledConditions);
+  }, [disabledConditions]);
   const locations = useGetStockLocations();
   const {
     filterPanelInvoiceFormElements,
@@ -546,8 +555,15 @@ const Invoice = () => {
     []
   );
 
-  const columns = useMemo(
-    () => [
+  const isUnitPriceHidden = invoicePageDisabledCondition?.actions?.some(
+    (ac) =>
+      ac.action === ActionEnum.SHOW_UNIT_PRICES &&
+      user?.role?._id &&
+      !ac?.permissionsRoles?.includes(user?.role?._id)
+  );
+
+  const columns = useMemo(() => {
+    const cols = [
       {
         key: "ID",
         isSortable: true,
@@ -622,12 +638,15 @@ const Invoice = () => {
         isSortable: true,
         correspondingKey: "totalExpense",
       },
-    ],
-    [t, isInvoiceEnableEdit]
-  );
+    ];
+    if (isUnitPriceHidden) {
+      return cols.filter((col) => col.key !== t("Unit Price"));
+    }
+    return cols;
+  }, [t, isInvoiceEnableEdit, isUnitPriceHidden]);
 
-  const rowKeys = useMemo(
-    () => [
+  const rowKeys = useMemo(() => {
+    const keys = [
       { key: "_id", className: "min-w-32 px-2" },
       {
         key: "date",
@@ -807,9 +826,12 @@ const Invoice = () => {
         isParseFloat: true,
         className: "min-w-32",
       },
-    ],
-    [isInvoiceEnableEdit]
-  );
+    ];
+    if (isUnitPriceHidden) {
+      return keys.filter((k) => k.key !== "untPrice");
+    }
+    return keys;
+  }, [isInvoiceEnableEdit, isUnitPriceHidden]);
 
   const addButton = useMemo(
     () => ({
@@ -900,6 +922,12 @@ const Invoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+      isDisabled: invoicePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
     [
       t,
@@ -909,6 +937,8 @@ const Invoice = () => {
       productExpenseForm,
       createAccountExpense,
       setProductExpenseForm,
+      invoicePageDisabledCondition,
+      user,
     ]
   );
 
@@ -1027,6 +1057,12 @@ const Invoice = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
+        isDisabled: invoicePageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOWTOTAL &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -1043,6 +1079,12 @@ const Invoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
+        isDisabled: invoicePageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ENABLEEDIT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         node: (
           <SwitchButton
             checked={isInvoiceEnableEdit}
@@ -1072,6 +1114,8 @@ const Invoice = () => {
       setIsInvoiceEnableEdit,
       showInvoieFilters,
       setShowInvoieFilters,
+      invoicePageDisabledCondition,
+      user,
     ]
   );
 

@@ -18,7 +18,7 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { User, WorkType } from "../types";
+import { ActionEnum, DisabledConditionEnum, User, WorkType } from "../types";
 import { UpdatePayload } from "../utils/api";
 import {
   useCreateUserMutation,
@@ -27,7 +27,8 @@ import {
   useResetPasswordMutation,
   useUserMutations,
 } from "../utils/api/user";
-import { isDisabledConditionUsers } from "../utils/isDisabledConditions";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getItem } from "../utils/getItem";
 interface TableUser {
   _id: string;
   name: string;
@@ -82,9 +83,10 @@ export default function Users() {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
 
-  const isDisabledCondition = useMemo(() => {
-    return isDisabledConditionUsers(user);
-  }, [user]);
+  const disabledConditions = useGetDisabledConditions();
+  const usersPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.USERS, disabledConditions);
+  }, [disabledConditions]);
 
   const roleOptions = useMemo(() => {
     return users.map((user) => ({
@@ -232,7 +234,12 @@ export default function Users() {
           if (!val) setResetedUserInfo(null);
         },
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: usersPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.RESET_PASSWORD &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -262,6 +269,12 @@ export default function Users() {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
+        isDisabled: usersPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Toggle Active"),
@@ -285,7 +298,8 @@ export default function Users() {
       isCloseAllConfirmationDialogOpen,
       resetPassword,
       resetedUserInfo,
-      isDisabledCondition,
+      usersPageDisabledCondition,
+      user,
       isEditModalOpen,
       inputs,
       formKeys,
@@ -328,8 +342,14 @@ export default function Users() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+      isDisabled: usersPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, inputs, formKeys, createUser, createdUserInfo]
+    [t, isAddModalOpen, inputs, formKeys, createUser, createdUserInfo, usersPageDisabledCondition, user]
   );
 
   const filters = useMemo(
@@ -337,6 +357,12 @@ export default function Users() {
       {
         label: t("Show Inactive Users"),
         isUpperSide: false,
+        isDisabled: usersPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         node: (
           <SwitchButton
             checked={showInactiveUsers}
@@ -345,7 +371,7 @@ export default function Users() {
         ),
       },
     ],
-    [t, showInactiveUsers]
+    [t, showInactiveUsers, usersPageDisabledCondition, user]
   );
 
   const roleNormalizedUsers = useMemo(() => {

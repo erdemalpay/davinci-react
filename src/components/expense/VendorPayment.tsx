@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import {
   useAccountPaymentMutations,
   useGetAccountPayments,
@@ -10,6 +12,7 @@ import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMeth
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsersMinimal } from "../../utils/api/user";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
@@ -36,6 +39,14 @@ const VendorPayment = () => {
   ] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const vendorPaymentDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.EXPENSES_VENDORPAYMENTS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
   const vendors = useGetAccountVendors();
   const payments = useGetAccountPayments();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -263,7 +274,12 @@ const VendorPayment = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: false,
+        isDisabled: vendorPaymentDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -286,7 +302,12 @@ const VendorPayment = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: false,
+        isDisabled: vendorPaymentDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -298,6 +319,8 @@ const VendorPayment = () => {
       inputs,
       formKeys,
       updateAccountPayment,
+      vendorPaymentDisabledCondition,
+      user,
     ]
   );
 

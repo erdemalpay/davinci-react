@@ -1,9 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useCreateMultipleExpenseMutation } from "../../utils/api/account/expense";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -15,6 +19,14 @@ const BulkExpenseCreate = () => {
     setErrorDataForCreateMultipleExpense,
   } = useGeneralContext();
   const { mutate: createMultipleExpense } = useCreateMultipleExpenseMutation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const bulkExpenseCreateDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.EXPENSES_BULKEXPENSECREATE,
+      disabledConditions
+    );
+  }, [disabledConditions]);
   const inputRef = useRef<HTMLInputElement>(null);
   const rows =
     errorDataForCreateMultipleExpense?.length > 0
@@ -204,6 +216,12 @@ const BulkExpenseCreate = () => {
   const filters = [
     {
       isUpperSide: false,
+      isDisabled: bulkExpenseCreateDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPLOAD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -235,7 +253,15 @@ const BulkExpenseCreate = () => {
           rowKeys={rowKeys}
           isActionsActive={false}
           columns={columns}
-          isExcel={true}
+          isExcel={
+            user &&
+            !bulkExpenseCreateDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           title={t("Bulk Stock Expense Create")}
           isSearch={errorDataForCreateMultipleExpense?.length > 0}
           isColumnFilter={errorDataForCreateMultipleExpense?.length > 0}
