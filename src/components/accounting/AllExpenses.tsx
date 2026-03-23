@@ -4,13 +4,17 @@ import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountExpenseType,
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   ExpenseTypes,
   NOTPAID,
   commonDateOptions,
 } from "../../types";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import {
   useAccountExpenseMutations,
@@ -25,6 +29,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -63,6 +68,11 @@ const AllExpenses = () => {
   const products = useGetAccountProducts();
   const services = useGetAccountServices();
   const { createAccountExpense } = useAccountExpenseMutations();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const allExpensesPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.EXPENSES_ALLEXPENSES, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     const allRows = invoices
@@ -491,8 +501,10 @@ const AllExpenses = () => {
     []
   );
 
-  const columns = useMemo(
-    () => [
+  const isUnitPriceHidden = isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+
+  const columns = useMemo(() => {
+    const cols = [
       {
         key: "ID",
         isSortable: true,
@@ -560,12 +572,15 @@ const AllExpenses = () => {
         isSortable: true,
         correspondingKey: "totalExpense",
       },
-    ],
-    [t]
-  );
+    ];
+    if (isUnitPriceHidden) {
+      return cols.filter((col) => col.key !== t("Unit Price"));
+    }
+    return cols;
+  }, [t, isUnitPriceHidden]);
 
-  const rowKeys = useMemo(
-    () => [
+  const rowKeys = useMemo(() => {
+    const keys = [
       { key: "_id", className: "min-w-32 pr-2" },
       {
         key: "date",
@@ -681,9 +696,12 @@ const AllExpenses = () => {
           );
         },
       },
-    ],
-    [t]
-  );
+    ];
+    if (isUnitPriceHidden) {
+      return keys.filter((k) => k.key !== "unitPrice");
+    }
+    return keys;
+  }, [t, isUnitPriceHidden]);
 
   const addButton = useMemo(
     () => ({
@@ -777,6 +795,7 @@ const AllExpenses = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+      isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -786,6 +805,8 @@ const AllExpenses = () => {
       allExpenseForm,
       createAccountExpense,
       setAllExpenseForm,
+      allExpensesPageDisabledCondition,
+      user,
     ]
   );
 
@@ -794,6 +815,7 @@ const AllExpenses = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
+        isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOWTOTAL, user),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -820,7 +842,14 @@ const AllExpenses = () => {
         ),
       },
     ],
-    [t, invoicesPayload, showAllExpensesFilters, setShowAllExpensesFilters]
+    [
+      t,
+      invoicesPayload,
+      showAllExpensesFilters,
+      setShowAllExpensesFilters,
+      allExpensesPageDisabledCondition,
+      user,
+    ]
   );
 
   const filterPanel = useMemo(

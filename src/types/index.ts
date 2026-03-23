@@ -660,6 +660,16 @@ export enum DisabledConditionEnum {
   MAILSUBSCRIPTIONS = "mailsubscriptions",
   MAILLOGS = "maillogs",
   EDUCATION = "education",
+  MENUPRICE = "menuprice",
+  BULKPRODUCTADD = "bulkproductadd",
+  EXPENSES_INVOICE = "expenses_invoice",
+  EXPENSES_SERVICEINVOICE = "expenses_serviceinvoice",
+  EXPENSES_ALLEXPENSES  = "expenses_allexpenses",
+  EXPENSES_VENDORPAYMENTS  = "expenses_vendorpayments",
+  EXPENSES_BULKEXPENSECREATE  = "expenses_bulkexpensecreate",
+  USERS = "users",
+  POINTS_USERSPOINT = "points_userspoint",
+  POINTS_CONSUMERSPOINT = "points_consumerspoint"
 }
 
 export enum ActionEnum {
@@ -674,7 +684,6 @@ export enum ActionEnum {
   RATE = "rate",
   UPLOAD = "upload",
   SETBASEAMOUNT = "set_base_amount",
-  UPDATEIKASSTOCK = "update_ikas_stock",
   UPDATESHOPIFYSTOCK = "update_shopify_stock",
   UPDATESTORESTOCK = "update_store_stock",
   SYNC = "sync",
@@ -705,7 +714,6 @@ export enum ActionEnum {
   SHOW_DELETED_ELEMENTS = "show_deleted_elements",
   UPDATE_PRODUCT_SLUGS = "update_product_slugs",
   SHOW_ON_MENU = "show_on_menu",
-  SHOW_IKAS_CATEGORIES = "show_ikas_categories",
   POPULARIZE = "popularize",
   ASSIGN_CHEF = "assign_chef",
   COPY_DAY_INTERVAL = "copy_day_interval",
@@ -713,17 +721,13 @@ export enum ActionEnum {
   CHECK = "check",
   SHOW_ALL = "show_all",
   SHOW_UNIT_PRICES = "show_unit_prices",
-  NOTIFY = "notify",
   CLICKABLE_ROWS = "clickable_rows",
   ASSIGN_MIDDLEMAN = "assign_middleman",
   ADJUST_ROLES = "adjust_roles",
   SHOW_INNER_DATAS = "show_inner_datas",
   EQUAL = "equal",
   EQUAL_STOCKS = "equal_stocks",
-
-
-
-
+  RESET_PASSWORD = "reset_password",
 }
 
 export type Membership = {

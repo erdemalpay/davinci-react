@@ -6,15 +6,19 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountExpense,
   AccountExpenseType,
   AccountProduct,
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   ExpenseTypes,
   NOTPAID,
   commonDateOptions,
 } from "../../types";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useAccountBrandMutations,
   useGetAccountBrands,
@@ -41,6 +45,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -56,6 +61,11 @@ const Invoice = () => {
     setCurrentPage,
     setProductExpenseForm,
   } = useGeneralContext();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const invoicePageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.EXPENSES_INVOICE, disabledConditions);
+  }, [disabledConditions]);
   const locations = useGetStockLocations();
   const {
     filterPanelInvoiceFormElements,
@@ -126,7 +136,7 @@ const Invoice = () => {
         vendor: getItem(invoice?.vendor, vendors)?.name,
         lctn: getItem(invoice?.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice?.date),
-        untPrice: parseFloat(
+        unitPrice: parseFloat(
           (invoice?.totalExpense / invoice?.quantity).toFixed(2)
         ),
         expType: getItem(invoice?.expenseType, expenseTypes),
@@ -546,8 +556,10 @@ const Invoice = () => {
     []
   );
 
-  const columns = useMemo(
-    () => [
+  const isUnitPriceHidden = isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+
+  const columns = useMemo(() => {
+    const cols = [
       {
         key: "ID",
         isSortable: true,
@@ -622,12 +634,15 @@ const Invoice = () => {
         isSortable: true,
         correspondingKey: "totalExpense",
       },
-    ],
-    [t, isInvoiceEnableEdit]
-  );
+    ];
+    if (isUnitPriceHidden) {
+      return cols.filter((col) => col.key !== t("Unit Price"));
+    }
+    return cols;
+  }, [t, isInvoiceEnableEdit, isUnitPriceHidden]);
 
-  const rowKeys = useMemo(
-    () => [
+  const rowKeys = useMemo(() => {
+    const keys = [
       { key: "_id", className: "min-w-32 px-2" },
       {
         key: "date",
@@ -796,7 +811,7 @@ const Invoice = () => {
         },
       },
       {
-        key: "untPrice",
+        key: "unitPrice",
         isParseFloat: true,
         className: "min-w-32",
       },
@@ -807,9 +822,12 @@ const Invoice = () => {
         isParseFloat: true,
         className: "min-w-32",
       },
-    ],
-    [isInvoiceEnableEdit]
-  );
+    ];
+    if (isUnitPriceHidden) {
+      return keys.filter((k) => k.key !== "unitPrice");
+    }
+    return keys;
+  }, [isInvoiceEnableEdit, isUnitPriceHidden, invoices]);
 
   const addButton = useMemo(
     () => ({
@@ -900,6 +918,7 @@ const Invoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+      isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -909,6 +928,8 @@ const Invoice = () => {
       productExpenseForm,
       createAccountExpense,
       setProductExpenseForm,
+      invoicePageDisabledCondition,
+      user,
     ]
   );
 
@@ -1027,6 +1048,7 @@ const Invoice = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
+        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOWTOTAL, user),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -1043,6 +1065,7 @@ const Invoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
+        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ENABLEEDIT, user),
         node: (
           <SwitchButton
             checked={isInvoiceEnableEdit}
@@ -1072,6 +1095,8 @@ const Invoice = () => {
       setIsInvoiceEnableEdit,
       showInvoieFilters,
       setShowInvoieFilters,
+      invoicePageDisabledCondition,
+      user,
     ]
   );
 

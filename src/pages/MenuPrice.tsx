@@ -5,21 +5,31 @@ import * as XLSX from "xlsx";
 import { Header } from "../components/header/Header";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { ActionEnum, DisabledConditionEnum } from "../types";
 import { useGetAccountStocks } from "../utils/api/account/stock";
 import { useGetCategories } from "../utils/api/menu/category";
 import {
   useGetMenuItems,
   useUpdateItemsMutation,
 } from "../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
+import { useUserContext } from "../context/User.context";
 
 const MenuPrice = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const items = useGetMenuItems();
   const categories = useGetCategories();
   const stocks = useGetAccountStocks();
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutate: updateItems } = useUpdateItemsMutation();
+  const disabledConditions = useGetDisabledConditions();
+
+  const menuPriceDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.MENUPRICE, disabledConditions);
+  }, [disabledConditions]);
 
   const getProductTotalStock = (productId: string) => {
     const foundStockTotal = stocks
@@ -128,6 +138,7 @@ const MenuPrice = () => {
     () => [
       {
         isUpperSide: false,
+        isDisabled: isActionDisabled(menuPriceDisabledCondition, ActionEnum.UPLOAD, user),
         node: (
           <div
             className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -147,7 +158,7 @@ const MenuPrice = () => {
         ),
       },
     ],
-    [t, handleFileButtonClick, uploadExcelFile]
+    [t, handleFileButtonClick, uploadExcelFile, menuPriceDisabledCondition, user]
   );
 
   return (
@@ -159,7 +170,10 @@ const MenuPrice = () => {
           rowKeys={rowKeys}
           isActionsActive={false}
           columns={columns}
-          isExcel={true}
+          isExcel={
+            user &&
+            !isActionDisabled(menuPriceDisabledCondition, ActionEnum.EXCEL, user)
+          }
           title={t("Menu Price")}
           filters={filters}
           excelFileName="MenuPrice.xlsx"

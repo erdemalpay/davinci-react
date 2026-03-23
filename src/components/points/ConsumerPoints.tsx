@@ -4,10 +4,13 @@ import { FiEdit } from "react-icons/fi";
 import { GiSevenPointedStar } from "react-icons/gi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { Point, RoleEnum } from "../../types";
+import { ActionEnum, DisabledConditionEnum, Point } from "../../types";
 import { UpdatePayload } from "../../utils/api";
 import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetPoints, usePointMutations } from "../../utils/api/point";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -28,6 +31,10 @@ const ConsumerPointComponent = () => {
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
     useState(false);
   const { createPoint, deletePoint, updatePoint } = usePointMutations();
+  const disabledConditions = useGetDisabledConditions();
+  const consumerPointsPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.POINTS_CONSUMERSPOINT, disabledConditions);
+  }, [disabledConditions]);
 
   const allRows = useMemo(() => {
     return points
@@ -117,11 +124,11 @@ const ConsumerPointComponent = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: isActionDisabled(consumerPointsPageDisabledCondition, ActionEnum.ADD, user),
       icon: <GiSevenPointedStar className="text-xl" />,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createPoint, user]
+    [t, isAddModalOpen, inputs, formKeys, createPoint, consumerPointsPageDisabledCondition, user]
   );
 
   const actions = useMemo(
@@ -147,7 +154,7 @@ const ConsumerPointComponent = () => {
         isModalOpen: isDeleteConfirmationOpen,
         setIsModal: setIsDeleteConfirmationOpen,
         isPath: false,
-        isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+        isDisabled: isActionDisabled(consumerPointsPageDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -177,7 +184,7 @@ const ConsumerPointComponent = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+        isDisabled: isActionDisabled(consumerPointsPageDisabledCondition, ActionEnum.UPDATE, user),
       },
     ],
     [
@@ -189,6 +196,7 @@ const ConsumerPointComponent = () => {
       inputs,
       formKeys,
       updatePoint,
+      consumerPointsPageDisabledCondition,
       user,
     ]
   );

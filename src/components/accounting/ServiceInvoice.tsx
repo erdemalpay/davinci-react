@@ -6,13 +6,17 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountExpenseType,
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   ExpenseTypes,
   NOTPAID,
   commonDateOptions,
 } from "../../types";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useAccountExpenseMutations,
   useGetAccountExpenses,
@@ -34,6 +38,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -50,6 +55,14 @@ const ServiceInvoice = () => {
     currentPage,
     setCurrentPage,
   } = useGeneralContext();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const serviceInvoicePageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.EXPENSES_SERVICEINVOICE,
+      disabledConditions
+    );
+  }, [disabledConditions]);
   const locations = useGetStockLocations();
   const {
     filterServiceInvoicePanelFormElements,
@@ -454,8 +467,10 @@ const ServiceInvoice = () => {
     ],
     []
   );
-  const columns = useMemo(
-    () => [
+  const isUnitPriceHidden = isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+
+  const columns = useMemo(() => {
+    const cols = [
       {
         key: "ID",
         isSortable: true,
@@ -520,10 +535,15 @@ const ServiceInvoice = () => {
         isSortable: true,
         correspondingKey: "totalExpense",
       },
-    ],
-    [t, isServiceInvoiceEnableEdit]
-  );
-  const rowKeys = [
+    ];
+    if (isUnitPriceHidden) {
+      return cols.filter((col) => col.key !== t("Unit Price"));
+    }
+    return cols;
+  }, [t, isServiceInvoiceEnableEdit, isUnitPriceHidden]);
+
+  const rowKeys = useMemo(() => {
+    const keys = [
     { key: "_id", className: "min-w-32 px-2" },
     {
       key: "date",
@@ -683,7 +703,13 @@ const ServiceInvoice = () => {
         );
       },
     },
-  ];
+    ];
+    if (isUnitPriceHidden) {
+      return keys.filter((k) => k.key !== "unitPrice");
+    }
+    return keys;
+  }, [isServiceInvoiceEnableEdit, isUnitPriceHidden, invoices]);
+
   const addButton = useMemo(
     () => ({
       name: t(`Add Invoice`),
@@ -772,6 +798,7 @@ const ServiceInvoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+      isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -781,6 +808,8 @@ const ServiceInvoice = () => {
       serviceExpenseForm,
       createAccountExpense,
       setServiceExpenseForm,
+      serviceInvoicePageDisabledCondition,
+      user,
     ]
   );
   const actions = [
@@ -880,6 +909,7 @@ const ServiceInvoice = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
+        isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.SHOWTOTAL, user),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -896,6 +926,7 @@ const ServiceInvoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
+        isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.ENABLEEDIT, user),
         node: (
           <SwitchButton
             checked={isServiceInvoiceEnableEdit}
@@ -925,6 +956,8 @@ const ServiceInvoice = () => {
       setIsServiceInvoiceEnableEdit,
       showServiceInvoiceFilters,
       setShowServiceInvoiceFilters,
+      serviceInvoicePageDisabledCondition,
+      user,
     ]
   );
   const filterPanel = useMemo(

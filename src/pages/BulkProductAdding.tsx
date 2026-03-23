@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import { IoIosCreate } from "react-icons/io";
@@ -7,10 +7,15 @@ import { Header } from "../components/header/Header";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../types";
 import {
   useCreateBulkProductAndMenuItemMutation,
   useUpdateMultipleProductMutations,
 } from "../utils/api/account/product";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 
 const BulkProductAdding = () => {
   const { t } = useTranslation();
@@ -22,6 +27,11 @@ const BulkProductAdding = () => {
     errorDataForProductBulkCreation,
     setErrorDataForProductBulkCreation,
   } = useGeneralContext();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const bulkProductAddDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.BULKPRODUCTADD, disabledConditions);
+  }, [disabledConditions]);
   const createRef = useRef<HTMLInputElement>(null);
   const updateRef = useRef<HTMLInputElement>(null);
   const processExcelData = (data: any[], actionType: string) => {
@@ -285,6 +295,7 @@ const BulkProductAdding = () => {
   const filters = [
     {
       isUpperSide: false,
+      isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.UPDATE, user),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -305,6 +316,7 @@ const BulkProductAdding = () => {
     },
     {
       isUpperSide: false,
+      isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.ADD, user),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -337,7 +349,10 @@ const BulkProductAdding = () => {
           rowKeys={rowKeys}
           isActionsActive={false}
           columns={columns}
-          isExcel={true}
+          isExcel={
+            user &&
+            !isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.EXCEL, user)
+          }
           title={t("Bulk Product Adding")}
           isSearch={errorDataForProductBulkCreation?.length > 0}
           isColumnFilter={errorDataForProductBulkCreation?.length > 0}
