@@ -297,8 +297,7 @@ const BulkProductAdding = () => {
       isDisabled: bulkProductAddDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.UPDATE &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
       ),
       node: (
         <div
@@ -323,8 +322,7 @@ const BulkProductAdding = () => {
       isDisabled: bulkProductAddDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
       ),
       node: (
         <div
@@ -363,8 +361,7 @@ const BulkProductAdding = () => {
             !bulkProductAddDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
+                (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
             )
           }
           title={t("Bulk Product Adding")}

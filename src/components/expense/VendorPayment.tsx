@@ -277,8 +277,7 @@ const VendorPayment = () => {
         isDisabled: vendorPaymentDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
       },
       {
@@ -305,8 +304,7 @@ const VendorPayment = () => {
         isDisabled: vendorPaymentDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
       },
     ],

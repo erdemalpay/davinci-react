@@ -469,8 +469,7 @@ const ServiceInvoice = () => {
   const isUnitPriceHidden = serviceInvoicePageDisabledCondition?.actions?.some(
     (ac) =>
       ac.action === ActionEnum.SHOW_UNIT_PRICES &&
-      user?.role?._id &&
-      !ac?.permissionsRoles?.includes(user?.role?._id)
+      (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
   );
 
   const columns = useMemo(() => {
@@ -805,8 +804,7 @@ const ServiceInvoice = () => {
       isDisabled: serviceInvoicePageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
       ),
     }),
     [
@@ -921,8 +919,7 @@ const ServiceInvoice = () => {
         isDisabled: serviceInvoicePageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.SHOWTOTAL &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
         node: (
           <div className="flex flex-row gap-2">
@@ -943,8 +940,7 @@ const ServiceInvoice = () => {
         isDisabled: serviceInvoicePageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
         node: (
           <SwitchButton

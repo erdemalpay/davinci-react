@@ -237,8 +237,7 @@ export default function Users() {
         isDisabled: usersPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.RESET_PASSWORD &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
       },
       {
@@ -272,8 +271,7 @@ export default function Users() {
         isDisabled: usersPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
       },
       {
@@ -345,8 +343,7 @@ export default function Users() {
       isDisabled: usersPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
       ),
     }),
     [t, isAddModalOpen, inputs, formKeys, createUser, createdUserInfo, usersPageDisabledCondition, user]
@@ -360,8 +357,7 @@ export default function Users() {
         isDisabled: usersPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
         node: (
           <SwitchButton

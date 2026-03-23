@@ -140,7 +140,7 @@ const MenuPrice = () => {
         isDisabled: menuPriceDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPLOAD &&
-            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
         node: (
           <div
@@ -178,8 +178,7 @@ const MenuPrice = () => {
             !menuPriceDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
+                (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
             )
           }
           title={t("Menu Price")}

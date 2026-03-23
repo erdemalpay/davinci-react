@@ -219,8 +219,7 @@ const BulkExpenseCreate = () => {
       isDisabled: bulkExpenseCreateDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.UPLOAD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
       ),
       node: (
         <div
@@ -258,8 +257,7 @@ const BulkExpenseCreate = () => {
             !bulkExpenseCreateDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
+                (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
             )
           }
           title={t("Bulk Stock Expense Create")}

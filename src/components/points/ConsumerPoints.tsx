@@ -126,8 +126,7 @@ const ConsumerPointComponent = () => {
       isDisabled: consumerPointsPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
       ),
       icon: <GiSevenPointedStar className="text-xl" />,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
@@ -161,8 +160,7 @@ const ConsumerPointComponent = () => {
         isDisabled: consumerPointsPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
       },
       {
@@ -196,8 +194,7 @@ const ConsumerPointComponent = () => {
         isDisabled: consumerPointsPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
       },
     ],

@@ -135,7 +135,7 @@ const Invoice = () => {
         vendor: getItem(invoice?.vendor, vendors)?.name,
         lctn: getItem(invoice?.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice?.date),
-        untPrice: parseFloat(
+        unitPrice: parseFloat(
           (invoice?.totalExpense / invoice?.quantity).toFixed(2)
         ),
         expType: getItem(invoice?.expenseType, expenseTypes),
@@ -558,8 +558,7 @@ const Invoice = () => {
   const isUnitPriceHidden = invoicePageDisabledCondition?.actions?.some(
     (ac) =>
       ac.action === ActionEnum.SHOW_UNIT_PRICES &&
-      user?.role?._id &&
-      !ac?.permissionsRoles?.includes(user?.role?._id)
+      (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
   );
 
   const columns = useMemo(() => {
@@ -815,7 +814,7 @@ const Invoice = () => {
         },
       },
       {
-        key: "untPrice",
+        key: "unitPrice",
         isParseFloat: true,
         className: "min-w-32",
       },
@@ -828,7 +827,7 @@ const Invoice = () => {
       },
     ];
     if (isUnitPriceHidden) {
-      return keys.filter((k) => k.key !== "untPrice");
+      return keys.filter((k) => k.key !== "unitPrice");
     }
     return keys;
   }, [isInvoiceEnableEdit, isUnitPriceHidden]);
@@ -925,8 +924,7 @@ const Invoice = () => {
       isDisabled: invoicePageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
       ),
     }),
     [
@@ -1060,8 +1058,7 @@ const Invoice = () => {
         isDisabled: invoicePageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.SHOWTOTAL &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
         node: (
           <div className="flex flex-row gap-2">
@@ -1082,8 +1079,7 @@ const Invoice = () => {
         isDisabled: invoicePageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
         ),
         node: (
           <SwitchButton
