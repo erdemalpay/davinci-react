@@ -827,7 +827,7 @@ const Invoice = () => {
       return keys.filter((k) => k.key !== "unitPrice");
     }
     return keys;
-  }, [isInvoiceEnableEdit, isUnitPriceHidden]);
+  }, [isInvoiceEnableEdit, isUnitPriceHidden, invoices]);
 
   const addButton = useMemo(
     () => ({
