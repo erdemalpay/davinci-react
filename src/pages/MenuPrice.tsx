@@ -14,6 +14,7 @@ import {
 } from "../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 import { useUserContext } from "../context/User.context";
 
 const MenuPrice = () => {
@@ -137,11 +138,7 @@ const MenuPrice = () => {
     () => [
       {
         isUpperSide: false,
-        isDisabled: menuPriceDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPLOAD &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(menuPriceDisabledCondition, ActionEnum.UPLOAD, user),
         node: (
           <div
             className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -175,11 +172,7 @@ const MenuPrice = () => {
           columns={columns}
           isExcel={
             user &&
-            !menuPriceDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-            )
+            !isActionDisabled(menuPriceDisabledCondition, ActionEnum.EXCEL, user)
           }
           title={t("Menu Price")}
           filters={filters}

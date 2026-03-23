@@ -29,6 +29,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -500,11 +501,7 @@ const AllExpenses = () => {
     []
   );
 
-  const isUnitPriceHidden = allExpensesPageDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.SHOW_UNIT_PRICES &&
-      (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-  );
+  const isUnitPriceHidden = isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
 
   const columns = useMemo(() => {
     const cols = [
@@ -798,11 +795,7 @@ const AllExpenses = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: allExpensesPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -822,11 +815,7 @@ const AllExpenses = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: allExpensesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWTOTAL &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOWTOTAL, user),
         node: (
           <div className="flex flex-row gap-2">
             <p>

@@ -10,6 +10,7 @@ import { useGetPoints, usePointMutations } from "../../utils/api/point";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -112,11 +113,7 @@ const UsersPointComponent = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: usersPointPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(usersPointPageDisabledCondition, ActionEnum.ADD, user),
       icon: <GiSevenPointedStar className="text-xl" />,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
@@ -146,11 +143,7 @@ const UsersPointComponent = () => {
         isModalOpen: isDeleteConfirmationOpen,
         setIsModal: setIsDeleteConfirmationOpen,
         isPath: false,
-        isDisabled: usersPointPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(usersPointPageDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -180,11 +173,7 @@ const UsersPointComponent = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: usersPointPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(usersPointPageDisabledCondition, ActionEnum.UPDATE, user),
       },
     ],
     [

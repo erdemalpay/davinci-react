@@ -38,6 +38,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -466,11 +467,7 @@ const ServiceInvoice = () => {
     ],
     []
   );
-  const isUnitPriceHidden = serviceInvoicePageDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.SHOW_UNIT_PRICES &&
-      (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-  );
+  const isUnitPriceHidden = isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
 
   const columns = useMemo(() => {
     const cols = [
@@ -801,11 +798,7 @@ const ServiceInvoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: serviceInvoicePageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -916,11 +909,7 @@ const ServiceInvoice = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: serviceInvoicePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWTOTAL &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.SHOWTOTAL, user),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -937,11 +926,7 @@ const ServiceInvoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
-        isDisabled: serviceInvoicePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.ENABLEEDIT, user),
         node: (
           <SwitchButton
             checked={isServiceInvoiceEnableEdit}

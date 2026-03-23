@@ -8,6 +8,7 @@ import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useCreateMultipleExpenseMutation } from "../../utils/api/account/expense";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -216,11 +217,7 @@ const BulkExpenseCreate = () => {
   const filters = [
     {
       isUpperSide: false,
-      isDisabled: bulkExpenseCreateDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.UPLOAD &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(bulkExpenseCreateDisabledCondition, ActionEnum.UPLOAD, user),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -254,11 +251,7 @@ const BulkExpenseCreate = () => {
           columns={columns}
           isExcel={
             user &&
-            !bulkExpenseCreateDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-            )
+            !isActionDisabled(bulkExpenseCreateDisabledCondition, ActionEnum.EXCEL, user)
           }
           title={t("Bulk Stock Expense Create")}
           isSearch={errorDataForCreateMultipleExpense?.length > 0}

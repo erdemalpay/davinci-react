@@ -29,6 +29,7 @@ import {
 } from "../utils/api/user";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 interface TableUser {
   _id: string;
   name: string;
@@ -234,11 +235,7 @@ export default function Users() {
           if (!val) setResetedUserInfo(null);
         },
         isPath: false,
-        isDisabled: usersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.RESET_PASSWORD &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(usersPageDisabledCondition, ActionEnum.RESET_PASSWORD, user),
       },
       {
         name: t("Edit"),
@@ -268,11 +265,7 @@ export default function Users() {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: usersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(usersPageDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("Toggle Active"),
@@ -340,11 +333,7 @@ export default function Users() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: usersPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(usersPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [t, isAddModalOpen, inputs, formKeys, createUser, createdUserInfo, usersPageDisabledCondition, user]
   );
@@ -354,11 +343,7 @@ export default function Users() {
       {
         label: t("Show Inactive Users"),
         isUpperSide: false,
-        isDisabled: usersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(usersPageDisabledCondition, ActionEnum.SHOW_INACTIVE_ELEMENTS, user),
         node: (
           <SwitchButton
             checked={showInactiveUsers}

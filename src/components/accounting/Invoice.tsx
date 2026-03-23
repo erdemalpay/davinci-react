@@ -45,6 +45,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -555,11 +556,7 @@ const Invoice = () => {
     []
   );
 
-  const isUnitPriceHidden = invoicePageDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.SHOW_UNIT_PRICES &&
-      (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-  );
+  const isUnitPriceHidden = isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
 
   const columns = useMemo(() => {
     const cols = [
@@ -921,11 +918,7 @@ const Invoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: invoicePageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -1055,11 +1048,7 @@ const Invoice = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: invoicePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWTOTAL &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOWTOTAL, user),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -1076,11 +1065,7 @@ const Invoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
-        isDisabled: invoicePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-        ),
+        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ENABLEEDIT, user),
         node: (
           <SwitchButton
             checked={isInvoiceEnableEdit}

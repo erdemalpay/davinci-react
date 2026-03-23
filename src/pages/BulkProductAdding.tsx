@@ -15,6 +15,7 @@ import {
 } from "../utils/api/account/product";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 
 const BulkProductAdding = () => {
   const { t } = useTranslation();
@@ -294,11 +295,7 @@ const BulkProductAdding = () => {
   const filters = [
     {
       isUpperSide: false,
-      isDisabled: bulkProductAddDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.UPDATE &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.UPDATE, user),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -319,11 +316,7 @@ const BulkProductAdding = () => {
     },
     {
       isUpperSide: false,
-      isDisabled: bulkProductAddDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-      ),
+      isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.ADD, user),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -358,11 +351,7 @@ const BulkProductAdding = () => {
           columns={columns}
           isExcel={
             user &&
-            !bulkProductAddDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                (user == null || !ac?.permissionsRoles?.includes(user?.role?._id))
-            )
+            !isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.EXCEL, user)
           }
           title={t("Bulk Product Adding")}
           isSearch={errorDataForProductBulkCreation?.length > 0}

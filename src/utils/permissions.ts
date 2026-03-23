@@ -3,7 +3,7 @@ import { ActionEnum, DisabledCondition, User } from "../types";
 export const isActionDisabled = (
   disabledCondition: DisabledCondition | undefined,
   action: ActionEnum,
-  user: User | undefined
+  user: User | null | undefined
 ): boolean => {
   if (!disabledCondition) {
     return false;
