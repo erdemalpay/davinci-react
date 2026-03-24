@@ -16,6 +16,7 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
+  Order,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -212,32 +213,23 @@ const ShopifyPickUp = () => {
       { key: "deliveredAt" },
       {
         key: "isShopifyPickUpOrderBrought",
-        node: (row: any) => {
-          return row?.isShopifyPickUpOrderBrought ? (
-            <MdOutlineCheckBox
+        node: (row: Order) => {
+          const CheckboxComponent = row?.isShopifyPickUpOrderBrought
+            ? MdOutlineCheckBox
+            : MdOutlineCheckBoxOutlineBlank;
+          return (
+            <CheckboxComponent
               key={row._id + "shopify-brought-checkbox"}
               className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
-              onClick={() => {
+              onClick={() =>
                 updateSimpleOrder({
                   id: row._id,
                   updates: {
-                    isShopifyPickUpOrderBrought: false,
+                    isShopifyPickUpOrderBrought:
+                      !row.isShopifyPickUpOrderBrought,
                   },
-                });
-              }}
-            />
-          ) : (
-            <MdOutlineCheckBoxOutlineBlank
-              key={row._id + "shopify-brought-checkbox"}
-              className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
-              onClick={() => {
-                updateSimpleOrder({
-                  id: row._id,
-                  updates: {
-                    isShopifyPickUpOrderBrought: true,
-                  },
-                });
-              }}
+                })
+              }
             />
           );
         },
