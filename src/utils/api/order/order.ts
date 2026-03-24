@@ -198,7 +198,7 @@ export function useShopifyPickUpOrderMutation() {
       });
       const message =
         (_err as any)?.response?.data?.message ?? t("An unexpected error occurred");
-      toast.error(t(message));
+      toast.error(message);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
