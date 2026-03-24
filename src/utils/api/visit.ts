@@ -13,11 +13,12 @@ interface UpdateVisitPayload {
 }
 
 export function useVisitMutation() {
-  const { deleteItem: deleteVisit } = useMutationApi<Visit>({
-    baseQuery: Paths.Visits,
-  });
+  const { updateItem: updateVisit, deleteItem: deleteVisit } =
+    useMutationApi<Visit>({
+      baseQuery: Paths.Visits,
+    });
 
-  return { deleteVisit };
+  return { updateVisit, deleteVisit };
 }
 
 export function createVisit(visit: Partial<Visit>): Promise<Visit> {
@@ -27,7 +28,11 @@ export function createVisit(visit: Partial<Visit>): Promise<Visit> {
   });
 }
 
-export function finishVisit({ id, finishHour, visitFinishSource }: UpdateVisitPayload): Promise<Visit> {
+export function finishVisit({
+  id,
+  finishHour,
+  visitFinishSource,
+}: UpdateVisitPayload): Promise<Visit> {
   return patch<Partial<Visit>, Visit>({
     path: `${Paths.Visits}/finish/${id}`,
     payload: { finishHour, visitFinishSource },
@@ -68,7 +73,7 @@ export function useGetUniqueVisits(startDate: string, endDate?: string) {
   if (endDate) {
     url = url.concat(`&end-date=${endDate}`);
   }
-  return useGetList<Visit>(url, [Paths.Visits, startDate, endDate]);
+  return useGetList<Visit>(url, [`${Paths.Visits}/panel`, startDate, endDate]);
 }
 
 export function useGetGivenDateVisits(date: string) {
