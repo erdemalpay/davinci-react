@@ -1389,5 +1389,11 @@
   "Title" : "Başlık",
   "Content" : "İçerik",
   "Quick Order" : "Hızlı Sipariş",
-  "Today's Campaigns" : "Bugünün Kampanyaları"
+  "Today's Campaigns" : "Bugünün Kampanyaları",
+  "Brought to Pick-Up Point" : "Depodan Getirildi",
+  "Order updated successfully" : "Sipariş durumu başarıyla güncellendi",
+  "Order marked as delivered" : "Sipariş teslim edildi olarak işaretlendi",
+  "Order marked as undelivered" : "Sipariş teslim edilmedi olarak işaretlendi",
+  "An unexpected error occurred" : "Beklenmedik bir hata oluştu",
+  "Delivered" : "Teslim Edildi"
 }

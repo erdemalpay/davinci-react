@@ -1379,5 +1379,11 @@
   "Title" : "Title",
   "Content" : "Content",
   "Quick Order" : "Quick Order",
-  "Today's Campaigns" : "Today's Campaigns"
+  "Today's Campaigns" : "Today's Campaigns",
+  "Brought to Pick-Up Point" : "Brought fr. Depot",
+  "Order updated successfully" : "Order updated successfully",
+  "Order marked as delivered" : "Order marked as delivered",
+  "Order marked as undelivered" : "Order marked as undelivered",
+  "An unexpected error occurred" : "An unexpected error occurred",
+  "Delivered" : "Delivered"
 }

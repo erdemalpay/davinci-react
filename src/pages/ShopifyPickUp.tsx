@@ -6,6 +6,7 @@ import {
   MdOutlineCheckBoxOutlineBlank,
 } from "react-icons/md";
 import { Header } from "../components/header/Header";
+import Loading from "../components/common/Loading";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
@@ -15,6 +16,7 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
+  Order,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -26,7 +28,7 @@ import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import {
   useGetShopifyPickUpOrders,
-  useSimpleOrderMutations,
+  useShopifyPickUpOrderMutation,
 } from "../utils/api/order/order";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../utils/api/user";
@@ -39,7 +41,7 @@ const ShopifyPickUp = () => {
   const users = useGetUsersMinimal();
   const { user } = useUserContext();
   const categories = useGetCategories();
-  const { updateSimpleOrder } = useSimpleOrderMutations();
+  const { updateSimpleOrder, isPending } = useShopifyPickUpOrderMutation();
   const items = useGetMenuItems();
   const disabledConditions = useGetDisabledConditions();
   const {
@@ -108,6 +110,8 @@ const ShopifyPickUp = () => {
             (status) => status.value === order?.status
           )?.label,
           isShopifyCustomerPicked: order?.isShopifyCustomerPicked ?? false,
+          isShopifyPickUpOrderBrought:
+            order?.isShopifyPickUpOrderBrought ?? false,
         };
       });
   }, [orders, showPickedOrders, users, items, locations]);
@@ -151,7 +155,12 @@ const ShopifyPickUp = () => {
         isSortable: true,
         correspondingKey: "deliveredAt",
       },
-      { key: t("Action"), isSortable: false },
+      {
+        key: t("Brought to Pick-Up Point"),
+        isSortable: false,
+        correspondingKey: "isShopifyPickUpOrderBrought",
+      },
+      { key: t("Delivered"), isSortable: false },
     ],
     [t]
   );
@@ -202,6 +211,29 @@ const ShopifyPickUp = () => {
       { key: "location" },
       { key: "deliveredBy" },
       { key: "deliveredAt" },
+      {
+        key: "isShopifyPickUpOrderBrought",
+        node: (row: Order) => {
+          const CheckboxComponent = row?.isShopifyPickUpOrderBrought
+            ? MdOutlineCheckBox
+            : MdOutlineCheckBoxOutlineBlank;
+          return (
+            <CheckboxComponent
+              key={row._id + "shopify-brought-checkbox"}
+              className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
+              onClick={() =>
+                updateSimpleOrder({
+                  id: row._id,
+                  updates: {
+                    isShopifyPickUpOrderBrought:
+                      !row.isShopifyPickUpOrderBrought,
+                  },
+                })
+              }
+            />
+          );
+        },
+      },
       {
         key: "isShopifyCustomerPicked",
         node: (row: any) => {
@@ -434,6 +466,7 @@ const ShopifyPickUp = () => {
 
   return (
     <>
+      {isPending && <Loading />}
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <div className="w-[95%] mx-auto mb-auto ">
