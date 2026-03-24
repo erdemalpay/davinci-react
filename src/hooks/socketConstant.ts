@@ -12,7 +12,7 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "visitChanged",
-    invalidateKeys: [`${Paths.Visits}`],
+    invalidateKeys: [`${Paths.Visits}`, `${Paths.Visits}/panel`],
   },
   {
     event: "userChanged",

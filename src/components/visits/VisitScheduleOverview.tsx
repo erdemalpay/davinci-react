@@ -9,6 +9,7 @@ import {
   DateRangeKey,
   DisabledConditionEnum,
   LocationShiftType,
+  VisitStatus,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -16,7 +17,7 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useAddShiftMutation, useGetUserShifts } from "../../utils/api/shift";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { useGetUniqueVisits } from "../../utils/api/visit";
+import { useGetUniqueVisits, useVisitMutation } from "../../utils/api/visit";
 import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -53,11 +54,13 @@ const VisitScheduleOverview = () => {
     filterVisitScheduleOverviewPanelFormElements.after,
     filterVisitScheduleOverviewPanelFormElements.before
   );
+  const { updateVisit } = useVisitMutation();
   const [addShiftForm, setAddShiftForm] = useState({
     day: "",
     location: "",
     shift: "",
     shiftEndHour: "",
+    isWrongEntry: false,
   });
 
   const visitScheduleOverviewDisabledCondition = useMemo(() => {
@@ -94,8 +97,12 @@ const VisitScheduleOverview = () => {
           ?.shifts?.find((x) => x.user?.includes(curr.user));
         let fullTime = 0,
           partTime = 0,
-          unknown = 0;
-        if (foundShift) {
+          unknown = 0,
+          wrongEntry = 0;
+
+        if (curr.status === VisitStatus.WRONG_ENTRY) {
+          wrongEntry = 1;
+        } else if (foundShift) {
           const loc = locations?.find((l) => l._id === curr.location);
           const type = loc?.shifts?.find(
             (s) => s.shift === foundShift.shift && s.isActive
@@ -112,8 +119,10 @@ const VisitScheduleOverview = () => {
           existing.fullTime += fullTime;
           existing.partTime += partTime;
           existing.unknown += unknown;
+          existing.wrongEntry += wrongEntry;
           if (unknown > 0) {
             existing.unknownDates.push({
+              _id: curr._id,
               date: curr.date,
               location: curr.location,
               startHour: curr.startHour,
@@ -127,10 +136,12 @@ const VisitScheduleOverview = () => {
             fullTime,
             partTime,
             unknown,
+            wrongEntry,
             unknownDates:
               unknown > 0
                 ? [
                     {
+                      _id: curr._id,
                       date: curr.date,
                       location: curr.location,
                       startHour: curr.startHour,
@@ -156,6 +167,11 @@ const VisitScheduleOverview = () => {
       { key: t("User"), isSortable: true, correspondingKey: "userName" },
       { key: "Part Time", isSortable: true, correspondingKey: "partTime" },
       { key: "Full Time", isSortable: true, correspondingKey: "fullTime" },
+      {
+        key: t("Wrong Entry"),
+        isSortable: true,
+        correspondingKey: "wrongEntry",
+      },
       { key: t("Unknown"), isSortable: true, correspondingKey: "unknown" },
       { key: t("Actions"), isSortable: false },
     ],
@@ -167,6 +183,7 @@ const VisitScheduleOverview = () => {
       { key: "userName" },
       { key: "partTime" },
       { key: "fullTime" },
+      { key: "wrongEntry" },
       { key: "unknown" },
     ],
     []
@@ -188,6 +205,14 @@ const VisitScheduleOverview = () => {
         required: true,
       },
       {
+        type: InputTypes.CHECKBOX,
+        formKey: "isWrongEntry",
+        label: t("Wrong Entry"),
+        placeholder: t("Wrong Entry"),
+        required: false,
+        isTopFlexRow: true,
+      },
+      {
         type: InputTypes.SELECT,
         formKey: "location",
         label: t("Location"),
@@ -207,8 +232,9 @@ const VisitScheduleOverview = () => {
               label: location.name,
             };
           }),
-        required: true,
         isReadOnly: true,
+        required: !addShiftForm.isWrongEntry,
+        isDisabled: Boolean(addShiftForm.isWrongEntry),
       },
       {
         type: InputTypes.SELECT,
@@ -227,8 +253,9 @@ const VisitScheduleOverview = () => {
             )?.startHour,
           },
         ],
-        required: true,
+        required: !addShiftForm.isWrongEntry,
         isReadOnly: true,
+        isDisabled: Boolean(addShiftForm.isWrongEntry),
       },
       {
         type: InputTypes.SELECT,
@@ -246,10 +273,18 @@ const VisitScheduleOverview = () => {
         }),
         placeholder: t("Shift"),
         isMultiple: false,
-        required: true,
+        required: !addShiftForm.isWrongEntry,
+        isDisabled: Boolean(addShiftForm.isWrongEntry),
       },
     ],
-    [t, rowToAction, addShiftForm.day, addShiftForm.location, locations]
+    [
+      t,
+      rowToAction,
+      addShiftForm.day,
+      addShiftForm.location,
+      addShiftForm.isWrongEntry,
+      locations,
+    ]
   );
 
   const addShiftFormKeys = useMemo(
@@ -258,6 +293,7 @@ const VisitScheduleOverview = () => {
       { key: "location", type: FormKeyTypeEnum.NUMBER },
       { key: "shift", type: FormKeyTypeEnum.NUMBER },
       { key: "startHour", type: FormKeyTypeEnum.STRING },
+      { key: "isWrongEntry", type: FormKeyTypeEnum.BOOLEAN },
     ],
     []
   );
@@ -385,6 +421,22 @@ const VisitScheduleOverview = () => {
             setForm={setAddShiftForm}
             topClassName="flex flex-col gap-2  "
             submitFunction={() => {
+              const selectedUnknownDate = rowToAction?.unknownDates?.find(
+                (unknownDatesItem: { date?: string; _id?: number | string }) =>
+                  unknownDatesItem?.date === addShiftForm.day
+              );
+
+              if (addShiftForm.isWrongEntry) {
+                if (selectedUnknownDate?._id) {
+                  updateVisit({
+                    id: selectedUnknownDate._id,
+                    updates: { status: VisitStatus.WRONG_ENTRY },
+                  });
+                }
+                setIsAddShiftModalOpen(false);
+                return;
+              }
+
               const foundLocation = locations?.find(
                 (location) => location._id === Number(addShiftForm.location)
               );
@@ -419,9 +471,11 @@ const VisitScheduleOverview = () => {
       addShiftInputs,
       addShiftFormKeys,
       addShift,
+      updateVisit,
       addShiftForm.location,
       addShiftForm.day,
       addShiftForm.shift,
+      addShiftForm.isWrongEntry,
       rowToAction,
       locations,
       visitScheduleOverviewDisabledCondition,

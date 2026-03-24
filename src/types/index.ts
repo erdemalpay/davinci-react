@@ -475,7 +475,9 @@ export enum VisitSource {
   PANEL = "panel",
   FACE_RECOGNITION = "face_recognition",
 }
-
+export enum VisitStatus {
+  WRONG_ENTRY = "wrong_entry",
+}
 export type Visit = {
   _id: number;
   location: number;
@@ -485,6 +487,7 @@ export type Visit = {
   finishHour?: string;
   visitStartSource?: VisitSource;
   visitFinishSource?: VisitSource;
+  status?: VisitStatus;
 };
 
 export type Break = {
@@ -664,12 +667,12 @@ export enum DisabledConditionEnum {
   BULKPRODUCTADD = "bulkproductadd",
   EXPENSES_INVOICE = "expenses_invoice",
   EXPENSES_SERVICEINVOICE = "expenses_serviceinvoice",
-  EXPENSES_ALLEXPENSES  = "expenses_allexpenses",
-  EXPENSES_VENDORPAYMENTS  = "expenses_vendorpayments",
-  EXPENSES_BULKEXPENSECREATE  = "expenses_bulkexpensecreate",
+  EXPENSES_ALLEXPENSES = "expenses_allexpenses",
+  EXPENSES_VENDORPAYMENTS = "expenses_vendorpayments",
+  EXPENSES_BULKEXPENSECREATE = "expenses_bulkexpensecreate",
   USERS = "users",
   POINTS_USERSPOINT = "points_userspoint",
-  POINTS_CONSUMERSPOINT = "points_consumerspoint"
+  POINTS_CONSUMERSPOINT = "points_consumerspoint",
 }
 
 export enum ActionEnum {
