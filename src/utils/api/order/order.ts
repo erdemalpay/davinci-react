@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
@@ -153,18 +154,64 @@ export function useOrderMutations() {
 
   return { updateOrder, createOrder };
 }
-export function useSimpleOrderMutations() {
-  const { updateItem: updateSimpleOrder } = useMutationApi<Order>({
-    baseQuery: `${Paths.Order}/simple`,
-    additionalInvalidates: [
-      [`${Paths.Order}/query`],
-      [`${Paths.Order}/collection/query`],
-      [`${Paths.Order}/ikas-pick-up/query`],
-      [`${Paths.Order}/shopify-pick-up/query`],
-    ],
+/** @deprecated IkasPickUp temizliği yapılınca kaldırılacak (bu hooku sadece ikas kullanıyordu) */
+export const useSimpleOrderMutations = () => useShopifyPickUpOrderMutation();
+
+export function useShopifyPickUpOrderMutation() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const queryKeyPrefix = [`${Paths.Order}/shopify-pick-up/query`];
+
+  const { mutate: updateSimpleOrder, isPending } = useMutation({
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<Order> }) =>
+      patch<Partial<Order>, Order>({
+        path: `${Paths.Order}/simple/${id}`,
+        payload: updates,
+      }),
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeyPrefix });
+
+      const snapshots = queryClient
+        .getQueriesData<Order[]>({ queryKey: queryKeyPrefix })
+        .map(([key, data]) => ({ key, data }));
+
+      queryClient.setQueriesData<Order[]>({ queryKey: queryKeyPrefix }, (old) =>
+        old?.map((order) =>
+          order._id === id ? { ...order, ...updates } : order
+        ) ?? []
+      );
+
+      return { snapshots };
+    },
+    onSuccess: (_data, variables) => {
+      if (variables.updates.isShopifyCustomerPicked === true) {
+        toast.success(t("Order marked as delivered"));
+      } else if (variables.updates.isShopifyCustomerPicked === false) {
+        toast.success(t("Order marked as undelivered"));
+      } else {
+        toast.success(t("Order updated successfully"));
+      }
+    },
+    onError: (_err, _variables, context) => {
+      context?.snapshots?.forEach(({ key, data }) => {
+        queryClient.setQueryData(key, data);
+      });
+      const message =
+        (_err as any)?.response?.data?.message ?? t("An unexpected error occurred");
+      toast.error(t(message));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/query`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
+    },
   });
 
-  return { updateSimpleOrder };
+  return { updateSimpleOrder, isPending };
 }
 
 export function deleteTableOrders({ ids }: { ids: number[] }) {
@@ -210,6 +257,7 @@ export function updateOrderForCancel(payload: {
 }
 export function useUpdateOrderForCancelMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: updateOrderForCancel,
     onMutate: async (payload) => {
@@ -238,7 +286,7 @@ export function useUpdateOrderForCancelMutation() {
       }
 
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -246,6 +294,7 @@ export function useUpdateOrderForCancelMutation() {
 export function useTransferTableMutations() {
   const queryKey = [`${Paths.Tables}`];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: transferTable,
     onMutate: async () => {
@@ -253,7 +302,7 @@ export function useTransferTableMutations() {
     },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -264,6 +313,7 @@ export function useCombineTableMutation() {
   const { selectedDate } = useDateContext();
   const queryKey = [tableBaseUrl, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: combineTable,
@@ -319,7 +369,7 @@ export function useCombineTableMutation() {
       }
 
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
     onSettled: () => {
@@ -334,11 +384,12 @@ export function selectedOrderTransfer(payload: SelectedOrderTransferPayload) {
   });
 }
 export function useSelectedOrderTransferMutation() {
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: selectedOrderTransfer,
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -347,6 +398,7 @@ export function useSelectedOrderTransferMutation() {
 export function useUpdateOrdersMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: updateOrders,
     onMutate: async () => {
@@ -355,13 +407,14 @@ export function useUpdateOrdersMutation() {
 
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
 }
 export function useReturnOrdersMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: returnOrder,
     onMutate: async () => {
@@ -378,7 +431,7 @@ export function useReturnOrdersMutation() {
     },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -493,6 +546,7 @@ export function cancelShopifyOrder(payload: CancelShopifyOrder) {
 }
 export function useCancelShopifyOrderMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: cancelShopifyOrder,
     onMutate: async () => {
@@ -509,7 +563,7 @@ export function useCancelShopifyOrderMutation() {
     },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -529,6 +583,7 @@ export function cancelTrendyolOrder(payload: CancelTrendyolOrder) {
 }
 export function useCancelTrendyolOrderMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: cancelTrendyolOrder,
     onMutate: async () => {
@@ -545,7 +600,7 @@ export function useCancelTrendyolOrderMutation() {
     },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -562,6 +617,7 @@ export function cancelHepsiburadaOrder(payload: CancelHepsiburadaOrder) {
 }
 export function useCancelHepsiburadaOrderMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: cancelHepsiburadaOrder,
     onMutate: async () => {
@@ -578,7 +634,7 @@ export function useCancelHepsiburadaOrderMutation() {
     },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -586,6 +642,7 @@ export function useCancelHepsiburadaOrderMutation() {
 export function useCreateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: createMultipleOrder,
     onMutate: async () => {
@@ -596,7 +653,7 @@ export function useCreateMultipleOrderMutation() {
     // },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -605,6 +662,7 @@ export function useCreateMultipleOrderMutation() {
 export function useUpdateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: updateMultipleOrders,
     onMutate: async () => {
@@ -615,7 +673,7 @@ export function useUpdateMultipleOrderMutation() {
     // },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -771,6 +829,7 @@ export function createOrderForDiscount(payload: CreateOrderForDiscount) {
 export function useCreateOrderForDiscountMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: createOrderForDiscount,
     onMutate: async () => {
@@ -781,7 +840,7 @@ export function useCreateOrderForDiscountMutation() {
     },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -795,6 +854,7 @@ export function cancelOrderForDiscount(payload: CancelOrderForDiscount) {
 export function useCancelOrderForDiscountMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: cancelOrderForDiscount,
     onMutate: async () => {
@@ -805,7 +865,7 @@ export function useCancelOrderForDiscountMutation() {
     },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -848,6 +908,7 @@ export function createOrderForDivide(payload: CreateOrderForDivide) {
 }
 export function useCreateOrderForDivideMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: createOrderForDivide,
     onMutate: async (payload) => {
@@ -908,7 +969,7 @@ export function useCreateOrderForDivideMutation() {
 
       const errorMessage =
         (_err as any)?.response?.data?.message ||
-        "An unexpected error occurred";
+        t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });

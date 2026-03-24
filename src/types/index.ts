@@ -992,6 +992,7 @@ export type Order = {
   ikasOrderNumber?: string;
   shopifyCustomer?: ShopifyCustomer;
   isShopifyCustomerPicked?: boolean;
+  isShopifyPickUpOrderBrought?: boolean;
   shopifyOrderNumber?: string;
 };
 
