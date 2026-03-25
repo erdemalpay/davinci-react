@@ -67,6 +67,7 @@ import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
+import { GameplayAnalyticsPageTabs } from "../components/analytics/GameplayAnalytics";
 import WebhookLogs from "./../pages/WebhookLogs";
 import { RoleEnum } from "./../types/index";
 
@@ -356,6 +357,7 @@ export const allRoutes: {
     path: Routes.Analytics,
     element: Analytics,
     isOnSidebar: false,
+    tabs: GameplayAnalyticsPageTabs,
   },
   {
     name: "Shifts",
