@@ -321,6 +321,7 @@ const SelectInput = ({
               placeholder={placeholder}
               styles={customStyles}
               closeMenuOnSelect={false}
+              blurInputOnSelect={false}
               filterOption={customFilterOption}
               isSearchable={!isSearchable && !isDownIconClicked}
               onMenuClose={() => {
