@@ -633,7 +633,7 @@ export function TableCard({
         placeholder: t("Product"),
         quickOptions: filteredPopularOrderItems,
         allOptions: quickOrderItemOptions,
-        isSelectBelow: true,
+        isSelectAbove: true,
         required: true,
         isSelectAlwaysVisible: true,
         gridRow: isMobile ? 5 : 3,
