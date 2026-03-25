@@ -447,7 +447,7 @@ const GenericAddEditPanel = <T,>({
         }   ${generalClassName} `}
       >
         <div
-          className={`rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 ${
+          className={`rounded-tl-md rounded-tr-md px-4 flex flex-col gap-4 py-6 ${
             stickyFooterButtons ? "flex-1 overflow-y-auto" : "justify-between"
           }`}
         >
@@ -920,10 +920,10 @@ const GenericAddEditPanel = <T,>({
           </div>
         </div>
         <div
-          className={`px-4 py-4 flex flex-row gap-4 justify-center sm:justify-end items-end sm:ml-auto mx-auto sm:mx-0 ${
+          className={`px-4 flex flex-row gap-4 justify-center sm:justify-end items-center sm:ml-auto mx-auto sm:mx-0 ${
             stickyFooterButtons
-              ? "bg-white mt-auto flex-shrink-0 pb-[max(env(safe-area-inset-bottom),0.75rem)]"
-              : "mt-auto relative"
+              ? "pt-4 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:py-4 bg-white flex-shrink-0 border-t border-gray-100"
+              : "py-4"
           }`}
         >
           <GenericButton
