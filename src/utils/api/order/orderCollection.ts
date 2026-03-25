@@ -356,28 +356,15 @@ export function useCreateOrderCollectionMutation(tableId: number) {
         previousTodayCollections: OrderCollection[];
       };
       if (previousContext?.previousCollections) {
-        const {
-          previousCollections,
-          previousOrderData,
-          previousTodayOrders,
-          previousTodayCollections,
-        } = previousContext;
-        queryClient.setQueryData<OrderCollection[]>(
-          collectionQueryKey,
-          previousCollections
-        );
-        queryClient.setQueryData<Order[]>(orderQueryKey, previousOrderData);
-        if (previousTodayOrders) {
-          queryClient.setQueryData<Order[]>(
-            todayOrdersQueryKey,
-            previousTodayOrders
-          );
+        void queryClient.invalidateQueries({ queryKey: collectionQueryKey });
+        void queryClient.invalidateQueries({ queryKey: orderQueryKey });
+        if (previousContext.previousTodayOrders) {
+          void queryClient.invalidateQueries({ queryKey: todayOrdersQueryKey });
         }
-        if (previousTodayCollections) {
-          queryClient.setQueryData<OrderCollection[]>(
-            todayCollectionsQueryKey,
-            previousTodayCollections
-          );
+        if (previousContext.previousTodayCollections) {
+          void queryClient.invalidateQueries({
+            queryKey: todayCollectionsQueryKey,
+          });
         }
       }
       const errorMessage =
