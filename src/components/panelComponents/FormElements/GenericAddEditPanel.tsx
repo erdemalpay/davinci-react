@@ -922,7 +922,7 @@ const GenericAddEditPanel = <T,>({
         <div
           className={`px-4 flex flex-row gap-4 justify-center sm:justify-end items-center sm:ml-auto mx-auto sm:mx-0 ${
             stickyFooterButtons
-              ? "pt-4 pb-[calc(env(safe-area-inset-bottom)+3rem)] sm:py-4 sm:pb-4 bg-white flex-shrink-0 border-t border-gray-100"
+              ? "pt-4 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:py-4 bg-white flex-shrink-0 border-t border-gray-100"
               : "py-4"
           }`}
         >
