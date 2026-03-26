@@ -1395,5 +1395,13 @@
   "Order marked as delivered" : "Sipariş teslim edildi olarak işaretlendi",
   "Order marked as undelivered" : "Sipariş teslim edilmedi olarak işaretlendi",
   "An unexpected error occurred" : "Beklenmedik bir hata oluştu",
-  "Delivered" : "Teslim Edildi"
+  "Delivered" : "Teslim Edildi",
+  "Create Shift": "Vardiya Oluştur",
+  "Update Shift": "Vardiya Güncelle",
+  "Delete Shift": "Vardiya Sil",
+  "Assign Chef": "Şef Ata",
+  "Assign Middleman": "Ortacı Ata",
+  "No users assigned": "Kullanıcı atanmamış",
+  "No user changes detected": "Kullanıcı değişikliği bulunamadı",
+  "Chef": "Şef"
 }

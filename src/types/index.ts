@@ -846,6 +846,19 @@ export type Shift = {
   shifts: ShiftValue[];
 };
 
+export type ShiftActivityPayload = {
+  day?: string;
+  location?: number;
+  shifts?: ShiftValue[];
+  previousShifts?: ShiftValue[];
+  updatedShifts?: ShiftValue[];
+  shift?: string;
+  previousChefUserId?: string;
+  chefUserId?: string;
+  previousMiddlemanUserId?: string;
+  middlemanUserId?: string;
+};
+
 export type CheckoutIncome = {
   _id: number;
   user: string;
@@ -1798,6 +1811,11 @@ export enum ActivityType {
   START_MIDDLEMAN = "START_MIDDLEMAN",
   FINISH_MIDDLEMAN = "FINISH_MIDDLEMAN",
   FINISH_MIDDLEMAN_BY_MANAGER = "FINISH_MIDDLEMAN_BY_MANAGER",
+  CREATE_SHIFT = "CREATE_SHIFT",
+  UPDATE_SHIFT = "UPDATE_SHIFT",
+  DELETE_SHIFT = "DELETE_SHIFT",
+  ASSIGN_CHEF = "ASSIGN_CHEF",
+  ASSIGN_MIDDLEMAN = "ASSIGN_MIDDLEMAN",
 }
 export const activityTypeDetails = [
   {
@@ -2114,6 +2132,31 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_MIDDLEMAN_BY_MANAGER,
     label: "Finish Middleman By Manager",
     bgColor: "bg-amber-600",
+  },
+  {
+    value: ActivityType.CREATE_SHIFT,
+    label: "Create Shift",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.UPDATE_SHIFT,
+    label: "Update Shift",
+    bgColor: "bg-yellow-500",
+  },
+  {
+    value: ActivityType.DELETE_SHIFT,
+    label: "Delete Shift",
+    bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.ASSIGN_CHEF,
+    label: "Assign Chef",
+    bgColor: "bg-yellow-600",
+  },
+  {
+    value: ActivityType.ASSIGN_MIDDLEMAN,
+    label: "Assign Middleman",
+    bgColor: "bg-purple-500",
   },
 ];
 

@@ -1385,5 +1385,13 @@
   "Order marked as delivered" : "Order marked as delivered",
   "Order marked as undelivered" : "Order marked as undelivered",
   "An unexpected error occurred" : "An unexpected error occurred",
-  "Delivered" : "Delivered"
+  "Delivered" : "Delivered",
+  "Create Shift": "Create Shift",
+  "Update Shift": "Update Shift",
+  "Delete Shift": "Delete Shift",
+  "Assign Chef": "Assign Chef",
+  "Assign Middleman": "Assign Middleman",
+  "No users assigned": "No users assigned",
+  "No user changes detected": "No user changes detected",
+  "Chef": "Chef"
 }
