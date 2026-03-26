@@ -34,6 +34,8 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
+const QUIZ_TICKET_MENU_CATEGORY_ID = 9;
+
 const ShopifyPickUp = () => {
   const { t } = useTranslation();
   const orders = useGetShopifyPickUpOrders();
@@ -66,10 +68,9 @@ const ShopifyPickUp = () => {
         if (!order || !order?.createdAt) {
           return false;
         }
-        const itemName = getItem(order?.item, items)?.name ?? "";
         if (
           !showQuizTicketPickUpOrders &&
-          itemName.toLocaleLowerCase("tr-TR").includes("bilet")
+          getItem(order?.item, items)?.category === QUIZ_TICKET_MENU_CATEGORY_ID
         ) {
           return false;
         }
