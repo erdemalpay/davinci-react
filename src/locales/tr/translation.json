@@ -1395,5 +1395,6 @@
   "Order marked as delivered" : "Sipariş teslim edildi olarak işaretlendi",
   "Order marked as undelivered" : "Sipariş teslim edilmedi olarak işaretlendi",
   "An unexpected error occurred" : "Beklenmedik bir hata oluştu",
-  "Delivered" : "Teslim Edildi"
+  "Delivered" : "Teslim Edildi",
+  "Show Tickets" : "Biletleri Göster"
 }

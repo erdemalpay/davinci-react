@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MdOutlineCheckBox,
@@ -54,6 +54,8 @@ const ShopifyPickUp = () => {
     setShowPickedOrders,
   } = useOrderContext();
 
+  const [showQuizTicketPickUpOrders, setShowQuizTicketPickUpOrders] = useState(false);
+
   const shopifyPickUpDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.SHOPIFY_PICK_UP, disabledConditions);
   }, [disabledConditions]);
@@ -62,6 +64,13 @@ const ShopifyPickUp = () => {
     return orders
       ?.filter((order) => {
         if (!order || !order?.createdAt) {
+          return false;
+        }
+        const itemName = getItem(order?.item, items)?.name ?? "";
+        if (
+          !showQuizTicketPickUpOrders &&
+          itemName.toLocaleLowerCase("tr-TR").includes("bilet")
+        ) {
           return false;
         }
         if (
@@ -114,7 +123,7 @@ const ShopifyPickUp = () => {
             order?.isShopifyPickUpOrderBrought ?? false,
         };
       });
-  }, [orders, showPickedOrders, users, items, locations]);
+  }, [orders, showPickedOrders, showQuizTicketPickUpOrders, users, items, locations]);
 
   const columns = useMemo(
     () => [
@@ -452,6 +461,18 @@ const ShopifyPickUp = () => {
           />
         ),
       },
+      {
+        label: t("Show Tickets"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showQuizTicketPickUpOrders}
+            onChange={() => {
+              setShowQuizTicketPickUpOrders(!showQuizTicketPickUpOrders);
+            }}
+          />
+        ),
+      },
     ],
     [
       t,
@@ -459,6 +480,7 @@ const ShopifyPickUp = () => {
       setShowPickedOrders,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      showQuizTicketPickUpOrders,
       shopifyPickUpDisabledCondition,
       user,
     ]

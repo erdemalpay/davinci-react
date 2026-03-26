@@ -1385,5 +1385,6 @@
   "Order marked as delivered" : "Order marked as delivered",
   "Order marked as undelivered" : "Order marked as undelivered",
   "An unexpected error occurred" : "An unexpected error occurred",
-  "Delivered" : "Delivered"
+  "Delivered" : "Delivered",
+  "Show Tickets" : "Show Tickets"
 }
