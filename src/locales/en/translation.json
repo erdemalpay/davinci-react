@@ -1385,5 +1385,10 @@
   "Order marked as delivered" : "Order marked as delivered",
   "Order marked as undelivered" : "Order marked as undelivered",
   "An unexpected error occurred" : "An unexpected error occurred",
-  "Delivered" : "Delivered"
+  "Delivered" : "Delivered",
+  "Concurrent collection creation is not allowed when one request has no orders. Please retry." : "Concurrent collection creation is not allowed when one request has no orders. Please retry.",
+  "Order id is required in collection orders" : "Order id is required in collection orders",
+  "Paid quantity must be greater than 0" : "Paid quantity must be greater than 0",
+  "Order quantity changed, refresh and retry." : "Order quantity changed, refresh and retry.",
+  "Wrong Entry" : "Wrong Entry"
 }

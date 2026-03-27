@@ -83,10 +83,15 @@ const TextInput = ({
 
   // Debounce onChange
   const handleChange = (e: { target: { value: string | number } }) => {
+    const raw = e.target.value;
     const newValue =
-      type === "number" && +e.target.value < minNumber && isMinNumber
-        ? minNumber.toString()
-        : e.target.value;
+      type === "number"
+        ? raw === ""
+          ? ""
+          : +raw < minNumber && isMinNumber
+          ? minNumber
+          : Number(raw)
+        : raw;
     setLocalValue(newValue);
     if (isDebounce) {
       if (debounceTimer) {
@@ -104,38 +109,35 @@ const TextInput = ({
   const handleIncrement = () => {
     if (type === "number") {
       const newValue = Math.max(minNumber, +localValue + 1);
-      const newValueStr = newValue.toString();
-      setLocalValue(newValueStr);
-
+      setLocalValue(newValue);
       if (isDebounce) {
         if (debounceTimer) {
           clearTimeout(debounceTimer);
         }
         const timer = setTimeout(() => {
-          onChange(newValueStr);
+          onChange(newValue);
         }, 500);
         setDebounceTimer(timer);
       } else {
-        onChange(newValueStr);
+        onChange(newValue);
       }
     }
   };
+
   const handleDecrement = () => {
     if (type === "number" && +localValue > minNumber) {
       const newValue = Math.max(minNumber, +localValue - 1);
-      const newValueStr = newValue.toString();
-      setLocalValue(newValueStr);
-
+      setLocalValue(newValue);
       if (isDebounce) {
         if (debounceTimer) {
           clearTimeout(debounceTimer);
         }
         const timer = setTimeout(() => {
-          onChange(newValueStr);
+          onChange(newValue);
         }, 1000);
         setDebounceTimer(timer);
       } else {
-        onChange(newValueStr);
+        onChange(newValue);
       }
     }
   };

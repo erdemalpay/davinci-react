@@ -1395,5 +1395,10 @@
   "Order marked as delivered" : "Sipariş teslim edildi olarak işaretlendi",
   "Order marked as undelivered" : "Sipariş teslim edilmedi olarak işaretlendi",
   "An unexpected error occurred" : "Beklenmedik bir hata oluştu",
-  "Delivered" : "Teslim Edildi"
+  "Delivered" : "Teslim Edildi",
+  "Concurrent collection creation is not allowed when one request has no orders. Please retry." : "Eş zamanlı tahsilat oluşturma, bir istek siparişsiz olduğunda mümkün değildir. Lütfen tekrar deneyin.",
+  "Order id is required in collection orders" : "Tahsilat siparişlerinde sipariş kimliği zorunludur",
+  "Paid quantity must be greater than 0" : "Ödenen miktar 0'dan büyük olmalıdır",
+  "Order quantity changed, refresh and retry." : "Sipariş miktarı değişti, sayfayı yenileyip tekrar deneyin.",
+  "Wrong Entry" : "Yanlış Giriş"
 }
