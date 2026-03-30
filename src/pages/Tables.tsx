@@ -114,7 +114,6 @@ const Tables = () => {
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
-  const [isActivityExpanded, setIsActivityExpanded] = useState(false);
   const { selectedLocationId } = useLocationContext();
   const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
@@ -1873,7 +1872,6 @@ const Tables = () => {
                 {todayActiveActivities.length > 0 && (
                   <div
                     className="sm:hidden flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none"
-                    onClick={() => setIsActivityExpanded((prev) => !prev)}
                   >
                     <span className="text-red-500 font-semibold text-xs text-center">
                       {t("Today's Activities")}
@@ -1930,8 +1928,7 @@ const Tables = () => {
               )}
               {todayActiveActivities.length > 0 && (
                 <div
-                  className="flex-1 flex flex-col items-center justify-center gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-1 select-none cursor-pointer"
-                  onClick={() => setIsActivityExpanded((prev) => !prev)}
+                  className="flex-1 flex flex-col items-center justify-center gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-1 select-none"
                 >
                   <span className="text-red-500 font-semibold text-xs text-center">
                     {t("Today's Activities")}
@@ -1939,9 +1936,7 @@ const Tables = () => {
                   {todayActiveActivities.map((activity) => (
                     <span
                       key={activity._id}
-                      className={`text-red-500 text-sm text-center ${
-                        !isActivityExpanded ? "truncate w-full" : ""
-                      }`}
+                      className="text-red-500 text-sm text-center"
                     >
                       {todayActiveActivities.length > 1 && "• "}
                       {activity.hour} - {activity.groupName} (
