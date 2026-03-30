@@ -1851,26 +1851,86 @@ const Tables = () => {
               </div>
             </div>
             {/* activity badge + buttons row */}
-            <div className="flex flex-col md:flex-row md:items-start gap-2 mt-2 md:mt-0">
+            <div className="flex flex-col mt-2 md:mt-0 gap-2">
+              <div className="flex flex-col md:flex-row md:items-start gap-2">
+                {/* campaigns - mobile only in this position */}
+                {todayActivePopups.length > 0 && (
+                  <div className="md:hidden flex flex-col items-center gap-1 border-2 bg-white rounded-lg px-3 py-2 select-none" style={{borderColor:"#1b2a6b"}}>
+                    <span className="font-semibold text-xs text-center" style={{color:"#1b2a6b"}}>
+                      {t("Today's Campaigns")}
+                    </span>
+                    {todayActivePopups.map((popup) => (
+                      <span
+                        key={popup._id}
+                        className="text-sm text-center" style={{color:"#1b2a6b"}}
+                      >
+                        {todayActivePopups.length > 1 && "• "}
+                        {popup.title}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {todayActiveActivities.length > 0 && (
+                  <div
+                    className="sm:hidden flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none"
+                    onClick={() => setIsActivityExpanded((prev) => !prev)}
+                  >
+                    <span className="text-red-500 font-semibold text-xs text-center">
+                      {t("Today's Activities")}
+                    </span>
+                    {todayActiveActivities.map((activity) => (
+                      <span
+                        key={activity._id}
+                        className="text-red-500 text-sm text-center"
+                      >
+                        {todayActiveActivities.length > 1 && "• "}
+                        {activity.hour} - {activity.groupName} (
+                        {activity.personCount} {t("people")})
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {/* buttons */}
+                <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 md:mr-40 flex-1 mt-4 sm:mt-0">
+                  {buttons.map((button, index) => (
+                    <GenericButton
+                      key={index}
+                      onClick={button.onClick}
+                      variant="ghost"
+                      className={`min-w-fit transition duration-150 ease-in-out hover:translate-y-0.5 active:translate-y-1 rounded-lg border border-gray-800 text-gray-800 hover:text-gray-800 px-4 py-2 text-sm ${
+                        button.hideOnMobile
+                          ? "hidden md:block"
+                          : "w-full md:w-auto"
+                      }`}
+                    >
+                      {button.label}
+                    </GenericButton>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* campaigns + activities - desktop only, above table buttons */}
+          {(todayActivePopups.length > 0 || todayActiveActivities.length > 0) && (
+            <div className="hidden sm:flex flex-row gap-4 mt-4">
               {todayActivePopups.length > 0 && (
-                <div className="flex flex-col gap-1 border-2 border-navy-700 bg-white rounded-lg px-3 py-2 select-none md:shrink-0" style={{borderColor:"#1b2a6b"}}>
+                <div className="flex-1 flex flex-col items-center justify-center gap-1 border-2 bg-white rounded-lg px-3 py-1 select-none" style={{borderColor:"#1b2a6b"}}>
                   <span className="font-semibold text-xs text-center" style={{color:"#1b2a6b"}}>
                     {t("Today's Campaigns")}
                   </span>
-                  {todayActivePopups.map((popup) => (
-                    <span
-                      key={popup._id}
-                      className="text-sm md:whitespace-nowrap md:max-w-[17.5rem] md:truncate" style={{color:"#1b2a6b"}}
-                    >
-                      {todayActivePopups.length > 1 && "• "}
-                      {popup.title}
-                    </span>
-                  ))}
+                  <div className="text-base text-center leading-tight" style={{color:"#1b2a6b"}}>
+                    {todayActivePopups.map((popup, i) => (
+                      <span key={popup._id}>
+                        {i > 0 && " • "}
+                        {popup.title}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
               {todayActiveActivities.length > 0 && (
                 <div
-                  className="flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none md:shrink-0"
+                  className="flex-1 flex flex-col items-center justify-center gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-1 select-none cursor-pointer"
                   onClick={() => setIsActivityExpanded((prev) => !prev)}
                 >
                   <span className="text-red-500 font-semibold text-xs text-center">
@@ -1879,10 +1939,8 @@ const Tables = () => {
                   {todayActiveActivities.map((activity) => (
                     <span
                       key={activity._id}
-                      className={`text-red-500 text-sm md:whitespace-nowrap ${
-                        !isActivityExpanded
-                          ? "md:max-w-[17.5rem] md:truncate"
-                          : ""
+                      className={`text-red-500 text-sm text-center ${
+                        !isActivityExpanded ? "truncate w-full" : ""
                       }`}
                     >
                       {todayActiveActivities.length > 1 && "• "}
@@ -1892,31 +1950,14 @@ const Tables = () => {
                   ))}
                 </div>
               )}
-              {/* buttons - original layout preserved */}
-              <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 md:mr-40 flex-1 mt-4 sm:mt-0">
-                {buttons.map((button, index) => (
-                  <GenericButton
-                    key={index}
-                    onClick={button.onClick}
-                    variant="ghost"
-                    className={`min-w-fit transition duration-150 ease-in-out hover:translate-y-0.5 active:translate-y-1 rounded-lg border border-gray-800 text-gray-800 hover:text-gray-800 px-4 py-2 text-sm ${
-                      button.hideOnMobile
-                        ? "hidden md:block"
-                        : "w-full md:w-auto"
-                    }`}
-                  >
-                    {button.label}
-                  </GenericButton>
-                ))}
-              </div>
             </div>
-          </div>
+          )}
           {/* Table name buttons for tablet and desktop screen */}
           <div
             key={activeTableCount + "big"}
-            className="sm:flex-col gap-2 hidden sm:flex"
+            className="sm:flex-col gap-4 hidden sm:flex mt-4"
           >
-            <div className="flex-wrap gap-2 my-4">
+            <div className="flex-wrap gap-2">
               {/* active buttons */}
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList />
