@@ -2038,17 +2038,10 @@ const Tables = () => {
                     key={selectedDate + selectedLocationId + "active"}
                     visits={visits}
                   />
-                  {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos("md:hidden mt-4", "cafeinfo-mobile-today")}
                 </div>
               ) : (
                 <>
                   <PreviousVisitList visits={visits} />
-                  {/* Cafe info for mobile - below "Kafeye giriş yap" */}
-                  {renderCafeInfos(
-                    "md:hidden mt-4",
-                    "cafeinfo-mobile-previous"
-                  )}
                 </>
               )}
               {/* filters */}
