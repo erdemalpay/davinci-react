@@ -20,7 +20,7 @@ export function formatDateInTurkey(dateStr: Date) {
 }
 
 export function toIstDate(date: Date | string): Date {
-  return toZonedTime(new Date(date), "Europe/Istanbul");
+  return toZonedTime(date, "Europe/Istanbul");
 }
 
 export function formatPercentage(value: number): string {
