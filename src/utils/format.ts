@@ -19,6 +19,10 @@ export function formatDateInTurkey(dateStr: Date) {
   return format(zonedDate, "yyyy-MM-dd");
 }
 
+export function toIstDate(date: Date | string): Date {
+  return toZonedTime(new Date(date), "Europe/Istanbul");
+}
+
 export function formatPercentage(value: number): string {
   return (value ?? 0).toFixed(2).replace(/\.?0*$/, "") + "%";
 }

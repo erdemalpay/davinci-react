@@ -9,7 +9,7 @@ import { useGetOrders } from "../utils/api/order/order";
 import { useGetCollectionByTableId } from "../utils/api/order/orderCollection";
 import { useGetAccountPaymentMethods } from "../utils/api/account/paymentMethod";
 import { useGetUsersMinimal } from "../utils/api/user";
-import { formatAsLocalDate } from "../utils/format";
+import { formatAsLocalDate, toIstDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
 export type FormattedCollectionData = {
@@ -60,8 +60,7 @@ export function useFormattedCollectionData(
     const paymentMethod = paymentMethods.find(
       (method) => method._id === collectionData.paymentMethod
     );
-    const zonedTime = toZonedTime(collectionData.tableDate, "UTC");
-    const collectionDate = new Date(zonedTime);
+    const collectionDate = toIstDate(collectionData.tableDate);
     const istanbulTime = toZonedTime(collectionData.createdAt, "Europe/Istanbul");
 
     return {
