@@ -61,7 +61,7 @@ export function useFormattedCollectionData(
       (method) => method._id === collectionData.paymentMethod
     );
     const collectionDate = toIstDate(collectionData.tableDate);
-    const istanbulTime = toZonedTime(collectionData.createdAt, "Europe/Istanbul");
+    const istanbulTime = toIstDate(collectionData.createdAt);
 
     return {
       date: formatAsLocalDate(format(collectionDate, "yyyy-MM-dd")),
