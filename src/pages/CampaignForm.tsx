@@ -12,6 +12,8 @@ import {
   SurveyQuestion,
 } from "../types/event-survey";
 
+const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
 const toOptionsArray = (options: string[] | string | undefined): string[] => {
   if (!options) return [];
   if (Array.isArray(options)) return options;
@@ -274,7 +276,7 @@ const CampaignForm = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isValidEmail(email) || fullName.trim() === ""}
             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
           >
             {isSubmitting ? "Gönderiliyor..." : "Formu Gönder ve Kodu Al"}

@@ -179,7 +179,7 @@ const SurveyRedeem = () => {
               {codeInfo.redeemedByUserName && (
                 <InfoRow
                   label="Teslim Eden"
-                  value={`${codeInfo.redeemChannel === RedeemChannel.BARISTA ? "☕ Barista" : "🎮 GM"} — ${codeInfo.redeemedByUserName}`}
+                  value={codeInfo.redeemedByUserName}
                 />
               )}
             </div>
