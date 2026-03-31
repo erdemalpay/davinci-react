@@ -1,10 +1,11 @@
+import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdKeyboardArrowDown, MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { MdKeyboardArrowDown, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdUnfoldMore, MdArrowUpward, MdArrowDownward } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { useGetAnalyticsSummary, useGetEvents, useGetQuestionAnswers, useGetResponses, useGetQuestions } from "../utils/api/event-survey";
+import { useGetAnalyticsSummary, useGetEvents, useGetMarketingConsentStats, useGetQuestionAnswers, useGetResponses, useGetQuestions } from "../utils/api/event-survey";
 import { QuestionType, RewardCodeStatus, SurveyEvent, SurveyQuestion, SurveyResponse } from "../types/event-survey";
 import { format } from "date-fns";
 
@@ -16,16 +17,27 @@ const SurveyAnalytics = () => {
   const [chartOpen, setChartOpen] = useState(false);
   const [responsesPage, setResponsesPage] = useState(1);
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | undefined>();
+  const [marketingSelected, setMarketingSelected] = useState(false);
+  const [marketingSort, setMarketingSort] = useState<"asc" | "desc" | null>(null);
 
   const questions = (useGetQuestions(selectedEventId) ?? []) as SurveyQuestion[];
   const { data: questionAnswers = [] } = useGetQuestionAnswers(selectedEventId, selectedQuestionId);
+  const { data: marketingStats } = useGetMarketingConsentStats(selectedEventId);
   const selectedQuestion = questions.find((q) => q._id === selectedQuestionId);
 
   const { data: summary, isLoading: summaryLoading } =
     useGetAnalyticsSummary(selectedEventId);
 
   const { data: responsesData } = useGetResponses({ eventId: selectedEventId, limit: 10, page: responsesPage });
-  const responses: SurveyResponse[] = responsesData?.data ?? [];
+  const rawResponses: SurveyResponse[] = responsesData?.data ?? [];
+  const responses: SurveyResponse[] = useMemo(() => {
+    if (!marketingSort) return rawResponses;
+    return [...rawResponses].sort((a, b) => {
+      const aVal = a.emailMarketingConsent ? 1 : 0;
+      const bVal = b.emailMarketingConsent ? 1 : 0;
+      return marketingSort === "desc" ? bVal - aVal : aVal - bVal;
+    });
+  }, [rawResponses, marketingSort]);
   const responsesTotal = responsesData?.total ?? 0;
   const responsesLimit = responsesData?.limit ?? 50;
   const totalPages = Math.ceil(responsesTotal / responsesLimit);
@@ -63,6 +75,7 @@ const SurveyAnalytics = () => {
               setSelectedEventId(e.target.value ? Number(e.target.value) : undefined);
               setResponsesPage(1);
               setSelectedQuestionId(undefined);
+              setMarketingSelected(false);
             }}
             className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
           >
@@ -160,9 +173,10 @@ const SurveyAnalytics = () => {
                 <button
                   key={q._id}
                   type="button"
-                  onClick={() =>
-                    setSelectedQuestionId(selectedQuestionId === q._id ? undefined : q._id)
-                  }
+                  onClick={() => {
+                    setSelectedQuestionId(selectedQuestionId === q._id ? undefined : q._id);
+                    setMarketingSelected(false);
+                  }}
                   className={`px-4 py-2 rounded-lg focus:outline-none font-medium cursor-pointer text-sm ${
                     selectedQuestionId === q._id
                       ? "bg-blue-500 text-white"
@@ -172,7 +186,35 @@ const SurveyAnalytics = () => {
                   {i + 1}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setMarketingSelected((prev) => !prev);
+                  setSelectedQuestionId(undefined);
+                }}
+                className={`px-4 py-2 rounded-lg focus:outline-none font-medium cursor-pointer text-sm ${
+                  marketingSelected
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black"
+                }`}
+              >
+                {t("Marketing Consent")}
+              </button>
             </div>
+
+            {marketingSelected && marketingStats && (
+              <div className="space-y-4">
+                <p className="text-sm font-medium text-gray-800">{t("Marketing Consent")}</p>
+                <ConsentDonutChart
+                  answers={[
+                    ...Array(marketingStats.yes).fill({ answer: "evet" }),
+                    ...Array(marketingStats.no).fill({ answer: "hayır" }),
+                  ]}
+                  yesLabel={t("Yes")}
+                  noLabel={t("No")}
+                />
+              </div>
+            )}
 
             {selectedQuestion && (
               <div className="space-y-4">
@@ -191,6 +233,12 @@ const SurveyAnalytics = () => {
                       { key: "answer" },
                     ]}
                   />
+                ) : selectedQuestion.type === QuestionType.CONSENT ? (
+                  <ConsentDonutChart answers={questionAnswers} yesLabel={t("Yes")} noLabel={t("No")} />
+                ) : selectedQuestion.type === QuestionType.SINGLE_CHOICE ? (
+                  <SingleChoiceBarChart answers={questionAnswers} />
+                ) : selectedQuestion.type === QuestionType.MULTI_CHOICE ? (
+                  <MultiChoiceBarChart answers={questionAnswers} />
                 ) : (
                   <div className="flex items-center justify-center py-12 text-gray-400 text-sm">
                     {t("Chart will be shown here")}
@@ -225,7 +273,25 @@ const SurveyAnalytics = () => {
                     <tr>
                       <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Full Name")}</th>
                       <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Email")}</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Marketing Consent")}</th>
+                      <th
+                        className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700"
+                        onClick={() =>
+                          setMarketingSort((prev) =>
+                            prev === "desc" ? "asc" : prev === "asc" ? null : "desc"
+                          )
+                        }
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          {t("Marketing Consent")}
+                          {marketingSort === "desc" ? (
+                            <MdArrowDownward className="text-indigo-500" />
+                          ) : marketingSort === "asc" ? (
+                            <MdArrowUpward className="text-indigo-500" />
+                          ) : (
+                            <MdUnfoldMore className="text-gray-400" />
+                          )}
+                        </span>
+                      </th>
                       <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Reward")}</th>
                       <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Date")}</th>
                     </tr>
@@ -336,6 +402,131 @@ const RewardStatusBadge = ({
 
   // ISSUED
   return <span className="text-xs">{t("Issued")} · {rewardCode.code}</span>;
+};
+
+const MultiChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) => {
+  const counts = answers.reduce<Record<string, number>>((acc, a) => {
+    const options = a.answer.split(",").map((s) => s.trim()).filter(Boolean);
+    options.forEach((opt) => {
+      acc[opt] = (acc[opt] ?? 0) + 1;
+    });
+    return acc;
+  }, {});
+
+  const data = Object.entries(counts).map(([option, count]) => ({ option, count }));
+
+  if (data.length === 0) return <EmptyChart />;
+
+  const barHeight = 48;
+  const chartHeight = Math.max(240, data.length * barHeight + 40);
+
+  return (
+    <div className="w-full" style={{ height: chartHeight }}>
+      <ResponsiveBar
+        data={data}
+        keys={["count"]}
+        indexBy="option"
+        layout="horizontal"
+        margin={{ top: 10, right: 40, bottom: 20, left: 160 }}
+        padding={0.3}
+        colors={["#6366f1"]}
+        axisLeft={{ tickSize: 0 }}
+        axisBottom={{ tickSize: 5 }}
+        labelSkipWidth={12}
+        enableGridY={false}
+        enableGridX
+        borderRadius={4}
+        theme={{ labels: { text: { fontSize: 16, fontWeight: 700 } } }}
+      />
+    </div>
+  );
+};
+
+const SingleChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) => {
+  const counts = answers.reduce<Record<string, number>>((acc, a) => {
+    acc[a.answer] = (acc[a.answer] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const data = Object.entries(counts).map(([option, count]) => ({
+    option,
+    count,
+  }));
+
+  if (data.length === 0) return <EmptyChart />;
+
+  const barHeight = 48;
+  const chartHeight = Math.max(240, data.length * barHeight + 60);
+
+  return (
+    <div className="w-full h-72">
+      <ResponsiveBar
+        data={data}
+        keys={["count"]}
+        indexBy="option"
+        layout="vertical"
+        margin={{ top: 10, right: 20, bottom: 60, left: 40 }}
+        padding={0.3}
+        colors={["#6366f1"]}
+        axisLeft={{ tickSize: 5 }}
+        axisBottom={{ tickSize: 5, tickRotation: -30 }}
+        labelSkipHeight={12}
+        enableGridY
+        borderRadius={4}
+        theme={{ labels: { text: { fontSize: 16, fontWeight: 700 } } }}
+      />
+    </div>
+  );
+};
+
+const ConsentDonutChart = ({
+  answers,
+  yesLabel,
+  noLabel,
+}: {
+  answers: { answer: string }[];
+  yesLabel: string;
+  noLabel: string;
+}) => {
+  const yesCount = answers.filter((a) => a.answer === "evet").length;
+  const noCount = answers.length - yesCount;
+
+  if (answers.length === 0) return <EmptyChart />;
+
+  const data = [{ id: "consent", [yesLabel]: yesCount, [noLabel]: noCount }];
+
+  return (
+    <div className="w-full h-40">
+      <ResponsiveBar
+        data={data}
+        keys={[yesLabel, noLabel]}
+        indexBy="id"
+        layout="horizontal"
+        groupMode="stacked"
+        margin={{ top: 30, right: 20, bottom: 30, left: 20 }}
+        padding={0.35}
+        colors={["#22c55e", "#f87171"]}
+        axisLeft={null}
+        axisBottom={null}
+        enableGridY={false}
+        borderRadius={4}
+        theme={{ labels: { text: { fontSize: 16, fontWeight: 700 } } }}
+        legends={[
+          {
+            dataFrom: "keys",
+            anchor: "top",
+            direction: "row",
+            translateY: -25,
+            itemWidth: 90,
+            itemHeight: 16,
+            itemTextColor: "#555",
+            symbolSize: 12,
+            symbolShape: "circle",
+          },
+        ]}
+      />
+    </div>
+  );
 };
 
 export default SurveyAnalytics;

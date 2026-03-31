@@ -15,6 +15,11 @@ import {
 } from "../../types/event-survey";
 import { Paths, useMutationApi, useGetList } from "./factory";
 
+export interface MarketingConsentStats {
+  yes: number;
+  no: number;
+}
+
 export const EventSurveyPaths = {
   events: `${Paths.EventSurvey}/events`,
   publicEvent: (slug: string) => `${Paths.EventSurvey}/public/event/${slug}`,
@@ -26,6 +31,7 @@ export const EventSurveyPaths = {
   redeem: `${Paths.EventSurvey}/redeem`,
   analyticsSummary: `${Paths.EventSurvey}/analytics/summary`,
   questionAnswers: `${Paths.EventSurvey}/analytics/question-answers`,
+  marketingConsent: `${Paths.EventSurvey}/analytics/marketing-consent`,
 };
 
 // ─── Event (Etkinlik) ──────────────────────────────────────────────────────
@@ -135,6 +141,16 @@ export interface QuestionAnswer {
   email: string;
   answer: string;
   createdAt: string;
+}
+
+export function useGetMarketingConsentStats(eventId?: number) {
+  const url = `${EventSurveyPaths.marketingConsent}?eventId=${eventId}`;
+  return useQuery<MarketingConsentStats>({
+    queryKey: [url],
+    queryFn: () => get({ path: url }),
+    staleTime: 0,
+    enabled: !!eventId,
+  });
 }
 
 export function useGetQuestionAnswers(eventId?: number, questionId?: number) {
