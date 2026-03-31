@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { MdOpenInNew, MdPrint } from "react-icons/md";
@@ -18,10 +19,10 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 interface Props {
   onSelectEvent: (event: SurveyEvent) => void;
-  selectedEventId?: number;
 }
 
-const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
+const EventTable = ({ onSelectEvent }: Props) => {
+  const { t } = useTranslation();
   const events = useGetEvents();
   const { createEvent, updateEvent, deleteEvent } = useEventMutations();
   const queryClient = useQueryClient();
@@ -42,7 +43,7 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
         queryKey: [EventSurveyPaths.events],
       });
       toast.success(
-        next === EventStatus.PUBLISHED ? "Form yayınlandı" : "Taslağa alındı"
+        next === EventStatus.PUBLISHED ? t("Form Published") : t("Moved to Draft")
       );
     } catch {
       toast.error("Durum güncellenemedi");
@@ -54,51 +55,51 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
     {
       type: InputTypes.TEXT,
       formKey: "name",
-      label: "Etkinlik Adı",
+      label: t("Event Name"),
       placeholder: "ATO Kitap Fuarı 2026",
       required: true,
     },
     {
       type: InputTypes.TEXT,
       formKey: "rewardLabel",
-      label: "Ödül",
+      label: t("Reward"),
       placeholder: "Ücretsiz Filtre Kahve",
       required: true,
     },
     {
       type: InputTypes.DATE,
       formKey: "startAt",
-      label: "Etkinlik Başlangıç Tarihi",
-      placeholder: "Başlangıç Tarihi",
+      label: t("Event Start Date"),
+      placeholder: t("Start"),
       required: false,
       isDatePicker: true,
     },
     {
       type: InputTypes.DATE,
       formKey: "endAt",
-      label: "Etkinlik Bitiş Tarihi",
-      placeholder: "Bitiş Tarihi",
+      label: t("Event End Date"),
+      placeholder: t("End"),
       required: false,
       isDatePicker: true,
     },
     {
       type: InputTypes.TEXT,
       formKey: "location",
-      label: "Mekan / Venue",
+      label: t("Venue"),
       placeholder: "ATO Congresium",
       required: false,
     },
     {
       type: InputTypes.TEXT,
       formKey: "stand",
-      label: "Stand No / Adı",
+      label: t("Stand No"),
       placeholder: "Stand 42",
       required: false,
     },
     {
       type: InputTypes.NUMBER,
       formKey: "codeValidityDays",
-      label: "Kod Geçerlilik Süresi (Gün)",
+      label: t("Code Validity Days"),
       placeholder: "7",
       required: true,
     },
@@ -115,14 +116,14 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
   ];
 
   const columns = [
-    { key: "Etkinlik Adı", isSortable: true },
-    { key: "Yayında", isSortable: false },
-    { key: "Ödül", isSortable: false },
-    { key: "Geçerlilik", isSortable: false },
-    { key: "Başlangıç", isSortable: true },
-    { key: "Bitiş", isSortable: true },
-    { key: "QR / Link", isSortable: false },
-    { key: "İşlem", isSortable: false },
+    { key: t("Event Name"), isSortable: true },
+    { key: t("Published"), isSortable: false },
+    { key: t("Reward"), isSortable: false },
+    { key: t("Validity"), isSortable: false },
+    { key: t("Start"), isSortable: true },
+    { key: t("End"), isSortable: true },
+    { key: t("QR Link"), isSortable: false },
+    { key: t("Actions"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -130,9 +131,7 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
       key: "name",
       node: (row: SurveyEvent) => (
         <button
-          className={`text-left font-medium hover:text-blue-600 transition-colors ${
-            selectedEventId === row._id ? "text-blue-600" : ""
-          }`}
+          className="text-left font-medium hover:text-blue-600 transition-colors"
           onClick={() => onSelectEvent(row)}
         >
           {row.name}
@@ -175,14 +174,14 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
         return (
           <div className="flex items-center gap-2">
             <button
-              title="Formu önizle"
+              title={t("Preview Form")}
               className="flex items-center gap-1 text-blue-500 hover:text-blue-700 text-sm"
               onClick={() => window.open(url, "_blank")}
             >
               <MdOpenInNew className="text-lg" />
             </button>
             <button
-              title="QR kodu yazdır"
+              title={t("Print QR Code")}
               className="flex items-center gap-1 text-gray-500 hover:text-gray-800 text-sm"
               onClick={() =>
                 printQrCode({
@@ -203,7 +202,7 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
   ];
 
   const addButton = {
-    name: "Yeni Etkinlik",
+    name: t("New Event"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -227,7 +226,7 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
 
   const actions = [
     {
-      name: "Sil",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -239,7 +238,7 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
             setIsDeleteDialogOpen(false);
             toast.success("Etkinlik silindi");
           }}
-          title="Etkinliği Sil"
+          title={t("Delete Event")}
           text={`"${rowToAction.name}" etkinliğini silmek istediğinize emin misiniz?`}
         />
       ) : null,
@@ -250,7 +249,7 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
       isPath: false,
     },
     {
-      name: "Düzenle",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -282,7 +281,7 @@ const EventTable = ({ onSelectEvent, selectedEventId }: Props) => {
       columns={columns}
       isActionsActive={true}
       rows={(events as SurveyEvent[]).filter(Boolean)}
-      title="Etkinlikler"
+      title={t("Events")}
       addButton={addButton}
     />
   );

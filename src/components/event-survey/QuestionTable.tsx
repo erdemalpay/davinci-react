@@ -34,6 +34,7 @@ interface Props {
 }
 
 const QuestionTable = ({ event }: Props) => {
+  const { t } = useTranslation();
   const questions = useGetQuestions(event._id);
   const { createQuestion, updateQuestion, deleteQuestion } =
     useQuestionMutations(event._id);
@@ -51,14 +52,14 @@ const QuestionTable = ({ event }: Props) => {
       {
         type: InputTypes.TEXT,
         formKey: "label",
-        label: "Soru Metni",
+        label: t("Question Text"),
         placeholder: "Davinci Board Game Cafe'yi biliyor musunuz?",
         required: true,
       },
       {
         type: InputTypes.SELECT,
         formKey: "type",
-        label: "Soru Tipi",
+        label: t("Question Type"),
         options: QUESTION_TYPE_OPTIONS,
         placeholder: "Soru Tipi",
         required: true,
@@ -68,7 +69,7 @@ const QuestionTable = ({ event }: Props) => {
             {
               type: InputTypes.TEXTAREA,
               formKey: "options",
-              label: "Seçenekler (her satıra bir seçenek)",
+              label: t("Options Per Line"),
               placeholder: "Evet\nHayır\nBilmiyorum",
               required: false,
             },
@@ -77,7 +78,7 @@ const QuestionTable = ({ event }: Props) => {
       {
         type: InputTypes.CHECKBOX,
         formKey: "required",
-        label: "Zorunlu",
+        label: t("Required"),
         required: false,
         isTopFlexRow: true,
       },
@@ -144,12 +145,12 @@ const QuestionTable = ({ event }: Props) => {
         formKeys={formKeys}
         setForm={(item: Partial<SurveyQuestion>) => setAddFormType(item.type ?? "")}
         upperMessage={[
-          "ℹ️ Ad Soyad, E-posta ve Pazarlama Onayı zaten formda var — tekrar ekleme.",
-          "🔘 Tek Seçim → müşteri 1 seçenek işaretler (radio button)",
-          "☑️ Çok Seçim → birden fazla seçilebilir (checkbox)",
-          "✏️ Metin → serbest yazı kutusu — seçenek girme",
-          "✅ Onay → tek onay kutusu — seçenek girme",
-          "📋 Seçenekler: her satıra bir tane yaz (Enter ile alt satıra geç)",
+          t("Question Form Info"),
+          t("Question Type Single"),
+          t("Question Type Multi"),
+          t("Question Type Text"),
+          t("Question Type Consent"),
+          t("Question Options Info"),
         ]}
         upperMessageColumns={2}
         submitItem={(item: SurveyQuestion | UpdatePayload<SurveyQuestion>) => {
@@ -217,12 +218,12 @@ const QuestionTable = ({ event }: Props) => {
           formKeys={formKeys}
           setForm={(item: Partial<SurveyQuestion>) => setEditFormType(item.type ?? "")}
           upperMessage={[
-            "ℹ️ Ad Soyad, E-posta ve Pazarlama Onayı zaten formda var — tekrar ekleme.",
-            "🔘 Tek Seçim → müşteri 1 seçenek işaretler (radio button)",
-            "☑️ Çok Seçim → birden fazla seçilebilir (checkbox)",
-            "✏️ Metin → serbest yazı kutusu — seçenek girme",
-            "✅ Onay → tek onay kutusu — seçenek girme",
-            "📋 Seçenekler: her satıra bir tane yaz (Enter ile alt satıra geç)",
+            t("Question Form Info"),
+            t("Question Type Single"),
+            t("Question Type Multi"),
+            t("Question Type Text"),
+            t("Question Type Consent"),
+            t("Question Options Info"),
           ]}
           upperMessageColumns={2}
           submitItem={(item: SurveyQuestion | UpdatePayload<SurveyQuestion>) => {

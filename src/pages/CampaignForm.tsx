@@ -1,8 +1,6 @@
 import { format } from "date-fns";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
-import { submitSurvey, useGetPublicEvent } from "../utils/api/event-survey";
 import {
   EventStatus,
   QuestionType,
@@ -11,13 +9,18 @@ import {
   SurveyAnswer,
   SurveyQuestion,
 } from "../types/event-survey";
+import { submitSurvey, useGetPublicEvent } from "../utils/api/event-survey";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const toOptionsArray = (options: string[] | string | undefined): string[] => {
   if (!options) return [];
   if (Array.isArray(options)) return options;
-  return String(options).split("\n").map((s) => s.trim()).filter(Boolean);
+  return String(options)
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
 };
 
 const CampaignForm = () => {
@@ -78,7 +81,9 @@ const CampaignForm = () => {
       const res = await submitSurvey(payload);
       setResult(res);
     } catch (err: unknown) {
-      setError(getApiErrorMessage(err, "Bir hata oluştu, lütfen tekrar deneyin."));
+      setError(
+        getApiErrorMessage(err, "Bir hata oluştu, lütfen tekrar deneyin.")
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -93,7 +98,12 @@ const CampaignForm = () => {
   }
 
   if (isError || !data) {
-    return <StatusScreen title="Etkinlik bulunamadı" description="Bu QR kodu geçerli bir etkinliğe ait değil." />
+    return (
+      <StatusScreen
+        title="Etkinlik bulunamadı"
+        description="Bu QR kodu geçerli bir etkinliğe ait değil."
+      />
+    );
   }
 
   if (!data.available) {
@@ -104,7 +114,9 @@ const CampaignForm = () => {
     return (
       <StatusScreen
         title="Kampanya Aktif Değil"
-        description={statusMessages[data.event.status] ?? "Bu kampanya şu an aktif değil."}
+        description={
+          statusMessages[data.event.status] ?? "Bu kampanya şu an aktif değil."
+        }
       />
     );
   }
@@ -114,25 +126,36 @@ const CampaignForm = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-100 via-slate-50 to-gray-200 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-sm w-full text-center">
           <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
-            <img src="/logo.svg" alt="Davinci" className="h-14 w-14 object-contain" />
+            <img
+              src="/logo.svg"
+              alt="Davinci"
+              className="h-14 w-14 object-contain"
+            />
           </div>
           <h2 className="text-xl font-bold text-gray-800 mb-1">Teşekkürler!</h2>
           <p className="text-sm text-gray-500 mb-6">Davinci Board Game Cafe</p>
 
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-6 mb-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Ödül Kodunuz</p>
-            <p className="text-4xl font-bold tracking-[0.2em] text-gray-800">{result.code}</p>
+          <div className="py-4 mb-2">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">
+              Ödül Kodunuz
+            </p>
+            <p className="text-4xl font-bold tracking-[0.2em] text-gray-800">
+              {result.code}
+            </p>
           </div>
 
           <div className="text-sm text-gray-600 space-y-1 mb-6">
-            <p>Ödülünüz: <span className="font-medium">{result.rewardLabel}</span></p>
+            <p>
+              Ödülünüz:{" "}
+              <span className="font-medium">{result.rewardLabel}</span>
+            </p>
             <p>{result.codeValidityDays} gün geçerli · tek kullanımlık</p>
             <p className="text-xs text-gray-400">
               Son kullanım: {format(new Date(result.expiresAt), "dd/MM/yyyy")}
             </p>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
             <p className="text-xs text-amber-700 font-medium">
               Bu kodu barista veya oyun yöneticisine söyleyin
             </p>
@@ -151,14 +174,19 @@ const CampaignForm = () => {
             alt="Davinci Board Game Cafe"
             className="h-12 mx-auto mb-3"
           />
-          <h1 className="text-xl font-bold text-gray-800">Davinci Board Game Cafe</h1>
-          <p className="text-sm text-gray-500 mt-1">Formu doldur, sürpriz ödülünü al! 🎁</p>
+          <h1 className="text-xl font-bold text-gray-800">
+            Davinci Board Game Cafe
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Formu doldur, sürpriz ödülünü al!{" "}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ad Soyad <span className="text-gray-400 font-normal">(Opsiyonel)</span>
+              Ad Soyad{" "}
+              <span className="text-gray-400 font-normal">(Opsiyonel)</span>
             </label>
             <input
               type="text"
@@ -185,21 +213,30 @@ const CampaignForm = () => {
 
           {(data.questions as SurveyQuestion[]).map((question) => (
             <div key={question._id}>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {question.label}
-                {question.required && <span className="text-red-500 ml-1">*</span>}
-              </label>
+              {question.type !== QuestionType.CONSENT && (
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {question.label}
+                  {question.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
+                </label>
+              )}
 
               {question.type === QuestionType.SINGLE_CHOICE && (
                 <div className="space-y-2">
                   {toOptionsArray(question.options).map((opt) => (
-                    <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                    <label
+                      key={opt}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
                       <input
                         type="radio"
                         name={`q_${question._id}`}
                         value={opt}
                         required={question.required}
-                        onChange={(e) => handleAnswerChange(question, e.target.value)}
+                        onChange={(e) =>
+                          handleAnswerChange(question, e.target.value)
+                        }
                         className="accent-indigo-500"
                       />
                       <span className="text-sm text-gray-700">{opt}</span>
@@ -211,7 +248,10 @@ const CampaignForm = () => {
               {question.type === QuestionType.MULTI_CHOICE && (
                 <div className="space-y-2">
                   {toOptionsArray(question.options).map((opt) => (
-                    <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                    <label
+                      key={opt}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
                       <input
                         type="checkbox"
                         value={opt}
@@ -241,11 +281,19 @@ const CampaignForm = () => {
                     type="checkbox"
                     required={question.required}
                     onChange={(e) =>
-                      handleAnswerChange(question, e.target.checked ? "evet" : "hayır")
+                      handleAnswerChange(
+                        question,
+                        e.target.checked ? "evet" : "hayır"
+                      )
                     }
                     className="accent-indigo-500 mt-0.5"
                   />
-                  <span className="text-sm text-gray-600">{question.label}</span>
+                  <span className="text-sm text-gray-600">
+                    {question.label}
+                    {question.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
+                  </span>
                 </label>
               )}
             </div>
@@ -260,7 +308,8 @@ const CampaignForm = () => {
                 className="accent-indigo-500 mt-0.5"
               />
               <span className="text-xs text-gray-500">
-                E-posta adresimin pazarlama ve kampanya amaçlı kullanılmasına onay veriyorum.
+                E-posta adresimin pazarlama ve kampanya amaçlı kullanılmasına
+                onay veriyorum.
               </span>
             </label>
           </div>
@@ -284,12 +333,28 @@ const CampaignForm = () => {
   );
 };
 
-const StatusScreen = ({ title, description }: { title: string; description: string }) => (
+const StatusScreen = ({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
     <div className="text-center">
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg
+          className="w-8 h-8 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
       </div>
       <h2 className="text-lg font-semibold text-gray-700">{title}</h2>

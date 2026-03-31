@@ -69,6 +69,7 @@ import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
 import WebhookLogs from "./../pages/WebhookLogs";
 import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
+import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
 import SurveyRedeem from "./../pages/SurveyRedeem";
 import SurveyAnalytics from "./../pages/SurveyAnalytics";
 import { RoleEnum } from "./../types/index";
@@ -142,6 +143,7 @@ export enum Routes {
   WebhookLogs = "/webhook-logs",
   BackInStock = "/back-in-stock",
   EventSurveyBuilder = "/event-survey-builder",
+  EventSurveyQuestions = "/event-survey-builder/:eventId",
   SurveyRedeem = "/survey-redeem",
   SurveyAnalytics = "/survey-analytics",
 }
@@ -859,6 +861,13 @@ export const allRoutes: {
     path: Routes.EventSurveyBuilder,
     element: EventSurveyBuilder,
     isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Event Survey Questions",
+    path: Routes.EventSurveyQuestions,
+    element: EventSurveyQuestions,
+    isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {

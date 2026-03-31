@@ -1,38 +1,40 @@
 import { format } from "date-fns";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { Header } from "../components/header/Header";
 import { RedeemChannel, RewardCodeStatus, ValidateCodeResult } from "../types/event-survey";
 import { redeemCode, validateCode } from "../utils/api/event-survey";
 import { useUserContext } from "../context/User.context";
 
-const STATUS_CONFIG: Record<
-  RewardCodeStatus,
-  { label: string; color: string; bg: string }
-> = {
-  [RewardCodeStatus.ISSUED]: {
-    label: "Kullanılabilir",
-    color: "text-green-700",
-    bg: "bg-green-50 border-green-200",
-  },
-  [RewardCodeStatus.REDEEMED]: {
-    label: "Kullanıldı",
-    color: "text-gray-600",
-    bg: "bg-gray-50 border-gray-200",
-  },
-  [RewardCodeStatus.EXPIRED]: {
-    label: "Süresi Dolmuş",
-    color: "text-red-600",
-    bg: "bg-red-50 border-red-200",
-  },
-};
-
 const SurveyRedeem = () => {
+  const { t } = useTranslation();
   const { user } = useUserContext();
   const userChannel: RedeemChannel =
     user?.role?.name?.toLowerCase().includes("barista")
       ? RedeemChannel.BARISTA
       : RedeemChannel.GM;
+
+  const STATUS_CONFIG: Record<
+    RewardCodeStatus,
+    { label: string; color: string; bg: string }
+  > = {
+    [RewardCodeStatus.ISSUED]: {
+      label: t("Available"),
+      color: "text-green-700",
+      bg: "bg-green-50 border-green-200",
+    },
+    [RewardCodeStatus.REDEEMED]: {
+      label: t("Redeemed"),
+      color: "text-gray-600",
+      bg: "bg-gray-50 border-gray-200",
+    },
+    [RewardCodeStatus.EXPIRED]: {
+      label: t("Expired"),
+      color: "text-red-600",
+      bg: "bg-red-50 border-red-200",
+    },
+  };
 
   const [code, setCode] = useState("");
   const [codeInfo, setCodeInfo] = useState<ValidateCodeResult | null>(null);
@@ -85,9 +87,10 @@ const SurveyRedeem = () => {
     <>
       <Header showLocationSelector={false} />
       <div className="w-full max-w-lg mx-auto my-10 px-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Kod Doğrulama</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+          {t("Survey Redeem")}
+        </h1>
 
-        {/* Kod Giriş Alanı */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             6 Haneli Kod
@@ -114,19 +117,17 @@ const SurveyRedeem = () => {
               disabled={code.length !== 6 || isLoading}
               className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium px-5 rounded-lg transition-colors"
             >
-              {isLoading ? "..." : "Sorgula"}
+              {isLoading ? "..." : t("Query")}
             </button>
           </div>
         </div>
 
-        {/* Hata */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
 
-        {/* Kod Bilgileri */}
         {codeInfo && statusConfig && (
           <div className={`rounded-xl border p-5 mb-4 ${statusConfig.bg}`}>
             <div className="flex items-center justify-between mb-4">
@@ -142,49 +143,48 @@ const SurveyRedeem = () => {
 
             <div className="space-y-2 text-sm">
               {codeInfo.eventName && (
-                <InfoRow label="Etkinlik" value={codeInfo.eventName} />
+                <InfoRow label={t("Event")} value={codeInfo.eventName} />
               )}
               {codeInfo.rewardLabel && (
-                <InfoRow label="Ödül" value={`🎁 ${codeInfo.rewardLabel}`} />
+                <InfoRow label={t("Reward")} value={`🎁 ${codeInfo.rewardLabel}`} />
               )}
               {codeInfo.fullName && (
-                <InfoRow label="Müşteri" value={codeInfo.fullName} />
+                <InfoRow label={t("Customer")} value={codeInfo.fullName} />
               )}
               <InfoRow
-                label="Kodun Alındığı Tarih"
+                label={t("Code Issued Date")}
                 value={format(new Date(codeInfo.createdAt), "dd/MM/yyyy HH:mm")}
               />
               <InfoRow
-                label="Son Kullanım Tarihi"
+                label={t("Expiry Date")}
                 value={format(new Date(codeInfo.expiresAt), "dd/MM/yyyy")}
               />
               {codeInfo.eventStartAt && (
                 <InfoRow
-                  label="Etkinlik Başlangıcı"
+                  label={t("Event Start")}
                   value={format(new Date(codeInfo.eventStartAt), "dd/MM/yyyy")}
                 />
               )}
               {codeInfo.eventEndAt && (
                 <InfoRow
-                  label="Etkinlik Bitişi"
+                  label={t("Event End")}
                   value={format(new Date(codeInfo.eventEndAt), "dd/MM/yyyy")}
                 />
               )}
               {codeInfo.redeemedAt && (
                 <InfoRow
-                  label="Kullanım Zamanı"
+                  label={t("Redeemed At")}
                   value={format(new Date(codeInfo.redeemedAt), "dd/MM/yyyy HH:mm")}
                 />
               )}
               {codeInfo.redeemedByUserName && (
                 <InfoRow
-                  label="Teslim Eden"
+                  label={t("Redeemed By")}
                   value={codeInfo.redeemedByUserName}
                 />
               )}
             </div>
 
-            {/* Redeem Butonu */}
             {codeInfo.status === RewardCodeStatus.ISSUED && !redeemed && (
               <div className="mt-5">
                 <button
@@ -192,7 +192,7 @@ const SurveyRedeem = () => {
                   disabled={isRedeeming}
                   className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-base transition-colors"
                 >
-                  {isRedeeming ? "İşleniyor..." : "✓ Verildi"}
+                  {isRedeeming ? t("Processing") : `✓ ${t("Give")}`}
                 </button>
               </div>
             )}
