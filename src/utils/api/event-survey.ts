@@ -121,6 +121,8 @@ export function useGetResponses(params: {
   endDate?: string;
   page?: number;
   limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
 }) {
   const query = new URLSearchParams();
   if (params.eventId) query.set("eventId", String(params.eventId));
@@ -128,6 +130,8 @@ export function useGetResponses(params: {
   if (params.endDate) query.set("endDate", params.endDate);
   if (params.page) query.set("page", String(params.page));
   if (params.limit) query.set("limit", String(params.limit));
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
   const url = `${EventSurveyPaths.responses}?${query.toString()}`;
   return useQuery<PaginatedResult<SurveyResponse>>({
     queryKey: [url],

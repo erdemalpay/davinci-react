@@ -2,7 +2,7 @@ import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdKeyboardArrowDown, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdUnfoldMore, MdArrowUpward, MdArrowDownward } from "react-icons/md";
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGetAnalyticsSummary, useGetEvents, useGetMarketingConsentStats, useGetQuestionAnswers, useGetResponses, useGetQuestions } from "../utils/api/event-survey";
@@ -15,10 +15,8 @@ const SurveyAnalytics = () => {
   const [selectedEventId, setSelectedEventId] = useState<number | undefined>();
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
-  const [responsesPage, setResponsesPage] = useState(1);
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | undefined>();
   const [marketingSelected, setMarketingSelected] = useState(false);
-  const [marketingSort, setMarketingSort] = useState<"asc" | "desc" | null>(null);
 
   const questions = (useGetQuestions(selectedEventId) ?? []) as SurveyQuestion[];
   const { data: questionAnswers = [] } = useGetQuestionAnswers(selectedEventId, selectedQuestionId);
@@ -28,19 +26,11 @@ const SurveyAnalytics = () => {
   const { data: summary, isLoading: summaryLoading } =
     useGetAnalyticsSummary(selectedEventId);
 
-  const { data: responsesData } = useGetResponses({ eventId: selectedEventId, limit: 10, page: responsesPage });
-  const rawResponses: SurveyResponse[] = responsesData?.data ?? [];
-  const responses: SurveyResponse[] = useMemo(() => {
-    if (!marketingSort) return rawResponses;
-    return [...rawResponses].sort((a, b) => {
-      const aVal = a.emailMarketingConsent ? 1 : 0;
-      const bVal = b.emailMarketingConsent ? 1 : 0;
-      return marketingSort === "desc" ? bVal - aVal : aVal - bVal;
-    });
-  }, [rawResponses, marketingSort]);
-  const responsesTotal = responsesData?.total ?? 0;
-  const responsesLimit = responsesData?.limit ?? 50;
-  const totalPages = Math.ceil(responsesTotal / responsesLimit);
+  const { data: responsesData } = useGetResponses({
+    eventId: selectedEventId,
+    limit: 1000,
+  });
+  const responses: SurveyResponse[] = responsesData?.data ?? [];
 
   const lineData = useMemo(() => {
     if (!summary?.dailyTrend?.length) return [];
@@ -73,7 +63,6 @@ const SurveyAnalytics = () => {
             value={selectedEventId ?? ""}
             onChange={(e) => {
               setSelectedEventId(e.target.value ? Number(e.target.value) : undefined);
-              setResponsesPage(1);
               setSelectedQuestionId(undefined);
               setMarketingSelected(false);
             }}
@@ -267,89 +256,41 @@ const SurveyAnalytics = () => {
           </button>
           {participantsOpen && (
             <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Full Name")}</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Email")}</th>
-                      <th
-                        className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700"
-                        onClick={() =>
-                          setMarketingSort((prev) =>
-                            prev === "desc" ? "asc" : prev === "asc" ? null : "desc"
-                          )
-                        }
-                      >
-                        <span className="inline-flex items-center gap-1">
-                          {t("Marketing Consent")}
-                          {marketingSort === "desc" ? (
-                            <MdArrowDownward className="text-indigo-500" />
-                          ) : marketingSort === "asc" ? (
-                            <MdArrowUpward className="text-indigo-500" />
-                          ) : (
-                            <MdUnfoldMore className="text-gray-400" />
-                          )}
-                        </span>
-                      </th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Reward")}</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Date")}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {responses.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="text-center py-8 text-gray-400 text-sm">
-                          {t("No participants yet")}
-                        </td>
-                      </tr>
-                    ) : (
-                      responses.map((r: SurveyResponse) => (
-                        <tr key={r._id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 font-medium text-gray-800">{r.fullName}</td>
-                          <td className="px-4 py-3 text-gray-500">{r.email}</td>
-                          <td className="px-4 py-3">
-                            {r.emailMarketingConsent ? (
-                              <span className="text-green-600 text-xs font-medium">{t("Approved")}</span>
-                            ) : (
-                              <span className="text-gray-400 text-xs">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <RewardStatusBadge rewardCode={r.rewardCode} t={t} />
-                          </td>
-                          <td className="px-4 py-3 text-gray-500">
-                            {format(new Date(r.createdAt), "dd/MM/yyyy HH:mm")}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              {totalPages > 1 && (
-                <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-gray-100">
-                  <span className="text-xs text-gray-500">
-                    {(responsesPage - 1) * responsesLimit + 1}–{Math.min(responsesPage * responsesLimit, responsesTotal)} / {responsesTotal}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setResponsesPage((p) => p - 1)}
-                    disabled={responsesPage === 1}
-                    className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    <MdKeyboardArrowLeft className="text-lg text-gray-600" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setResponsesPage((p) => p + 1)}
-                    disabled={responsesPage === totalPages}
-                    className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    <MdKeyboardArrowRight className="text-lg text-gray-600" />
-                  </button>
-                </div>
-              )}
+              <GenericTable
+                rows={responses}
+                isActionsActive={false}
+                columns={[
+                  { key: t("Full Name"), isSortable: true },
+                  { key: t("Email"), isSortable: true },
+                  { key: t("Marketing Consent"), isSortable: true },
+                  { key: t("Reward"), isSortable: false },
+                  { key: t("Date"), isSortable: true },
+                ]}
+                rowKeys={[
+                  { key: "fullName" },
+                  { key: "email" },
+                  {
+                    key: "emailMarketingConsent",
+                    node: (row: SurveyResponse) =>
+                      row.emailMarketingConsent ? (
+                        <span className="text-green-600 text-xs font-medium">{t("Approved")}</span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">—</span>
+                      ),
+                  },
+                  {
+                    key: "rewardCode",
+                    node: (row: SurveyResponse) => (
+                      <RewardStatusBadge rewardCode={row.rewardCode} t={t} />
+                    ),
+                  },
+                  {
+                    key: "createdAt",
+                    node: (row: SurveyResponse) =>
+                      format(new Date(row.createdAt), "dd/MM/yyyy HH:mm"),
+                  },
+                ]}
+              />
             </>
           )}
         </div>}
