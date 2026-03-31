@@ -55,6 +55,15 @@ export interface SurveyAnswer {
   answer: string | string[];
 }
 
+export interface SurveyResponseRewardCode {
+  code: string;
+  status: RewardCodeStatus;
+  redeemChannel?: RedeemChannel | null;
+  redeemedAt?: string | null;
+  expiresAt: string;
+  rewardLabel: string;
+}
+
 export interface SurveyResponse {
   _id: number;
   eventId: number;
@@ -63,8 +72,7 @@ export interface SurveyResponse {
   emailMarketingConsent: boolean;
   answers: SurveyAnswer[];
   createdAt: string;
-  isRedeemed?: boolean;
-  redeemChannel?: RedeemChannel | null;
+  rewardCode?: SurveyResponseRewardCode | null;
 }
 
 export interface RewardCode {

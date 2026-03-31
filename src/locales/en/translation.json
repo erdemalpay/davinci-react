@@ -1390,5 +1390,28 @@
   "Order marked as delivered" : "Order marked as delivered",
   "Order marked as undelivered" : "Order marked as undelivered",
   "An unexpected error occurred" : "An unexpected error occurred",
-  "Delivered" : "Delivered"
+  "Delivered" : "Delivered",
+  "Participant List" : "Participant List",
+  "Marketing Consent" : "Marketing Consent",
+  "Reward" : "Reward",
+  "Event" : "Event",
+  "All Events" : "All Events",
+  "Total Participation" : "Total Participation",
+  "Generated Code" : "Generated Code",
+  "Used Code" : "Used Code",
+  "Usage Rate" : "Usage Rate",
+  "Daily Form Submission (Last 30 Days)" : "Daily Form Submission (Last 30 Days)",
+  "Code Conversion Funnel" : "Code Conversion Funnel",
+  "Form Submission" : "Form Submission",
+  "Code Generated" : "Code Generated",
+  "Used" : "Used",
+  "No data yet" : "No data yet",
+  "Issued" : "Issued",
+  "Please select an event to view analytics" : "Please select an event to view analytics",
+  "Survey Count" : "Survey Count",
+  "Answer" : "Answer"
+
+
+
+
 }

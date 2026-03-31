@@ -25,6 +25,7 @@ export const EventSurveyPaths = {
   validate: `${Paths.EventSurvey}/validate`,
   redeem: `${Paths.EventSurvey}/redeem`,
   analyticsSummary: `${Paths.EventSurvey}/analytics/summary`,
+  questionAnswers: `${Paths.EventSurvey}/analytics/question-answers`,
 };
 
 // ─── Event (Etkinlik) ──────────────────────────────────────────────────────
@@ -126,6 +127,23 @@ export function useGetResponses(params: {
     queryKey: [url],
     queryFn: () => get({ path: url }),
     staleTime: 0,
+    enabled: !!params.eventId,
+  });
+}
+
+export interface QuestionAnswer {
+  email: string;
+  answer: string;
+  createdAt: string;
+}
+
+export function useGetQuestionAnswers(eventId?: number, questionId?: number) {
+  const url = `${EventSurveyPaths.questionAnswers}?eventId=${eventId}&questionId=${questionId}`;
+  return useQuery<QuestionAnswer[]>({
+    queryKey: [url],
+    queryFn: () => get({ path: url }),
+    staleTime: 0,
+    enabled: !!eventId && !!questionId,
   });
 }
 
@@ -137,5 +155,6 @@ export function useGetAnalyticsSummary(eventId?: number) {
     queryKey: [url],
     queryFn: () => get({ path: url }),
     staleTime: 0,
+    enabled: !!eventId,
   });
 }
