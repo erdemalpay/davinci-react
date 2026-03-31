@@ -42,45 +42,47 @@ const QuestionTable = ({ event }: Props) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [addFormType, setAddFormType] = useState<string>("");
+  const [editFormType, setEditFormType] = useState<string>("");
 
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "label",
-      label: "Soru Metni",
-      placeholder: "Davinci Board Game Cafe'yi biliyor musunuz?",
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "type",
-      label: "Soru Tipi",
-      options: QUESTION_TYPE_OPTIONS,
-      placeholder: "Soru Tipi",
-      required: true,
-    },
-    {
-      type: InputTypes.TEXTAREA,
-      formKey: "options",
-      label: "Seçenekler (her satıra bir seçenek)",
-      placeholder: "Evet\nHayır\nBilmiyorum",
-      required: false,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "order",
-      label: "Sıra",
-      placeholder: "1",
-      required: false,
-    },
-    {
-      type: InputTypes.CHECKBOX,
-      formKey: "required",
-      label: "Zorunlu",
-      required: false,
-      isTopFlexRow: true,
-    },
-  ];
+  const buildInputs = (selectedType: string) => {
+    const showOptions = selectedType !== QuestionType.CONSENT && selectedType !== QuestionType.TEXT;
+    return [
+      {
+        type: InputTypes.TEXT,
+        formKey: "label",
+        label: "Soru Metni",
+        placeholder: "Davinci Board Game Cafe'yi biliyor musunuz?",
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "type",
+        label: "Soru Tipi",
+        options: QUESTION_TYPE_OPTIONS,
+        placeholder: "Soru Tipi",
+        required: true,
+      },
+      ...(showOptions
+        ? [
+            {
+              type: InputTypes.TEXTAREA,
+              formKey: "options",
+              label: "Seçenekler (her satıra bir seçenek)",
+              placeholder: "Evet\nHayır\nBilmiyorum",
+              required: false,
+            },
+          ]
+        : []),
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "required",
+        label: "Zorunlu",
+        required: false,
+        isTopFlexRow: true,
+      },
+    ];
+  };
 
   const formKeys = [
     { key: "label", type: FormKeyTypeEnum.STRING },
@@ -133,10 +135,14 @@ const QuestionTable = ({ event }: Props) => {
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
-        close={() => setIsAddModalOpen(false)}
+        close={() => {
+          setIsAddModalOpen(false);
+          setAddFormType("");
+        }}
         header={`"${event.name}" — Yeni Soru`}
-        inputs={inputs}
+        inputs={buildInputs(addFormType)}
         formKeys={formKeys}
+        setForm={(item: Partial<SurveyQuestion>) => setAddFormType(item.type ?? "")}
         upperMessage={[
           "ℹ️ Ad Soyad, E-posta ve Pazarlama Onayı zaten formda var — tekrar ekleme.",
           "🔘 Tek Seçim → müşteri 1 seçenek işaretler (radio button)",
@@ -202,10 +208,14 @@ const QuestionTable = ({ event }: Props) => {
       modal: rowToAction ? (
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
+          close={() => {
+            setIsEditModalOpen(false);
+            setEditFormType("");
+          }}
           header={`"${event.name}" — Soruyu Düzenle`}
-          inputs={inputs}
+          inputs={buildInputs(editFormType || rowToAction.type)}
           formKeys={formKeys}
+          setForm={(item: Partial<SurveyQuestion>) => setEditFormType(item.type ?? "")}
           upperMessage={[
             "ℹ️ Ad Soyad, E-posta ve Pazarlama Onayı zaten formda var — tekrar ekleme.",
             "🔘 Tek Seçim → müşteri 1 seçenek işaretler (radio button)",

@@ -111,24 +111,22 @@ const CampaignForm = () => {
 
   if (result) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-100 via-slate-50 to-gray-200 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-sm w-full text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <img src="/logo.svg" alt="Davinci" className="h-14 w-14 object-contain" />
           </div>
           <h2 className="text-xl font-bold text-gray-800 mb-1">Teşekkürler!</h2>
           <p className="text-sm text-gray-500 mb-6">Davinci Board Game Cafe</p>
 
-          <div className="bg-indigo-50 rounded-xl p-6 mb-4">
-            <p className="text-xs text-indigo-400 uppercase tracking-wider mb-2">Ödül Kodunuz</p>
-            <p className="text-4xl font-bold tracking-[0.2em] text-indigo-700">{result.code}</p>
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-6 mb-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Ödül Kodunuz</p>
+            <p className="text-4xl font-bold tracking-[0.2em] text-gray-800">{result.code}</p>
           </div>
 
           <div className="text-sm text-gray-600 space-y-1 mb-6">
-            <p>🎁 <span className="font-medium">{result.rewardLabel}</span></p>
-            <p>⏰ {result.codeValidityDays} gün geçerli · tek kullanımlık</p>
+            <p>Ödülünüz: <span className="font-medium">{result.rewardLabel}</span></p>
+            <p>{result.codeValidityDays} gün geçerli · tek kullanımlık</p>
             <p className="text-xs text-gray-400">
               Son kullanım: {format(new Date(result.expiresAt), "dd/MM/yyyy")}
             </p>
@@ -160,13 +158,12 @@ const CampaignForm = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ad Soyad <span className="text-red-500">*</span>
+              Ad Soyad <span className="text-gray-400 font-normal">(Opsiyonel)</span>
             </label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              required
               placeholder="Adınız Soyadınız"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
             />
@@ -276,7 +273,7 @@ const CampaignForm = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting || !isValidEmail(email) || fullName.trim() === ""}
+            disabled={isSubmitting || !isValidEmail(email)}
             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
           >
             {isSubmitting ? "Gönderiliyor..." : "Formu Gönder ve Kodu Al"}
