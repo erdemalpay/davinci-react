@@ -143,7 +143,7 @@ const SurveyAnalytics = () => {
                     pointBorderWidth={2}
                     pointBorderColor={{ from: "serieColor" }}
                     enableArea
-                    colors={["#6366f1"]}
+                    colors={["#3b82f6"]}
                     useMesh
                   />
                 ) : (
@@ -370,9 +370,9 @@ const MultiChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) => 
         layout="horizontal"
         margin={{ top: 10, right: 40, bottom: 20, left: 160 }}
         padding={0.3}
-        colors={["#6366f1"]}
+        colors={["#3b82f6"]}
         axisLeft={{ tickSize: 0 }}
-        axisBottom={{ tickSize: 5 }}
+        axisBottom={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
         labelSkipWidth={12}
         enableGridY={false}
         enableGridX
@@ -408,8 +408,8 @@ const SingleChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) =>
         layout="vertical"
         margin={{ top: 10, right: 20, bottom: 60, left: 40 }}
         padding={0.3}
-        colors={["#6366f1"]}
-        axisLeft={{ tickSize: 5 }}
+        colors={["#3b82f6"]}
+        axisLeft={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
         axisBottom={{ tickSize: 5, tickRotation: -30 }}
         labelSkipHeight={12}
         enableGridY
