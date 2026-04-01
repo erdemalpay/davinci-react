@@ -55,18 +55,29 @@ const CampaignForm = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!data?.event) return;
-    setIsSubmitting(true);
     setError(null);
 
-    const surveyAnswers: SurveyAnswer[] = (
-      data.questions as SurveyQuestion[]
-    ).map((q) => ({
+    const form = e.currentTarget;
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const questions = data.questions as SurveyQuestion[];
+    setIsSubmitting(true);
+
+    const surveyAnswers: SurveyAnswer[] = questions.map((q) => ({
       questionId: q._id,
       questionLabel: q.label,
-      answer: answers[q._id] ?? "",
+      answer:
+        q.type === QuestionType.MULTI_CHOICE
+          ? Array.isArray(answers[q._id])
+            ? (answers[q._id] as string[])
+            : []
+          : (answers[q._id] ?? ""),
     }));
 
     const payload: SubmitSurveyPayload = {
@@ -249,7 +260,24 @@ const CampaignForm = () => {
               )}
 
               {question.type === QuestionType.MULTI_CHOICE && (
-                <div className="space-y-2">
+                <div className="relative space-y-2">
+                  {question.required && (
+                    <input
+                      type="text"
+                      name={`q_multi_required_${question._id}`}
+                      required
+                      value={
+                        Array.isArray(answers[question._id]) &&
+                        (answers[question._id] as string[]).length > 0
+                          ? "."
+                          : ""
+                      }
+                      onChange={() => undefined}
+                      tabIndex={-1}
+                      aria-hidden={true}
+                      className="absolute opacity-0 w-px h-px overflow-hidden pointer-events-none"
+                    />
+                  )}
                   {toOptionsArray(question.options).map((opt) => (
                     <label
                       key={opt}
