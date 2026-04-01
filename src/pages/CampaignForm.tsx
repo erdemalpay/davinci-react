@@ -156,7 +156,10 @@ const CampaignForm = () => {
           </div>
 
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
-            <p className="text-xs text-amber-700 font-medium">
+            <p
+              className="text-xs font-medium"
+              style={{ color: "rgb(220, 38, 38)" }}
+            >
               Bu kodu barista veya oyun yöneticisine söyleyin
             </p>
           </div>
