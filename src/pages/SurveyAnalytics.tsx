@@ -315,6 +315,7 @@ const SurveyAnalytics = () => {
               <GenericTable
                 rows={responses}
                 isActionsActive={false}
+                isColumnFilter={false}
                 columns={[
                   { key: t("Full Name"), isSortable: true },
                   { key: t("Email"), isSortable: true },
@@ -398,7 +399,7 @@ const RewardStatusBadge = ({
   }
 
   // ISSUED
-  return <span className="text-xs">{t("Issued")} · {rewardCode.code}</span>;
+  return <span className="text-xs">{rewardCode.code}</span>;
 };
 
 const MultiChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) => {
