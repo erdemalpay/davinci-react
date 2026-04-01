@@ -32,6 +32,7 @@ export const EventSurveyPaths = {
   analyticsSummary: `${Paths.EventSurvey}/analytics/summary`,
   questionAnswers: `${Paths.EventSurvey}/analytics/question-answers`,
   marketingConsent: `${Paths.EventSurvey}/analytics/marketing-consent`,
+  crossAnalysis: `${Paths.EventSurvey}/analytics/cross`,
 };
 
 // ─── Event (Etkinlik) ──────────────────────────────────────────────────────
@@ -154,6 +155,22 @@ export function useGetMarketingConsentStats(eventId?: number) {
     queryFn: () => get({ path: url }),
     staleTime: 0,
     enabled: !!eventId,
+  });
+}
+
+export interface CrossAnalysisItem {
+  answerA: string;
+  answerB: string;
+  count: number;
+}
+
+export function useGetCrossAnalysis(eventId?: number, questionIdA?: number, questionIdB?: number) {
+  const url = `${EventSurveyPaths.crossAnalysis}?eventId=${eventId}&questionIdA=${questionIdA}&questionIdB=${questionIdB}`;
+  return useQuery<CrossAnalysisItem[]>({
+    queryKey: [url],
+    queryFn: () => get({ path: url }),
+    staleTime: 0,
+    enabled: !!eventId && !!questionIdA && !!questionIdB,
   });
 }
 

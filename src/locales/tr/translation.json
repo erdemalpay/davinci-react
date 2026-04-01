@@ -1459,6 +1459,11 @@
   "Issued" : "Verildi",
   "Please select an event to view analytics" : "Analizleri görüntülemek için lütfen bir etkinlik seçin.",
   "Survey Count" : "Anket Sayısı",
-  "Answer" : "Yanıt"
-
+  "Answer" : "Yanıt",
+  "Answer Plots" : "Cevap Grafikleri",
+  "Question" : "Soru",
+  "Multi-choice warning": "Bu sorulardan biri birden fazla seçime izin verdiğinden, toplamlar katılımcı sayısını aşabilir.",
+  "Cross Analysis" : "Çapraz Analiz",
+  "Group By" : "Grupla",
+  "Breakdown By" : "Detaylandır"
 }

@@ -1449,9 +1449,13 @@
   "Issued" : "Issued",
   "Please select an event to view analytics" : "Please select an event to view analytics",
   "Survey Count" : "Survey Count",
-  "Answer" : "Answer"
-
-
+  "Answer" : "Answer",
+  "Answer Plots" : "Answer Plots",
+  "Question" : "Question",
+  "Multi-choice warning": "Since one of these questions allowed for multiple choices, the totals may exceed the number of participants.",
+  "Cross Analysis" : "Cross Analysis",
+  "Group By" : "Group By",
+  "Breakdown By" : "Breakdown By"
 
 
 }

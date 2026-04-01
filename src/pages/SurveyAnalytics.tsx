@@ -5,7 +5,8 @@ import { useTranslation } from "react-i18next";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { useGetAnalyticsSummary, useGetEvents, useGetMarketingConsentStats, useGetQuestionAnswers, useGetResponses, useGetQuestions } from "../utils/api/event-survey";
+import { useGetAnalyticsSummary, useGetCrossAnalysis, useGetEvents, useGetMarketingConsentStats, useGetQuestionAnswers, useGetResponses, useGetQuestions } from "../utils/api/event-survey";
+import { CrossAnalysisItem } from "../utils/api/event-survey";
 import { QuestionType, RewardCodeStatus, SurveyEvent, SurveyQuestion, SurveyResponse } from "../types/event-survey";
 import { format } from "date-fns";
 
@@ -17,10 +18,15 @@ const SurveyAnalytics = () => {
   const [chartOpen, setChartOpen] = useState(false);
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | undefined>();
   const [marketingSelected, setMarketingSelected] = useState(false);
+  const [plotsOpen, setPlotsOpen] = useState(false);
+  const [crossOpen, setCrossOpen] = useState(false);
+  const [crossQuestionIdA, setCrossQuestionIdA] = useState<number | undefined>();
+  const [crossQuestionIdB, setCrossQuestionIdB] = useState<number | undefined>();
 
   const questions = (useGetQuestions(selectedEventId) ?? []) as SurveyQuestion[];
   const { data: questionAnswers = [] } = useGetQuestionAnswers(selectedEventId, selectedQuestionId);
   const { data: marketingStats } = useGetMarketingConsentStats(selectedEventId);
+  const { data: crossData = [] } = useGetCrossAnalysis(selectedEventId, crossQuestionIdA, crossQuestionIdB);
   const selectedQuestion = questions.find((q) => q._id === selectedQuestionId);
 
   const { data: summary, isLoading: summaryLoading } =
@@ -65,6 +71,10 @@ const SurveyAnalytics = () => {
               setSelectedEventId(e.target.value ? Number(e.target.value) : undefined);
               setSelectedQuestionId(undefined);
               setMarketingSelected(false);
+              setPlotsOpen(false);
+              setCrossOpen(false);
+              setCrossQuestionIdA(undefined);
+              setCrossQuestionIdB(undefined);
             }}
             className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
           >
@@ -156,8 +166,22 @@ const SurveyAnalytics = () => {
 
         {/* Soru Analitik Bölümü */}
         {selectedEventId && questions.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-5">
-            <div className="flex flex-wrap gap-2">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setPlotsOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <p className="text-sm font-semibold text-gray-700">{t("Answer Plots")}</p>
+              {plotsOpen ? (
+                <MdKeyboardArrowDown className="text-gray-400 text-lg" />
+              ) : (
+                <MdKeyboardArrowRight className="text-gray-400 text-lg" />
+              )}
+            </button>
+            {plotsOpen && <div className="p-5 space-y-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-gray-500">{t("Question")} :</span>
               {questions.map((q, i) => (
                 <button
                   key={q._id}
@@ -233,6 +257,38 @@ const SurveyAnalytics = () => {
                     {t("Chart will be shown here")}
                   </div>
                 )}
+              </div>
+            )}
+            </div>}
+          </div>
+        )}
+
+        {/* Cross Analiz Bölümü */}
+        {selectedEventId && questions.filter(q => q.type !== QuestionType.TEXT).length >= 2 && (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setCrossOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <p className="text-sm font-semibold text-gray-700">{t("Cross Analysis")}</p>
+              {crossOpen ? (
+                <MdKeyboardArrowDown className="text-gray-400 text-lg" />
+              ) : (
+                <MdKeyboardArrowRight className="text-gray-400 text-lg" />
+              )}
+            </button>
+            {crossOpen && (
+              <div className="p-5 space-y-5">
+                <CrossAnalysisSection
+                  questions={questions.filter(q => q.type !== QuestionType.TEXT)}
+                  questionIdA={crossQuestionIdA}
+                  questionIdB={crossQuestionIdB}
+                  onChangeA={(id) => { setCrossQuestionIdA(id); }}
+                  onChangeB={(id) => { setCrossQuestionIdB(id); }}
+                  crossData={crossData}
+                  t={t}
+                />
               </div>
             )}
           </div>
@@ -466,6 +522,134 @@ const ConsentDonutChart = ({
           },
         ]}
       />
+    </div>
+  );
+};
+
+const CrossAnalysisSection = ({
+  questions,
+  questionIdA,
+  questionIdB,
+  onChangeA,
+  onChangeB,
+  crossData,
+  t,
+}: {
+  questions: SurveyQuestion[];
+  questionIdA: number | undefined;
+  questionIdB: number | undefined;
+  onChangeA: (id: number | undefined) => void;
+  onChangeB: (id: number | undefined) => void;
+  crossData: CrossAnalysisItem[];
+  t: (key: string) => string;
+}) => {
+  const questionA = questions.find((q) => q._id === questionIdA);
+  const questionB = questions.find((q) => q._id === questionIdB);
+  const isMultiWarning =
+    questionA?.type === QuestionType.MULTI_CHOICE ||
+    questionB?.type === QuestionType.MULTI_CHOICE;
+
+  // nivo grouped bar formatı
+  const uniqueB = Array.from(new Set(crossData.map((d) => d.answerB)));
+  const groupedByA = crossData.reduce<Record<string, Record<string, number>>>((acc, d) => {
+    if (!acc[d.answerA]) acc[d.answerA] = {};
+    acc[d.answerA][d.answerB] = d.count;
+    return acc;
+  }, {});
+  const barData = Object.entries(groupedByA).map(([answerA, vals]) => ({
+    answerA,
+    ...Object.fromEntries(uniqueB.map((b) => [b, vals[b] ?? 0])),
+  }));
+
+  const selectClass = "border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer";
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-600">{t("Group By")}:</label>
+          <select
+            value={questionIdA ?? ""}
+            onChange={(e) => onChangeA(e.target.value ? Number(e.target.value) : undefined)}
+            className={selectClass}
+          >
+            <option value="">{t("Select")}</option>
+            {questions.map((q, i) => (
+              <option key={q._id} value={q._id} disabled={q._id === questionIdB}>
+                {i + 1}. {q.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="button"
+          onClick={() => { onChangeA(questionIdB); onChangeB(questionIdA); }}
+          disabled={!questionIdA || !questionIdB}
+          className="px-2 py-1 rounded-lg text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          title={t("Swap")}
+        >
+          ⇄
+        </button>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-600">{t("Breakdown By")}:</label>
+          <select
+            value={questionIdB ?? ""}
+            onChange={(e) => onChangeB(e.target.value ? Number(e.target.value) : undefined)}
+            className={selectClass}
+          >
+            <option value="">{t("Select")}</option>
+            {questions.map((q, i) => (
+              <option key={q._id} value={q._id} disabled={q._id === questionIdA}>
+                {i + 1}. {q.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {isMultiWarning && (
+        <p className="text-xs text-amber-600">
+          {t("Multi-choice warning")}
+        </p>
+      )}
+
+      {questionIdA && questionIdB && (
+        barData.length === 0 ? (
+          <EmptyChart />
+        ) : (
+          <div className="w-full h-72">
+            <ResponsiveBar
+              data={barData}
+              keys={uniqueB}
+              indexBy="answerA"
+              groupMode="grouped"
+              layout="vertical"
+              margin={{ top: 20, right: 140, bottom: 60, left: 40 }}
+              padding={0.2}
+              innerPadding={3}
+              axisLeft={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
+              axisBottom={{ tickSize: 5, tickRotation: -20 }}
+              labelSkipHeight={12}
+              enableGridY
+              borderRadius={3}
+              theme={{ labels: { text: { fontSize: 13, fontWeight: 700 } } }}
+              legends={[
+                {
+                  dataFrom: "keys",
+                  anchor: "bottom-right",
+                  direction: "column",
+                  translateX: 130,
+                  itemWidth: 120,
+                  itemHeight: 20,
+                  itemTextColor: "#555",
+                  symbolSize: 12,
+                  symbolShape: "circle",
+                },
+              ]}
+            />
+          </div>
+        )
+      )}
     </div>
   );
 };
