@@ -53,7 +53,7 @@ const SurveyRedeem = () => {
       const result = await validateCode(code);
       setCodeInfo(result);
     } catch (err: unknown) {
-      setError(getApiErrorMessage(err, "Kod bulunamadı."));
+      setError(getApiErrorMessage(err, t("Code Not Found")));
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +68,7 @@ const SurveyRedeem = () => {
       setRedeemed(true);
       setCodeInfo({ ...codeInfo, status: RewardCodeStatus.REDEEMED });
     } catch (err: unknown) {
-      setError(getApiErrorMessage(err, "Kod kullanılamadı."));
+      setError(getApiErrorMessage(err, t("Code Could Not Be Redeemed")));
     } finally {
       setIsRedeeming(false);
     }
@@ -93,7 +93,7 @@ const SurveyRedeem = () => {
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            6 Haneli Kod
+            {t("6-Digit Code")}
           </label>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
@@ -201,7 +201,7 @@ const SurveyRedeem = () => {
             onClick={handleReset}
             className="w-full border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium py-2.5 rounded-lg text-sm transition-colors"
           >
-            Yeni Kod Sorgula
+            {t("Query New Code")}
           </button>
         )}
       </div>

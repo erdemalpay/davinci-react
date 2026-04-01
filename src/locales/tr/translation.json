@@ -1466,5 +1466,9 @@
   "Group By" : "Grupla",
   "Breakdown By" : "Detaylandır",
   "Reward Given" : "Verilecek İkram",
-  "Process Done" : "İşlem Başarılı"
+  "Process Done" : "İşlem Başarılı",
+  "Code Not Found": "Kod Bulunamadı",
+  "Code Could Not Be Redeemed": "Kod Kullanılamadı",
+  "6-Digit Code": "6 Haneli Kod",
+  "Query New Code": "Yeni Kod Sorgula"
 }

@@ -1456,7 +1456,11 @@
   "Group By" : "Group By",
   "Breakdown By" : "Breakdown By",
   "Reward Given" : "Reward Given",
-  "Process Done" : "Process Done"
+  "Process Done" : "Process Done",
+  "Code Not Found" : "Code Not Found",
+  "Code Could Not Be Redeemed" : "Code Could Not Be Redeemed",
+  "6-Digit Code" : "6-Digit Code",
+  "Query New Code" : "Query New Code"
 
 
 }
