@@ -1454,7 +1454,9 @@
   "Multi-choice warning": "Since one of these questions allowed for multiple choices, the totals may exceed the number of participants.",
   "Cross Analysis" : "Cross Analysis",
   "Group By" : "Group By",
-  "Breakdown By" : "Breakdown By"
+  "Breakdown By" : "Breakdown By",
+  "Reward Given" : "Reward Given",
+  "Process Done" : "Process Done"
 
 
 }

@@ -87,7 +87,7 @@ const SurveyRedeem = () => {
     <>
       <Header showLocationSelector={false} />
       <div className="w-full max-w-lg mx-auto my-10 px-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           {t("Survey Redeem")}
         </h1>
 
@@ -95,7 +95,7 @@ const SurveyRedeem = () => {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             6 Haneli Kod
           </label>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               maxLength={6}
@@ -115,7 +115,7 @@ const SurveyRedeem = () => {
             <button
               onClick={handleValidate}
               disabled={code.length !== 6 || isLoading}
-              className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium px-5 rounded-lg transition-colors"
+              className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium px-5 py-3 sm:py-0 rounded-lg transition-colors"
             >
               {isLoading ? "..." : t("Query")}
             </button>
@@ -146,7 +146,7 @@ const SurveyRedeem = () => {
                 <InfoRow label={t("Event")} value={codeInfo.eventName} />
               )}
               {codeInfo.rewardLabel && (
-                <InfoRow label={t("Reward")} value={`🎁 ${codeInfo.rewardLabel}`} />
+                <InfoRow label={t("Reward Given")} value={`${codeInfo.rewardLabel}`} />
               )}
               {codeInfo.fullName && (
                 <InfoRow label={t("Customer")} value={codeInfo.fullName} />
@@ -159,18 +159,7 @@ const SurveyRedeem = () => {
                 label={t("Expiry Date")}
                 value={format(new Date(codeInfo.expiresAt), "dd/MM/yyyy")}
               />
-              {codeInfo.eventStartAt && (
-                <InfoRow
-                  label={t("Event Start")}
-                  value={format(new Date(codeInfo.eventStartAt), "dd/MM/yyyy")}
-                />
-              )}
-              {codeInfo.eventEndAt && (
-                <InfoRow
-                  label={t("Event End")}
-                  value={format(new Date(codeInfo.eventEndAt), "dd/MM/yyyy")}
-                />
-              )}
+
               {codeInfo.redeemedAt && (
                 <InfoRow
                   label={t("Redeemed At")}
@@ -192,7 +181,7 @@ const SurveyRedeem = () => {
                   disabled={isRedeeming}
                   className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-base transition-colors"
                 >
-                  {isRedeeming ? t("Processing") : `✓ ${t("Give")}`}
+                  {isRedeeming ? t("Processing") : `${t("Give")}`}
                 </button>
               </div>
             )}
@@ -200,7 +189,7 @@ const SurveyRedeem = () => {
             {redeemed && (
               <div className="mt-4 bg-green-100 border border-green-300 rounded-lg p-3 text-center">
                 <p className="text-sm font-semibold text-green-700">
-                  ✓ Ödül başarıyla teslim edildi
+                  {t("Process Done")}
                 </p>
               </div>
             )}

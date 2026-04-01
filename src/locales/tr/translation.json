@@ -385,7 +385,7 @@
   "Event End": "Etkinlik Bitişi",
   "Redeemed At": "Kullanım Zamanı",
   "Redeemed By": "Teslim Eden",
-  "Give": "Verildi",
+  "Give": "Kodu Kullan",
   "Processing": "İşleniyor...",
   "Event Name": "Etkinlik Adı",
   "Published": "Yayında",
@@ -1464,5 +1464,7 @@
   "Multi-choice warning": "Bu sorulardan biri birden fazla seçime izin verdiğinden, toplamlar katılımcı sayısını aşabilir.",
   "Cross Analysis" : "Çapraz Analiz",
   "Group By" : "Grupla",
-  "Breakdown By" : "Detaylandır"
+  "Breakdown By" : "Detaylandır",
+  "Reward Given" : "Verilecek İkram",
+  "Process Done" : "İşlem Başarılı"
 }
