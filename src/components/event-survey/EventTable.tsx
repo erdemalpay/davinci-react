@@ -46,7 +46,7 @@ const EventTable = ({ onSelectEvent }: Props) => {
         next === EventStatus.PUBLISHED ? t("Form Published") : t("Moved to Draft")
       );
     } catch {
-      toast.error("Durum güncellenemedi");
+      toast.error(t("Status could not be updated"));
     }
   };
 
