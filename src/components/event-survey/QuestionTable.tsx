@@ -163,7 +163,7 @@ const QuestionTable = ({ event }: Props) => {
             : [];
           createQuestion({ ...raw, options } as Partial<SurveyQuestion>);
         }}
-        constantValues={{ order: (questions as SurveyQuestion[]).length + 1, required: false }}
+        constantValues={{ order: (questions?.length ?? 0) + 1, required: false }}
         topClassName="flex flex-col gap-2"
         generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"
         nonImageInputsClassName="grid grid-cols-1 gap-4"
