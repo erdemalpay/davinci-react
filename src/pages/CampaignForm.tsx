@@ -356,7 +356,7 @@ const CampaignForm = () => {
             disabled={isSubmitting || !isValidEmail(email)}
             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
           >
-            {isSubmitting ? "Gönderiliyor..." : "Formu Gönder ve Kodu Al"}
+            {isSubmitting ? "processing" : "submit_form_get_code"}
           </button>
         </form>
       </div>
