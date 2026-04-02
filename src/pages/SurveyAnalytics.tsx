@@ -50,14 +50,6 @@ const SurveyAnalytics = () => {
       },
     ];
   }, [summary, i18n.language, t]);
-  useMemo(() => {
-    if (!summary) return [];
-    return [
-      { step: t("Form Submission"), value: summary.totalResponses },
-      { step: t("Code Generated"), value: summary.totalIssued },
-      { step: t("Used"), value: summary.totalRedeemed },
-    ];
-  }, [summary, i18n.language, t]);
   return (
     <>
       <Header showLocationSelector={false} />

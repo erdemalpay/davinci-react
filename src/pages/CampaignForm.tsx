@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
   EventStatus,
@@ -24,6 +25,7 @@ const toOptionsArray = (options: string[] | string | undefined): string[] => {
 };
 
 const CampaignForm = () => {
+  const { t } = useTranslation();
   const { eventSlug } = useParams<{ eventSlug: string }>();
   const { data, isLoading, isError } = useGetPublicEvent(eventSlug);
 
@@ -34,6 +36,7 @@ const CampaignForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<SubmitSurveyResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleAnswerChange = (
     question: SurveyQuestion,
@@ -93,7 +96,10 @@ const CampaignForm = () => {
       setResult(res);
     } catch (err: unknown) {
       setError(
-        getApiErrorMessage(err, "Bir hata oluştu, lütfen tekrar deneyin.")
+        getApiErrorMessage(
+          err,
+          t("An unexpected error occurred, please try again.")
+        )
       );
     } finally {
       setIsSubmitting(false);
@@ -111,22 +117,23 @@ const CampaignForm = () => {
   if (isError || !data) {
     return (
       <StatusScreen
-        title="Etkinlik bulunamadı"
-        description="Bu QR kodu geçerli bir etkinliğe ait değil."
+        title={t("Event not found")}
+        description={t("This QR code does not belong to a valid event.")}
       />
     );
   }
 
   if (!data.available) {
     const statusMessages: Record<string, string> = {
-      [EventStatus.DRAFT]: "Form henüz yayında değil.",
-      [EventStatus.ARCHIVED]: "Kampanya sona erdi.",
+      [EventStatus.DRAFT]: t("Form is not published yet."),
+      [EventStatus.ARCHIVED]: t("Campaign has ended."),
     };
     return (
       <StatusScreen
-        title="Kampanya Aktif Değil"
+        title={t("Campaign Is Not Active")}
         description={
-          statusMessages[data.event.status] ?? "Bu kampanya şu an aktif değil."
+          statusMessages[data.event.status] ??
+          t("This campaign is currently not active.")
         }
       />
     );
@@ -139,30 +146,86 @@ const CampaignForm = () => {
           <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
             <img
               src="/logo.svg"
-              alt="Davinci"
+              alt={t("Davinci")}
               className="h-14 w-14 object-contain"
             />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 mb-1">Teşekkürler!</h2>
-          <p className="text-sm text-gray-500 mb-6">Davinci Board Game Cafe</p>
+          <h2 className="text-xl font-bold text-gray-800 mb-1">
+            {t("Thank you!")}
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">
+            {t("Davinci Board Game Cafe")}
+          </p>
 
           <div className="py-4 mb-2">
             <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">
-              Ödül Kodunuz
+              {t("Reward Code")}
             </p>
-            <p className="text-4xl font-bold tracking-[0.2em] text-gray-800">
-              {result.code}
-            </p>
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-4xl font-bold tracking-[0.2em] text-gray-800">
+                {result.code}
+              </p>
+              <button
+                onClick={() => {
+                  const triggerCopied = () => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 3000);
+                  };
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(result.code).then(triggerCopied).catch(() => {
+                      const el = document.createElement("textarea");
+                      el.value = result.code;
+                      document.body.appendChild(el);
+                      el.select();
+                      document.execCommand("copy");
+                      document.body.removeChild(el);
+                      triggerCopied();
+                    });
+                  } else {
+                    const el = document.createElement("textarea");
+                    el.value = result.code;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(el);
+                    triggerCopied();
+                  }
+                }}
+                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 flex-shrink-0"
+                title={t("Copy Code")}
+              >
+                {copied ? (
+                  <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+            {copied && (
+              <p className="text-xs text-green-500 font-medium mt-2">
+                {t("Reward code copied!")}
+              </p>
+            )}
           </div>
 
           <div className="text-sm text-gray-600 space-y-1 mb-6">
             <p>
-              Ödülünüz:{" "}
+              {t("Your reward:")}{" "}
               <span className="font-medium">{result.rewardLabel}</span>
             </p>
-            <p>{result.codeValidityDays} gün geçerli · tek kullanımlık</p>
+            <p>
+              {t("Valid for {{days}} days · single use", {
+                days: result.codeValidityDays,
+              })}
+            </p>
             <p className="text-xs text-gray-400">
-              Son kullanım: {format(new Date(result.expiresAt), "dd/MM/yyyy")}
+              {t("Last use: {{date}}", {
+                date: format(new Date(result.expiresAt), "dd/MM/yyyy"),
+              })}
             </p>
           </div>
 
@@ -171,7 +234,7 @@ const CampaignForm = () => {
               className="text-xs font-medium"
               style={{ color: "rgb(220, 38, 38)" }}
             >
-              Bu kodu barista veya oyun yöneticisine söyleyin
+              {t("Tell this code to barista or game master")}
             </p>
           </div>
         </div>
@@ -185,42 +248,44 @@ const CampaignForm = () => {
         <div className="text-center mb-6">
           <img
             src="/logo.svg"
-            alt="Davinci Board Game Cafe"
+            alt={t("Davinci Board Game Cafe")}
             className="h-12 mx-auto mb-3"
           />
           <h1 className="text-xl font-bold text-gray-800">
-            Davinci Board Game Cafe
+            {t("Davinci Board Game Cafe")}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Formu doldur, sürpriz ödülünü al!{" "}
+            {t("Fill out the form, get your surprise reward!")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ad Soyad{" "}
-              <span className="text-gray-400 font-normal">(Opsiyonel)</span>
+              {t("Full Name")}{" "}
+              <span className="text-gray-400 font-normal">
+                ({t("Optional")})
+              </span>
             </label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Adınız Soyadınız"
+              placeholder={t("Enter full name")}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              E-posta <span className="text-red-500">*</span>
+              {t("Email")} <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="ornek@email.com"
+              placeholder={t("example@email.com")}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
             />
           </div>
@@ -339,8 +404,9 @@ const CampaignForm = () => {
                 className="accent-indigo-500 mt-0.5"
               />
               <span className="text-xs text-gray-500">
-                E-posta adresimin pazarlama ve kampanya amaçlı kullanılmasına
-                onay veriyorum.
+                {t(
+                  "I approve the use of my email for marketing and campaign purposes."
+                )}
               </span>
             </label>
           </div>
@@ -356,7 +422,7 @@ const CampaignForm = () => {
             disabled={isSubmitting || !isValidEmail(email)}
             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
           >
-            {isSubmitting ? "processing" : "submit_form_get_code"}
+            {isSubmitting ? t("processing") : t("submit_form_get_code")}
           </button>
         </form>
       </div>

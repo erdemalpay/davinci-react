@@ -1460,7 +1460,29 @@
   "Code Not Found" : "Code Not Found",
   "Code Could Not Be Redeemed" : "Code Could Not Be Redeemed",
   "6-Digit Code" : "6-Digit Code",
-  "Query New Code" : "Query New Code"
+  "Query New Code" : "Query New Code",
+  "processing" : "Processing..",
+  "submit_form_get_code" : "Submit Form and Get Code",
+  "An unexpected error occurred, please try again.": "An unexpected error occurred, please try again.",
+  "Event not found": "Event not found",
+  "This QR code does not belong to a valid event.": "This QR code does not belong to a valid event.",
+  "Form is not published yet.": "Form is not published yet.",
+  "Campaign has ended.": "Campaign has ended.",
+  "Campaign Is Not Active": "Campaign Is Not Active",
+  "This campaign is currently not active.": "This campaign is currently not active.",
+  "Davinci": "Davinci",
+  "Thank you!": "Thank you!",
+  "Davinci Board Game Cafe": "Davinci Board Game Cafe",
+  "Reward Code": "Reward Code",
+  "Your reward:": "Your reward:",
+  "Valid for {{days}} days · single use": "Valid for {{days}} days · single use",
+  "Last use: {{date}}": "Last use: {{date}}",
+  "Tell this code to barista or game master": "Tell this code to barista or game master",
+  "Fill out the form, get your surprise reward!": "Fill out the form, get your surprise reward!",
+  "example@email.com": "example@email.com",
+  "I approve the use of my email for marketing and campaign purposes.": "I approve the use of my email for marketing and campaign purposes.",
+  "Reward code copied!" : "Reward code copied!",
+  "Copy Code" : "Copy Code"
 
 
 }
