@@ -18,6 +18,23 @@ const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const sanitizeFullNameInput = (value: string) =>
   value.replace(/[^\p{L}\s]/gu, "");
 
+const copyToClipboard = (text: string, onSuccess: () => void) => {
+  const fallbackCopy = () => {
+    const el = document.createElement("textarea");
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+    onSuccess();
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
+};
+
 const toOptionsArray = (options: string[] | string | undefined): string[] => {
   if (!options) return [];
   if (Array.isArray(options)) return options;
@@ -170,32 +187,10 @@ const CampaignForm = () => {
               </p>
               <button
                 onClick={() => {
-                  const triggerCopied = () => {
+                  copyToClipboard(result.code, () => {
                     setCopied(true);
                     setTimeout(() => setCopied(false), 3000);
-                  };
-                  if (navigator.clipboard) {
-                    navigator.clipboard
-                      .writeText(result.code)
-                      .then(triggerCopied)
-                      .catch(() => {
-                        const el = document.createElement("textarea");
-                        el.value = result.code;
-                        document.body.appendChild(el);
-                        el.select();
-                        document.execCommand("copy");
-                        document.body.removeChild(el);
-                        triggerCopied();
-                      });
-                  } else {
-                    const el = document.createElement("textarea");
-                    el.value = result.code;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(el);
-                    triggerCopied();
-                  }
+                  });
                 }}
                 className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 flex-shrink-0"
                 title={t("Copy Code")}
