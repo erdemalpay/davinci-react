@@ -147,7 +147,7 @@ const EventTable = ({ onSelectEvent }: Props) => {
             onChange={() => handleStatusToggle(row)}
           />
           {row.status === EventStatus.ARCHIVED && (
-            <span className="text-xs text-gray-400">Arşivlendi</span>
+            <span className="text-xs text-gray-400">{t("Archived")}</span>
           )}
         </div>
       ),
