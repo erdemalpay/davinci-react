@@ -70,6 +70,7 @@
   "Save": "Kaydet",
   "Full Name": "Ad Soyad",
   "Enter full name": "Ad Soyad Girin",
+  "Full name input hint": "Sadece harf ve boşluk kullanın (rakam ve özel karakter girilemez).",
   "Phone": "Telefon",
   "Enter phone number": "Telefon numarası girin",
   "Address": "Adres",

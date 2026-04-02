@@ -15,6 +15,9 @@ import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
+const sanitizeFullNameInput = (value: string) =>
+  value.replace(/[^\p{L}\s]/gu, "");
+
 const toOptionsArray = (options: string[] | string | undefined): string[] => {
   if (!options) return [];
   if (Array.isArray(options)) return options;
@@ -80,7 +83,7 @@ const CampaignForm = () => {
           ? Array.isArray(answers[q._id])
             ? (answers[q._id] as string[])
             : []
-          : (answers[q._id] ?? ""),
+          : answers[q._id] ?? "",
     }));
 
     const payload: SubmitSurveyPayload = {
@@ -172,15 +175,18 @@ const CampaignForm = () => {
                     setTimeout(() => setCopied(false), 3000);
                   };
                   if (navigator.clipboard) {
-                    navigator.clipboard.writeText(result.code).then(triggerCopied).catch(() => {
-                      const el = document.createElement("textarea");
-                      el.value = result.code;
-                      document.body.appendChild(el);
-                      el.select();
-                      document.execCommand("copy");
-                      document.body.removeChild(el);
-                      triggerCopied();
-                    });
+                    navigator.clipboard
+                      .writeText(result.code)
+                      .then(triggerCopied)
+                      .catch(() => {
+                        const el = document.createElement("textarea");
+                        el.value = result.code;
+                        document.body.appendChild(el);
+                        el.select();
+                        document.execCommand("copy");
+                        document.body.removeChild(el);
+                        triggerCopied();
+                      });
                   } else {
                     const el = document.createElement("textarea");
                     el.value = result.code;
@@ -195,12 +201,32 @@ const CampaignForm = () => {
                 title={t("Copy Code")}
               >
                 {copied ? (
-                  <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
                   </svg>
                 )}
               </button>
@@ -269,9 +295,15 @@ const CampaignForm = () => {
             </label>
             <input
               type="text"
+              name="fullName"
+              autoComplete="name"
+              inputMode="text"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e) =>
+                setFullName(sanitizeFullNameInput(e.target.value))
+              }
               placeholder={t("Enter full name")}
+              title={t("Full name input hint")}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
             />
           </div>
