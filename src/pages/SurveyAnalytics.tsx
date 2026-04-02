@@ -12,7 +12,7 @@ import { format } from "date-fns";
 
 const SurveyAnalytics = () => {
   const { t, i18n } = useTranslation();
-  const events = useGetEvents() as SurveyEvent[];
+  const events = (useGetEvents() ?? []) as SurveyEvent[];
   const [selectedEventId, setSelectedEventId] = useState<number | undefined>();
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
