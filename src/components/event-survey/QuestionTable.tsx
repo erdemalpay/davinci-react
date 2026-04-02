@@ -160,9 +160,7 @@ const QuestionTable = ({ event }: Props) => {
         upperMessageColumns={2}
         submitItem={(item: SurveyQuestionFormData | UpdatePayload<SurveyQuestionFormData>) => {
           const raw = item as SurveyQuestionFormData;
-          const options = raw.options
-            ? raw.options.split("\n").map((s) => s.trim()).filter(Boolean)
-            : [];
+          const options = toOptionsArray(raw.options);
           createQuestion({ ...raw, options });
         }}
         constantValues={{ order: (questions?.length ?? 0) + 1, required: false }}
@@ -230,9 +228,7 @@ const QuestionTable = ({ event }: Props) => {
           upperMessageColumns={2}
           submitItem={(item: SurveyQuestionFormData | UpdatePayload<SurveyQuestionFormData>) => {
             const payload = item as UpdatePayload<SurveyQuestionFormData>;
-            const options = payload.updates?.options
-              ? payload.updates.options.split("\n").map((s) => s.trim()).filter(Boolean)
-              : [];
+            const options = toOptionsArray(payload.updates?.options);
             updateQuestion({ ...payload, updates: { ...payload.updates, options } } as UpdatePayload<SurveyQuestion>);
           }}
           isEditMode={true}
