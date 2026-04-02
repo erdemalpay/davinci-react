@@ -18,6 +18,11 @@ const toOptionsArray = (options: string[] | string | undefined): string[] => {
   return String(options).split("\n").map((s) => s.trim()).filter(Boolean);
 };
 
+// Form'da options TEXTAREA olduğu için string olarak tutulur; API'a gönderilmeden önce string[]'e dönüştürülür
+type SurveyQuestionFormData = Omit<SurveyQuestion, "options"> & {
+  options: string;
+};
+
 const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   [QuestionType.SINGLE_CHOICE]: "Tek Seçim",
   [QuestionType.MULTI_CHOICE]: "Çok Seçim",
@@ -143,7 +148,7 @@ const QuestionTable = ({ event }: Props) => {
         header={`"${event.name}" — Yeni Soru`}
         inputs={buildInputs(addFormType)}
         formKeys={formKeys}
-        setForm={(item: Partial<SurveyQuestion>) => setAddFormType(item.type ?? "")}
+        setForm={(item: Partial<SurveyQuestionFormData>) => setAddFormType(item.type ?? "")}
         upperMessage={[
           t("Question Form Info"),
           t("Question Type Single"),
@@ -153,15 +158,12 @@ const QuestionTable = ({ event }: Props) => {
           t("Question Options Info"),
         ]}
         upperMessageColumns={2}
-        submitItem={(item: SurveyQuestion | UpdatePayload<SurveyQuestion>) => {
-          const raw = item as Partial<SurveyQuestion>;
+        submitItem={(item: SurveyQuestionFormData | UpdatePayload<SurveyQuestionFormData>) => {
+          const raw = item as SurveyQuestionFormData;
           const options = raw.options
-            ? String(raw.options)
-                .split("\n")
-                .map((s: string) => s.trim())
-                .filter(Boolean)
+            ? raw.options.split("\n").map((s) => s.trim()).filter(Boolean)
             : [];
-          createQuestion({ ...raw, options } as Partial<SurveyQuestion>);
+          createQuestion({ ...raw, options });
         }}
         constantValues={{ order: (questions?.length ?? 0) + 1, required: false }}
         topClassName="flex flex-col gap-2"
@@ -216,7 +218,7 @@ const QuestionTable = ({ event }: Props) => {
           header={`"${event.name}" — Soruyu Düzenle`}
           inputs={buildInputs(editFormType || rowToAction.type)}
           formKeys={formKeys}
-          setForm={(item: Partial<SurveyQuestion>) => setEditFormType(item.type ?? "")}
+          setForm={(item: Partial<SurveyQuestionFormData>) => setEditFormType(item.type ?? "")}
           upperMessage={[
             t("Question Form Info"),
             t("Question Type Single"),
@@ -226,14 +228,10 @@ const QuestionTable = ({ event }: Props) => {
             t("Question Options Info"),
           ]}
           upperMessageColumns={2}
-          submitItem={(item: SurveyQuestion | UpdatePayload<SurveyQuestion>) => {
-            const payload = item as UpdatePayload<SurveyQuestion>;
-            const rawOptions = payload.updates?.options;
-            const options = rawOptions
-              ? String(rawOptions)
-                  .split("\n")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean)
+          submitItem={(item: SurveyQuestionFormData | UpdatePayload<SurveyQuestionFormData>) => {
+            const payload = item as UpdatePayload<SurveyQuestionFormData>;
+            const options = payload.updates?.options
+              ? payload.updates.options.split("\n").map((s) => s.trim()).filter(Boolean)
               : [];
             updateQuestion({ ...payload, updates: { ...payload.updates, options } } as UpdatePayload<SurveyQuestion>);
           }}
@@ -242,7 +240,7 @@ const QuestionTable = ({ event }: Props) => {
             id: rowToAction._id,
             updates: {
               ...rowToAction,
-              options: (toOptionsArray(rowToAction.options).join("\n")) as unknown as string[],
+              options: toOptionsArray(rowToAction.options).join("\n"),
             },
           }}
           topClassName="flex flex-col gap-2"
