@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import CampaignForm from "../pages/CampaignForm";
 import Login from "../pages/Login";
 import { allRoutes, PublicRoutes } from "./constants";
 import { PrivateRoutes } from "./PrivateRoutes";
@@ -18,6 +19,7 @@ const RouterContainer = () => {
         </Route>
       ))}
 
+      <Route path={PublicRoutes.CampaignForm} element={<CampaignForm />} />
       <Route path={PublicRoutes.Login} element={<Login />} />
       <Route path={PublicRoutes.NotFound} element={<Login />} />
     </Routes>

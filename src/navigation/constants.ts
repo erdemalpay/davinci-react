@@ -68,11 +68,16 @@ import { StockPageTabs } from "./../pages/Stocks";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
 import WebhookLogs from "./../pages/WebhookLogs";
+import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
+import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
+import SurveyRedeem from "./../pages/SurveyRedeem";
+import SurveyAnalytics from "./../pages/SurveyAnalytics";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
   NotFound = "*",
   Login = "/login",
+  CampaignForm = "/campaign/:eventSlug",
 }
 
 export enum Routes {
@@ -137,6 +142,10 @@ export enum Routes {
   Consumers = "/consumers",
   WebhookLogs = "/webhook-logs",
   BackInStock = "/back-in-stock",
+  EventSurveyBuilder = "/event-survey-builder",
+  EventSurveyQuestions = "/event-survey-builder/:eventId",
+  SurveyRedeem = "/survey-redeem",
+  SurveyAnalytics = "/survey-analytics",
 }
 
 export const allRoutes: {
@@ -846,6 +855,39 @@ export const allRoutes: {
     name: "Activities",
     link: "https://docs.google.com/spreadsheets/d/13C_TCrb2gkFifWkYkCDyggyAA4RNDmk_aVrCXnZ2P6Q/edit",
     isOnSidebar: false,
+  },
+  {
+    name: "Event Survey Builder",
+    path: Routes.EventSurveyBuilder,
+    element: EventSurveyBuilder,
+    isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Event Survey Questions",
+    path: Routes.EventSurveyQuestions,
+    element: EventSurveyQuestions,
+    isOnSidebar: false,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Survey Redeem",
+    path: Routes.SurveyRedeem,
+    element: SurveyRedeem,
+    isOnSidebar: true,
+    exceptionalRoles: [
+      RoleEnum.MANAGER,
+      RoleEnum.BARISTA,
+      RoleEnum.GAMEMASTER,
+      RoleEnum.GAMEMANAGER,
+    ],
+  },
+  {
+    name: "Survey Analytics",
+    path: Routes.SurveyAnalytics,
+    element: SurveyAnalytics,
+    isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
   },
 ];
 
