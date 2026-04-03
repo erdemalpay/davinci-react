@@ -252,7 +252,7 @@ const CampaignForm = () => {
 
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
             <p
-              className="text-xs font-medium"
+              className="text-sm font-medium"
               style={{ color: "rgb(220, 38, 38)" }}
             >
               {t("Tell this code to barista or game master")}
