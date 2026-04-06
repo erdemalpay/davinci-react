@@ -1439,6 +1439,7 @@ export enum IntegrationPageTabEnum {
   BACKINSTOCK,
   MAILSUBSCRIPTIONS,
   MAILLOGS,
+  GLOBALPRICECOMPARISION,
 }
 
 export enum StockHistoriesReportsPageTabEnum {

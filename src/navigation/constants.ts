@@ -1,5 +1,5 @@
-import { Tab } from "../components/panelComponents/shared/types";
 import ExpenseTypeRoles from "../components/accounting/ExpenseTypeRoles";
+import { Tab } from "../components/panelComponents/shared/types";
 import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
@@ -11,6 +11,7 @@ import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
 import Checkout from "../pages/Checkout";
+import Comparision from "../pages/Comparision";
 import Consumer, { ConsumerPageTabs } from "../pages/Consumer";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
@@ -59,19 +60,19 @@ import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
 import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
+import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
+import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
+import SurveyAnalytics from "./../pages/SurveyAnalytics";
+import SurveyRedeem from "./../pages/SurveyRedeem";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
 import WebhookLogs from "./../pages/WebhookLogs";
-import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
-import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
-import SurveyRedeem from "./../pages/SurveyRedeem";
-import SurveyAnalytics from "./../pages/SurveyAnalytics";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -102,6 +103,7 @@ export enum Routes {
   Accounting = "/accounting",
   Expenses = "/expenses",
   Stocks = "/stocks",
+  Comparision = "/comparision",
   Integration = "/integration",
   StockHistoriesReports = "/stock-histories-reports",
   Count = "/count/:location/:countListId",
@@ -530,6 +532,12 @@ export const allRoutes: {
         tabs: IntegrationPageTabs,
       },
       {
+        name: "Comparision",
+        path: Routes.Comparision,
+        element: Comparision,
+        isOnSidebar: true,
+      },
+      {
         name: "Stock Histories Reports",
         path: Routes.StockHistoriesReports,
         element: StockHistoriesReports,
@@ -537,6 +545,12 @@ export const allRoutes: {
         tabs: StockHistoriesReportsPageTabs,
       },
     ],
+  },
+  {
+    name: "Comparision",
+    path: Routes.Comparision,
+    element: Comparision,
+    isOnSidebar: false,
   },
   {
     name: "Integration",
