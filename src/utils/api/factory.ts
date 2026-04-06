@@ -58,6 +58,7 @@ export const Paths = {
   Middlemen: "/middlemen",
   WebhookLog: "/webhook-log",
   Mail: "/mail",
+  PriceCompare: "/price-compare",
   CustomerPopup: "/menu/customer-popup",
   EventSurvey: "/event-survey",
 };
