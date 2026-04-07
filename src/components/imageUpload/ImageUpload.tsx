@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import { FaImages } from "react-icons/fa";
@@ -29,9 +29,6 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
   });
   const [selectedFolder, setSelectedFolder] = useState("");
 
-  if (!folderNames) return <></>;
-
-
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const filesWithPreview = acceptedFiles.map((file) =>
       Object.assign(file, {
@@ -59,22 +56,23 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
   });
 
   const handleUpload = () => {
-    if ((selectedFolder === "" || !selectedFolder) && !itemId) {
+    if (files.length === 0) return;
+    if (!selectedFolder && !itemId) {
       toast.error(t("Please select a folder to upload images"));
       return;
     }
     uploadImagesMutation.mutate({ files, selectedFolder, itemId });
   };
 
-  const logColumns = [
+  const logColumns = useMemo(() => [
     { key: t("Status"), isSortable: false },
     { key: t("File Name"), isSortable: false },
     { key: t("Folder"), isSortable: false },
     { key: t("Uploaded By"), isSortable: false },
     { key: t("Message"), isSortable: false },
-  ];
+  ], [t]);
 
-  const logRowKeys = [
+  const logRowKeys = useMemo(() => [
     {
       key: "status",
       node: (row: UploadLog) => (
@@ -91,7 +89,7 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
     { key: "folder" },
     { key: "uploadedBy" },
     { key: "message" },
-  ];
+  ], [t]);
 
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-4 bg-white rounded-lg my-6 __className_a182b8">
