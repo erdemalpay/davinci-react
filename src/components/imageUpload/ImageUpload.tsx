@@ -1,5 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
-import { AxiosHeaders } from "axios";
 import { useCallback, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
@@ -7,13 +5,14 @@ import { FaImages } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { OptionType } from "../../types";
-import { postWithHeader } from "../../utils/api";
-import { useGetFolderNames } from "../../utils/api/asset";
+import { useGetFolderNames, useGetUploadLogs, useUploadImagesMutation, UploadLog } from "../../utils/api/asset";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
 
 interface FileWithPreview extends File {
   preview: string;
 }
+
 type Props = {
   isFolderSelect?: boolean;
   itemId?: number;
@@ -24,40 +23,14 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const folderNames = useGetFolderNames();
+  const uploadLogs = useGetUploadLogs();
+  const uploadImagesMutation = useUploadImagesMutation({
+    onSuccess: () => setFiles([]),
+  });
   const [selectedFolder, setSelectedFolder] = useState("");
+
   if (!folderNames) return <></>;
 
-  const uploadImagesMutation = useMutation<any, Error, FileWithPreview[]>({
-    mutationFn: async (filesWithPreviews) => {
-      if ((selectedFolder === "" || !selectedFolder) && !itemId) {
-        toast.error(t("Please select a folder to upload images"));
-        return;
-      }
-      const formData = new FormData();
-      filesWithPreviews.forEach((file) => {
-        formData.append("files", file);
-      });
-      formData.append("foldername", selectedFolder);
-      if (itemId) {
-        formData.append("itemId", itemId.toString());
-      }
-      const response = await postWithHeader<FormData, any>({
-        path: "/asset/uploads",
-        payload: formData,
-        headers: new AxiosHeaders({
-          "Content-Type": "multipart/form-data",
-        }),
-      });
-      return response;
-    },
-    onSuccess: () => {
-      if ((selectedFolder === "" || !selectedFolder) && !itemId) {
-        return;
-      }
-      setFiles([]);
-    },
-    onError: (error) => console.error("Error uploading files:", error),
-  });
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const filesWithPreview = acceptedFiles.map((file) =>
@@ -86,8 +59,39 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
   });
 
   const handleUpload = () => {
-    uploadImagesMutation.mutate(files);
+    if ((selectedFolder === "" || !selectedFolder) && !itemId) {
+      toast.error(t("Please select a folder to upload images"));
+      return;
+    }
+    uploadImagesMutation.mutate({ files, selectedFolder, itemId });
   };
+
+  const logColumns = [
+    { key: t("Status"), isSortable: false },
+    { key: t("File Name"), isSortable: false },
+    { key: t("Folder"), isSortable: false },
+    { key: t("Uploaded By"), isSortable: false },
+    { key: t("Message"), isSortable: false },
+  ];
+
+  const logRowKeys = [
+    {
+      key: "status",
+      node: (row: UploadLog) => (
+        <span
+          className={`font-semibold ${
+            row.status === "success" ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {row.status === "success" ? `${t("Upload Successful")}` : `${t("Upload Failed")}`}
+        </span>
+      ),
+    },
+    { key: "fileName" },
+    { key: "folder" },
+    { key: "uploadedBy" },
+    { key: "message" },
+  ];
 
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-4 bg-white rounded-lg my-6 __className_a182b8">
@@ -180,6 +184,19 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
           </div>
         </div>
       </div>
+
+      {uploadLogs && uploadLogs.length > 0 && (
+        <GenericTable
+          rows={uploadLogs}
+          columns={logColumns}
+          rowKeys={logRowKeys}
+          isActionsActive={false}
+          isSearch={false}
+          isPagination={false}
+          isColumnFilter={false}
+          title={t("Upload Logs")}
+        />
+      )}
     </div>
   );
 };
