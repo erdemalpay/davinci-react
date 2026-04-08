@@ -1250,7 +1250,7 @@ export function TableCard({
               ? OnlineLocationId
               : selectedLocationId,
             table: table._id,
-            isCafeOrder: true,
+            isOnlineSale: table.isOnlineSale,
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
@@ -1358,7 +1358,7 @@ export function TableCard({
               ? OnlineLocationId
               : selectedLocationId,
             isOnlinePrice: false,
-            isCafeOrder: true,
+            isOnlineSale: table.isOnlineSale,
           }}
           topClassName="flex flex-col gap-0 "
           cancelButtonLabel="Cancel"
