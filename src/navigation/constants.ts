@@ -1,5 +1,5 @@
-import { Tab } from "../components/panelComponents/shared/types";
 import ExpenseTypeRoles from "../components/accounting/ExpenseTypeRoles";
+import { Tab } from "../components/panelComponents/shared/types";
 import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
@@ -11,6 +11,7 @@ import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
 import Checkout from "../pages/Checkout";
+import Comparision from "../pages/Comparision";
 import Consumer, { ConsumerPageTabs } from "../pages/Consumer";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
@@ -59,12 +60,16 @@ import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
 import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
+import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
+import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
+import SurveyAnalytics from "./../pages/SurveyAnalytics";
+import SurveyRedeem from "./../pages/SurveyRedeem";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
 import WebhookLogs from "./../pages/WebhookLogs";
@@ -73,6 +78,7 @@ import { RoleEnum } from "./../types/index";
 export enum PublicRoutes {
   NotFound = "*",
   Login = "/login",
+  CampaignForm = "/campaign/:eventSlug",
 }
 
 export enum Routes {
@@ -97,6 +103,7 @@ export enum Routes {
   Accounting = "/accounting",
   Expenses = "/expenses",
   Stocks = "/stocks",
+  Comparision = "/comparision",
   Integration = "/integration",
   StockHistoriesReports = "/stock-histories-reports",
   Count = "/count/:location/:countListId",
@@ -137,6 +144,10 @@ export enum Routes {
   Consumers = "/consumers",
   WebhookLogs = "/webhook-logs",
   BackInStock = "/back-in-stock",
+  EventSurveyBuilder = "/event-survey-builder",
+  EventSurveyQuestions = "/event-survey-builder/:eventId",
+  SurveyRedeem = "/survey-redeem",
+  SurveyAnalytics = "/survey-analytics",
 }
 
 export const allRoutes: {
@@ -521,6 +532,12 @@ export const allRoutes: {
         tabs: IntegrationPageTabs,
       },
       {
+        name: "Comparision",
+        path: Routes.Comparision,
+        element: Comparision,
+        isOnSidebar: true,
+      },
+      {
         name: "Stock Histories Reports",
         path: Routes.StockHistoriesReports,
         element: StockHistoriesReports,
@@ -528,6 +545,12 @@ export const allRoutes: {
         tabs: StockHistoriesReportsPageTabs,
       },
     ],
+  },
+  {
+    name: "Comparision",
+    path: Routes.Comparision,
+    element: Comparision,
+    isOnSidebar: false,
   },
   {
     name: "Integration",
@@ -846,6 +869,39 @@ export const allRoutes: {
     name: "Activities",
     link: "https://docs.google.com/spreadsheets/d/13C_TCrb2gkFifWkYkCDyggyAA4RNDmk_aVrCXnZ2P6Q/edit",
     isOnSidebar: false,
+  },
+  {
+    name: "Event Survey Builder",
+    path: Routes.EventSurveyBuilder,
+    element: EventSurveyBuilder,
+    isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Event Survey Questions",
+    path: Routes.EventSurveyQuestions,
+    element: EventSurveyQuestions,
+    isOnSidebar: false,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Survey Redeem",
+    path: Routes.SurveyRedeem,
+    element: SurveyRedeem,
+    isOnSidebar: true,
+    exceptionalRoles: [
+      RoleEnum.MANAGER,
+      RoleEnum.BARISTA,
+      RoleEnum.GAMEMASTER,
+      RoleEnum.GAMEMANAGER,
+    ],
+  },
+  {
+    name: "Survey Analytics",
+    path: Routes.SurveyAnalytics,
+    element: SurveyAnalytics,
+    isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
   },
 ];
 
