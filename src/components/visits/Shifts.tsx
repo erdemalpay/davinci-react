@@ -1034,13 +1034,18 @@ const Shifts = () => {
                       const shiftData = shifts
                         ?.find((s) => s.day === row.day)
                         ?.shifts?.find((s) => s.shift === foundShift.shift);
+                      const prevChef = shiftData?.chefUser ?? "";
+                      const prevMiddleman = shiftData?.middlemanUser ?? "";
                       return {
                         shift: foundShift.shift,
                         ...(foundShift.shiftEndHour && {
                           shiftEndHour: foundShift.shiftEndHour,
                         }),
                         user,
-                        chefUser: shiftData?.chefUser,
+                        chefUser: user.includes(prevChef) ? prevChef : "",
+                        middlemanUser: user.includes(prevMiddleman)
+                          ? prevMiddleman
+                          : "",
                       };
                     });
                     if (!row?._id && foundLocation) {
@@ -1134,17 +1139,35 @@ const Shifts = () => {
               }
               // handle update
               else {
-                const shifts = foundLocation?.shifts?.map((shift) => ({
-                  shift: shift.shift,
-                  ...(shift.shiftEndHour && {
-                    shiftEndHour: shift.shiftEndHour,
-                  }),
-                  user: form?.[shift.shift],
-                }));
+                const existingShifts = shifts?.find(
+                  (s) => s._id === rowToAction?._id
+                )?.shifts;
+                const updatedShifts = foundLocation?.shifts?.map((shift) => {
+                  const existing = existingShifts?.find(
+                    (s) => s.shift === shift.shift
+                  );
+                  return {
+                    shift: shift.shift,
+                    ...(shift.shiftEndHour && {
+                      shiftEndHour: shift.shiftEndHour,
+                    }),
+                    user: form?.[shift.shift],
+                    chefUser: (form?.[shift.shift] ?? []).includes(
+                      existing?.chefUser ?? ""
+                    )
+                      ? (existing?.chefUser ?? "")
+                      : "",
+                    middlemanUser: (form?.[shift.shift] ?? []).includes(
+                      existing?.middlemanUser ?? ""
+                    )
+                      ? (existing?.middlemanUser ?? "")
+                      : "",
+                  };
+                });
                 updateShift({
                   id: rowToAction?._id,
                   updates: {
-                    shifts,
+                    shifts: updatedShifts,
                   },
                 });
               }

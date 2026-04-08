@@ -2,6 +2,10 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { formatAsLocalDate } from "../../utils/format";
+import { useGetUsersMinimal } from "../../utils/api/user";
+import { useGetStoreLocations } from "../../utils/api/location";
+import { getItem } from "../../utils/getItem";
+import { ShiftActivityPayload, ShiftValue } from "../../types";
 
 type Props = {
   activityType?: string;
@@ -170,6 +174,225 @@ const getActionAndEntity = (activityType: string) => {
   };
 };
 
+const SHIFT_ACTIVITY_TYPES = new Set([
+  "CREATE_SHIFT",
+  "UPDATE_SHIFT",
+  "DELETE_SHIFT",
+  "ASSIGN_CHEF",
+  "ASSIGN_MIDDLEMAN",
+]);
+
+const ShiftActivityRenderer = ({
+  activityType,
+  payload,
+}: {
+  activityType: string;
+  payload: ShiftActivityPayload;
+}) => {
+  const { t } = useTranslation();
+  const users = useGetUsersMinimal();
+  const locations = useGetStoreLocations();
+
+  const locationName =
+    payload.location !== undefined
+      ? (getItem(payload.location, locations)?.name ?? String(payload.location))
+      : "-";
+
+  const formattedDay = payload.day
+    ? formatAsLocalDate(payload.day)
+    : "-";
+
+  const resolveUserName = (userId: string) =>
+    getItem(userId, users)?.name ?? userId;
+
+  if (activityType === "CREATE_SHIFT") {
+    const shifts: ShiftValue[] = payload.shifts ?? [];
+    const assignedShifts = shifts.filter((s) => (s.user?.length ?? 0) > 0);
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2 text-sm">
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Date")}: <strong>{formattedDay}</strong>
+          </span>
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Location")}: <strong>{locationName}</strong>
+          </span>
+        </div>
+        {assignedShifts.length > 0 ? (
+          <div className="space-y-1">
+            {assignedShifts.map((s) => (
+              <div
+                key={s.shift}
+                className="flex items-center gap-2 rounded border border-gray-200 bg-white px-3 py-1.5 text-sm"
+              >
+                <span className="min-w-[90px] font-mono font-semibold text-gray-700">
+                  {s.shift}
+                  {s.shiftEndHour ? ` → ${s.shiftEndHour}` : ""}
+                </span>
+                <span className="text-gray-500">
+                  {s.user?.map(resolveUserName).join(", ")}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">{t("No users assigned")}</p>
+        )}
+      </div>
+    );
+  }
+
+  if (activityType === "DELETE_SHIFT") {
+    return (
+      <div className="flex flex-wrap gap-2 text-sm">
+        <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+          {t("Date")}: <strong>{formattedDay}</strong>
+        </span>
+        <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+          {t("Location")}: <strong>{locationName}</strong>
+        </span>
+      </div>
+    );
+  }
+
+  if (activityType === "UPDATE_SHIFT") {
+    const prevShifts: ShiftValue[] = payload.previousShifts ?? [];
+    const newShifts: ShiftValue[] = payload.updatedShifts ?? [];
+
+    const allShiftKeys = Array.from(
+      new Set([
+        ...prevShifts.map((s) => s.shift),
+        ...newShifts.map((s) => s.shift),
+      ])
+    );
+
+    const changedShifts = allShiftKeys.filter((key) => {
+      const prev = prevShifts.find((s) => s.shift === key);
+      const next = newShifts.find((s) => s.shift === key);
+      const prevUsers = (prev?.user ?? []).slice().sort().join(",");
+      const nextUsers = (next?.user ?? []).slice().sort().join(",");
+      return prevUsers !== nextUsers;
+    });
+
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2 text-sm">
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Date")}: <strong>{formattedDay}</strong>
+          </span>
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Location")}: <strong>{locationName}</strong>
+          </span>
+        </div>
+        {changedShifts.length > 0 ? (
+          <div className="space-y-1.5">
+            {changedShifts.map((key) => {
+              const prev = prevShifts.find((s) => s.shift === key);
+              const next = newShifts.find((s) => s.shift === key);
+              const prevUsers = prev?.user ?? [];
+              const nextUsers = next?.user ?? [];
+              const added = nextUsers.filter((u) => !prevUsers.includes(u));
+              const removed = prevUsers.filter((u) => !nextUsers.includes(u));
+              return (
+                <div
+                  key={key}
+                  className="rounded border border-gray-200 bg-white px-3 py-2 text-sm"
+                >
+                  <p className="mb-1 font-mono font-semibold text-gray-700">
+                    {key}
+                    {next?.shiftEndHour
+                      ? ` → ${next.shiftEndHour}`
+                      : prev?.shiftEndHour
+                      ? ` → ${prev.shiftEndHour}`
+                      : ""}
+                  </p>
+                  {added.length > 0 && (
+                    <p className="text-green-600">
+                      + {added.map(resolveUserName).join(", ")}
+                    </p>
+                  )}
+                  {removed.length > 0 && (
+                    <p className="text-red-500">
+                      - {removed.map(resolveUserName).join(", ")}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">{t("No user changes detected")}</p>
+        )}
+      </div>
+    );
+  }
+
+  if (activityType === "ASSIGN_CHEF" || activityType === "ASSIGN_MIDDLEMAN") {
+    const isChef = activityType === "ASSIGN_CHEF";
+    const prevId = isChef
+      ? (payload.previousChefUserId ?? "")
+      : (payload.previousMiddlemanUserId ?? "");
+    const newId = isChef
+      ? (payload.chefUserId ?? "")
+      : (payload.middlemanUserId ?? "");
+    const label = isChef ? `★ ${t("Chef")}` : `● ${t("Middleman")}`;
+
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2 text-sm">
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Date")}: <strong>{formattedDay}</strong>
+          </span>
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Location")}: <strong>{locationName}</strong>
+          </span>
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Shift")}:{" "}
+            <strong className="font-mono">{payload.shift ?? "-"}</strong>
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-xs font-semibold text-gray-500">{label}:</span>
+          {!prevId && newId && (
+            <span className="rounded bg-green-100 px-2 py-0.5 text-green-700">
+              + <strong>{resolveUserName(newId)}</strong>
+            </span>
+          )}
+          {prevId && !newId && (
+            <span className="rounded bg-red-100 px-2 py-0.5 text-red-600">
+              - <strong>{resolveUserName(prevId)}</strong>
+            </span>
+          )}
+          {prevId && newId && prevId !== newId && (
+            <>
+              <span className="rounded bg-red-100 px-2 py-0.5 text-red-600 line-through">
+                {resolveUserName(prevId)}
+              </span>
+              <span className="text-gray-400">→</span>
+              <span className="rounded bg-green-100 px-2 py-0.5 text-green-700">
+                <strong>{resolveUserName(newId)}</strong>
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+const RawJsonSection = ({ raw, t }: { raw: string; t: (key: string) => string }) => (
+  <details className="mt-3 rounded-md border border-gray-200 bg-white p-2">
+    <summary className="cursor-pointer text-xs font-semibold text-gray-600">
+      {t("Raw JSON")}
+    </summary>
+    <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-gray-100 p-2 text-xs text-gray-800">
+      {raw || "{}"}
+    </pre>
+  </details>
+);
+
 const ActivityPayloadRenderer = ({
   payload,
   activityType,
@@ -189,46 +412,67 @@ const ActivityPayloadRenderer = ({
         })
       : null;
 
-  const {
-    action,
-    entity,
-    detailFields,
-    rawPayload,
-    hasReadableDetails,
-  } = useMemo(() => {
-    const parsedPayload = stripVersionKeys(safeParsePayload(payload));
-    const parsedType = getActionAndEntity(resolvedType);
-    const raw = JSON.stringify(parsedPayload, null, 2);
+  // Parse ve stripVersionKeys tek seferinde yapılıyor — hem shift hem default branch kullanır
+  const { action, entity, detailFields, rawPayload, hasReadableDetails, parsedPayload } =
+    useMemo(() => {
+      const parsed = stripVersionKeys(safeParsePayload(payload));
+      const parsedType = getActionAndEntity(resolvedType);
+      const raw = JSON.stringify(parsed, null, 2);
 
-    if (!isObject(parsedPayload)) {
-      const isNullPayload = parsedPayload === null || parsedPayload === undefined;
-      const primitiveField: DetailField[] = isNullPayload
-        ? []
-        : [
-            {
-              label: t("Value"),
-              value: toDisplayValue("value", parsedPayload),
-            },
-          ];
+      if (!isObject(parsed)) {
+        const isNullPayload = parsed === null || parsed === undefined;
+        const primitiveField: DetailField[] = isNullPayload
+          ? []
+          : [{ label: t("Value"), value: toDisplayValue("value", parsed) }];
+        return {
+          action: parsedType.action,
+          entity: parsedType.entity,
+          detailFields: primitiveField,
+          rawPayload: raw,
+          hasReadableDetails: !isNullPayload && primitiveField.length > 0,
+          parsedPayload: parsed,
+        };
+      }
+
+      const details = buildDetailFields(parsed);
       return {
         action: parsedType.action,
         entity: parsedType.entity,
-        detailFields: primitiveField,
+        detailFields: details,
         rawPayload: raw,
-        hasReadableDetails: !isNullPayload && primitiveField.length > 0,
+        hasReadableDetails: details.length > 0,
+        parsedPayload: parsed,
       };
-    }
+    }, [payload, resolvedType, t]);
 
-    const details = buildDetailFields(parsedPayload);
-
-    return {
-      action: parsedType.action,
-      entity: parsedType.entity,
-      detailFields: details,
-      rawPayload: raw,
-      hasReadableDetails: details.length > 0,
-    };
-  }, [payload, resolvedType, t]);
+  // Shift branch — parse ve action/entity useMemo'dan geliyor
+  if (SHIFT_ACTIVITY_TYPES.has(resolvedType)) {
+    return (
+      <div className="w-full rounded-md border border-gray-200 bg-gray-50 p-3">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          {action && (
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                ACTION_COLORS[action] ?? "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {action}
+            </span>
+          )}
+          {entity && (
+            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-gray-700">
+              {entity}
+            </span>
+          )}
+        </div>
+        <ShiftActivityRenderer
+          activityType={resolvedType}
+          payload={parsedPayload as ShiftActivityPayload}
+        />
+        <RawJsonSection raw={rawPayload} t={t} />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full rounded-md border border-gray-200 bg-gray-50 p-3">
@@ -253,7 +497,6 @@ const ActivityPayloadRenderer = ({
           )}
         </div>
       )}
-
       {hasReadableDetails && (
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
           {detailFields.map((field) => (
@@ -269,15 +512,7 @@ const ActivityPayloadRenderer = ({
           ))}
         </div>
       )}
-
-      <details className="mt-3 rounded-md border border-gray-200 bg-white p-2">
-        <summary className="cursor-pointer text-xs font-semibold text-gray-600">
-          {t("Raw JSON")}
-        </summary>
-        <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-gray-100 p-2 text-xs text-gray-800">
-          {rawPayload || "{}"}
-        </pre>
-      </details>
+      <RawJsonSection raw={rawPayload} t={t} />
     </div>
   );
 };
