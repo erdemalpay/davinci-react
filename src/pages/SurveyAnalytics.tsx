@@ -1,0 +1,650 @@
+import { ResponsiveBar } from "@nivo/bar";
+import { ResponsiveLine } from "@nivo/line";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
+import { Header } from "../components/header/Header";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { useGetAnalyticsSummary, useGetCrossAnalysis, useGetEvents, useGetMarketingConsentStats, useGetQuestionAnswers, useGetResponses, useGetQuestions } from "../utils/api/event-survey";
+import { CrossAnalysisItem } from "../utils/api/event-survey";
+import { QuestionType, RewardCodeStatus, SurveyEvent, SurveyQuestion, SurveyResponse } from "../types/event-survey";
+import { format } from "date-fns";
+
+const SurveyAnalytics = () => {
+  const { t, i18n } = useTranslation();
+  const events = (useGetEvents() ?? []) as SurveyEvent[];
+  const [selectedEventId, setSelectedEventId] = useState<number | undefined>();
+  const [participantsOpen, setParticipantsOpen] = useState(false);
+  const [chartOpen, setChartOpen] = useState(false);
+  const [selectedQuestionId, setSelectedQuestionId] = useState<number | undefined>();
+  const [marketingSelected, setMarketingSelected] = useState(false);
+  const [plotsOpen, setPlotsOpen] = useState(false);
+  const [crossOpen, setCrossOpen] = useState(false);
+  const [crossQuestionIdA, setCrossQuestionIdA] = useState<number | undefined>();
+  const [crossQuestionIdB, setCrossQuestionIdB] = useState<number | undefined>();
+
+  const questions = (useGetQuestions(selectedEventId) ?? []) as SurveyQuestion[];
+  const { data: questionAnswers = [] } = useGetQuestionAnswers(selectedEventId, selectedQuestionId);
+  const { data: marketingStats } = useGetMarketingConsentStats(selectedEventId);
+  const { data: crossData = [] } = useGetCrossAnalysis(selectedEventId, crossQuestionIdA, crossQuestionIdB);
+  const selectedQuestion = questions.find((q) => q._id === selectedQuestionId);
+
+  const { data: summary, isLoading: summaryLoading } =
+    useGetAnalyticsSummary(selectedEventId);
+
+  const { data: responsesData } = useGetResponses({
+    eventId: selectedEventId,
+    limit: 1000,
+  });
+  const responses: SurveyResponse[] = responsesData?.data ?? [];
+
+  const lineData = useMemo(() => {
+    if (!summary?.dailyTrend?.length) return [];
+    return [
+      {
+        id: t("Form Submission"),
+        data: summary.dailyTrend.map((d) => ({
+          x: d._id,
+          y: d.count,
+        })),
+      },
+    ];
+  }, [summary, i18n.language, t]);
+  return (
+    <>
+      <Header showLocationSelector={false} />
+      <div className="w-[98%] mx-auto my-8 space-y-6">
+        {/* Etkinlik Filtresi */}
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">{t("Event")}:</label>
+          <select
+            value={selectedEventId ?? ""}
+            onChange={(e) => {
+              setSelectedEventId(e.target.value ? Number(e.target.value) : undefined);
+              setSelectedQuestionId(undefined);
+              setMarketingSelected(false);
+              setPlotsOpen(false);
+              setCrossOpen(false);
+              setCrossQuestionIdA(undefined);
+              setCrossQuestionIdB(undefined);
+            }}
+            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
+          >
+            <option value="">{t("All Events")}</option>
+            {events.map((ev) => (
+              <option key={ev._id} value={ev._id}>
+                {ev.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {!selectedEventId && (
+          <div className="flex items-center justify-center py-20 text-gray-900 text-lg font-medium">
+            {t("Please select an event to view analytics")}
+          </div>
+        )}
+
+        {/* KPI Kartları */}
+        {selectedEventId && summaryLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-gray-100 animate-pulse rounded-xl h-24" />
+            ))}
+          </div>
+        ) : summary ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <KpiCard label={t("Total Participation")} value={summary.totalResponses} color="indigo" />
+            <KpiCard label={t("Generated Code")} value={summary.totalIssued} color="blue" />
+            <KpiCard label={t("Used Code")} value={summary.totalRedeemed} color="green" />
+            <KpiCard label={t("Usage Rate")} value={`%${summary.redeemRate}`} color="amber" />
+          </div>
+        ) : null}
+
+        {/* Günlük Trend Grafiği */}
+        {selectedEventId && (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setChartOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <h3 className="text-sm font-semibold text-gray-700">
+                {t("Daily Form Submission (Last 30 Days)")}
+              </h3>
+              {chartOpen ? (
+                <MdKeyboardArrowDown className="text-gray-400 text-lg" />
+              ) : (
+                <MdKeyboardArrowRight className="text-gray-400 text-lg" />
+              )}
+            </button>
+            {chartOpen && (
+              <div className="p-5 h-72">
+                {lineData.length > 0 ? (
+                  <ResponsiveLine
+                    data={lineData}
+                    margin={{ top: 10, right: 20, bottom: 65, left: 60 }}
+                    xScale={{ type: "point" }}
+                    yScale={{ type: "linear", min: 0, max: "auto" }}
+                    axisBottom={{
+                      tickRotation: -45,
+                      tickSize: 5,
+                      format: (v) => v.slice(5),
+                      legend: t("Date"),
+                      legendOffset: 55,
+                      legendPosition: "middle",
+                    }}
+                    axisLeft={{
+                      tickSize: 5,
+                      legend: t("Survey Count"),
+                      legendOffset: -50,
+                      legendPosition: "middle",
+                    }}
+                    pointSize={6}
+                    pointColor={{ theme: "background" }}
+                    pointBorderWidth={2}
+                    pointBorderColor={{ from: "serieColor" }}
+                    enableArea
+                    colors={["#3b82f6"]}
+                    useMesh
+                  />
+                ) : (
+                  <EmptyChart />
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Soru Analitik Bölümü */}
+        {selectedEventId && questions.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setPlotsOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <p className="text-sm font-semibold text-gray-700">{t("Answer Plots")}</p>
+              {plotsOpen ? (
+                <MdKeyboardArrowDown className="text-gray-400 text-lg" />
+              ) : (
+                <MdKeyboardArrowRight className="text-gray-400 text-lg" />
+              )}
+            </button>
+            {plotsOpen && <div className="p-5 space-y-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-gray-500">{t("Question")} :</span>
+              {questions.map((q, i) => (
+                <button
+                  key={q._id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedQuestionId(selectedQuestionId === q._id ? undefined : q._id);
+                    setMarketingSelected(false);
+                  }}
+                  className={`px-4 py-2 rounded-lg focus:outline-none font-medium cursor-pointer text-sm ${
+                    selectedQuestionId === q._id
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setMarketingSelected((prev) => !prev);
+                  setSelectedQuestionId(undefined);
+                }}
+                className={`px-4 py-2 rounded-lg focus:outline-none font-medium cursor-pointer text-sm ${
+                  marketingSelected
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black"
+                }`}
+              >
+                {t("Marketing Consent")}
+              </button>
+            </div>
+
+            {marketingSelected && marketingStats && (
+              <div className="space-y-4">
+                <p className="text-sm font-medium text-gray-800">{t("Marketing Consent")}</p>
+                <ConsentDonutChart
+                  answers={[
+                    ...Array(marketingStats.yes).fill({ answer: "evet" }),
+                    ...Array(marketingStats.no).fill({ answer: "hayır" }),
+                  ]}
+                  yesLabel={t("Yes")}
+                  noLabel={t("No")}
+                />
+              </div>
+            )}
+
+            {selectedQuestion && (
+              <div className="space-y-4">
+                <p className="text-sm font-medium text-gray-800">{selectedQuestion.label}</p>
+                {selectedQuestion.type === QuestionType.TEXT ? (
+                  <GenericTable
+                    rows={questionAnswers}
+                    isActionsActive={false}
+                    isSearch={false}
+                    columns={[
+                      { key: t("Email"), isSortable: true },
+                      { key: t("Answer"), isSortable: false },
+                    ]}
+                    rowKeys={[
+                      { key: "email" },
+                      { key: "answer" },
+                    ]}
+                  />
+                ) : selectedQuestion.type === QuestionType.CONSENT ? (
+                  <ConsentDonutChart answers={questionAnswers} yesLabel={t("Yes")} noLabel={t("No")} />
+                ) : selectedQuestion.type === QuestionType.SINGLE_CHOICE ? (
+                  <SingleChoiceBarChart answers={questionAnswers} />
+                ) : selectedQuestion.type === QuestionType.MULTI_CHOICE ? (
+                  <MultiChoiceBarChart answers={questionAnswers} />
+                ) : (
+                  <div className="flex items-center justify-center py-12 text-gray-400 text-sm">
+                    {t("Chart will be shown here")}
+                  </div>
+                )}
+              </div>
+            )}
+            </div>}
+          </div>
+        )}
+
+        {/* Cross Analiz Bölümü */}
+        {selectedEventId && questions.filter(q => q.type !== QuestionType.TEXT).length >= 2 && (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setCrossOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <p className="text-sm font-semibold text-gray-700">{t("Cross Analysis")}</p>
+              {crossOpen ? (
+                <MdKeyboardArrowDown className="text-gray-400 text-lg" />
+              ) : (
+                <MdKeyboardArrowRight className="text-gray-400 text-lg" />
+              )}
+            </button>
+            {crossOpen && (
+              <div className="p-5 space-y-5">
+                <CrossAnalysisSection
+                  questions={questions.filter(q => q.type !== QuestionType.TEXT)}
+                  questionIdA={crossQuestionIdA}
+                  questionIdB={crossQuestionIdB}
+                  onChangeA={(id) => { setCrossQuestionIdA(id); }}
+                  onChangeB={(id) => { setCrossQuestionIdB(id); }}
+                  crossData={crossData}
+                  t={t}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Katılımcı Listesi Tablosu */}
+        {selectedEventId && <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setParticipantsOpen((prev) => !prev)}
+            className="w-full flex items-center justify-between px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+          >
+            <h3 className="text-sm font-semibold text-gray-700">
+              {t("Participant List")}
+            </h3>
+            {participantsOpen ? (
+              <MdKeyboardArrowDown className="text-gray-400 text-lg" />
+            ) : (
+              <MdKeyboardArrowRight className="text-gray-400 text-lg" />
+            )}
+          </button>
+          {participantsOpen && (
+            <>
+              <GenericTable
+                rows={responses}
+                isActionsActive={false}
+                isColumnFilter={false}
+                columns={[
+                  { key: t("Full Name"), isSortable: true },
+                  { key: t("Email"), isSortable: true },
+                  { key: t("Marketing Consent"), isSortable: true },
+                  { key: t("Reward"), isSortable: false },
+                  { key: t("Date"), isSortable: true },
+                ]}
+                rowKeys={[
+                  { key: "fullName" },
+                  { key: "email" },
+                  {
+                    key: "emailMarketingConsent",
+                    node: (row: SurveyResponse) =>
+                      row.emailMarketingConsent ? (
+                        <span className="text-green-600 text-xs font-medium">{t("Approved")}</span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">—</span>
+                      ),
+                  },
+                  {
+                    key: "rewardCode",
+                    node: (row: SurveyResponse) => (
+                      <RewardStatusBadge rewardCode={row.rewardCode} t={t} />
+                    ),
+                  },
+                  {
+                    key: "createdAt",
+                    node: (row: SurveyResponse) =>
+                      format(new Date(row.createdAt), "dd/MM/yyyy HH:mm"),
+                  },
+                ]}
+              />
+            </>
+          )}
+        </div>}
+      </div>
+    </>
+  );
+};
+
+const KpiCard = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | string;
+  color: "indigo" | "blue" | "green" | "amber";
+}) => {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-4 flex flex-col items-center justify-center text-center">
+      <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
+      <p className="text-3xl font-bold text-gray-800">{value}</p>
+    </div>
+  );
+};
+
+const EmptyChart = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="h-full flex items-center justify-center text-gray-300 text-sm">
+      {t("No data yet")}
+    </div>
+  );
+};
+
+const RewardStatusBadge = ({
+  rewardCode,
+  t,
+}: {
+  rewardCode: SurveyResponse["rewardCode"];
+  t: (key: string) => string;
+}) => {
+  if (!rewardCode) return <span className="text-gray-400 text-xs">—</span>;
+
+  if (rewardCode.status === RewardCodeStatus.REDEEMED) {
+    return <span className="text-xs">{t("Used")}</span>;
+  }
+
+  if (rewardCode.status === RewardCodeStatus.EXPIRED) {
+    return <span className="text-xs">{t("Expired")}</span>;
+  }
+
+  // ISSUED
+  return <span className="text-xs">{rewardCode.code}</span>;
+};
+
+const MultiChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) => {
+  const counts = answers.reduce<Record<string, number>>((acc, a) => {
+    const options = a.answer.split(",").map((s) => s.trim()).filter(Boolean);
+    options.forEach((opt) => {
+      acc[opt] = (acc[opt] ?? 0) + 1;
+    });
+    return acc;
+  }, {});
+
+  const data = Object.entries(counts).map(([option, count]) => ({ option, count }));
+
+  if (data.length === 0) return <EmptyChart />;
+
+  const barHeight = 48;
+  const chartHeight = Math.max(240, data.length * barHeight + 40);
+
+  return (
+    <div className="w-full" style={{ height: chartHeight }}>
+      <ResponsiveBar
+        data={data}
+        keys={["count"]}
+        indexBy="option"
+        layout="horizontal"
+        margin={{ top: 10, right: 40, bottom: 20, left: 160 }}
+        padding={0.3}
+        colors={["#3b82f6"]}
+        axisLeft={{ tickSize: 0 }}
+        axisBottom={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
+        labelSkipWidth={12}
+        enableGridY={false}
+        enableGridX
+        borderRadius={4}
+        theme={{ labels: { text: { fontSize: 16, fontWeight: 700 } } }}
+      />
+    </div>
+  );
+};
+
+const SingleChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) => {
+  const counts = answers.reduce<Record<string, number>>((acc, a) => {
+    acc[a.answer] = (acc[a.answer] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const data = Object.entries(counts).map(([option, count]) => ({
+    option,
+    count,
+  }));
+
+  if (data.length === 0) return <EmptyChart />;
+
+  const barHeight = 48;
+  const chartHeight = Math.max(240, data.length * barHeight + 60);
+
+  return (
+    <div className="w-full h-72">
+      <ResponsiveBar
+        data={data}
+        keys={["count"]}
+        indexBy="option"
+        layout="vertical"
+        margin={{ top: 10, right: 20, bottom: 60, left: 40 }}
+        padding={0.3}
+        colors={["#3b82f6"]}
+        axisLeft={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
+        axisBottom={{ tickSize: 5, tickRotation: -30 }}
+        labelSkipHeight={12}
+        enableGridY
+        borderRadius={4}
+        theme={{ labels: { text: { fontSize: 16, fontWeight: 700 } } }}
+      />
+    </div>
+  );
+};
+
+const ConsentDonutChart = ({
+  answers,
+  yesLabel,
+  noLabel,
+}: {
+  answers: { answer: string }[];
+  yesLabel: string;
+  noLabel: string;
+}) => {
+  const yesCount = answers.filter((a) => a.answer === "evet").length;
+  const noCount = answers.length - yesCount;
+
+  if (answers.length === 0) return <EmptyChart />;
+
+  const data = [{ id: "consent", [yesLabel]: yesCount, [noLabel]: noCount }];
+
+  return (
+    <div className="w-full h-40">
+      <ResponsiveBar
+        data={data}
+        keys={[yesLabel, noLabel]}
+        indexBy="id"
+        layout="horizontal"
+        groupMode="stacked"
+        margin={{ top: 30, right: 20, bottom: 30, left: 20 }}
+        padding={0.35}
+        colors={["#22c55e", "#f87171"]}
+        axisLeft={null}
+        axisBottom={null}
+        enableGridY={false}
+        borderRadius={4}
+        theme={{ labels: { text: { fontSize: 16, fontWeight: 700 } } }}
+        legends={[
+          {
+            dataFrom: "keys",
+            anchor: "top",
+            direction: "row",
+            translateY: -25,
+            itemWidth: 90,
+            itemHeight: 16,
+            itemTextColor: "#555",
+            symbolSize: 12,
+            symbolShape: "circle",
+          },
+        ]}
+      />
+    </div>
+  );
+};
+
+const CrossAnalysisSection = ({
+  questions,
+  questionIdA,
+  questionIdB,
+  onChangeA,
+  onChangeB,
+  crossData,
+  t,
+}: {
+  questions: SurveyQuestion[];
+  questionIdA: number | undefined;
+  questionIdB: number | undefined;
+  onChangeA: (id: number | undefined) => void;
+  onChangeB: (id: number | undefined) => void;
+  crossData: CrossAnalysisItem[];
+  t: (key: string) => string;
+}) => {
+  const questionA = questions.find((q) => q._id === questionIdA);
+  const questionB = questions.find((q) => q._id === questionIdB);
+  const isMultiWarning =
+    questionA?.type === QuestionType.MULTI_CHOICE ||
+    questionB?.type === QuestionType.MULTI_CHOICE;
+
+  // nivo grouped bar formatı
+  const uniqueB = Array.from(new Set(crossData.map((d) => d.answerB)));
+  const groupedByA = crossData.reduce<Record<string, Record<string, number>>>((acc, d) => {
+    if (!acc[d.answerA]) acc[d.answerA] = {};
+    acc[d.answerA][d.answerB] = d.count;
+    return acc;
+  }, {});
+  const barData = Object.entries(groupedByA).map(([answerA, vals]) => ({
+    answerA,
+    ...Object.fromEntries(uniqueB.map((b) => [b, vals[b] ?? 0])),
+  }));
+
+  const selectClass = "border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer";
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-600">{t("Group By")}:</label>
+          <select
+            value={questionIdA ?? ""}
+            onChange={(e) => onChangeA(e.target.value ? Number(e.target.value) : undefined)}
+            className={selectClass}
+          >
+            <option value="">{t("Select")}</option>
+            {questions.map((q, i) => (
+              <option key={q._id} value={q._id} disabled={q._id === questionIdB}>
+                {i + 1}. {q.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="button"
+          onClick={() => { onChangeA(questionIdB); onChangeB(questionIdA); }}
+          disabled={!questionIdA || !questionIdB}
+          className="px-2 py-1 rounded-lg text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          title={t("Swap")}
+        >
+          ⇄
+        </button>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-600">{t("Breakdown By")}:</label>
+          <select
+            value={questionIdB ?? ""}
+            onChange={(e) => onChangeB(e.target.value ? Number(e.target.value) : undefined)}
+            className={selectClass}
+          >
+            <option value="">{t("Select")}</option>
+            {questions.map((q, i) => (
+              <option key={q._id} value={q._id} disabled={q._id === questionIdA}>
+                {i + 1}. {q.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {isMultiWarning && (
+        <p className="text-xs text-amber-600">
+          {t("Multi-choice warning")}
+        </p>
+      )}
+
+      {questionIdA && questionIdB && (
+        barData.length === 0 ? (
+          <EmptyChart />
+        ) : (
+          <div className="w-full h-72">
+            <ResponsiveBar
+              data={barData}
+              keys={uniqueB}
+              indexBy="answerA"
+              groupMode="grouped"
+              layout="vertical"
+              margin={{ top: 20, right: 140, bottom: 60, left: 40 }}
+              padding={0.2}
+              innerPadding={3}
+              axisLeft={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
+              axisBottom={{ tickSize: 5, tickRotation: -20 }}
+              labelSkipHeight={12}
+              enableGridY
+              borderRadius={3}
+              theme={{ labels: { text: { fontSize: 13, fontWeight: 700 } } }}
+              legends={[
+                {
+                  dataFrom: "keys",
+                  anchor: "bottom-right",
+                  direction: "column",
+                  translateX: 130,
+                  itemWidth: 120,
+                  itemHeight: 20,
+                  itemTextColor: "#555",
+                  symbolSize: 12,
+                  symbolShape: "circle",
+                },
+              ]}
+            />
+          </div>
+        )
+      )}
+    </div>
+  );
+};
+
+export default SurveyAnalytics;

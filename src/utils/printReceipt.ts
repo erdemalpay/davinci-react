@@ -79,7 +79,7 @@ export const printTableReceipt = ({
     ? `<div class="section bold">Tarih: ${formattedDate}</div>`
     : "";
   const tableInfoSection = showTableInfo
-    ? `<div class="section bold">${safeTableName} numaralı masa</div><div class="divider"></div>`
+    ? `<div class="table-info">${safeTableName} numaralı masa</div><div class="divider"></div>`
     : "";
 
   const htmlContent = `
@@ -90,16 +90,17 @@ export const printTableReceipt = ({
           * { box-sizing: border-box; }
           @page { margin: 6mm; }
           body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 8px; background: #fff; color: #000; }
-          .receipt { width: 320px; margin: 0 auto; }
-          .logo-row { display: flex; justify-content: center; margin-bottom: 4px; }
-          .logo { width: 56px; height: 56px; object-fit: contain; }
-          .title { text-align: center; font-size: 13px; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 10px; }
-          .section { margin-top: 6px; font-size: 14px; }
+          .receipt { width: 360px; margin: 0 auto; }
+          .logo-row { display: flex; justify-content: center; margin-bottom: 6px; }
+          .logo { width: 72px; height: 72px; object-fit: contain; }
+          .title { text-align: center; font-size: 20px; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 10px; }
+          .section { margin-top: 8px; font-size: 20px; }
           .section.bold { font-weight: 700; }
-          .divider { border-top: 1px dashed #000; margin: 6px 0; }
-          .header-row, .item-row, .total-row { display: flex; justify-content: space-between; font-size: 14px; }
-          .item-row { font-weight: 700; }
-          .item-note { font-size: 10px; margin-left: 8px; margin-top: 2px; }
+          .table-info { margin-top: 8px; font-size: 24px; font-weight: 700; line-height: 1.25; }
+          .divider { border-top: 1px dashed #000; margin: 8px 0; }
+          .header-row, .total-row { display: flex; justify-content: space-between; font-size: 20px; }
+          .item-row { display: flex; justify-content: space-between; font-size: 24px; font-weight: 700; line-height: 1.25; }
+          .item-note { font-size: 17px; margin-left: 8px; margin-top: 4px; line-height: 1.3; }
           .total-row { font-weight: 700; margin-top: 6px; }
           .original-price { text-decoration: line-through; margin-left: auto; margin-right: 10px; color: #666; }
         </style>

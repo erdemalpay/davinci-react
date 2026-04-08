@@ -67,6 +67,7 @@ type Props<T> = {
   confirmationDialogText?: string;
   isSubmitButtonActive?: boolean;
   upperMessage?: string[];
+  upperMessageColumns?: 1 | 2;
   additionalButtons?: AdditionalButtonProps[];
   stickyFooterButtons?: boolean;
   itemToEdit?: {
@@ -117,6 +118,7 @@ const GenericAddEditPanel = <T,>({
   confirmationDialogHeader,
   onOpenTriggerTabInputFormKey,
   upperMessage,
+  upperMessageColumns = 1,
   setForm,
   submitItem,
   nonImageInputsClassName,
@@ -455,7 +457,13 @@ const GenericAddEditPanel = <T,>({
             <H6 className={headerClassName ?? "text-left"}>{header}</H6>
           )}
           {upperMessage?.length && upperMessage?.length > 0 && (
-            <div className="flex flex-col px-4 py-2 border-b space-y-1">
+            <div
+              className={
+                upperMessageColumns === 2
+                  ? "grid grid-cols-2 gap-x-4 gap-y-1 px-4 py-2 border-b"
+                  : "flex flex-col px-4 py-2 border-b space-y-1"
+              }
+            >
               {upperMessage.map((msg, index) => (
                 <H6 key={index}>{msg}</H6>
               ))}
