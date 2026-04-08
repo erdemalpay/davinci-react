@@ -1500,5 +1500,10 @@
   "Max Price": "Maksimum Fiyat",
   "Price Gap": "Fiyat Farkı",
   "Available Sites": "Mevcut Siteler",
-  "Archived": "Arşivlendi"
+  "Archived": "Arşivlendi",
+  "Upload Successful" : "Başarılı",
+  "Upload Failed" : "Hata",
+  "Upload Logs" : "Önceki Yükleme Kayıtları",
+  "Uploaded By" : "Yükleyen",
+  "File Name" : "Dosya İsmi"
 }
