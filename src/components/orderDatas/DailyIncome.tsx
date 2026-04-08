@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -19,7 +18,7 @@ import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { formatAsLocalDate, formatCurrency } from "../../utils/format";
+import { formatAsLocalDate, formatCurrency, toIstDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -71,8 +70,7 @@ const DailyIncome = () => {
       )
       ?.reduce((acc, collection) => {
         if (!collection?.tableDate) return acc;
-        const zonedTime = toZonedTime(collection.tableDate, "UTC");
-        const tableDate = format(zonedTime, "yyyy-MM-dd");
+        const tableDate = format(toIstDate(collection.tableDate), "yyyy-MM-dd");
         if (!collection || !tableDate) return acc;
         const foundPaymentMethod = getItem(
           collection?.paymentMethod,

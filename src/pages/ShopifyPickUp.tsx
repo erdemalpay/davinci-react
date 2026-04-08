@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MdOutlineCheckBox,
@@ -34,6 +34,8 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
+const QUIZ_TICKET_MENU_CATEGORY_ID = 9;
+
 const ShopifyPickUp = () => {
   const { t } = useTranslation();
   const orders = useGetShopifyPickUpOrders();
@@ -54,6 +56,8 @@ const ShopifyPickUp = () => {
     setShowPickedOrders,
   } = useOrderContext();
 
+  const [showQuizTicketPickUpOrders, setShowQuizTicketPickUpOrders] = useState(false);
+
   const shopifyPickUpDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.SHOPIFY_PICK_UP, disabledConditions);
   }, [disabledConditions]);
@@ -62,6 +66,12 @@ const ShopifyPickUp = () => {
     return orders
       ?.filter((order) => {
         if (!order || !order?.createdAt) {
+          return false;
+        }
+        if (
+          !showQuizTicketPickUpOrders &&
+          getItem(order?.item, items)?.category === QUIZ_TICKET_MENU_CATEGORY_ID
+        ) {
           return false;
         }
         if (
@@ -114,7 +124,7 @@ const ShopifyPickUp = () => {
             order?.isShopifyPickUpOrderBrought ?? false,
         };
       });
-  }, [orders, showPickedOrders, users, items, locations]);
+  }, [orders, showPickedOrders, showQuizTicketPickUpOrders, users, items, locations]);
 
   const columns = useMemo(
     () => [
@@ -452,6 +462,18 @@ const ShopifyPickUp = () => {
           />
         ),
       },
+      {
+        label: t("Show Tickets"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showQuizTicketPickUpOrders}
+            onChange={() => {
+              setShowQuizTicketPickUpOrders(!showQuizTicketPickUpOrders);
+            }}
+          />
+        ),
+      },
     ],
     [
       t,
@@ -459,6 +481,7 @@ const ShopifyPickUp = () => {
       setShowPickedOrders,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      showQuizTicketPickUpOrders,
       shopifyPickUpDisabledCondition,
       user,
     ]

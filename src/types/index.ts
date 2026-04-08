@@ -991,6 +991,7 @@ export type Order = {
   discountAmount?: number;
   division?: number;
   isOnlinePrice?: boolean;
+  isOnlineSale?: boolean;
   discountNote?: string | string[];
   stockLocation?: number;
   [key: string]: any;
@@ -1452,6 +1453,7 @@ export enum IntegrationPageTabEnum {
   BACKINSTOCK,
   MAILSUBSCRIPTIONS,
   MAILLOGS,
+  GLOBALPRICECOMPARISION,
 }
 
 export enum StockHistoriesReportsPageTabEnum {
