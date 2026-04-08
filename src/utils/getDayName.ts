@@ -1,8 +1,7 @@
-import { toZonedTime } from "date-fns-tz";
+import { toIstDate } from "./format";
 
 export function getDayName(dateString: string) {
   if (!dateString) return "";
-  const zonedTime = toZonedTime(new Date(dateString), "UTC");
-  const date = new Date(zonedTime);
+  const date = toIstDate(dateString);
   return date.toLocaleDateString("tr-TR", { weekday: "long" });
 }

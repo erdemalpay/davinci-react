@@ -27,7 +27,7 @@ import {
 } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { formatAsLocalDate, formatCurrency } from "../../utils/format";
+import { formatAsLocalDate, formatCurrency, toIstDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -146,8 +146,7 @@ const Collections = () => {
           const paymentMethod = paymentMethods.find(
             (method) => method._id === collection?.paymentMethod
           );
-          const zonedTime = toZonedTime(collection.tableDate, "UTC");
-          const collectionDate = new Date(zonedTime);
+          const collectionDate = toIstDate(collection.tableDate);
           const istanbulTime = toZonedTime(
             collection.createdAt,
             "Europe/Istanbul"
