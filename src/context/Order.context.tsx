@@ -158,7 +158,7 @@ const OrderContext = createContext<OrderContextType>({
     role: [],
     eliminatedDiscounts: [],
     cancelHour: "",
-    stockLocation: [],
+    stockLocation: "",
   },
   initialIkasPickUpFilterPanelFormElements: {
     location: "",
@@ -222,7 +222,7 @@ const OrderContext = createContext<OrderContextType>({
     role: [],
     eliminatedDiscounts: [],
     cancelHour: "",
-    stockLocation: [],
+    stockLocation: "",
   },
   ikasPickUpFilterPanelFormElements: {
     location: "",
@@ -333,7 +333,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     item: "",
     eliminatedDiscounts: [],
     cancelHour: "",
-    stockLocation: [],
+    stockLocation: "",
   };
   const initialIkasPickUpFilterPanelFormElements = {
     location: "",
