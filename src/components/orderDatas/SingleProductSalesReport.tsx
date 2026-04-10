@@ -16,7 +16,10 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetSellLocations } from "../../utils/api/location";
+import {
+  useGetAllLocations,
+  useGetSellLocations,
+} from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -51,6 +54,7 @@ const SingleProductSalesReport = () => {
   const orders = useGetOrders();
   const categories = useGetAllCategories();
   const sellLocations = useGetSellLocations();
+  const allLocations = useGetAllLocations();
   const items = useGetAllMenuItems();
   const users = useGetUsersMinimal();
   const discounts = useGetOrderDiscounts();
@@ -259,6 +263,18 @@ const SingleProductSalesReport = () => {
       },
       {
         type: InputTypes.SELECT,
+        formKey: "stockLocation",
+        label: t("Stock Location"),
+        options: allLocations.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Stock Location"),
+        required: true,
+        isMultiple: true,
+      },
+      {
+        type: InputTypes.SELECT,
         formKey: "date",
         label: t("Date"),
         options: commonDateOptions.map((option) => {
@@ -407,6 +423,7 @@ const SingleProductSalesReport = () => {
     ],
     [
       sellLocations,
+      allLocations,
       t,
       filterPanelFormElements,
       setFilterPanelFormElements,

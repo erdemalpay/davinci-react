@@ -691,6 +691,7 @@ export function useGetOrders(category?: number[]) {
     "cancelledBy",
     "status",
     "location",
+    "stockLocation",
     "item",
   ];
   if (category || filterPanelFormElements.category !== "") {
@@ -719,6 +720,7 @@ export function useGetOrders(category?: number[]) {
       filterPanelFormElements.status,
       filterPanelFormElements.category,
       filterPanelFormElements.location,
+      filterPanelFormElements.stockLocation,
       filterPanelFormElements.item,
       category,
     ],
