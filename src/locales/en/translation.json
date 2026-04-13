@@ -1495,5 +1495,6 @@
   "Upload Failed" : "Upload Failed",
   "Upload Logs" : "Upload Logs",
   "Uploaded By" : "Uploaded By",
-  "File Name" : "File Name"
+  "File Name" : "File Name",
+  "Redis cache cleared successfully" : "Redis cache cleared successfully"
 }

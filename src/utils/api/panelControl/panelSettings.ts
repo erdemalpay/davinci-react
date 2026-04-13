@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { post } from "..";
 import { PanelSettings } from "../../../types";
@@ -21,6 +22,7 @@ export function resetRedis() {
   });
 }
 export function useResetRedisMutation() {
+  const { t } = useTranslation();
   const queryKey = [`${Paths.Redis}/clear-cache`];
   const queryClient = useQueryClient();
   return useMutation({
@@ -28,10 +30,14 @@ export function useResetRedisMutation() {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey });
     },
-
+    onSuccess : () => {
+      setTimeout(()=>{
+        toast.success(t("Redis cache cleared successfully"))
+      },200)
+    },
     onError: (_err: any) => {
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        _err?.response?.data?.message || t("An unexpected error occurred");
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });

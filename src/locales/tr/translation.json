@@ -1505,5 +1505,6 @@
   "Upload Failed" : "Hata",
   "Upload Logs" : "Önceki Yükleme Kayıtları",
   "Uploaded By" : "Yükleyen",
-  "File Name" : "Dosya İsmi"
+  "File Name" : "Dosya İsmi",
+  "Redis cache cleared successfully" : "Redis cache başarıyla sıfırlandı"
 }
