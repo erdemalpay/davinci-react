@@ -1444,6 +1444,11 @@ export enum StocksPageTabEnum {
   GAMEBATCHESFIFO,
 }
 
+export enum LogsPageTabEnum {
+  WEBHOOK_LOGS,
+  PRICE_COMPARE_LOGS,
+}
+
 export enum IntegrationPageTabEnum {
   SHOPIFYSTOCKCOMPARISION,
   SHOPIFYPRICECOMPARISION,
@@ -2538,6 +2543,33 @@ export type WebhookLog = {
   processingTimeMs?: number;
   responseBody?: any;
   statusCode?: number;
+};
+
+export enum PriceCompareLogType {
+  CRON = "cron",
+  SITE = "site",
+}
+
+export enum PriceCompareLogStatus {
+  PENDING = "pending",
+  SUCCESS = "success",
+  PARTIAL_SUCCESS = "partial_success",
+  FAILED = "failed",
+}
+
+export type PriceCompareLog = {
+  _id: number;
+  type: PriceCompareLogType | string;
+  target: string;
+  status: PriceCompareLogStatus | string;
+  metadata?: any;
+  responseBody?: any;
+  errorMessage?: string;
+  totalItems?: number;
+  processingTimeMs?: number;
+  processedAt?: string | Date;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
 };
 
 export enum CustomerPopupTriggerType {

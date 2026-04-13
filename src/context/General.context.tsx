@@ -7,6 +7,7 @@ import {
   AccountOverallExpense,
   AccountingPageTabEnum,
   ExpensesPageTabEnum,
+  LogsPageTabEnum,
   MenuItem,
   RowPerPageEnum,
   StockHistoriesReportsPageTabEnum,
@@ -79,6 +80,8 @@ type GeneralContextType = {
   setExpensesActiveTab: (tab: number) => void;
   stocksActiveTab: number;
   setStocksActiveTab: (tab: number) => void;
+  logsActiveTab: number;
+  setLogsActiveTab: (tab: number) => void;
   integrationActiveTab: number;
   setIntegrationActiveTab: (tab: number) => void;
   stockHistoriesReportsActiveTab: number;
@@ -178,6 +181,8 @@ const GeneralContext = createContext<GeneralContextType>({
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
   stocksActiveTab: StocksPageTabEnum.STOCK,
+  setLogsActiveTab: () => {},
+  logsActiveTab: LogsPageTabEnum.WEBHOOK_LOGS,
   setIntegrationActiveTab: () => {},
   integrationActiveTab: 0,
   setStockHistoriesReportsActiveTab: () => {},
@@ -358,6 +363,9 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [stocksActiveTab, setStocksActiveTab] = useState<number>(
     StocksPageTabEnum.STOCK
   );
+  const [logsActiveTab, setLogsActiveTab] = useState<number>(
+    LogsPageTabEnum.WEBHOOK_LOGS
+  );
   const [integrationActiveTab, setIntegrationActiveTab] = useState<number>(0);
   const [stockHistoriesReportsActiveTab, setStockHistoriesReportsActiveTab] =
     useState<number>(StockHistoriesReportsPageTabEnum.LOSSPRODUCTREPORT);
@@ -499,6 +507,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         expandedRows,
         stocksActiveTab,
         setStocksActiveTab,
+        logsActiveTab,
+        setLogsActiveTab,
         integrationActiveTab,
         setIntegrationActiveTab,
         stockHistoriesReportsActiveTab,

@@ -1350,6 +1350,10 @@
   "Error": "Hata",
   "Source": "Kaynak",
   "Endpoint": "Endpoint",
+  "Price Compare Logs": "Fiyat Karşılaştırma Logları",
+  "Target": "Hedef",
+  "Processing Time": "İşlem Süresi",
+  "Logs Count": "Log Sayısı",
   "TY - HB Match": "TY - HB Ürün Eşleştir",
   "Trendyol Orders": "Trendyol Siparişleri",
   "Hepsiburada Orders": "Hepsiburada Siparişleri",
@@ -1501,9 +1505,9 @@
   "Price Gap": "Fiyat Farkı",
   "Available Sites": "Mevcut Siteler",
   "Archived": "Arşivlendi",
-  "Upload Successful" : "Başarılı",
-  "Upload Failed" : "Hata",
-  "Upload Logs" : "Önceki Yükleme Kayıtları",
-  "Uploaded By" : "Yükleyen",
-  "File Name" : "Dosya İsmi"
+  "Upload Successful": "Başarılı",
+  "Upload Failed": "Hata",
+  "Upload Logs": "Önceki Yükleme Kayıtları",
+  "Uploaded By": "Yükleyen",
+  "File Name": "Dosya İsmi"
 }
