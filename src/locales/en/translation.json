@@ -1348,6 +1348,10 @@
   "Error": "Error",
   "Source": "Source",
   "Endpoint": "Endpoint",
+  "Price Compare Logs": "Price Compare Logs",
+  "Target": "Target",
+  "Processing Time": "Processing Time",
+  "Logs Count": "Logs Count",
   "TY - HB Match": "TY - HB Match",
   "Trendyol Orders": "Trendyol Orders",
   "Hepsiburada Orders": "Hepsiburada Orders",
@@ -1491,9 +1495,9 @@
   "Price Gap": "Price Gap",
   "Available Sites": "Available Sites",
   "Archived": "Archived",
-  "Upload Successful" : "Upload Successful",
-  "Upload Failed" : "Upload Failed",
-  "Upload Logs" : "Upload Logs",
-  "Uploaded By" : "Uploaded By",
-  "File Name" : "File Name"
+  "Upload Successful": "Upload Successful",
+  "Upload Failed": "Upload Failed",
+  "Upload Logs": "Upload Logs",
+  "Uploaded By": "Uploaded By",
+  "File Name": "File Name"
 }
