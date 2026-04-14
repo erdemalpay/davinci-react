@@ -1447,7 +1447,18 @@ export enum StocksPageTabEnum {
 export enum LogsPageTabEnum {
   WEBHOOK_LOGS,
   PRICE_COMPARE_LOGS,
+  CONCURRENCY_LOGS,
 }
+
+export type ConcurrencyLog = {
+  _id: number;
+  method: string;
+  endpoint: string;
+  inFlightCount: number;
+  userId?: string;
+  userName?: string;
+  createdAt: string;
+};
 
 export enum IntegrationPageTabEnum {
   SHOPIFYSTOCKCOMPARISION,
