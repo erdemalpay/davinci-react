@@ -63,6 +63,7 @@ import { CheckoutPageTabs } from "./../pages/Checkout";
 import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
 import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
 import { ExpensePageTabs } from "./../pages/Expenses";
+import Logs, { LogsPageTabs } from "./../pages/Logs";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
@@ -72,7 +73,6 @@ import SurveyAnalytics from "./../pages/SurveyAnalytics";
 import SurveyRedeem from "./../pages/SurveyRedeem";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
-import WebhookLogs from "./../pages/WebhookLogs";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -142,7 +142,7 @@ export enum Routes {
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
   Consumers = "/consumers",
-  WebhookLogs = "/webhook-logs",
+  Logs = "/logs",
   BackInStock = "/back-in-stock",
   EventSurveyBuilder = "/event-survey-builder",
   EventSurveyQuestions = "/event-survey-builder/:eventId",
@@ -784,13 +784,6 @@ export const allRoutes: {
         isOnSidebar: true,
       },
       {
-        name: "Webhook Logs",
-        path: Routes.WebhookLogs,
-        element: WebhookLogs,
-        isOnSidebar: true,
-        exceptionalRoles: [RoleEnum.MANAGER],
-      },
-      {
         name: "Notifications",
         path: Routes.Notifications,
         element: Notifications,
@@ -807,11 +800,11 @@ export const allRoutes: {
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
-    name: "Webhook Logs",
-    path: Routes.WebhookLogs,
-    element: WebhookLogs,
-    isOnSidebar: false,
-    exceptionalRoles: [RoleEnum.MANAGER],
+    name: "Logs",
+    path: Routes.Logs,
+    element: Logs,
+    isOnSidebar: true,
+    tabs: LogsPageTabs,
   },
   {
     name: "Page Details",

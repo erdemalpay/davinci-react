@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -17,6 +17,7 @@ import {
   SubscriptionStatus,
   useGetBackInStockSubscriptions,
 } from "../utils/api/backInStock";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { formatAsLocalDate } from "../utils/format";
 
 type FormElementsState = {
@@ -30,40 +31,33 @@ export default function BackInStock() {
     useNotifyBackInStockSubscribersMutation();
   const { mutate: notifyBackInStockSubscribersBulk } =
     useNotifyBackInStockSubscribersBulkMutation();
-  const {
-    selectedRows,
-    setSelectedRows,
-    setIsSelectionActive,
-    rowsPerPage,
-    currentPage,
-    setCurrentPage,
-  } = useGeneralContext();
+  const items = useGetMenuItems();
+  const shopifyMenuItems = useMemo(() => {
+    if (!items) return [];
+    return items.filter((item) => item.shopifyId);
+  }, [items]);
+  const { selectedRows, setSelectedRows, setIsSelectionActive } =
+    useGeneralContext();
+  const initialFormElementsState: FormElementsState = {
+    email: "",
+    status: SubscriptionStatus.ACTIVE,
+    productId: "",
+    after: "",
+    before: "",
+    sort: "createdAt",
+    asc: -1,
+  };
   const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      email: "",
-      shop: "",
-      productId: "",
-      variantId: "",
-      status: "",
-      after: "",
-      before: "",
-      sort: "createdAt",
-      asc: -1,
-    });
+    useState<FormElementsState>(initialFormElementsState);
 
-  const subscriptionsPayload = useGetBackInStockSubscriptions(
-    currentPage,
-    rowsPerPage,
-    filterPanelFormElements
-  );
+  const subscriptions = useGetBackInStockSubscriptions(filterPanelFormElements);
 
   // Group subscriptions by productTitle
   const groupedByProduct = useMemo(() => {
-    if (!subscriptionsPayload?.subscriptions)
-      return new Map<string, BackInStockSubscription[]>();
+    if (!subscriptions) return new Map<string, BackInStockSubscription[]>();
     const grouped = new Map<string, BackInStockSubscription[]>();
 
-    subscriptionsPayload.subscriptions.forEach((subscription) => {
+    subscriptions.forEach((subscription) => {
       const groupKey = subscription.productTitle || subscription.productId;
       if (!grouped.has(groupKey)) {
         grouped.set(groupKey, []);
@@ -72,7 +66,7 @@ export default function BackInStock() {
     });
 
     return grouped;
-  }, [subscriptionsPayload?.subscriptions]);
+  }, [subscriptions]);
 
   // Helper function to create collapsible row structure
   const createCollapsibleRow = (
@@ -149,7 +143,7 @@ export default function BackInStock() {
 
   // Process rows - always group by productTitle
   const rows = useMemo(() => {
-    if (!subscriptionsPayload?.subscriptions) return [];
+    if (!subscriptions) return [];
 
     const result: any[] = [];
 
@@ -165,7 +159,7 @@ export default function BackInStock() {
     });
 
     return result;
-  }, [subscriptionsPayload?.subscriptions, groupedByProduct, t]);
+  }, [subscriptions, groupedByProduct, t]);
   const columns = useMemo(
     () => [
       {
@@ -240,25 +234,15 @@ export default function BackInStock() {
         required: false,
       },
       {
-        type: InputTypes.TEXT,
-        formKey: "shop",
-        label: t("Shop"),
-        placeholder: t("Shop"),
-        required: false,
-      },
-      {
-        type: InputTypes.TEXT,
+        type: InputTypes.SELECT,
         formKey: "productId",
-        label: t("Product ID"),
-        placeholder: t("Product ID"),
+        label: t("Product"),
+        placeholder: t("Product"),
         required: false,
-      },
-      {
-        type: InputTypes.TEXT,
-        formKey: "variantId",
-        label: t("Variant ID"),
-        placeholder: t("Variant ID"),
-        required: false,
+        options: shopifyMenuItems.map((item) => ({
+          value: item.shopifyId || "",
+          label: item.name,
+        })),
       },
       {
         type: InputTypes.SELECT,
@@ -300,6 +284,9 @@ export default function BackInStock() {
       formElements: filterPanelFormElements,
       setFormElements: setFilterPanelFormElements,
       closeFilters: () => setShowFilters(false),
+      additionalFilterCleanFunction: () => {
+        setFilterPanelFormElements(initialFormElementsState);
+      },
     }),
     [showFilters, filterPanelInputs, filterPanelFormElements]
   );
@@ -314,31 +301,6 @@ export default function BackInStock() {
     ],
     [t, showFilters]
   );
-
-  const outsideSort = useMemo(
-    () => ({
-      filterPanelFormElements: filterPanelFormElements,
-      setFilterPanelFormElements: setFilterPanelFormElements,
-    }),
-    [filterPanelFormElements]
-  );
-
-  const pagination = useMemo(() => {
-    return subscriptionsPayload
-      ? {
-          totalPages: subscriptionsPayload.totalPages,
-          totalRows: subscriptionsPayload.total,
-        }
-      : null;
-  }, [subscriptionsPayload]);
-
-  const outsideSearchProps = useMemo(() => {
-    return {
-      t,
-      filterPanelFormElements,
-      setFilterPanelFormElements,
-    };
-  }, [t, filterPanelFormElements]);
 
   const selectionActions = useMemo(
     () => [
@@ -368,28 +330,19 @@ export default function BackInStock() {
     ]
   );
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterPanelFormElements, setCurrentPage]);
-
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
         rowKeys={rowKeys}
         columns={columns as ColumnType[]}
         rows={rows}
-        outsideSearchProps={outsideSearchProps}
-        isSearch={false}
         title={t("Back In Stock Subscriptions")}
         filterPanel={filterPanel}
         filters={filters}
         isActionsActive={true}
         actions={actions}
         selectionActions={selectionActions}
-        outsideSortProps={outsideSort}
         isCollapsible={true}
-        {...(pagination && { pagination })}
-        isAllRowPerPageOption={false}
       />
     </div>
   );
