@@ -21,6 +21,7 @@ import {
   GenericInputType,
   InputTypes,
 } from "../shared/types";
+import AutocompleteInput from "./AutocompleteInput";
 import DailyHoursInput from "./DailyHoursInput";
 import DateInput from "./DateInput";
 import HourInput from "./HourInput";
@@ -758,6 +759,29 @@ const GenericAddEditPanel = <T,>({
                           formElements={formElements}
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           isReadOnly={input.isReadOnly ?? false}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
+                        />
+                      )}
+                      {input.type === InputTypes.AUTOCOMPLETE && (
+                        <AutocompleteInput
+                          key={input.formKey + resetTextInput}
+                          value={value}
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
+                          placeholder={input.placeholder ?? ""}
+                          onChange={handleChange(input.formKey)}
+                          options={input.options ?? []}
+                          requiredField={input.required}
+                          isOnClearActive={input?.isOnClearActive ?? true}
+                          isTopFlexRow={input.isTopFlexRow ?? false}
+                          isReadOnly={input.isReadOnly ?? false}
+                          minCharacters={input?.minCharacters ?? 2}
+                          isSortDisabled={input.isSortDisabled ?? false}
                           onClear={() => {
                             handleInputClear(input);
                           }}
