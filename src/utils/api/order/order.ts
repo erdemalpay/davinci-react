@@ -251,8 +251,37 @@ export function updateOrderForCancel(payload: {
   tableId: number;
 }) {
   return patch({
-    path: `/order/${payload.id}`,
+    path: `/order/${payload.id}/cancel`,
     payload: payload.updates,
+  });
+}
+
+export function cancelOrderById(payload: {
+  id: number;
+  updates: Partial<Order>;
+}) {
+  return patch({
+    path: `/order/${payload.id}/cancel`,
+    payload: payload.updates,
+  });
+}
+
+export function useCancelOrderMutation() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: cancelOrderById,
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || t("An unexpected error occurred");
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
+    },
   });
 }
 export function useUpdateOrderForCancelMutation() {

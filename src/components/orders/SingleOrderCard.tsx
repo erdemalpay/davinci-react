@@ -4,6 +4,7 @@ import { useDataContext } from "../../context/Data.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { Order, OrderStatus, User } from "../../types";
 import {
+  useCancelOrderMutation,
   useCreateOrderForDivideMutation,
   useOrderMutations,
 } from "../../utils/api/order/order";
@@ -19,6 +20,7 @@ type Props = {
 
 const SingleOrderCard = ({ order, user }: Props) => {
   const { updateOrder } = useOrderMutations();
+  const { mutate: cancelOrder } = useCancelOrderMutation();
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
 
@@ -158,7 +160,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
           {order?.paidQuantity === 0 && !order?.isPaymentMade && (
             <GenericButton
               onClick={() => {
-                updateOrder({
+                cancelOrder({
                   id: order?._id,
                   updates: {
                     status: OrderStatus.CANCELLED,
