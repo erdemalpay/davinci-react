@@ -1,15 +1,14 @@
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Header } from "../components/header/Header";
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import SwitchButton from "../components/panelComponents/common/SwitchButton";
-import { InputTypes } from "../components/panelComponents/shared/types";
-import { useGeneralContext } from "../context/General.context";
-import { WebhookLog, commonDateOptions } from "../types";
-import { dateRanges } from "../utils/api/dateRanges";
-import { useGetQueryWebhookLogs } from "../utils/api/webhookLog";
-import { formatAsLocalDate } from "../utils/format";
+import { useGeneralContext } from "../../context/General.context";
+import { WebhookLog, commonDateOptions } from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
+import { useGetQueryWebhookLogs } from "../../utils/api/webhookLog";
+import { formatAsLocalDate } from "../../utils/format";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -201,10 +200,9 @@ export default function WebhookLogs() {
         statusDisplay: mainLog.status || "unknown",
         hasError: !!mainLog.errorMessage,
         orderId: orderId,
-        orderNumber: getOrderNumber(mainLog), // Store order number
-        products: productsArray, // Store products for display in main row
-        requestCount: sortedLogs.length, // Store request count
-        // Make it collapsible always
+        orderNumber: getOrderNumber(mainLog),
+        products: productsArray,
+        requestCount: sortedLogs.length,
         collapsible: {
           collapsibleHeader: t("Webhook Requests for Order {{orderId}}", {
             orderId,
@@ -555,51 +553,42 @@ export default function WebhookLogs() {
 
   if (isLoading) {
     return (
-      <>
-        <Header showLocationSelector={false} />
-        <div className="w-[98%] mx-auto my-10">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">{t("Loading")}...</div>
-          </div>
+      <div className="w-[98%] mx-auto my-10">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">{t("Loading")}...</div>
         </div>
-      </>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <>
-        <Header showLocationSelector={false} />
-        <div className="w-[98%] mx-auto my-10">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-red-500">
-              {t("Error loading webhook logs")}:{" "}
-              {error instanceof Error ? error.message : String(error)}
-            </div>
+      <div className="w-[98%] mx-auto my-10">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-500">
+            {t("Error loading webhook logs")}:{" "}
+            {error instanceof Error ? error.message : String(error)}
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
-      <Header showLocationSelector={false} />
-      <div className="w-[98%] mx-auto my-10">
-        <GenericTable
-          rowKeys={rowKeys}
-          filters={tableFilters}
-          columns={columns}
-          filterPanel={filterPanel}
-          rows={rows ?? []}
-          isSearch={false}
-          title={t("Webhook Logs")}
-          isActionsActive={false}
-          isCollapsible={true}
-          {...(pagination && { pagination })}
-          isAllRowPerPageOption={false}
-        />
-      </div>
-    </>
+    <div className="w-[98%] mx-auto my-10">
+      <GenericTable
+        rowKeys={rowKeys}
+        filters={tableFilters}
+        columns={columns}
+        filterPanel={filterPanel}
+        rows={rows ?? []}
+        isSearch={false}
+        title={t("Webhook Logs")}
+        isActionsActive={false}
+        isCollapsible={true}
+        {...(pagination && { pagination })}
+        isAllRowPerPageOption={false}
+      />
+    </div>
   );
 }

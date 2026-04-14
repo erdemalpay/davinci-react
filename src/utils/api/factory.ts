@@ -57,6 +57,7 @@ export const Paths = {
   Breaks: "/breaks",
   Middlemen: "/middlemen",
   WebhookLog: "/webhook-log",
+  PriceCompareLog: "/price-compare-log",
   Mail: "/mail",
   PriceCompare: "/price-compare",
   CustomerPopup: "/menu/customer-popup",
