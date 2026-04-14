@@ -111,8 +111,9 @@ export interface GenericInputType {
   isArrowsEnabled?: boolean;
   triggerTabOpenOnChangeFor?: string;
   isSortDisabled?: boolean;
-  quickOptions?: any[]; // For QUICKSELECT type - quick access options
-  allOptions?: any[]; // For QUICKSELECT type - all available options
+  minCharacters?: number;
+  quickOptions?: any[];
+  allOptions?: any[];
   setIsExtraModalOpen?: Dispatch<SetStateAction<boolean>>;
   isExtraModalOpen?: boolean;
   extraModal?: React.ReactNode;
@@ -158,6 +159,7 @@ export enum InputTypes {
   TAB = "tab",
   DAILYHOURS = "dailyHours",
   QUICKSELECT = "quickSelect",
+  AUTOCOMPLETE = "autocomplete",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",
