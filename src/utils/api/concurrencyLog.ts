@@ -5,6 +5,7 @@ import { ConcurrencyLog, FormElementsState } from "../../types";
 import { Paths } from "./factory";
 
 const baseUrl = `${Paths.ConcurrencyLog}`;
+const EMPTY_ENDPOINTS: string[] = [];
 
 export interface ConcurrencyLogPayload {
   logs: ConcurrencyLog[];
@@ -20,7 +21,7 @@ export function useGetConcurrencyLogEndpoints() {
     staleTime: 1000 * 60 * 5,
   });
 
-  return data ?? [];
+  return data ?? EMPTY_ENDPOINTS;
 }
 
 export function useGetConcurrencyLogs(
