@@ -22,7 +22,6 @@ type FormElementsState = {
 export default function ConcurrencyLogs() {
   const { t } = useTranslation();
   const initialFilterPanelFormElements: FormElementsState = {
-    endpoint: "",
     date: "thisMonth",
     endDate: dateRanges.thisMonth().before,
     startDate: dateRanges.thisMonth().after,
