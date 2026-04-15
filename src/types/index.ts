@@ -1450,13 +1450,18 @@ export enum LogsPageTabEnum {
   CONCURRENCY_LOGS,
 }
 
+export type ConcurrentRequest = {
+  userId?: string;
+  userName?: string;
+  requestBody?: any;
+};
+
 export type ConcurrencyLog = {
   _id: number;
   method: string;
   endpoint: string;
   inFlightCount: number;
-  userId?: string;
-  userName?: string;
+  requests: ConcurrentRequest[];
   createdAt: string;
 };
 

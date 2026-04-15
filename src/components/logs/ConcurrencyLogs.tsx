@@ -2,7 +2,11 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
-import { ConcurrencyLog, commonDateOptions } from "../../types";
+import {
+  ConcurrencyLog,
+  ConcurrentRequest,
+  commonDateOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetConcurrencyLogs } from "../../utils/api/concurrencyLog";
 import { formatAsLocalDate } from "../../utils/format";
@@ -39,11 +43,10 @@ export default function ConcurrencyLogs() {
       { key: t("Method"), isSortable: true, correspondingKey: "method" },
       { key: t("Endpoint"), isSortable: true, correspondingKey: "endpoint" },
       {
-        key: t("In-Flight Count"),
+        key: t("Eşzamanlı İstek Sayısı"),
         isSortable: true,
         correspondingKey: "inFlightCount",
       },
-      { key: t("User"), isSortable: true, correspondingKey: "userName" },
     ],
     [t]
   );
@@ -55,13 +58,11 @@ export default function ConcurrencyLogs() {
         className: "min-w-32",
         node: (row: ConcurrencyLog) => {
           const date = new Date(row.createdAt);
-          const offset = date.getTimezoneOffset();
-          const adjusted = new Date(date.getTime() - offset * 60 * 1000);
           return (
             <div>
               <div>{formatAsLocalDate(row.createdAt)}</div>
               <div className="text-xs text-gray-500">
-                {format(adjusted, "HH:mm:ss")}
+                {format(date, "HH:mm:ss")}
               </div>
             </div>
           );
@@ -104,19 +105,49 @@ export default function ConcurrencyLogs() {
           </span>
         ),
       },
-      {
-        key: "userName",
-        className: "min-w-32",
-        node: (row: ConcurrencyLog) =>
-          row.userName ? (
-            <span>{row.userName}</span>
-          ) : (
-            <span className="text-gray-400">-</span>
-          ),
-      },
     ],
     []
   );
+
+  const rows = useMemo(() => {
+    return (data?.logs ?? []).map((log) => ({
+      ...log,
+      collapsible: {
+        collapsibleHeader: t("Concurrent Requests ({{count}})", {
+          count: log.requests?.length ?? 0,
+        }),
+        collapsibleColumns: [
+          { key: t("User"), isSortable: false },
+          { key: t("Payload"), isSortable: false },
+        ],
+        collapsibleRows: log.requests ?? [],
+        collapsibleRowKeys: [
+          {
+            key: "userName",
+            node: (req: ConcurrentRequest) => (
+              <span className="font-medium min-w-32 inline-block">
+                {req.userName ?? (
+                  <span className="text-gray-400">{t("Unknown")}</span>
+                )}
+              </span>
+            ),
+          },
+          {
+            key: "requestBody",
+            node: (req: ConcurrentRequest) =>
+              req.requestBody &&
+              Object.keys(req.requestBody).length > 0 ? (
+                <pre className="text-xs bg-gray-50 rounded p-2 max-w-lg overflow-auto whitespace-pre-wrap break-all">
+                  {JSON.stringify(req.requestBody, null, 2)}
+                </pre>
+              ) : (
+                <span className="text-gray-400">-</span>
+              ),
+          },
+        ],
+      },
+    }));
+  }, [data, t]);
 
   const filterPanelInputs = useMemo(
     () => [
@@ -233,10 +264,11 @@ export default function ConcurrencyLogs() {
         filters={tableFilters}
         columns={columns}
         filterPanel={filterPanel}
-        rows={data?.logs ?? []}
+        rows={rows}
         isSearch={false}
         title={t("Concurrency Logs")}
         isActionsActive={false}
+        isCollapsible={true}
         {...(pagination && { pagination })}
         isAllRowPerPageOption={false}
       />
