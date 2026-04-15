@@ -611,7 +611,7 @@ const GenericAddEditPanel = <T,>({
                           onChange={(val) =>
                             handleChange(input.formKey)(val ?? "")
                           }
-                          isArrowsEnabled={input.isArrowsEnabled ?? false}
+                          isArrowsEnabled={input.isArrowsEnabled ?? true}
                           requiredField={input.required}
                           isOnClearActive={input?.isOnClearActive ?? true}
                           isDateInitiallyOpen={
