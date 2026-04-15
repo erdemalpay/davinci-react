@@ -43,7 +43,7 @@ export default function ConcurrencyLogs() {
       { key: t("Method"), isSortable: true, correspondingKey: "method" },
       { key: t("Endpoint"), isSortable: true, correspondingKey: "endpoint" },
       {
-        key: t("Eşzamanlı İstek Sayısı"),
+        key: t("Number of Concurrent Requests"),
         isSortable: true,
         correspondingKey: "inFlightCount",
       },
