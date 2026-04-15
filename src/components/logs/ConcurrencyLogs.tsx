@@ -35,7 +35,7 @@ export default function ConcurrencyLogs() {
   const [showFilters, setShowFilters] = useState(false);
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
 
-  const { data: endpoints } = useGetConcurrencyLogEndpoints();
+  const endpoints = useGetConcurrencyLogEndpoints();
 
   const { data, isLoading, error } = useGetConcurrencyLogs(
     currentPage,
@@ -161,7 +161,7 @@ export default function ConcurrencyLogs() {
         type: InputTypes.SELECT,
         formKey: "endpoint",
         label: t("Endpoint"),
-        options: (endpoints ?? []).map((ep) => ({ value: ep, label: ep })),
+        options: endpoints.map((ep) => ({ value: ep, label: ep })),
         placeholder: t("Endpoint"),
         required: false,
         isOnClearActive: true,

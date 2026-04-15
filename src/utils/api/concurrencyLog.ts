@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, format } from "date-fns";
 import { get } from ".";
-import { ConcurrencyLog } from "../../types";
+import { ConcurrencyLog, FormElementsState } from "../../types";
+import { Paths } from "./factory";
 
-const baseUrl = "/concurrency-log";
+const baseUrl = `${Paths.ConcurrencyLog}`;
 
 export interface ConcurrencyLogPayload {
   logs: ConcurrencyLog[];
@@ -13,27 +14,27 @@ export interface ConcurrencyLogPayload {
 }
 
 export function useGetConcurrencyLogEndpoints() {
-  return useQuery<string[]>({
+  const { data } = useQuery<string[]>({
     queryKey: [`${baseUrl}/endpoints`],
     queryFn: () => get<string[]>({ path: `${baseUrl}/endpoints` }),
     staleTime: 1000 * 60 * 5,
   });
+
+  return data ?? [];
 }
 
 export function useGetConcurrencyLogs(
   page: number,
   limit: number,
-  filters: {
-    endpoint?: string;
-    startDate?: string;
-    endDate?: string;
-  }
+  filters: FormElementsState
 ) {
   const formatEndDate = (dateString: string | undefined) => {
     if (!dateString) return undefined;
     try {
-      return format(endOfDay(new Date(dateString)), "yyyy-MM-dd'T'HH:mm:ss");
-    } catch {
+      const date = new Date(dateString);
+      const endOfDayDate = endOfDay(date);
+      return format(endOfDayDate, "yyyy-MM-dd'T'HH:mm:ss");
+    } catch (e) {
       return dateString;
     }
   };
@@ -48,12 +49,21 @@ export function useGetConcurrencyLogs(
 
   const queryString = parts.filter(Boolean).join("&");
   const url = `${baseUrl}/query?${queryString}`;
+  const queryKey = [url, page, limit, filters];
 
-  return useQuery<ConcurrencyLogPayload>({
-    queryKey: [url, page, limit, filters],
-    queryFn: () => get<ConcurrencyLogPayload>({ path: url }),
-    staleTime: 0,
-    gcTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-  });
+  const { data, isLoading, error, isFetching } =
+    useQuery<ConcurrencyLogPayload>({
+      queryKey,
+      queryFn: () => get<ConcurrencyLogPayload>({ path: url }),
+      staleTime: 0,
+      gcTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+    });
+
+  return {
+    data,
+    isLoading,
+    error,
+    isFetching,
+  };
 }
