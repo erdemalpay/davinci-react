@@ -75,7 +75,7 @@ export function useGetTableCollections(tableId: number) {
 }
 
 export function useGetCollectionByTableId(tableId: number | undefined) {
-  return useGet<OrderCollection>(
+  return useGetList<OrderCollection>(
     `${collectionBaseUrl}/${tableId}`,
     [`${collectionBaseUrl}/single`, tableId],
     false,

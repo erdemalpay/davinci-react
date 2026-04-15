@@ -1048,7 +1048,17 @@ export type OrderNote = {
 };
 
 export type OrderCollectionItem = {
-  order: number;
+  order:
+    | number
+    | {
+        _id: number;
+        item?:
+          | number
+          | {
+              _id?: number;
+              name?: string;
+            };
+      };
   paidQuantity: number;
 };
 
