@@ -12,6 +12,14 @@ export interface ConcurrencyLogPayload {
   limit: number;
 }
 
+export function useGetConcurrencyLogEndpoints() {
+  return useQuery<string[]>({
+    queryKey: [`${baseUrl}/endpoints`],
+    queryFn: () => get<string[]>({ path: `${baseUrl}/endpoints` }),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 export function useGetConcurrencyLogs(
   page: number,
   limit: number,

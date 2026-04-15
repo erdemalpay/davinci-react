@@ -5,10 +5,14 @@ import { useGeneralContext } from "../../context/General.context";
 import {
   ConcurrencyLog,
   ConcurrentRequest,
+  DateRangeKey,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
-import { useGetConcurrencyLogs } from "../../utils/api/concurrencyLog";
+import {
+  useGetConcurrencyLogEndpoints,
+  useGetConcurrencyLogs,
+} from "../../utils/api/concurrencyLog";
 import { formatAsLocalDate } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -30,6 +34,8 @@ export default function ConcurrencyLogs() {
     useState<FormElementsState>(initialFilterPanelFormElements);
   const [showFilters, setShowFilters] = useState(false);
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+
+  const { data: endpoints } = useGetConcurrencyLogEndpoints();
 
   const { data, isLoading, error } = useGetConcurrencyLogs(
     currentPage,
@@ -152,14 +158,13 @@ export default function ConcurrencyLogs() {
   const filterPanelInputs = useMemo(
     () => [
       {
-        type: InputTypes.TEXT,
+        type: InputTypes.SELECT,
         formKey: "endpoint",
         label: t("Endpoint"),
+        options: (endpoints ?? []).map((ep) => ({ value: ep, label: ep })),
         placeholder: t("Endpoint"),
         required: false,
-        isDatePicker: false,
-        isOnClearActive: false,
-        isDebounce: true,
+        isOnClearActive: true,
       },
       {
         type: InputTypes.SELECT,
@@ -171,6 +176,18 @@ export default function ConcurrencyLogs() {
         })),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            const { before, after } = dateRange();
+            setFilterPanelFormElements((prev: FormElementsState) => ({
+              ...prev,
+              startDate: after,
+              endDate: before,
+              date: value,
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,
