@@ -99,7 +99,7 @@ export default function ConcurrencyLogs() {
         key: "inFlightCount",
         className: "min-w-24",
         node: (row: ConcurrencyLog) => (
-          <span className="font-semibold text-orange-600">
+          <span className="font-semibold text-black">
             {row.inFlightCount}
           </span>
         ),
