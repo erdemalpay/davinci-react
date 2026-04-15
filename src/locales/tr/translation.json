@@ -1509,6 +1509,9 @@
   "Upload Failed": "Hata",
   "Upload Logs": "Önceki Yükleme Kayıtları",
   "Uploaded By": "Yükleyen",
+  "Total Requests": "Toplam Talep",
+  "Requested Games": "Talep Edilen Oyunlar",
+  "Last Requested At": "Son Talep Tarihi",
   "File Name": "Dosya İsmi",
   "In-Flight Count" : "Anlık İstek Sayısı"
 }

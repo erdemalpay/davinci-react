@@ -1500,5 +1500,8 @@
   "Upload Logs": "Upload Logs",
   "Uploaded By": "Uploaded By",
   "File Name": "File Name",
+  "Total Requests": "Total Requests",
+  "Requested Games": "Requested Games",
+  "Last Requested At": "Last Requested At",
   "In-Flight Count" : "In-Flight Count"
 }
