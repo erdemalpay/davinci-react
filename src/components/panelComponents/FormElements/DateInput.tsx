@@ -41,7 +41,7 @@ export default function DateInput({
   isReadOnly = false,
   isDateInitiallyOpen = false,
   isDebounce = false,
-  isArrowsEnabled = false,
+  isArrowsEnabled = true,
 }: DateInputProps) {
   const [inputText, setInputText] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
