@@ -12,6 +12,10 @@
   "Add Expense Type": "Gider Türü Ekle",
   "Vendors": "Tedarikçiler",
   "Add Vendor": "Tedarikçi Ekle",
+  "Retailer": "Perakendeci",
+  "Retailers": "Perakendeciler",
+  "Add Retailer": "Perakendeci Ekle",
+  "Delete Retailer": "Perakendeci Sil",
   "Search": "Ara",
   "Add Brand": "Marka Ekle",
   "Products": "Ürünler",
@@ -1515,5 +1519,5 @@
   "Last Requested At": "Son Talep Tarihi",
   "File Name": "Dosya İsmi",
   "Number of Concurrent Requests": "Eşzamanlı İstek Sayısı",
-   "Redis cache cleared successfully" : "Redis cache başarıyla sıfırlandı"
+  "Redis cache cleared successfully": "Redis cache başarıyla sıfırlandı"
 }

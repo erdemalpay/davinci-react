@@ -315,4 +315,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "mailTemplateChanged",
     invalidateKeys: [`${Paths.Mail}/templates`],
   },
+  {
+    event: "retailerChanged",
+    invalidateKeys: [`${Paths.Order}/retailer`],
+  },
 ];
