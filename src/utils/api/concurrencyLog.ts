@@ -5,23 +5,11 @@ import { ConcurrencyLog, FormElementsState } from "../../types";
 import { Paths } from "./factory";
 
 const baseUrl = `${Paths.ConcurrencyLog}`;
-const EMPTY_ENDPOINTS: string[] = [];
-
 export interface ConcurrencyLogPayload {
   logs: ConcurrencyLog[];
   total: number;
   page: number;
   limit: number;
-}
-
-export function useGetConcurrencyLogEndpoints() {
-  const { data } = useQuery<string[]>({
-    queryKey: [`${baseUrl}/endpoints`],
-    queryFn: () => get<string[]>({ path: `${baseUrl}/endpoints` }),
-    staleTime: 1000 * 60 * 5,
-  });
-
-  return data ?? EMPTY_ENDPOINTS;
 }
 
 export function useGetConcurrencyLogs(
