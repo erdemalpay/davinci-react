@@ -1503,6 +1503,5 @@
   "Total Requests": "Total Requests",
   "Requested Games": "Requested Games",
   "Last Requested At": "Last Requested At",
-  "In-Flight Count" : "In-Flight Count",
   "Number of Concurrent Requests" : "Num of Concurrent Requests"
 }
