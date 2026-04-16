@@ -17,10 +17,12 @@ const GameBatchesFIFO = () => {
   const products = useGetAccountProducts();
   const locations = useGetAllLocations();
   const [showFilters, setShowFilters] = useState(false);
+  // set for neorama and neorama depo
+  const initialFormElementsState: FormElementsState = {
+    location: [2, 6],
+  };
   const [filterFormElements, setFilterFormElements] =
-    useState<FormElementsState>({
-      location: "",
-    });
+    useState<FormElementsState>(initialFormElementsState);
   const gameBatches = useGetGameBatchesWithFIFO(filterFormElements.location);
 
   // Group batches by productId and create rows with embedded collapsible data
@@ -135,6 +137,7 @@ const GameBatchesFIFO = () => {
           value: input._id,
           label: input.name,
         })),
+        isMultiple: true,
         placeholder: t("Location"),
         required: true,
       },
@@ -165,6 +168,9 @@ const GameBatchesFIFO = () => {
       formElements: filterFormElements,
       setFormElements: setFilterFormElements,
       closeFilters: () => setShowFilters(false),
+      additionalFilterCleanFunction: () => {
+        setFilterFormElements(initialFormElementsState);
+      },
     }),
     [
       showFilters,
