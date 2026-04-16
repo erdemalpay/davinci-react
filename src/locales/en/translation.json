@@ -1503,5 +1503,6 @@
   "File Name": "File Name",
   "Total Requests": "Total Requests",
   "Requested Games": "Requested Games",
-  "Last Requested At": "Last Requested At"
+  "Last Requested At": "Last Requested At",
+  "Number of Concurrent Requests": "Num of Concurrent Requests"
 }

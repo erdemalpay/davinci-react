@@ -60,6 +60,7 @@ export const Paths = {
   PriceCompareLog: "/price-compare-log",
   Mail: "/mail",
   PriceCompare: "/price-compare",
+  ConcurrencyLog: "/concurrency-log",
   CustomerPopup: "/menu/customer-popup",
   EventSurvey: "/event-survey",
 };
