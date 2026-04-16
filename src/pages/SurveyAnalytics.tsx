@@ -459,7 +459,7 @@ const SingleChoiceBarChart = ({ answers }: { answers: { answer: string }[] }) =>
         padding={0.3}
         colors={["#3b82f6"]}
         axisLeft={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
-        axisBottom={{ tickSize: 5, tickRotation: -30 }}
+        axisBottom={{ tickSize: 5, tickRotation: 0 }}
         labelSkipHeight={12}
         enableGridY
         borderRadius={4}
@@ -609,39 +609,43 @@ const CrossAnalysisSection = ({
       {questionIdA && questionIdB && (
         barData.length === 0 ? (
           <EmptyChart />
-        ) : (
-          <div className="w-full h-72">
-            <ResponsiveBar
-              data={barData}
-              keys={uniqueB}
-              indexBy="answerA"
-              groupMode="grouped"
-              layout="vertical"
-              margin={{ top: 20, right: 140, bottom: 60, left: 40 }}
-              padding={0.2}
-              innerPadding={3}
-              axisLeft={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
-              axisBottom={{ tickSize: 5, tickRotation: -20 }}
-              labelSkipHeight={12}
-              enableGridY
-              borderRadius={3}
-              theme={{ labels: { text: { fontSize: 13, fontWeight: 700 } } }}
-              legends={[
-                {
-                  dataFrom: "keys",
-                  anchor: "bottom-right",
-                  direction: "column",
-                  translateX: 130,
-                  itemWidth: 120,
-                  itemHeight: 20,
-                  itemTextColor: "#555",
-                  symbolSize: 12,
-                  symbolShape: "circle",
-                },
-              ]}
-            />
-          </div>
-        )
+        ) : (() => {
+          const COLORS = ["#3b82f6","#f97316","#22c55e","#a855f7","#ec4899","#14b8a6","#eab308","#ef4444","#6366f1","#84cc16"];
+          return (
+            <div className="w-full space-y-3">
+              <div className="w-full h-72">
+                <ResponsiveBar
+                  data={barData}
+                  keys={uniqueB}
+                  indexBy="answerA"
+                  groupMode="grouped"
+                  layout="vertical"
+                  margin={{ top: 20, right: 20, bottom: 60, left: 40 }}
+                  padding={0.2}
+                  innerPadding={3}
+                  colors={({ id }) => COLORS[uniqueB.indexOf(String(id)) % COLORS.length]}
+                  axisLeft={{ tickSize: 5, format: (v) => (Number.isInteger(v) ? v : "") }}
+                  axisBottom={{ tickSize: 5, tickRotation: 0 }}
+                  labelSkipHeight={12}
+                  enableGridY
+                  borderRadius={3}
+                  theme={{ labels: { text: { fontSize: 13, fontWeight: 700 } } }}
+                />
+              </div>
+              <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 px-1">
+                {uniqueB.map((key, i) => (
+                  <div key={key} className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                    <span>{key}</span>
+                  </div>
+                ))}
+                {questionB && (
+                  <span className="text-xs text-gray-400">({questionB.label})</span>
+                )}
+              </div>
+            </div>
+          );
+        })()
       )}
     </div>
   );
