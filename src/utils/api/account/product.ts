@@ -185,7 +185,7 @@ export function useGetAllAccountProducts() {
   return useGetList<AccountProduct>(allProductsBaseUrl);
 }
 
-export function useGetGameBatchesWithFIFO(location?: number) {
+export function useGetGameBatchesWithFIFO(location?: string) {
   let gameBatchesUrl = `${Paths.Accounting}/game-batches`;
   if (location) {
     gameBatchesUrl += `?location=${location}`;
