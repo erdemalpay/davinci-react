@@ -799,6 +799,8 @@ export type MenuItem = {
   imageUrl: string;
   slug?: string;
   category: number;
+  /** Menü panelinde ek sekmelerde listelemek için (birincil category hariç) */
+  additionalCategories?: number[];
   suggestedDiscount?: number[];
   order: number;
   isAutoServed?: boolean;

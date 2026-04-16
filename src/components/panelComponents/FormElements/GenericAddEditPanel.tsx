@@ -307,12 +307,20 @@ const GenericAddEditPanel = <T,>({
         }
       });
 
-      const arrayFieldsToNormalize = ["suggestedDiscount", "productCategories"];
+      const arrayFieldsToNormalize = [
+        "suggestedDiscount",
+        "productCategories",
+        "additionalCategories",
+      ];
       arrayFieldsToNormalize.forEach((key) => {
         const value = convertedFormElements[key];
 
         if (value === "") {
           convertedFormElements[key] = undefined;
+        }
+
+        if (key === "additionalCategories" && Array.isArray(value)) {
+          convertedFormElements[key] = value.map((item) => Number(item));
         }
 
         if (
