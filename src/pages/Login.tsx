@@ -1,13 +1,16 @@
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import davinciImage from "../assets/login/davinci.png";
 import davinci2Image from "../assets/login/davinci2.png";
 import logoImage from "../assets/login/logo.png";
 import { GenericButton } from "../components/common/GenericButton";
+import { RoleEnum } from "../types";
 import { LoginCredentials, useLogin } from "../utils/api/auth";
-
+import { ACCESS_TOKEN } from "../utils/api/axiosClient";
+import { Paths } from "../utils/api/factory";
+import { getUserWithToken } from "../utils/api/user";
 interface FormElements extends HTMLFormControlsCollection {
   username: HTMLInputElement;
   password: HTMLInputElement;
@@ -23,6 +26,7 @@ type RedirectLocationState = {
 
 const Login = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { state: locationState } = useLocation();
   const from = locationState
     ? (locationState as RedirectLocationState).from
@@ -48,6 +52,32 @@ const Login = () => {
     setError(false);
     login(payload);
   };
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const token = localStorage.getItem(ACCESS_TOKEN);
+        if (token && localStorage.getItem("loggedIn")) {
+          const loggedInUser = await getUserWithToken();
+
+          if (
+            loggedInUser &&
+            [RoleEnum.KITCHEN, RoleEnum.KITCHEN2, RoleEnum.KITCHEN3].includes(
+              loggedInUser.role._id
+            )
+          ) {
+            navigate("/orders", { replace: true });
+          } else if (loggedInUser) {
+            navigate(Paths.Tables, { replace: true });
+          }
+        }
+      } catch (error) {
+        return;
+      }
+    };
+
+    checkAuthentication();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f5f5f0] via-[#e8e8dd] to-[#f5f5f0] relative flex items-center justify-center overflow-hidden">
