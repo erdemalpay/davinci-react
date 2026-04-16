@@ -5,13 +5,14 @@ import {
   useResetRedisMutation,
 } from "../../utils/api/panelControl/panelSettings";
 import TextInput from "../panelComponents/FormElements/TextInput";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import { GenericButton } from "../common/GenericButton";
+import Loading from "../common/Loading";
 import { InputTypes } from "../panelComponents/shared/types";
 
 const PanelSettings = () => {
   const { t } = useTranslation();
   const panelSettigns = useGetPanelSettings();
-  const { mutate: resetRedis } = useResetRedisMutation();
+  const { mutate: resetRedis, isPending: isResettingRedis } = useResetRedisMutation();
   return (
     <div className="w-5/6 sm:w-1/3 flex flex-col gap-2 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">
       <TextInput
@@ -34,12 +35,14 @@ const PanelSettings = () => {
           createPanelSettings({ isVisitEntryDisabled: value });
         }}
       />
-      <ButtonFilter
-        buttonName={t("Reset Redis")}
-        onclick={() => {
-          resetRedis();
-        }}
-      />
+      <GenericButton
+        variant="primary"
+        size="sm"
+        onClick={() => resetRedis()}
+      >
+        {t("Reset Redis")}
+      </GenericButton>
+      {isResettingRedis && <Loading />}
     </div>
   );
 };

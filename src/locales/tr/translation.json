@@ -1514,5 +1514,6 @@
   "Requested Games": "Talep Edilen Oyunlar",
   "Last Requested At": "Son Talep Tarihi",
   "File Name": "Dosya İsmi",
-  "Number of Concurrent Requests": "Eşzamanlı İstek Sayısı"
+  "Number of Concurrent Requests": "Eşzamanlı İstek Sayısı",
+   "Redis cache cleared successfully" : "Redis cache başarıyla sıfırlandı"
 }
