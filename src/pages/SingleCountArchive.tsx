@@ -29,6 +29,7 @@ import {
   useGetAccountCountLists,
 } from "../utils/api/account/countList";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
+import { useGetAllLocations } from "../utils/api/location";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../utils/api/user";
@@ -40,6 +41,7 @@ const SingleCountArchive = () => {
   const { user } = useUserContext();
   const count = useGetCountById(archiveId || "");
   const items = useGetMenuItems();
+  const locations = useGetAllLocations();
   const countLists = useGetAccountCountLists();
   const users = useGetUsersMinimal();
   const { mutate: updateStockForStockCount } =
@@ -405,9 +407,9 @@ const SingleCountArchive = () => {
                 ? filters
                 : archieveFilters
             }
-            title={`${getItem(currentCount?.user, users)?.name}  ${t(
-              "Countu"
-            )}`} //date will be added here
+            title={`${getItem(currentCount?.user, users)?.name} ${
+              getItem(currentCount?.location, locations)?.name
+            }  ${t("Countu")}`} //date will be added here
           />
         )}
       </div>
