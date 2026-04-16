@@ -799,6 +799,8 @@ export type MenuItem = {
   imageUrl: string;
   slug?: string;
   category: number;
+  /** Menü panelinde ek sekmelerde listelemek için (birincil category hariç) */
+  additionalCategories?: number[];
   suggestedDiscount?: number[];
   order: number;
   isAutoServed?: boolean;
@@ -1048,7 +1050,17 @@ export type OrderNote = {
 };
 
 export type OrderCollectionItem = {
-  order: number;
+  order:
+    | number
+    | {
+        _id: number;
+        item?:
+          | number
+          | {
+              _id?: number;
+              name?: string;
+            };
+      };
   paidQuantity: number;
 };
 
@@ -1447,7 +1459,23 @@ export enum StocksPageTabEnum {
 export enum LogsPageTabEnum {
   WEBHOOK_LOGS,
   PRICE_COMPARE_LOGS,
+  CONCURRENCY_LOGS,
 }
+
+export type ConcurrentRequest = {
+  userId?: string;
+  userName?: string;
+  requestBody?: any;
+};
+
+export type ConcurrencyLog = {
+  _id: number;
+  method: string;
+  endpoint: string;
+  inFlightCount: number;
+  requests: ConcurrentRequest[];
+  createdAt: string;
+};
 
 export enum IntegrationPageTabEnum {
   SHOPIFYSTOCKCOMPARISION,

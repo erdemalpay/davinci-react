@@ -7,6 +7,22 @@ const BASE_URL = `/games`;
 
 export type MinimalGame = Pick<Game, "_id" | "name">;
 
+export type RequestedGameRequest = {
+  email: string;
+  requestedAt: string;
+};
+
+export type RequestedGame = {
+  _id: string;
+  name: string;
+  normalizedName: string;
+  bggGameId?: number;
+  totalRequestCount: number;
+  requestList: RequestedGameRequest[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export function useGameMutations() {
   const {
     deleteItem: deleteGame,
@@ -40,4 +56,11 @@ export function useGetGameDetails(gameId: number) {
     gameDetails: data,
     isFetching,
   };
+}
+
+export function useGetRequestedGames() {
+  return useGetList<RequestedGame>(`${BASE_URL}/requested`, [
+    BASE_URL,
+    "requested",
+  ]);
 }

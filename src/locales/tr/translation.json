@@ -232,6 +232,7 @@
   "Add Expense Category": "Gider Kategorisi Ekle",
   "Delete Expense Category": "Gider Kategorisini Sil",
   "Expense Categories": "Gider Kategorileri",
+  "Additional categories": "Ek kategoriler",
   "Category": "Kategori",
   "Ingredients": "Malzemeler",
   "Expenses": "Giderler",
@@ -1505,10 +1506,14 @@
   "Price Gap": "Fiyat Farkı",
   "Available Sites": "Mevcut Siteler",
   "Archived": "Arşivlendi",
-  "Upload Successful" : "Başarılı",
-  "Upload Failed" : "Hata",
-  "Upload Logs" : "Önceki Yükleme Kayıtları",
-  "Uploaded By" : "Yükleyen",
-  "File Name" : "Dosya İsmi",
-  "Redis cache cleared successfully" : "Redis cache başarıyla sıfırlandı"
+  "Upload Successful": "Başarılı",
+  "Upload Failed": "Hata",
+  "Upload Logs": "Önceki Yükleme Kayıtları",
+  "Uploaded By": "Yükleyen",
+  "Total Requests": "Toplam Talep",
+  "Requested Games": "Talep Edilen Oyunlar",
+  "Last Requested At": "Son Talep Tarihi",
+  "File Name": "Dosya İsmi",
+  "Number of Concurrent Requests": "Eşzamanlı İstek Sayısı",
+   "Redis cache cleared successfully" : "Redis cache başarıyla sıfırlandı"
 }

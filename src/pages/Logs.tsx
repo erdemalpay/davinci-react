@@ -1,6 +1,8 @@
 import { AiOutlineFileText } from "react-icons/ai";
 import { LuGitCompare } from "react-icons/lu";
+import { TbArrowsRightLeft } from "react-icons/tb";
 import { Header } from "../components/header/Header";
+import ConcurrencyLogs from "../components/logs/ConcurrencyLogs";
 import PriceCompareLogs from "../components/logs/PriceCompareLogs";
 import WebhookLogs from "../components/logs/WebhookLogs";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -22,6 +24,13 @@ export const LogsPageTabs = [
     label: "Price Compare Logs",
     icon: <LuGitCompare className="text-lg font-thin" />,
     content: <PriceCompareLogs />,
+    isDisabled: false,
+  },
+  {
+    number: LogsPageTabEnum.CONCURRENCY_LOGS,
+    label: "Concurrency Logs",
+    icon: <TbArrowsRightLeft className="text-lg font-thin" />,
+    content: <ConcurrencyLogs />,
     isDisabled: false,
   },
 ];

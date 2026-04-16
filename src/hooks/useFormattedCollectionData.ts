@@ -1,16 +1,23 @@
 import { format } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { OrderCollectionItem, OrderCollection, Table } from "../types";
-import { useGetSellLocations } from "../utils/api/location";
-import { useGetMenuItems } from "../utils/api/menu/menu-item";
-import { useGetOrders } from "../utils/api/order/order";
-import { useGetCollectionByTableId } from "../utils/api/order/orderCollection";
+import { OrderCollection, OrderCollectionItem, Table } from "../types";
 import { useGetAccountPaymentMethods } from "../utils/api/account/paymentMethod";
+import { useGetSellLocations } from "../utils/api/location";
+import { useGetCollectionByTableId } from "../utils/api/order/orderCollection";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate, toIstDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
+
+type NestedOrderItem = {
+  _id?: number;
+  name?: string;
+};
+
+type NestedOrderRef = {
+  _id: number;
+  item?: number | NestedOrderItem;
+};
 
 export type FormattedCollectionData = {
   date: string;
@@ -37,8 +44,6 @@ export function useFormattedCollectionData(
   const { t } = useTranslation();
   const sellLocations = useGetSellLocations();
   const paymentMethods = useGetAccountPaymentMethods();
-  const orders = useGetOrders();
-  const items = useGetMenuItems();
   const users = useGetUsersMinimal();
   const collectionDataRaw = useGetCollectionByTableId(selectedTableId);
 
@@ -58,10 +63,29 @@ export function useFormattedCollectionData(
     }
 
     const paymentMethod = paymentMethods.find(
-      (method) => method._id === collectionData.paymentMethod
+      (method) =>
+        method._id === collectionData.paymentMethod ||
+        method.name === collectionData.paymentMethod
     );
+    const resolveOrderProductName = (orderRef: number | NestedOrderRef) => {
+      if (typeof orderRef === "object" && orderRef !== null) {
+        const nestedItem = orderRef.item;
+        if (typeof nestedItem === "object" && nestedItem !== null) {
+          return nestedItem.name || "-";
+        }
+        return "-";
+      }
+
+      return "-";
+    };
     const collectionDate = toIstDate(collectionData.tableDate);
     const istanbulTime = toIstDate(collectionData.createdAt);
+    const cashier =
+      users.find(
+        (user) =>
+          user._id === collectionData.createdBy ||
+          user.name === collectionData.createdBy
+      )?.name || collectionData.createdBy;
 
     return {
       date: formatAsLocalDate(format(collectionDate, "yyyy-MM-dd")),
@@ -69,7 +93,7 @@ export function useFormattedCollectionData(
       tableName: (collectionData.table as Table)?.name,
       hour: format(istanbulTime, "HH:mm"),
       locationName: getItem(collectionData.location, sellLocations)?.name,
-      cashier: getItem(collectionData.createdBy, users)?.name,
+      cashier,
       paymentMethod: paymentMethod ? t(paymentMethod.name) : "",
       amount: collectionData.amount,
       shopifyShippingAmount: collectionData.shopifyShippingAmount,
@@ -81,23 +105,14 @@ export function useFormattedCollectionData(
       cancelNote: collectionData.cancelNote,
       status: collectionData.status,
       orders:
-        collectionData.orders?.map((orderCollectionItem: OrderCollectionItem) => ({
-          product:
-            getItem(
-              orders?.find((order) => order._id === orderCollectionItem.order)
-                ?.item,
-              items
-            )?.name || "-",
-          quantity: orderCollectionItem.paidQuantity ?? 0,
-        })) || [],
+        collectionData.orders?.map(
+          (orderCollectionItem: OrderCollectionItem) => {
+            return {
+              product: resolveOrderProductName(orderCollectionItem.order),
+              quantity: orderCollectionItem.paidQuantity ?? 0,
+            };
+          }
+        ) || [],
     };
-  }, [
-    collectionData,
-    paymentMethods,
-    sellLocations,
-    users,
-    orders,
-    items,
-    t,
-  ]);
+  }, [collectionData, paymentMethods, sellLocations, users, t]);
 }

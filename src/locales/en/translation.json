@@ -231,6 +231,7 @@
   "Add Expense Category": "Add Expense Category",
   "Delete Expense Category": "Delete Expense Category",
   "Expense Categories": "Expense Categories",
+  "Additional categories": "Additional categories",
   "Category": "Category",
   "Ingredients": "Ingredients",
   "Expenses": "Expenses",
@@ -1495,10 +1496,14 @@
   "Price Gap": "Price Gap",
   "Available Sites": "Available Sites",
   "Archived": "Archived",
-  "Upload Successful" : "Upload Successful",
-  "Upload Failed" : "Upload Failed",
-  "Upload Logs" : "Upload Logs",
-  "Uploaded By" : "Uploaded By",
-  "File Name" : "File Name",
-  "Redis cache cleared successfully" : "Redis cache cleared successfully"
+  "Upload Successful": "Upload Successful",
+  "Upload Failed": "Upload Failed",
+  "Upload Logs": "Upload Logs",
+  "Uploaded By": "Uploaded By",
+  "File Name": "File Name",
+  "Total Requests": "Total Requests",
+  "Requested Games": "Requested Games",
+  "Last Requested At": "Last Requested At",
+  "Number of Concurrent Requests": "Num of Concurrent Requests",
+   "Redis cache cleared successfully" : "Redis cache cleared successfully"
 }

@@ -68,6 +68,7 @@ import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
+import RequestedGames from "./../pages/RequestedGames";
 import { StockPageTabs } from "./../pages/Stocks";
 import SurveyAnalytics from "./../pages/SurveyAnalytics";
 import SurveyRedeem from "./../pages/SurveyRedeem";
@@ -83,6 +84,7 @@ export enum PublicRoutes {
 
 export enum Routes {
   Games = "/games",
+  RequestedGames = "/games/requested",
   Feedback = "/feedback",
   Memberships = "/memberships",
   Reservations = "/reservations",
@@ -342,6 +344,12 @@ export const allRoutes: {
         element: Analytics,
         isOnSidebar: true,
       },
+      {
+        name: "Requested Games",
+        path: Routes.RequestedGames,
+        element: RequestedGames,
+        isOnSidebar: true,
+      },
     ],
   },
   {
@@ -366,6 +374,12 @@ export const allRoutes: {
     name: "Analytics",
     path: Routes.Analytics,
     element: Analytics,
+    isOnSidebar: false,
+  },
+  {
+    name: "Requested Games",
+    path: Routes.RequestedGames,
+    element: RequestedGames,
     isOnSidebar: false,
   },
   {

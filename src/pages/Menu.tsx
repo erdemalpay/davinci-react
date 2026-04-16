@@ -16,6 +16,7 @@ import { useGetAllCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetPopularItems } from "../utils/api/menu/popular";
 import { getItem } from "../utils/getItem";
+import { getMenuItemCategoryIds } from "../utils/menuItemCategories";
 import OrderCategoryOrder from "./OrderCategoryOrder";
 export interface ItemGroup {
   category: MenuCategory;
@@ -30,7 +31,6 @@ export default function Menu() {
   const [isCategoryTabChanged, setIsCategoryTabChanged] = useState<boolean>();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetAllCategories();
-  console.log("categories", categories);
   const {
     currentPage,
     rowsPerPage,
@@ -42,45 +42,44 @@ export default function Menu() {
     setIsCategoryTabChanged(true);
   };
   const handleTabChange = () => {
-    const seenCategories = new Set<number>();
-    const itemCategories = items
-      .map((item) => item.category)
-      .filter((category): category is number => {
-        if (seenCategories.has(category)) {
-          return false;
+    const usedCategoryIds = new Set<number>();
+    if (items) {
+      for (const item of items) {
+        for (const cid of getMenuItemCategoryIds(item)) {
+          usedCategoryIds.add(cid);
         }
-        seenCategories.add(category);
-        return true;
-      })
-      .sort((a, b) => {
-        const orderA = getItem(a, categories)?.order ?? 0;
-        const orderB = getItem(b, categories)?.order ?? 0;
-        return orderA - orderB;
-      });
+      }
+    }
+    const itemCategories = [...usedCategoryIds].sort((a, b) => {
+      const orderA = getItem(a, categories)?.order ?? 0;
+      const orderB = getItem(b, categories)?.order ?? 0;
+      return orderA - orderB;
+    });
 
     const emptyCategories = categories?.filter(
-      (category) =>
-        itemCategories.filter((itemCategory) => itemCategory === category?._id)
-          .length === 0
+      (category) => !usedCategoryIds.has(category?._id)
     );
     const itemGroups: ItemGroup[] = [];
     if (!items) return;
-    items.forEach((item) => {
-      const category = getItem(item.category, categories);
-      const existingGroup = itemGroups.find(
-        (itemGroup) => itemGroup.category?.name === category?.name
-      );
-      if (existingGroup) {
-        existingGroup.items.push(item);
-      } else if (category?.active || category?.isKitchenMenu) {
-        const newGroup = {
-          category: category as MenuCategory,
-          order: category?.order as number,
-          items: [item],
-        };
-        itemGroups.push(newGroup);
+    const groupByCategoryId = new Map<number, MenuItem[]>();
+    for (const item of items) {
+      for (const categoryId of getMenuItemCategoryIds(item)) {
+        const category = getItem(categoryId, categories);
+        if (!category?.active && !category?.isKitchenMenu) continue;
+        const list = groupByCategoryId.get(categoryId);
+        if (list) list.push(item);
+        else groupByCategoryId.set(categoryId, [item]);
       }
-    });
+    }
+    for (const [categoryId, groupItems] of groupByCategoryId) {
+      const category = getItem(categoryId, categories);
+      if (!category) continue;
+      itemGroups.push({
+        category: category as MenuCategory,
+        order: category.order,
+        items: groupItems,
+      });
+    }
     itemGroups.sort((a, b) => (a.order > b.order ? 1 : -1));
     setTabs(
       [

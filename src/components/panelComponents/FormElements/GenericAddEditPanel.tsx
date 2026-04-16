@@ -21,6 +21,7 @@ import {
   GenericInputType,
   InputTypes,
 } from "../shared/types";
+import AutocompleteInput from "./AutocompleteInput";
 import DailyHoursInput from "./DailyHoursInput";
 import DateInput from "./DateInput";
 import HourInput from "./HourInput";
@@ -306,12 +307,20 @@ const GenericAddEditPanel = <T,>({
         }
       });
 
-      const arrayFieldsToNormalize = ["suggestedDiscount", "productCategories"];
+      const arrayFieldsToNormalize = [
+        "suggestedDiscount",
+        "productCategories",
+        "additionalCategories",
+      ];
       arrayFieldsToNormalize.forEach((key) => {
         const value = convertedFormElements[key];
 
         if (value === "") {
           convertedFormElements[key] = undefined;
+        }
+
+        if (key === "additionalCategories" && Array.isArray(value)) {
+          convertedFormElements[key] = value.map((item) => Number(item));
         }
 
         if (
@@ -610,7 +619,7 @@ const GenericAddEditPanel = <T,>({
                           onChange={(val) =>
                             handleChange(input.formKey)(val ?? "")
                           }
-                          isArrowsEnabled={input.isArrowsEnabled ?? false}
+                          isArrowsEnabled={input.isArrowsEnabled ?? true}
                           requiredField={input.required}
                           isOnClearActive={input?.isOnClearActive ?? true}
                           isDateInitiallyOpen={
@@ -758,6 +767,29 @@ const GenericAddEditPanel = <T,>({
                           formElements={formElements}
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           isReadOnly={input.isReadOnly ?? false}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
+                        />
+                      )}
+                      {input.type === InputTypes.AUTOCOMPLETE && (
+                        <AutocompleteInput
+                          key={input.formKey + resetTextInput}
+                          value={value}
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
+                          placeholder={input.placeholder ?? ""}
+                          onChange={handleChange(input.formKey)}
+                          options={input.options ?? []}
+                          requiredField={input.required}
+                          isOnClearActive={input?.isOnClearActive ?? true}
+                          isTopFlexRow={input.isTopFlexRow ?? false}
+                          isReadOnly={input.isReadOnly ?? false}
+                          minCharacters={input?.minCharacters ?? 2}
+                          isSortDisabled={input.isSortDisabled ?? false}
                           onClear={() => {
                             handleInputClear(input);
                           }}
