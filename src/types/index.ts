@@ -388,6 +388,12 @@ export type AccountVendor = {
   name: string;
 };
 
+export type AccountRetailer = {
+  _id: number;
+  name: string;
+  orders?: number[];
+};
+
 export type AccountPaymentMethod = {
   _id: string;
   name: string;

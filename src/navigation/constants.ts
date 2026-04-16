@@ -41,6 +41,7 @@ import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
+import Retailer, { RetailerPageTabs } from "../pages/Retailer";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import ShopifyPickUp from "../pages/ShopifyPickUp";
@@ -143,6 +144,7 @@ export enum Routes {
   IkasPickUp = "/ikas-pickup",
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
+  Retailer = "/retailer",
   Consumers = "/consumers",
   Logs = "/logs",
   BackInStock = "/back-in-stock",
@@ -642,6 +644,13 @@ export const allRoutes: {
     element: Brand,
     isOnSidebar: false,
     tabs: BrandPageTabs,
+  },
+  {
+    name: "Retailer",
+    path: Routes.Retailer,
+    element: Retailer,
+    isOnSidebar: true,
+    tabs: RetailerPageTabs,
   },
   {
     name: "Menu",

@@ -15,6 +15,10 @@
   "Add Expense Type": "Add Expense Type",
   "Vendors": "Vendors",
   "Add Vendor": "Add Vendor",
+  "Retailer": "Retailer",
+  "Retailers": "Retailers",
+  "Add Retailer": "Add Retailer",
+  "Delete Retailer": "Delete Retailer",
   "Search": "Search",
   "Add Brand": "Add Brand",
   "Products": "Products",
@@ -1505,5 +1509,5 @@
   "Requested Games": "Requested Games",
   "Last Requested At": "Last Requested At",
   "Number of Concurrent Requests": "Num of Concurrent Requests",
-   "Redis cache cleared successfully" : "Redis cache cleared successfully"
+  "Redis cache cleared successfully": "Redis cache cleared successfully"
 }
