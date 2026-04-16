@@ -203,6 +203,7 @@ const ProductStockHistory = () => {
         placeholder: t("Start Date"),
         required: true,
         isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
       },
       {
         type: InputTypes.DATE,
@@ -211,6 +212,7 @@ const ProductStockHistory = () => {
         placeholder: t("End Date"),
         required: true,
         isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
       },
     ],
     [expenseTypes, products, vendors, brands, locations, t]

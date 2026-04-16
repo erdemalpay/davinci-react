@@ -105,7 +105,13 @@ const GenericAddComponent = <T,>({
   });
 
   const uploadImageMutation = useMutation({
-    mutationFn: async ({ file, filename }: { file: File; filename: string }) => {
+    mutationFn: async ({
+      file,
+      filename,
+    }: {
+      file: File;
+      filename: string;
+    }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
@@ -337,7 +343,7 @@ const GenericAddComponent = <T,>({
                         onChange={(val) =>
                           handleChange(input.formKey)(val ?? "")
                         }
-                        isArrowsEnabled={input.isArrowsEnabled ?? false}
+                        isArrowsEnabled={input.isArrowsEnabled ?? true}
                         requiredField={input.required}
                         isOnClearActive={input?.isOnClearActive ?? true}
                         isDateInitiallyOpen={input.isDateInitiallyOpen ?? false}
