@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -9,10 +9,12 @@ import {
 import { useGeneralContext } from "../context/General.context";
 import { MenuItem } from "../types";
 import {
+  useGetAccountStocks,
   useNotifyBackInStockSubscribersBulkMutation,
   useNotifyBackInStockSubscribersMutation,
 } from "../utils/api/account/stock";
 import {
+  BackInStockQueryParams,
   BackInStockSubscription,
   SubscriptionStatus,
   useGetBackInStockSubscriptions,
@@ -21,7 +23,26 @@ import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { formatAsLocalDate } from "../utils/format";
 
 type FormElementsState = {
-  [key: string]: any;
+  [key: string]: string | number | boolean | null | undefined;
+} & BackInStockQueryParams;
+
+type BackInStockSubscriptionRow = BackInStockSubscription & {
+  matchedProductId?: string;
+  totalStock?: number;
+};
+
+type BackInStockRow = BackInStockSubscriptionRow & {
+  requestCount?: number;
+  productTitle: string;
+  collapsible?: {
+    collapsibleHeader: string;
+    collapsibleColumns: { key: string; isSortable?: boolean }[];
+    collapsibleRows: BackInStockSubscriptionRow[];
+    collapsibleRowKeys: Array<{
+      key: string;
+      node?: (row: BackInStockSubscriptionRow) => ReactNode;
+    }>;
+  };
 };
 
 export default function BackInStock() {
@@ -46,6 +67,14 @@ export default function BackInStock() {
     before: "",
     sort: "createdAt",
     asc: -1,
+  };
+  const stocks = useGetAccountStocks();
+  const getProductTotalStock = (productId: string) => {
+    if (!stocks) return 0;
+    const productStock = stocks
+      ?.filter((stock) => stock.product === productId)
+      .reduce((total, stock) => total + stock.quantity, 0);
+    return productStock || 0;
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFormElementsState);
@@ -80,15 +109,33 @@ export default function BackInStock() {
       return dateB - dateA;
     });
 
+    const subscriptionsWithStock: BackInStockSubscriptionRow[] =
+      sortedSubscriptions.map((subscription) => {
+        const matchedProductId = (subscription.menuItemId as MenuItem)
+          ?.matchedProduct;
+        return {
+          ...subscription,
+          matchedProductId,
+          totalStock: matchedProductId
+            ? getProductTotalStock(matchedProductId)
+            : 0,
+        };
+      });
+
+    const representativeSubscription =
+      subscriptionsWithStock.find((s) => s.menuItemId) ??
+      subscriptionsWithStock[0];
+
     // Count only ACTIVE subscriptions
-    const activeCount = sortedSubscriptions.filter(
+    const activeCount = subscriptionsWithStock.filter(
       (s) => s.status === SubscriptionStatus.ACTIVE
     ).length;
 
     return {
-      ...sortedSubscriptions[0],
+      ...representativeSubscription,
       [mainKey]: mainValue,
       requestCount: activeCount,
+      totalStock: representativeSubscription?.totalStock ?? 0,
       collapsible: {
         collapsibleHeader: t("Subscriptions for {{name}}", { name: mainValue }),
         collapsibleColumns: [
@@ -99,13 +146,13 @@ export default function BackInStock() {
           { key: t("Notified At"), isSortable: true },
           { key: t("Cancelled At"), isSortable: true },
         ],
-        collapsibleRows: sortedSubscriptions,
+        collapsibleRows: subscriptionsWithStock,
         collapsibleRowKeys: [
           { key: "email" },
           { key: "productTitle" },
           {
             key: "status",
-            node: (row: any) => {
+            node: (row: BackInStockSubscriptionRow) => {
               const statusColors = {
                 [SubscriptionStatus.ACTIVE]: "bg-green-500",
                 [SubscriptionStatus.NOTIFIED]: "bg-blue-500",
@@ -124,17 +171,22 @@ export default function BackInStock() {
           },
           {
             key: "subscribedAt",
-            node: (row: any) => formatAsLocalDate(row.subscribedAt),
+            node: (row: BackInStockSubscriptionRow) =>
+              formatAsLocalDate(new Date(row.subscribedAt).toISOString()),
           },
           {
             key: "notifiedAt",
-            node: (row: any) =>
-              row.notifiedAt ? formatAsLocalDate(row.notifiedAt) : "-",
+            node: (row: BackInStockSubscriptionRow) =>
+              row.notifiedAt
+                ? formatAsLocalDate(new Date(row.notifiedAt).toISOString())
+                : "-",
           },
           {
             key: "cancelledAt",
-            node: (row: any) =>
-              row.cancelledAt ? formatAsLocalDate(row.cancelledAt) : "-",
+            node: (row: BackInStockSubscriptionRow) =>
+              row.cancelledAt
+                ? formatAsLocalDate(new Date(row.cancelledAt).toISOString())
+                : "-",
           },
         ],
       },
@@ -142,10 +194,10 @@ export default function BackInStock() {
   };
 
   // Process rows - always group by productTitle
-  const rows = useMemo(() => {
+  const rows = useMemo<BackInStockRow[]>(() => {
     if (!subscriptions) return [];
 
-    const result: any[] = [];
+    const result: BackInStockRow[] = [];
 
     groupedByProduct.forEach((subscriptions, productTitle) => {
       if (subscriptions.length === 0) return;
@@ -158,14 +210,19 @@ export default function BackInStock() {
       result.push(mainRow);
     });
 
-    return result;
-  }, [subscriptions, groupedByProduct, t]);
+    return result.sort((a, b) => (b.totalStock ?? 0) - (a.totalStock ?? 0));
+  }, [subscriptions, groupedByProduct, t, items, stocks]);
   const columns = useMemo(
     () => [
       {
         key: t("Product"),
         isSortable: true,
         correspondingKey: "productTitle",
+      },
+      {
+        key: t("Total Stock"),
+        isSortable: true,
+        correspondingKey: "totalStock",
       },
       {
         key: t("Request Count"),
@@ -186,9 +243,20 @@ export default function BackInStock() {
         className: "min-w-48",
       },
       {
+        key: "totalStock",
+        className: "min-w-24",
+        node: (row: BackInStockRow) => {
+          return (
+            <span className="font-medium text-gray-700">
+              {row.totalStock ?? 0}
+            </span>
+          );
+        },
+      },
+      {
         key: "requestCount",
         className: "min-w-24",
-        node: (row: any) => {
+        node: (row: BackInStockRow) => {
           return (
             <span className="font-medium text-gray-700">
               {row.requestCount || 0}
@@ -207,11 +275,11 @@ export default function BackInStock() {
         isModal: false,
         isPath: false,
         icon: null,
-        node: (row: any) => (
+        node: (row: BackInStockRow) => (
           <button
             onClick={() => {
-              if (row.productId) {
-                notifyBackInStockSubscribers((row.menuItemId as MenuItem)?._id);
+              if (row.menuItemId) {
+                notifyBackInStockSubscribers(row.menuItemId as number);
               }
             }}
             className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm font-medium"
@@ -291,6 +359,13 @@ export default function BackInStock() {
     [showFilters, filterPanelInputs, filterPanelFormElements]
   );
 
+  const getBgColor = (row: BackInStockRow) => {
+    if ((row?.totalStock ?? 0) > 0) {
+      return "bg-green-100";
+    }
+    return "";
+  };
+
   const filters = useMemo(
     () => [
       {
@@ -311,7 +386,7 @@ export default function BackInStock() {
           "px-2 ml-auto bg-purple-600 hover:text-purple-600 hover:border-purple-600 sm:px-3 py-1 h-fit w-fit text-white hover:bg-white transition-transform border rounded-md cursor-pointer",
         onClick: () => {
           const menuItemIds = selectedRows
-            .map((row: any) => (row.menuItemId as MenuItem)?._id)
+            .map((row: BackInStockRow) => row.menuItemId as number)
             .filter(Boolean);
           if (menuItemIds.length > 0) {
             notifyBackInStockSubscribersBulk(menuItemIds);
@@ -340,6 +415,7 @@ export default function BackInStock() {
         filterPanel={filterPanel}
         filters={filters}
         isActionsActive={true}
+        rowClassNameFunction={getBgColor}
         actions={actions}
         selectionActions={selectionActions}
         isCollapsible={true}
