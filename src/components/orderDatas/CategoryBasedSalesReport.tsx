@@ -633,6 +633,7 @@ const CategoryBasedSalesReport = () => {
           filterPanel={filterPanel}
           title={t("Category Based Sales")}
           isActionsActive={false}
+          isExcel={true}
           isCollapsible={true}
         />
       </div>
