@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useDataContext } from "../../context/Data.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { Order, OrderStatus, User } from "../../types";
+import { Order, OrderStatus, Table, User } from "../../types";
 import {
+  useCancelOrderMutation,
   useCreateOrderForDivideMutation,
   useOrderMutations,
 } from "../../utils/api/order/order";
@@ -19,6 +20,7 @@ type Props = {
 
 const SingleOrderCard = ({ order, user }: Props) => {
   const { updateOrder } = useOrderMutations();
+  const { mutate: cancelOrder } = useCancelOrderMutation();
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
 
@@ -158,13 +160,18 @@ const SingleOrderCard = ({ order, user }: Props) => {
           {order?.paidQuantity === 0 && !order?.isPaymentMade && (
             <GenericButton
               onClick={() => {
-                updateOrder({
+                const tableId =
+                  typeof order?.table === "number"
+                    ? order.table
+                    : (order?.table as Table)?._id;
+                cancelOrder({
                   id: order?._id,
                   updates: {
                     status: OrderStatus.CANCELLED,
                     cancelledAt: new Date(),
                     cancelledBy: user._id,
                   },
+                  tableId,
                 });
               }}
               variant="ghost"

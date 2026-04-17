@@ -720,6 +720,7 @@ const UpperCategoryBasedSalesReport = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
+          isExcel={true}
           filters={filters}
           filterPanel={filterPanel}
           title={t("Upper Category Based Sales")}

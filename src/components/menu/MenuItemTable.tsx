@@ -26,6 +26,7 @@ import {
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { UpdatePayload } from "../../utils/api";
 import { useMatchHepsiburadaItemsByBarcodeMutation } from "../../utils/api/hepsiburada";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
@@ -42,6 +43,7 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
+import { itemBelongsToMenuCategory } from "../../utils/menuItemCategories";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -49,7 +51,11 @@ import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+  RowKeyType,
+} from "../panelComponents/shared/types";
 
 type Props = {
   singleItemGroup: ItemGroup;
@@ -136,7 +142,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
 
   const usedItems = useMemo(() => {
     return showDeletedItems
-      ? items.filter((item) => item.category === singleItemGroup.category._id)
+      ? items.filter((item) =>
+          itemBelongsToMenuCategory(item, singleItemGroup.category._id)
+        )
       : singleItemGroup?.items;
   }, [showDeletedItems, items, singleItemGroup]);
 
@@ -512,6 +520,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         required: false,
         isDisabled: isAddModalOpen,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "additionalCategories",
+        label: t("Additional categories"),
+        options: categories.map((category) => ({
+          value: category._id,
+          label: category.name,
+        })),
+        placeholder: t("Additional categories"),
+        required: false,
+        isMultiple: true,
+      },
       // {
       //   type: InputTypes.NUMBER,
       //   formKey: "ikasDiscountedPrice",
@@ -624,7 +644,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           ]
         : []),
     ],
-    [t, singleItemGroup, discounts, products]
+    [t, singleItemGroup, discounts, products, categories]
   );
 
   const formKeys = useMemo(
@@ -634,6 +654,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "price", type: FormKeyTypeEnum.NUMBER },
       { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
       { key: "category", type: FormKeyTypeEnum.NUMBER },
+      { key: "additionalCategories", type: FormKeyTypeEnum.ARRAY },
       // { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },
       { key: "imageUrl", type: FormKeyTypeEnum.STRING },
       { key: "suggestedDiscount", type: FormKeyTypeEnum.STRING },
@@ -700,7 +721,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: t("Auto Prepared"), isSortable: false },
     ];
 
-    const keys = [
+    const keys: RowKeyType<
+      MenuItem & { formattedCreatedAt?: string }
+    >[] = [
       { key: "imageUrl", isImage: true },
       {
         key: "name",
@@ -809,7 +832,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "hepsiBuradaSku", className: "min-w-32 pr-1" },
       {
         key: "createdAt",
-        node: (row: any) => {
+        node: (row: MenuItem & { formattedCreatedAt?: string }) => {
           return row?.formattedCreatedAt;
         },
       },
@@ -889,9 +912,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     for (const location of locations) {
       if (singleItemGroup?.category?.locations?.includes(location._id)) {
         cols.splice(insertIndex, 0, { key: location.name, isSortable: false });
-        (keys as any).splice(insertIndex, 0, {
+        keys.splice(insertIndex, 0, {
           key: location.name,
-          node: (row: any) => {
+          node: (row: MenuItem) => {
             const isExist = row?.locations?.includes(location._id);
             if (isMenuLocationEdit) {
               return (
@@ -941,10 +964,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           close={() => setIsAddModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={createItem as any}
+          submitItem={(payload) =>
+            createItem(payload as Partial<MenuItem>)
+          }
           constantValues={{
             category: singleItemGroup?.category._id,
             locations: [1, 2],
+            additionalCategories: [],
           }}
           folderName="menu"
           generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"
@@ -997,7 +1023,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           close={() => setIsAddCollapsibleOpen(false)}
           inputs={collapsibleInputs}
           formKeys={collapsibleFormKeys}
-          submitItem={updateItem as any}
+          submitItem={(payload) =>
+            updateItem(payload as UpdatePayload<MenuItem>)
+          }
           isEditMode={true}
           setForm={setForm}
           handleUpdate={() => {
@@ -1109,7 +1137,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             close={() => setIsEditModalOpen(false)}
             inputs={inputs}
             formKeys={formKeys}
-            submitItem={updateItem as any}
+            submitItem={(payload) =>
+              updateItem(payload as UpdatePayload<MenuItem>)
+            }
             constantValues={{ category: singleItemGroup?.category?._id }}
             isEditMode={true}
             itemToEdit={{ id: rowToAction?._id, updates: rowToAction }}

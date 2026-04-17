@@ -1,3 +1,4 @@
+import { MenuItem } from "../../types";
 import { useGet } from "./factory";
 
 export enum SubscriptionStatus {
@@ -18,7 +19,7 @@ export interface BackInStockSubscription {
   variantPrice: string;
   subscribedAt: Date;
   status: SubscriptionStatus;
-  menuItemId?: number;
+  menuItemId?: number | MenuItem;
   notifiedAt?: Date;
   cancelledAt?: Date;
   createdAt?: Date;

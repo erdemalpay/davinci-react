@@ -388,6 +388,12 @@ export type AccountVendor = {
   name: string;
 };
 
+export type AccountRetailer = {
+  _id: number;
+  name: string;
+  orders?: number[];
+};
+
 export type AccountPaymentMethod = {
   _id: string;
   name: string;
@@ -799,6 +805,8 @@ export type MenuItem = {
   imageUrl: string;
   slug?: string;
   category: number;
+  /** Menü panelinde ek sekmelerde listelemek için (birincil category hariç) */
+  additionalCategories?: number[];
   suggestedDiscount?: number[];
   order: number;
   isAutoServed?: boolean;
@@ -1048,7 +1056,17 @@ export type OrderNote = {
 };
 
 export type OrderCollectionItem = {
-  order: number;
+  order:
+    | number
+    | {
+        _id: number;
+        item?:
+          | number
+          | {
+              _id?: number;
+              name?: string;
+            };
+      };
   paidQuantity: number;
 };
 
@@ -1443,6 +1461,27 @@ export enum StocksPageTabEnum {
   PRODUCTSTOCKHISTORY,
   GAMEBATCHESFIFO,
 }
+
+export enum LogsPageTabEnum {
+  WEBHOOK_LOGS,
+  PRICE_COMPARE_LOGS,
+  CONCURRENCY_LOGS,
+}
+
+export type ConcurrentRequest = {
+  userId?: string;
+  userName?: string;
+  requestBody?: any;
+};
+
+export type ConcurrencyLog = {
+  _id: number;
+  method: string;
+  endpoint: string;
+  inFlightCount: number;
+  requests: ConcurrentRequest[];
+  createdAt: string;
+};
 
 export enum IntegrationPageTabEnum {
   SHOPIFYSTOCKCOMPARISION,
@@ -2538,6 +2577,33 @@ export type WebhookLog = {
   processingTimeMs?: number;
   responseBody?: any;
   statusCode?: number;
+};
+
+export enum PriceCompareLogType {
+  CRON = "cron",
+  SITE = "site",
+}
+
+export enum PriceCompareLogStatus {
+  PENDING = "pending",
+  SUCCESS = "success",
+  PARTIAL_SUCCESS = "partial_success",
+  FAILED = "failed",
+}
+
+export type PriceCompareLog = {
+  _id: number;
+  type: PriceCompareLogType | string;
+  target: string;
+  status: PriceCompareLogStatus | string;
+  metadata?: any;
+  responseBody?: any;
+  errorMessage?: string;
+  totalItems?: number;
+  processingTimeMs?: number;
+  processedAt?: string | Date;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
 };
 
 export enum CustomerPopupTriggerType {

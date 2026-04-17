@@ -41,6 +41,7 @@ import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
+import Retailer, { RetailerPageTabs } from "../pages/Retailer";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import ShopifyPickUp from "../pages/ShopifyPickUp";
@@ -63,16 +64,17 @@ import { CheckoutPageTabs } from "./../pages/Checkout";
 import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
 import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
 import { ExpensePageTabs } from "./../pages/Expenses";
+import Logs, { LogsPageTabs } from "./../pages/Logs";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
+import RequestedGames from "./../pages/RequestedGames";
 import { StockPageTabs } from "./../pages/Stocks";
 import SurveyAnalytics from "./../pages/SurveyAnalytics";
 import SurveyRedeem from "./../pages/SurveyRedeem";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
-import WebhookLogs from "./../pages/WebhookLogs";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -83,6 +85,7 @@ export enum PublicRoutes {
 
 export enum Routes {
   Games = "/games",
+  RequestedGames = "/games/requested",
   Feedback = "/feedback",
   Memberships = "/memberships",
   Reservations = "/reservations",
@@ -141,8 +144,9 @@ export enum Routes {
   IkasPickUp = "/ikas-pickup",
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
+  Retailer = "/retailer",
   Consumers = "/consumers",
-  WebhookLogs = "/webhook-logs",
+  Logs = "/logs",
   BackInStock = "/back-in-stock",
   EventSurveyBuilder = "/event-survey-builder",
   EventSurveyQuestions = "/event-survey-builder/:eventId",
@@ -342,6 +346,12 @@ export const allRoutes: {
         element: Analytics,
         isOnSidebar: true,
       },
+      {
+        name: "Requested Games",
+        path: Routes.RequestedGames,
+        element: RequestedGames,
+        isOnSidebar: true,
+      },
     ],
   },
   {
@@ -366,6 +376,12 @@ export const allRoutes: {
     name: "Analytics",
     path: Routes.Analytics,
     element: Analytics,
+    isOnSidebar: false,
+  },
+  {
+    name: "Requested Games",
+    path: Routes.RequestedGames,
+    element: RequestedGames,
     isOnSidebar: false,
   },
   {
@@ -630,6 +646,13 @@ export const allRoutes: {
     tabs: BrandPageTabs,
   },
   {
+    name: "Retailer",
+    path: Routes.Retailer,
+    element: Retailer,
+    isOnSidebar: true,
+    tabs: RetailerPageTabs,
+  },
+  {
     name: "Menu",
     path: Routes.Menu,
     element: Menu,
@@ -784,13 +807,6 @@ export const allRoutes: {
         isOnSidebar: true,
       },
       {
-        name: "Webhook Logs",
-        path: Routes.WebhookLogs,
-        element: WebhookLogs,
-        isOnSidebar: true,
-        exceptionalRoles: [RoleEnum.MANAGER],
-      },
-      {
         name: "Notifications",
         path: Routes.Notifications,
         element: Notifications,
@@ -807,11 +823,11 @@ export const allRoutes: {
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
-    name: "Webhook Logs",
-    path: Routes.WebhookLogs,
-    element: WebhookLogs,
-    isOnSidebar: false,
-    exceptionalRoles: [RoleEnum.MANAGER],
+    name: "Logs",
+    path: Routes.Logs,
+    element: Logs,
+    isOnSidebar: true,
+    tabs: LogsPageTabs,
   },
   {
     name: "Page Details",
