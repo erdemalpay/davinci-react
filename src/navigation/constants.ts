@@ -42,6 +42,9 @@ import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Retailer, { RetailerPageTabs } from "../pages/Retailer";
+import RetailerOrders, {
+  RetailerOrdersPageTabs,
+} from "../pages/RetailerOrders";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import ShopifyPickUp from "../pages/ShopifyPickUp";
@@ -145,6 +148,7 @@ export enum Routes {
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
   Retailer = "/retailer",
+  RetailerOrders = "/retailer/:retailerId",
   Consumers = "/consumers",
   Logs = "/logs",
   BackInStock = "/back-in-stock",
@@ -651,6 +655,13 @@ export const allRoutes: {
     element: Retailer,
     isOnSidebar: true,
     tabs: RetailerPageTabs,
+  },
+  {
+    name: "Retailer",
+    path: Routes.RetailerOrders,
+    element: RetailerOrders,
+    isOnSidebar: false,
+    tabs: RetailerOrdersPageTabs,
   },
   {
     name: "Menu",

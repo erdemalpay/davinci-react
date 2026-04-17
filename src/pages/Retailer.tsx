@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { MdOutlineStorefront } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
-import RetailerTab from "../components/stocks/Retailer";
+import RetailerTab from "../components/retailer/Retailer";
 import { useGeneralContext } from "../context/General.context";
 
 export const RetailerPageTabs = [

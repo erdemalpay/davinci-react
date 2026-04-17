@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
 import { AccountRetailer } from "../../types";
 import {
   useAccountRetailerMutations,
@@ -15,6 +17,9 @@ import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
 const Retailer = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
+    useGeneralContext();
   const retailers = useGetAccountRetailers();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -40,8 +45,26 @@ const Retailer = () => {
   );
 
   const rowKeys = useMemo(
-    () => [{ key: "name", className: "min-w-32 pr-1" }],
-    []
+    () => [
+      {
+        key: "name",
+        className: "min-w-32 pr-1",
+        node: (row: AccountRetailer) => (
+          <p
+            className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/retailer/${row._id}`);
+            }}
+          >
+            {row.name}
+          </p>
+        ),
+      },
+    ],
+    [navigate, setCurrentPage, setSearchQuery, setSortConfigKey]
   );
 
   const inputs = [NameInput()];
