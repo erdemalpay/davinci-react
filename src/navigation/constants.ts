@@ -887,10 +887,42 @@ export const allRoutes: {
     isOnSidebar: false,
   },
   {
+    name: "Campaign & Survey",
+    isOnSidebar: true,
+    children: [
+      {
+        name: "Event Survey Builder",
+        path: Routes.EventSurveyBuilder,
+        element: EventSurveyBuilder,
+        isOnSidebar: true,
+        exceptionalRoles: [RoleEnum.MANAGER],
+      },
+      {
+        name: "Survey Redeem",
+        path: Routes.SurveyRedeem,
+        element: SurveyRedeem,
+        isOnSidebar: true,
+        exceptionalRoles: [
+          RoleEnum.MANAGER,
+          RoleEnum.BARISTA,
+          RoleEnum.GAMEMASTER,
+          RoleEnum.GAMEMANAGER,
+        ],
+      },
+      {
+        name: "Survey Analytics",
+        path: Routes.SurveyAnalytics,
+        element: SurveyAnalytics,
+        isOnSidebar: true,
+        exceptionalRoles: [RoleEnum.MANAGER],
+      },
+    ],
+  },
+  {
     name: "Event Survey Builder",
     path: Routes.EventSurveyBuilder,
     element: EventSurveyBuilder,
-    isOnSidebar: true,
+    isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
@@ -904,7 +936,7 @@ export const allRoutes: {
     name: "Survey Redeem",
     path: Routes.SurveyRedeem,
     element: SurveyRedeem,
-    isOnSidebar: true,
+    isOnSidebar: false,
     exceptionalRoles: [
       RoleEnum.MANAGER,
       RoleEnum.BARISTA,
@@ -916,7 +948,7 @@ export const allRoutes: {
     name: "Survey Analytics",
     path: Routes.SurveyAnalytics,
     element: SurveyAnalytics,
-    isOnSidebar: true,
+    isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
 ];
