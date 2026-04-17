@@ -113,7 +113,6 @@ export default function RetailerOrders() {
                 setCurrentPage(1);
                 setSearchQuery("");
                 setTabPanelKey((prev) => prev + 1);
-                setActiveTab(0);
                 setSortConfigKey(null);
                 navigate(`/retailer/${selectedOption?.value}`);
               }}

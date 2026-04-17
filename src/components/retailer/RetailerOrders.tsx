@@ -1,10 +1,12 @@
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useParams } from "react-router-dom";
 import { FormElementsState, Order } from "../../types";
 import {
   useGetRetailerOrders,
+  useRetailerOrderMutations,
   type RetailerOrdersResponse,
 } from "../../utils/api/account/retailer";
 import { formatAsLocalDate } from "../../utils/format";
@@ -13,6 +15,7 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
 type RetailerOrderTableRow = {
+  _id?: number | string;
   date: string;
   dateDisplay: string;
   totalOrders: number;
@@ -20,7 +23,6 @@ type RetailerOrderTableRow = {
     collapsibleColumns: { key: string; isSortable: boolean }[];
     collapsibleRows: Array<
       Order & {
-        tableNameDisplay: string;
         itemNameDisplay: string;
         orderedAtDisplay: string;
         statusDisplay: string;
@@ -32,7 +34,6 @@ type RetailerOrderTableRow = {
       key: string;
       node?: (
         row: Order & {
-          tableNameDisplay: string;
           itemNameDisplay: string;
           orderedAtDisplay: string;
           statusDisplay: string;
@@ -77,7 +78,6 @@ function getRetailerTableRows(
 
       return {
         ...order,
-        tableNameDisplay: tableName || "-",
         itemNameDisplay: itemName || "-",
         statusDisplay: order.status || "-",
         orderedAtDisplay: orderDate
@@ -97,7 +97,6 @@ function getRetailerTableRows(
       totalOrders: group.orders.length,
       collapsible: {
         collapsibleColumns: [
-          { key: t("Table"), isSortable: true },
           { key: t("Item"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
           { key: t("Unit Price"), isSortable: true },
@@ -107,10 +106,6 @@ function getRetailerTableRows(
         ],
         collapsibleRows,
         collapsibleRowKeys: [
-          {
-            key: "tableNameDisplay",
-            className: "min-w-28",
-          },
           {
             key: "itemNameDisplay",
             className: "min-w-40",
@@ -144,6 +139,7 @@ function getRetailerTableRows(
 const RetailerOrders = () => {
   const { t } = useTranslation();
   const { retailerId } = useParams();
+  const { removeRetailerOrder } = useRetailerOrderMutations();
 
   const initialFilterFormElements = useMemo(
     () => ({
@@ -254,6 +250,27 @@ const RetailerOrders = () => {
     ]
   );
 
+  const collapsibleActions = useMemo(
+    () => [
+      {
+        name: t("Remove"),
+        icon: <HiOutlineTrash />,
+        className: "text-red-500 cursor-pointer text-xl",
+        onClick: (row: RetailerOrderTableRow) => {
+          if (!retailerId || !row._id) {
+            return;
+          }
+
+          removeRetailerOrder({
+            retailerId,
+            orderId: row._id,
+          });
+        },
+      },
+    ],
+    [t, retailerId, removeRetailerOrder]
+  );
+
   return (
     <div className="w-[95%] mx-auto my-6">
       <GenericTable<RetailerOrderTableRow>
@@ -263,8 +280,9 @@ const RetailerOrders = () => {
         rowKeys={rowKeys}
         filters={tableFilters}
         filterPanel={filterPanel}
-        isActionsActive={false}
+        isActionsActive={true}
         isCollapsible={true}
+        collapsibleActions={collapsibleActions}
         isPagination={false}
       />
     </div>
