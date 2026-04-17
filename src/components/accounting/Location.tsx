@@ -48,7 +48,8 @@ const LocationPage = () => {
   }, [disabledConditions]);
 
   const getRowTypeName = useMemo(
-    () => (type: number[]) => {
+    () => (type?: number[]) => {
+      if (!type) return "";
       if (type.includes(1) && type.includes(2)) {
         return t("Store and Stock");
       }
@@ -100,12 +101,12 @@ const LocationPage = () => {
           pages
             ?.find((page) => page._id === "location")
             ?.permissionRoles?.includes(user.role._id) &&
-          row.type.includes(1) ? (
+          row.type?.includes(1) ? (
             <div
               className="px-2 py-1 rounded-md w-fit text-white cursor-pointer hover:opacity-80 transition-all"
               style={{ backgroundColor: row.backgroundColor }}
               onClick={() => {
-                if (!row.type.includes(1)) return;
+                if (!row.type?.includes(1)) return;
                 resetGeneralContext();
                 navigate(`/location/${row._id}`);
               }}
@@ -359,7 +360,7 @@ const LocationPage = () => {
                 }
                 className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
               >
-                {row.shifts.length > 0 ? (
+                {(row.shifts?.length ?? 0) > 0 ? (
                   isOpen ? (
                     <IoChevronUp />
                   ) : (
