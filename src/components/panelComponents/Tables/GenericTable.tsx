@@ -385,11 +385,53 @@ const GenericTable = <T,>({
 
   const generateExcel = () => {
     const workbook = XLSX.utils.book_new();
+
+    if (isCollapsible) {
+      const excelRows: any[] = [];
+
+      sortedRows.forEach((row) => {
+        const collapsibleHeader = row?.collapsible?.collapsibleHeader;
+        const collapsibleColumns = row?.collapsible?.collapsibleColumns ?? [];
+        const collapsibleRowKeys = row?.collapsible?.collapsibleRowKeys ?? [];
+        const collapsibleRows = row?.collapsible?.collapsibleRows ?? [];
+
+        if (collapsibleHeader) {
+          excelRows.push([collapsibleHeader]);
+        }
+
+        if (collapsibleColumns.length > 0) {
+          excelRows.push(collapsibleColumns.map((column: any) => column.key));
+        }
+
+        if (collapsibleRows.length > 0) {
+          collapsibleRows.forEach((collapsibleRow: any) => {
+            const rowData = collapsibleRowKeys.map((rowKey: any) => {
+              const value = collapsibleRow[rowKey.key];
+              if (value === undefined || value === null) return "";
+              if (typeof value === "number") return value;
+              if (typeof value === "boolean") return value ? "true" : "false";
+              return String(value);
+            });
+            excelRows.push(rowData);
+          });
+        }
+
+        excelRows.push([]);
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(excelRows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      XLSX.writeFile(workbook, excelFileName ?? "ExportedData.xlsx");
+      return;
+    }
+
     const excelRows: any[] = [];
     const headers = usedColumns
       .filter((column) => column.correspondingKey)
       .map((column) => column.key);
+
     excelRows.push(headers);
+
     const excelAllRows = !isEmtpyExcel ? sortedRows : [];
     excelAllRows.forEach((row) => {
       const rowData = usedColumns
@@ -402,11 +444,11 @@ const GenericTable = <T,>({
         });
       excelRows.push(rowData);
     });
+
     const worksheet = XLSX.utils.aoa_to_sheet(excelRows);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
     XLSX.writeFile(workbook, excelFileName ?? "ExportedData.xlsx");
   };
-
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
     <div className="flex flex-row my-auto h-full gap-3 justify-center items-center">
       {actions?.map((action, index) => {
@@ -1127,8 +1169,10 @@ const GenericTable = <T,>({
               <div className="w-full sm:w-fit ml-auto flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3 sm:gap-4 px-4 sm:px-6">
                 {/* Mobile: first row – Rows per page */}
                 <div className="flex flex-row gap-2 items-center w-full sm:w-auto justify-end">
-                  <Caption className="text-xs sm:text-inherit">{t("Rows per page")}:</Caption>
-                   <select
+                  <Caption className="text-xs sm:text-inherit">
+                    {t("Rows per page")}:
+                  </Caption>
+                  <select
                     className="rounded-md border border-gray-200 bg-white py-1.5 px-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 focus:border-blue-400 cursor-pointer min-h-8"
                     value={rowsPerPage}
                     onChange={(e) => {
