@@ -48,7 +48,7 @@ const LocationPage = () => {
   }, [disabledConditions]);
 
   const getRowTypeName = useMemo(
-    () => (type: number[]) => {
+    () => (type?: number[]) => {
       if (!type) return "";
       if (type.includes(1) && type.includes(2)) {
         return t("Store and Stock");
