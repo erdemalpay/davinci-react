@@ -524,6 +524,7 @@ const LossProduct = () => {
                 stockLocation: Number(orderForm?.stockLocation),
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
                 tableDate: new Date(),
+                isLossProduct: true,
               });
             }
             setOrderForm(initialOrderForm);
