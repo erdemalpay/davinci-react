@@ -8,14 +8,12 @@ import {
   Notification,
   Order,
   OrderCollection,
-  TableTypes,
   User,
 } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useDateContext } from "./../context/Date.context";
 import { useLocationContext } from "./../context/Location.context";
-import { useOrderContext } from "./../context/Order.context";
 import { useUserContext } from "./../context/User.context";
 import { Table } from "./../types";
 import { OrderStatus } from "./../types/index";
@@ -36,12 +34,6 @@ export function useWebSocket(shouldConnect = false) {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
   const { kitchens } = useDataContext();
-  const {
-    setIsTakeAwayPaymentModalOpen,
-    setOrderCreateBulk,
-    setTakeawayTableId,
-    setSelectedNewOrders,
-  } = useOrderContext();
   const categories = useGetCategories();
 
   // a ref to track if we've unlocked audio
@@ -63,10 +55,6 @@ export function useWebSocket(shouldConnect = false) {
     selectedDate,
     kitchens,
     categories,
-    setIsTakeAwayPaymentModalOpen,
-    setOrderCreateBulk,
-    setTakeawayTableId,
-    setSelectedNewOrders,
     audioReadyRef,
     audioRef,
   });
@@ -80,10 +68,6 @@ export function useWebSocket(shouldConnect = false) {
       selectedDate,
       kitchens,
       categories,
-      setIsTakeAwayPaymentModalOpen,
-      setOrderCreateBulk,
-      setTakeawayTableId,
-      setSelectedNewOrders,
       audioReadyRef,
       audioRef,
     };
@@ -94,10 +78,6 @@ export function useWebSocket(shouldConnect = false) {
     selectedDate,
     kitchens,
     categories,
-    setIsTakeAwayPaymentModalOpen,
-    setOrderCreateBulk,
-    setTakeawayTableId,
-    setSelectedNewOrders,
   ]);
 
   // Create socket connection only once
@@ -602,10 +582,6 @@ export function useWebSocket(shouldConnect = false) {
           user,
           selectedLocationId,
           kitchens,
-          setIsTakeAwayPaymentModalOpen,
-          setTakeawayTableId,
-          setOrderCreateBulk,
-          setSelectedNewOrders,
         } = latestValuesRef.current;
 
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
@@ -613,16 +589,6 @@ export function useWebSocket(shouldConnect = false) {
         if (!user) {
           console.log("User not found in createMultipleOrder");
           return;
-        }
-
-        if (
-          table?.type === TableTypes.TAKEOUT &&
-          creatingUser._id === user?._id
-        ) {
-          setIsTakeAwayPaymentModalOpen(true);
-          setTakeawayTableId(table?._id);
-          setOrderCreateBulk([]);
-          setSelectedNewOrders([]);
         }
 
         if (creatingUser._id === user._id) return;

@@ -2501,10 +2501,17 @@ const Tables = () => {
             const ordersData = orderObject
               ? [...orderCreateBulk, orderObject]
               : orderCreateBulk;
-            createTable({
-              tableDto: tableData,
-              orders: ordersData,
-            } as any);
+            createTable(
+              { tableDto: tableData, orders: ordersData } as any,
+              {
+                onSuccess: (newTable: any) => {
+                  if (newTable?._id) {
+                    setTakeawayTableId(newTable._id);
+                    setOrderCreateBulk([]);
+                  }
+                },
+              }
+            );
             setIsTakeAwayPaymentModalOpen(true);
             setIsTakeAwayOrderModalOpen(false);
             setSelectedNewOrders([]);
