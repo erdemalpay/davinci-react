@@ -1512,6 +1512,10 @@ export enum ConsumerPageTabEnum {
   CONSUMERS,
 }
 
+export enum GamesPageTabEnum {
+  GAMES,
+  WHOKNOWS,
+}
 export enum GameplayAnalyticsTabEnum {
   GAMEPLAYBYGAMEMENTORS,
   UNIQUEGAMEPLAYBYGAMEMENTORS,
@@ -1519,7 +1523,6 @@ export enum GameplayAnalyticsTabEnum {
   GAMEPLAYSBYMENTORSDETAILS,
   GAMEPLAYSBYGAMES,
   KNOWNGAMESCOUNT,
-  WHOKNOWS,
   LEARNEDGAMES,
 }
 export enum AccountingAnalyticsTabEnum {
