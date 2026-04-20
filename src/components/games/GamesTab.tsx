@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -45,8 +45,8 @@ const GamesTab = () => {
     return getItem(DisabledConditionEnum.GAMES_GAMES, disabledConditions);
   }, [disabledConditions]);
 
-  function handleLocationUpdate(game: Game, location: number) {
-    const newLocations = game.locations || [];
+  const handleLocationUpdate = useCallback((game: Game, location: number) => {
+    const newLocations = [...(game.locations || [])];
     const index = newLocations.indexOf(location);
     if (index === -1) {
       newLocations.push(location);
@@ -57,7 +57,7 @@ const GamesTab = () => {
       id: game._id,
       updates: { locations: newLocations },
     });
-  }
+  }, [updateGame]);
 
   const inputs = useMemo(
     () => [
@@ -93,7 +93,7 @@ const GamesTab = () => {
     for (const location of locations) {
       (baseRowKeys as any).push({
         key: location.name,
-        node: (row: any) => {
+        node: (row: Game) => {
           const isExist = row?.locations?.includes(location._id);
           if (isGameEnableEdit) {
             return (
@@ -112,7 +112,7 @@ const GamesTab = () => {
       });
     }
     return baseRowKeys;
-  }, [locations, isGameEnableEdit, updateGame]);
+  }, [locations, isGameEnableEdit, handleLocationUpdate]);
 
   const actions = useMemo(
     () => [
@@ -183,10 +183,10 @@ const GamesTab = () => {
               user?.role?._id &&
               !ac?.permissionsRoles?.includes(user?.role?._id)
           ) ?? false,
-        node: (row: any) => {
+        node: (row: Game) => {
           return (
             <StarRating
-              numberOfStars={row?.narrationDurationPoint}
+              numberOfStars={row?.narrationDurationPoint ?? 0}
               onChange={(value) => {
                 updateGame({
                   id: row._id,
