@@ -29,7 +29,7 @@ export type RetailerOrdersResponse = {
   };
   groupedOrders: {
     date: string;
-    orders: Order[];
+    orders: (Order & { retailer?: number | string })[];
   }[];
 };
 
@@ -46,6 +46,23 @@ export type RetailerItemSummaryResponse = {
     name: string;
   };
   items: RetailerItemSummaryItem[];
+};
+
+export type RetailerBulkAddResponse = {
+  retailer: {
+    _id: number | string;
+    name: string;
+  };
+  added: number;
+  skipped: number;
+};
+
+export type RetailerBulkRemoveResponse = {
+  retailer: {
+    _id: number | string;
+    name: string;
+  };
+  removed: number;
 };
 
 export function useAccountRetailerMutations() {
@@ -74,13 +91,8 @@ export function useGetRetailerOrders(
 ) {
   const params = new URLSearchParams();
 
-  if (query.after) {
-    params.set("after", query.after);
-  }
-
-  if (query.before) {
-    params.set("before", query.before);
-  }
+  if (query.after) params.set("after", query.after);
+  if (query.before) params.set("before", query.before);
 
   const queryString = params.toString();
   const path = retailerId
@@ -103,13 +115,8 @@ export function useGetRetailerItemSummary(
 ) {
   const params = new URLSearchParams();
 
-  if (query.after) {
-    params.set("after", query.after);
-  }
-
-  if (query.before) {
-    params.set("before", query.before);
-  }
+  if (query.after) params.set("after", query.after);
+  if (query.before) params.set("before", query.before);
 
   const queryString = params.toString();
   const path = retailerId
@@ -156,8 +163,8 @@ export function removeOrderFromRetailer({
 export function bulkAddOrdersToRetailer({
   retailerId,
   orderIds,
-}: RetailerBulkOrderMutationPayload): Promise<AccountRetailer> {
-  return post<{ orderIds: Array<number | string> }, AccountRetailer>({
+}: RetailerBulkOrderMutationPayload): Promise<RetailerBulkAddResponse> {
+  return post<{ orderIds: Array<number | string> }, RetailerBulkAddResponse>({
     path: `${baseUrl}/${retailerId}/orders/bulk-add`,
     payload: { orderIds },
   });
@@ -166,8 +173,8 @@ export function bulkAddOrdersToRetailer({
 export async function bulkRemoveOrdersFromRetailer({
   retailerId,
   orderIds,
-}: RetailerBulkOrderMutationPayload): Promise<AccountRetailer> {
-  const { data } = await axiosClient.delete<AccountRetailer>(
+}: RetailerBulkOrderMutationPayload): Promise<RetailerBulkRemoveResponse> {
+  const { data } = await axiosClient.delete<RetailerBulkRemoveResponse>(
     `${baseUrl}/${retailerId}/orders/bulk-remove`,
     {
       data: { orderIds },
@@ -178,15 +185,16 @@ export async function bulkRemoveOrdersFromRetailer({
 
 export function useRetailerOrderMutations() {
   const queryClient = useQueryClient();
+
   const getErrorMessage = (err: unknown) => {
     if (typeof err === "object" && err !== null) {
       const asObj = err as Record<string, unknown>;
       const response = asObj.response as Record<string, unknown> | undefined;
       const data = response?.data as Record<string, unknown> | undefined;
       const message = data?.message;
-      if (typeof message === "string") {
-        return message;
-      }
+
+      if (typeof message === "string") return message;
+      if (Array.isArray(message)) return message.join(", ");
     }
     return "An unexpected error occurred";
   };
@@ -195,14 +203,18 @@ export function useRetailerOrderMutations() {
     queryClient.invalidateQueries({ queryKey: [baseUrl] });
     queryClient.invalidateQueries({ queryKey: [baseUrl, "orders"] });
     queryClient.invalidateQueries({ queryKey: [baseUrl, "item-summary"] });
+
+    // Order documents are directly updated now (order.retailer),
+    // so invalidate order caches too.
+    queryClient.invalidateQueries({ queryKey: [Paths.Order] });
   };
 
   const { mutate: addRetailerOrder, isPending: isAddRetailerOrderPending } =
     useMutation({
       mutationFn: addOrderToRetailer,
       onSuccess: invalidateRetailerQueries,
-      onError: (_err: unknown) => {
-        const errorMessage = getErrorMessage(_err);
+      onError: (err: unknown) => {
+        const errorMessage = getErrorMessage(err);
         setTimeout(() => toast.error(errorMessage), 200);
       },
     });
@@ -213,8 +225,8 @@ export function useRetailerOrderMutations() {
   } = useMutation({
     mutationFn: removeOrderFromRetailer,
     onSuccess: invalidateRetailerQueries,
-    onError: (_err: unknown) => {
-      const errorMessage = getErrorMessage(_err);
+    onError: (err: unknown) => {
+      const errorMessage = getErrorMessage(err);
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -224,9 +236,14 @@ export function useRetailerOrderMutations() {
     isPending: isBulkAddRetailerOrdersPending,
   } = useMutation({
     mutationFn: bulkAddOrdersToRetailer,
-    onSuccess: invalidateRetailerQueries,
-    onError: (_err: unknown) => {
-      const errorMessage = getErrorMessage(_err);
+    onSuccess: (data) => {
+      invalidateRetailerQueries();
+      if (data.added > 0 || data.skipped > 0) {
+        toast.success(`Added ${data.added}, skipped ${data.skipped}`);
+      }
+    },
+    onError: (err: unknown) => {
+      const errorMessage = getErrorMessage(err);
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
@@ -236,9 +253,12 @@ export function useRetailerOrderMutations() {
     isPending: isBulkRemoveRetailerOrdersPending,
   } = useMutation({
     mutationFn: bulkRemoveOrdersFromRetailer,
-    onSuccess: invalidateRetailerQueries,
-    onError: (_err: unknown) => {
-      const errorMessage = getErrorMessage(_err);
+    onSuccess: (data) => {
+      invalidateRetailerQueries();
+      toast.success(`Removed ${data.removed} order(s)`);
+    },
+    onError: (err: unknown) => {
+      const errorMessage = getErrorMessage(err);
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
