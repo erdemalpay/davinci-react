@@ -24,7 +24,7 @@ import ExpirationCount from "../pages/ExpirationCount";
 import ExpirationList from "../pages/ExpirationList";
 import Feedback from "../pages/Feedback";
 import Gameplays from "../pages/Gameplays";
-import Games from "../pages/Games";
+import Games, { GamesPageTabs } from "../pages/Games";
 import Images from "../pages/Images";
 import Integration, { IntegrationPageTabs } from "../pages/Integration";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
@@ -363,6 +363,7 @@ export const allRoutes: {
     path: Routes.Games,
     element: Games,
     isOnSidebar: false,
+    tabs: GamesPageTabs,
   },
   {
     name: "Button Calls",
