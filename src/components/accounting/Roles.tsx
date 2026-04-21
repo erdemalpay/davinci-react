@@ -77,36 +77,7 @@ const Roles = () => {
     []
   );
 
-  const addInputs = useMemo(
-    () => [
-      {
-        type: InputTypes.TEXT,
-        formKey: "name",
-        label: t("Name"),
-        placeholder: t("Name"),
-        required: true,
-      },
-      {
-        type: InputTypes.COLOR,
-        formKey: "color",
-        label: t("Color"),
-        placeholder: t("Color"),
-        required: true,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "permissions",
-        label: t("Permissions"),
-        options: permissionOptions,
-        isMultiple: true,
-        placeholder: t("Permissions"),
-        required: true,
-      },
-    ],
-    [t, permissionOptions]
-  );
-
-  const editInputs = useMemo(
+  const inputs = useMemo(
     () => [
       {
         type: InputTypes.TEXT,
@@ -152,7 +123,7 @@ const Roles = () => {
         <GenericAddEditPanel
           isOpen={isAddModalOpen}
           close={() => setIsAddModalOpen(false)}
-          inputs={addInputs}
+          inputs={inputs}
           formKeys={formKeys}
           submitItem={
             createRole as unknown as (
@@ -168,7 +139,7 @@ const Roles = () => {
       isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, addInputs, formKeys, createRole, user]
+    [t, isAddModalOpen, inputs, formKeys, createRole, user]
   );
 
   const actions = useMemo(
@@ -183,7 +154,7 @@ const Roles = () => {
           <GenericAddEditPanel
             isOpen={isEditModalOpen}
             close={() => setIsEditModalOpen(false)}
-            inputs={editInputs}
+            inputs={inputs}
             formKeys={formKeys}
             submitItem={
               updateRole as unknown as (
@@ -204,7 +175,7 @@ const Roles = () => {
         isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
       },
     ],
-    [t, rowToAction, isEditModalOpen, editInputs, formKeys, updateRole, user]
+    [t, rowToAction, isEditModalOpen, inputs, formKeys, updateRole, user]
   );
 
   return (
