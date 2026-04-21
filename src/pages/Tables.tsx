@@ -2232,13 +2232,13 @@ const Tables = () => {
             const menuItem = menuItems?.find(
               (item) => item._id === orderForm.item
             );
-            const category = categories?.find(
-              (category) => category._id === menuItem?.category
-            );
             const stockQuantity = menuItem
               ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
               : null;
-            if (!category?.isOnlineOrder) {
+            const hasDecrementStock = menuItem?.itemProduction?.some(
+              (production) => production.isDecrementStock
+            );
+            if (!hasDecrementStock) {
               return false;
             }
             return !stockQuantity || stockQuantity < orderForm.quantity;
@@ -2447,13 +2447,13 @@ const Tables = () => {
             const menuItem = menuItems?.find(
               (item) => item._id === orderForm.item
             );
-            const category = categories?.find(
-              (category) => category._id === menuItem?.category
-            );
             const stockQuantity = menuItem
               ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
               : null;
-            if (!category?.isOnlineOrder) {
+            const hasDecrementStock = menuItem?.itemProduction?.some(
+              (production) => production.isDecrementStock
+            );
+            if (!hasDecrementStock) {
               return false;
             }
             return !stockQuantity || stockQuantity < orderForm.quantity;
