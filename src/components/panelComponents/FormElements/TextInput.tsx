@@ -326,7 +326,7 @@ const TextInput = ({
             <GoPlusCircle className="w-5 h-5" />
           </button>
         )}
-        {onClear && isOnClearActive && (
+        {onClear && isOnClearActive && !isReadOnly && (
           <GenericButton
             onClick={() => {
               setLocalValue("");
