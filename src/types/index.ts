@@ -391,7 +391,6 @@ export type AccountVendor = {
 export type AccountRetailer = {
   _id: number;
   name: string;
-  orders?: number[];
 };
 
 export type AccountPaymentMethod = {
@@ -994,6 +993,7 @@ export type Order = {
   cancelledAt?: Date;
   cancelledBy?: string;
   paidQuantity: number;
+  retailer?: number;
   discount?: number;
   discountPercentage?: number;
   discountAmount?: number;

@@ -120,6 +120,7 @@ const ShopifyOrders = () => {
         if (!order || !order?.createdAt) {
           return null;
         }
+        const foundRetailer = getItem(order?.retailer, retailers);
         return {
           ...order,
           isReturned: order?.isReturned,
@@ -128,6 +129,7 @@ const ShopifyOrders = () => {
           createdBy: getItem(order?.createdBy, users)?.name ?? "",
           createdHour: format(order.createdAt, "HH:mm") ?? "",
           createdByUserId: order?.createdBy ?? "",
+          retailer: foundRetailer ? foundRetailer.name : "",
           createdAt: format(order.createdAt, "HH:mm") ?? "",
           preparedBy: getItem(order?.preparedBy, users)?.name ?? "",
           preparedByUserId: order?.preparedBy ?? "",
@@ -198,6 +200,7 @@ const ShopifyOrders = () => {
     filterPanelFormElements,
     users,
     discounts,
+    retailers,
     items,
     sellLocations,
     t,
@@ -231,6 +234,7 @@ const ShopifyOrders = () => {
         correspondingKey: "cancelledBy",
       },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
+      { key: t("Retailer"), isSortable: true, correspondingKey: "retailer" },
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
       { key: t("Actions"), isSortable: false },
     ],
@@ -280,6 +284,7 @@ const ShopifyOrders = () => {
       { key: "cancelledAt" },
       { key: "cancelledBy" },
       { key: "location" },
+      { key: "retailer" },
       { key: "statusLabel", className: "min-w-32 pr-2" },
     ],
     []
