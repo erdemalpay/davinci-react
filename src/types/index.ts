@@ -391,7 +391,6 @@ export type AccountVendor = {
 export type AccountRetailer = {
   _id: number;
   name: string;
-  orders?: number[];
 };
 
 export type AccountPaymentMethod = {
@@ -994,6 +993,7 @@ export type Order = {
   cancelledAt?: Date;
   cancelledBy?: string;
   paidQuantity: number;
+  retailer?: number;
   discount?: number;
   discountPercentage?: number;
   discountAmount?: number;
@@ -1512,6 +1512,10 @@ export enum ConsumerPageTabEnum {
   CONSUMERS,
 }
 
+export enum GamesPageTabEnum {
+  GAMES,
+  WHOKNOWS,
+}
 export enum GameplayAnalyticsTabEnum {
   GAMEPLAYBYGAMEMENTORS,
   UNIQUEGAMEPLAYBYGAMEMENTORS,
@@ -1519,7 +1523,6 @@ export enum GameplayAnalyticsTabEnum {
   GAMEPLAYSBYMENTORSDETAILS,
   GAMEPLAYSBYGAMES,
   KNOWNGAMESCOUNT,
-  WHOKNOWS,
   LEARNEDGAMES,
 }
 export enum AccountingAnalyticsTabEnum {
