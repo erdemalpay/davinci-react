@@ -68,12 +68,15 @@ export default function BackInStock() {
     sort: "createdAt",
     asc: -1,
   };
+  const DEPO_LOCATION_ID = 6;
   const stocks = useGetAccountStocks();
   const getProductTotalStock = (productId: string) => {
     if (!stocks) return 0;
-    const productStock = stocks
-      ?.filter((stock) => stock.product === productId)
-      .reduce((total, stock) => total + stock.quantity, 0);
+    const productStock =
+      stocks?.find(
+        (stock) =>
+          stock.product === productId && stock.location === DEPO_LOCATION_ID
+      )?.quantity ?? 0;
     return productStock || 0;
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =

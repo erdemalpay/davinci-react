@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { FaBookReader } from "react-icons/fa";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
 import { PiGooglePlayLogo } from "react-icons/pi";
@@ -17,10 +15,8 @@ import KnownGamesCount from "./gameplay/KnownGamesCount";
 import LearnedGames from "./gameplay/LearnedGames";
 import { MentorAnalyticChart } from "./gameplay/MentorAnalyticChart";
 import TablePlayerCount from "./gameplay/TablePlayerCount";
-import WhoKnows from "./gameplay/WhoKnows";
 
 export default function GameplayAnalytics() {
-  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
   const [startDate, setStartDate] = useState<string>("");
@@ -96,13 +92,6 @@ export default function GameplayAnalytics() {
       label: "Known Games Count",
       icon: <SiLegacygames className="text-lg font-thin" />,
       content: <KnownGamesCount />,
-      isDisabled: false,
-    },
-    {
-      number: GameplayAnalyticsTabEnum.WHOKNOWS,
-      label: "Who Knows?",
-      icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
-      content: <WhoKnows />,
       isDisabled: false,
     },
     {

@@ -177,10 +177,25 @@ const GenericTable = <T,>({
   useEffect(() => {
     if (!title) return;
     const existing = tableColumns[title];
-    if (!existing || existing.length !== columns.length) {
+    const hasColumnShapeChanged =
+      !existing ||
+      existing.length !== columns.length ||
+      columns.some((column, index) => {
+        const existingColumn = existing[index];
+        if (!existingColumn) return true;
+        return (
+          existingColumn.key !== column.key ||
+          existingColumn.correspondingKey !== column.correspondingKey
+        );
+      });
+
+    if (hasColumnShapeChanged) {
       setTableColumns((prev) => ({
         ...prev,
-        [title]: columns.map((column) => ({ ...column, isActive: true })),
+        [title]: columns.map((column, index) => ({
+          ...column,
+          isActive: existing?.[index]?.isActive ?? true,
+        })),
       }));
     }
   }, [title, columns, setTableColumns, tableColumns]);

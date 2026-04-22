@@ -24,7 +24,7 @@ import ExpirationCount from "../pages/ExpirationCount";
 import ExpirationList from "../pages/ExpirationList";
 import Feedback from "../pages/Feedback";
 import Gameplays from "../pages/Gameplays";
-import Games from "../pages/Games";
+import Games, { GamesPageTabs } from "../pages/Games";
 import Images from "../pages/Images";
 import Integration, { IntegrationPageTabs } from "../pages/Integration";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
@@ -42,6 +42,9 @@ import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Retailer, { RetailerPageTabs } from "../pages/Retailer";
+import RetailerOrders, {
+  RetailerOrdersPageTabs,
+} from "../pages/RetailerOrders";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import ShopifyPickUp from "../pages/ShopifyPickUp";
@@ -145,6 +148,7 @@ export enum Routes {
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
   Retailer = "/retailer",
+  RetailerOrders = "/retailer/:retailerId",
   Consumers = "/consumers",
   Logs = "/logs",
   BackInStock = "/back-in-stock",
@@ -359,6 +363,7 @@ export const allRoutes: {
     path: Routes.Games,
     element: Games,
     isOnSidebar: false,
+    tabs: GamesPageTabs,
   },
   {
     name: "Button Calls",
@@ -653,6 +658,13 @@ export const allRoutes: {
     tabs: RetailerPageTabs,
   },
   {
+    name: "Retailer",
+    path: Routes.RetailerOrders,
+    element: RetailerOrders,
+    isOnSidebar: false,
+    tabs: RetailerOrdersPageTabs,
+  },
+  {
     name: "Menu",
     path: Routes.Menu,
     element: Menu,
@@ -887,10 +899,42 @@ export const allRoutes: {
     isOnSidebar: false,
   },
   {
+    name: "Campaign & Survey",
+    isOnSidebar: true,
+    children: [
+      {
+        name: "Event Survey Builder",
+        path: Routes.EventSurveyBuilder,
+        element: EventSurveyBuilder,
+        isOnSidebar: true,
+        exceptionalRoles: [RoleEnum.MANAGER],
+      },
+      {
+        name: "Survey Redeem",
+        path: Routes.SurveyRedeem,
+        element: SurveyRedeem,
+        isOnSidebar: true,
+        exceptionalRoles: [
+          RoleEnum.MANAGER,
+          RoleEnum.BARISTA,
+          RoleEnum.GAMEMASTER,
+          RoleEnum.GAMEMANAGER,
+        ],
+      },
+      {
+        name: "Survey Analytics",
+        path: Routes.SurveyAnalytics,
+        element: SurveyAnalytics,
+        isOnSidebar: true,
+        exceptionalRoles: [RoleEnum.MANAGER],
+      },
+    ],
+  },
+  {
     name: "Event Survey Builder",
     path: Routes.EventSurveyBuilder,
     element: EventSurveyBuilder,
-    isOnSidebar: true,
+    isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
@@ -904,7 +948,7 @@ export const allRoutes: {
     name: "Survey Redeem",
     path: Routes.SurveyRedeem,
     element: SurveyRedeem,
-    isOnSidebar: true,
+    isOnSidebar: false,
     exceptionalRoles: [
       RoleEnum.MANAGER,
       RoleEnum.BARISTA,
@@ -916,7 +960,7 @@ export const allRoutes: {
     name: "Survey Analytics",
     path: Routes.SurveyAnalytics,
     element: SurveyAnalytics,
-    isOnSidebar: true,
+    isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
 ];

@@ -4,12 +4,12 @@ import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown } from "react-icons/fa6";
+import { FiEdit2 } from "react-icons/fi";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
 import { useOrderContext } from "../../../context/Order.context";
-import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { FormElementsState, OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -488,21 +488,37 @@ const GenericAddEditPanel = <T,>({
             <div>
               {/* Image inputs */}
               {imageInputs.map((input) => (
-                <div className="flex flex-col gap-2" key={input.formKey}>
-                  <img
-                    src={
-                      formElements[input.formKey]
-                        ? formElements[input.formKey]
-                        : NO_IMAGE_URL
-                    }
-                    alt="image"
-                    className="w-full h-40 object-contain rounded-md"
-                  />
+                <div className="mb-4 flex justify-center" key={input.formKey}>
                   <label
                     key={input.formKey}
-                    className="w-fit ml-auto inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto border-b sm:border-b-0"
+                    className="group relative flex h-32 w-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-gray-300 bg-white shadow-sm"
                   >
-                    {t("Upload")}
+                    {formElements[input.formKey] ? (
+                      <>
+                        <img
+                          src={formElements[input.formKey]}
+                          alt="image"
+                          className="block h-full w-full object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
+                          <div className="flex flex-col items-center gap-1 text-white">
+                            <FiEdit2 className="text-lg" />
+                            <span className="text-xs font-medium">
+                              {t("Change Image")}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center px-3 text-center">
+                        <span className="text-sm font-semibold leading-5 text-gray-700">
+                          {t("Upload Image")}
+                        </span>
+                        <span className="mt-1 text-[11px] text-gray-400">
+                          PNG / JPG
+                        </span>
+                      </div>
+                    )}
                     <input
                       type="file"
                       accept="image/*"
