@@ -47,7 +47,7 @@ import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { getItem, getMenuItemSubText } from "../../utils/getItem";
+import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -1225,10 +1225,7 @@ export function TableCard({
             const stockQuantity = menuItem
               ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
               : null;
-            const hasDecrementStock = menuItem?.itemProduction?.some(
-              (production) => production.isDecrementStock
-            );
-            if (!hasDecrementStock) {
+            if (!menuItemHasDecrementStock(menuItem)) {
               return false;
             }
             return !stockQuantity || stockQuantity < orderForm.quantity;

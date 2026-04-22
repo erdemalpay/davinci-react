@@ -63,7 +63,7 @@ import {
 } from "../utils/api/table";
 import { MinimalUser } from "../utils/api/user";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
-import { getItem, getMenuItemSubText } from "../utils/getItem";
+import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../utils/getItem";
 import { sortTable } from "../utils/sort";
 const Tables = () => {
   const { t } = useTranslation();
@@ -2235,10 +2235,7 @@ const Tables = () => {
             const stockQuantity = menuItem
               ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
               : null;
-            const hasDecrementStock = menuItem?.itemProduction?.some(
-              (production) => production.isDecrementStock
-            );
-            if (!hasDecrementStock) {
+            if (!menuItemHasDecrementStock(menuItem)) {
               return false;
             }
             return !stockQuantity || stockQuantity < orderForm.quantity;
@@ -2450,10 +2447,7 @@ const Tables = () => {
             const stockQuantity = menuItem
               ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
               : null;
-            const hasDecrementStock = menuItem?.itemProduction?.some(
-              (production) => production.isDecrementStock
-            );
-            if (!hasDecrementStock) {
+            if (!menuItemHasDecrementStock(menuItem)) {
               return false;
             }
             return !stockQuantity || stockQuantity < orderForm.quantity;

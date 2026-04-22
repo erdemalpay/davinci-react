@@ -42,7 +42,7 @@ import {
   unlockBodyScroll,
 } from "../../../utils/bodyScrollLock";
 import { formatDate } from "../../../utils/dateUtil";
-import { getItem, getMenuItemSubText } from "../../../utils/getItem";
+import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../../../utils/getItem";
 import { printTableReceipt } from "../../../utils/printReceipt";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
@@ -922,10 +922,7 @@ const OrderPaymentModal = ({
           const stockQuantity = menuItem
             ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
             : null;
-          const hasDecrementStock = menuItem?.itemProduction?.some(
-            (production) => production.isDecrementStock
-          );
-          if (!hasDecrementStock) {
+          if (!menuItemHasDecrementStock(menuItem)) {
             return false;
           }
           return !stockQuantity || stockQuantity < orderForm.quantity;

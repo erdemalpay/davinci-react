@@ -46,3 +46,9 @@ export function getMenuItemSubText(
 
   return subProductNames.join("|||");
 }
+
+export function menuItemHasDecrementStock(
+  item: MenuItem | undefined
+): boolean {
+  return item?.itemProduction?.some((p) => p.isDecrementStock) ?? false;
+}
