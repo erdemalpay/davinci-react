@@ -1534,5 +1534,6 @@
   "Monthly activity added": "Aylık etkinlik takvimi eklendi",
   "Monthly activity could not be added" : "Aylık etkinlik takvimi eklenemedi",
   "Image upload failed" : "Resim yüklenemedi",
-  "Monthly activity updated" : "Aylık etkinlik takvimi güncellendi"
+  "Monthly activity updated" : "Aylık etkinlik takvimi güncellendi",
+  "Logs" : "Sistem Logları"
 }

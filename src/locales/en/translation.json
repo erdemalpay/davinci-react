@@ -1524,5 +1524,6 @@
   "Monthly activity added": "Monthly activity added",
   "Monthly activity could not be added" : "Monthly activity could not be added",
   "Image upload failed" : "Image upload failed",
-  "Monthly activity updated" : "Monthly activity updated"
+  "Monthly activity updated" : "Monthly activity updated",
+  "Logs" : "System Logs"
 }
