@@ -1,4 +1,4 @@
-import { CafeActivity } from "../../types/index";
+import { CafeActivity, MonthlyActivity } from "../../types";
 import { Paths, useGetList, useMutationApi } from "./factory";
 
 export function useCafeActivityMutations() {
@@ -15,4 +15,20 @@ export function useCafeActivityMutations() {
 
 export function useGetCafeActivitys() {
   return useGetList<CafeActivity>(Paths.CafeActivity);
+}
+
+export function useMonthlyActivityMutations() {
+  const {
+    createItem: createMonthlyActivity,
+    updateItem: updateMonthlyActivity,
+    deleteItem: deleteMonthlyActivity,
+  } = useMutationApi<MonthlyActivity>({
+    baseQuery: Paths.MonthlyActivity,
+  });
+
+  return { createMonthlyActivity, updateMonthlyActivity, deleteMonthlyActivity };
+}
+
+export function useGetMonthlyActivities() {
+  return useGetList<MonthlyActivity>(Paths.MonthlyActivity);
 }
