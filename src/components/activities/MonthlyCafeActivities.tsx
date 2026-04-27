@@ -97,7 +97,6 @@ const MonthlyCafeActivities = () => {
             toast.success(t("Monthly activity added"));
             handleModalClose();
           },
-          onError: () => toast.error(t("Monthly activity could not be added")),
         }
       );
     } catch {
@@ -109,6 +108,13 @@ const MonthlyCafeActivities = () => {
 
   const handleEditSubmit = async () => {
     if (!rowToEdit) return;
+    const hasChanges =
+      editPendingFile !== null ||
+      editMonthInfo !== (rowToEdit.monthInfo ?? "");
+    if (!hasChanges) {
+      handleEditModalClose();
+      return;
+    }
     setIsSubmitting(true);
     try {
       let imageUrl = rowToEdit.imageUrl;
@@ -137,7 +143,6 @@ const MonthlyCafeActivities = () => {
             toast.success(t("Monthly activity updated"));
             handleEditModalClose();
           },
-          onError: () => toast.error(t("Monthly activity could not be updated")),
         }
       );
     } catch {
@@ -154,6 +159,11 @@ const MonthlyCafeActivities = () => {
       { key: t("Actions"), isSortable: false },
     ],
     [t]
+  );
+
+  const sortedMonthlyActivities = useMemo(
+    () => [...(monthlyActivities ?? [])].sort((a, b) => b._id - a._id),
+    [monthlyActivities]
   );
 
   const rowKeys = useMemo(
@@ -337,7 +347,7 @@ const MonthlyCafeActivities = () => {
           actions={actions}
           isActionsActive={true}
           columns={columns}
-          rows={[...(monthlyActivities ?? [])].sort((a, b) => b._id - a._id)}
+          rows={sortedMonthlyActivities}
           title={t("Monthly Cafe Activities")}
           addButton={addButton}
         />

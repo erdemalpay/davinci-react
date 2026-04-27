@@ -1533,5 +1533,6 @@
   "Cafe Activities": "Kafedeki Etkinlikler",
   "Monthly activity added": "Aylık etkinlik takvimi eklendi",
   "Monthly activity could not be added" : "Aylık etkinlik takvimi eklenemedi",
-  "Image upload failed" : "Resim yüklenemedi"
+  "Image upload failed" : "Resim yüklenemedi",
+  "Monthly activity updated" : "Aylık etkinlik takvimi güncellendi"
 }
