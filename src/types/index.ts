@@ -957,6 +957,11 @@ export type CafeActivity = {
   contact: string;
   isCompleted?: boolean;
 };
+export type MonthlyActivity = {
+  _id: number;
+  imageUrl: string;
+  monthInfo?: string;
+};
 export type IkasCustomer = {
   id: string;
   firstName: string;
@@ -1466,6 +1471,11 @@ export enum LogsPageTabEnum {
   WEBHOOK_LOGS,
   PRICE_COMPARE_LOGS,
   CONCURRENCY_LOGS,
+}
+
+export enum ActivitiesPageTabEnum {
+  CAFE_ACTIVITIES,
+  MONTHLY_CAFE_ACTIVITIES,
 }
 
 export type ConcurrentRequest = {
