@@ -1522,5 +1522,12 @@
   "Last Requested At": "Son Talep Tarihi",
   "File Name": "Dosya İsmi",
   "Number of Concurrent Requests": "Eşzamanlı İstek Sayısı",
-  "Redis cache cleared successfully": "Redis cache başarıyla sıfırlandı"
+  "Redis cache cleared successfully": "Redis cache başarıyla sıfırlandı",
+  "Filter with AI...": "AI ile filtrele...",
+  "Filtering...": "Filtreleniyor...",
+  "AI filter request failed. Please try again.": "AI filtre isteği başarısız. Lütfen tekrar deneyin.",
+  "Close explanation": "Açıklamayı kapat",
+  "Filter": "Filtrele",
+  "You can filter by the following fields:": "Aşağıdaki alanlarla filtreleme yapabilirsiniz:",
+  "QUERY_NOT_UNDERSTOOD": "Sorgunuzu anlayamadım"
 }

@@ -1512,5 +1512,12 @@
   "Requested Games": "Requested Games",
   "Last Requested At": "Last Requested At",
   "Number of Concurrent Requests": "Num of Concurrent Requests",
-  "Redis cache cleared successfully": "Redis cache cleared successfully"
+  "Redis cache cleared successfully": "Redis cache cleared successfully",
+  "Filter with AI...": "Filter with AI...",
+  "Filtering...": "Filtering...",
+  "AI filter request failed. Please try again.": "AI filter request failed. Please try again.",
+  "Close explanation": "Close explanation",
+  "Filter": "Filter",
+  "You can filter by the following fields:" : "You can filter by the following fields:",
+  "QUERY_NOT_UNDERSTOOD": "We couldn't understand your query"
 }

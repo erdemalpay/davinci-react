@@ -764,6 +764,67 @@ const ShopifyOrders = () => {
     ]
   );
 
+  const chatbotSchema = useMemo(
+    () => ({
+      location: {
+        type: "select" as const,
+        label: t("Location"),
+        options: sellLocations.map((l) => ({ label: l.name, value: String(l._id) })),
+      },
+      after: { type: "date" as const, label: t("Start Date") },
+      before: { type: "date" as const, label: t("End Date") },
+      status: {
+        type: "select" as const,
+        label: t("Status"),
+        options: [
+          { label: t("Pending"), value: "pending" },
+          { label: t("Ready to Serve"), value: "ready_to_serve" },
+          { label: t("Served"), value: "served" },
+          { label: t("Cancelled"), value: "cancelled" },
+          { label: t("Auto served"), value: "autoserved" },
+          { label: t("Loss Product"), value: "wasted" },
+          { label: t("Returned"), value: "returned" },
+        ],
+      },
+      category: {
+        type: "select" as const,
+        label: t("Category"),
+        options: categories.map((c) => ({ label: c.name, value: String(c._id) })),
+      },
+      item: {
+        type: "select" as const,
+        label: t("Menu Item"),
+        options: items.map((i) => ({ label: i.name, value: String(i._id) })),
+      },
+      discount: {
+        type: "select" as const,
+        label: t("Discount"),
+        options: discounts.map((d) => ({ label: d.name, value: String(d._id) })),
+      },
+      createdBy: {
+        type: "select" as const,
+        label: t("Created By"),
+        options: users.map((u) => ({ label: u.name, value: String(u._id) })),
+      },
+      preparedBy: {
+        type: "select" as const,
+        label: t("Prepared By"),
+        options: users.map((u) => ({ label: u.name, value: String(u._id) })),
+      },
+      deliveredBy: {
+        type: "select" as const,
+        label: t("Delivered By"),
+        options: users.map((u) => ({ label: u.name, value: String(u._id) })),
+      },
+      cancelledBy: {
+        type: "select" as const,
+        label: t("Cancelled By"),
+        options: users.map((u) => ({ label: u.name, value: String(u._id) })),
+      },
+    }),
+    [sellLocations, users, categories, items, discounts, t]
+  );
+
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
@@ -792,6 +853,14 @@ const ShopifyOrders = () => {
               return "bg-red-200";
             }
             return "";
+          }}
+          isChatbotActive={true}
+          chatbotProps={{
+            tableName: "ShopifyOrders",
+            schema: chatbotSchema,
+            filterFormElements: filterPanelFormElements,
+            setFilterFormElements: setFilterPanelFormElements,
+            initialFilterFormElements: initialFilterPanelFormElements,
           }}
         />
         {isOrderPaymentModalOpen && rowToAction && (

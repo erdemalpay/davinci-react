@@ -39,6 +39,7 @@ import {
 import ButtonTooltip from "./ButtonTooltip";
 import ColumnActiveModal from "./ColumnActiveModal";
 import FilterPanel from "./FilterPanel";
+import TableChatbot, { ChatbotProps } from "./TableChatbot";
 import CustomTooltip from "./Tooltip";
 import "./table.css";
 
@@ -91,6 +92,8 @@ type Props<T> = {
   // Toggle, GenericTable sayfalarında search yanında gözükmeli
   // Eğer prop verilmezse, UnifiedTabPanel context'inden alınır
   showOrientationToggle?: boolean;
+  isChatbotActive?: boolean;
+  chatbotProps?: ChatbotProps;
 };
 
 const GenericTable = <T,>({
@@ -135,6 +138,8 @@ const GenericTable = <T,>({
   pagination,
   selectionActions,
   showOrientationToggle,
+  isChatbotActive = false,
+  chatbotProps,
 }: Props<T>) => {
   const { t } = useTranslation();
   const {
@@ -869,6 +874,17 @@ const GenericTable = <T,>({
               </div>
             )}
             {outsideSearchProps && outsideSearch(outsideSearchProps)}
+            {isChatbotActive && chatbotProps && (
+              <TableChatbot
+                {...chatbotProps}
+                tableColumns={
+                  chatbotProps.tableColumns ??
+                  columns
+                    .filter((c) => c.correspondingKey)
+                    .map((c) => ({ label: c.key, searchKey: c.correspondingKey! }))
+                }
+              />
+            )}
             {(showOrientationToggle ?? allowOrientationToggle) && (
               <div className="hidden sm:flex">
                 <OrientationToggle
