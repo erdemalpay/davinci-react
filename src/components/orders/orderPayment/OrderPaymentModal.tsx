@@ -42,7 +42,7 @@ import {
   unlockBodyScroll,
 } from "../../../utils/bodyScrollLock";
 import { formatDate } from "../../../utils/dateUtil";
-import { getItem, getMenuItemSubText } from "../../../utils/getItem";
+import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../../../utils/getItem";
 import { printTableReceipt } from "../../../utils/printReceipt";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
@@ -919,13 +919,10 @@ const OrderPaymentModal = ({
         }}
         isConfirmationDialogRequired={() => {
           const menuItem = items?.find((item) => item?._id === orderForm.item);
-          const category = categories?.find(
-            (category) => category?._id === menuItem?.category
-          );
           const stockQuantity = menuItem
             ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
             : null;
-          if (!category?.isOnlineOrder) {
+          if (!menuItemHasDecrementStock(menuItem)) {
             return false;
           }
           return !stockQuantity || stockQuantity < orderForm.quantity;
