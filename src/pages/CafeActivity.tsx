@@ -4,7 +4,6 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -332,21 +331,18 @@ const CafeActivity = () => {
   );
 
   return (
-    <>
-      <Header showLocationSelector={false} />
-      <div className="w-[98%] mx-auto my-10">
-        <GenericTable
-          rowKeys={rowKeys}
-          actions={actions}
-          isActionsActive={true}
-          columns={columns}
-          filters={filters}
-          rows={rows}
-          title={t("Activities")}
-          addButton={addButton}
-        />
-      </div>
-    </>
+    <div className="w-[98%] mx-auto my-10">
+      <GenericTable
+        rowKeys={rowKeys}
+        actions={actions}
+        isActionsActive={true}
+        columns={columns}
+        filters={filters}
+        rows={rows}
+        title={t("Activities")}
+        addButton={addButton}
+      />
+    </div>
   );
 };
 

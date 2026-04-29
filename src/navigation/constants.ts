@@ -6,7 +6,7 @@ import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
 import ButtonCalls from "../pages/ButtonCalls";
-import CafeActivity from "../pages/CafeActivity";
+import Activities, { ActivitiesPageTabs } from "../pages/Activities";
 import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
@@ -258,12 +258,6 @@ export const allRoutes: {
     isOnSidebar: false,
     tabs: OrderDataTabs,
   },
-  // {
-  //   name: "Ikas Pick Up",
-  //   path: Routes.IkasPickUp,
-  //   element: IkasPickUp,
-  //   isOnSidebar: true,
-  // },
   {
     name: "Shopify Pick Up",
     path: Routes.ShopifyPickUp,
@@ -285,8 +279,9 @@ export const allRoutes: {
       {
         name: "Activities",
         path: Routes.Activities,
-        element: CafeActivity,
+        element: Activities,
         isOnSidebar: true,
+        tabs: ActivitiesPageTabs,
       },
       {
         name: "Memberships",
@@ -311,8 +306,9 @@ export const allRoutes: {
   {
     name: "Activities",
     path: Routes.Activities,
-    element: CafeActivity,
+    element: Activities,
     isOnSidebar: false,
+    tabs: ActivitiesPageTabs,
   },
   {
     name: "Memberships",

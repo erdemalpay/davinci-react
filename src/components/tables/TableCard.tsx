@@ -47,7 +47,7 @@ import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { getItem, getMenuItemSubText } from "../../utils/getItem";
+import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -1222,13 +1222,10 @@ export function TableCard({
             const menuItem = menuItems?.find(
               (item) => item._id === orderForm.item
             );
-            const category = categories?.find(
-              (category) => category._id === menuItem?.category
-            );
             const stockQuantity = menuItem
               ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
               : null;
-            if (!category?.isOnlineOrder) {
+            if (!menuItemHasDecrementStock(menuItem)) {
               return false;
             }
             return !stockQuantity || stockQuantity < orderForm.quantity;
