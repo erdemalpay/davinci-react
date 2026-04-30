@@ -217,7 +217,8 @@ const CustomerPopupTable = () => {
         }}
         inputs={buildInputs(addTriggerType, setAddTriggerType)}
         formKeys={formKeys}
-        customImageUpload={true}
+        imageUploadPath="/asset/upload/popup"
+        folderName="menu"
         submitItem={createCustomerPopup as any}
         constantValues={{ isActive: true, cooldownHours: 24, periodicDays: [], triggerType: CustomerPopupTriggerType.PERIODIC }}
         topClassName="flex flex-col gap-2"
@@ -277,7 +278,8 @@ const CustomerPopupTable = () => {
           }}
           inputs={buildInputs(editTriggerType, setEditTriggerType)}
           formKeys={formKeys}
-          customImageUpload={true}
+          imageUploadPath="/asset/upload/popup"
+          folderName="menu"
           submitItem={updateCustomerPopup as any}
           isEditMode={true}
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
