@@ -57,6 +57,7 @@ type Props<T> = {
   allowOptionalSubmitForActivityTable?: boolean;
   isEditMode?: boolean;
   folderName?: string;
+  customImageUpload?: boolean;
   buttonName?: string;
   cancelButtonLabel?: string;
   anotherPanel?: React.ReactNode;
@@ -99,6 +100,7 @@ const GenericAddEditPanel = <T,>({
   isEditMode = false,
   itemToEdit,
   folderName,
+  customImageUpload = false,
   handleUpdate,
   anotherPanel,
   optionalCreateButtonActive,
@@ -209,7 +211,7 @@ const GenericAddEditPanel = <T,>({
       formData.append("foldername", folderName ?? "forgotton");
 
       const res = await postWithHeader<FormData, { url: string }>({
-        path: "/asset/upload",
+        path: customImageUpload ? "/asset/upload/popup" : "/asset/upload",
         payload: formData,
         headers: new AxiosHeaders({
           "Content-Type": "multipart/form-data",
