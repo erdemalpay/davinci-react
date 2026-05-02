@@ -101,8 +101,6 @@ function getRetailerTableRows(
           { key: t("Quantity"), isSortable: true },
           { key: t("Unit Price"), isSortable: true },
           { key: t("Total"), isSortable: true },
-          { key: t("Status"), isSortable: true },
-          { key: t("Ordered At"), isSortable: true },
         ],
         collapsibleRows,
         collapsibleRowKeys: [
@@ -121,14 +119,6 @@ function getRetailerTableRows(
           {
             key: "totalPriceDisplay",
             className: "min-w-24",
-          },
-          {
-            key: "statusDisplay",
-            className: "min-w-28",
-          },
-          {
-            key: "orderedAtDisplay",
-            className: "min-w-40",
           },
         ],
       },
@@ -164,14 +154,7 @@ const RetailerOrders = () => {
   );
 
   const columns = useMemo(
-    () => [
-      { key: t("Date"), isSortable: true, correspondingKey: "date" },
-      {
-        key: t("Total Orders"),
-        isSortable: true,
-        correspondingKey: "totalOrders",
-      },
-    ],
+    () => [{ key: t("Date"), isSortable: true, correspondingKey: "date" }],
     [t]
   );
 
@@ -180,10 +163,6 @@ const RetailerOrders = () => {
       {
         key: "dateDisplay",
         className: "min-w-32 font-medium",
-      },
-      {
-        key: "totalOrders",
-        className: "min-w-24",
       },
     ],
     []
