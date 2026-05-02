@@ -217,7 +217,7 @@ const CustomerPopupTable = () => {
         }}
         inputs={buildInputs(addTriggerType, setAddTriggerType)}
         formKeys={formKeys}
-        imageUploadPath="/asset/upload/popup"
+        imageUploadPath="/asset/upload/original"
         folderName="menu"
         submitItem={createCustomerPopup as any}
         constantValues={{ isActive: true, cooldownHours: 24, periodicDays: [], triggerType: CustomerPopupTriggerType.PERIODIC }}
@@ -278,7 +278,7 @@ const CustomerPopupTable = () => {
           }}
           inputs={buildInputs(editTriggerType, setEditTriggerType)}
           formKeys={formKeys}
-          imageUploadPath="/asset/upload/popup"
+          imageUploadPath="/asset/upload/original"
           folderName="menu"
           submitItem={updateCustomerPopup as any}
           isEditMode={true}
