@@ -86,7 +86,7 @@ const MonthlyCafeActivities = () => {
       formData.append("filename", pendingFile.name);
       formData.append("foldername", "monthly-activities");
       const { url } = await postWithHeader<FormData, { url: string }>({
-        path: "/asset/upload",
+        path: "/asset/upload/popup",
         payload: formData,
         headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
       });
@@ -124,7 +124,7 @@ const MonthlyCafeActivities = () => {
         formData.append("filename", editPendingFile.name);
         formData.append("foldername", "monthly-activities");
         const { url } = await postWithHeader<FormData, { url: string }>({
-          path: "/asset/upload",
+          path: "/asset/upload/popup",
           payload: formData,
           headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
         });
