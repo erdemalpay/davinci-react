@@ -209,7 +209,7 @@ const ShopifyCollectionsPage = () => {
         actions={actions}
         columns={columns}
         rows={rows}
-        title={t("Shopify Collections")}
+        title={t("Shopify Categories")}
         addButton={addButton}
         isActionsActive={true}
       />

@@ -85,11 +85,14 @@ export function useGetCollectionByTableId(tableId: number | undefined) {
   );
 }
 
-export function useGetAllOrderCollections() {
+export function useGetAllOrderCollections(isShopify?: boolean) {
   const { filterPanelFormElements } = useOrderContext();
   let url = `${Paths.Order}/collection/query?after=${filterPanelFormElements.after}`;
   if (filterPanelFormElements?.before) {
     url = url.concat(`&before=${filterPanelFormElements.before}`);
+  }
+  if (isShopify) {
+    url = url.concat(`&isShopify=true`);
   }
   if (
     filterPanelFormElements?.location &&
@@ -104,6 +107,7 @@ export function useGetAllOrderCollections() {
       filterPanelFormElements.after,
       filterPanelFormElements.before,
       filterPanelFormElements.location,
+      isShopify,
     ],
     true
   );

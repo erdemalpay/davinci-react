@@ -1370,7 +1370,7 @@
   "Insufficient points. Payment cannot be processed.": "Insufficient points. Payment cannot be processed.",
   "Previous page": "Previous page",
   "Next page": "Next page",
-  "Shopify Collections": "Shopify Collections",
+  "Shopify Categories": "Shopify Categories",
   "Add Shopify Collection": "Add Shopify Collection",
   "Hepsiburada Order Create": "Hepsiburada Order Create",
   "Hepsiburada Order Cancel": "Hepsiburada Order Cancel",
@@ -1526,5 +1526,6 @@
   "Image upload failed": "Image upload failed",
   "Monthly activity updated": "Monthly activity updated",
   "Logs": "System Logs",
-  "Item Summary": "Item Summary"
+  "Item Summary": "Item Summary",
+  "Shopify Collections": "Shopify Collections"
 }
