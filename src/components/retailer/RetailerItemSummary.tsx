@@ -3,14 +3,14 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { FormElementsState } from "../../types";
 import {
-  RetailerItemSummaryItem,
-  useGetRetailerItemSummary,
+  RetailerCollectionItemSummaryItem,
+  useGetRetailerCollectionItemSummary,
 } from "../../utils/api/account/retailer";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type RetailerItemSummaryRow = RetailerItemSummaryItem & {
+type RetailerItemSummaryRow = RetailerCollectionItemSummaryItem & {
   itemIdDisplay: string;
 };
 
@@ -30,7 +30,7 @@ const RetailerItemSummary = () => {
   const [filterFormElements, setFilterFormElements] =
     useState<FormElementsState>(initialFilterFormElements);
 
-  const retailerItemSummaryData = useGetRetailerItemSummary(retailerId, {
+  const retailerItemSummaryData = useGetRetailerCollectionItemSummary(retailerId, {
     after: (filterFormElements.after as string) || undefined,
     before: (filterFormElements.before as string) || undefined,
   });
@@ -50,7 +50,7 @@ const RetailerItemSummary = () => {
       {
         key: t("Quantity"),
         isSortable: true,
-        correspondingKey: "orderedQuantity",
+        correspondingKey: "quantity",
       },
     ],
     [t]
@@ -59,7 +59,7 @@ const RetailerItemSummary = () => {
   const rowKeys = useMemo(
     () => [
       { key: "itemName", className: "min-w-56 font-medium" },
-      { key: "orderedQuantity", className: "min-w-24" },
+      { key: "quantity", className: "min-w-24" },
     ],
     []
   );

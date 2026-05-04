@@ -1527,5 +1527,7 @@
   "Monthly activity updated": "Monthly activity updated",
   "Logs": "System Logs",
   "Item Summary": "Item Summary",
-  "Shopify Collections": "Shopify Collections"
+  "Shopify Collections": "Shopify Collections",
+  "Customer Name": "Customer Name",
+  "Customer Email": "Customer Email"
 }

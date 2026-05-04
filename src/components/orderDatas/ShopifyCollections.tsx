@@ -4,6 +4,9 @@ import { toZonedTime } from "date-fns-tz";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
+import { MdOutlineStorefront } from "react-icons/md";
+import { toast } from "react-toastify";
+import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -15,7 +18,12 @@ import {
   Table,
   commonDateOptions,
 } from "../../types";
+import { UpdatePayload } from "../../utils/api";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
+import {
+  useGetAccountRetailers,
+  useRetailerCollectionMutations,
+} from "../../utils/api/account/retailer";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
@@ -47,6 +55,8 @@ type CollectionRow = Omit<
 > & {
   _id: number | string; // Override: number -> number | string (for "total" row)
   cashier?: string;
+  customerName?: string;
+  customerEmail?: string;
   cancelledBy?: string;
   cancelledById?: string;
   cancelledAt?: string; // Override: Date -> string (formatted)
@@ -67,6 +77,7 @@ type CollectionRow = Omit<
   className?: string;
   isSortable?: boolean;
   netAmount?: number;
+  retailerName?: string;
   cancelledAmount?: number;
 };
 
@@ -79,10 +90,24 @@ const ShopifyCollections = () => {
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsersMinimal();
   const items = useGetAllMenuItems();
+  const retailers = useGetAccountRetailers();
   const [rowToAction, setRowToAction] = useState<CollectionRow>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddRetailerModalOpen, setIsAddRetailerModalOpen] = useState(false);
+  const [isBulkAddRetailerModalOpen, setIsBulkAddRetailerModalOpen] =
+    useState(false);
+  const [addRetailerForm, setAddRetailerForm] = useState<{
+    retailerId: number | string | "";
+  }>({ retailerId: "" });
+  const [bulkAddRetailerForm, setBulkAddRetailerForm] = useState<{
+    retailerId: number | string | "";
+  }>({ retailerId: "" });
   const { updateCollection } = useCollectionMutation();
+  const { addRetailerCollection, bulkAddRetailerCollections } =
+    useRetailerCollectionMutations();
   const { user } = useUserContext();
+  const { selectedRows, setSelectedRows, setIsSelectionActive } =
+    useGeneralContext();
   const disabledConditions = useGetDisabledConditions();
 
   const {
@@ -155,8 +180,16 @@ const ShopifyCollections = () => {
             collection.createdAt,
             "Europe/Istanbul"
           );
+          const foundCustomerName = orders.find(
+            (order) => order._id === collection.orders?.[0]?.order
+          )?.shopifyCustomer?.firstName;
+          const foundCustomerEmail = orders.find(
+            (order) => order._id === collection.orders?.[0]?.order
+          )?.shopifyCustomer?.email;
           return {
             ...collection,
+            customerName: foundCustomerName ?? "",
+            customerEmail: foundCustomerEmail ?? "",
             cashier: getItem(collection?.createdBy, users)?.name,
             cancelledBy: getItem(collection?.cancelledBy, users)?.name,
             cancelledById: collection?.cancelledBy,
@@ -164,6 +197,7 @@ const ShopifyCollections = () => {
             formattedDate: formatAsLocalDate(
               format(collectionDate, "yyyy-MM-dd")
             ),
+            retailerName: getItem(collection?.retailer, retailers)?.name,
             cancelledAt: collection?.cancelledAt
               ? format(collection?.cancelledAt, "HH:mm")
               : "",
@@ -244,6 +278,8 @@ const ShopifyCollections = () => {
       tableName: "",
       locationName: "",
       date: "",
+      customerEmail: "",
+      customerName: "",
       hour: "",
       cashier: "",
       paymentMethod: "",
@@ -254,6 +290,7 @@ const ShopifyCollections = () => {
       status: "",
       cancelledAt: "",
       className: "font-semibold",
+      retailerName: "",
       isSortable: false,
       collapsible: {
         collapsibleHeader: "",
@@ -296,14 +333,54 @@ const ShopifyCollections = () => {
     []
   );
 
+  const addRetailerInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "retailerId",
+        label: t("Retailer"),
+        options: retailers?.map((retailer) => ({
+          value: retailer?._id,
+          label: retailer?.name,
+        })),
+        placeholder: t("Retailer"),
+        required: true,
+      },
+    ],
+    [retailers, t]
+  );
+
+  const addRetailerFormKeys = useMemo(
+    () => [
+      { key: "retailerId", type: FormKeyTypeEnum.STRING },
+      { key: "collectionId", type: FormKeyTypeEnum.NUMBER },
+    ],
+    []
+  );
+
+  const handleAddRetailerFormChange = (form: {
+    retailerId: number | string | "";
+  }) => {
+    setAddRetailerForm(form);
+  };
+
+  const handleBulkAddRetailerFormChange = (form: {
+    retailerId: number | string | "";
+  }) => {
+    setBulkAddRetailerForm(form);
+  };
+
   const columns = useMemo(
     () => [
       { key: t("Date"), isSortable: true },
       { key: t("Shopify Order Number"), isSortable: true },
+      { key: t("Customer Name"), isSortable: true },
+      { key: t("Customer Email"), isSortable: true },
       { key: t("Create Hour"), isSortable: true },
       { key: t("Gross Amount"), isSortable: true },
       { key: t("Discount"), isSortable: true },
       { key: t("Shipping Cost"), isSortable: true },
+      { key: t("Retailer"), isSortable: true },
       { key: t("Cancelled Amount"), isSortable: true },
       { key: t("Net Amount"), isSortable: true },
       { key: t("Cancelled By"), isSortable: true },
@@ -325,6 +402,8 @@ const ShopifyCollections = () => {
         },
       },
       { key: "shopifyOrderNumber", className: "min-w-40 pr-2" },
+      { key: "customerName", className: "min-w-40 pr-2" },
+      { key: "customerEmail", className: "min-w-40 pr-2" },
       { key: "hour" },
       {
         key: "amount",
@@ -348,6 +427,7 @@ const ShopifyCollections = () => {
           return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
         },
       },
+      { key: "retailerName" },
       {
         key: "cancelledAmount",
         node: (row: CollectionRow) => {
@@ -483,13 +563,7 @@ const ShopifyCollections = () => {
         }),
         placeholder: t("Date"),
         required: true,
-        additionalOnChange: ({
-          value,
-          label,
-        }: {
-          value: string;
-          label: string;
-        }) => {
+        additionalOnChange: ({ value }: { value: string }) => {
           const dateRange = dateRanges[value as DateRangeKey];
           if (dateRange) {
             setFilterPanelFormElements({
@@ -601,6 +675,46 @@ const ShopifyCollections = () => {
   const actions = useMemo(
     () => [
       {
+        name: t("Add To Retailer"),
+        icon: <MdOutlineStorefront />,
+        className: "text-blue-500 cursor-pointer text-2xl",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isAddRetailerModalOpen}
+            topClassName="flex flex-col gap-2"
+            close={() => setIsAddRetailerModalOpen(false)}
+            inputs={addRetailerInputs}
+            formKeys={addRetailerFormKeys}
+            submitItem={(item) => {
+              void item;
+            }}
+            setForm={handleAddRetailerFormChange}
+            submitFunction={() => {
+              if (!rowToAction?._id || rowToAction._id === "total") {
+                toast.error(t("Please select a valid collection."));
+                return;
+              }
+
+              if (!addRetailerForm.retailerId) {
+                toast.error(t("Retailer is required."));
+                return;
+              }
+
+              addRetailerCollection({
+                retailerId: addRetailerForm.retailerId,
+                collectionId: rowToAction._id,
+              });
+            }}
+            isEditMode={false}
+          />
+        ) : null,
+        isModalOpen: isAddRetailerModalOpen,
+        setIsModal: setIsAddRetailerModalOpen,
+        isPath: false,
+      },
+      {
         name: t("Edit"),
         icon: <FiEdit />,
         className: "text-blue-500 cursor-pointer text-xl ",
@@ -612,15 +726,22 @@ const ShopifyCollections = () => {
             close={() => setIsEditModalOpen(false)}
             inputs={editInputs}
             formKeys={editFormKeys}
-            submitItem={updateCollection as any}
+            submitItem={(item) => {
+              if (
+                typeof item === "object" &&
+                item !== null &&
+                "id" in item &&
+                "updates" in item
+              ) {
+                updateCollection(item as UpdatePayload<OrderCollection>);
+              }
+            }}
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             generalClassName="overflow-visible"
             itemToEdit={{
               id: rowToAction?._id,
-              updates: {
-                amount: rowToAction?.amount,
-              },
+              updates: rowToAction as unknown as OrderCollection,
             }}
           />
         ) : null,
@@ -638,12 +759,82 @@ const ShopifyCollections = () => {
     [
       t,
       rowToAction,
+      isAddRetailerModalOpen,
+      addRetailerForm,
+      addRetailerInputs,
+      addRetailerFormKeys,
+      addRetailerCollection,
       isEditModalOpen,
       editInputs,
       editFormKeys,
       updateCollection,
       collectionsPageDisabledCondition,
       user,
+    ]
+  );
+
+  const selectionActions = useMemo(
+    () => [
+      {
+        name: t("Add Selected To Retailer"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit text-white hover:bg-white transition-transform border rounded-md cursor-pointer",
+        isModal: true,
+        modal: (
+          <GenericAddEditPanel
+            isOpen={isBulkAddRetailerModalOpen}
+            close={() => setIsBulkAddRetailerModalOpen(false)}
+            topClassName="flex flex-col gap-2"
+            inputs={addRetailerInputs}
+            formKeys={addRetailerFormKeys}
+            submitItem={(item) => {
+              void item;
+            }}
+            setForm={handleBulkAddRetailerFormChange}
+            submitFunction={() => {
+              const collectionIds = selectedRows
+                ?.map((row) => row?._id)
+                ?.filter(
+                  (id) => id !== undefined && id !== null && id !== "total"
+                );
+
+              if (!bulkAddRetailerForm.retailerId) {
+                toast.error(t("Retailer is required."));
+                return;
+              }
+
+              if (!collectionIds?.length) {
+                toast.error(t("Please select at least one valid collection."));
+                return;
+              }
+
+              bulkAddRetailerCollections({
+                retailerId: bulkAddRetailerForm.retailerId,
+                collectionIds,
+              });
+
+              setSelectedRows([]);
+              setIsSelectionActive(false);
+            }}
+            isEditMode={false}
+          />
+        ),
+        isModalOpen: isBulkAddRetailerModalOpen,
+        setIsModal: setIsBulkAddRetailerModalOpen,
+        isPath: false,
+      },
+    ],
+    [
+      t,
+      isBulkAddRetailerModalOpen,
+      addRetailerInputs,
+      addRetailerFormKeys,
+      selectedRows,
+      bulkAddRetailerForm,
+      bulkAddRetailerCollections,
+      setSelectedRows,
+      setIsSelectionActive,
     ]
   );
 
@@ -657,6 +848,7 @@ const ShopifyCollections = () => {
           rows={rows}
           isActionsActive={true}
           actions={actions}
+          selectionActions={selectionActions}
           isCollapsible={true}
           filterPanel={filterPanel}
           filters={filters}
