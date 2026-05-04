@@ -3,7 +3,6 @@ import { differenceInMinutes, format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { MdOutlineStorefront } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
@@ -17,10 +16,6 @@ import {
   commonDateOptions,
   orderFilterStatusOptions,
 } from "../../types";
-import {
-  useGetAccountRetailers,
-  useRetailerOrderMutations,
-} from "../../utils/api/account/retailer";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
@@ -54,28 +49,11 @@ const ShopifyOrders = () => {
   const { mutate: cancelShopifyOrder } = useCancelShopifyOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
-  const {
-    setExpandedRows,
-    selectedRows,
-    setSelectedRows,
-    setIsSelectionActive,
-  } = useGeneralContext();
+  const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
-  const [isAddRetailerModalOpen, setIsAddRetailerModalOpen] = useState(false);
-  const [isBulkAddRetailerModalOpen, setIsBulkAddRetailerModalOpen] =
-    useState(false);
-  const [addRetailerForm, setAddRetailerForm] = useState<{
-    retailerId: number | string | "";
-  }>({ retailerId: "" });
-  const [bulkAddRetailerForm, setBulkAddRetailerForm] = useState<{
-    retailerId: number | string | "";
-  }>({ retailerId: "" });
   const tables = useGetTables();
   const items = useGetAllMenuItems();
-  const retailers = useGetAccountRetailers();
-  const { addRetailerOrder, bulkAddRetailerOrders } =
-    useRetailerOrderMutations();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
 
@@ -120,7 +98,6 @@ const ShopifyOrders = () => {
         if (!order || !order?.createdAt) {
           return null;
         }
-        const foundRetailer = getItem(order?.retailer, retailers);
         return {
           ...order,
           isReturned: order?.isReturned,
@@ -129,7 +106,6 @@ const ShopifyOrders = () => {
           createdBy: getItem(order?.createdBy, users)?.name ?? "",
           createdHour: format(order.createdAt, "HH:mm") ?? "",
           createdByUserId: order?.createdBy ?? "",
-          retailer: foundRetailer ? foundRetailer.name : "",
           createdAt: format(order.createdAt, "HH:mm") ?? "",
           preparedBy: getItem(order?.preparedBy, users)?.name ?? "",
           preparedByUserId: order?.preparedBy ?? "",
@@ -200,7 +176,6 @@ const ShopifyOrders = () => {
     filterPanelFormElements,
     users,
     discounts,
-    retailers,
     items,
     sellLocations,
     t,
@@ -310,43 +285,6 @@ const ShopifyOrders = () => {
     () => [{ key: "quantity", type: FormKeyTypeEnum.NUMBER }],
     []
   );
-
-  const addRetailerInputs = useMemo(
-    () => [
-      {
-        type: InputTypes.SELECT,
-        formKey: "retailerId",
-        label: t("Retailer"),
-        options: retailers?.map((retailer) => ({
-          value: retailer?._id,
-          label: retailer?.name,
-        })),
-        placeholder: t("Retailer"),
-        required: true,
-      },
-    ],
-    [retailers, t]
-  );
-
-  const addRetailerFormKeys = useMemo(
-    () => [
-      { key: "retailerId", type: FormKeyTypeEnum.STRING },
-      { key: "orderId", type: FormKeyTypeEnum.NUMBER },
-    ],
-    []
-  );
-
-  const handleAddRetailerFormChange = (form: {
-    retailerId: number | string | "";
-  }) => {
-    setAddRetailerForm(form);
-  };
-
-  const handleBulkAddRetailerFormChange = (form: {
-    retailerId: number | string | "";
-  }) => {
-    setBulkAddRetailerForm(form);
-  };
 
   const filterPanelInputs = useMemo(
     () => [
@@ -599,45 +537,6 @@ const ShopifyOrders = () => {
   const actions = useMemo(
     () => [
       {
-        name: t("Add To Retailer"),
-        icon: <MdOutlineStorefront />,
-        setRow: setRowToAction,
-        className: "text-blue-500 cursor-pointer text-2xl",
-        modal: rowToAction ? (
-          <GenericAddEditPanel
-            isOpen={isAddRetailerModalOpen}
-            topClassName="flex flex-col gap-2"
-            close={() => setIsAddRetailerModalOpen(false)}
-            inputs={addRetailerInputs}
-            formKeys={addRetailerFormKeys}
-            submitItem={(item) => {
-              void item;
-            }}
-            setForm={handleAddRetailerFormChange}
-            submitFunction={() => {
-              if (!rowToAction?._id || rowToAction._id === "total") {
-                toast.error(t("Please select a valid order."));
-                return;
-              }
-
-              if (!addRetailerForm.retailerId) {
-                toast.error(t("Retailer is required."));
-                return;
-              }
-
-              addRetailerOrder({
-                retailerId: addRetailerForm.retailerId,
-                orderId: rowToAction._id,
-              });
-            }}
-            isEditMode={false}
-          />
-        ) : null,
-        isModal: true,
-        isModalOpen: isAddRetailerModalOpen,
-        setIsModal: setIsAddRetailerModalOpen,
-      },
-      {
         name: t("Cancel"),
         icon: <HiOutlineTrash />,
         setRow: setRowToAction,
@@ -684,11 +583,6 @@ const ShopifyOrders = () => {
     [
       t,
       rowToAction,
-      isAddRetailerModalOpen,
-      addRetailerForm,
-      addRetailerInputs,
-      addRetailerFormKeys,
-      addRetailerOrder,
       isCancelOrderModalOpen,
       cancelInputs,
       cancelFormKeys,
@@ -696,71 +590,6 @@ const ShopifyOrders = () => {
       cancelShopifyOrder,
       shopifyOrdersPageDisabledCondition,
       user,
-    ]
-  );
-
-  const selectionActions = useMemo(
-    () => [
-      {
-        name: t("Add Selected To Retailer"),
-        isButton: true,
-        buttonClassName:
-          "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit text-white hover:bg-white transition-transform border rounded-md cursor-pointer",
-        isModal: true,
-        modal: (
-          <GenericAddEditPanel
-            isOpen={isBulkAddRetailerModalOpen}
-            close={() => setIsBulkAddRetailerModalOpen(false)}
-            topClassName="flex flex-col gap-2"
-            inputs={addRetailerInputs}
-            formKeys={addRetailerFormKeys}
-            submitItem={(item) => {
-              void item;
-            }}
-            setForm={handleBulkAddRetailerFormChange}
-            submitFunction={() => {
-              const orderIds = selectedRows
-                ?.map((row) => row?._id)
-                ?.filter(
-                  (id) => id !== undefined && id !== null && id !== "total"
-                );
-
-              if (!bulkAddRetailerForm.retailerId) {
-                toast.error(t("Retailer is required."));
-                return;
-              }
-
-              if (!orderIds?.length) {
-                toast.error(t("Please select at least one valid order."));
-                return;
-              }
-
-              bulkAddRetailerOrders({
-                retailerId: bulkAddRetailerForm.retailerId,
-                orderIds,
-              });
-
-              setSelectedRows([]);
-              setIsSelectionActive(false);
-            }}
-            isEditMode={false}
-          />
-        ),
-        isModalOpen: isBulkAddRetailerModalOpen,
-        setIsModal: setIsBulkAddRetailerModalOpen,
-        isPath: false,
-      },
-    ],
-    [
-      t,
-      isBulkAddRetailerModalOpen,
-      addRetailerInputs,
-      addRetailerFormKeys,
-      selectedRows,
-      bulkAddRetailerForm,
-      bulkAddRetailerOrders,
-      setSelectedRows,
-      setIsSelectionActive,
     ]
   );
 
@@ -774,7 +603,6 @@ const ShopifyOrders = () => {
           rows={rows}
           isActionsActive={true}
           actions={actions}
-          selectionActions={selectionActions}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={

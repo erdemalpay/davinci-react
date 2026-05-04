@@ -15,14 +15,15 @@ import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
-import IkasOrders from "../components/orderDatas/IkasOrders";
-import ShopifyOrders from "../components/orderDatas/ShopifyOrders";
-import TrendyolOrders from "../components/orderDatas/TrendyolOrders";
 import HepsiburadaOrders from "../components/orderDatas/HepsiburadaOrders";
+import IkasOrders from "../components/orderDatas/IkasOrders";
 import KitchenDataPage from "../components/orderDatas/KitchenDataPage";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
+import ShopifyCollections from "../components/orderDatas/ShopifyCollections";
+import ShopifyOrders from "../components/orderDatas/ShopifyOrders";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
+import TrendyolOrders from "../components/orderDatas/TrendyolOrders";
 import UpperCategoryBasedSalesReport from "../components/orderDatas/UpperCategoryBasedSalesReport";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -68,7 +69,7 @@ export const OrderDataTabs = [
     isDisabled: false,
   },
   {
-    number: OrderDataTabEnum.DISCOUNTBASEDSALES,  //BURASI TAMAM
+    number: OrderDataTabEnum.DISCOUNTBASEDSALES, //BURASI TAMAM
     label: "Discount Based Sales",
     icon: <TbDiscount className="text-lg font-thin" />,
     content: <DiscountBasedSales />,
@@ -79,6 +80,13 @@ export const OrderDataTabs = [
     label: "Collections",
     icon: <SiFampay className="text-lg font-thin" />,
     content: <Collections />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.SHOPIFYCOLLECTIONS,
+    label: "Shopify Collections",
+    icon: <SiFampay className="text-lg font-thin" />,
+    content: <ShopifyCollections />,
     isDisabled: false,
   },
   {
