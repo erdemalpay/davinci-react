@@ -1,14 +1,12 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { PointHistory, pointHistoryStatuses, PointHistoryStatusEnum } from "../../types";
+import { OrderDataTabEnum, PointHistory, pointHistoryStatuses, PointHistoryStatusEnum } from "../../types";
 import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetPointHistories } from "../../utils/api/pointHistory";
 import { formatAsLocalDate } from "../../utils/format";
-import { useFormattedCollectionData } from "../../hooks/useFormattedCollectionData";
-import CollectionDetailsModal from "./CollectionDetailsModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -28,13 +26,6 @@ const ConsumerPointHistoryComponent = () => {
   });
   const consumers = useGetConsumersWithFullNames();
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
-
-  // Modal states for collection details
-  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  const [selectedTableId, setSelectedTableId] = useState<number | undefined>(undefined);
-  const [selectedCollectionId, setSelectedCollectionId] = useState<number | undefined>(undefined);
-
-  const formattedCollectionData = useFormattedCollectionData(selectedTableId, selectedCollectionId);
 
   const rows = useMemo(() => {
     return pointHistoriesPayload?.data
@@ -170,27 +161,29 @@ const ConsumerPointHistoryComponent = () => {
             row.status === PointHistoryStatusEnum.COLLECTIONCREATED ||
             row.status === PointHistoryStatusEnum.COLLECTIONCANCELLED;
           if (!isCollectionStatus || !row.collectionId) return <p></p>;
-          const hasTableId = row.tableId != null;
-          return (
-            <p
-              className={`text-blue-500 underline w-fit ${hasTableId ? "cursor-pointer hover:text-blue-700" : "opacity-50 pointer-events-none"}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (hasTableId) {
-                  setSelectedTableId(row.tableId);
-                  setSelectedCollectionId(row.collectionId);
-                  setIsCollectionModalOpen(true);
-                }
-              }}
-            >
-              {row.collectionId}
-            </p>
-          );
-        }
+          return <p>{row.collectionId}</p>;
+        },
       },
       {
         key: "tableId",
         className: "min-w-32 pr-1",
+        node: (row: PointHistory) => {
+          if (!row.tableId) return <p></p>;
+          return (
+            <p
+              className="text-blue-500 underline cursor-pointer hover:text-blue-700 w-fit"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(
+                  `/order-datas?tab=${OrderDataTabEnum.COLLECTIONS}&search=${row.tableId}&resetDateFilter=true`,
+                  "_blank"
+                );
+              }}
+            >
+              {row.tableId}
+            </p>
+          );
+        },
       },
       {
         key: "oldAmount",
@@ -223,7 +216,7 @@ const ConsumerPointHistoryComponent = () => {
         },
       },
     ],
-    [t, setSelectedTableId, setSelectedCollectionId, setIsCollectionModalOpen]
+    [t]
   );
 
   const filters = useMemo(
@@ -317,18 +310,7 @@ const ConsumerPointHistoryComponent = () => {
       />
     </div>
 
-    {formattedCollectionData && (
-      <CollectionDetailsModal
-        isOpen={isCollectionModalOpen}
-        onClose={() => {
-          setIsCollectionModalOpen(false);
-          setSelectedTableId(undefined);
-          setSelectedCollectionId(undefined);
-        }}
-        collectionData={formattedCollectionData}
-      />
-    )}
-    </>
+</>
   );
 };
 
