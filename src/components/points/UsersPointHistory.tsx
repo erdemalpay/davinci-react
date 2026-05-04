@@ -186,7 +186,7 @@ const UsersPointHistoryComponent = () => {
       {
         key: "tableId",
         className: "min-w-32 pr-1",
-        node: (row: PointHistory) => {
+        node: (row: PointHistory & { formattedDate: string; date: string }) => {
           if (!row.tableId) return <p></p>;
           return (
             <p
@@ -194,7 +194,7 @@ const UsersPointHistoryComponent = () => {
               onClick={(e) => {
                 e.stopPropagation();
                 window.open(
-                  `/order-datas?tab=${OrderDataTabEnum.COLLECTIONS}&search=${row.tableId}&resetDateFilter=true`,
+                  `/order-datas?tab=${OrderDataTabEnum.COLLECTIONS}&search=${row.tableId}&date=${row.date}`,
                   "_blank"
                 );
               }}

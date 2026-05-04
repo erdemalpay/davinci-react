@@ -25,7 +25,6 @@ import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import UpperCategoryBasedSalesReport from "../components/orderDatas/UpperCategoryBasedSalesReport";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
-import { format } from "date-fns";
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useGeneralContext } from "../context/General.context";
@@ -143,18 +142,14 @@ const OrderDatas = () => {
   useEffect(() => {
     const tab = searchParams.get("tab");
     const search = searchParams.get("search");
-    const resetDateFilter = searchParams.get("resetDateFilter");
+    const date = searchParams.get("date");
     if (tab !== null) {
       if (search !== null) skipSearchClear.current = true;
       setOrderDataActiveTab(Number(tab));
     }
     if (search !== null) setSearchQuery(search);
-    if (resetDateFilter === "true") {
-      setFilterPanelFormElements({
-        ...filterPanelFormElements,
-        after: `${format(new Date(), "yyyy")}-01-01`,
-        before: "",
-      });
+    if (date !== null) {
+      setFilterPanelFormElements({ ...filterPanelFormElements, after: date, before: "" });
     }
   }, []);
   const categories = useGetAllCategories();
