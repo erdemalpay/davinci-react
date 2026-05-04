@@ -9,7 +9,7 @@ import {
   useGetRetailerCollections,
   useRetailerCollectionMutations,
 } from "../../utils/api/account/retailer";
-import { formatAsLocalDate, toIstDate } from "../../utils/format";
+import { toIstDate } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -31,17 +31,17 @@ type PopulatedRetailerOrder = {
 type RetailerOrderLineRow = {
   itemNameDisplay: string;
   quantity: number;
-  orderedAtDisplay: string;
-  statusDisplay: string;
-  unitPriceDisplay: string;
-  totalPriceDisplay: string;
+  priceDisplay: string;
 };
 
 type RetailerOrderTableRow = {
   _id?: number | string;
   date: string;
   dateDisplay: string;
-  totalOrders: number;
+  shopifyOrderNumberDisplay: string;
+  amountDisplay: string;
+  shopifyDiscountAmountDisplay: string;
+  totalAmountDisplay: string;
   collapsible: {
     collapsibleColumns: { key: string; isSortable: boolean }[];
     collapsibleRows: RetailerOrderLineRow[];
@@ -64,10 +64,8 @@ function getRetailerTableRows(
         collectionItem.order !== null
           ? (collectionItem.order as PopulatedRetailerOrder)
           : undefined;
-      const orderDate = order?.createdAt;
       const unitPrice = Number(order?.unitPrice ?? 0);
       const quantity = Number(collectionItem.paidQuantity ?? 0);
-      const totalPrice = unitPrice * quantity;
 
       const itemName =
         typeof order?.item === "object" && order.item !== null
@@ -77,33 +75,32 @@ function getRetailerTableRows(
       return {
         itemNameDisplay: itemName || "-",
         quantity,
-        statusDisplay: order?.status || "-",
-        orderedAtDisplay: orderDate
-          ? `${formatAsLocalDate(String(orderDate))} ${format(
-              new Date(orderDate),
-              "HH:mm"
-            )}`
-          : "-",
-        unitPriceDisplay: `${unitPrice} ₺`,
-        totalPriceDisplay: `${totalPrice} ₺`,
+        priceDisplay: `${unitPrice.toFixed(2).replace(/\.?0*$/, "")} ₺`,
       };
     });
 
     const createdAt = collection.createdAt
       ? toIstDate(collection.createdAt)
       : null;
+    const amount = Number(collection.amount ?? 0);
+    const discountAmount = Number(collection.shopifyDiscountAmount ?? 0);
+    const totalAmount = amount - discountAmount;
 
     return {
       _id: collection._id,
       date: collection.createdAt ? String(collection.createdAt) : "",
       dateDisplay: createdAt ? format(createdAt, "dd/MM/yyyy") : "-",
-      totalOrders: collapsibleRows.length,
+      shopifyOrderNumberDisplay: collection.shopifyOrderNumber || "-",
+      amountDisplay: `${amount.toFixed(2).replace(/\.?0*$/, "")} ₺`,
+      shopifyDiscountAmountDisplay: `${discountAmount
+        .toFixed(2)
+        .replace(/\.?0*$/, "")} ₺`,
+      totalAmountDisplay: `${totalAmount.toFixed(2).replace(/\.?0*$/, "")} ₺`,
       collapsible: {
         collapsibleColumns: [
-          { key: t("Item"), isSortable: true },
+          { key: t("Product"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
-          { key: t("Unit Price"), isSortable: true },
-          { key: t("Total Price"), isSortable: true },
+          { key: t("Price"), isSortable: true },
         ],
         collapsibleRows,
         collapsibleRowKeys: [
@@ -116,11 +113,7 @@ function getRetailerTableRows(
             className: "min-w-24",
           },
           {
-            key: "unitPriceDisplay",
-            className: "min-w-24",
-          },
-          {
-            key: "totalPriceDisplay",
+            key: "priceDisplay",
             className: "min-w-24",
           },
         ],
@@ -160,9 +153,28 @@ const RetailerOrders = () => {
     () => [
       { key: t("Date"), isSortable: true, correspondingKey: "date" },
       {
-        key: t("Total Orders"),
+        key: t("Shopify Order Number"),
         isSortable: true,
-        correspondingKey: "totalOrders",
+        correspondingKey: "shopifyOrderNumberDisplay",
+      },
+      {
+        key: t("Amount"),
+        isSortable: true,
+        correspondingKey: "amountDisplay",
+      },
+      {
+        key: t("Discount"),
+        isSortable: true,
+        correspondingKey: "shopifyDiscountAmountDisplay",
+      },
+      {
+        key: t("Total Amount"),
+        isSortable: true,
+        correspondingKey: "totalAmountDisplay",
+      },
+      {
+        key: t("Actions"),
+        isSortable: false,
       },
     ],
     [t]
@@ -175,7 +187,19 @@ const RetailerOrders = () => {
         className: "min-w-32 font-medium",
       },
       {
-        key: "totalOrders",
+        key: "shopifyOrderNumberDisplay",
+        className: "min-w-40",
+      },
+      {
+        key: "amountDisplay",
+        className: "min-w-24",
+      },
+      {
+        key: "shopifyDiscountAmountDisplay",
+        className: "min-w-32",
+      },
+      {
+        key: "totalAmountDisplay",
         className: "min-w-24",
       },
     ],

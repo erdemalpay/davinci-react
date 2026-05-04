@@ -1075,6 +1075,7 @@ export type OrderCollectionItem = {
       };
   paidQuantity: number;
   shopifyCustomer?: ShopifyCustomer;
+  item?: number | MenuItem;
 };
 
 export type OrderDiscount = {

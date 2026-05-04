@@ -30,11 +30,13 @@ const RetailerItemSummary = () => {
   const [filterFormElements, setFilterFormElements] =
     useState<FormElementsState>(initialFilterFormElements);
 
-  const retailerItemSummaryData = useGetRetailerCollectionItemSummary(retailerId, {
-    after: (filterFormElements.after as string) || undefined,
-    before: (filterFormElements.before as string) || undefined,
-  });
-
+  const retailerItemSummaryData = useGetRetailerCollectionItemSummary(
+    retailerId,
+    {
+      after: (filterFormElements.after as string) || undefined,
+      before: (filterFormElements.before as string) || undefined,
+    }
+  );
   const rows = useMemo<RetailerItemSummaryRow[]>(
     () =>
       (retailerItemSummaryData?.items ?? []).map((item) => ({
@@ -50,7 +52,7 @@ const RetailerItemSummary = () => {
       {
         key: t("Quantity"),
         isSortable: true,
-        correspondingKey: "quantity",
+        correspondingKey: "orderedQuantity",
       },
     ],
     [t]
@@ -59,7 +61,7 @@ const RetailerItemSummary = () => {
   const rowKeys = useMemo(
     () => [
       { key: "itemName", className: "min-w-56 font-medium" },
-      { key: "quantity", className: "min-w-24" },
+      { key: "orderedQuantity", className: "min-w-24" },
     ],
     []
   );
