@@ -13,7 +13,6 @@ const CollectionDetailsModal = ({
   collectionData,
 }: CollectionDetailsModalProps) => {
   const { t } = useTranslation();
-
   if (!isOpen) return null;
 
   return (
@@ -26,42 +25,66 @@ const CollectionDetailsModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 flex-1 overflow-y-auto">
-          <h3 className="text-lg font-semibold mb-4">{t("Collection Details")}</h3>
+          <h3 className="text-lg font-semibold mb-4">
+            {t("Collection Details")}
+          </h3>
 
           {/* Collection Info Grid */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Date")}</label>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Date")}
+              </label>
               <p className="text-sm text-gray-900">{collectionData.date}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Create Hour")}</label>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Create Hour")}
+              </label>
               <p className="text-sm text-gray-900">{collectionData.hour}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Table Id")}</label>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Table Id")}
+              </label>
               <p className="text-sm text-gray-900">{collectionData.tableId}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Table Name")}</label>
-              <p className="text-sm text-gray-900">{collectionData.tableName}</p>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Table Name")}
+              </label>
+              <p className="text-sm text-gray-900">
+                {collectionData.tableName}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Location")}</label>
-              <p className="text-sm text-gray-900">{collectionData.locationName}</p>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Location")}
+              </label>
+              <p className="text-sm text-gray-900">
+                {collectionData.locationName}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Created By")}</label>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Created By")}
+              </label>
               <p className="text-sm text-gray-900">{collectionData.cashier}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Amount")}</label>
-              <p className="text-sm text-gray-900">{collectionData.amount?.toFixed(2)} ₺</p>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Amount")}
+              </label>
+              <p className="text-sm text-gray-900">
+                {collectionData.amount?.toFixed(2)} ₺
+              </p>
             </div>
             {collectionData.shopifyShippingAmount !== undefined &&
               collectionData.shopifyShippingAmount !== null && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700">{t("Shipping Cost")}</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("Shipping Cost")}
+                  </label>
                   <p className="text-sm text-gray-900">
                     {collectionData.shopifyShippingAmount?.toFixed(2)} ₺
                   </p>
@@ -70,32 +93,50 @@ const CollectionDetailsModal = ({
             {collectionData.shopifyDiscountAmount !== undefined &&
               collectionData.shopifyDiscountAmount !== null && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700">{t("Discount")}</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("Discount")}
+                  </label>
                   <p className="text-sm text-gray-900">
                     {collectionData.shopifyDiscountAmount?.toFixed(2)} ₺
                   </p>
                 </div>
               )}
             <div>
-              <label className="text-sm font-medium text-gray-700">{t("Status")}</label>
-              <p className="text-sm text-gray-900">{t(collectionData.status)}</p>
+              <label className="text-sm font-medium text-gray-700">
+                {t("Status")}
+              </label>
+              <p className="text-sm text-gray-900">
+                {t(collectionData.status)}
+              </p>
             </div>
             {collectionData.cancelledBy && (
               <div>
-                <label className="text-sm font-medium text-gray-700">{t("Cancelled By")}</label>
-                <p className="text-sm text-gray-900">{collectionData.cancelledBy}</p>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("Cancelled By")}
+                </label>
+                <p className="text-sm text-gray-900">
+                  {collectionData.cancelledBy}
+                </p>
               </div>
             )}
             {collectionData.cancelledAt && (
               <div>
-                <label className="text-sm font-medium text-gray-700">{t("Cancelled At")}</label>
-                <p className="text-sm text-gray-900">{collectionData.cancelledAt}</p>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("Cancelled At")}
+                </label>
+                <p className="text-sm text-gray-900">
+                  {collectionData.cancelledAt}
+                </p>
               </div>
             )}
             {collectionData.cancelNote && (
               <div className="col-span-2">
-                <label className="text-sm font-medium text-gray-700">{t("Cancel Note")}</label>
-                <p className="text-sm text-gray-900">{collectionData.cancelNote}</p>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("Cancel Note")}
+                </label>
+                <p className="text-sm text-gray-900">
+                  {collectionData.cancelNote}
+                </p>
               </div>
             )}
           </div>
@@ -117,10 +158,17 @@ const CollectionDetailsModal = ({
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {collectionData.orders.map(
-                    (order: { product: string; quantity: number }, index: number) => (
+                    (
+                      order: { product: string; quantity: number },
+                      index: number
+                    ) => (
                       <tr key={index}>
-                        <td className="px-4 py-2 text-sm text-gray-900">{order.product}</td>
-                        <td className="px-4 py-2 text-sm text-gray-900">{order.quantity}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900">
+                          {order.product}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-900">
+                          {order.quantity}
+                        </td>
                       </tr>
                     )
                   )}

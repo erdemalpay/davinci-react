@@ -3,106 +3,104 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useParams } from "react-router-dom";
-import { FormElementsState, Order } from "../../types";
+import { FormElementsState } from "../../types";
 import {
-  useGetRetailerOrders,
-  useRetailerOrderMutations,
-  type RetailerOrdersResponse,
+  RetailerCollectionsResponse,
+  useGetRetailerCollections,
+  useRetailerCollectionMutations,
 } from "../../utils/api/account/retailer";
-import { formatAsLocalDate } from "../../utils/format";
+import { toIstDate } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
+type PopulatedRetailerOrder = {
+  _id?: number | string;
+  item?:
+    | number
+    | string
+    | {
+        _id?: number | string;
+        name?: string;
+      };
+  createdAt?: Date | string;
+  status?: string;
+  unitPrice?: number;
+};
+
+type RetailerOrderLineRow = {
+  itemNameDisplay: string;
+  quantity: number;
+  priceDisplay: string;
+};
 
 type RetailerOrderTableRow = {
   _id?: number | string;
   date: string;
   dateDisplay: string;
-  totalOrders: number;
+  shopifyOrderNumberDisplay: string;
+  amountDisplay: string;
+  shopifyDiscountAmountDisplay: string;
+  totalAmountDisplay: string;
   collapsible: {
     collapsibleColumns: { key: string; isSortable: boolean }[];
-    collapsibleRows: Array<
-      Order & {
-        itemNameDisplay: string;
-        orderedAtDisplay: string;
-        statusDisplay: string;
-        unitPriceDisplay: string;
-        totalPriceDisplay: string;
-      }
-    >;
+    collapsibleRows: RetailerOrderLineRow[];
     collapsibleRowKeys: {
       key: string;
-      node?: (
-        row: Order & {
-          itemNameDisplay: string;
-          orderedAtDisplay: string;
-          statusDisplay: string;
-          unitPriceDisplay: string;
-          totalPriceDisplay: string;
-        }
-      ) => React.ReactNode;
+      node?: (row: RetailerOrderLineRow) => React.ReactNode;
       className?: string;
     }[];
   };
 };
 
-function formatDateLabel(dateValue: string) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-    const [year, month, day] = dateValue.split("-");
-    return `${day}/${month}/${year}`;
-  }
-
-  return formatAsLocalDate(dateValue);
-}
-
 function getRetailerTableRows(
-  data: RetailerOrdersResponse | undefined,
+  data: RetailerCollectionsResponse | undefined,
   t: (key: string) => string
 ): RetailerOrderTableRow[] {
-  return (data?.groupedOrders ?? []).map((group) => {
-    const collapsibleRows = group.orders.map((order) => {
-      const orderDate = order.tableDate ?? order.createdAt;
-      const unitPrice = Number(order.unitPrice ?? 0);
-      const quantity = Number(order.quantity ?? 0);
-      const totalPrice = unitPrice * quantity;
-
-      const tableName =
-        typeof order.table === "object" && order.table !== null
-          ? (order.table as { name?: string }).name
-          : "-";
+  return (data?.collections ?? []).map((collection) => {
+    const collapsibleRows = (collection?.orders ?? []).map((collectionItem) => {
+      const order =
+        typeof collectionItem.order === "object" &&
+        collectionItem.order !== null
+          ? (collectionItem.order as PopulatedRetailerOrder)
+          : undefined;
+      const unitPrice = Number(order?.unitPrice ?? 0);
+      const quantity = Number(collectionItem.paidQuantity ?? 0);
 
       const itemName =
-        typeof order.item === "object" && order.item !== null
+        typeof order?.item === "object" && order.item !== null
           ? (order.item as { name?: string }).name
-          : String(order.item ?? "-");
+          : String(order?.item ?? "-");
 
       return {
-        ...order,
         itemNameDisplay: itemName || "-",
-        statusDisplay: order.status || "-",
-        orderedAtDisplay: orderDate
-          ? `${formatAsLocalDate(String(orderDate))} ${format(
-              new Date(orderDate),
-              "HH:mm"
-            )}`
-          : "-",
-        unitPriceDisplay: `${unitPrice} ₺`,
-        totalPriceDisplay: `${totalPrice} ₺`,
+        quantity,
+        priceDisplay: `${unitPrice.toFixed(2).replace(/\.?0*$/, "")} ₺`,
       };
     });
 
+    const createdAt = collection.createdAt
+      ? toIstDate(collection.createdAt)
+      : null;
+    const amount = Number(collection.amount ?? 0);
+    const discountAmount = Number(collection.shopifyDiscountAmount ?? 0);
+    const totalAmount = amount - discountAmount;
+
     return {
-      date: group.date,
-      dateDisplay: formatDateLabel(group.date),
-      totalOrders: group.orders.length,
+      _id: collection._id,
+      date: collection.createdAt ? String(collection.createdAt) : "",
+      dateDisplay: createdAt ? format(createdAt, "dd/MM/yyyy") : "-",
+      shopifyOrderNumberDisplay: collection.shopifyOrderNumber || "-",
+      amountDisplay: `${amount.toFixed(2).replace(/\.?0*$/, "")} ₺`,
+      shopifyDiscountAmountDisplay: `${discountAmount
+        .toFixed(2)
+        .replace(/\.?0*$/, "")} ₺`,
+      totalAmountDisplay: `${totalAmount.toFixed(2).replace(/\.?0*$/, "")} ₺`,
       collapsible: {
         collapsibleColumns: [
-          { key: t("Item"), isSortable: true },
+          { key: t("Product"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
-          { key: t("Unit Price"), isSortable: true },
-          { key: t("Total"), isSortable: true },
-          { key: t("Status"), isSortable: true },
-          { key: t("Ordered At"), isSortable: true },
+          { key: t("Price"), isSortable: true },
         ],
         collapsibleRows,
         collapsibleRowKeys: [
@@ -115,20 +113,8 @@ function getRetailerTableRows(
             className: "min-w-24",
           },
           {
-            key: "unitPriceDisplay",
+            key: "priceDisplay",
             className: "min-w-24",
-          },
-          {
-            key: "totalPriceDisplay",
-            className: "min-w-24",
-          },
-          {
-            key: "statusDisplay",
-            className: "min-w-28",
-          },
-          {
-            key: "orderedAtDisplay",
-            className: "min-w-40",
           },
         ],
       },
@@ -139,7 +125,7 @@ function getRetailerTableRows(
 const RetailerOrders = () => {
   const { t } = useTranslation();
   const { retailerId } = useParams();
-  const { removeRetailerOrder } = useRetailerOrderMutations();
+  const { removeRetailerCollection } = useRetailerCollectionMutations();
 
   const initialFilterFormElements = useMemo(
     () => ({
@@ -153,23 +139,42 @@ const RetailerOrders = () => {
   const [filterFormElements, setFilterFormElements] =
     useState<FormElementsState>(initialFilterFormElements);
 
-  const retailerOrdersData = useGetRetailerOrders(retailerId, {
+  const retailerCollectionsData = useGetRetailerCollections(retailerId, {
     after: (filterFormElements.after as string) || undefined,
     before: (filterFormElements.before as string) || undefined,
   });
 
   const rows = useMemo(
-    () => getRetailerTableRows(retailerOrdersData, t),
-    [retailerOrdersData, t]
+    () => getRetailerTableRows(retailerCollectionsData, t),
+    [retailerCollectionsData, t]
   );
 
   const columns = useMemo(
     () => [
       { key: t("Date"), isSortable: true, correspondingKey: "date" },
       {
-        key: t("Total Orders"),
+        key: t("Shopify Order Number"),
         isSortable: true,
-        correspondingKey: "totalOrders",
+        correspondingKey: "shopifyOrderNumberDisplay",
+      },
+      {
+        key: t("Amount"),
+        isSortable: true,
+        correspondingKey: "amountDisplay",
+      },
+      {
+        key: t("Discount"),
+        isSortable: true,
+        correspondingKey: "shopifyDiscountAmountDisplay",
+      },
+      {
+        key: t("Total Amount"),
+        isSortable: true,
+        correspondingKey: "totalAmountDisplay",
+      },
+      {
+        key: t("Actions"),
+        isSortable: false,
       },
     ],
     [t]
@@ -182,7 +187,19 @@ const RetailerOrders = () => {
         className: "min-w-32 font-medium",
       },
       {
-        key: "totalOrders",
+        key: "shopifyOrderNumberDisplay",
+        className: "min-w-40",
+      },
+      {
+        key: "amountDisplay",
+        className: "min-w-24",
+      },
+      {
+        key: "shopifyDiscountAmountDisplay",
+        className: "min-w-32",
+      },
+      {
+        key: "totalAmountDisplay",
         className: "min-w-24",
       },
     ],
@@ -250,7 +267,7 @@ const RetailerOrders = () => {
     ]
   );
 
-  const collapsibleActions = useMemo(
+  const actions = useMemo(
     () => [
       {
         name: t("Remove"),
@@ -261,28 +278,30 @@ const RetailerOrders = () => {
             return;
           }
 
-          removeRetailerOrder({
+          removeRetailerCollection({
             retailerId,
-            orderId: row._id,
+            collectionId: row._id,
           });
         },
       },
     ],
-    [t, retailerId, removeRetailerOrder]
+    [t, retailerId, removeRetailerCollection]
   );
 
   return (
     <div className="w-[95%] mx-auto my-6">
       <GenericTable<RetailerOrderTableRow>
-        title={retailerOrdersData?.retailer?.name || t("Retailer Orders")}
+        title={
+          retailerCollectionsData?.retailer?.name || t("Retailer Collections")
+        }
         rows={rows}
         columns={columns}
         rowKeys={rowKeys}
         filters={tableFilters}
         filterPanel={filterPanel}
         isActionsActive={true}
+        actions={actions}
         isCollapsible={true}
-        collapsibleActions={collapsibleActions}
         isPagination={false}
       />
     </div>

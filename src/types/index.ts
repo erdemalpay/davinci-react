@@ -957,6 +957,11 @@ export type CafeActivity = {
   contact: string;
   isCompleted?: boolean;
 };
+export type MonthlyActivity = {
+  _id: number;
+  imageUrl: string;
+  monthInfo?: string;
+};
 export type IkasCustomer = {
   id: string;
   firstName: string;
@@ -1046,6 +1051,7 @@ export type OrderCollection = {
   shopifyShippingAmount?: number;
   shopifyDiscountAmount?: number;
   shopifyDiscountType?: string;
+  retailer?: number;
 };
 
 export type OrderNote = {
@@ -1068,6 +1074,8 @@ export type OrderCollectionItem = {
             };
       };
   paidQuantity: number;
+  shopifyCustomer?: ShopifyCustomer;
+  item?: number | MenuItem;
 };
 
 export type OrderDiscount = {
@@ -1468,6 +1476,11 @@ export enum LogsPageTabEnum {
   CONCURRENCY_LOGS,
 }
 
+export enum ActivitiesPageTabEnum {
+  CAFE_ACTIVITIES,
+  MONTHLY_CAFE_ACTIVITIES,
+}
+
 export type ConcurrentRequest = {
   userId?: string;
   userName?: string;
@@ -1560,6 +1573,7 @@ export enum OrderDataTabEnum {
   CATEGORYBASEDSALESREPORT,
   DISCOUNTBASEDSALES,
   COLLECTIONS,
+  SHOPIFYCOLLECTIONS,
   ORDERS,
   IKASORDERS,
   SHOPIFYORDERS,
