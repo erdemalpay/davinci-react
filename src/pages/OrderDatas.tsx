@@ -26,7 +26,10 @@ import SingleProductSalesReport from "../components/orderDatas/SingleProductSale
 import TrendyolOrders from "../components/orderDatas/TrendyolOrders";
 import UpperCategoryBasedSalesReport from "../components/orderDatas/UpperCategoryBasedSalesReport";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
+import { useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useGeneralContext } from "../context/General.context";
+import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import { OrderDataTabEnum } from "../types";
 import { useGetAllCategories } from "../utils/api/menu/category";
@@ -140,6 +143,23 @@ const OrderDatas = () => {
     orderDataActiveTab,
     setOrderDataActiveTab,
   } = useGeneralContext();
+  const { filterPanelFormElements, setFilterPanelFormElements } = useOrderContext();
+  const [searchParams] = useSearchParams();
+  const skipSearchClear = useRef(false);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    const search = searchParams.get("search");
+    const date = searchParams.get("date");
+    if (tab !== null) {
+      if (search !== null) skipSearchClear.current = true;
+      setOrderDataActiveTab(Number(tab));
+    }
+    if (search !== null) setSearchQuery(search);
+    if (date !== null) {
+      setFilterPanelFormElements({ ...filterPanelFormElements, after: date, before: "" });
+    }
+  }, []);
   const categories = useGetAllCategories();
   const enumTabCount = Object.keys(OrderDataTabEnum).length / 2;
   const currentPageId = "order_datas";
@@ -184,7 +204,11 @@ const OrderDatas = () => {
         setActiveTab={setOrderDataActiveTab}
         additionalOpenAction={() => {
           setCurrentPage(1);
-          setSearchQuery("");
+          if (skipSearchClear.current) {
+            skipSearchClear.current = false;
+          } else {
+            setSearchQuery("");
+          }
         }}
         allowOrientationToggle={true}
       />

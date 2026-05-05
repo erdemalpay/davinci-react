@@ -68,6 +68,9 @@ const TabPanel: React.FC<Props> = ({
   };
   useEffect(() => {
     additionalOpenAction?.();
+  }, [activeTab]);
+
+  useEffect(() => {
     if (tabsRef.current[activeTab] && containerRef.current) {
       const activeTabElement = tabsRef.current[activeTab];
       if (activeTabElement) {
