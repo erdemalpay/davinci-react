@@ -1539,5 +1539,7 @@
   "Item Summary": "Ürün Özeti",
   "Shopify Collections": "Shopify Tahsilatları",
   "Customer Name": "Müşteri Adı",
-  "Customer Email": "Müşteri E-posta"
+  "Customer Email": "Müşteri E-posta",
+  "Add Shopify Category": "Shopify Kategorisi Ekle",
+  "Delete Shopify Category" : "Shopify Kategorisi Sil"
 }
