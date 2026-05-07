@@ -8,12 +8,14 @@ import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import { OrderStatus } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetStockLocations } from "../../utils/api/location";
 import { getItem } from "../../utils/getItem";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import NewOrderProductSelect from "./NewOrderProductSelect";
 
 const NewOrderListPanel = () => {
   const items = useGetMenuItems();
+  const stockLocations = useGetStockLocations();
   const { t } = useTranslation();
   const { user } = useUserContext();
   const {
@@ -140,6 +142,11 @@ const NewOrderListPanel = () => {
                       </div>
 
                       <div className="flex flex-row gap-2 items-center">
+                        {order?.stockLocation && (
+                          <span className="text-xs text-gray-500">
+                            ({getItem(order.stockLocation, stockLocations)?.name})
+                          </span>
+                        )}
                         <FiMinusCircle
                           className="w-5 h-5 flex-shrink-0  text-red-500  hover:text-red-800 cursor-pointer focus:outline-none"
                           onClick={() => {
