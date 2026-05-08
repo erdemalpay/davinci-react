@@ -9,6 +9,7 @@ import HepsiBuradaPriceComparision from "../components/stocks/HepsiBuradaPriceCo
 import HepsiBuradaStockComparision from "../components/stocks/HepsiBuradaStockComparision";
 import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
 import ShopifyStockComparision from "../components/stocks/ShopifyStockComparision";
+import TrendyolPriceComparision from "../components/stocks/TrendyolPriceComparision";
 import TrendyolStockComparision from "../components/stocks/TrendyolStockComparision";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -41,10 +42,10 @@ export const IntegrationPageTabs = [
     isDisabled: false,
   },
   {
-    number: IntegrationPageTabEnum.HEPSIBURADAPRICECOMPARISION,
-    label: "HepsiBurada Price Comparision",
+    number: IntegrationPageTabEnum.TRENDYOLPRICECOMPARISION,
+    label: "Trendyol Price Comparision",
     icon: <MdOutlinePriceChange className="text-lg font-thin" />,
-    content: <HepsiBuradaPriceComparision />,
+    content: <TrendyolPriceComparision />,
     isDisabled: false,
   },
   {
@@ -52,6 +53,13 @@ export const IntegrationPageTabs = [
     label: "HepsiBurada Stock Comparision",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <HepsiBuradaStockComparision />,
+    isDisabled: false,
+  },
+  {
+    number: IntegrationPageTabEnum.HEPSIBURADAPRICECOMPARISION,
+    label: "HepsiBurada Price Comparision",
+    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
+    content: <HepsiBuradaPriceComparision />,
     isDisabled: false,
   },
   {

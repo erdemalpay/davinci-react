@@ -77,11 +77,12 @@ const HepsiBuradaPriceComparision = () => {
         };
       })
       .sort((a, b) => {
-        const isAEqual = a.hepsiburadaPrice === a.itemOnlinePrice;
-        const isBEqual = b.hepsiburadaPrice === b.itemOnlinePrice;
-        if (isAEqual && !isBEqual) return 1;
-        if (!isAEqual && isBEqual) return -1;
-        return 0;
+        const getOrder = (row: any) => {
+          if (row.itemOnlinePrice > row.hepsiburadaPrice) return 0;
+          if (row.itemOnlinePrice < row.hepsiburadaPrice) return 1;
+          return 2;
+        };
+        return getOrder(a) - getOrder(b);
       });
   }, [hepsiburadaItemProducts, items, hepsiburadaListings]);
 
@@ -158,10 +159,10 @@ const HepsiBuradaPriceComparision = () => {
           isActionsActive={true}
           actions={actions}
           rowClassNameFunction={(row: HepsiburadaRow) => {
-            if (row?.hepsiburadaPrice > row?.itemOnlinePrice) {
+            if (row?.itemOnlinePrice > row?.hepsiburadaPrice) {
               return "bg-red-200";
             }
-            if (row?.hepsiburadaPrice < row?.itemOnlinePrice) {
+            if (row?.itemOnlinePrice < row?.hepsiburadaPrice) {
               return "bg-green-200";
             }
             return "";

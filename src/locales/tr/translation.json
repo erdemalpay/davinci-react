@@ -1350,7 +1350,7 @@
   "Update All Trendyol Price": "Trendyol Fiyatlarını Güncelle",
   "Update Trendyol Stock": "Trendyol Stokunu Güncelle",
   "Update Trendyol Price": "Trendyol Fiyatını Güncelle",
-  "Trendyol Stock Comparision": "Trendyol Stok/Fiyat Karşılaştırma",
+  "Trendyol Stock Comparision": "Trendyol Stok Karşılaştırma",
   "Trendyol Barcode": "Trendyol Barkod",
   "Process Refund Requests": "İade Taleplerini İşle",
   "Webhook Logs": "Webhook Logları",
@@ -1539,5 +1539,11 @@
   "Item Summary": "Ürün Özeti",
   "Shopify Collections": "Shopify Tahsilatları",
   "Customer Name": "Müşteri Adı",
-  "Customer Email": "Müşteri E-posta"
+  "Customer Email": "Müşteri E-posta",
+  "Update All HepsiBurada Prices": "Hepsiburada Fiyatlarını Güncelle",
+  "Update HepsiBurada Stock": "Hepsiburada Stoklarını Güncelle",
+  "Trendyol Price Comparision": "Trendyol Fiyat Karşılaştırma",
+  "Trendyol Price Comparison": "Trendyol Fiyat Karşılaştırma",
+  "Trendyol Stock Comparison": "Trendyol Stok Karşılaştırma",
+  "Update HepsiBurada Stocks": "Hepsiburada Stoklarını Güncelle"
 }

@@ -95,11 +95,12 @@ const HepsiBuradaStockComparision = () => {
         };
       })
       .sort((a, b) => {
-        const isAEqual = a.hepsiburadaStock === a.storeStock;
-        const isBEqual = b.hepsiburadaStock === b.storeStock;
-        if (isAEqual && !isBEqual) return 1;
-        if (!isAEqual && isBEqual) return -1;
-        return 0;
+        const getOrder = (row: any) => {
+          if (row.hepsiburadaStock > row.storeStock) return 0;
+          if (row.hepsiburadaStock < row.storeStock) return 1;
+          return 2;
+        };
+        return getOrder(a) - getOrder(b);
       });
   }, [hepsiburadaItemProducts, stocks, hepsiburadaListings, items]);
 

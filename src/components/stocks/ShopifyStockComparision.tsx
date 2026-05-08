@@ -101,11 +101,12 @@ const ShopifyStockComparision = () => {
         };
       })
       .sort((a, b) => {
-        const isAEqual = a.shopifyStock === a.storeStock;
-        const isBEqual = b.shopifyStock === b.storeStock;
-        if (isAEqual && !isBEqual) return 1;
-        if (!isAEqual && isBEqual) return -1;
-        return 0;
+        const getOrder = (row: any) => {
+          if (row.shopifyStock > row.storeStock) return 0;
+          if (row.shopifyStock < row.storeStock) return 1;
+          return 2;
+        };
+        return getOrder(a) - getOrder(b);
       });
   }, [shopifyItemProducts, stocks, shopifyProducts, items]);
 

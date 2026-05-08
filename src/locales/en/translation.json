@@ -1347,7 +1347,7 @@
   "Update All Trendyol Products": "Update Trendyol Products",
   "Update Trendyol Stock": "Update Trendyol Stock",
   "Update Trendyol Price": "Update Trendyol Price",
-  "Trendyol Stock Comparision": "Trendyol Stock/Price Comparision",
+  "Trendyol Stock Comparision": "Trendyol Stock Comparision",
   "Trendyol Barcode": "Trendyol Barcode",
   "Process Refund Requests": "Process Refund Requests",
   "Webhook Logs": "Webhook Logs",
@@ -1529,5 +1529,11 @@
   "Item Summary": "Item Summary",
   "Shopify Collections": "Shopify Collections",
   "Customer Name": "Customer Name",
-  "Customer Email": "Customer Email"
+  "Customer Email": "Customer Email",
+  "Update All HepsiBurada Prices": "Update All Hepsiburada Prices",
+  "Update HepsiBurada Stock": "Update Hepsiburada Stocks",
+  "Trendyol Price Comparision": "Trendyol Price Comparison",
+  "Trendyol Price Comparison": "Trendyol Price Comparison",
+  "Trendyol Stock Comparison": "Trendyol Stock Comparison",
+  "Update HepsiBurada Stocks": "Update Hepsiburada Stocks"
 }

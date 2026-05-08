@@ -69,11 +69,12 @@ const ShopifyPriceComparision = () => {
         };
       })
       .sort((a, b) => {
-        const isAEqual = a.shopifyPrice === a.itemPrice;
-        const isBEqual = b.shopifyPrice === b.itemPrice;
-        if (isAEqual && !isBEqual) return 1;
-        if (!isAEqual && isBEqual) return -1;
-        return 0;
+        const getOrder = (row: any) => {
+          if (row.shopifyPrice < row.itemPrice) return 0;
+          if (row.shopifyPrice > row.itemPrice) return 1;
+          return 2;
+        };
+        return getOrder(a) - getOrder(b);
       });
   }, [shopifyItemProducts, items, shopifyProducts]);
 
@@ -157,10 +158,10 @@ const ShopifyPriceComparision = () => {
           isActionsActive={true}
           actions={actions}
           rowClassNameFunction={(row: any) => {
-            if (row?.shopifyPrice > row?.itemPrice) {
+            if (row?.shopifyPrice < row?.itemPrice) {
               return "bg-red-200";
             }
-            if (row?.shopifyPrice < row?.itemPrice) {
+            if (row?.shopifyPrice > row?.itemPrice) {
               return "bg-green-200";
             }
             return "";
