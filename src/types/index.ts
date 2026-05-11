@@ -1089,6 +1089,7 @@ export type OrderDiscount = {
   isVisibleOnPaymentScreen?: boolean;
   status?: string;
   note?: string;
+  isMemberDiscount?: boolean;
 };
 export enum OrderDiscountStatus {
   DELETED = "deleted",

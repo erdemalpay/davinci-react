@@ -46,7 +46,10 @@ const OrderDiscountPage = () => {
   ] = useState(false);
 
   const discountsDisabledCondition = useMemo(() => {
-    return getItem(DisabledConditionEnum.ACCOUNTING_DISCOUNTS, disabledConditions);
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_DISCOUNTS,
+      disabledConditions
+    );
   }, [disabledConditions]);
 
   const { createOrderDiscount, updateOrderDiscount } =
@@ -73,6 +76,13 @@ const OrderDiscountPage = () => {
     });
   }
 
+  function handleMemberDiscountChange(row: OrderDiscount) {
+    updateOrderDiscount({
+      id: row._id,
+      updates: { isMemberDiscount: !row.isMemberDiscount },
+    });
+  }
+
   function handleVisibleOnPaymentScreenChange(row: OrderDiscount) {
     updateOrderDiscount({
       id: row._id,
@@ -86,6 +96,11 @@ const OrderDiscountPage = () => {
     percentage: "",
     amount: "",
     note: "",
+    isOnlineOrder: false,
+    isStoreOrder: false,
+    isNoteRequired: false,
+    isVisibleOnPaymentScreen: false,
+    isMemberDiscount: false,
   });
 
   const inputs = useMemo(
@@ -140,7 +155,7 @@ const OrderDiscountPage = () => {
         formKey: "isOnlineOrder",
         label: t("Online Order"),
         placeholder: t("Online Order"),
-        required: true,
+        required: false,
         isTopFlexRow: true,
       },
       {
@@ -148,7 +163,15 @@ const OrderDiscountPage = () => {
         formKey: "isStoreOrder",
         label: t("Store Order"),
         placeholder: t("Store Order"),
-        required: true,
+        required: false,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isMemberDiscount",
+        label: t("Member Discount"),
+        placeholder: t("Member Discount"),
+        required: false,
         isTopFlexRow: true,
       },
       {
@@ -156,7 +179,7 @@ const OrderDiscountPage = () => {
         formKey: "isNoteRequired",
         label: t("Note Required"),
         placeholder: t("Note Required"),
-        required: true,
+        required: false,
         isTopFlexRow: true,
       },
       {
@@ -164,7 +187,7 @@ const OrderDiscountPage = () => {
         formKey: "isVisibleOnPaymentScreen",
         label: t("Visible on Payment Screen"),
         placeholder: t("Visible on Payment Screen"),
-        required: true,
+        required: false,
         isTopFlexRow: true,
       },
     ],
@@ -180,6 +203,7 @@ const OrderDiscountPage = () => {
       { key: "note", type: FormKeyTypeEnum.STRING },
       { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isStoreOrder", type: FormKeyTypeEnum.BOOLEAN },
+      { key: "isMemberDiscount", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isNoteRequired", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isVisibleOnPaymentScreen", type: FormKeyTypeEnum.BOOLEAN },
     ],
@@ -192,6 +216,7 @@ const OrderDiscountPage = () => {
       { key: t("Percentage"), isSortable: true },
       { key: t("Amount"), isSortable: true },
       { key: t("Online Order"), isSortable: false },
+      { key: t("Member Discount"), isSortable: false },
       { key: t("Store Order"), isSortable: false },
       { key: t("Note Required"), isSortable: false },
       { key: t("Visible on Payment Screen"), isSortable: false },
@@ -216,7 +241,9 @@ const OrderDiscountPage = () => {
         node: (row: any) =>
           isEnableEdit ? (
             <div
-              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
             >
               <CheckSwitch
                 checked={row?.isOnlineOrder}
@@ -233,11 +260,36 @@ const OrderDiscountPage = () => {
           ),
       },
       {
+        key: "isMemberDiscount",
+        node: (row: any) =>
+          isEnableEdit ? (
+            <div
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
+            >
+              <CheckSwitch
+                checked={row?.isMemberDiscount}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  handleMemberDiscountChange(row);
+                }}
+              />
+            </div>
+          ) : row?.isMemberDiscount ? (
+            <IoCheckmark className="text-blue-500 text-2xl " />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl " />
+          ),
+      },
+      {
         key: "isStoreOrder",
         node: (row: any) =>
           isEnableEdit ? (
             <div
-              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
             >
               <CheckSwitch
                 checked={row?.isStoreOrder}
@@ -258,7 +310,9 @@ const OrderDiscountPage = () => {
         node: (row: any) =>
           isEnableEdit ? (
             <div
-              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
             >
               <CheckSwitch
                 checked={row?.isNoteRequired}
@@ -279,7 +333,9 @@ const OrderDiscountPage = () => {
         node: (row: any) =>
           isEnableEdit ? (
             <div
-              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
             >
               <CheckSwitch
                 checked={row?.isVisibleOnPaymentScreen}
@@ -494,13 +550,7 @@ const OrderDiscountPage = () => {
         ),
       },
     ],
-    [
-      t,
-      isEnableEdit,
-      showInactiveDiscounts,
-      discountsDisabledCondition,
-      user,
-    ]
+    [t, isEnableEdit, showInactiveDiscounts, discountsDisabledCondition, user]
   );
 
   const rows = useMemo(
