@@ -154,7 +154,7 @@ const HepsiBuradaPriceComparision = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("HepsiBurada Price Comparision")}
+          title={t("HepsiBurada Price Comparison")}
           filters={filters}
           isActionsActive={true}
           actions={actions}

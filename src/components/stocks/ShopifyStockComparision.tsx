@@ -229,7 +229,7 @@ const ShopifyStockComparision = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("Shopify Stock Comparision")}
+          title={t("Shopify Stock Comparison")}
           filters={filters}
           isActionsActive={true}
           actions={actions}
