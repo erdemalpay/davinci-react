@@ -179,8 +179,12 @@ export function PageSelector() {
       {isMenuOpen && (
         <div
           ref={menuRef}
-          className="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-y-auto overflow-x-hidden no-scrollbar h-[95vh] max-h-[28rem]"
-          style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+          className="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-y-auto overflow-x-hidden no-scrollbar"
+          style={{
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-y",
+            maxHeight: "calc(100dvh - 5rem)",
+          }}
         >
           <div className="px-3 py-2">
             <AutocompleteInput
@@ -191,7 +195,7 @@ export function PageSelector() {
               onClear={() => setSearchValue("")}
               disabled={false}
               isOnClearActive={true}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="px-3 py-2 border border-gray-300 rounded-md text-base"
               minCharacters={1}
             />
           </div>
