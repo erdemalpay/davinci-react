@@ -1,10 +1,44 @@
-import React, { PropsWithChildren, createContext, useContext } from "react";
+import React, {
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useEffect,
+} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import useIsLargeScreen from "../../../hooks/useIsLargeScreen";
 import { Tab } from "../shared/types";
 import { OrientationToggle } from "./OrientationToggle";
 import TabPanel from "./TabPanel";
 import VerticalTabPanel from "./VerticalTabPanel";
+
+const TAB_QUERY_PARAM = "tab";
+
+const normalizeText = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/ı/g, "i")
+    .replace(/i̇/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c");
+
+const getTabSlug = (label: string) =>
+  normalizeText(label)
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "tab";
+
+const resolveTabIndex = (tabValue: number, tabs: Tab[]) => {
+  const byAdjustedIndex = tabs.findIndex((_, index) => index === tabValue);
+  if (byAdjustedIndex !== -1) {
+    return byAdjustedIndex;
+  }
+
+  return tabs.findIndex((tab) => tab.number === tabValue);
+};
 
 // TabPanel için local context
 type TabPanelContextType = {
@@ -48,16 +82,98 @@ const UnifiedTabPanel: React.FC<Props> = ({
   filters,
   injectOrientationToggleToFilters = false,
   disableLanguageChange = false,
+  activeTab,
+  setActiveTab,
   ...props
 }) => {
   const { tabOrientation, setTabOrientation } = useGeneralContext();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isLargeScreen = useIsLargeScreen();
+  const visibleTabs = React.useMemo(
+    () => props.tabs.filter((tab) => !tab.isDisabled),
+    [props.tabs]
+  );
+
+  const currentTabIndex = React.useMemo(
+    () => resolveTabIndex(activeTab, visibleTabs),
+    [activeTab, visibleTabs]
+  );
 
   // Mobile'da her zaman horizontal
   const actualOrientation = !isLargeScreen ? "horizontal" : tabOrientation;
 
   const TabComponent =
     actualOrientation === "vertical" ? VerticalTabPanel : TabPanel;
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get(TAB_QUERY_PARAM);
+    const currentTab = visibleTabs[currentTabIndex] ?? visibleTabs[0] ?? null;
+
+    if (!currentTab) {
+      return;
+    }
+
+    const currentTabSlug = getTabSlug(currentTab.label);
+
+    if (tabParam === null) {
+      searchParams.set(TAB_QUERY_PARAM, currentTabSlug);
+      navigate(
+        {
+          pathname: location.pathname,
+          search: `?${searchParams.toString()}`,
+        },
+        { replace: true }
+      );
+      return;
+    }
+
+    const nextTabIndex = visibleTabs.findIndex(
+      (tab) => getTabSlug(tab.label) === tabParam
+    );
+
+    if (nextTabIndex !== -1 && nextTabIndex !== currentTabIndex) {
+      setActiveTab(nextTabIndex);
+      return;
+    }
+
+    if (nextTabIndex === -1 && tabParam !== currentTabSlug) {
+      searchParams.set(TAB_QUERY_PARAM, currentTabSlug);
+      navigate(
+        {
+          pathname: location.pathname,
+          search: `?${searchParams.toString()}`,
+        },
+        { replace: true }
+      );
+    }
+  }, [
+    activeTab,
+    currentTabIndex,
+    location.pathname,
+    location.search,
+    navigate,
+    setActiveTab,
+    visibleTabs,
+  ]);
+
+  const handleSetActiveTab = (tab: number) => {
+    setActiveTab(tab);
+
+    const nextTab = visibleTabs[tab] ?? visibleTabs[0];
+    if (!nextTab) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set(TAB_QUERY_PARAM, getTabSlug(nextTab.label));
+
+    navigate({
+      pathname: location.pathname,
+      search: `?${searchParams.toString()}`,
+    });
+  };
 
   // Toggle button'ı filter'ların başına ekle (yalnızca açıkça istenirse)
   const enhancedFilters = React.useMemo(() => {
@@ -89,8 +205,12 @@ const UnifiedTabPanel: React.FC<Props> = ({
     <TabPanelProvider allowOrientationToggle={allowOrientationToggle}>
       <TabComponent
         {...props}
+        activeTab={activeTab}
+        setActiveTab={handleSetActiveTab}
         filters={enhancedFilters}
-        isLanguageChange={disableLanguageChange ? false : props.isLanguageChange}
+        isLanguageChange={
+          disableLanguageChange ? false : props.isLanguageChange
+        }
       />
     </TabPanelProvider>
   );
