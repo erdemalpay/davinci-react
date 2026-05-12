@@ -47,7 +47,11 @@ import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../../utils/getItem";
+import {
+  getItem,
+  getMenuItemSubText,
+  menuItemHasDecrementStock,
+} from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -171,8 +175,7 @@ export function TableCard({
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const { resetOrderContext, setSelectedNewOrders, selectedNewOrders } =
     useOrderContext();
-  const { setExpandedRows, setIsTabInputScreenOpen, setTabInputScreenOptions } =
-    useGeneralContext();
+  const { setExpandedRows, setIsTabInputScreenOpen } = useGeneralContext();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const [quickOrderForm, setQuickOrderForm] = useState({
@@ -193,7 +196,18 @@ export function TableCard({
   });
   const menuItemStockQuantity = useCallback(
     (item: MenuItem, location: number) => {
-      if (item?.matchedProduct) {
+      if (item?.itemProduction && item.itemProduction.length > 0) {
+        const minItemProductionStock = item.itemProduction.map((production) => {
+          const stock = stocks?.find((stock) => {
+            return (
+              stock.product === production.product &&
+              stock.location === location
+            );
+          });
+          return stock?.quantity ?? 0;
+        });
+        return Math.min(...minItemProductionStock);
+      } else if (item?.matchedProduct) {
         const stock = stocks?.find((stock) => {
           return (
             stock.product === item.matchedProduct && stock.location === location

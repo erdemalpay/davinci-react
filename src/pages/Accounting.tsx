@@ -23,7 +23,7 @@ import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
 import Roles from "../components/accounting/Roles";
 import Service from "../components/accounting/Service";
-import ShopifyCollectionsPage from "../components/accounting/ShopifyCollections";
+import ShopifyCategoriesPage from "../components/accounting/ShopifyCategories";
 import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
@@ -70,10 +70,10 @@ export const AccountingPageTabs = [
   //   isDisabled: false,
   // },
   {
-    number: AccountingPageTabEnum.SHOPIFYCOLLECTIONS,
-    label: "Shopify Collections",
+    number: AccountingPageTabEnum.SHOPIFYCATEGORIES,
+    label: "Shopify Categories",
     icon: <FaShopify className="text-lg font-thin" />,
-    content: <ShopifyCollectionsPage />,
+    content: <ShopifyCategoriesPage />,
     isDisabled: false,
   },
   {

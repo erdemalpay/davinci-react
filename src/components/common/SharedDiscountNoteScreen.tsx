@@ -25,7 +25,6 @@ const SharedDiscountNoteScreen = ({
 }: SharedDiscountNoteScreenProps) => {
   const { t } = useTranslation();
   const members = useGetMemberships();
-  const MEMBERDISCOUNTID = 8;
 
   const memberOptions =
     members
@@ -40,11 +39,13 @@ const SharedDiscountNoteScreen = ({
       <div className="px-2 overflow-visible">
         {showHeader && <OrderScreenHeader header={headerText} />}
 
-        {selectedDiscount && selectedDiscount._id !== MEMBERDISCOUNTID && (
+        {selectedDiscount && !selectedDiscount?.isMemberDiscount && (
           <>
             <H6 className="min-w-10">{t("Discount Note")}</H6>
             <textarea
-              defaultValue={typeof discountNote === "string" ? discountNote : ""}
+              defaultValue={
+                typeof discountNote === "string" ? discountNote : ""
+              }
               placeholder={t("Enter discount note")}
               onBlur={(e) => setDiscountNote(e.target.value)}
               className="border text-base border-gray-300 rounded-md p-2 w-full h-32"
@@ -52,7 +53,7 @@ const SharedDiscountNoteScreen = ({
           </>
         )}
 
-        {selectedDiscount && selectedDiscount._id === MEMBERDISCOUNTID && (
+        {selectedDiscount && selectedDiscount?.isMemberDiscount && (
           <SelectInput
             key={"discountNote"}
             value={

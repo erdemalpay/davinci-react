@@ -190,7 +190,7 @@ const AutocompleteInput = ({
     inputRef.current?.focus();
   };
 
-  const inputClassName = `${className} w-full text-sm text-base ${
+  const inputClassName = `${className} w-full text-base ${
     !isReadOnly && requiredField && !label ? "border-red-300" : ""
   }`;
 

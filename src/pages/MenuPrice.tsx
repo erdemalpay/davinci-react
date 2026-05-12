@@ -73,6 +73,11 @@ const MenuPrice = () => {
       { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
       { key: t("Stock"), isSortable: true, correspondingKey: "totalStock" },
       // { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
+      {
+        key: t("Description"),
+        isSortable: true,
+        correspondingKey: "description",
+      },
     ],
     [t]
   );
@@ -89,6 +94,7 @@ const MenuPrice = () => {
       { key: "barcode" },
       { key: "totalStock" },
       // { key: "ikasId" },
+      { key: "description" },
     ],
     []
   );
