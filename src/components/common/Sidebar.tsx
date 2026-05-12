@@ -16,6 +16,7 @@ import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 import { getMenuIcon } from "../../utils/menuIcons";
+import { usernamify } from "../../utils/string";
 import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
 import { getTabSlug } from "../../utils/slug";
 
@@ -136,8 +137,16 @@ export const Sidebar = () => {
 
     resetGeneralContext();
 
-    if (item.tabs && item.tabs.length > 0) {
-      navigate(`${item.path}?tab=${getTabSlug(item.tabs[0].label)}`);
+    // find allowed tabs from panel-control pages
+    const pageId = usernamify(item.name);
+    const controlPage = pages?.find((p) => p._id === pageId);
+    const controlTabs = (controlPage?.tabs as { name: string; permissionRoles?: number[] }[]) ?? [];
+    const allowedTabs = (item.tabs ?? []).filter((ct) =>
+      !!controlTabs.find((pt) => pt.name === ct.label && pt.permissionRoles?.includes((user?.role as Role)?._id))
+    );
+
+    if (allowedTabs.length > 0) {
+      navigate(`${item.path}?tab=${getTabSlug(allowedTabs[0].label)}`);
     } else {
       navigate(item.path);
     }
@@ -151,11 +160,21 @@ export const Sidebar = () => {
       return null;
     }
 
+    const pageId = usernamify(item.name);
+    const controlPage = pages?.find((p) => p._id === pageId);
+    const controlTabs = (controlPage?.tabs as { name: string; permissionRoles?: number[] }[]) ?? [];
+
+    const allowedTabs = (item.tabs ?? []).filter((ct) =>
+      !!controlTabs.find((pt) => pt.name === ct.label && pt.permissionRoles?.includes((user?.role as Role)?._id))
+    );
+
+    if (allowedTabs.length === 0) return null;
+
     const activeTab = getActiveTab();
 
     return (
       <div className="mt-1 space-y-1">
-        {item.tabs.map((tab) => {
+        {allowedTabs.map((tab) => {
           const tabSlug = getTabSlug(tab.label);
           const isActive = item.path === currentRoute && activeTab === tabSlug;
 
@@ -450,8 +469,11 @@ export const Sidebar = () => {
                       filteredRouteChildren
                         .filter((child) => child.isOnSidebar)
                         .map((child) => {
-                          const childHasTabs =
-                            child.tabs && child.tabs.length > 0;
+                          const controlTabsForChild = (pages?.find((p) => p._id === usernamify(child.name))?.tabs as { name: string; permissionRoles?: number[] }[]) ?? [];
+                          const allowedChildTabs = (child.tabs ?? []).filter((ct) =>
+                            !!controlTabsForChild.find((pt) => pt.name === ct.label && pt.permissionRoles?.includes((user?.role as Role)?._id))
+                          );
+                          const childHasTabs = allowedChildTabs.length > 0;
 
                           const childKey = `${route.name}-${child.name}`;
                           const isChildOpen = openGroups[childKey];
@@ -511,7 +533,11 @@ export const Sidebar = () => {
                 if (!child.isOnSidebar) return null;
 
                 const IconComponent = getMenuIcon(child.name);
-                const childHasTabs = child.tabs && child.tabs.length > 0;
+                const controlTabsForChild = (pages?.find((p) => p._id === usernamify(child.name))?.tabs as { name: string; permissionRoles?: number[] }[]) ?? [];
+                const allowedChildTabs = (child.tabs ?? []).filter((ct) =>
+                  !!controlTabsForChild.find((pt) => pt.name === ct.label && pt.permissionRoles?.includes((user?.role as Role)?._id))
+                );
+                const childHasTabs = allowedChildTabs.length > 0;
                 const childKey = `${route.name}-${child.name}`;
                 const isChildOpen = openGroups[childKey];
 
@@ -576,7 +602,11 @@ export const Sidebar = () => {
               if (!route.isOnSidebar) return null;
 
               const IconComponent = getMenuIcon(route.name);
-              const routeHasTabs = route.tabs && route.tabs.length > 0;
+              const controlTabsForRoute = (pages?.find((p) => p._id === usernamify(route.name))?.tabs as { name: string; permissionRoles?: number[] }[]) ?? [];
+              const allowedRouteTabs = (route.tabs ?? []).filter((ct) =>
+                !!controlTabsForRoute.find((pt) => pt.name === ct.label && pt.permissionRoles?.includes((user?.role as Role)?._id))
+              );
+              const routeHasTabs = allowedRouteTabs.length > 0;
               const isRouteOpen = openGroups[route.name];
 
               return (
