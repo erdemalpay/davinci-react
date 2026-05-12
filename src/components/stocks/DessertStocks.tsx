@@ -96,7 +96,8 @@ const DessertStock = () => {
         return (
           productExpenseType &&
           Array.isArray(productExpenseType) &&
-          productExpenseType.includes(DESSERTEXPENSETYPE)
+          productExpenseType.includes(DESSERTEXPENSETYPE) &&
+          product?.matchedMenuItem
         );
       })
       ?.filter((stock) => {
@@ -190,8 +191,10 @@ const DessertStock = () => {
         formKey: "product",
         label: t("Product"),
         options: products
-          ?.filter((product) =>
-            product?.expenseType?.includes(DESSERTEXPENSETYPE)
+          ?.filter(
+            (product) =>
+              product?.expenseType?.includes(DESSERTEXPENSETYPE) &&
+              product?.matchedMenuItem
           )
           ?.map((product) => ({
             value: product._id,
@@ -614,8 +617,10 @@ const DessertStock = () => {
         formKey: "product",
         label: t("Product"),
         options: products
-          ?.filter((product) =>
-            product?.expenseType?.includes(DESSERTEXPENSETYPE)
+          ?.filter(
+            (product) =>
+              product?.expenseType?.includes(DESSERTEXPENSETYPE) &&
+              product?.matchedMenuItem
           )
           ?.map((product) => ({
             value: product._id,
