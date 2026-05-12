@@ -49,13 +49,13 @@ import { useGetBreaksByDate } from "../utils/api/break";
 import { useGetCafeActivitys } from "../utils/api/cafeActivity";
 import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
 import { useGetAllLocations } from "../utils/api/location";
+import { useGetActiveCustomerPopups } from "../utils/api/menu/customer-popup";
 import { useGetMiddlemanByDate } from "../utils/api/middleman";
 import {
   useCreateMultipleOrderMutation,
   useOrderMutations,
 } from "../utils/api/order/order";
 import { useGetReservations } from "../utils/api/reservations";
-import { useGetActiveCustomerPopups } from "../utils/api/menu/customer-popup";
 import {
   getOpenTableDates,
   useGetTables,
@@ -63,7 +63,11 @@ import {
 } from "../utils/api/table";
 import { MinimalUser } from "../utils/api/user";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
-import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../utils/getItem";
+import {
+  getItem,
+  getMenuItemSubText,
+  menuItemHasDecrementStock,
+} from "../utils/getItem";
 import { sortTable } from "../utils/sort";
 const Tables = () => {
   const { t } = useTranslation();
@@ -261,17 +265,31 @@ const Tables = () => {
       value,
       label: t(value.charAt(0).toUpperCase() + value.slice(1)),
     }));
-  const menuItemStockQuantity = (item: MenuItem, location: number) => {
-    if (item?.matchedProduct) {
-      const stock = stocks?.find((stock) => {
-        return (
-          stock.product === item.matchedProduct && stock.location === location
-        );
-      });
-      return stock?.quantity ?? 0;
-    }
-    return 0;
-  };
+  const menuItemStockQuantity = useCallback(
+    (item: MenuItem, location: number) => {
+      if (item?.itemProduction && item.itemProduction.length > 0) {
+        const minItemProductionStock = item.itemProduction.map((production) => {
+          const stock = stocks?.find((stock) => {
+            return (
+              stock.product === production.product &&
+              stock.location === location
+            );
+          });
+          return stock?.quantity ?? 0;
+        });
+        return Math.min(...minItemProductionStock);
+      } else if (item?.matchedProduct) {
+        const stock = stocks?.find((stock) => {
+          return (
+            stock.product === item.matchedProduct && stock.location === location
+          );
+        });
+        return stock?.quantity ?? 0;
+      }
+      return 0;
+    },
+    [stocks]
+  );
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const consumptInputs = useMemo(
     () => [
@@ -1854,14 +1872,21 @@ const Tables = () => {
               <div className="flex flex-col md:flex-row md:items-start gap-2">
                 {/* campaigns - mobile only in this position */}
                 {todayActivePopups.length > 0 && (
-                  <div className="md:hidden flex flex-col items-center gap-1 border-2 bg-white rounded-lg px-3 py-2 select-none" style={{borderColor:"#1b2a6b"}}>
-                    <span className="font-semibold text-xs text-center" style={{color:"#1b2a6b"}}>
+                  <div
+                    className="md:hidden flex flex-col items-center gap-1 border-2 bg-white rounded-lg px-3 py-2 select-none"
+                    style={{ borderColor: "#1b2a6b" }}
+                  >
+                    <span
+                      className="font-semibold text-xs text-center"
+                      style={{ color: "#1b2a6b" }}
+                    >
                       {t("Today's Campaigns")}
                     </span>
                     {todayActivePopups.map((popup) => (
                       <span
                         key={popup._id}
-                        className="text-sm text-center" style={{color:"#1b2a6b"}}
+                        className="text-sm text-center"
+                        style={{ color: "#1b2a6b" }}
                       >
                         {todayActivePopups.length > 1 && "• "}
                         {popup.title}
@@ -1870,9 +1895,7 @@ const Tables = () => {
                   </div>
                 )}
                 {todayActiveActivities.length > 0 && (
-                  <div
-                    className="sm:hidden flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none"
-                  >
+                  <div className="sm:hidden flex flex-col gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-2 select-none">
                     <span className="text-red-500 font-semibold text-xs text-center">
                       {t("Today's Activities")}
                     </span>
@@ -1909,14 +1932,24 @@ const Tables = () => {
             </div>
           </div>
           {/* campaigns + activities - desktop only, above table buttons */}
-          {(todayActivePopups.length > 0 || todayActiveActivities.length > 0) && (
+          {(todayActivePopups.length > 0 ||
+            todayActiveActivities.length > 0) && (
             <div className="hidden sm:flex flex-row gap-4 mt-4">
               {todayActivePopups.length > 0 && (
-                <div className="flex-1 flex flex-col items-center justify-center gap-1 border-2 bg-white rounded-lg px-3 py-1 select-none" style={{borderColor:"#1b2a6b"}}>
-                  <span className="font-semibold text-xs text-center" style={{color:"#1b2a6b"}}>
+                <div
+                  className="flex-1 flex flex-col items-center justify-center gap-1 border-2 bg-white rounded-lg px-3 py-1 select-none"
+                  style={{ borderColor: "#1b2a6b" }}
+                >
+                  <span
+                    className="font-semibold text-xs text-center"
+                    style={{ color: "#1b2a6b" }}
+                  >
                     {t("Today's Campaigns")}
                   </span>
-                  <div className="text-base text-center leading-tight" style={{color:"#1b2a6b"}}>
+                  <div
+                    className="text-base text-center leading-tight"
+                    style={{ color: "#1b2a6b" }}
+                  >
                     {todayActivePopups.map((popup, i) => (
                       <span key={popup._id}>
                         {i > 0 && " • "}
@@ -1927,9 +1960,7 @@ const Tables = () => {
                 </div>
               )}
               {todayActiveActivities.length > 0 && (
-                <div
-                  className="flex-1 flex flex-col items-center justify-center gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-1 select-none"
-                >
+                <div className="flex-1 flex flex-col items-center justify-center gap-1 border-2 border-red-500 bg-white rounded-lg px-3 py-1 select-none">
                   <span className="text-red-500 font-semibold text-xs text-center">
                     {t("Today's Activities")}
                   </span>

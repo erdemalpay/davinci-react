@@ -138,8 +138,8 @@ export function OnboardingModal({ releases, onClose }: OnboardingModalProps) {
                             i === currentIndex
                               ? "w-6 bg-indigo-500"
                               : i < currentIndex
-                                ? "w-1.5 bg-indigo-300"
-                                : "w-1.5 bg-neutral-300"
+                              ? "w-1.5 bg-indigo-300"
+                              : "w-1.5 bg-neutral-300"
                           }`}
                         />
                       ))}
