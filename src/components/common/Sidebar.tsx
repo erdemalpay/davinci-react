@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { FiChevronDown, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
 import { useLocation, useNavigate } from "react-router-dom";
+
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { useFilteredRoutes } from "../../hooks/useFilteredRoutes";
@@ -16,14 +17,28 @@ import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 import { getMenuIcon } from "../../utils/menuIcons";
 import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
+import { getTabSlug } from "../../utils/slug";
+
 import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
+import { Tab } from "../panelComponents/shared/types";
 import SidebarTooltip from "./SidebarTooltip";
+
+type SidebarRouteItem = {
+  name: string;
+  path?: string;
+  link?: string;
+  isOnSidebar?: boolean;
+  exceptionalRoles?: number[];
+  tabs?: Tab[];
+  children?: SidebarRouteItem[];
+};
 
 export const Sidebar = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+
   const {
     isSidebarOpen,
     setIsSidebarOpen,
@@ -32,37 +47,29 @@ export const Sidebar = () => {
     isHoverExpanded,
     setIsHoverExpanded,
   } = useGeneralContext();
+
   const { setUser, user: contextUser } = useUserContext();
+
   const user = useGetUser(!!contextUser);
   const currentRoute = location.pathname;
+
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
     {}
   );
+
   const [searchValue, setSearchValue] = useState("");
 
   const isExpanded = isSidebarOpen || isHoverExpanded;
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousRouteRef = useRef<string | null>(null);
 
-  const handleMouseEnter = () => {
-    if (isSidebarOpen) return;
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsHoverExpanded(true);
-    }, 300);
-  };
-
-  const handleMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setIsHoverExpanded(false);
-  };
-
-  const routes = useFilteredRoutes();
+  const routes = useFilteredRoutes() as SidebarRouteItem[];
   const pages = useGetPanelControlPages(!!contextUser);
 
   const todayDate = format(new Date(), "yyyy-MM-dd");
+
   const activeBreaks = useGetBreaksByDate(todayDate, !!contextUser);
+
   const activeGameplayTimes = useGetGameplayTimesByDate(
     todayDate,
     !!contextUser
@@ -84,8 +91,99 @@ export const Sidebar = () => {
 
   const hasActiveSession = userActiveBreak || userActiveGameplayTime;
 
+  const handleMouseEnter = () => {
+    if (isSidebarOpen) return;
+
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHoverExpanded(true);
+    }, 300);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+
+    setIsHoverExpanded(false);
+  };
+
   const toggleGroup = (groupName: string) => {
-    setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
+    setOpenGroups((prev) => {
+      const next = { ...prev };
+
+      if (next[groupName]) {
+        delete next[groupName];
+      } else {
+        next[groupName] = true;
+      }
+
+      return next;
+    });
+  };
+
+  const getActiveTab = () => {
+    return new URLSearchParams(location.search).get("tab");
+  };
+
+  const handleRouteNavigation = (item: SidebarRouteItem) => {
+    if (item.link) {
+      window.location.href = item.link;
+      return;
+    }
+
+    if (!item.path) return;
+
+    resetGeneralContext();
+
+    if (item.tabs && item.tabs.length > 0) {
+      navigate(`${item.path}?tab=${getTabSlug(item.tabs[0].label)}`);
+    } else {
+      navigate(item.path);
+    }
+
+    window.scrollTo(0, 0);
+    setIsSidebarOpen(false);
+  };
+
+  const renderTabs = (item: SidebarRouteItem, paddingClass = "pl-12") => {
+    if (!isExpanded || !item.tabs || item.tabs.length === 0 || !item.path) {
+      return null;
+    }
+
+    const activeTab = getActiveTab();
+
+    return (
+      <div className="mt-1 space-y-1">
+        {item.tabs.map((tab) => {
+          const tabSlug = getTabSlug(tab.label);
+          const isActive = item.path === currentRoute && activeTab === tabSlug;
+
+          return (
+            <button
+              key={tab.label}
+              onClick={() => {
+                resetGeneralContext();
+                navigate(`${item.path}?tab=${tabSlug}`);
+                window.scrollTo(0, 0);
+                setIsSidebarOpen(false);
+              }}
+              className={`
+                w-full flex justify-start text-left  ${paddingClass} pr-3 py-2 rounded-lg
+                text-sm transition-colors
+                ${
+                  isActive
+                    ? "bg-blue-50 text-blue-600 font-medium"
+                    : "text-gray-500 hover:bg-gray-50"
+                }
+              `}
+            >
+              {t(tab.label)}
+            </button>
+          );
+        })}
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -94,11 +192,49 @@ export const Sidebar = () => {
     }
   }, [isSidebarOpen]);
 
+  useEffect(() => {
+    if (!routes || routes.length === 0) return;
+
+    if (previousRouteRef.current === currentRoute) {
+      return;
+    }
+
+    previousRouteRef.current = currentRoute;
+
+    setOpenGroups((prev) => {
+      const nextOpenGroups = { ...prev };
+
+      routes.forEach((route) => {
+        const children = route.children ?? [];
+
+        const activeChild = children.find(
+          (child) => child.path === currentRoute
+        );
+
+        if (activeChild) {
+          nextOpenGroups[route.name] = true;
+
+          if (activeChild.tabs && activeChild.tabs.length > 0) {
+            nextOpenGroups[`${route.name}-${activeChild.name}`] = true;
+          }
+        }
+
+        if (
+          route.path === currentRoute &&
+          route.tabs &&
+          route.tabs.length > 0
+        ) {
+          nextOpenGroups[route.name] = true;
+        }
+      });
+
+      return nextOpenGroups;
+    });
+  }, [currentRoute, routes]);
   if (!user || routes.length === 0) {
     return null;
   }
 
-  // Build menu options for autocomplete
   const menuOptionsList: Array<{
     label: string;
     path: string;
@@ -116,7 +252,7 @@ export const Sidebar = () => {
         )
     );
 
-    if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
+    if (filteredRouteChildren && filteredRouteChildren.length > 1) {
       filteredRouteChildren.forEach((child) => {
         if (child.isOnSidebar) {
           menuOptionsList.push({
@@ -126,7 +262,7 @@ export const Sidebar = () => {
           });
         }
       });
-    } else if (filteredRouteChildren && filteredRouteChildren?.length === 1) {
+    } else if (filteredRouteChildren && filteredRouteChildren.length === 1) {
       if (filteredRouteChildren[0].isOnSidebar) {
         menuOptionsList.push({
           label: t(filteredRouteChildren[0].name),
@@ -150,6 +286,7 @@ export const Sidebar = () => {
 
   const handleMenuSelect = (value: string) => {
     const selectedOption = menuOptionsList.find((opt) => opt.label === value);
+
     if (selectedOption) {
       if (selectedOption.link) {
         window.location.href = selectedOption.link;
@@ -160,13 +297,19 @@ export const Sidebar = () => {
         setIsSidebarOpen(false);
       }
     }
+
     setSearchValue(value);
   };
 
   const logout = () => {
     clearLocalStoragePreservingOnboarding();
+
     localStorage.setItem("loggedOut", "true");
-    setTimeout(() => localStorage.removeItem("loggedOut"), 500);
+
+    setTimeout(() => {
+      localStorage.removeItem("loggedOut");
+    }, 500);
+
     Cookies.remove("jwt");
     setUser(undefined);
     setIsSidebarOpen(false);
@@ -175,11 +318,9 @@ export const Sidebar = () => {
   };
 
   const handleLogoutClick = () => {
-    // If user has active break or gameplay session, show warning modal
     if (hasActiveSession) {
       setIsLogoutModalOpen(true);
     } else {
-      // No active session, logout directly
       logout();
     }
   };
@@ -195,6 +336,7 @@ export const Sidebar = () => {
           }}
         />
       )}
+
       <aside
         className={`
           hidden lg:block fixed top-0 left-0 h-screen border-r border-gray-200
@@ -216,11 +358,16 @@ export const Sidebar = () => {
               } else {
                 const next = !isSidebarOpen;
                 setIsSidebarOpen(next);
-                if (!next) setIsHoverExpanded(false);
+
+                if (!next) {
+                  setIsHoverExpanded(false);
+                }
               }
             }}
-            className="flex items-center justify-center w-10 h-10 rounded-lg 
-              text-white hover:bg-gray-700 transition-all duration-200"
+            className="
+              flex items-center justify-center w-10 h-10 rounded-lg
+              text-white hover:bg-gray-700 transition-all duration-200
+            "
             aria-label="Toggle Sidebar"
           >
             {isExpanded ? (
@@ -245,6 +392,7 @@ export const Sidebar = () => {
               minCharacters={1}
             />
           </div>
+
           <div className="flex-1 space-y-1">
             {routes.map((route) => {
               const filteredRouteChildren = route?.children?.filter(
@@ -257,8 +405,10 @@ export const Sidebar = () => {
                   )
               );
 
-              if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
+              if (filteredRouteChildren && filteredRouteChildren.length > 1) {
                 const IconComponent = getMenuIcon(route.name);
+                const isGroupOpen = openGroups[route.name];
+
                 return (
                   <div key={route.name}>
                     <SidebarTooltip content={t(route.name)}>
@@ -266,6 +416,7 @@ export const Sidebar = () => {
                         onClick={() => {
                           if (!isSidebarOpen) {
                             setIsSidebarOpen(true);
+
                             setTimeout(() => {
                               toggleGroup(route.name);
                             }, 100);
@@ -273,17 +424,20 @@ export const Sidebar = () => {
                             toggleGroup(route.name);
                           }
                         }}
-                        className="w-full flex items-center justify-between px-2 py-2 rounded-lg
-                        text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                        className="
+                          w-full flex items-center justify-between px-2 py-2 rounded-lg
+                          text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors
+                        "
                       >
                         <div className="flex items-center gap-2.5">
                           <div className="flex items-center justify-center text-gray-700 flex-shrink-0">
                             <IconComponent className="text-xl" />
                           </div>
+
                           {isExpanded && <span>{t(route.name)}</span>}
                         </div>
                         {isExpanded &&
-                          (openGroups[route.name] ? (
+                          (isGroupOpen ? (
                             <FiChevronDown className="text-sm" />
                           ) : (
                             <FiChevronRight className="text-sm" />
@@ -292,19 +446,87 @@ export const Sidebar = () => {
                     </SidebarTooltip>
 
                     {isExpanded &&
-                      openGroups[route.name] &&
+                      isGroupOpen &&
                       filteredRouteChildren
                         .filter((child) => child.isOnSidebar)
-                        .map((child) => (
-                          <button
-                            key={child.name}
-                            className={`
-                            w-full flex items-center pl-8 pr-3 py-2 rounded-lg mt-1
+                        .map((child) => {
+                          const childHasTabs =
+                            child.tabs && child.tabs.length > 0;
+
+                          const childKey = `${route.name}-${child.name}`;
+                          const isChildOpen = openGroups[childKey];
+
+                          return (
+                            <div key={child.name}>
+                              <div className="flex items-center">
+                                <button
+                                  className={`
+                                    flex-1 flex items-center pl-8 pr-3 py-2 rounded-lg mt-1
+                                    text-sm transition-colors
+                                    ${
+                                      child.path === currentRoute
+                                        ? "bg-blue-50 text-blue-600 font-medium"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                    }
+                                    ${
+                                      child.link
+                                        ? "text-blue-600 hover:text-blue-700"
+                                        : ""
+                                    }
+                                  `}
+                                  onClick={() => handleRouteNavigation(child)}
+                                >
+                                  {t(child.name)}
+                                </button>
+
+                                {isExpanded && childHasTabs && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleGroup(childKey);
+                                    }}
+                                    className="p-2 rounded-md text-gray-500 hover:bg-gray-100 ml-1 mt-1"
+                                    aria-label={`Toggle ${child.name} tabs`}
+                                  >
+                                    {isChildOpen ? (
+                                      <FiChevronDown className="text-sm" />
+                                    ) : (
+                                      <FiChevronRight className="text-sm" />
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+
+                              {isChildOpen && renderTabs(child, "pl-12")}
+                            </div>
+                          );
+                        })}
+                  </div>
+                );
+              }
+
+              if (filteredRouteChildren && filteredRouteChildren.length === 1) {
+                const child = filteredRouteChildren[0];
+
+                if (!child.isOnSidebar) return null;
+
+                const IconComponent = getMenuIcon(child.name);
+                const childHasTabs = child.tabs && child.tabs.length > 0;
+                const childKey = `${route.name}-${child.name}`;
+                const isChildOpen = openGroups[childKey];
+
+                return (
+                  <div key={child.name}>
+                    <SidebarTooltip content={t(child.name)}>
+                      <div className="flex items-center">
+                        <button
+                          className={`
+                            flex-1 flex items-center gap-2.5 px-2 py-2 rounded-lg
                             text-sm transition-colors
                             ${
                               child.path === currentRoute
                                 ? "bg-blue-50 text-blue-600 font-medium"
-                                : "text-gray-600 hover:bg-gray-50"
+                                : "text-gray-700 hover:bg-gray-100"
                             }
                             ${
                               child.link
@@ -312,122 +534,106 @@ export const Sidebar = () => {
                                 : ""
                             }
                           `}
-                            onClick={() => {
-                              if (child.link) {
-                                window.location.href = child.link;
-                                return;
-                              }
-                              if (child.path) {
-                                resetGeneralContext();
-                                navigate(child.path);
-                                window.scrollTo(0, 0);
-                                setIsSidebarOpen(false);
-                              }
-                            }}
+                          onClick={() => handleRouteNavigation(child)}
+                        >
+                          <div
+                            className={`flex items-center justify-center flex-shrink-0 ${
+                              child.path === currentRoute
+                                ? "text-blue-600"
+                                : "text-gray-700"
+                            }`}
                           >
-                            {t(child.name)}
+                            <IconComponent className="text-xl" />
+                          </div>
+
+                          {isExpanded && <span>{t(child.name)}</span>}
+                        </button>
+
+                        {isExpanded && childHasTabs && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleGroup(childKey);
+                            }}
+                            className="p-2 rounded-md text-gray-500 hover:bg-gray-100 ml-1"
+                            aria-label={`Toggle ${child.name} tabs`}
+                          >
+                            {isChildOpen ? (
+                              <FiChevronDown className="text-sm" />
+                            ) : (
+                              <FiChevronRight className="text-sm" />
+                            )}
                           </button>
-                        ))}
+                        )}
+                      </div>
+                    </SidebarTooltip>
+
+                    {isChildOpen && renderTabs(child, "pl-10")}
                   </div>
                 );
               }
 
-              if (
-                filteredRouteChildren &&
-                filteredRouteChildren?.length === 1
-              ) {
-                if (!filteredRouteChildren[0].isOnSidebar) return null;
-                const IconComponent = getMenuIcon(
-                  filteredRouteChildren[0].name
-                );
-                return (
-                  <SidebarTooltip
-                    key={filteredRouteChildren[0].name}
-                    content={t(filteredRouteChildren[0].name)}
-                  >
-                    <button
-                      className={`
-                      w-full flex items-center gap-2.5 px-2 py-2 rounded-lg
-                      text-sm transition-colors
-                      ${
-                        filteredRouteChildren[0].path === currentRoute
-                          ? "bg-blue-50 text-blue-600 font-medium"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }
-                      ${
-                        filteredRouteChildren[0].link
-                          ? "text-blue-600 hover:text-blue-700"
-                          : ""
-                      }
-                    `}
-                      onClick={() => {
-                        if (filteredRouteChildren[0].link) {
-                          window.location.href = filteredRouteChildren[0].link;
-                          return;
-                        }
-                        if (filteredRouteChildren[0].path) {
-                          resetGeneralContext();
-                          navigate(filteredRouteChildren[0].path);
-                          window.scrollTo(0, 0);
-                        }
-                      }}
-                    >
-                      <div
-                        className={`flex items-center justify-center flex-shrink-0 ${
-                          filteredRouteChildren[0].path === currentRoute
-                            ? "text-blue-600"
-                            : "text-gray-700"
-                        }`}
-                      >
-                        <IconComponent className="text-xl" />
-                      </div>
-                      {isExpanded && (
-                        <span>{t(filteredRouteChildren[0].name)}</span>
-                      )}
-                    </button>
-                  </SidebarTooltip>
-                );
-              }
-
               if (!route.isOnSidebar) return null;
+
               const IconComponent = getMenuIcon(route.name);
+              const routeHasTabs = route.tabs && route.tabs.length > 0;
+              const isRouteOpen = openGroups[route.name];
+
               return (
-                <SidebarTooltip key={route.name} content={t(route.name)}>
-                  <button
-                    className={`
-                    w-full flex items-center gap-2.5 px-2 py-2 rounded-lg
-                    text-sm transition-colors
-                    ${
-                      route.path === currentRoute
-                        ? "bg-blue-50 text-blue-600 font-medium"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }
-                    ${route.link ? "text-blue-600 hover:text-blue-700" : ""}
-                  `}
-                    onClick={() => {
-                      if (route.link) {
-                        window.location.href = route.link;
-                        return;
-                      }
-                      if (route.path) {
-                        resetGeneralContext();
-                        navigate(route.path);
-                        window.scrollTo(0, 0);
-                      }
-                    }}
-                  >
-                    <div
-                      className={`flex items-center justify-center flex-shrink-0 ${
-                        route.path === currentRoute
-                          ? "text-blue-600"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      <IconComponent className="text-xl" />
+                <div key={route.name}>
+                  <SidebarTooltip content={t(route.name)}>
+                    <div className="flex items-center">
+                      <button
+                        className={`
+                          flex-1 flex items-center gap-2.5 px-2 py-2 rounded-lg
+                          text-sm transition-colors
+                          ${
+                            route.path === currentRoute
+                              ? "bg-blue-50 text-blue-600 font-medium"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }
+                          ${
+                            route.link
+                              ? "text-blue-600 hover:text-blue-700"
+                              : ""
+                          }
+                        `}
+                        onClick={() => handleRouteNavigation(route)}
+                      >
+                        <div
+                          className={`flex items-center justify-center flex-shrink-0 ${
+                            route.path === currentRoute
+                              ? "text-blue-600"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          <IconComponent className="text-xl" />
+                        </div>
+
+                        {isExpanded && <span>{t(route.name)}</span>}
+                      </button>
+
+                      {isExpanded && routeHasTabs && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleGroup(route.name);
+                          }}
+                          className="p-2 rounded-md text-gray-500 hover:bg-gray-100 ml-1"
+                          aria-label={`Toggle ${route.name} tabs`}
+                        >
+                          {isRouteOpen ? (
+                            <FiChevronDown className="text-sm" />
+                          ) : (
+                            <FiChevronRight className="text-sm" />
+                          )}
+                        </button>
+                      )}
                     </div>
-                    {isExpanded && <span>{t(route.name)}</span>}
-                  </button>
-                </SidebarTooltip>
+                  </SidebarTooltip>
+
+                  {isRouteOpen && renderTabs(route, "pl-10")}
+                </div>
               );
             })}
           </div>
@@ -436,12 +642,15 @@ export const Sidebar = () => {
             <SidebarTooltip content={t("Logout")}>
               <button
                 onClick={handleLogoutClick}
-                className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg
-                text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                className="
+                  w-full flex items-center gap-2.5 px-2 py-2 rounded-lg
+                  text-sm font-medium text-red-600 hover:bg-red-50 transition-colors
+                "
               >
                 <div className="flex items-center justify-center text-red-600 flex-shrink-0">
                   <IoIosLogOut className="text-xl" />
                 </div>
+
                 {isExpanded && <span>{t("Logout")}</span>}
               </button>
             </SidebarTooltip>

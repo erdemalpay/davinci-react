@@ -7,29 +7,13 @@ import React, {
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import useIsLargeScreen from "../../../hooks/useIsLargeScreen";
+import { getTabSlug } from "../../../utils/slug";
 import { Tab } from "../shared/types";
 import { OrientationToggle } from "./OrientationToggle";
 import TabPanel from "./TabPanel";
 import VerticalTabPanel from "./VerticalTabPanel";
 
 const TAB_QUERY_PARAM = "tab";
-
-const normalizeText = (text: string) =>
-  text
-    .toLowerCase()
-    .replace(/ı/g, "i")
-    .replace(/i̇/g, "i")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c");
-
-const getTabSlug = (label: string) =>
-  normalizeText(label)
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "tab";
 
 const resolveTabIndex = (tabValue: number, tabs: Tab[]) => {
   const byAdjustedIndex = tabs.findIndex((_, index) => index === tabValue);
