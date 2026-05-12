@@ -272,6 +272,7 @@ export const Sidebar = () => {
     label: string;
     path: string;
     link?: string;
+    tabSlug?: string;
   }> = [];
 
   routes.forEach((route) => {
@@ -287,20 +288,67 @@ export const Sidebar = () => {
 
     if (filteredRouteChildren && filteredRouteChildren.length > 1) {
       filteredRouteChildren.forEach((child) => {
-        if (child.isOnSidebar) {
+        if (!child.isOnSidebar) return;
+
+        // add child main option
+        menuOptionsList.push({
+          label: t(child.name),
+          path: child.path || "",
+          link: child.link,
+        });
+
+        // add allowed child tabs
+        const controlTabsForChild =
+          (pages?.find((p) => p._id === usernamify(child.name))?.tabs as {
+            name: string;
+            permissionRoles?: number[];
+          }[]) ?? [];
+        const allowedChildTabs = (child.tabs ?? []).filter(
+          (ct) =>
+            !!controlTabsForChild.find(
+              (pt) =>
+                pt.name === ct.label &&
+                pt.permissionRoles?.includes((user?.role as Role)?._id)
+            )
+        );
+
+        allowedChildTabs.forEach((tab) => {
           menuOptionsList.push({
-            label: t(child.name),
+            label: `${t(child.name)} / ${t(tab.label)}`,
             path: child.path || "",
-            link: child.link,
+            tabSlug: getTabSlug(tab.label),
           });
-        }
+        });
       });
     } else if (filteredRouteChildren && filteredRouteChildren.length === 1) {
-      if (filteredRouteChildren[0].isOnSidebar) {
+      const child = filteredRouteChildren[0];
+      if (child.isOnSidebar) {
         menuOptionsList.push({
-          label: t(filteredRouteChildren[0].name),
-          path: filteredRouteChildren[0].path || "",
-          link: filteredRouteChildren[0].link,
+          label: t(child.name),
+          path: child.path || "",
+          link: child.link,
+        });
+
+        const controlTabsForChild =
+          (pages?.find((p) => p._id === usernamify(child.name))?.tabs as {
+            name: string;
+            permissionRoles?: number[];
+          }[]) ?? [];
+        const allowedChildTabs = (child.tabs ?? []).filter(
+          (ct) =>
+            !!controlTabsForChild.find(
+              (pt) =>
+                pt.name === ct.label &&
+                pt.permissionRoles?.includes((user?.role as Role)?._id)
+            )
+        );
+
+        allowedChildTabs.forEach((tab) => {
+          menuOptionsList.push({
+            label: `${t(child.name)} / ${t(tab.label)}`,
+            path: child.path || "",
+            tabSlug: getTabSlug(tab.label),
+          });
         });
       }
     } else if (route.isOnSidebar) {
@@ -308,6 +356,29 @@ export const Sidebar = () => {
         label: t(route.name),
         path: route.path || "",
         link: route.link,
+      });
+
+      // add allowed route-level tabs
+      const controlTabsForRoute =
+        (pages?.find((p) => p._id === usernamify(route.name))?.tabs as {
+          name: string;
+          permissionRoles?: number[];
+        }[]) ?? [];
+      const allowedRouteTabs = (route.tabs ?? []).filter(
+        (ct) =>
+          !!controlTabsForRoute.find(
+            (pt) =>
+              pt.name === ct.label &&
+              pt.permissionRoles?.includes((user?.role as Role)?._id)
+          )
+      );
+
+      allowedRouteTabs.forEach((tab) => {
+        menuOptionsList.push({
+          label: `${t(route.name)} / ${t(tab.label)}`,
+          path: route.path || "",
+          tabSlug: getTabSlug(tab.label),
+        });
       });
     }
   });
@@ -325,7 +396,13 @@ export const Sidebar = () => {
         window.location.href = selectedOption.link;
       } else if (selectedOption.path) {
         resetGeneralContext();
-        navigate(selectedOption.path);
+
+        if (selectedOption.tabSlug) {
+          navigate(`${selectedOption.path}?tab=${selectedOption.tabSlug}`);
+        } else {
+          navigate(selectedOption.path);
+        }
+
         window.scrollTo(0, 0);
         setIsSidebarOpen(false);
       }
