@@ -1,4 +1,4 @@
-import { ProductCategories as IkasCategories } from "../../../types";
+import { ProductCategories } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Accounting}/product-categories`;
@@ -8,7 +8,7 @@ export function useIkasCategoriesMutations() {
     deleteItem: deleteIkasCategories,
     updateItem: updateIkasCategories,
     createItem: createIkasCategories,
-  } = useMutationApi<IkasCategories>({
+  } = useMutationApi<ProductCategories>({
     isAdditionalInvalidate: true,
     baseQuery: baseUrl,
   });
@@ -21,26 +21,26 @@ export function useIkasCategoriesMutations() {
 }
 
 export function useGetIkasCategories() {
-  return useGetList<IkasCategories>(baseUrl);
+  return useGetList<ProductCategories>(baseUrl);
 }
 
-export function useShopifyCollectionsMutations() {
+export function useShopifyCategoriesMutations() {
   const {
-    deleteItem: deleteShopifyCollections,
-    updateItem: updateShopifyCollections,
-    createItem: createShopifyCollections,
-  } = useMutationApi<IkasCategories>({
+    deleteItem: deleteShopifyCategories,
+    updateItem: updateShopifyCategories,
+    createItem: createShopifyCategories,
+  } = useMutationApi<ProductCategories>({
     isAdditionalInvalidate: true,
     baseQuery: baseUrl,
   });
 
   return {
-    deleteShopifyCollections: deleteShopifyCollections,
-    updateShopifyCollections: updateShopifyCollections,
-    createShopifyCollections: createShopifyCollections,
+    deleteShopifyCategories,
+    updateShopifyCategories,
+    createShopifyCategories,
   };
 }
 
-export function useGetShopifyCollections() {
-  return useGetList<IkasCategories>(baseUrl);
+export function useGetShopifyCategories() {
+  return useGetList<ProductCategories>(baseUrl);
 }

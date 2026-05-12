@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
@@ -83,8 +84,10 @@ const Expenses = () => {
     return getItem(DisabledConditionEnum.CHECKOUT_EXPENSE, disabledConditions);
   }, [disabledConditions]);
   const [showFilters, setShowFilters] = useState(false);
-  const { createAccountExpense, deleteAccountExpense } =
+  const { createAccountExpense, updateAccountExpense, deleteAccountExpense } =
     useAccountExpenseMutations();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [productExpenseForm, setProductExpenseForm] = useState<any>({});
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
   const [
@@ -270,8 +273,15 @@ const Expenses = () => {
         { key: "vendor", defaultValue: "" },
       ],
     },
-    ProductInput({
-      products: products,
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products.map((product) => ({
+        value: product._id,
+        label: product.name,
+      })),
+      placeholder: t("Product"),
       required: allExpenseForm?.type === ExpenseTypes.STOCKABLE,
       isDisabled: allExpenseForm?.type !== ExpenseTypes.STOCKABLE,
       invalidateKeys: [
@@ -279,9 +289,16 @@ const Expenses = () => {
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
       ],
-    }),
-    ServiceInput({
-      services: services,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "service",
+      label: t("Service"),
+      options: services.map((service) => ({
+        value: service._id,
+        label: service.name,
+      })),
+      placeholder: t("Service"),
       required: allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE,
       isDisabled: allExpenseForm?.type !== ExpenseTypes.NONSTOCKABLE,
       invalidateKeys: [
@@ -289,7 +306,7 @@ const Expenses = () => {
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
       ],
-    }),
+    },
     ExpenseTypeInput({
       expenseTypes: expenseTypeInputOptions() ?? [],
       required: true,
@@ -402,9 +419,7 @@ const Expenses = () => {
       correspondingKey: "totalExpense",
     },
   ];
-  if (isEnableEdit) {
-    columns.push({ key: t("Action"), isSortable: false });
-  }
+
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
     {
@@ -707,6 +722,87 @@ const Expenses = () => {
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
     },
+    {
+      name: t("Edit"),
+      isDisabled: !isEnableEdit,
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl ",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          additionalCancelFunction={() => {
+            setProductExpenseForm({});
+          }}
+          additionalSubmitFunction={() => {
+            setProductExpenseForm({});
+          }}
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={[
+            ...inputs,
+            {
+              type: InputTypes.NUMBER,
+              formKey: "totalExpense",
+              label: t("Total Expense"),
+              placeholder: t("Total Expense"),
+              required: true,
+            },
+            {
+              type: InputTypes.TEXTAREA,
+              formKey: "note",
+              label: t("Note"),
+              placeholder: t("Note"),
+              required: false,
+            },
+          ]}
+          formKeys={[
+            ...formKeys,
+            { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+          ]}
+          setForm={setAllExpenseForm}
+          submitItem={updateAccountExpense as any}
+          isEditMode={true}
+          generalClassName="overflow-scroll min-w-[90%]"
+          anotherPanelTopClassName=""
+          topClassName="flex flex-col gap-2"
+          nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          constantValues={{
+            type: invoices?.find((invoice) => invoice?._id === rowToAction._id)
+              ?.product
+              ? ExpenseTypes.STOCKABLE
+              : ExpenseTypes.NONSTOCKABLE,
+          }}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              ...rowToAction,
+              date: rowToAction.date,
+              product: invoices?.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.product,
+              service: invoices?.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.service,
+              expenseType: invoices?.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.expenseType,
+              quantity: rowToAction.quantity,
+              totalExpense: rowToAction.totalExpense,
+              brand: invoices?.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.brand,
+              vendor: invoices?.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.vendor,
+            },
+          }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
   ];
   const filterPanel = {
     isFilterPanelActive: showFilters,
@@ -763,7 +859,12 @@ const Expenses = () => {
           rowKeys={rowKeys}
           filters={tableFilters}
           outsideSortProps={outsideSort}
-          columns={columns}
+          isActionsAtFront={isEnableEdit}
+          columns={
+            isEnableEdit
+              ? [{ key: t("Action"), isSortable: false }, ...columns]
+              : columns
+          }
           rows={rows ?? []}
           title={t("Expenses")}
           filterPanel={filterPanel}

@@ -14,6 +14,7 @@ import {
   useOrderMutations,
   useUpdateOrderForCancelMutation,
 } from "../../utils/api/order/order";
+import { useGetStockLocations } from "../../utils/api/location";
 import { getItem } from "../../utils/getItem";
 import { orderBgColor } from "./OrderCard";
 
@@ -47,6 +48,7 @@ const OrderListForPanelTab = ({
     return Math.floor((currentTime - orderTime) / 60000);
   };
   const items = useGetMenuItems();
+  const stockLocations = useGetStockLocations();
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
   if (!items || !kitchens || !categories || !user || !orders) {
@@ -198,6 +200,11 @@ const OrderListForPanelTab = ({
             </div>
 
             <div className="flex flex-row gap-2 items-center">
+              {order?.stockLocation && (
+                <span className="text-xs text-gray-500">
+                  ({getItem(order.stockLocation, stockLocations)?.name})
+                </span>
+              )}
               {(order?.activityTableName || order?.activityPlayer) &&
                 (order?.status === OrderStatus.READYTOSERVE ||
                   order?.status === OrderStatus.SERVED) && (

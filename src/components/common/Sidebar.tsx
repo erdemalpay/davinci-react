@@ -16,6 +16,7 @@ import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 import { getMenuIcon } from "../../utils/menuIcons";
 import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
+import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
 import SidebarTooltip from "./SidebarTooltip";
 
 export const Sidebar = () => {
@@ -37,6 +38,7 @@ export const Sidebar = () => {
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
     {}
   );
+  const [searchValue, setSearchValue] = useState("");
 
   const isExpanded = isSidebarOpen || isHoverExpanded;
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -96,6 +98,71 @@ export const Sidebar = () => {
     return null;
   }
 
+  // Build menu options for autocomplete
+  const menuOptionsList: Array<{
+    label: string;
+    path: string;
+    link?: string;
+  }> = [];
+
+  routes.forEach((route) => {
+    const filteredRouteChildren = route?.children?.filter(
+      (child) =>
+        child?.exceptionalRoles?.includes((user?.role as Role)._id) ||
+        pages?.some(
+          (page) =>
+            page.name === child.name &&
+            page.permissionRoles?.includes((user?.role as Role)._id)
+        )
+    );
+
+    if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
+      filteredRouteChildren.forEach((child) => {
+        if (child.isOnSidebar) {
+          menuOptionsList.push({
+            label: t(child.name),
+            path: child.path || "",
+            link: child.link,
+          });
+        }
+      });
+    } else if (filteredRouteChildren && filteredRouteChildren?.length === 1) {
+      if (filteredRouteChildren[0].isOnSidebar) {
+        menuOptionsList.push({
+          label: t(filteredRouteChildren[0].name),
+          path: filteredRouteChildren[0].path || "",
+          link: filteredRouteChildren[0].link,
+        });
+      }
+    } else if (route.isOnSidebar) {
+      menuOptionsList.push({
+        label: t(route.name),
+        path: route.path || "",
+        link: route.link,
+      });
+    }
+  });
+
+  const menuOptions = menuOptionsList.map((item) => ({
+    value: item.label,
+    label: item.label,
+  }));
+
+  const handleMenuSelect = (value: string) => {
+    const selectedOption = menuOptionsList.find((opt) => opt.label === value);
+    if (selectedOption) {
+      if (selectedOption.link) {
+        window.location.href = selectedOption.link;
+      } else if (selectedOption.path) {
+        resetGeneralContext();
+        navigate(selectedOption.path);
+        window.scrollTo(0, 0);
+        setIsSidebarOpen(false);
+      }
+    }
+    setSearchValue(value);
+  };
+
   const logout = () => {
     clearLocalStoragePreservingOnboarding();
     localStorage.setItem("loggedOut", "true");
@@ -128,7 +195,6 @@ export const Sidebar = () => {
           }}
         />
       )}
-
       <aside
         className={`
           hidden lg:block fixed top-0 left-0 h-screen border-r border-gray-200
@@ -166,6 +232,19 @@ export const Sidebar = () => {
         </div>
 
         <div className="flex flex-col h-[calc(100%-4rem)] py-3 px-2 bg-white overflow-y-auto">
+          <div className="mb-4">
+            <AutocompleteInput
+              placeholder={t("Search menu...") || "Search menu..."}
+              value={searchValue}
+              options={menuOptions}
+              onChange={handleMenuSelect}
+              onClear={() => setSearchValue("")}
+              disabled={false}
+              isOnClearActive={true}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+              minCharacters={1}
+            />
+          </div>
           <div className="flex-1 space-y-1">
             {routes.map((route) => {
               const filteredRouteChildren = route?.children?.filter(

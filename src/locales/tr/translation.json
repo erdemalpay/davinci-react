@@ -605,6 +605,7 @@
   "Update Authorization": "Yetkilendirme Güncelle",
   "Update Account Product": "Hesap Ürünü Güncelle",
   "Kitchen Activated": "Mutfak Aktif",
+  "KITCHENACTIVATED": "Mutfak Aktif",
   "Kitchen Deactivated": "Mutfak Pasif",
   "KITCHENDEACTIVATED": "Mutfak Pasif",
   "Order Divided": "Ürün Bölme",
@@ -855,6 +856,8 @@
   "STOCKRESTORED": "Stok Yenilendi",
   "LOSSPRODUCT": "Kayıp Ürün",
   "IKASTAKEAWAY": "İkas Gel Al",
+  "SHOPIFYTAKEAWAY": "Shopify Gel Al",
+  "SHOPIFYORDER": "Shopify Sipariş",
   "Kitchen Not Confirmed": "Mutfak Sipariş Onaylamadı",
   "KITCHENNOTCONFIRMED": "Mutfak Sipariş Onaylamadı",
   "Negative Stock": "Negatif Stok",
@@ -1539,5 +1542,8 @@
   "Item Summary": "Ürün Özeti",
   "Shopify Collections": "Shopify Tahsilatları",
   "Customer Name": "Müşteri Adı",
-  "Customer Email": "Müşteri E-posta"
+  "Customer Email": "Müşteri E-posta",
+  "Add Shopify Category": "Shopify Kategorisi Ekle",
+  "Delete Shopify Category": "Shopify Kategorisi Sil",
+  "Member Discount": "Üye İndirimi"
 }

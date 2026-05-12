@@ -10,7 +10,6 @@ import {
   ActionEnum,
   DESSERTEXPENSETYPE,
   DisabledConditionEnum,
-  SANDWICHEXPENSETYPE,
   StockHistoryStatusEnum,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
@@ -97,8 +96,7 @@ const DessertStock = () => {
         return (
           productExpenseType &&
           Array.isArray(productExpenseType) &&
-          (productExpenseType.includes(DESSERTEXPENSETYPE) ||
-            productExpenseType.includes(SANDWICHEXPENSETYPE))
+          productExpenseType.includes(DESSERTEXPENSETYPE)
         );
       })
       ?.filter((stock) => {
@@ -192,10 +190,8 @@ const DessertStock = () => {
         formKey: "product",
         label: t("Product"),
         options: products
-          ?.filter(
-            (product) =>
-              product?.expenseType?.includes(DESSERTEXPENSETYPE) ||
-              product?.expenseType?.includes(SANDWICHEXPENSETYPE)
+          ?.filter((product) =>
+            product?.expenseType?.includes(DESSERTEXPENSETYPE)
           )
           ?.map((product) => ({
             value: product._id,

@@ -1,6 +1,6 @@
 import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
@@ -42,7 +42,11 @@ import {
   unlockBodyScroll,
 } from "../../../utils/bodyScrollLock";
 import { formatDate } from "../../../utils/dateUtil";
-import { getItem, getMenuItemSubText, menuItemHasDecrementStock } from "../../../utils/getItem";
+import {
+  getItem,
+  getMenuItemSubText,
+  menuItemHasDecrementStock,
+} from "../../../utils/getItem";
 import { printTableReceipt } from "../../../utils/printReceipt";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
@@ -399,17 +403,31 @@ const OrderPaymentModal = ({
       menuItem && getItem(menuItem.category, categories)?.isOnlineOrder
     );
   }, [orderForm.item, items, categories]);
-  const menuItemStockQuantity = (item: MenuItem, location: number) => {
-    if (item?.matchedProduct) {
-      const stock = stocks?.find((stock) => {
-        return (
-          stock.product === item.matchedProduct && stock.location === location
-        );
-      });
-      return stock?.quantity ?? 0;
-    }
-    return 0;
-  };
+  const menuItemStockQuantity = useCallback(
+    (item: MenuItem, location: number) => {
+      if (item?.itemProduction && item.itemProduction.length > 0) {
+        const minItemProductionStock = item.itemProduction.map((production) => {
+          const stock = stocks?.find((stock) => {
+            return (
+              stock.product === production.product &&
+              stock.location === location
+            );
+          });
+          return stock?.quantity ?? 0;
+        });
+        return Math.min(...minItemProductionStock);
+      } else if (item?.matchedProduct) {
+        const stock = stocks?.find((stock) => {
+          return (
+            stock.product === item.matchedProduct && stock.location === location
+          );
+        });
+        return stock?.quantity ?? 0;
+      }
+      return 0;
+    },
+    [stocks]
+  );
   const menuItemOptions = useMemo(() => {
     if (!items) {
       return [];

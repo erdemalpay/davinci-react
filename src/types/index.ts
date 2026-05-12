@@ -235,6 +235,7 @@ export type User = {
   _id: string;
   name: string;
   fullName: string;
+  cafeId?: string;
   active: boolean;
   role: Role;
   jobStartDate: Date;
@@ -1089,6 +1090,7 @@ export type OrderDiscount = {
   isVisibleOnPaymentScreen?: boolean;
   status?: string;
   note?: string;
+  isMemberDiscount?: boolean;
 };
 export enum OrderDiscountStatus {
   DELETED = "deleted",
@@ -1434,7 +1436,7 @@ export enum AccountingPageTabEnum {
   BRAND,
   PRODUCT,
   // PRODUCTCATEGORIES,
-  SHOPIFYCOLLECTIONS,
+  SHOPIFYCATEGORIES,
   SERVICES,
   DISCOUNTS,
   PAYMENTMETHODS,
