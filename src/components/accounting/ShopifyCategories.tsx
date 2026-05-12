@@ -9,8 +9,8 @@ import {
   ProductCategories,
 } from "../../types";
 import {
-  useGetShopifyCollections,
-  useShopifyCollectionsMutations,
+  useGetShopifyCategories,
+  useShopifyCategoriesMutations,
 } from "../../utils/api/account/productCategories";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
@@ -19,10 +19,10 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-const ShopifyCollectionsPage = () => {
+const ShopifyCategoriesPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const shopifyCollections = useGetShopifyCollections();
+  const shopifyCategories = useGetShopifyCategories();
   const disabledConditions = useGetDisabledConditions();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -34,19 +34,19 @@ const ShopifyCollectionsPage = () => {
   const [rowToAction, setRowToAction] = useState<ProductCategories>();
 
   const {
-    createShopifyCollections,
-    updateShopifyCollections,
-    deleteShopifyCollections,
-  } = useShopifyCollectionsMutations();
+    createShopifyCategories,
+    updateShopifyCategories,
+    deleteShopifyCategories,
+  } = useShopifyCategoriesMutations();
 
-  const shopifyCollectionsPageDisabledCondition = useMemo(() => {
+  const shopifyCategoriesPageDisabledCondition = useMemo(() => {
     return getItem(
       DisabledConditionEnum.ACCOUNTING_PRODUCTCATEGORIES,
       disabledConditions
     );
   }, [disabledConditions]);
 
-  const rows = useMemo(() => shopifyCollections, [shopifyCollections]);
+  const rows = useMemo(() => shopifyCategories, [shopifyCategories]);
 
   const columns = useMemo(() => {
     return [
@@ -94,7 +94,7 @@ const ShopifyCollectionsPage = () => {
 
   const addButton = useMemo(
     () => ({
-      name: t(`Add Shopify Collection`),
+      name: t(`Add Shopify Category`),
       isModal: true,
       modal: (
         <GenericAddEditPanel
@@ -102,7 +102,7 @@ const ShopifyCollectionsPage = () => {
           close={() => setIsAddModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={createShopifyCollections as any}
+          submitItem={createShopifyCategories as any}
           topClassName="flex flex-col gap-2"
         />
       ),
@@ -111,7 +111,7 @@ const ShopifyCollectionsPage = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: shopifyCollectionsPageDisabledCondition?.actions?.some(
+      isDisabled: shopifyCategoriesPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
           user?.role?._id &&
@@ -123,8 +123,8 @@ const ShopifyCollectionsPage = () => {
       isAddModalOpen,
       inputs,
       formKeys,
-      createShopifyCollections,
-      shopifyCollectionsPageDisabledCondition,
+      createShopifyCategories,
+      shopifyCategoriesPageDisabledCondition,
       user,
     ]
   );
@@ -143,7 +143,7 @@ const ShopifyCollectionsPage = () => {
             close={() => setIsEditModalOpen(false)}
             inputs={inputs}
             formKeys={formKeys}
-            submitItem={updateShopifyCollections as any}
+            submitItem={updateShopifyCategories as any}
             isEditMode
             topClassName="flex flex-col gap-2"
             itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
@@ -152,7 +152,7 @@ const ShopifyCollectionsPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: shopifyCollectionsPageDisabledCondition?.actions?.some(
+        isDisabled: shopifyCategoriesPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
             user?.role?._id &&
@@ -168,10 +168,10 @@ const ShopifyCollectionsPage = () => {
             isOpen={isCloseAllConfirmationDialogOpen}
             close={() => setIsCloseAllConfirmationDialogOpen(false)}
             confirm={() => {
-              deleteShopifyCollections(rowToAction?._id);
+              deleteShopifyCategories(rowToAction?._id);
               setIsCloseAllConfirmationDialogOpen(false);
             }}
-            title={t("Delete Shopify Collection")}
+            title={t("Delete Shopify Category")}
             text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
           />
         ) : null,
@@ -180,7 +180,7 @@ const ShopifyCollectionsPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: shopifyCollectionsPageDisabledCondition?.actions?.some(
+        isDisabled: shopifyCategoriesPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.DELETE &&
             user?.role?._id &&
@@ -195,9 +195,9 @@ const ShopifyCollectionsPage = () => {
       isCloseAllConfirmationDialogOpen,
       inputs,
       formKeys,
-      updateShopifyCollections,
-      deleteShopifyCollections,
-      shopifyCollectionsPageDisabledCondition,
+      updateShopifyCategories,
+      deleteShopifyCategories,
+      shopifyCategoriesPageDisabledCondition,
       user,
     ]
   );
@@ -217,4 +217,4 @@ const ShopifyCollectionsPage = () => {
   );
 };
 
-export default ShopifyCollectionsPage;
+export default ShopifyCategoriesPage;
