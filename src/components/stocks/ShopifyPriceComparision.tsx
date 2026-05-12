@@ -17,6 +17,16 @@ import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
+interface ShopifyPriceRow {
+  _id: string;
+  name: string;
+  shopifyPrice: number;
+  itemPrice?: number;
+  itemOnlinePrice?: number;
+  productId?: string;
+  variantId?: string;
+}
+
 const ShopifyPriceComparision = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -69,9 +79,9 @@ const ShopifyPriceComparision = () => {
         };
       })
       .sort((a, b) => {
-        const getOrder = (row: any) => {
-          if (row.shopifyPrice < row.itemPrice) return 0;
-          if (row.shopifyPrice > row.itemPrice) return 1;
+        const getOrder = (row: ShopifyPriceRow) => {
+          if (row.shopifyPrice < (row.itemPrice ?? 0)) return 0;
+          if (row.shopifyPrice > (row.itemPrice ?? 0)) return 1;
           return 2;
         };
         return getOrder(a) - getOrder(b);
@@ -105,7 +115,7 @@ const ShopifyPriceComparision = () => {
         name: t("Update Shopify Price"),
         icon: <TbTag />,
         className: "cursor-pointer text-2xl",
-        onClick: (row: any) => {
+        onClick: (row: ShopifyPriceRow) => {
           if (
             row.shopifyPrice === row.itemPrice ||
             !row.productId ||
@@ -115,7 +125,7 @@ const ShopifyPriceComparision = () => {
           updateShopifyProductPrice({
             productId: row.productId,
             variantId: row.variantId,
-            newPrice: row.itemPrice,
+            newPrice: row.itemPrice ?? 0,
           });
         },
       },
@@ -157,11 +167,11 @@ const ShopifyPriceComparision = () => {
           filters={filters}
           isActionsActive={true}
           actions={actions}
-          rowClassNameFunction={(row: any) => {
-            if (row?.shopifyPrice < row?.itemPrice) {
+          rowClassNameFunction={(row: ShopifyPriceRow) => {
+            if (row?.shopifyPrice < (row?.itemPrice ?? 0)) {
               return "bg-red-200";
             }
-            if (row?.shopifyPrice > row?.itemPrice) {
+            if (row?.shopifyPrice > (row?.itemPrice ?? 0)) {
               return "bg-green-200";
             }
             return "";

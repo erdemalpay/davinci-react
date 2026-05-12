@@ -17,6 +17,17 @@ import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
+interface TrendyolStockRow {
+  _id: string;
+  name: string;
+  trendyolStock: number;
+  storeStock: number;
+  storeStockId?: string;
+  foundStock?: any;
+  barcode?: string;
+  menuPrice: number;
+}
+
 const TrendyolStockComparision = () => {
   const { t } = useTranslation();
   const trendyolProducts = useGetTrendyolProducts();
@@ -71,7 +82,7 @@ const TrendyolStockComparision = () => {
         };
       })
       .sort((a, b) => {
-        const getOrder = (row: any) => {
+        const getOrder = (row: TrendyolStockRow) => {
           if (row.trendyolStock > row.storeStock) return 0;
           if (row.trendyolStock < row.storeStock) return 1;
           return 2;
@@ -101,7 +112,7 @@ const TrendyolStockComparision = () => {
         name: t("Update Store Stock"),
         icon: <RiFileTransferFill />,
         className: "cursor-pointer text-2xl",
-        onClick: (row: any) => {
+        onClick: (row: TrendyolStockRow) => {
           if (row.trendyolStock === row.storeStock) return;
           if (!row.storeStockId) return;
           updateAccountStock({
@@ -117,7 +128,7 @@ const TrendyolStockComparision = () => {
         name: t("Update Trendyol Stock"),
         icon: <TbTransferOut />,
         className: "cursor-pointer text-2xl",
-        onClick: (row: any) => {
+        onClick: (row: TrendyolStockRow) => {
           if (row.trendyolStock === row.storeStock || !row.barcode) return;
           updateTrendyolProductStock({
             barcode: row.barcode,
@@ -165,7 +176,7 @@ const TrendyolStockComparision = () => {
           filters={filters}
           isActionsActive={true}
           actions={actions}
-          rowClassNameFunction={(row: any) => {
+          rowClassNameFunction={(row: TrendyolStockRow) => {
             if (row?.trendyolStock > row?.storeStock) {
               return "bg-red-200";
             }

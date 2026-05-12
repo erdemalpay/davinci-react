@@ -12,6 +12,15 @@ import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
+interface TrendyolPriceRow {
+  _id: string;
+  name: string;
+  trendyolPrice: number;
+  menuPrice: number;
+  trendyolStock: number;
+  barcode?: string;
+}
+
 const TrendyolPriceComparision = () => {
   const { t } = useTranslation();
   const trendyolProducts = useGetTrendyolProducts();
@@ -58,7 +67,7 @@ const TrendyolPriceComparision = () => {
         };
       })
       .sort((a, b) => {
-        const getOrder = (row: any) => {
+        const getOrder = (row: TrendyolPriceRow) => {
           if (row.menuPrice > row.trendyolPrice) return 0;
           if (row.menuPrice < row.trendyolPrice) return 1;
           return 2;
@@ -88,7 +97,7 @@ const TrendyolPriceComparision = () => {
         name: t("Update Trendyol Price"),
         icon: <TbTag />,
         className: "cursor-pointer text-2xl",
-        onClick: (row: any) => {
+        onClick: (row: TrendyolPriceRow) => {
           if (row.trendyolPrice === row.menuPrice || !row.barcode) return;
           updateTrendyolProductPrice({
             barcode: row.barcode,
@@ -136,7 +145,7 @@ const TrendyolPriceComparision = () => {
           filters={filters}
           isActionsActive={true}
           actions={actions}
-          rowClassNameFunction={(row: any) => {
+          rowClassNameFunction={(row: TrendyolPriceRow) => {
             if (row?.menuPrice > row?.trendyolPrice) {
               return "bg-red-200";
             }

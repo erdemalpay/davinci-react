@@ -30,7 +30,7 @@ interface HepsiburadaStockRow {
   name: string;
   hepsiburadaStock: number;
   storeStock: number;
-  storeStockId: string;
+  storeStockId?: string;
   merchantSku?: string;
   hepsiburadaSku?: string;
   foundStock?: any;
@@ -95,7 +95,7 @@ const HepsiBuradaStockComparision = () => {
         };
       })
       .sort((a, b) => {
-        const getOrder = (row: any) => {
+        const getOrder = (row: HepsiburadaStockRow) => {
           if (row.hepsiburadaStock > row.storeStock) return 0;
           if (row.hepsiburadaStock < row.storeStock) return 1;
           return 2;
@@ -128,7 +128,7 @@ const HepsiBuradaStockComparision = () => {
         onClick: (row: HepsiburadaStockRow) => {
           if (row.hepsiburadaStock === row.storeStock) return;
           updateAccountStock({
-            id: row?.storeStockId,
+            id: row?.storeStockId ?? "",
             updates: {
               ...row?.foundStock,
               quantity: row?.hepsiburadaStock,
