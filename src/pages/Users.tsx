@@ -46,6 +46,7 @@ interface TableUser {
   birthDate: Date;
   imageUrl: string;
   workType: WorkType;
+  cafeId?: string;
   userGames: [
     {
       game: number;
@@ -122,6 +123,13 @@ export default function Users() {
         required: false,
       },
       {
+        type: InputTypes.TEXT,
+        formKey: "cafeId",
+        label: t("Cafe ID"),
+        placeholder: t("Cafe ID"),
+        required: false,
+      },
+      {
         type: InputTypes.SELECT,
         formKey: "role",
         label: t("Role"),
@@ -147,8 +155,8 @@ export default function Users() {
     () => [
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "fullName", type: FormKeyTypeEnum.STRING },
-
       { key: "role", type: FormKeyTypeEnum.STRING },
+      { key: "cafeId", type: FormKeyTypeEnum.STRING },
       { key: "imageUrl", type: FormKeyTypeEnum.STRING },
     ],
     []
