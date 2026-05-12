@@ -22,6 +22,7 @@ import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
+import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
 
 export function PageSelector() {
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ export function PageSelector() {
 
   const routes = useFilteredRoutes();
   const pages = useGetPanelControlPages();
+  const [searchValue, setSearchValue] = useState("");
 
   // Active session checks
   const todayDate = format(new Date(), "yyyy-MM-dd");
@@ -63,6 +65,67 @@ export function PageSelector() {
 
   const toggleGroup = (groupName: string) => {
     setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
+  };
+
+  // Build menu options for autocomplete
+  const menuOptionsList: Array<{ label: string; path: string; link?: string }> =
+    [];
+
+  routes.forEach((route) => {
+    const filteredRouteChildren = route?.children?.filter(
+      (child) =>
+        child?.exceptionalRoles?.includes((user?.role as Role)?._id) ||
+        pages?.some(
+          (page) =>
+            page.name === child.name &&
+            page.permissionRoles?.includes((user?.role as Role)?._id)
+        )
+    );
+
+    if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
+      filteredRouteChildren.forEach((child) => {
+        if (child.isOnSidebar) {
+          menuOptionsList.push({
+            label: t(child.name),
+            path: child.path || "",
+            link: child.link,
+          });
+        }
+      });
+    } else if (filteredRouteChildren && filteredRouteChildren?.length === 1) {
+      if (filteredRouteChildren[0].isOnSidebar) {
+        menuOptionsList.push({
+          label: t(filteredRouteChildren[0].name),
+          path: filteredRouteChildren[0].path || "",
+          link: filteredRouteChildren[0].link,
+        });
+      }
+    } else if (route.isOnSidebar) {
+      menuOptionsList.push({
+        label: t(route.name),
+        path: route.path || "",
+        link: route.link,
+      });
+    }
+  });
+
+  const menuOptions = menuOptionsList.map((item) => ({
+    value: item.label,
+    label: item.label,
+  }));
+
+  const handleMenuSelect = (value: string) => {
+    const selectedOption = menuOptionsList.find((opt) => opt.label === value);
+    if (selectedOption) {
+      if (selectedOption.link) {
+        window.location.href = selectedOption.link;
+      } else if (selectedOption.path) {
+        resetGeneralContext();
+        navigate(selectedOption.path);
+        window.scrollTo(0, 0);
+      }
+    }
+    setSearchValue(value);
   };
 
   function logout() {
@@ -97,6 +160,23 @@ export function PageSelector() {
         </button>
       </MenuHandler>
       <MenuList className="overflow-scroll no-scrollbar h-[95%] max-h-max">
+        <div
+          className="px-3 py-2"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <AutocompleteInput
+            placeholder={t("Search menu...") || "Search menu..."}
+            value={searchValue}
+            options={menuOptions}
+            onChange={handleMenuSelect}
+            onClear={() => setSearchValue("")}
+            disabled={false}
+            isOnClearActive={true}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            minCharacters={1}
+          />
+        </div>
         {routes.map((route) => {
           const filteredRouteChildren = route?.children?.filter(
             (child) =>

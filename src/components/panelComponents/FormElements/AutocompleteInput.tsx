@@ -222,11 +222,16 @@ const AutocompleteInput = ({
               value={searchInput}
               onChange={handleInputChange}
               onKeyDown={handleInputKeyDown}
-              onFocus={() => {
+              onFocus={(e) => {
+                e.stopPropagation();
                 if (searchInput.length >= minCharacters) {
                   setIsOpen(true);
                 }
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
               disabled={disabled || isReadOnly}
               role="combobox"
               aria-autocomplete="list"
