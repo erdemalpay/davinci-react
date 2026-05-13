@@ -173,8 +173,19 @@ const ColdDrinkStock = () => {
       return acc;
     }, {});
 
-    return Object.values(processedRows || {});
-  }, [filteredStocks, products, items, locations, t, isColdDrinkStockEnableEdit]);
+    return Object.values(processedRows || {}).sort(
+      (a, b) =>
+        (b as { totalQuantity: number }).totalQuantity -
+        (a as { totalQuantity: number }).totalQuantity
+    );
+  }, [
+    filteredStocks,
+    products,
+    items,
+    locations,
+    t,
+    isColdDrinkStockEnableEdit,
+  ]);
 
   const generalTotalExpense = useMemo(() => {
     return (rows?.reduce((acc: number, stock: any) => {
@@ -684,7 +695,9 @@ const ColdDrinkStock = () => {
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}
-          collapsibleActions={isColdDrinkStockEnableEdit ? collapsibleActions : []}
+          collapsibleActions={
+            isColdDrinkStockEnableEdit ? collapsibleActions : []
+          }
           filters={filters}
           columns={columns}
           rows={rows}

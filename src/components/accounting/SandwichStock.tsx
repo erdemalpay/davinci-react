@@ -8,19 +8,23 @@ import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import {
   ActionEnum,
-  DESSERTEXPENSETYPE,
+  DateRangeKey,
   DisabledConditionEnum,
+  SANDWICHEXPENSETYPE,
   StockHistoryStatusEnum,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
-  useGetAccountStocks,
+  useGetFilteredStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetStoreLocations } from "../../utils/api/location";
+import { dateRanges } from "../../utils/api/dateRanges";
+import { useGetStockLocations } from "../../utils/api/location";
+import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
@@ -36,29 +40,34 @@ import {
   InputTypes,
 } from "../panelComponents/shared/types";
 
-const DessertStock = () => {
+const SandwichStock = () => {
   const { t } = useTranslation();
-  const stocks = useGetAccountStocks();
+  const {
+    showSandwichStockFilters,
+    setShowSandwichStockFilters,
+    filterSandwichStockPanelFormElements,
+    setFilterSandwichStockPanelFormElements,
+    showSandwichStockPrices,
+    setShowSandwichStockPrices,
+    isSandwichStockEnableEdit,
+    setIsSandwichStockEnableEdit,
+  } = useFilterContext();
+  const stocks = useGetFilteredStocks(
+    filterSandwichStockPanelFormElements.after,
+    filterSandwichStockPanelFormElements.location
+  );
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
-  const locations = useGetStoreLocations();
+  const locations = useGetStockLocations();
   const disabledConditions = useGetDisabledConditions();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const {
-    showDesertStockFilters,
-    setShowDesertStockFilters,
-    filterDesertStockPanelFormElements,
-    setFilterDesertStockPanelFormElements,
-    showDesertStockPrices,
-    setShowDesertStockPrices,
-    isDesertStockEnableEdit,
-    setIsDesertStockEnableEdit,
-  } = useFilterContext();
   const { mutate: stockTransfer } = useStockTransferMutation();
+  const categories = useGetCategories();
+  const onlineCategories = categories?.filter((cat) => cat?.isOnlineOrder);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
@@ -80,49 +89,48 @@ const DessertStock = () => {
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
 
-  const dessertStockPageDisabledCondition = useMemo(() => {
+  const sandwichStockPageDisabledCondition = useMemo(() => {
     return getItem(
-      DisabledConditionEnum.STOCK_DESSERTSTOCK,
+      DisabledConditionEnum.STOCK_SANDWICHSTOCK,
       disabledConditions
     );
   }, [disabledConditions]);
 
   const filteredStocks = useMemo(() => {
     return stocks
-      ?.filter((stock) => {
-        const product = getItem(stock?.product, products);
-        if (!product || product?.deleted) return false;
-        const productExpenseType = product?.expenseType;
-        return (
-          productExpenseType &&
-          Array.isArray(productExpenseType) &&
-          productExpenseType.includes(DESSERTEXPENSETYPE) &&
-          product?.matchedMenuItem
-        );
-      })
+      ?.filter((stock) =>
+        getItem(stock?.product, products)?.expenseType?.includes(
+          SANDWICHEXPENSETYPE
+        )
+      )
       ?.filter((stock) => {
         const rowProduct = getItem(stock?.product, products);
         return (
           passesFilter(
-            filterDesertStockPanelFormElements?.location,
+            filterSandwichStockPanelFormElements?.location,
             stock?.location
           ) &&
-          (!filterDesertStockPanelFormElements?.product?.length ||
-            filterDesertStockPanelFormElements?.product?.some(
+          (!filterSandwichStockPanelFormElements?.product?.length ||
+            filterSandwichStockPanelFormElements?.product?.some(
               (panelProduct: string) =>
                 passesFilter(panelProduct, stock?.product)
             )) &&
-          (!filterDesertStockPanelFormElements?.vendor ||
+          (!filterSandwichStockPanelFormElements?.itemCategory?.length ||
+            (rowProduct?.matchedMenuItem &&
+              filterSandwichStockPanelFormElements?.itemCategory?.includes(
+                getItem(rowProduct?.matchedMenuItem, items)?.category
+              ))) &&
+          (!filterSandwichStockPanelFormElements?.vendor ||
             rowProduct?.vendor?.includes(
-              filterDesertStockPanelFormElements?.vendor
+              filterSandwichStockPanelFormElements?.vendor
             )) &&
-          (!filterDesertStockPanelFormElements?.brand ||
+          (!filterSandwichStockPanelFormElements?.brand ||
             rowProduct?.brand?.includes(
-              filterDesertStockPanelFormElements?.brand
+              filterSandwichStockPanelFormElements?.brand
             ))
         );
       });
-  }, [stocks, filterDesertStockPanelFormElements, products]);
+  }, [stocks, filterSandwichStockPanelFormElements, products]);
 
   const rows = useMemo(() => {
     const processedRows = filteredStocks?.reduce((acc: any, stock) => {
@@ -133,13 +141,15 @@ const DessertStock = () => {
       const unitPrice = rowProduct?.unitPrice ?? 0;
       const quantity = stock?.quantity;
       const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
-      if (!productName || !locationName) {
+      if (!productName) {
         return acc;
       }
       if (!acc[productName]) {
         acc[productName] = {
           ...stock,
           prdct: productName,
+          sku: rowItem?.sku ?? "",
+          barcode: rowItem?.barcode ?? "",
           unitPrice,
           menuPrice: rowItem?.price ?? "",
           onlineMenuPrice: rowItem?.onlinePrice ?? "",
@@ -149,7 +159,7 @@ const DessertStock = () => {
             collapsibleColumns: [
               { key: t("Location"), isSortable: true },
               { key: t("Quantity"), isSortable: true },
-              isDesertStockEnableEdit
+              isSandwichStockEnableEdit
                 ? { key: t("Actions"), isSortable: false }
                 : undefined,
             ].filter(Boolean),
@@ -179,7 +189,14 @@ const DessertStock = () => {
         (b as { totalQuantity: number }).totalQuantity -
         (a as { totalQuantity: number }).totalQuantity
     );
-  }, [filteredStocks, products, items, locations, t, isDesertStockEnableEdit]);
+  }, [
+    filteredStocks,
+    products,
+    items,
+    locations,
+    t,
+    isSandwichStockEnableEdit,
+  ]);
 
   const generalTotalExpense = useMemo(() => {
     return (rows?.reduce((acc: number, stock: any) => {
@@ -195,10 +212,8 @@ const DessertStock = () => {
         formKey: "product",
         label: t("Product"),
         options: products
-          ?.filter(
-            (product) =>
-              product?.expenseType?.includes(DESSERTEXPENSETYPE) &&
-              product?.matchedMenuItem
+          ?.filter((product) =>
+            product?.expenseType?.includes(SANDWICHEXPENSETYPE)
           )
           ?.map((product) => ({
             value: product._id,
@@ -278,6 +293,8 @@ const DessertStock = () => {
   const columns = useMemo(() => {
     const cols = [
       { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
+      { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
+      { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
       {
         key: t("Quantity"),
         isSortable: true,
@@ -289,12 +306,17 @@ const DessertStock = () => {
         correspondingKey: "unitPrice",
       },
       { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
+      {
+        key: t("Online Price"),
+        isSortable: true,
+        correspondingKey: "menuPrice",
+      },
       { key: t("Total Price"), isSortable: true },
     ];
 
     if (
-      !showDesertStockPrices ||
-      dessertStockPageDisabledCondition?.actions?.some(
+      !showSandwichStockPrices ||
+      sandwichStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
           user?.role?._id &&
@@ -305,11 +327,13 @@ const DessertStock = () => {
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
     return cols;
-  }, [t, dessertStockPageDisabledCondition, user, showDesertStockPrices]);
+  }, [t, sandwichStockPageDisabledCondition, user, showSandwichStockPrices]);
 
   const rowKeys = useMemo(() => {
     const keys = [
       { key: "prdct" },
+      { key: "sku" },
+      { key: "barcode" },
       { key: "totalQuantity" },
       {
         key: "unitPrice",
@@ -325,14 +349,23 @@ const DessertStock = () => {
         },
       },
       {
+        key: "onlineMenuPrice",
+        node: (row: any) => {
+          if (row?.onlineMenuPrice) {
+            return <div>{formatPrice(row?.onlineMenuPrice)} ₺</div>;
+          }
+          return <></>;
+        },
+      },
+      {
         key: "totalGroupPrice",
         node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
       },
     ];
 
     if (
-      !showDesertStockPrices ||
-      dessertStockPageDisabledCondition?.actions?.some(
+      !showSandwichStockPrices ||
+      sandwichStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.SHOWPRICES &&
           user?.role?._id &&
@@ -343,7 +376,7 @@ const DessertStock = () => {
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
     return keys;
-  }, [dessertStockPageDisabledCondition, user, showDesertStockPrices]);
+  }, [sandwichStockPageDisabledCondition, user, showSandwichStockPrices]);
 
   const addButton = useMemo(
     () => ({
@@ -367,7 +400,7 @@ const DessertStock = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+      isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
         (ac) =>
           ac.action === ActionEnum.ADD &&
           user?.role?._id &&
@@ -380,7 +413,7 @@ const DessertStock = () => {
       inputs,
       formKeys,
       createAccountStock,
-      dessertStockPageDisabledCondition,
+      sandwichStockPageDisabledCondition,
       user,
     ]
   );
@@ -410,7 +443,7 @@ const DessertStock = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.DELETE &&
             user?.role?._id &&
@@ -456,7 +489,7 @@ const DessertStock = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
             user?.role?._id &&
@@ -498,7 +531,7 @@ const DessertStock = () => {
         isModalOpen: isStockTransferModalOpen,
         setIsModal: setIsStockTransferModalOpen,
         isPath: false,
-        isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.TRANSFER &&
             user?.role?._id &&
@@ -512,7 +545,7 @@ const DessertStock = () => {
       isCloseAllConfirmationDialogOpen,
       deleteAccountStock,
       products,
-      dessertStockPageDisabledCondition,
+      sandwichStockPageDisabledCondition,
       user,
       isEditModalOpen,
       inputs,
@@ -544,7 +577,7 @@ const DessertStock = () => {
             </p>
           </div>
         ),
-        isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.SHOWTOTAL &&
             user?.role?._id &&
@@ -556,13 +589,13 @@ const DessertStock = () => {
         isUpperSide: true,
         node: (
           <SwitchButton
-            checked={showDesertStockPrices}
+            checked={showSandwichStockPrices}
             onChange={() => {
-              setShowDesertStockPrices(!showDesertStockPrices);
+              setShowSandwichStockPrices(!showSandwichStockPrices);
             }}
           />
         ),
-        isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.SHOWPRICES &&
             user?.role?._id &&
@@ -574,13 +607,13 @@ const DessertStock = () => {
         isUpperSide: true,
         node: (
           <SwitchButton
-            checked={isDesertStockEnableEdit}
+            checked={isSandwichStockEnableEdit}
             onChange={() => {
-              setIsDesertStockEnableEdit(!isDesertStockEnableEdit);
+              setIsSandwichStockEnableEdit(!isSandwichStockEnableEdit);
             }}
           />
         ),
-        isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.ENABLEEDIT &&
             user?.role?._id &&
@@ -592,9 +625,9 @@ const DessertStock = () => {
         isUpperSide: true,
         node: (
           <SwitchButton
-            checked={showDesertStockFilters}
+            checked={showSandwichStockFilters}
             onChange={() => {
-              setShowDesertStockFilters(!showDesertStockFilters);
+              setShowSandwichStockFilters(!showSandwichStockFilters);
             }}
           />
         ),
@@ -603,14 +636,14 @@ const DessertStock = () => {
     [
       t,
       generalTotalExpense,
-      dessertStockPageDisabledCondition,
+      sandwichStockPageDisabledCondition,
       user,
-      showDesertStockPrices,
-      setShowDesertStockPrices,
-      isDesertStockEnableEdit,
-      setIsDesertStockEnableEdit,
-      showDesertStockFilters,
-      setShowDesertStockFilters,
+      showSandwichStockPrices,
+      setShowSandwichStockPrices,
+      isSandwichStockEnableEdit,
+      setIsSandwichStockEnableEdit,
+      showSandwichStockFilters,
+      setShowSandwichStockFilters,
     ]
   );
 
@@ -621,10 +654,8 @@ const DessertStock = () => {
         formKey: "product",
         label: t("Product"),
         options: products
-          ?.filter(
-            (product) =>
-              product?.expenseType?.includes(DESSERTEXPENSETYPE) &&
-              product?.matchedMenuItem
+          ?.filter((product) =>
+            product?.expenseType?.includes(SANDWICHEXPENSETYPE)
           )
           ?.map((product) => ({
             value: product._id,
@@ -667,24 +698,80 @@ const DessertStock = () => {
         placeholder: t("Location"),
         required: true,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "itemCategory",
+        label: t("Item Category"),
+        options: onlineCategories.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        isMultiple: true,
+        placeholder: t("Item Category"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions?.map((option) => ({
+          value: option.value,
+          label: t(option.label),
+        })),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({
+          value,
+          label,
+        }: {
+          value: string;
+          label: string;
+        }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterSandwichStockPanelFormElements({
+              ...filterSandwichStockPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
     ],
-    [products, vendors, brands, locations, t]
+    [
+      products,
+      vendors,
+      brands,
+      locations,
+      t,
+      filterSandwichStockPanelFormElements,
+      setFilterSandwichStockPanelFormElements,
+    ]
   );
 
   const filterPanel = useMemo(
     () => ({
-      isFilterPanelActive: showDesertStockFilters,
+      isFilterPanelActive: showSandwichStockFilters,
       inputs: filterPanelInputs,
-      formElements: filterDesertStockPanelFormElements,
-      setFormElements: setFilterDesertStockPanelFormElements,
-      closeFilters: () => setShowDesertStockFilters(false),
+      formElements: filterSandwichStockPanelFormElements,
+      setFormElements: setFilterSandwichStockPanelFormElements,
+      closeFilters: () => setShowSandwichStockFilters(false),
     }),
     [
-      showDesertStockFilters,
+      showSandwichStockFilters,
       filterPanelInputs,
-      filterDesertStockPanelFormElements,
-      setFilterDesertStockPanelFormElements,
-      setShowDesertStockFilters,
+      filterSandwichStockPanelFormElements,
+      setFilterSandwichStockPanelFormElements,
+      setShowSandwichStockFilters,
     ]
   );
 
@@ -693,30 +780,32 @@ const DessertStock = () => {
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}
-          collapsibleActions={isDesertStockEnableEdit ? collapsibleActions : []}
+          collapsibleActions={
+            isSandwichStockEnableEdit ? collapsibleActions : []
+          }
           filters={filters}
           columns={columns}
           rows={rows}
-          title={t("Dessert Stocks")}
+          title={t("Sandwich Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isActionsActive={isDesertStockEnableEdit}
+          isActionsActive={isSandwichStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
           isExcel={
             user &&
-            !dessertStockPageDisabledCondition?.actions?.some(
+            !sandwichStockPageDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.EXCEL &&
                 user?.role?._id &&
                 !ac?.permissionsRoles?.includes(user?.role?._id)
             )
           }
-          excelFileName="TatliStok.xlsx"
+          excelFileName="SandwichStok.xlsx"
         />
       </div>
     </>
   );
 };
 
-export default DessertStock;
+export default SandwichStock;

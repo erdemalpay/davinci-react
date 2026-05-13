@@ -181,7 +181,11 @@ const GameStock = () => {
       return acc;
     }, {});
 
-    return Object.values(processedRows || {});
+    return Object.values(processedRows || {}).sort(
+      (a, b) =>
+        (b as { totalQuantity: number }).totalQuantity -
+        (a as { totalQuantity: number }).totalQuantity
+    );
   }, [filteredStocks, products, items, locations, t, isGameStockEnableEdit]);
 
   const generalTotalExpense = useMemo(() => {
@@ -356,10 +360,7 @@ const GameStock = () => {
           !ac?.permissionsRoles?.includes(user?.role?._id)
       )
     ) {
-      const splicedRowKeys = [
-        "unitPrice",
-        "totalGroupPrice",
-      ];
+      const splicedRowKeys = ["unitPrice", "totalGroupPrice"];
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
     return keys;

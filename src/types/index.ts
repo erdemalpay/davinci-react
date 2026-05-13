@@ -679,6 +679,7 @@ export enum DisabledConditionEnum {
   USERS = "users",
   POINTS_USERSPOINT = "points_userspoint",
   POINTS_CONSUMERSPOINT = "points_consumerspoint",
+  STOCK_SANDWICHSTOCK = "stocks_sandwichstock",
 }
 
 export enum ActionEnum {
@@ -1462,6 +1463,7 @@ export enum StocksPageTabEnum {
   GAMESTOCK,
   DESSERTSTOCK,
   COLDDRINKSTOCK,
+  SANDWICHSTOCK,
   GAMESTOCKBYLOCATION,
   BASEQUANTITYBYLOCATION,
   PRODUCTSHELFINFO,
