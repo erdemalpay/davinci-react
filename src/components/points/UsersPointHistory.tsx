@@ -31,7 +31,7 @@ const UsersPointHistoryComponent = () => {
   });
   const users = useGetUsersMinimal();
   const consumers = useGetConsumersWithFullNames();
-  const tables = useGetTables();
+  const tables = useGetTables(); //bu hooktan çektiğimiz veri zaten cache'li olduğu için tüm masaları aldım abi
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
