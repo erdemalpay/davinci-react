@@ -21,6 +21,17 @@ import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
+interface ShopifyStockRow {
+  _id: string;
+  name: string;
+  shopifyStock?: number;
+  shopifyOnHandStock?: number;
+  shopifyVariantId?: string;
+  storeStock?: number;
+  storeStockId?: string;
+  foundStock?: any;
+}
+
 const ShopifyStockComparision = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -101,11 +112,12 @@ const ShopifyStockComparision = () => {
         };
       })
       .sort((a, b) => {
-        const isAEqual = a.shopifyStock === a.storeStock;
-        const isBEqual = b.shopifyStock === b.storeStock;
-        if (isAEqual && !isBEqual) return 1;
-        if (!isAEqual && isBEqual) return -1;
-        return 0;
+        const getOrder = (row: ShopifyStockRow) => {
+          if ((row.shopifyStock ?? 0) > (row.storeStock ?? 0)) return 0;
+          if ((row.shopifyStock ?? 0) < (row.storeStock ?? 0)) return 1;
+          return 2;
+        };
+        return getOrder(a) - getOrder(b);
       });
   }, [shopifyItemProducts, stocks, shopifyProducts, items]);
 
@@ -136,10 +148,10 @@ const ShopifyStockComparision = () => {
         name: t("Update Store Stock"),
         icon: <RiFileTransferFill />,
         className: " cursor-pointer text-2xl",
-        onClick: (row: any) => {
+        onClick: (row: ShopifyStockRow) => {
           if (row.shopifyStock === row.storeStock) return;
           updateAccountStock({
-            id: row?.storeStockId,
+            id: row?.storeStockId ?? "",
             updates: {
               ...row?.foundStock,
               quantity: row?.shopifyStock,
@@ -157,14 +169,14 @@ const ShopifyStockComparision = () => {
         name: t("Update Shopify Stocks"),
         icon: <TbTransferOut />,
         className: " cursor-pointer text-2xl",
-        onClick: (row: any) => {
+        onClick: (row: ShopifyStockRow) => {
           if (row.shopifyStock === row.storeStock || !row.shopifyVariantId)
             return;
           console.log(row.shopifyVariantId);
           updateShopifyProductStock({
             variantId: row.shopifyVariantId,
             stockLocationId: 6,
-            stockCount: row.storeStock,
+            stockCount: row.storeStock ?? 0,
           });
         },
         isDisabled: shopifyStockComparisionPageDisabledCondition?.actions?.some(
@@ -228,16 +240,16 @@ const ShopifyStockComparision = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("Shopify Stock Comparision")}
+          title={t("Shopify Stock Comparison")}
           filters={filters}
           isActionsActive={true}
           actions={actions}
-          rowClassNameFunction={(row: any) => {
+          rowClassNameFunction={(row: ShopifyStockRow) => {
             // Compare using available quantity (shopifyStock)
-            if (row?.shopifyStock > row?.storeStock) {
+            if ((row?.shopifyStock ?? 0) > (row?.storeStock ?? 0)) {
               return "bg-red-200";
             }
-            if (row?.shopifyStock < row?.storeStock) {
+            if ((row?.shopifyStock ?? 0) < (row?.storeStock ?? 0)) {
               return "bg-green-200";
             }
             return "";

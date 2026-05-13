@@ -9,6 +9,7 @@ import HepsiBuradaPriceComparision from "../components/stocks/HepsiBuradaPriceCo
 import HepsiBuradaStockComparision from "../components/stocks/HepsiBuradaStockComparision";
 import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
 import ShopifyStockComparision from "../components/stocks/ShopifyStockComparision";
+import TrendyolPriceComparision from "../components/stocks/TrendyolPriceComparision";
 import TrendyolStockComparision from "../components/stocks/TrendyolStockComparision";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -21,37 +22,44 @@ import MailSubscriptions from "./MailSubscriptions";
 export const IntegrationPageTabs = [
   {
     number: IntegrationPageTabEnum.SHOPIFYSTOCKCOMPARISION,
-    label: "Shopify Stock Comparision",
+    label: "Shopify Stock Comparison",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <ShopifyStockComparision />,
     isDisabled: false,
   },
   {
     number: IntegrationPageTabEnum.SHOPIFYPRICECOMPARISION,
-    label: "Shopify Price Comparision",
+    label: "Shopify Price Comparison",
     icon: <MdOutlinePriceChange className="text-lg font-thin" />,
     content: <ShopifyPriceComparision />,
     isDisabled: false,
   },
   {
     number: IntegrationPageTabEnum.TRENDYOLSTOCKCOMPARISION,
-    label: "Trendyol Stock Comparision",
+    label: "Trendyol Stock Comparison",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <TrendyolStockComparision />,
     isDisabled: false,
   },
   {
-    number: IntegrationPageTabEnum.HEPSIBURADAPRICECOMPARISION,
-    label: "HepsiBurada Price Comparision",
+    number: IntegrationPageTabEnum.TRENDYOLPRICECOMPARISION,
+    label: "Trendyol Price Comparison",
     icon: <MdOutlinePriceChange className="text-lg font-thin" />,
-    content: <HepsiBuradaPriceComparision />,
+    content: <TrendyolPriceComparision />,
     isDisabled: false,
   },
   {
     number: IntegrationPageTabEnum.HEPSIBURADASTOCKCOMPARISION,
-    label: "HepsiBurada Stock Comparision",
+    label: "HepsiBurada Stock Comparison",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <HepsiBuradaStockComparision />,
+    isDisabled: false,
+  },
+  {
+    number: IntegrationPageTabEnum.HEPSIBURADAPRICECOMPARISION,
+    label: "HepsiBurada Price Comparison",
+    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
+    content: <HepsiBuradaPriceComparision />,
     isDisabled: false,
   },
   {

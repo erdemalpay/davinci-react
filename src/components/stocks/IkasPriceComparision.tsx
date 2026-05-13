@@ -132,7 +132,7 @@
 //           rowKeys={rowKeys}
 //           columns={columns}
 //           rows={rows}
-//           title={t("Ikas Price Comparision")}
+//           title={t("Ikas Price Comparison")}
 //           filters={filters}
 //           isActionsActive={false}
 //           rowClassNameFunction={(row: any) => {
