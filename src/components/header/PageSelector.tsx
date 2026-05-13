@@ -16,7 +16,20 @@ import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
 import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
+import { getTabSlug } from "../../utils/slug";
+import { usernamify } from "../../utils/string";
 import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
+import { Tab } from "../panelComponents/shared/types";
+
+type SidebarRouteItem = {
+  name: string;
+  path?: string;
+  link?: string;
+  isOnSidebar?: boolean;
+  exceptionalRoles?: number[];
+  tabs?: Tab[];
+  children?: SidebarRouteItem[];
+};
 
 export function PageSelector() {
   const navigate = useNavigate();
@@ -83,9 +96,74 @@ export function PageSelector() {
     setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
   };
 
+  const getActiveTab = () => {
+    return new URLSearchParams(location.search).get("tab");
+  };
+
+  const renderTabs = (item: SidebarRouteItem) => {
+    if (!item.tabs || item.tabs.length === 0 || !item.path) {
+      return null;
+    }
+
+    const pageId = usernamify(item.name);
+    const controlPage = pages?.find((p) => p._id === pageId);
+    const controlTabs =
+      (controlPage?.tabs as { name: string; permissionRoles?: number[] }[]) ??
+      [];
+
+    const allowedTabs = (item.tabs ?? []).filter(
+      (ct) =>
+        !!controlTabs.find(
+          (pt) =>
+            pt.name === ct.label &&
+            pt.permissionRoles?.includes((user?.role as Role)?._id)
+        )
+    );
+
+    if (allowedTabs.length === 0) return null;
+
+    const activeTab = getActiveTab();
+
+    return (
+      <div className="mt-1 space-y-1 bg-gray-50">
+        {allowedTabs.map((tab) => {
+          const tabSlug = getTabSlug(tab.label);
+          const isActive = item.path === currentRoute && activeTab === tabSlug;
+
+          return (
+            <button
+              key={tab.label}
+              onClick={() => {
+                resetGeneralContext();
+                navigate(`${item.path}?tab=${tabSlug}`);
+                window.scrollTo(0, 0);
+                setIsMenuOpen(false);
+              }}
+              className={`
+                w-full flex justify-start text-left pl-12 pr-4 py-2 rounded-none
+                text-sm font-normal transition-colors
+                ${
+                  isActive
+                    ? "bg-blue-50 text-blue-600 font-medium"
+                    : "text-gray-600 hover:bg-gray-100"
+                }
+              `}
+            >
+              {t(tab.label)}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
   // Build menu options for autocomplete
-  const menuOptionsList: Array<{ label: string; path: string; link?: string }> =
-    [];
+  const menuOptionsList: Array<{
+    label: string;
+    path: string;
+    link?: string;
+    tabSlug?: string;
+  }> = [];
 
   routes.forEach((route) => {
     const filteredRouteChildren = route?.children?.filter(
@@ -100,20 +178,67 @@ export function PageSelector() {
 
     if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
       filteredRouteChildren.forEach((child) => {
-        if (child.isOnSidebar) {
+        if (!child.isOnSidebar) return;
+
+        // add child main option
+        menuOptionsList.push({
+          label: t(child.name),
+          path: child.path || "",
+          link: child.link,
+        });
+
+        // add allowed child tabs
+        const controlTabsForChild =
+          (pages?.find((p) => p._id === usernamify(child.name))?.tabs as {
+            name: string;
+            permissionRoles?: number[];
+          }[]) ?? [];
+        const allowedChildTabs = (child.tabs ?? []).filter(
+          (ct) =>
+            !!controlTabsForChild.find(
+              (pt) =>
+                pt.name === ct.label &&
+                pt.permissionRoles?.includes((user?.role as Role)?._id)
+            )
+        );
+
+        allowedChildTabs.forEach((tab) => {
           menuOptionsList.push({
-            label: t(child.name),
+            label: `${t(child.name)} / ${t(tab.label)}`,
             path: child.path || "",
-            link: child.link,
+            tabSlug: getTabSlug(tab.label),
           });
-        }
+        });
       });
     } else if (filteredRouteChildren && filteredRouteChildren?.length === 1) {
-      if (filteredRouteChildren[0].isOnSidebar) {
+      const child = filteredRouteChildren[0];
+      if (child.isOnSidebar) {
         menuOptionsList.push({
-          label: t(filteredRouteChildren[0].name),
-          path: filteredRouteChildren[0].path || "",
-          link: filteredRouteChildren[0].link,
+          label: t(child.name),
+          path: child.path || "",
+          link: child.link,
+        });
+
+        const controlTabsForChild =
+          (pages?.find((p) => p._id === usernamify(child.name))?.tabs as {
+            name: string;
+            permissionRoles?: number[];
+          }[]) ?? [];
+        const allowedChildTabs = (child.tabs ?? []).filter(
+          (ct) =>
+            !!controlTabsForChild.find(
+              (pt) =>
+                pt.name === ct.label &&
+                pt.permissionRoles?.includes((user?.role as Role)?._id)
+            )
+        );
+
+        allowedChildTabs.forEach((tab) => {
+          menuOptionsList.push({
+            label: `${t(child.name)} / ${t(tab.label)}`,
+            path: child.path || "",
+            tabSlug: getTabSlug(tab.label),
+          });
         });
       }
     } else if (route.isOnSidebar) {
@@ -121,6 +246,29 @@ export function PageSelector() {
         label: t(route.name),
         path: route.path || "",
         link: route.link,
+      });
+
+      // add allowed route-level tabs
+      const controlTabsForRoute =
+        (pages?.find((p) => p._id === usernamify(route.name))?.tabs as {
+          name: string;
+          permissionRoles?: number[];
+        }[]) ?? [];
+      const allowedRouteTabs = (route.tabs ?? []).filter(
+        (ct) =>
+          !!controlTabsForRoute.find(
+            (pt) =>
+              pt.name === ct.label &&
+              pt.permissionRoles?.includes((user?.role as Role)?._id)
+          )
+      );
+
+      allowedRouteTabs.forEach((tab) => {
+        menuOptionsList.push({
+          label: `${t(route.name)} / ${t(tab.label)}`,
+          path: route.path || "",
+          tabSlug: getTabSlug(tab.label),
+        });
       });
     }
   });
@@ -132,15 +280,24 @@ export function PageSelector() {
 
   const handleMenuSelect = (value: string) => {
     const selectedOption = menuOptionsList.find((opt) => opt.label === value);
+
     if (selectedOption) {
       if (selectedOption.link) {
         window.location.href = selectedOption.link;
       } else if (selectedOption.path) {
         resetGeneralContext();
-        navigate(selectedOption.path);
+
+        if (selectedOption.tabSlug) {
+          navigate(`${selectedOption.path}?tab=${selectedOption.tabSlug}`);
+        } else {
+          navigate(selectedOption.path);
+        }
+
         window.scrollTo(0, 0);
+        setIsMenuOpen(false);
       }
     }
+
     setSearchValue(value);
   };
 
@@ -209,6 +366,7 @@ export function PageSelector() {
                     page.permissionRoles?.includes((user?.role as Role)?._id)
                 )
             );
+
             if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
               return (
                 <div key={route.name}>
@@ -231,105 +389,323 @@ export function PageSelector() {
                   {openGroups[route.name] &&
                     filteredRouteChildren
                       .filter((child) => child.isOnSidebar)
-                      .map((child) => (
-                        <button
-                          type="button"
-                          key={child.name}
-                          className={`w-full text-left pl-6 pr-4 py-2 ${
-                            child.path === currentRoute
-                              ? "bg-gray-100 text-black"
-                              : ""
-                          }
-                        ${
-                          child.link &&
-                          "text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
-                        }    
-                        `}
-                          onClick={() => {
-                            if (child.link) {
-                              window.location.href = child.link;
-                              return;
-                            }
-                            if (child.path) {
-                              resetGeneralContext();
-                              navigate(child.path);
-                              window.scrollTo(0, 0);
-                              setIsMenuOpen(false);
-                            }
-                          }}
-                        >
-                          {t(child.name)}
-                        </button>
-                      ))}
+                      .map((child) => {
+                        const controlTabsForChild =
+                          (pages?.find((p) => p._id === usernamify(child.name))
+                            ?.tabs as {
+                            name: string;
+                            permissionRoles?: number[];
+                          }[]) ?? [];
+                        const allowedChildTabs = (child.tabs ?? []).filter(
+                          (ct) =>
+                            !!controlTabsForChild.find(
+                              (pt) =>
+                                pt.name === ct.label &&
+                                pt.permissionRoles?.includes(
+                                  (user?.role as Role)?._id
+                                )
+                            )
+                        );
+                        const childHasTabs = allowedChildTabs.length > 0;
+                        const childKey = `${route.name}-${child.name}`;
+                        const isChildOpen = openGroups[childKey];
+
+                        return (
+                          <div key={child.name}>
+                            <div className="flex items-center">
+                              <button
+                                className={`
+                                  flex-1 flex items-center pl-8 pr-3 py-2 rounded-none
+                                  text-sm font-normal transition-colors
+                                  ${
+                                    child.path === currentRoute
+                                      ? "bg-blue-50 text-blue-600 font-medium"
+                                      : "text-gray-600 hover:bg-gray-50"
+                                  }
+                                  ${
+                                    child.link
+                                      ? "text-blue-600 hover:text-blue-700"
+                                      : ""
+                                  }
+                                `}
+                                onClick={() => {
+                                  if (child.link) {
+                                    window.location.href = child.link;
+                                    return;
+                                  }
+
+                                  if (!child.path) return;
+
+                                  resetGeneralContext();
+
+                                  const pageId = usernamify(child.name);
+                                  const controlPage = pages?.find(
+                                    (p) => p._id === pageId
+                                  );
+                                  const controlTabs =
+                                    (controlPage?.tabs as {
+                                      name: string;
+                                      permissionRoles?: number[];
+                                    }[]) ?? [];
+                                  const allowedTabs = (child.tabs ?? []).filter(
+                                    (ct) =>
+                                      !!controlTabs.find(
+                                        (pt) =>
+                                          pt.name === ct.label &&
+                                          pt.permissionRoles?.includes(
+                                            (user?.role as Role)?._id
+                                          )
+                                      )
+                                  );
+
+                                  if (allowedTabs.length > 0) {
+                                    navigate(
+                                      `${child.path}?tab=${getTabSlug(
+                                        allowedTabs[0].label
+                                      )}`
+                                    );
+                                  } else {
+                                    navigate(child.path);
+                                  }
+
+                                  window.scrollTo(0, 0);
+                                  setIsMenuOpen(false);
+                                }}
+                              >
+                                {t(child.name)}
+                              </button>
+
+                              {childHasTabs && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleGroup(childKey);
+                                  }}
+                                  className="p-2 text-gray-500 hover:bg-gray-100"
+                                  aria-label={`Toggle ${child.name} tabs`}
+                                >
+                                  {isChildOpen ? (
+                                    <FiChevronDown className="text-sm" />
+                                  ) : (
+                                    <FiChevronRight className="text-sm" />
+                                  )}
+                                </button>
+                              )}
+                            </div>
+
+                            {isChildOpen && renderTabs(child)}
+                          </div>
+                        );
+                      })}
                 </div>
               );
             } else if (
               filteredRouteChildren &&
               filteredRouteChildren?.length === 1
             ) {
-              if (!filteredRouteChildren[0].isOnSidebar) return null;
+              const child = filteredRouteChildren[0];
+
+              if (!child.isOnSidebar) return null;
+
+              const controlTabsForChild =
+                (pages?.find((p) => p._id === usernamify(child.name))?.tabs as {
+                  name: string;
+                  permissionRoles?: number[];
+                }[]) ?? [];
+              const allowedChildTabs = (child.tabs ?? []).filter(
+                (ct) =>
+                  !!controlTabsForChild.find(
+                    (pt) =>
+                      pt.name === ct.label &&
+                      pt.permissionRoles?.includes((user?.role as Role)?._id)
+                  )
+              );
+              const childHasTabs = allowedChildTabs.length > 0;
+              const childKey = `${route.name}-${child.name}`;
+              const isChildOpen = openGroups[childKey];
+
               return (
-                <button
-                  type="button"
-                  key={filteredRouteChildren[0].name}
-                  className={`w-full text-left px-4 py-2 ${
-                    filteredRouteChildren[0].path === currentRoute
-                      ? "bg-gray-100 text-black"
-                      : ""
-                  } ${
-                    filteredRouteChildren[0].link &&
-                    "text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
-                  }`}
-                  onClick={() => {
-                    if (
-                      filteredRouteChildren &&
-                      filteredRouteChildren[0].path
-                    ) {
-                      resetGeneralContext();
-                      navigate(filteredRouteChildren[0].path);
-                      window.scrollTo(0, 0);
-                      setIsMenuOpen(false);
-                    }
-                    if (
-                      filteredRouteChildren &&
-                      filteredRouteChildren[0].link
-                    ) {
-                      window.location.href = filteredRouteChildren[0].link;
-                      return;
-                    }
-                  }}
-                >
-                  {t(filteredRouteChildren[0].name)}
-                </button>
+                <div key={child.name}>
+                  <div className="flex items-center">
+                    <button
+                      className={`
+                        flex-1 flex items-center pl-4 pr-3 py-2 rounded-none
+                        text-sm font-normal transition-colors
+                        ${
+                          child.path === currentRoute
+                            ? "bg-blue-50 text-blue-600 font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }
+                        ${child.link ? "text-blue-600 hover:text-blue-700" : ""}
+                      `}
+                      onClick={() => {
+                        if (child.link) {
+                          window.location.href = child.link;
+                          return;
+                        }
+
+                        if (!child.path) return;
+
+                        resetGeneralContext();
+
+                        const pageId = usernamify(child.name);
+                        const controlPage = pages?.find(
+                          (p) => p._id === pageId
+                        );
+                        const controlTabs =
+                          (controlPage?.tabs as {
+                            name: string;
+                            permissionRoles?: number[];
+                          }[]) ?? [];
+                        const allowedTabs = (child.tabs ?? []).filter(
+                          (ct) =>
+                            !!controlTabs.find(
+                              (pt) =>
+                                pt.name === ct.label &&
+                                pt.permissionRoles?.includes(
+                                  (user?.role as Role)?._id
+                                )
+                            )
+                        );
+
+                        if (allowedTabs.length > 0) {
+                          navigate(
+                            `${child.path}?tab=${getTabSlug(
+                              allowedTabs[0].label
+                            )}`
+                          );
+                        } else {
+                          navigate(child.path);
+                        }
+
+                        window.scrollTo(0, 0);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {t(child.name)}
+                    </button>
+
+                    {childHasTabs && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleGroup(childKey);
+                        }}
+                        className="p-2 text-gray-500 hover:bg-gray-100"
+                        aria-label={`Toggle ${child.name} tabs`}
+                      >
+                        {isChildOpen ? (
+                          <FiChevronDown className="text-sm" />
+                        ) : (
+                          <FiChevronRight className="text-sm" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {isChildOpen && renderTabs(child)}
+                </div>
               );
             } else {
               if (!route.isOnSidebar) return null;
+
+              const controlTabsForRoute =
+                (pages?.find((p) => p._id === usernamify(route.name))?.tabs as {
+                  name: string;
+                  permissionRoles?: number[];
+                }[]) ?? [];
+              const allowedRouteTabs = (route.tabs ?? []).filter(
+                (ct) =>
+                  !!controlTabsForRoute.find(
+                    (pt) =>
+                      pt.name === ct.label &&
+                      pt.permissionRoles?.includes((user?.role as Role)?._id)
+                  )
+              );
+              const routeHasTabs = allowedRouteTabs.length > 0;
+              const isRouteOpen = openGroups[route.name];
+
               return (
-                <button
-                  type="button"
-                  key={route.name}
-                  className={`w-full text-left px-4 py-2 ${
-                    route.path === currentRoute ? "bg-gray-100 text-black" : ""
-                  } ${
-                    route.link &&
-                    "text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
-                  }`}
-                  onClick={() => {
-                    if (currentRoute === route.path) return;
-                    if (route.link) {
-                      window.location.href = route.link;
-                      return;
-                    }
-                    if (route.path) {
-                      resetGeneralContext();
-                      navigate(route.path);
-                      window.scrollTo(0, 0);
-                      setIsMenuOpen(false);
-                    }
-                  }}
-                >
-                  {t(route.name)}
-                </button>
+                <div key={route.name}>
+                  <div className="flex items-center">
+                    <button
+                      className={`
+                        flex-1 flex items-center px-4 py-2 rounded-none
+                        text-md font-normal transition-colors
+                        ${
+                          route.path === currentRoute
+                            ? "bg-blue-50 text-blue-600 font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }
+                        ${route.link ? "text-blue-600 hover:text-blue-700" : ""}
+                      `}
+                      onClick={() => {
+                        if (route.link) {
+                          window.location.href = route.link;
+                          return;
+                        }
+
+                        if (!route.path) return;
+
+                        resetGeneralContext();
+
+                        const pageId = usernamify(route.name);
+                        const controlPage = pages?.find(
+                          (p) => p._id === pageId
+                        );
+                        const controlTabs =
+                          (controlPage?.tabs as {
+                            name: string;
+                            permissionRoles?: number[];
+                          }[]) ?? [];
+                        const allowedTabs = (route.tabs ?? []).filter(
+                          (ct) =>
+                            !!controlTabs.find(
+                              (pt) =>
+                                pt.name === ct.label &&
+                                pt.permissionRoles?.includes(
+                                  (user?.role as Role)?._id
+                                )
+                            )
+                        );
+
+                        if (allowedTabs.length > 0) {
+                          navigate(
+                            `${route.path}?tab=${getTabSlug(
+                              allowedTabs[0].label
+                            )}`
+                          );
+                        } else {
+                          navigate(route.path);
+                        }
+
+                        window.scrollTo(0, 0);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {t(route.name)}
+                    </button>
+
+                    {routeHasTabs && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleGroup(route.name);
+                        }}
+                        className="p-2 text-gray-500 hover:bg-gray-100"
+                        aria-label={`Toggle ${route.name} tabs`}
+                      >
+                        {isRouteOpen ? (
+                          <FiChevronDown className="text-sm" />
+                        ) : (
+                          <FiChevronRight className="text-sm" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {isRouteOpen && renderTabs(route)}
+                </div>
               );
             }
           })}
