@@ -13,6 +13,7 @@ import { TbPackages } from "react-icons/tb";
 import GameStock from "../components/accounting/GameStock";
 import GameStockLocation from "../components/accounting/GameStockLocation";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
+import SandwichStock from "../components/accounting/SandwichStock";
 import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -56,6 +57,13 @@ export const StockPageTabs = [
     label: "Cold Drink Stocks",
     icon: <LuDessert className="text-lg font-thin" />,
     content: <ColdDrinkStock />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.SANDWICHSTOCK,
+    label: "Sandwich Stocks",
+    icon: <LuDessert className="text-lg font-thin" />,
+    content: <SandwichStock />,
     isDisabled: false,
   },
   {
