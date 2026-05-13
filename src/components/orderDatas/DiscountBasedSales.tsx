@@ -326,7 +326,6 @@ const DiscountBasedSales = () => {
     setSelectedTableId,
     setIsOrderPaymentModalOpen,
   ]);
-  console.log("rows", rows);
   const columns = useMemo(
     () => [
       { key: t("Discount"), isSortable: true },
