@@ -175,7 +175,7 @@ const ConsumerPointHistoryComponent = () => {
               className={`text-blue-500 underline w-fit ${hasTableId ? "cursor-pointer hover:text-blue-700" : "opacity-50 pointer-events-none"}`}
               onClick={(e) => {
                 e.stopPropagation();
-                if (hasTableId && row.tableId != null) {
+                if (row.tableId != null) {
                   setSelectedTableId(row.tableId);
                   setIsOrderPaymentModalOpen(true);
                 }
