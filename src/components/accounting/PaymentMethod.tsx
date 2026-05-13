@@ -15,9 +15,11 @@ import {
 } from "../../utils/api/account/paymentMethod";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const PaymentMethods = () => {
@@ -26,6 +28,7 @@ const PaymentMethods = () => {
   const { user } = useUserContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountPaymentMethod>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -44,6 +47,21 @@ const PaymentMethods = () => {
       disabledConditions
     );
   }, [disabledConditions]);
+
+  const isPaymentMethodUpdateDisabled = useMemo(
+    () => (row?: AccountPaymentMethod) => {
+      return (
+        !!row?.isConstant ||
+        paymentMethodsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        )
+      );
+    },
+    [paymentMethodsDisabledCondition, user]
+  );
 
   const rows = useMemo(() => {
     return paymentMethods?.map((paymentMethod) => {
@@ -77,8 +95,20 @@ const PaymentMethods = () => {
       },
       {
         key: "isOnlineOrder",
-        node: (row: any) =>
-          row?.isOnlineOrder ? (
+        node: (row: AccountPaymentMethod) =>
+          isEnableEdit && !row?.isConstant ? (
+            <CheckSwitch
+              checked={row?.isOnlineOrder ?? false}
+              onChange={() => {
+                updateAccountPaymentMethod({
+                  id: row._id,
+                  updates: {
+                    isOnlineOrder: !row?.isOnlineOrder,
+                  },
+                });
+              }}
+            />
+          ) : row?.isOnlineOrder ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
@@ -86,8 +116,20 @@ const PaymentMethods = () => {
       },
       {
         key: "isPaymentMade",
-        node: (row: any) =>
-          row?.isPaymentMade ? (
+        node: (row: AccountPaymentMethod) =>
+          isEnableEdit && !row?.isConstant ? (
+            <CheckSwitch
+              checked={row?.isPaymentMade ?? false}
+              onChange={() => {
+                updateAccountPaymentMethod({
+                  id: row._id,
+                  updates: {
+                    isPaymentMade: !row?.isPaymentMade,
+                  },
+                });
+              }}
+            />
+          ) : row?.isPaymentMade ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
@@ -95,8 +137,20 @@ const PaymentMethods = () => {
       },
       {
         key: "isUsedAtExpense",
-        node: (row: any) =>
-          row?.isUsedAtExpense ? (
+        node: (row: AccountPaymentMethod) =>
+          isEnableEdit && !row?.isConstant ? (
+            <CheckSwitch
+              checked={row?.isUsedAtExpense ?? false}
+              onChange={() => {
+                updateAccountPaymentMethod({
+                  id: row._id,
+                  updates: {
+                    isUsedAtExpense: !row?.isUsedAtExpense,
+                  },
+                });
+              }}
+            />
+          ) : row?.isUsedAtExpense ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
@@ -104,8 +158,20 @@ const PaymentMethods = () => {
       },
       {
         key: "isPointPayment",
-        node: (row: any) =>
-          row?.isPointPayment ? (
+        node: (row: AccountPaymentMethod) =>
+          isEnableEdit && !row?.isConstant ? (
+            <CheckSwitch
+              checked={row?.isPointPayment ?? false}
+              onChange={() => {
+                updateAccountPaymentMethod({
+                  id: row._id,
+                  updates: {
+                    isPointPayment: !row?.isPointPayment,
+                  },
+                });
+              }}
+            />
+          ) : row?.isPointPayment ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
@@ -113,7 +179,7 @@ const PaymentMethods = () => {
       },
       // { key: "ikasId" },
     ],
-    [t]
+    [t, isEnableEdit, isPaymentMethodUpdateDisabled, updateAccountPaymentMethod]
   );
   const inputs = useMemo(
     () => [
@@ -291,12 +357,31 @@ const PaymentMethods = () => {
     ]
   );
 
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Edit"),
+        isDisabled: paymentMethodsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            (!user?.role?._id || !ac.permissionsRoles.includes(user.role._id))
+        ),
+        isUpperSide: true,
+        node: (
+          <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+        ),
+      },
+    ],
+    [t, isEnableEdit, paymentMethodsDisabledCondition, user]
+  );
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}
           actions={actions}
+          filters={filters}
           columns={columns}
           rows={rows}
           title={t("Payment Methods")}
