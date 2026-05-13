@@ -3,12 +3,13 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
+import { useOrderContext } from "../../context/Order.context";
 import { PointHistory, pointHistoryStatuses, PointHistoryStatusEnum } from "../../types";
 import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetPointHistories } from "../../utils/api/pointHistory";
+import { useGetTables } from "../../utils/api/table";
 import { formatAsLocalDate } from "../../utils/format";
-import { useFormattedCollectionData } from "../../hooks/useFormattedCollectionData";
-import CollectionDetailsModal from "./CollectionDetailsModal";
+import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -22,19 +23,17 @@ const ConsumerPointHistoryComponent = () => {
     showPointHistoryFilters,
     setShowPointHistoryFilters,
   } = useFilterContext();
+  const { resetOrderContext } = useOrderContext();
   const pointHistoriesPayload = useGetPointHistories(currentPage, rowsPerPage, {
     ...filterPointHistoryPanelFormElements,
     pointUser: -1,
   });
   const consumers = useGetConsumersWithFullNames();
+  const tables = useGetTables(); //bu hooktan çektiğimiz veri zaten cache'li olduğu için tüm masaları aldım abi
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
-  // Modal states for collection details
-  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  const [selectedTableId, setSelectedTableId] = useState<number | undefined>(undefined);
-  const [selectedCollectionId, setSelectedCollectionId] = useState<number | undefined>(undefined);
-
-  const formattedCollectionData = useFormattedCollectionData(selectedTableId, selectedCollectionId);
+  const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
+  const [selectedTableId, setSelectedTableId] = useState<number>(0);
 
   const rows = useMemo(() => {
     return pointHistoriesPayload?.data
@@ -176,10 +175,9 @@ const ConsumerPointHistoryComponent = () => {
               className={`text-blue-500 underline w-fit ${hasTableId ? "cursor-pointer hover:text-blue-700" : "opacity-50 pointer-events-none"}`}
               onClick={(e) => {
                 e.stopPropagation();
-                if (hasTableId) {
+                if (row.tableId != null) {
                   setSelectedTableId(row.tableId);
-                  setSelectedCollectionId(row.collectionId);
-                  setIsCollectionModalOpen(true);
+                  setIsOrderPaymentModalOpen(true);
                 }
               }}
             >
@@ -223,7 +221,7 @@ const ConsumerPointHistoryComponent = () => {
         },
       },
     ],
-    [t, setSelectedTableId, setSelectedCollectionId, setIsCollectionModalOpen]
+    [t, setSelectedTableId, setIsOrderPaymentModalOpen]
   );
 
   const filters = useMemo(
@@ -317,15 +315,16 @@ const ConsumerPointHistoryComponent = () => {
       />
     </div>
 
-    {formattedCollectionData && (
-      <CollectionDetailsModal
-        isOpen={isCollectionModalOpen}
-        onClose={() => {
-          setIsCollectionModalOpen(false);
-          setSelectedTableId(undefined);
-          setSelectedCollectionId(undefined);
+    {isOrderPaymentModalOpen && selectedTableId > 0 && (
+      <OrderPaymentModal
+        tableId={selectedTableId}
+        tables={tables}
+        isAddOrderActive={false}
+        close={() => {
+          resetOrderContext();
+          setIsOrderPaymentModalOpen(false);
+          setSelectedTableId(0);
         }}
-        collectionData={formattedCollectionData}
       />
     )}
     </>
