@@ -1,19 +1,24 @@
 import { useTranslation } from "react-i18next";
-import { FiMinusCircle } from "react-icons/fi";
+import { FiEdit, FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
-import { OrderStatus } from "../../types";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { FormElementsState, OrderStatus } from "../../types";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import NewOrderProductSelect from "./NewOrderProductSelect";
 
-const NewOrderListPanel = () => {
+type Props = {
+  setFormElements?: (value: FormElementsState) => void;
+  setForm?: (value: FormElementsState) => void;
+};
+
+const NewOrderListPanel = ({ setFormElements, setForm }: Props) => {
   const items = useGetMenuItems();
   const stockLocations = useGetStockLocations();
   const { t } = useTranslation();
@@ -28,7 +33,6 @@ const NewOrderListPanel = () => {
     selectedOrders,
     setSelectedOrders,
   } = useOrderContext();
-  
 
   // Buton yönetimi
   const buttons = [
@@ -141,12 +145,15 @@ const NewOrderListPanel = () => {
                         </div>
                       </div>
 
-                      <div className="flex flex-row gap-2 items-center">
+                      <div className="flex flex-row gap-3 items-center">
                         {order?.stockLocation && (
                           <span className="text-xs text-gray-500">
-                            ({getItem(order.stockLocation, stockLocations)?.name})
+                            (
+                            {getItem(order.stockLocation, stockLocations)?.name}
+                            )
                           </span>
                         )}
+
                         <FiMinusCircle
                           className="w-5 h-5 flex-shrink-0  text-red-500  hover:text-red-800 cursor-pointer focus:outline-none"
                           onClick={() => {
@@ -174,7 +181,21 @@ const NewOrderListPanel = () => {
                             setOrderCreateBulk(newOrders);
                           }}
                         />
-
+                        {setFormElements && setForm && (
+                          <FiEdit
+                            className="w-5 h-5 flex-shrink-0  text-blue-500  hover:text-blue-800 cursor-pointer focus:outline-none"
+                            onClick={() => {
+                              const orderToEdit = orderCreateBulk[index];
+                              if (!orderToEdit) return;
+                              const newOrders = [...orderCreateBulk];
+                              newOrders.splice(index, 1);
+                              setOrderCreateBulk(newOrders);
+                              setFormElements(orderToEdit as FormElementsState);
+                              setForm(orderToEdit as FormElementsState);
+                              setIsProductSelectionOpen(false);
+                            }}
+                          />
+                        )}
                         {(order?.activityTableName ||
                           order?.activityPlayer) && (
                           <p className="text-xs text-gray-700 whitespace-nowrap">
