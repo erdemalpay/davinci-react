@@ -4,13 +4,23 @@ import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
-import { Order, OrderStatus, Table } from "../../types";
+import { FormElementsState, Order, OrderStatus, Table } from "../../types";
 import NewOrderListPanel from "./NewOrderListPanel";
 import OrderListForPanelTab from "./OrderListForPanelTab";
 
-type Props = { table: Table; tableOrdersProp?: Order[] };
+type Props = {
+  table: Table;
+  tableOrdersProp?: Order[];
+  setFormElements?: (value: FormElementsState) => void;
+  setForm?: (value: FormElementsState) => void;
+};
 
-const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
+const OrderListForPanel = ({
+  table,
+  tableOrdersProp,
+  setFormElements,
+  setForm,
+}: Props) => {
   const { isTabInputScreenOpen } = useGeneralContext();
   const { orderCreateBulk } = useOrderContext();
   const [activeTab, setActiveTab] = useState(0);
@@ -30,19 +40,21 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
   const orderCounts = useMemo(() => {
     const newOrdersCount = orderCreateBulk?.length || 0;
 
-    const waitingCount = tableOrdersProp?.filter((order) =>
-      [
-        OrderStatus.PENDING,
-        OrderStatus.READYTOSERVE,
-        OrderStatus.CONFIRMATIONREQ,
-      ].includes(order.status as OrderStatus)
-    )?.length || 0;
+    const waitingCount =
+      tableOrdersProp?.filter((order) =>
+        [
+          OrderStatus.PENDING,
+          OrderStatus.READYTOSERVE,
+          OrderStatus.CONFIRMATIONREQ,
+        ].includes(order.status as OrderStatus)
+      )?.length || 0;
 
-    const servedCount = tableOrdersProp?.filter((order) =>
-      [OrderStatus.SERVED, OrderStatus.AUTOSERVED].includes(
-        order.status as OrderStatus
-      )
-    )?.length || 0;
+    const servedCount =
+      tableOrdersProp?.filter((order) =>
+        [OrderStatus.SERVED, OrderStatus.AUTOSERVED].includes(
+          order.status as OrderStatus
+        )
+      )?.length || 0;
 
     return {
       newOrders: newOrdersCount,
@@ -55,7 +67,12 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
     {
       number: 0,
       label: "New Orders",
-      content: <NewOrderListPanel />,
+      content: (
+        <NewOrderListPanel
+          setFormElements={setFormElements}
+          setForm={setForm}
+        />
+      ),
       isDisabled: false,
     },
     {
@@ -121,7 +138,13 @@ const OrderListForPanel = ({ table, tableOrdersProp }: Props) => {
                 <span className="font-medium text-sm">
                   {t(tab.label)}
                   <span className="ml-1 text-gray-600">
-                    ({tab.number === 0 ? orderCounts.newOrders : tab.number === 1 ? orderCounts.waiting : orderCounts.served})
+                    (
+                    {tab.number === 0
+                      ? orderCounts.newOrders
+                      : tab.number === 1
+                      ? orderCounts.waiting
+                      : orderCounts.served}
+                    )
                   </span>
                 </span>
                 {expandedSections[tab.number] ? (
