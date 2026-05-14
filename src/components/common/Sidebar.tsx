@@ -13,12 +13,12 @@ import { useGeneralContext } from "../../context/General.context";
 import { getMenuIcon } from "../../utils/menuIcons";
 import { getTabSlug } from "../../utils/slug";
 
-import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
-import SidebarTooltip from "./SidebarTooltip";
 import {
   useSidebarNavigation,
   type SidebarRouteItem,
 } from "../../hooks/useSidebarNavigation";
+import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
+import SidebarTooltip from "./SidebarTooltip";
 
 export const Sidebar = () => {
   const { t } = useTranslation();
@@ -140,7 +140,7 @@ export const Sidebar = () => {
         if (activeChild) {
           nextOpenGroups[route.name] = true;
 
-          if (activeChild.tabs && activeChild.tabs.length > 0) {
+          if (activeChild.tabs && activeChild.tabs.length > 1) {
             nextOpenGroups[`${route.name}-${activeChild.name}`] = true;
           }
         }
@@ -148,7 +148,7 @@ export const Sidebar = () => {
         if (
           route.path === currentRoute &&
           route.tabs &&
-          route.tabs.length > 0
+          route.tabs.length > 1
         ) {
           nextOpenGroups[route.name] = true;
         }
@@ -228,6 +228,7 @@ export const Sidebar = () => {
                 isOnClearActive={true}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm"
                 minCharacters={1}
+                clearOnFocus={true}
               />
             ) : (
               <div className="flex items-center justify-center h-10">
@@ -287,7 +288,7 @@ export const Sidebar = () => {
                       filteredRouteChildren
                         .filter((child) => child.isOnSidebar)
                         .map((child) => {
-                          const childHasTabs = getAllowedTabs(child).length > 0;
+                          const childHasTabs = getAllowedTabs(child).length > 1;
                           const childKey = `${route.name}-${child.name}`;
                           const isChildOpen = openGroups[childKey];
 
@@ -346,7 +347,7 @@ export const Sidebar = () => {
                 if (!child.isOnSidebar) return null;
 
                 const IconComponent = getMenuIcon(child.name);
-                const childHasTabs = getAllowedTabs(child).length > 0;
+                const childHasTabs = getAllowedTabs(child).length > 1;
                 const childKey = `${route.name}-${child.name}`;
                 const isChildOpen = openGroups[childKey];
 
@@ -411,7 +412,7 @@ export const Sidebar = () => {
               if (!route.isOnSidebar) return null;
 
               const IconComponent = getMenuIcon(route.name);
-              const routeHasTabs = getAllowedTabs(route).length > 0;
+              const routeHasTabs = getAllowedTabs(route).length > 1;
               const isRouteOpen = openGroups[route.name];
 
               return (
