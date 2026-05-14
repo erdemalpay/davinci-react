@@ -255,10 +255,17 @@ export function PageSelector() {
     }
   });
 
-  const menuOptions = menuOptionsList.map((item) => ({
-    value: item.label,
-    label: item.label,
-  }));
+  const seenLabels = new Set<string>();
+  const menuOptions = menuOptionsList
+    .filter((item) => {
+      if (seenLabels.has(item.label)) return false;
+      seenLabels.add(item.label);
+      return true;
+    })
+    .map((item) => ({
+      value: item.label,
+      label: item.label,
+    }));
 
   const handleMenuSelect = (value: string) => {
     const selectedOption = menuOptionsList.find((opt) => opt.label === value);
