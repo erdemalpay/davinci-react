@@ -1,7 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { TabOption } from "../components/panelComponents/FormElements/TabInputScreen";
 import { ColumnType } from "../components/panelComponents/shared/types";
-import { CountListOptions, countListOptions } from "../constants/countList";
+// countListOptions removed; tabs are defined in the CountLists page
 import {
   AccountExpense,
   AccountOverallExpense,
@@ -50,8 +50,7 @@ type GeneralContextType = {
   selectedMenuItem: MenuItem | null;
   setSelectedMenuItem: (item: MenuItem | null) => void;
   setProductExpenseForm: (form: Partial<AccountExpense>) => void;
-  countListOption: CountListOptions;
-  setCountListOption: (option: CountListOptions) => void;
+
   serviceExpenseForm: Partial<AccountExpense>;
   setServiceExpenseForm: (form: Partial<AccountOverallExpense>) => void;
   allExpenseForm: Partial<AccountOverallExpense>;
@@ -169,8 +168,7 @@ const GeneralContext = createContext<GeneralContextType>({
   setSelectedMenuItem: () => {},
   sortConfigKey: null,
   setSortConfigKey: () => {},
-  countListOption: countListOptions[0],
-  setCountListOption: () => {},
+
   setAccountingActiveTab: () => {},
   accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
   checkoutActiveTab: 0,
@@ -341,9 +339,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   }>({});
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   useState<boolean>(false);
-  const [countListOption, setCountListOption] = useState<CountListOptions>(
-    countListOptions[0]
-  );
+  // countListOption state removed; tabs are handled in the CountLists page
   const [ordersActiveTab, setOrdersActiveTab] = useState<number>(0);
   const [productExpenseForm, setProductExpenseForm] = useState<
     Partial<AccountExpense>
@@ -490,8 +486,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setTableColumns,
         sortConfigKey,
         setSortConfigKey,
-        countListOption,
-        setCountListOption,
+
         checkoutActiveTab,
         setCheckoutActiveTab,
         currentPage,
