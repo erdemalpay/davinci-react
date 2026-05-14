@@ -327,12 +327,14 @@ export const allRoutes: {
     path: Routes.Games,
     element: Games,
     isOnSidebar: true,
+    tabs: GamesPageTabs,
     children: [
       {
         name: "Games",
         path: Routes.Games,
         element: Games,
         isOnSidebar: true,
+        tabs: GamesPageTabs,
       },
       {
         name: "Gameplays",
