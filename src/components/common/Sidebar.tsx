@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { FiChevronDown, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import {
+  FiChevronDown,
+  FiChevronLeft,
+  FiChevronRight,
+  FiSearch,
+} from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
@@ -212,17 +217,25 @@ export const Sidebar = () => {
 
         <div className="flex flex-col h-[calc(100%-4rem)] py-3 px-2 bg-white overflow-y-auto">
           <div className="mb-4">
-            <AutocompleteInput
-              placeholder={t("Search menu...") || "Search menu..."}
-              value={searchValue}
-              options={menuOptions}
-              onChange={handleMenuSelect}
-              onClear={() => setSearchValue("")}
-              disabled={false}
-              isOnClearActive={true}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              minCharacters={1}
-            />
+            {isExpanded ? (
+              <AutocompleteInput
+                placeholder={t("Search menu...") || "Search menu..."}
+                value={searchValue}
+                options={menuOptions}
+                onChange={handleMenuSelect}
+                onClear={() => setSearchValue("")}
+                disabled={false}
+                isOnClearActive={true}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                minCharacters={1}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-10">
+                <div className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-md text-gray-500">
+                  <FiSearch className="text-base" />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 space-y-1">
