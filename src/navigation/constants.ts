@@ -2,11 +2,11 @@ import ExpenseTypeRoles from "../components/accounting/ExpenseTypeRoles";
 import { Tab } from "../components/panelComponents/shared/types";
 import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
+import Activities, { ActivitiesPageTabs } from "../pages/Activities";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
 import ButtonCalls from "../pages/ButtonCalls";
-import Activities, { ActivitiesPageTabs } from "../pages/Activities";
 import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
@@ -15,7 +15,7 @@ import Comparision from "../pages/Comparision";
 import Consumer, { ConsumerPageTabs } from "../pages/Consumer";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
-import CountLists from "../pages/CountLists";
+import CountLists, { CountListsPageTabs } from "../pages/CountLists";
 import DailySummary from "../pages/DailySummary";
 import Education from "../pages/Education";
 import Expenses from "../pages/Expenses";
@@ -448,12 +448,14 @@ export const allRoutes: {
     path: Routes.CountLists,
     element: CountLists,
     isOnSidebar: true,
+    tabs: CountListsPageTabs,
     children: [
       {
         name: "Count Lists",
         path: Routes.CountLists,
         element: CountLists,
         isOnSidebar: true,
+        tabs: CountListsPageTabs,
       },
       {
         name: "Checklists",
@@ -476,6 +478,7 @@ export const allRoutes: {
     path: Routes.CountLists,
     element: CountLists,
     isOnSidebar: false,
+    tabs: CountListsPageTabs,
   },
   {
     name: "Checklists",
