@@ -1766,7 +1766,6 @@ const Tables = () => {
     { key: "isOnlineSale", type: FormKeyTypeEnum.BOOLEAN },
     { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
     { key: "location", type: FormKeyTypeEnum.NUMBER },
-    { key: "type", type: FormKeyTypeEnum.STRING },
     { key: "tables", type: FormKeyTypeEnum.STRING },
   ];
   return (
