@@ -36,7 +36,7 @@ import OrderDatas from "../pages/OrderDatas";
 import Orders from "../pages/Orders";
 import OrdersSummary from "../pages/OrdersSummary";
 import PageDetails from "../pages/PageDetails";
-import PanelControl from "../pages/PanelControl";
+import PanelControl, { PanelControlPageTabs } from "../pages/PanelControl";
 import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
@@ -803,12 +803,14 @@ export const allRoutes: {
     exceptionalRoles: [RoleEnum.MANAGER],
     element: PanelControl,
     isOnSidebar: true,
+    tabs: PanelControlPageTabs,
     children: [
       {
         name: "Panel Control",
         path: Routes.PanelControl,
         element: PanelControl,
         isOnSidebar: true,
+        tabs: PanelControlPageTabs,
         exceptionalRoles: [RoleEnum.MANAGER],
       },
       {
@@ -832,6 +834,7 @@ export const allRoutes: {
     element: PanelControl,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
+    tabs: PanelControlPageTabs,
   },
   {
     name: "Logs",
