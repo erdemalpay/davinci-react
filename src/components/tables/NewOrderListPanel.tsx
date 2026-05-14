@@ -216,7 +216,11 @@ const NewOrderListPanel = ({ setFormElements, setForm }: Props) => {
                               onClick={() => {
                                 orderCreateBulk[index] = {
                                   ...orderCreateBulk[index],
-                                  status: OrderStatus.SERVED,
+                                  status:
+                                    orderCreateBulk[index]?.status ===
+                                    OrderStatus.AUTOSERVED
+                                      ? OrderStatus.AUTOSERVED
+                                      : OrderStatus.SERVED,
                                   deliveredAt: new Date(),
                                   deliveredBy: user?._id,
                                 };
