@@ -71,6 +71,32 @@ export const Sidebar = () => {
     setIsHoverExpanded(false);
   };
 
+  useEffect(() => {
+    const resetHoverExpansion = () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+
+      setIsHoverExpanded(false);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        resetHoverExpansion();
+      }
+    };
+
+    window.addEventListener("blur", resetHoverExpansion);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("blur", resetHoverExpansion);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      resetHoverExpansion();
+    };
+  }, [setIsHoverExpanded]);
+
   const renderTabs = (item: SidebarRouteItem, paddingClass = "pl-12") => {
     if (!isExpanded || !item.path) return null;
 
