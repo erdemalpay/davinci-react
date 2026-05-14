@@ -1,96 +1,53 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import Cookies from "js-cookie";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FiChevronDown, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useGeneralContext } from "../../context/General.context";
-import { useUserContext } from "../../context/User.context";
-import { useFilteredRoutes } from "../../hooks/useFilteredRoutes";
-import { Role } from "../../types";
-import { useGetBreaksByDate } from "../../utils/api/break";
-import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
-import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
-import { useGetUser } from "../../utils/api/user";
 import { getMenuIcon } from "../../utils/menuIcons";
-import { clearLocalStoragePreservingOnboarding } from "../../utils/onboardingStorage";
 import { getTabSlug } from "../../utils/slug";
-import { usernamify } from "../../utils/string";
 
 import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
-import { Tab } from "../panelComponents/shared/types";
 import SidebarTooltip from "./SidebarTooltip";
-
-type SidebarRouteItem = {
-  name: string;
-  path?: string;
-  link?: string;
-  isOnSidebar?: boolean;
-  exceptionalRoles?: number[];
-  tabs?: Tab[];
-  children?: SidebarRouteItem[];
-};
+import {
+  useSidebarNavigation,
+  type SidebarRouteItem,
+} from "../../hooks/useSidebarNavigation";
 
 export const Sidebar = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const queryClient = useQueryClient();
 
   const {
     isSidebarOpen,
     setIsSidebarOpen,
     resetGeneralContext,
-    setIsLogoutModalOpen,
     isHoverExpanded,
     setIsHoverExpanded,
   } = useGeneralContext();
-
-  const { setUser, user: contextUser } = useUserContext();
-
-  const user = useGetUser(!!contextUser);
-  const currentRoute = location.pathname;
-
-  const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
-    {}
-  );
-
-  const [searchValue, setSearchValue] = useState("");
 
   const isExpanded = isSidebarOpen || isHoverExpanded;
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousRouteRef = useRef<string | null>(null);
 
-  const routes = useFilteredRoutes() as SidebarRouteItem[];
-  const pages = useGetPanelControlPages(!!contextUser);
-
-  const todayDate = format(new Date(), "yyyy-MM-dd");
-
-  const activeBreaks = useGetBreaksByDate(todayDate, !!contextUser);
-
-  const activeGameplayTimes = useGetGameplayTimesByDate(
-    todayDate,
-    !!contextUser
-  );
-
-  const userActiveBreak = activeBreaks?.find(
-    (breakRecord) =>
-      (typeof breakRecord.user === "string"
-        ? breakRecord.user
-        : breakRecord.user._id) === user?._id && !breakRecord.finishHour
-  );
-
-  const userActiveGameplayTime = activeGameplayTimes?.find(
-    (gameplayTime) =>
-      (typeof gameplayTime.user === "string"
-        ? gameplayTime.user
-        : gameplayTime.user._id) === user?._id && !gameplayTime.finishHour
-  );
-
-  const hasActiveSession = userActiveBreak || userActiveGameplayTime;
+  const {
+    user,
+    routes,
+    currentRoute,
+    openGroups,
+    setOpenGroups,
+    toggleGroup,
+    getActiveTab,
+    getAllowedTabs,
+    getFilteredChildren,
+    handleRouteNavigation,
+    menuOptions,
+    handleMenuSelect,
+    searchValue,
+    setSearchValue,
+    handleLogoutClick,
+  } = useSidebarNavigation(() => setIsSidebarOpen(false));
 
   const handleMouseEnter = () => {
     if (isSidebarOpen) return;
@@ -109,79 +66,10 @@ export const Sidebar = () => {
     setIsHoverExpanded(false);
   };
 
-  const toggleGroup = (groupName: string) => {
-    setOpenGroups((prev) => {
-      const next = { ...prev };
-
-      if (next[groupName]) {
-        delete next[groupName];
-      } else {
-        next[groupName] = true;
-      }
-
-      return next;
-    });
-  };
-
-  const getActiveTab = () => {
-    return new URLSearchParams(location.search).get("tab");
-  };
-
-  const handleRouteNavigation = (item: SidebarRouteItem) => {
-    if (item.link) {
-      window.location.href = item.link;
-      return;
-    }
-
-    if (!item.path) return;
-
-    resetGeneralContext();
-
-    // find allowed tabs from panel-control pages
-    const pageId = usernamify(item.name);
-    const controlPage = pages?.find((p) => p._id === pageId);
-    const controlTabs =
-      (controlPage?.tabs as { name: string; permissionRoles?: number[] }[]) ??
-      [];
-    const allowedTabs = (item.tabs ?? []).filter(
-      (ct) =>
-        !!controlTabs.find(
-          (pt) =>
-            pt.name === ct.label &&
-            pt.permissionRoles?.includes((user?.role as Role)?._id)
-        )
-    );
-
-    if (allowedTabs.length > 0) {
-      navigate(`${item.path}?tab=${getTabSlug(allowedTabs[0].label)}`);
-    } else {
-      navigate(item.path);
-    }
-
-    window.scrollTo(0, 0);
-    setIsSidebarOpen(false);
-  };
-
   const renderTabs = (item: SidebarRouteItem, paddingClass = "pl-12") => {
-    if (!isExpanded || !item.tabs || item.tabs.length === 0 || !item.path) {
-      return null;
-    }
+    if (!isExpanded || !item.path) return null;
 
-    const pageId = usernamify(item.name);
-    const controlPage = pages?.find((p) => p._id === pageId);
-    const controlTabs =
-      (controlPage?.tabs as { name: string; permissionRoles?: number[] }[]) ??
-      [];
-
-    const allowedTabs = (item.tabs ?? []).filter(
-      (ct) =>
-        !!controlTabs.find(
-          (pt) =>
-            pt.name === ct.label &&
-            pt.permissionRoles?.includes((user?.role as Role)?._id)
-        )
-    );
-
+    const allowedTabs = getAllowedTabs(item);
     if (allowedTabs.length === 0) return null;
 
     const activeTab = getActiveTab();
@@ -202,7 +90,7 @@ export const Sidebar = () => {
                 setIsSidebarOpen(false);
               }}
               className={`
-                w-full flex justify-start text-left  ${paddingClass} pr-3 py-2 rounded-lg
+                w-full flex justify-start text-left ${paddingClass} pr-3 py-2 rounded-lg
                 text-sm transition-colors
                 ${
                   isActive
@@ -264,183 +152,10 @@ export const Sidebar = () => {
       return nextOpenGroups;
     });
   }, [currentRoute, routes]);
+
   if (!user || routes.length === 0) {
     return null;
   }
-
-  const menuOptionsList: Array<{
-    label: string;
-    path: string;
-    link?: string;
-    tabSlug?: string;
-  }> = [];
-
-  routes.forEach((route) => {
-    const filteredRouteChildren = route?.children?.filter(
-      (child) =>
-        child?.exceptionalRoles?.includes((user?.role as Role)._id) ||
-        pages?.some(
-          (page) =>
-            page.name === child.name &&
-            page.permissionRoles?.includes((user?.role as Role)._id)
-        )
-    );
-
-    if (filteredRouteChildren && filteredRouteChildren.length > 1) {
-      filteredRouteChildren.forEach((child) => {
-        if (!child.isOnSidebar) return;
-
-        // add child main option
-        menuOptionsList.push({
-          label: t(child.name),
-          path: child.path || "",
-          link: child.link,
-        });
-
-        // add allowed child tabs
-        const controlTabsForChild =
-          (pages?.find((p) => p._id === usernamify(child.name))?.tabs as {
-            name: string;
-            permissionRoles?: number[];
-          }[]) ?? [];
-        const allowedChildTabs = (child.tabs ?? []).filter(
-          (ct) =>
-            !!controlTabsForChild.find(
-              (pt) =>
-                pt.name === ct.label &&
-                pt.permissionRoles?.includes((user?.role as Role)?._id)
-            )
-        );
-
-        allowedChildTabs.forEach((tab) => {
-          menuOptionsList.push({
-            label: `${t(child.name)} / ${t(tab.label)}`,
-            path: child.path || "",
-            tabSlug: getTabSlug(tab.label),
-          });
-        });
-      });
-    } else if (filteredRouteChildren && filteredRouteChildren.length === 1) {
-      const child = filteredRouteChildren[0];
-      if (child.isOnSidebar) {
-        menuOptionsList.push({
-          label: t(child.name),
-          path: child.path || "",
-          link: child.link,
-        });
-
-        const controlTabsForChild =
-          (pages?.find((p) => p._id === usernamify(child.name))?.tabs as {
-            name: string;
-            permissionRoles?: number[];
-          }[]) ?? [];
-        const allowedChildTabs = (child.tabs ?? []).filter(
-          (ct) =>
-            !!controlTabsForChild.find(
-              (pt) =>
-                pt.name === ct.label &&
-                pt.permissionRoles?.includes((user?.role as Role)?._id)
-            )
-        );
-
-        allowedChildTabs.forEach((tab) => {
-          menuOptionsList.push({
-            label: `${t(child.name)} / ${t(tab.label)}`,
-            path: child.path || "",
-            tabSlug: getTabSlug(tab.label),
-          });
-        });
-      }
-    } else if (route.isOnSidebar) {
-      menuOptionsList.push({
-        label: t(route.name),
-        path: route.path || "",
-        link: route.link,
-      });
-
-      // add allowed route-level tabs
-      const controlTabsForRoute =
-        (pages?.find((p) => p._id === usernamify(route.name))?.tabs as {
-          name: string;
-          permissionRoles?: number[];
-        }[]) ?? [];
-      const allowedRouteTabs = (route.tabs ?? []).filter(
-        (ct) =>
-          !!controlTabsForRoute.find(
-            (pt) =>
-              pt.name === ct.label &&
-              pt.permissionRoles?.includes((user?.role as Role)?._id)
-          )
-      );
-
-      allowedRouteTabs.forEach((tab) => {
-        menuOptionsList.push({
-          label: `${t(route.name)} / ${t(tab.label)}`,
-          path: route.path || "",
-          tabSlug: getTabSlug(tab.label),
-        });
-      });
-    }
-  });
-
-  const seenLabels = new Set<string>();
-  const menuOptions = menuOptionsList
-    .filter((item) => {
-      if (seenLabels.has(item.label)) return false;
-      seenLabels.add(item.label);
-      return true;
-    })
-    .map((item) => ({
-      value: item.label,
-      label: item.label,
-    }));
-
-  const handleMenuSelect = (value: string) => {
-    const selectedOption = menuOptionsList.find((opt) => opt.label === value);
-
-    if (selectedOption) {
-      if (selectedOption.link) {
-        window.location.href = selectedOption.link;
-      } else if (selectedOption.path) {
-        resetGeneralContext();
-
-        if (selectedOption.tabSlug) {
-          navigate(`${selectedOption.path}?tab=${selectedOption.tabSlug}`);
-        } else {
-          navigate(selectedOption.path);
-        }
-
-        window.scrollTo(0, 0);
-        setIsSidebarOpen(false);
-      }
-    }
-
-    setSearchValue(value);
-  };
-
-  const logout = () => {
-    clearLocalStoragePreservingOnboarding();
-
-    localStorage.setItem("loggedOut", "true");
-
-    setTimeout(() => {
-      localStorage.removeItem("loggedOut");
-    }, 500);
-
-    Cookies.remove("jwt");
-    setUser(undefined);
-    setIsSidebarOpen(false);
-    queryClient.clear();
-    navigate("/login");
-  };
-
-  const handleLogoutClick = () => {
-    if (hasActiveSession) {
-      setIsLogoutModalOpen(true);
-    } else {
-      logout();
-    }
-  };
 
   return (
     <>
@@ -512,15 +227,7 @@ export const Sidebar = () => {
 
           <div className="flex-1 space-y-1">
             {routes.map((route) => {
-              const filteredRouteChildren = route?.children?.filter(
-                (child) =>
-                  child?.exceptionalRoles?.includes((user?.role as Role)._id) ||
-                  pages?.some(
-                    (page) =>
-                      page.name === child.name &&
-                      page.permissionRoles?.includes((user?.role as Role)._id)
-                  )
-              );
+              const filteredRouteChildren = getFilteredChildren(route);
 
               if (filteredRouteChildren && filteredRouteChildren.length > 1) {
                 const IconComponent = getMenuIcon(route.name);
@@ -567,25 +274,7 @@ export const Sidebar = () => {
                       filteredRouteChildren
                         .filter((child) => child.isOnSidebar)
                         .map((child) => {
-                          const controlTabsForChild =
-                            (pages?.find(
-                              (p) => p._id === usernamify(child.name)
-                            )?.tabs as {
-                              name: string;
-                              permissionRoles?: number[];
-                            }[]) ?? [];
-                          const allowedChildTabs = (child.tabs ?? []).filter(
-                            (ct) =>
-                              !!controlTabsForChild.find(
-                                (pt) =>
-                                  pt.name === ct.label &&
-                                  pt.permissionRoles?.includes(
-                                    (user?.role as Role)?._id
-                                  )
-                              )
-                          );
-                          const childHasTabs = allowedChildTabs.length > 0;
-
+                          const childHasTabs = getAllowedTabs(child).length > 0;
                           const childKey = `${route.name}-${child.name}`;
                           const isChildOpen = openGroups[childKey];
 
@@ -644,19 +333,7 @@ export const Sidebar = () => {
                 if (!child.isOnSidebar) return null;
 
                 const IconComponent = getMenuIcon(child.name);
-                const controlTabsForChild =
-                  (pages?.find((p) => p._id === usernamify(child.name))
-                    ?.tabs as { name: string; permissionRoles?: number[] }[]) ??
-                  [];
-                const allowedChildTabs = (child.tabs ?? []).filter(
-                  (ct) =>
-                    !!controlTabsForChild.find(
-                      (pt) =>
-                        pt.name === ct.label &&
-                        pt.permissionRoles?.includes((user?.role as Role)?._id)
-                    )
-                );
-                const childHasTabs = allowedChildTabs.length > 0;
+                const childHasTabs = getAllowedTabs(child).length > 0;
                 const childKey = `${route.name}-${child.name}`;
                 const isChildOpen = openGroups[childKey];
 
@@ -721,20 +398,7 @@ export const Sidebar = () => {
               if (!route.isOnSidebar) return null;
 
               const IconComponent = getMenuIcon(route.name);
-              const controlTabsForRoute =
-                (pages?.find((p) => p._id === usernamify(route.name))?.tabs as {
-                  name: string;
-                  permissionRoles?: number[];
-                }[]) ?? [];
-              const allowedRouteTabs = (route.tabs ?? []).filter(
-                (ct) =>
-                  !!controlTabsForRoute.find(
-                    (pt) =>
-                      pt.name === ct.label &&
-                      pt.permissionRoles?.includes((user?.role as Role)?._id)
-                  )
-              );
-              const routeHasTabs = allowedRouteTabs.length > 0;
+              const routeHasTabs = getAllowedTabs(route).length > 0;
               const isRouteOpen = openGroups[route.name];
 
               return (
