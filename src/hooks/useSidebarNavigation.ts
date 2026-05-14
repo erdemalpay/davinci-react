@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -90,35 +90,41 @@ export function useSidebarNavigation(onClose: () => void) {
 
   const getActiveTab = () => new URLSearchParams(location.search).get("tab");
 
-  const getAllowedTabs = (item: SidebarRouteItem): Tab[] => {
-    if (!item.tabs || item.tabs.length === 0) return [];
+  const getAllowedTabs = useCallback(
+    (item: SidebarRouteItem): Tab[] => {
+      if (!item.tabs || item.tabs.length === 0) return [];
 
-    const controlTabs =
-      (pages?.find((p) => p._id === usernamify(item.name))?.tabs as {
-        name: string;
-        permissionRoles?: number[];
-      }[]) ?? [];
+      const controlTabs =
+        (pages?.find((p) => p._id === usernamify(item.name))?.tabs as {
+          name: string;
+          permissionRoles?: number[];
+        }[]) ?? [];
 
-    return item.tabs.filter(
-      (ct) =>
-        !!controlTabs.find(
-          (pt) =>
-            pt.name === ct.label &&
-            pt.permissionRoles?.includes((user?.role as Role)?._id)
-        )
-    );
-  };
+      return item.tabs.filter(
+        (ct) =>
+          !!controlTabs.find(
+            (pt) =>
+              pt.name === ct.label &&
+              pt.permissionRoles?.includes((user?.role as Role)?._id)
+          )
+      );
+    },
+    [pages, user]
+  );
 
-  const getFilteredChildren = (route: SidebarRouteItem) =>
-    route.children?.filter(
-      (child) =>
-        child.exceptionalRoles?.includes((user?.role as Role)._id) ||
-        pages?.some(
-          (page) =>
-            page.name === child.name &&
-            page.permissionRoles?.includes((user?.role as Role)._id)
-        )
-    );
+  const getFilteredChildren = useCallback(
+    (route: SidebarRouteItem) =>
+      route.children?.filter(
+        (child) =>
+          child.exceptionalRoles?.includes((user?.role as Role)?._id) ||
+          pages?.some(
+            (page) =>
+              page.name === child.name &&
+              page.permissionRoles?.includes((user?.role as Role)?._id)
+          )
+      ),
+    [pages, user]
+  );
 
   const handleRouteNavigation = (item: SidebarRouteItem) => {
     if (item.link) {
@@ -142,46 +148,51 @@ export function useSidebarNavigation(onClose: () => void) {
     onClose();
   };
 
-  // Build flat options list for the search autocomplete
-  const menuOptionsList: MenuOptionEntry[] = [];
+  const menuOptionsList = useMemo<MenuOptionEntry[]>(() => {
+    const list: MenuOptionEntry[] = [];
 
-  routes.forEach((route) => {
-    const filteredChildren = getFilteredChildren(route);
+    routes.forEach((route) => {
+      const filteredChildren = getFilteredChildren(route);
 
-    const pushWithTabs = (item: SidebarRouteItem) => {
-      menuOptionsList.push({
-        label: t(item.name),
-        path: item.path || "",
-        link: item.link,
-      });
-
-      getAllowedTabs(item).forEach((tab) => {
-        menuOptionsList.push({
-          label: `${t(item.name)} / ${t(tab.label)}`,
+      const pushWithTabs = (item: SidebarRouteItem) => {
+        list.push({
+          label: t(item.name),
           path: item.path || "",
-          tabSlug: getTabSlug(tab.label),
+          link: item.link,
         });
-      });
-    };
 
-    if (filteredChildren && filteredChildren.length > 1) {
-      filteredChildren.filter((c) => c.isOnSidebar).forEach(pushWithTabs);
-    } else if (filteredChildren && filteredChildren.length === 1) {
-      const child = filteredChildren[0];
-      if (child.isOnSidebar) pushWithTabs(child);
-    } else if (route.isOnSidebar) {
-      pushWithTabs(route);
-    }
-  });
+        getAllowedTabs(item).forEach((tab) => {
+          list.push({
+            label: `${t(item.name)} / ${t(tab.label)}`,
+            path: item.path || "",
+            tabSlug: getTabSlug(tab.label),
+          });
+        });
+      };
 
-  const seenLabels = new Set<string>();
-  const menuOptions: MenuOption[] = menuOptionsList
-    .filter((item) => {
-      if (seenLabels.has(item.label)) return false;
-      seenLabels.add(item.label);
-      return true;
-    })
-    .map((item) => ({ value: item.label, label: item.label }));
+      if (filteredChildren && filteredChildren.length > 1) {
+        filteredChildren.filter((c) => c.isOnSidebar).forEach(pushWithTabs);
+      } else if (filteredChildren && filteredChildren.length === 1) {
+        const child = filteredChildren[0];
+        if (child.isOnSidebar) pushWithTabs(child);
+      } else if (route.isOnSidebar) {
+        pushWithTabs(route);
+      }
+    });
+
+    return list;
+  }, [routes, getFilteredChildren, getAllowedTabs, t]);
+
+  const menuOptions = useMemo<MenuOption[]>(() => {
+    const seenLabels = new Set<string>();
+    return menuOptionsList
+      .filter((item) => {
+        if (seenLabels.has(item.label)) return false;
+        seenLabels.add(item.label);
+        return true;
+      })
+      .map((item) => ({ value: item.label, label: item.label }));
+  }, [menuOptionsList]);
 
   const handleMenuSelect = (value: string) => {
     const selected = menuOptionsList.find((opt) => opt.label === value);
