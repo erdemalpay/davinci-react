@@ -6,12 +6,12 @@ import { IoIosLogOut } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
 import { useGeneralContext } from "../../context/General.context";
-import { getTabSlug } from "../../utils/slug";
-import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
 import {
   useSidebarNavigation,
   type SidebarRouteItem,
 } from "../../hooks/useSidebarNavigation";
+import { getTabSlug } from "../../utils/slug";
+import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
 
 export function PageSelector() {
   const { t } = useTranslation();
@@ -129,6 +129,7 @@ export function PageSelector() {
             isOnClearActive={true}
             className="px-3 py-2 border border-gray-300 rounded-md text-base"
             minCharacters={1}
+            clearOnFocus={true}
           />
         </div>
 
@@ -158,7 +159,7 @@ export function PageSelector() {
                   filteredRouteChildren
                     .filter((child) => child.isOnSidebar)
                     .map((child) => {
-                      const childHasTabs = getAllowedTabs(child).length > 0;
+                      const childHasTabs = getAllowedTabs(child).length > 1;
                       const childKey = `${route.name}-${child.name}`;
                       const isChildOpen = openGroups[childKey];
 
@@ -216,7 +217,7 @@ export function PageSelector() {
 
             if (!child.isOnSidebar) return null;
 
-            const childHasTabs = getAllowedTabs(child).length > 0;
+            const childHasTabs = getAllowedTabs(child).length > 1;
             const childKey = `${route.name}-${child.name}`;
             const isChildOpen = openGroups[childKey];
 
@@ -264,7 +265,7 @@ export function PageSelector() {
 
           if (!route.isOnSidebar) return null;
 
-          const routeHasTabs = getAllowedTabs(route).length > 0;
+          const routeHasTabs = getAllowedTabs(route).length > 1;
           const isRouteOpen = openGroups[route.name];
 
           return (
