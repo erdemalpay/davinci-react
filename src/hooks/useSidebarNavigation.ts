@@ -94,11 +94,23 @@ export function useSidebarNavigation(onClose: () => void) {
     (item: SidebarRouteItem): Tab[] => {
       if (!item.tabs || item.tabs.length === 0) return [];
 
-      const controlTabs =
-        (pages?.find((p) => p._id === usernamify(item.name))?.tabs as {
-          name: string;
-          permissionRoles?: number[];
-        }[]) ?? [];
+      // Try multiple strategies to find matching panel-control page:
+      // 1. _id exactly equals transformed item.name via usernamify
+      // 2. _id equals path-based id (strip leading slash and replace - with _)
+      // 3. name equals item.name
+      const pathBasedId = item.path
+        ? item.path.replace(/^\//, "").replace(/-/g, "_")
+        : null;
+
+      const controlPage =
+        pages?.find((p) => p._id === usernamify(item.name)) ||
+        (pathBasedId ? pages?.find((p) => p._id === pathBasedId) : undefined) ||
+        pages?.find((p) => p.name === item.name);
+
+      const controlTabs = (controlPage?.tabs as {
+        name: string;
+        permissionRoles?: number[];
+      }[]) ?? [];
 
       return item.tabs.filter(
         (ct) =>
