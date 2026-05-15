@@ -82,7 +82,7 @@ const PanelControl = () => {
   const currentPageId = "panel_control";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
-  if (!user || pages.length === 0) return <></>;
+  if (!user || (pages && pages?.length === 0)) return <></>;
   const currentPageTabs = pages.find(
     (page) => page._id === currentPageId
   )?.tabs;

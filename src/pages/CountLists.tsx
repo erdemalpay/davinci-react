@@ -43,8 +43,7 @@ export default function CountLists() {
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
   const currentPageId = "count_lists";
-  if (!user || pages.length === 0) return <></>;
-
+  if (!user || (pages && pages?.length === 0)) return <></>;
   const currentPageTabs = pages.find(
     (page) => page._id === currentPageId
   )?.tabs;
