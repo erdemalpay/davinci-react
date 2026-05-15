@@ -679,7 +679,7 @@ export enum DisabledConditionEnum {
   USERS = "users",
   POINTS_USERSPOINT = "points_userspoint",
   POINTS_CONSUMERSPOINT = "points_consumerspoint",
-  STOCK_SANDWICHSTOCK = "stocks_sandwichstock",
+  STOCK_SANDWICHSTOCK = "sandwichstock",
 }
 
 export enum ActionEnum {
