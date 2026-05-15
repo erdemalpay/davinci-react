@@ -4,29 +4,45 @@ import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { IntegrationPageTabEnum } from "../types";
+import { MailPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import BackInStock from "./BackInStock";
+import MailDrafts from "./MailDrafts";
 import MailLogs from "./MailLogs";
 import MailSubscriptions from "./MailSubscriptions";
+import MailTemplates from "./MailTemplates";
 
 export const MailPageTabs = [
   {
-    number: IntegrationPageTabEnum.BACKINSTOCK,
+    number: MailPageTabEnum.MAILTEMPLATES,
+    label: "Mail Templates",
+    icon: <MdOutlineMail className="text-lg font-thin" />,
+    content: <MailTemplates />,
+    isDisabled: false,
+  },
+  {
+    number: MailPageTabEnum.MAILDRAFTS,
+    label: "Mail Drafts",
+    icon: <MdOutlineMail className="text-lg font-thin" />,
+    content: <MailDrafts />,
+    isDisabled: false,
+  },
+  {
+    number: MailPageTabEnum.BACKINSTOCK,
     label: "Back In Stock",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <BackInStock />,
     isDisabled: false,
   },
   {
-    number: IntegrationPageTabEnum.MAILSUBSCRIPTIONS,
+    number: MailPageTabEnum.MAILSUBSCRIPTIONS,
     label: "Mail Subscriptions",
     icon: <MdOutlineMail className="text-lg font-thin" />,
     content: <MailSubscriptions />,
     isDisabled: false,
   },
   {
-    number: IntegrationPageTabEnum.MAILLOGS,
+    number: MailPageTabEnum.MAILLOGS,
     label: "Mail Logs",
     icon: <MdOutlineMail className="text-lg font-thin" />,
     content: <MailLogs />,

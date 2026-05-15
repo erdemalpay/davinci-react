@@ -1,8 +1,12 @@
+import { post } from ".";
 import { FormElementsState } from "../../types";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 export enum MailType {
   BACK_IN_STOCK = "back_in_stock",
+  CUSTOMER_MESSAGE = "customer_message",
+  ORDER_UPDATE = "order_update",
+  CAMPAIGN_ANNOUNCEMENT = "campaign_announcement",
 }
 
 export enum SubscriptionStatus {
@@ -18,6 +22,13 @@ export enum MailLogStatus {
   BOUNCED = "bounced",
   COMPLAINED = "complained",
   FAILED = "failed",
+}
+
+export enum MailDraftStatus {
+  DRAFT = "draft",
+  READY = "ready",
+  SENT = "sent",
+  ARCHIVED = "archived",
 }
 
 export type MailSubscription = {
@@ -68,6 +79,41 @@ export interface MailLogsPayload {
   page: number;
   limit: number;
 }
+
+export type MailDraft = {
+  _id: number;
+  name: string;
+  mailType: MailType;
+  templateId?: number;
+  subject?: string;
+  variables: Record<string, unknown>;
+  recipients: string[];
+  status: MailDraftStatus;
+  locale?: string;
+  metadata?: Record<string, unknown>;
+  sentAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export type CreateMailDraftPayload = {
+  name: string;
+  mailType: MailType;
+  templateId?: number;
+  subject?: string;
+  variables: Record<string, unknown>;
+  recipients?: string[];
+  status?: MailDraftStatus;
+  locale?: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type UpdateMailDraftPayload = Partial<CreateMailDraftPayload>;
+
+export type SendMailDraftPayload = {
+  recipients?: string[];
+  metadata?: Record<string, unknown>;
+};
 
 const baseUrl = `${Paths.Mail}/subscriptions`;
 
@@ -175,4 +221,67 @@ export function useGetQueryMailLogs(
   const url = `${baseQueryUrl}?${queryString}`;
 
   return useGet<MailLogsPayload>(url, queryKey, true);
+}
+
+const draftBaseUrl = `${Paths.Mail}/draft`;
+const draftsQueryUrl = `${Paths.Mail}/drafts`;
+
+export function useGetMailDraft(id?: string | number) {
+  return useGet<MailDraft>(`${draftBaseUrl}/${id}`, [draftBaseUrl, id], true, {
+    enabled: !!id,
+  });
+}
+
+export function useGetQueryMailDrafts(filters: FormElementsState) {
+  const queryKey = [
+    draftsQueryUrl,
+    {
+      status: filters.status ?? null,
+      mailType: filters.mailType ?? null,
+      after: filters.after ?? null,
+      before: filters.before ?? null,
+      sort: filters.sort ?? null,
+      asc: filters.asc ?? null,
+      search: filters.search ?? null,
+    },
+  ] as const;
+
+  const parts = [
+    filters.status && `status=${filters.status}`,
+    filters.mailType && `mailType=${filters.mailType}`,
+    filters.after && `after=${filters.after}`,
+    filters.before && `before=${filters.before}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
+    filters.search && `search=${filters.search}`,
+  ];
+  const queryString = parts.filter(Boolean).join("&");
+  const url = `${draftsQueryUrl}?${queryString}`;
+
+  return useGet<MailDraft[]>(url, queryKey, true) ?? [];
+}
+
+export function useMailDraftMutations() {
+  const {
+    updateItem: updateMailDraft,
+    createItem: createMailDraft,
+    deleteItem: deleteMailDraft,
+  } = useMutationApi<MailDraft>({
+    baseQuery: draftBaseUrl,
+    queryKey: [draftsQueryUrl],
+  });
+
+  function sendMailDraft(id: number | string, payload: SendMailDraftPayload) {
+    return post<SendMailDraftPayload, MailDraft>({
+      path: `${draftBaseUrl}/${id}/send`,
+      payload,
+    });
+  }
+
+  return {
+    createMailDraft,
+    updateMailDraft,
+    deleteMailDraft,
+    sendMailDraft,
+  };
 }
