@@ -22,7 +22,7 @@ import {
   MailDraftStatus,
   MailSubscription,
   SubscriptionStatus,
-  useGetMailSubscriptions,
+  useGetActiveSubscriptions,
   useGetQueryMailDrafts,
   useMailDraftMutations,
 } from "../utils/api/mail";
@@ -244,7 +244,9 @@ const SendDraftDialog = ({
                               return (
                                 <tr
                                   key={subscription._id ?? subscription.email}
-                                  onClick={() => toggleEmail(subscription.email)}
+                                  onClick={() =>
+                                    toggleEmail(subscription.email)
+                                  }
                                   className={`cursor-pointer border-b border-gray-100 hover:bg-gray-50 ${
                                     isSelected ? "bg-blue-50" : "bg-white"
                                   }`}
@@ -256,7 +258,9 @@ const SendDraftDialog = ({
                                       onChange={() =>
                                         toggleEmail(subscription.email)
                                       }
-                                      onClick={(event) => event.stopPropagation()}
+                                      onClick={(event) =>
+                                        event.stopPropagation()
+                                      }
                                       className="h-4 w-4 cursor-pointer"
                                     />
                                   </td>
@@ -325,7 +329,7 @@ const MailDrafts = () => {
       mailType: "",
     });
   const { deleteMailDraft, sendMailDraft } = useMailDraftMutations();
-  const mailSubscriptions = useGetMailSubscriptions();
+  const mailSubscriptions = useGetActiveSubscriptions();
   const mailDraftsPayload = useGetQueryMailDrafts(filterPanelFormElements);
 
   const invalidateDrafts = () => {
@@ -435,7 +439,7 @@ const MailDrafts = () => {
     ],
     [t]
   );
-
+  console.log(mailSubscriptions);
   const actions = useMemo(
     () => [
       {

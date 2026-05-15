@@ -120,7 +120,9 @@ const baseUrl = `${Paths.Mail}/subscriptions`;
 export function useGetMailSubscriptions() {
   return useGetList<MailSubscription>(baseUrl);
 }
-
+export function useGetActiveSubscriptions() {
+  return useGetList<MailSubscription>(`${Paths.Mail}/subscription/active`);
+}
 export function useGetQueryMailSubscriptions(
   page: number,
   limit: number,
