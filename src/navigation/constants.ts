@@ -28,6 +28,7 @@ import Games, { GamesPageTabs } from "../pages/Games";
 import Images from "../pages/Images";
 import Integration, { IntegrationPageTabs } from "../pages/Integration";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
+import Mail, { MailPageTabs } from "../pages/Mail";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import MenuPrice from "../pages/MenuPrice";
@@ -147,6 +148,7 @@ export enum Routes {
   IkasPickUp = "/ikas-pickup",
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
+  Mail = "/mail",
   Retailer = "/retailer",
   RetailerOrders = "/retailer/:retailerId",
   Consumers = "/consumers",
@@ -580,6 +582,13 @@ export const allRoutes: {
     element: Integration,
     isOnSidebar: false,
     tabs: IntegrationPageTabs,
+  },
+  {
+    name: "Mail",
+    path: Routes.Mail,
+    element: Mail,
+    isOnSidebar: true,
+    tabs: MailPageTabs,
   },
   {
     name: "Stock Histories Reports",
