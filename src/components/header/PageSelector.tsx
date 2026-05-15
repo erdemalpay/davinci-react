@@ -16,14 +16,12 @@ import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput
 export function PageSelector() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
-  const { resetGeneralContext, setIsNotificationOpen } = useGeneralContext();
-
+  const { resetGeneralContext, setIsNotificationOpen, setIsReleasesOpen } =
+    useGeneralContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [headerBottom, setHeaderBottom] = useState(64);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-
   const {
     routes,
     currentRoute,
@@ -88,6 +86,7 @@ export function PageSelector() {
         className="text-sm text-white"
         onClick={() => {
           setIsNotificationOpen(false);
+          setIsReleasesOpen(false);
           if (!isMenuOpen && buttonRef.current) {
             const nav = buttonRef.current.closest("nav");
             if (nav) setHeaderBottom(nav.getBoundingClientRect().bottom);
