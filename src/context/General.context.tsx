@@ -144,6 +144,8 @@ type GeneralContextType = {
   setShowAllTables: (show: boolean) => void;
   showAllGameplays: boolean;
   setShowAllGameplays: (show: boolean) => void;
+  isReleasesOpen: boolean;
+  setIsReleasesOpen: (open: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -295,6 +297,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setShowAllTables: () => {},
   showAllGameplays: true,
   setShowAllGameplays: () => {},
+  isReleasesOpen: false,
+  setIsReleasesOpen: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -383,6 +387,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [orderDataActiveTab, setOrderDataActiveTab] = useState<number>(0);
+  const [isReleasesOpen, setIsReleasesOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpenState] = useState<boolean>(() => {
     const saved = localStorage.getItem("sidebar-open");
     return saved ? JSON.parse(saved) : true;
@@ -564,6 +569,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setShowAllTables,
         showAllGameplays,
         setShowAllGameplays,
+        isReleasesOpen,
+        setIsReleasesOpen,
       }}
     >
       {children}
