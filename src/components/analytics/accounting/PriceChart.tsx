@@ -138,10 +138,11 @@ const PriceChart = ({
             axisBottom={{
               tickSize: 5,
               tickPadding: 5,
-              tickRotation: 0,
+              tickRotation: chartConfig?.tickValues ? -35 : 0,
               legend: "",
               legendOffset: 45,
               legendPosition: "middle",
+              tickValues: chartConfig?.tickValues,
             }}
             axisLeft={{
               tickSize: 5,
