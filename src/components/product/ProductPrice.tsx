@@ -24,7 +24,7 @@ const ProductPrice = () => {
     const step = Math.max(1, Math.ceil(dates.length / 20));
     const tickValues = dates
       .filter((_, i) => i % step === 0 || i === dates.length - 1)
-      .map((d) => formatAsLocalDate(d ?? ""));
+      .map((d) => d ? formatAsLocalDate(d) : "");
 
     return {
       height: 240,
