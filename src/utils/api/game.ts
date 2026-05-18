@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { get } from ".";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { get, patch, UpdatePayload } from ".";
 import { Game } from "../../types";
 import { Paths, useGetList, useMutationApi } from "./factory";
 
@@ -21,7 +21,10 @@ export type RequestedGame = {
   requestList: RequestedGameRequest[];
   createdAt?: string;
   updatedAt?: string;
+  status?: "requested" | "deleted" | "available";
 };
+
+export type RequestedGameStatus = NonNullable<RequestedGame["status"]>;
 
 export function useGameMutations() {
   const {
@@ -33,6 +36,28 @@ export function useGameMutations() {
   });
 
   return { deleteGame, updateGame, createGame };
+}
+
+function updateRequestedGameRequest({
+  id,
+  updates,
+}: UpdatePayload<RequestedGame>) {
+  return patch<Partial<RequestedGame>, RequestedGame>({
+    path: `${BASE_URL}/requested/${id}`,
+    payload: updates,
+  });
+}
+
+export function useRequestedGameMutations() {
+  const queryClient = useQueryClient();
+  const { mutate: updateRequestedGame } = useMutation({
+    mutationFn: updateRequestedGameRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [BASE_URL, "requested"] });
+    },
+  });
+
+  return { updateRequestedGame };
 }
 
 export function useGetGames() {
@@ -58,9 +83,22 @@ export function useGetGameDetails(gameId: number) {
   };
 }
 
-export function useGetRequestedGames() {
-  return useGetList<RequestedGame>(`${BASE_URL}/requested`, [
+export function useGetRequestedGames(status?: RequestedGameStatus) {
+  const requestedGamesUrl = `${BASE_URL}/requested`;
+  const params = new URLSearchParams();
+
+  if (status) {
+    params.set("status", status);
+  }
+
+  const queryString = params.toString();
+  const url = queryString
+    ? `${requestedGamesUrl}?${queryString}`
+    : requestedGamesUrl;
+
+  return useGetList<RequestedGame>(url, [
     BASE_URL,
     "requested",
+    status ?? "all",
   ]);
 }
