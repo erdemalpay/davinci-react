@@ -16,7 +16,6 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -43,7 +42,7 @@ const ExpirationCountArchive = () => {
   ] = useState(false);
   const locations = useGetStockLocations();
   const { resetGeneralContext } = useGeneralContext();
-  const pad = (num: number) => (num < 10 ? `0${num}` : num);
+  const pad = useCallback((num: number) => (num < 10 ? `0${num}` : num), []);
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const disabledConditions = useGetDisabledConditions();
@@ -69,10 +68,9 @@ const ExpirationCountArchive = () => {
       if (!user?.role?._id) {
         return true;
       }
-      const action =
-        expirationCountArchivePageDisabledCondition?.actions?.find(
-          (ac) => ac.action === actionType
-        );
+      const action = expirationCountArchivePageDisabledCondition?.actions?.find(
+        (ac) => ac.action === actionType
+      );
       if (!action) {
         return false;
       }
@@ -138,186 +136,8 @@ const ExpirationCountArchive = () => {
     users,
     pad,
   ]);
-  const [rows, setRows] = useState(allRows);
-  const columns = [
-    { key: t("Start Date"), isSortable: true },
-    { key: t("Start Hour"), isSortable: true },
-    { key: t("End Date"), isSortable: true },
-    { key: t("End Hour"), isSortable: true },
-    { key: t("NounCount"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("User"), isSortable: true },
-    { key: t("Status"), isSortable: false },
-  ];
-  columns.push({ key: t("Actions"), isSortable: false });
-  const rowKeys = [
-    {
-      key: "startDate",
-      node: (row: any) => (
-        <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-          onClick={() => {
-            if (row?.isCompleted) {
-              resetGeneralContext();
-              navigate(`/expiration-archive/${row?._id}`);
-            } else {
-              resetGeneralContext();
-              navigate(`/expiration/${row?.location}/${row?.expirationList}`);
-            }
-          }}
-        >
-          {row?.formattedStartDate}
-        </p>
-      ),
-      className: "min-w-32",
-    },
-    {
-      key: "startHour",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "endDate",
-      className: "min-w-32 pr-1",
-      node: (row: any) => {
-        return <p>{row?.formattedEndDate}</p>;
-      },
-    },
-    {
-      key: "endHour",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "cntLst",
-      className: "min-w-32 pr-1",
-    },
-    { key: "lctn" },
-    { key: "usr" },
-    {
-      key: "isCompleted",
-      node: (row: AccountCount) => {
-        if (row?.isCompleted) {
-          return (
-            <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
-              {t("Completed")}
-            </span>
-          );
-        } else {
-          return (
-            <span className="bg-red-500 w-fit px-2 py-1 rounded-md text-white flex items-center">
-              {t("Not Completed")}
-            </span>
-          );
-        }
-      },
-    },
-  ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "createdBy",
-      label: t("Created By"),
-      options: users
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("Created By"),
-      required: true,
-    },
-
-    StockLocationInput({ locations: locations, required: true }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "expirationList",
-      label: t("Expiration List"),
-      options: expirationLists?.map((expirationList) => ({
-        value: expirationList._id,
-        label: expirationList.name,
-      })),
-      placeholder: t("Expiration List"),
-      required: true,
-    },
-
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const filters = [
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-  ];
-  const actions = [
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deleteExpirationCount(rowToAction?._id as any);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Count")}
-          text={`Count ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-      isDisabled: isActionDisabled(ActionEnum.DELETE),
-    },
-    {
-      name: t("Toggle Active"),
-      isDisabled: isActionDisabled(ActionEnum.TOGGLE),
-      isModal: false,
-      isPath: false,
-      icon: null,
-      node: (row: any) => (
-        <div className="mt-2">
-          <CheckSwitch
-            checked={row.isCompleted}
-            onChange={() => {
-              updateExpirationCount({
-                id: row._id,
-                updates: {
-                  isCompleted: !row.isCompleted,
-                },
-              });
-            }}
-          ></CheckSwitch>
-        </div>
-      ),
-    },
-  ];
-  useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
+  const rows = useMemo(() => {
+    return allRows.filter((row) => {
       if (!row?.startDate) return false;
       return (
         (filterPanelFormElements.before === "" ||
@@ -329,9 +149,245 @@ const ExpirationCountArchive = () => {
         passesFilter(filterPanelFormElements.createdBy, row?.usrId)
       );
     });
-    setRows(filteredRows);
-    setTableKey((prev) => prev + 1);
   }, [allRows, filterPanelFormElements]);
+  const handleNavigateCount = useCallback(
+    (row: any) => {
+      resetGeneralContext();
+      if (row?.isCompleted) {
+        navigate(`/expiration-archive/${row?._id}`);
+      } else {
+        navigate(`/expiration/${row?.location}/${row?.expirationList}`);
+      }
+    },
+    [resetGeneralContext, navigate]
+  );
+
+  const handleCloseDeleteDialog = useCallback(() => {
+    setIsCloseAllConfirmationDialogOpen(false);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    deleteExpirationCount(rowToAction?._id as any);
+    setIsCloseAllConfirmationDialogOpen(false);
+  }, [deleteExpirationCount, rowToAction]);
+
+  const handleToggleCompleted = useCallback(
+    (row: any) => {
+      updateExpirationCount({
+        id: row._id,
+        updates: {
+          isCompleted: !row.isCompleted,
+        },
+      });
+    },
+    [updateExpirationCount]
+  );
+
+  const closeFilters = useCallback(() => setShowFilters(false), []);
+
+  const columns = useMemo(
+    () => [
+      { key: t("Start Date"), isSortable: true },
+      { key: t("Start Hour"), isSortable: true },
+      { key: t("End Date"), isSortable: true },
+      { key: t("End Hour"), isSortable: true },
+      { key: t("NounCount"), isSortable: true },
+      { key: t("Location"), isSortable: true },
+      { key: t("User"), isSortable: true },
+      { key: t("Status"), isSortable: false },
+      { key: t("Actions"), isSortable: false },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "startDate",
+        node: (row: any) => (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => handleNavigateCount(row)}
+          >
+            {row?.formattedStartDate}
+          </p>
+        ),
+        className: "min-w-32",
+      },
+      {
+        key: "startHour",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "endDate",
+        className: "min-w-32 pr-1",
+        node: (row: any) => {
+          return <p>{row?.formattedEndDate}</p>;
+        },
+      },
+      {
+        key: "endHour",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "cntLst",
+        className: "min-w-32 pr-1",
+      },
+      { key: "lctn" },
+      { key: "usr" },
+      {
+        key: "isCompleted",
+        node: (row: AccountCount) => {
+          if (row?.isCompleted) {
+            return (
+              <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
+                {t("Completed")}
+              </span>
+            );
+          } else {
+            return (
+              <span className="bg-red-500 w-fit px-2 py-1 rounded-md text-white flex items-center">
+                {t("Not Completed")}
+              </span>
+            );
+          }
+        },
+      },
+    ],
+    [handleNavigateCount, t]
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "createdBy",
+        label: t("Created By"),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+        placeholder: t("Created By"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => {
+          return {
+            value: input._id,
+            label: input.name,
+          };
+        }),
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "expirationList",
+        label: t("Expiration List"),
+        options: expirationLists?.map((expirationList) => ({
+          value: expirationList._id,
+          label: expirationList.name,
+        })),
+        placeholder: t("Expiration List"),
+        required: true,
+      },
+
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [t, users, locations, expirationLists]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters,
+    }),
+    [showFilters, filterPanelInputs, filterPanelFormElements, closeFilters]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      },
+    ],
+    [t, showFilters]
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={handleCloseDeleteDialog}
+            confirm={handleConfirmDelete}
+            title={t("Delete Count")}
+            text={`Count ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl  ",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: isActionDisabled(ActionEnum.DELETE),
+      },
+      {
+        name: t("Toggle Active"),
+        isDisabled: isActionDisabled(ActionEnum.TOGGLE),
+        isModal: false,
+        isPath: false,
+        icon: null,
+        node: (row: any) => (
+          <div className="mt-2">
+            <CheckSwitch
+              checked={row.isCompleted}
+              onChange={() => handleToggleCompleted(row)}
+            ></CheckSwitch>
+          </div>
+        ),
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isCloseAllConfirmationDialogOpen,
+      handleCloseDeleteDialog,
+      handleConfirmDelete,
+      isActionDisabled,
+      handleToggleCompleted,
+    ]
+  );
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+  }, [rows]);
 
   return (
     <>
