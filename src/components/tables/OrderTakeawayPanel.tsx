@@ -1,12 +1,17 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
-import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
+import { FormElementsState } from "../../types";
 import NewOrderListPanel from "./NewOrderListPanel";
 
-const OrderTakeawayPanel = () => {
+type Props = {
+  setFormElements?: (value: FormElementsState) => void;
+  setForm?: (value: FormElementsState) => void;
+};
+const OrderTakeawayPanel = ({ setFormElements, setForm }: Props) => {
   const [activeTab, setActiveTab] = useState(0);
   const { isTabInputScreenOpen } = useGeneralContext();
   const { orderCreateBulk } = useOrderContext();
@@ -33,7 +38,12 @@ const OrderTakeawayPanel = () => {
     {
       number: 0,
       label: "New Orders",
-      content: <NewOrderListPanel />,
+      content: (
+        <NewOrderListPanel
+          setFormElements={setFormElements}
+          setForm={setForm}
+        />
+      ),
       isDisabled: false,
     },
   ];

@@ -14,15 +14,22 @@ const ProductPrice = () => {
   const invoices = useGetAccountProductExpenses(selectedProduct?._id ?? "");
 
   const chartConfig = useMemo(() => {
-    const prices =
-      invoices?.map((invoice) =>
-        parseFloat((invoice.totalExpense / invoice.quantity).toFixed(4))
-      ) ?? [];
-    const dates = invoices?.map((invoice) => invoice.date) ?? [];
+    const sorted = [...(invoices ?? [])].sort((a, b) =>
+      (a.date ?? "").localeCompare(b.date ?? "")
+    );
+    const prices = sorted.map((invoice) =>
+      parseFloat((invoice.totalExpense / invoice.quantity).toFixed(4))
+    );
+    const dates = sorted.map((invoice) => invoice.date);
+    const step = Math.max(1, Math.ceil(dates.length / 20));
+    const tickValues = dates
+      .filter((_, i) => i % step === 0 || i === dates.length - 1)
+      .map((d) => d ? formatAsLocalDate(d) : "");
 
     return {
       height: 240,
-      type: invoices?.length > 1 ? "line" : "bar",
+      type: sorted.length > 1 ? "line" : "bar",
+      tickValues,
       series: [
         {
           name: "Price",

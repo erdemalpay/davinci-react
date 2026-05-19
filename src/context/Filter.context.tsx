@@ -40,6 +40,14 @@ type FilterContextType = {
   setShowGameStockPrices: (state: boolean) => void;
   isGameStockEnableEdit: boolean;
   setIsGameStockEnableEdit: (state: boolean) => void;
+  showSandwichStockFilters: boolean;
+  setShowSandwichStockFilters: (state: boolean) => void;
+  filterSandwichStockPanelFormElements: FormElementsState;
+  setFilterSandwichStockPanelFormElements: (state: FormElementsState) => void;
+  showSandwichStockPrices: boolean;
+  setShowSandwichStockPrices: (state: boolean) => void;
+  isSandwichStockEnableEdit: boolean;
+  setIsSandwichStockEnableEdit: (state: boolean) => void;
   showStockPrices: boolean;
   setShowStockPrices: (state: boolean) => void;
   isStockEnableEdit: boolean;
@@ -281,6 +289,18 @@ const FilterContext = createContext<FilterContextType>({
   setShowGameStockPrices: () => {},
   isGameStockEnableEdit: false,
   setIsGameStockEnableEdit: () => {},
+  showSandwichStockFilters: false,
+  setShowSandwichStockFilters: () => {},
+  filterSandwichStockPanelFormElements: {
+    product: [],
+    location: "",
+    itemCategory: [],
+  },
+  setFilterSandwichStockPanelFormElements: () => {},
+  showSandwichStockPrices: false,
+  setShowSandwichStockPrices: () => {},
+  isSandwichStockEnableEdit: false,
+  setIsSandwichStockEnableEdit: () => {},
   showStockPrices: false,
   setShowStockPrices: () => {},
   isStockEnableEdit: false,
@@ -624,6 +644,11 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showGameStockFilters, setShowGameStockFilters] = useState(false);
   const [showGameStockPrices, setShowGameStockPrices] = useState(false);
   const [isGameStockEnableEdit, setIsGameStockEnableEdit] = useState(false);
+  const [showSandwichStockFilters, setShowSandwichStockFilters] =
+    useState(false);
+  const [showSandwichStockPrices, setShowSandwichStockPrices] = useState(false);
+  const [isSandwichStockEnableEdit, setIsSandwichStockEnableEdit] =
+    useState(false);
   const [showStockPrices, setShowStockPrices] = useState(false);
   const [isStockEnableEdit, setIsStockEnableEdit] = useState(false);
   const [showBaseQuantityFilters, setShowBaseQuantityFilters] = useState(false);
@@ -994,6 +1019,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     filterGameStockPanelFormElements,
     setFilterGameStockPanelFormElements,
   ] = useState<FormElementsState>({ product: [], location: "" });
+  const [
+    filterSandwichStockPanelFormElements,
+    setFilterSandwichStockPanelFormElements,
+  ] = useState<FormElementsState>({ product: [], location: "" });
   return (
     <FilterContext.Provider
       value={{
@@ -1020,6 +1049,16 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowGameStockPrices: setShowGameStockPrices,
         isGameStockEnableEdit: isGameStockEnableEdit,
         setIsGameStockEnableEdit: setIsGameStockEnableEdit,
+        showSandwichStockFilters: showSandwichStockFilters,
+        setShowSandwichStockFilters: setShowSandwichStockFilters,
+        filterSandwichStockPanelFormElements:
+          filterSandwichStockPanelFormElements,
+        setFilterSandwichStockPanelFormElements:
+          setFilterSandwichStockPanelFormElements,
+        showSandwichStockPrices: showSandwichStockPrices,
+        setShowSandwichStockPrices: setShowSandwichStockPrices,
+        isSandwichStockEnableEdit: isSandwichStockEnableEdit,
+        setIsSandwichStockEnableEdit: setIsSandwichStockEnableEdit,
         showStockPrices: showStockPrices,
         setShowStockPrices: setShowStockPrices,
         isStockEnableEdit: isStockEnableEdit,

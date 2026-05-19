@@ -666,6 +666,8 @@ export enum DisabledConditionEnum {
   CHECKOUT_EXPENSE = "checkout_expense",
   CHECKOUT_CASHOUT = "checkout_cashout",
   CHECKOUT_CHECKOUT_CONTROL = "checkout_checkout_control",
+  MAILTEMPLATES = "mailtemplates",
+  MAILDRAFTS = "maildrafts",
   MAILSUBSCRIPTIONS = "mailsubscriptions",
   MAILLOGS = "maillogs",
   EDUCATION = "education",
@@ -679,6 +681,7 @@ export enum DisabledConditionEnum {
   USERS = "users",
   POINTS_USERSPOINT = "points_userspoint",
   POINTS_CONSUMERSPOINT = "points_consumerspoint",
+  STOCK_SANDWICHSTOCK = "sandwichstock",
 }
 
 export enum ActionEnum {
@@ -1462,6 +1465,7 @@ export enum StocksPageTabEnum {
   GAMESTOCK,
   DESSERTSTOCK,
   COLDDRINKSTOCK,
+  SANDWICHSTOCK,
   GAMESTOCKBYLOCATION,
   BASEQUANTITYBYLOCATION,
   PRODUCTSHELFINFO,
@@ -1502,12 +1506,18 @@ export enum IntegrationPageTabEnum {
   SHOPIFYSTOCKCOMPARISION,
   SHOPIFYPRICECOMPARISION,
   TRENDYOLSTOCKCOMPARISION,
+  TRENDYOLPRICECOMPARISION,
   HEPSIBURADAPRICECOMPARISION,
   HEPSIBURADASTOCKCOMPARISION,
+  GLOBALPRICECOMPARISION,
+}
+
+export enum MailPageTabEnum {
+  MAILTEMPLATES,
+  MAILDRAFTS,
   BACKINSTOCK,
   MAILSUBSCRIPTIONS,
   MAILLOGS,
-  GLOBALPRICECOMPARISION,
 }
 
 export enum StockHistoriesReportsPageTabEnum {

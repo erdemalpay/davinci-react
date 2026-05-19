@@ -309,11 +309,16 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [
       `${Paths.Mail}/subscriptions`,
       `${Paths.Mail}/logs-paginated`,
+      `${Paths.Mail}/subscription/active`,
     ],
   },
   {
     event: "mailTemplateChanged",
     invalidateKeys: [`${Paths.Mail}/templates`],
+  },
+  {
+    event: "mailDraftChanged",
+    invalidateKeys: [`${Paths.Mail}/drafts`],
   },
   {
     event: "retailerChanged",

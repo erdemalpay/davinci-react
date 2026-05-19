@@ -2,13 +2,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
 import { BreakOverlay } from "./components/common/BreakOverlay";
 import { GameplayTimeOverlay } from "./components/common/GameplayTimeOverlay";
 import { LogoutConfirmationModal } from "./components/common/LogoutConfirmationModal";
 import { MiddlemanOverlay } from "./components/common/MiddlemanOverlay";
+
 import { Sidebar } from "./components/common/Sidebar";
 import { DataContextProvider } from "./context/Data.context";
 import { DateContextProvider } from "./context/Date.context";

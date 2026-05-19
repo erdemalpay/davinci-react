@@ -30,7 +30,7 @@ interface HepsiburadaStockRow {
   name: string;
   hepsiburadaStock: number;
   storeStock: number;
-  storeStockId: string;
+  storeStockId?: string;
   merchantSku?: string;
   hepsiburadaSku?: string;
   foundStock?: any;
@@ -95,11 +95,12 @@ const HepsiBuradaStockComparision = () => {
         };
       })
       .sort((a, b) => {
-        const isAEqual = a.hepsiburadaStock === a.storeStock;
-        const isBEqual = b.hepsiburadaStock === b.storeStock;
-        if (isAEqual && !isBEqual) return 1;
-        if (!isAEqual && isBEqual) return -1;
-        return 0;
+        const getOrder = (row: HepsiburadaStockRow) => {
+          if (row.hepsiburadaStock > row.storeStock) return 0;
+          if (row.hepsiburadaStock < row.storeStock) return 1;
+          return 2;
+        };
+        return getOrder(a) - getOrder(b);
       });
   }, [hepsiburadaItemProducts, stocks, hepsiburadaListings, items]);
 
@@ -127,7 +128,7 @@ const HepsiBuradaStockComparision = () => {
         onClick: (row: HepsiburadaStockRow) => {
           if (row.hepsiburadaStock === row.storeStock) return;
           updateAccountStock({
-            id: row?.storeStockId,
+            id: row?.storeStockId ?? "",
             updates: {
               ...row?.foundStock,
               quantity: row?.hepsiburadaStock,
@@ -187,7 +188,7 @@ const HepsiBuradaStockComparision = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("HepsiBurada Stock Comparision")}
+          title={t("HepsiBurada Stock Comparison")}
           filters={filters}
           isActionsActive={true}
           actions={actions}

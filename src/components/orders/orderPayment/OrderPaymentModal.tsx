@@ -301,7 +301,6 @@ const OrderPaymentModal = ({
       }, 0),
     [tableOrders]
   );
-  console.log("discountAmount", discountAmount);
   const totalAmount = useMemo(
     () =>
       tableOrders?.reduce((acc, order) => {

@@ -319,7 +319,7 @@ const OrderPaymentTypes = ({
         </p>
       </div>
       {/* collection summary */}
-      <div className="flex flex-col h-[20rem] gap-1 overflow-auto">
+      <div className="flex flex-col  gap-1 overflow-auto">
         {tableNotCancelledCollections?.map((collection) => (
           <div
             key={collection?._id + "collection summary"}
@@ -351,8 +351,8 @@ const OrderPaymentTypes = ({
                   <p className="min-w-9">{collection?.amount.toFixed(2)} ₺</p>
                   <p>
                     {collection?.paymentMethod
-                      ? getPaymentMethodName(collection?.paymentMethod)
-                          ?.name || ""
+                      ? getPaymentMethodName(collection?.paymentMethod)?.name ||
+                        ""
                       : ""}
                   </p>
                   {collection?.activityPlayer && (

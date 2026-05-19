@@ -2,11 +2,11 @@ import ExpenseTypeRoles from "../components/accounting/ExpenseTypeRoles";
 import { Tab } from "../components/panelComponents/shared/types";
 import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
+import Activities, { ActivitiesPageTabs } from "../pages/Activities";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
 import ButtonCalls from "../pages/ButtonCalls";
-import Activities, { ActivitiesPageTabs } from "../pages/Activities";
 import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
@@ -15,7 +15,7 @@ import Comparision from "../pages/Comparision";
 import Consumer, { ConsumerPageTabs } from "../pages/Consumer";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
-import CountLists from "../pages/CountLists";
+import CountLists, { CountListsPageTabs } from "../pages/CountLists";
 import DailySummary from "../pages/DailySummary";
 import Education from "../pages/Education";
 import Expenses from "../pages/Expenses";
@@ -28,6 +28,7 @@ import Games, { GamesPageTabs } from "../pages/Games";
 import Images from "../pages/Images";
 import Integration, { IntegrationPageTabs } from "../pages/Integration";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
+import Mail, { MailPageTabs } from "../pages/Mail";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import MenuPrice from "../pages/MenuPrice";
@@ -36,7 +37,7 @@ import OrderDatas from "../pages/OrderDatas";
 import Orders from "../pages/Orders";
 import OrdersSummary from "../pages/OrdersSummary";
 import PageDetails from "../pages/PageDetails";
-import PanelControl from "../pages/PanelControl";
+import PanelControl, { PanelControlPageTabs } from "../pages/PanelControl";
 import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
@@ -147,6 +148,7 @@ export enum Routes {
   IkasPickUp = "/ikas-pickup",
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
+  Mail = "/mail",
   Retailer = "/retailer",
   RetailerOrders = "/retailer/:retailerId",
   Consumers = "/consumers",
@@ -327,12 +329,14 @@ export const allRoutes: {
     path: Routes.Games,
     element: Games,
     isOnSidebar: true,
+    tabs: GamesPageTabs,
     children: [
       {
         name: "Games",
         path: Routes.Games,
         element: Games,
         isOnSidebar: true,
+        tabs: GamesPageTabs,
       },
       {
         name: "Gameplays",
@@ -448,12 +452,14 @@ export const allRoutes: {
     path: Routes.CountLists,
     element: CountLists,
     isOnSidebar: true,
+    tabs: CountListsPageTabs,
     children: [
       {
         name: "Count Lists",
         path: Routes.CountLists,
         element: CountLists,
         isOnSidebar: true,
+        tabs: CountListsPageTabs,
       },
       {
         name: "Checklists",
@@ -476,6 +482,7 @@ export const allRoutes: {
     path: Routes.CountLists,
     element: CountLists,
     isOnSidebar: false,
+    tabs: CountListsPageTabs,
   },
   {
     name: "Checklists",
@@ -575,6 +582,13 @@ export const allRoutes: {
     element: Integration,
     isOnSidebar: false,
     tabs: IntegrationPageTabs,
+  },
+  {
+    name: "Mail",
+    path: Routes.Mail,
+    element: Mail,
+    isOnSidebar: true,
+    tabs: MailPageTabs,
   },
   {
     name: "Stock Histories Reports",
@@ -800,12 +814,14 @@ export const allRoutes: {
     exceptionalRoles: [RoleEnum.MANAGER],
     element: PanelControl,
     isOnSidebar: true,
+    tabs: PanelControlPageTabs,
     children: [
       {
         name: "Panel Control",
         path: Routes.PanelControl,
         element: PanelControl,
         isOnSidebar: true,
+        tabs: PanelControlPageTabs,
         exceptionalRoles: [RoleEnum.MANAGER],
       },
       {
@@ -829,6 +845,7 @@ export const allRoutes: {
     element: PanelControl,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
+    tabs: PanelControlPageTabs,
   },
   {
     name: "Logs",

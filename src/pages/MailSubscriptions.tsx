@@ -61,11 +61,6 @@ const MailSubscriptions = () => {
     useState<FormElementsState>({
       status: "",
       subscribedType: "",
-      after: "",
-      before: "",
-      sort: "",
-      search: "",
-      asc: 1,
     });
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const mailSubscriptionsPayload = useGetQueryMailSubscriptions(

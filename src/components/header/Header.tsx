@@ -39,10 +39,14 @@ export function Header({
 }: HeaderProps) {
   const { t } = useTranslation();
   const notifications = useGetUserNewNotifications();
-  const { isNotificationOpen, setIsNotificationOpen } = useGeneralContext();
+  const {
+    isNotificationOpen,
+    setIsNotificationOpen,
+    isReleasesOpen,
+    setIsReleasesOpen,
+  } = useGeneralContext();
   const user = useGetUser();
   const allReleases = useGetReleaseNotes() ?? [];
-  const [isReleasesOpen, setIsReleasesOpen] = useState(false);
   const [selectedReleaseForModal, setSelectedReleaseForModal] =
     useState<ReleaseNote | null>(null);
 
@@ -110,6 +114,7 @@ export function Header({
             <div
               onClick={(e) => {
                 e.stopPropagation();
+                setIsReleasesOpen(false);
                 setIsNotificationOpen(!isNotificationOpen);
               }}
               className="relative cursor-pointer hover:scale-110 transition-transform duration-200"
@@ -134,7 +139,8 @@ export function Header({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsReleasesOpen((prev) => !prev);
+                setIsNotificationOpen(false);
+                setIsReleasesOpen(!isReleasesOpen);
               }}
               className="relative cursor-pointer hover:scale-110 transition-transform duration-200 border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded"
               aria-label={t("ReleaseNotesTitleTab")}

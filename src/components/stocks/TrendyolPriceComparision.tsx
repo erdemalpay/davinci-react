@@ -1,46 +1,37 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { RiFileTransferFill } from "react-icons/ri";
-import { TbTransferOut } from "react-icons/tb";
+import { TbTag } from "react-icons/tb";
 import { useGetAccountProducts } from "../../utils/api/account/product";
-import {
-  useAccountStockMutations,
-  useGetAccountStocks,
-} from "../../utils/api/account/stock";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useGetTrendyolProducts,
-  useUpdateTrendyolInventoryOnlyMutation,
-  useUpdateTrendyolProductStockMutation,
+  useUpdateTrendyolPriceOnlyMutation,
+  useUpdateTrendyolProductPriceMutation,
 } from "../../utils/api/trendyol";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
-interface TrendyolStockRow {
+interface TrendyolPriceRow {
   _id: string;
   name: string;
-  trendyolStock: number;
-  storeStock: number;
-  storeStockId?: string;
-  foundStock?: any;
-  barcode?: string;
+  trendyolPrice: number;
   menuPrice: number;
+  trendyolStock: number;
+  barcode?: string;
 }
 
-const TrendyolStockComparision = () => {
+const TrendyolPriceComparision = () => {
   const { t } = useTranslation();
   const trendyolProducts = useGetTrendyolProducts();
   const items = useGetMenuItems();
-  const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
   const {
-    mutate: updateTrendyolInventoryOnly,
-    isPending: isUpdatingTrendyolInventory,
-  } = useUpdateTrendyolInventoryOnlyMutation();
-  const { mutate: updateTrendyolProductStock } =
-    useUpdateTrendyolProductStockMutation();
-  const { updateAccountStock } = useAccountStockMutations();
+    mutate: updateTrendyolPriceOnly,
+    isPending: isUpdatingTrendyolPrice,
+  } = useUpdateTrendyolPriceOnlyMutation();
+  const { mutate: updateTrendyolProductPrice } =
+    useUpdateTrendyolProductPriceMutation();
 
   const trendyolItemsProductsIds = useMemo(() => {
     return items
@@ -57,10 +48,6 @@ const TrendyolStockComparision = () => {
   const rows = useMemo(() => {
     return trendyolItemProducts
       ?.map((trendyolItemProduct) => {
-        const foundStock = stocks.find(
-          (stock) =>
-            stock.product === trendyolItemProduct._id && stock.location === 6
-        );
         const foundMenuItem = items.find(
           (item) => item?.matchedProduct === trendyolItemProduct._id
         );
@@ -73,114 +60,96 @@ const TrendyolStockComparision = () => {
 
         return {
           ...trendyolItemProduct,
-          trendyolStock: foundTrendyolProduct?.quantity ?? 0,
-          storeStock: foundStock?.quantity ?? 0,
-          storeStockId: foundStock?._id,
-          foundStock: foundStock,
-          barcode: foundTrendyolProduct?.barcode,
+          trendyolPrice: foundTrendyolProduct?.salePrice ?? 0,
           menuPrice: foundMenuItem?.onlinePrice ?? 0,
+          barcode: foundTrendyolProduct?.barcode,
+          trendyolStock: foundTrendyolProduct?.quantity ?? 0,
         };
       })
       .sort((a, b) => {
-        const getOrder = (row: TrendyolStockRow) => {
-          if (row.trendyolStock > row.storeStock) return 0;
-          if (row.trendyolStock < row.storeStock) return 1;
+        const getOrder = (row: TrendyolPriceRow) => {
+          if (row.menuPrice > row.trendyolPrice) return 0;
+          if (row.menuPrice < row.trendyolPrice) return 1;
           return 2;
         };
         return getOrder(a) - getOrder(b);
       });
-  }, [trendyolItemProducts, stocks, trendyolProducts, items]);
+  }, [trendyolItemProducts, trendyolProducts, items]);
 
   const columns = useMemo(
     () => [
       { key: t("Product"), isSortable: true },
-      { key: t("Trendyol Stock"), isSortable: true },
-      { key: t("Store Stock"), isSortable: true },
+      { key: t("Trendyol Price"), isSortable: true },
+      { key: t("Online Price"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
   );
 
   const rowKeys = useMemo(
-    () => [{ key: "name" }, { key: "trendyolStock" }, { key: "storeStock" }],
+    () => [{ key: "name" }, { key: "trendyolPrice" }, { key: "menuPrice" }],
     []
   );
 
   const actions = useMemo(
     () => [
       {
-        name: t("Update Store Stock"),
-        icon: <RiFileTransferFill />,
+        name: t("Update Trendyol Price"),
+        icon: <TbTag />,
         className: "cursor-pointer text-2xl",
-        onClick: (row: TrendyolStockRow) => {
-          if (row.trendyolStock === row.storeStock) return;
-          if (!row.storeStockId) return;
-          updateAccountStock({
-            id: row?.storeStockId,
-            updates: {
-              ...row?.foundStock,
-              quantity: row?.trendyolStock,
-            },
-          });
-        },
-      },
-      {
-        name: t("Update Trendyol Stock"),
-        icon: <TbTransferOut />,
-        className: "cursor-pointer text-2xl",
-        onClick: (row: TrendyolStockRow) => {
-          if (row.trendyolStock === row.storeStock || !row.barcode) return;
-          updateTrendyolProductStock({
+        onClick: (row: TrendyolPriceRow) => {
+          if (row.trendyolPrice === row.menuPrice || !row.barcode) return;
+          updateTrendyolProductPrice({
             barcode: row.barcode,
-            quantity: row.storeStock,
+            quantity: row.trendyolStock,
             salePrice: row.menuPrice,
             listPrice: row.menuPrice,
           });
         },
       },
     ],
-    [t, updateAccountStock, updateTrendyolProductStock]
+    [t, updateTrendyolProductPrice]
   );
 
   const filters = useMemo(
     () => [
       {
         isUpperSide: false,
-        isDisabled: isUpdatingTrendyolInventory,
+        isDisabled: isUpdatingTrendyolPrice,
         node: (
           <ButtonFilter
             buttonName={
-              isUpdatingTrendyolInventory
+              isUpdatingTrendyolPrice
                 ? t("Updating...")
-                : t("Update All Trendyol Stock")
+                : t("Update All Trendyol Price")
             }
             onclick={() => {
-              updateTrendyolInventoryOnly();
+              updateTrendyolPriceOnly();
             }}
           />
         ),
       },
     ],
-    [t, updateTrendyolInventoryOnly, isUpdatingTrendyolInventory]
+    [t, updateTrendyolPriceOnly, isUpdatingTrendyolPrice]
   );
 
   return (
     <>
-      {isUpdatingTrendyolInventory && <Loading />}
+      {isUpdatingTrendyolPrice && <Loading />}
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("Trendyol Stock Comparison")}
+          title={t("Trendyol Price Comparison")}
           filters={filters}
           isActionsActive={true}
           actions={actions}
-          rowClassNameFunction={(row: TrendyolStockRow) => {
-            if (row?.trendyolStock > row?.storeStock) {
+          rowClassNameFunction={(row: TrendyolPriceRow) => {
+            if (row?.menuPrice > row?.trendyolPrice) {
               return "bg-red-200";
             }
-            if (row?.trendyolStock < row?.storeStock) {
+            if (row?.menuPrice < row?.trendyolPrice) {
               return "bg-green-200";
             }
             return "";
@@ -191,4 +160,4 @@ const TrendyolStockComparision = () => {
   );
 };
 
-export default TrendyolStockComparision;
+export default TrendyolPriceComparision;

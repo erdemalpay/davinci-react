@@ -1,7 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import _ from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown } from "react-icons/fa6";
 import { FiEdit2 } from "react-icons/fi";
@@ -1079,7 +1086,9 @@ const GenericAddEditPanel = <T,>({
     >
       {anotherPanel ? (
         <div className={`${anotherPanelTopClassName} rounded-md bg-white`}>
-          {anotherPanel}
+          {isValidElement(anotherPanel)
+            ? cloneElement(anotherPanel as any, { setFormElements, setForm })
+            : anotherPanel}
           {renderGenericAddEditModal()}
         </div>
       ) : (

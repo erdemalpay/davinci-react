@@ -128,7 +128,7 @@ const LocalPriceComparision = () => {
     []
   );
 
-  const tableTitle = t("Local Price Comparision");
+  const tableTitle = t("Local Price Comparison");
 
   return (
     <div className="w-[95%] mx-auto">

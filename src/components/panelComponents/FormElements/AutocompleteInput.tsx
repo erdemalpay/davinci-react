@@ -19,6 +19,7 @@ type AutocompleteInputProps = {
   isReadOnly?: boolean;
   minCharacters?: number;
   isSortDisabled?: boolean;
+  clearOnFocus?: boolean;
 };
 
 const normalizeText = (text: string) => {
@@ -54,6 +55,7 @@ const AutocompleteInput = ({
   minCharacters = 2,
   isSortDisabled = false,
   className = "px-4 py-2.5 border border-gray-300 rounded-md",
+  clearOnFocus = false,
 }: AutocompleteInputProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -223,6 +225,11 @@ const AutocompleteInput = ({
               onChange={handleInputChange}
               onKeyDown={handleInputKeyDown}
               onFocus={() => {
+                if (clearOnFocus) {
+                  setSearchInput("");
+                  onChange("");
+                }
+
                 if (searchInput.length >= minCharacters) {
                   setIsOpen(true);
                 }

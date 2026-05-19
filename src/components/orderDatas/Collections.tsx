@@ -4,6 +4,9 @@ import { toZonedTime } from "date-fns-tz";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
+import { MdOutlineStorefront } from "react-icons/md";
+import { toast } from "react-toastify";
+import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -16,6 +19,10 @@ import {
   commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
+import {
+  useGetAccountRetailers,
+  useRetailerCollectionMutations,
+} from "../../utils/api/account/retailer";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
@@ -27,7 +34,11 @@ import {
 } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { formatAsLocalDate, formatCurrency, toIstDate } from "../../utils/format";
+import {
+  formatAsLocalDate,
+  formatCurrency,
+  toIstDate,
+} from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -75,12 +86,25 @@ const Collections = () => {
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsersMinimal();
   const items = useGetAllMenuItems();
+  const retailers = useGetAccountRetailers();
+  const [isAddRetailerModalOpen, setIsAddRetailerModalOpen] = useState(false);
+  const { addRetailerCollection, bulkAddRetailerCollections } =
+    useRetailerCollectionMutations();
   const [rowToAction, setRowToAction] = useState<CollectionRow>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateCollection } = useCollectionMutation();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
-
+  const { selectedRows, setSelectedRows, setIsSelectionActive } =
+    useGeneralContext();
+  const [isBulkAddRetailerModalOpen, setIsBulkAddRetailerModalOpen] =
+    useState(false);
+  const [addRetailerForm, setAddRetailerForm] = useState<{
+    retailerId: number | string | "";
+  }>({ retailerId: "" });
+  const [bulkAddRetailerForm, setBulkAddRetailerForm] = useState<{
+    retailerId: number | string | "";
+  }>({ retailerId: "" });
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -606,9 +630,85 @@ const Collections = () => {
       setShowOrderDataFilters,
     ]
   );
+  const addRetailerInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "retailerId",
+        label: t("Retailer"),
+        options: retailers?.map((retailer) => ({
+          value: retailer?._id,
+          label: retailer?.name,
+        })),
+        placeholder: t("Retailer"),
+        required: true,
+      },
+    ],
+    [retailers, t]
+  );
+
+  const addRetailerFormKeys = useMemo(
+    () => [
+      { key: "retailerId", type: FormKeyTypeEnum.STRING },
+      { key: "collectionId", type: FormKeyTypeEnum.NUMBER },
+    ],
+    []
+  );
+
+  const handleAddRetailerFormChange = (form: {
+    retailerId: number | string | "";
+  }) => {
+    setAddRetailerForm(form);
+  };
+
+  const handleBulkAddRetailerFormChange = (form: {
+    retailerId: number | string | "";
+  }) => {
+    setBulkAddRetailerForm(form);
+  };
 
   const actions = useMemo(
     () => [
+      {
+        name: t("Add To Retailer"),
+        icon: <MdOutlineStorefront />,
+        className: "text-blue-500 cursor-pointer text-2xl",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isAddRetailerModalOpen}
+            topClassName="flex flex-col gap-2"
+            close={() => setIsAddRetailerModalOpen(false)}
+            inputs={addRetailerInputs}
+            formKeys={addRetailerFormKeys}
+            submitItem={(item) => {
+              void item;
+            }}
+            setForm={handleAddRetailerFormChange}
+            submitFunction={() => {
+              if (!rowToAction?._id || rowToAction._id === "total") {
+                toast.error(t("Please select a valid collection."));
+                return;
+              }
+
+              if (!addRetailerForm.retailerId) {
+                toast.error(t("Retailer is required."));
+                return;
+              }
+
+              addRetailerCollection({
+                retailerId: addRetailerForm.retailerId,
+                collectionId: rowToAction._id,
+              });
+            }}
+            isEditMode={false}
+          />
+        ) : null,
+        isModalOpen: isAddRetailerModalOpen,
+        setIsModal: setIsAddRetailerModalOpen,
+        isPath: false,
+      },
       {
         name: t("Edit"),
         icon: <FiEdit />,
@@ -647,6 +747,11 @@ const Collections = () => {
     [
       t,
       rowToAction,
+      isAddRetailerModalOpen,
+      addRetailerForm,
+      addRetailerInputs,
+      addRetailerFormKeys,
+      addRetailerCollection,
       isEditModalOpen,
       editInputs,
       editFormKeys,
@@ -655,7 +760,70 @@ const Collections = () => {
       user,
     ]
   );
+  const selectionActions = useMemo(
+    () => [
+      {
+        name: t("Add Selected To Retailer"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit text-white hover:bg-white transition-transform border rounded-md cursor-pointer",
+        isModal: true,
+        modal: (
+          <GenericAddEditPanel
+            isOpen={isBulkAddRetailerModalOpen}
+            close={() => setIsBulkAddRetailerModalOpen(false)}
+            topClassName="flex flex-col gap-2"
+            inputs={addRetailerInputs}
+            formKeys={addRetailerFormKeys}
+            submitItem={(item) => {
+              void item;
+            }}
+            setForm={handleBulkAddRetailerFormChange}
+            submitFunction={() => {
+              const collectionIds = selectedRows
+                ?.map((row) => row?._id)
+                ?.filter(
+                  (id) => id !== undefined && id !== null && id !== "total"
+                );
 
+              if (!bulkAddRetailerForm.retailerId) {
+                toast.error(t("Retailer is required."));
+                return;
+              }
+
+              if (!collectionIds?.length) {
+                toast.error(t("Please select at least one valid collection."));
+                return;
+              }
+
+              bulkAddRetailerCollections({
+                retailerId: bulkAddRetailerForm.retailerId,
+                collectionIds,
+              });
+
+              setSelectedRows([]);
+              setIsSelectionActive(false);
+            }}
+            isEditMode={false}
+          />
+        ),
+        isModalOpen: isBulkAddRetailerModalOpen,
+        setIsModal: setIsBulkAddRetailerModalOpen,
+        isPath: false,
+      },
+    ],
+    [
+      t,
+      isBulkAddRetailerModalOpen,
+      addRetailerInputs,
+      addRetailerFormKeys,
+      selectedRows,
+      bulkAddRetailerForm,
+      bulkAddRetailerCollections,
+      setSelectedRows,
+      setIsSelectionActive,
+    ]
+  );
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
@@ -668,6 +836,7 @@ const Collections = () => {
           actions={actions}
           isCollapsible={true}
           filterPanel={filterPanel}
+          selectionActions={selectionActions}
           filters={filters}
           rowClassNameFunction={(row: CollectionRow) =>
             row?._id !== "total" &&

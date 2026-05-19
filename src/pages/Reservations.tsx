@@ -18,7 +18,7 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import { ReservationCallDialog } from "../components/reservations/ReservationCallDialog";
-import { CreateTableDialog } from "../components/tables/CreateTableDialog";
+import { useDataContext } from "../context/Data.context";
 import { useLocationContext } from "../context/Location.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
@@ -36,9 +36,8 @@ import {
   useReservationMutations,
   useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
-import { useGetTables } from "../utils/api/table";
+import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsersMinimal } from "../utils/api/user";
-import { useGetVisits } from "../utils/api/visit";
 import { getItem } from "../utils/getItem";
 
 export default function Reservations() {
@@ -47,6 +46,7 @@ export default function Reservations() {
   const navigate = useNavigate();
   const { mutate: updateReservationsOrder } =
     useUpdateReservationsOrderMutation();
+  const { storeLocations, visits = [] } = useDataContext();
   const [hideCompletedReservations, setHideCompletedReservations] =
     useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -57,6 +57,7 @@ export default function Reservations() {
   const { updateReservationCall } = useReservationCallMutations();
   const { selectedLocationId, locations } = useLocationContext();
   const { user } = useUserContext();
+  const { createTable } = useTableMutations();
   const users = useGetUsersMinimal();
   const disabledConditions = useGetDisabledConditions();
   const [isReservationCalledDialogOpen, setIsReservationCalledDialogOpen] =
@@ -66,8 +67,16 @@ export default function Reservations() {
   const [selectedDuration, setSelectedDuration] = useState(30);
   const [selectedTableNumber, setSelectedTableNumber] = useState<string>("");
   const tables = useGetTables();
-  const visits = useGetVisits();
-
+  const [tableForm, setTableForm] = useState({
+    name: "",
+    startHour: format(new Date(), "HH:mm"),
+    playerCount: 2,
+    location: selectedLocationId,
+    type: TableTypes.NORMAL,
+    isAutoEntryAdded: false,
+    isOnlineSale: false,
+    tables: [],
+  });
   const usersInCafe = useMemo(() => {
     if (visits.length === 0) return [];
     const activeUserIds = visits
@@ -381,6 +390,7 @@ export default function Reservations() {
               <button
                 className="text-green-500 hover:text-green-600 cursor-pointer p-1"
                 onClick={() => {
+                  setRowToAction(row);
                   const now = new Date();
                   const hours = String(now.getHours()).padStart(2, "0");
                   const minutes = String(now.getMinutes()).padStart(2, "0");
@@ -389,9 +399,10 @@ export default function Reservations() {
                     id: row._id,
                     updates: {
                       status: ReservationStatusEnum.ALREADY_CAME,
+                      approvedHour,
                     },
                   });
-                  setIsCreateTableDialogOpen(false); //eğer kafedekiler bu modalı kullanmaya karar verirse bunu true'ya çekeceğiz
+                  setIsCreateTableDialogOpen(true); //eğer kafedekiler bu modalı kullanmaya karar verirse bunu true'ya çekeceğiz
                 }}
               >
                 <FaCheck className="text-xl" />
@@ -525,6 +536,58 @@ export default function Reservations() {
       user,
     ]
   );
+  const tableInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "name",
+      label: t("Name"),
+      options: storeLocations
+        ?.find((location) => location._id === selectedLocationId)
+        ?.tableNames?.filter((t) => {
+          return !tables.find(
+            (table) =>
+              (table.name === t || table?.tables?.includes(t)) &&
+              !table?.finishHour
+          );
+        })
+        ?.sort((a, b) => Number(a) - Number(b))
+        ?.map((t, index) => {
+          return {
+            value: t,
+            label: t,
+          };
+        }),
+      isSortDisabled: true,
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.HOUR,
+      formKey: "startHour",
+      label: t("Start Time"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "playerCount",
+      label: t("Player Count"),
+      placeholder: t("Player Count"),
+      required: false,
+      minNumber: 0,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+  ];
+  const tableFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "type", type: FormKeyTypeEnum.STRING },
+    { key: "startHour", type: FormKeyTypeEnum.STRING },
+    { key: "isAutoEntryAdded", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isOnlineSale", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
+    { key: "tables", type: FormKeyTypeEnum.STRING },
+  ];
   const addButton = useMemo(
     () => ({
       name: t(`Add Reservation`),
@@ -649,11 +712,56 @@ export default function Reservations() {
             generalClassName="shadow-none overflow-scroll no-scrollbar sm:h-auto sm:min-w-[400px]"
           />
         )}
-        {isCreateTableDialogOpen && (
-          <CreateTableDialog
+        {isCreateTableDialogOpen && rowToAction && (
+          <GenericAddEditPanel
             isOpen={isCreateTableDialogOpen}
             close={() => setIsCreateTableDialogOpen(false)}
-            type={TableTypes.NORMAL}
+            inputs={tableInputs}
+            formKeys={tableFormKeys}
+            setForm={setTableForm}
+            constantValues={{
+              startHour: format(new Date(), "HH:mm"),
+              name: rowToAction.reservedTable,
+              location: selectedLocationId,
+              playerCount: 2,
+              type: TableTypes.NORMAL,
+              isOnlineSale: false,
+              isAutoEntryAdded: false,
+              date: format(new Date(), "yyyy-MM-dd"),
+            }}
+            additionalButtons={[
+              {
+                label: "Create Without Entry",
+                isInputRequirementCheck: true,
+                isInputNeedToBeReset: false,
+                onClick: () => {
+                  createTable({
+                    tableDto: {
+                      ...tableForm,
+                      date: format(new Date(), "yyyy-MM-dd"),
+                      isAutoEntryAdded: false,
+                    },
+                  } as any);
+                  setIsCreateTableDialogOpen(false);
+                },
+              },
+            ]}
+            submitItem={createTable as any}
+            submitFunction={() => {
+              createTable({
+                tableDto: {
+                  ...tableForm,
+                  date: format(new Date(), "yyyy-MM-dd"),
+                  isAutoEntryAdded: tableForm.type !== TableTypes.ACTIVITY,
+                },
+              } as any);
+            }}
+            buttonName={
+              tableForm.type !== TableTypes.ACTIVITY
+                ? t("Create With Entry")
+                : t("Create")
+            }
+            topClassName="flex flex-col gap-2 "
           />
         )}
       </div>

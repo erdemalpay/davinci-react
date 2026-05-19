@@ -1,7 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { TabOption } from "../components/panelComponents/FormElements/TabInputScreen";
 import { ColumnType } from "../components/panelComponents/shared/types";
-import { CountListOptions, countListOptions } from "../constants/countList";
+// countListOptions removed; tabs are defined in the CountLists page
 import {
   AccountExpense,
   AccountOverallExpense,
@@ -50,8 +50,7 @@ type GeneralContextType = {
   selectedMenuItem: MenuItem | null;
   setSelectedMenuItem: (item: MenuItem | null) => void;
   setProductExpenseForm: (form: Partial<AccountExpense>) => void;
-  countListOption: CountListOptions;
-  setCountListOption: (option: CountListOptions) => void;
+
   serviceExpenseForm: Partial<AccountExpense>;
   setServiceExpenseForm: (form: Partial<AccountOverallExpense>) => void;
   allExpenseForm: Partial<AccountOverallExpense>;
@@ -145,6 +144,8 @@ type GeneralContextType = {
   setShowAllTables: (show: boolean) => void;
   showAllGameplays: boolean;
   setShowAllGameplays: (show: boolean) => void;
+  isReleasesOpen: boolean;
+  setIsReleasesOpen: (open: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -169,8 +170,7 @@ const GeneralContext = createContext<GeneralContextType>({
   setSelectedMenuItem: () => {},
   sortConfigKey: null,
   setSortConfigKey: () => {},
-  countListOption: countListOptions[0],
-  setCountListOption: () => {},
+
   setAccountingActiveTab: () => {},
   accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
   checkoutActiveTab: 0,
@@ -297,6 +297,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setShowAllTables: () => {},
   showAllGameplays: true,
   setShowAllGameplays: () => {},
+  isReleasesOpen: false,
+  setIsReleasesOpen: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -341,9 +343,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   }>({});
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   useState<boolean>(false);
-  const [countListOption, setCountListOption] = useState<CountListOptions>(
-    countListOptions[0]
-  );
+  // countListOption state removed; tabs are handled in the CountLists page
   const [ordersActiveTab, setOrdersActiveTab] = useState<number>(0);
   const [productExpenseForm, setProductExpenseForm] = useState<
     Partial<AccountExpense>
@@ -387,6 +387,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [orderDataActiveTab, setOrderDataActiveTab] = useState<number>(0);
+  const [isReleasesOpen, setIsReleasesOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpenState] = useState<boolean>(() => {
     const saved = localStorage.getItem("sidebar-open");
     return saved ? JSON.parse(saved) : true;
@@ -490,8 +491,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setTableColumns,
         sortConfigKey,
         setSortConfigKey,
-        countListOption,
-        setCountListOption,
+
         checkoutActiveTab,
         setCheckoutActiveTab,
         currentPage,
@@ -569,6 +569,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setShowAllTables,
         showAllGameplays,
         setShowAllGameplays,
+        isReleasesOpen,
+        setIsReleasesOpen,
       }}
     >
       {children}

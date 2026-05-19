@@ -182,7 +182,7 @@
 //           rowKeys={rowKeys}
 //           columns={columns}
 //           rows={rows}
-//           title={t("Ikas Stock Comparision")}
+//           title={t("Ikas Stock Comparison")}
 //           filters={filters}
 //           isActionsActive={true}
 //           actions={actions}

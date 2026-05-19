@@ -10,7 +10,7 @@ import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 const ComparisionPageTabs = [
   {
     number: 0,
-    label: "Local Price Comparision",
+    label: "Local Price Comparison",
     icon: <MdOutlinePriceChange className="text-lg font-thin" />,
     content: <LocalPriceComparision />,
     isDisabled: false,
