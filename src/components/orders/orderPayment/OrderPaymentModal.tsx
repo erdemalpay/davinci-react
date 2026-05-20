@@ -47,7 +47,8 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../../../utils/getItem";
-import { printTableReceipt } from "../../../utils/printReceipt";
+import { usePrinter } from "../../../hooks/usePrinter";
+import { buildReceiptData } from "../../../utils/printReceiptESCPOS";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -83,6 +84,7 @@ const OrderPaymentModal = ({
   tableCollectionsProp,
 }: Props) => {
   const { t } = useTranslation();
+  const { isConnected, print } = usePrinter();
   const user = useGetUser();
   const isMutating = useIsMutating();
   const {
@@ -343,16 +345,21 @@ const OrderPaymentModal = ({
   ]);
 
   const handlePrint = () => {
-    printTableReceipt({
-      tableName: table?.name ?? "",
+    if (!isConnected) {
+      toast.error(t("Printer not connected. Please connect the printer first."));
+      return;
+    }
+    const data = buildReceiptData({
       orders: orders ?? [],
       items: items ?? [],
       title: "Siparişler",
-      showLogo: false,
-      showDate: false,
-      showTableInfo: false,
       showNotes: false,
     });
+    if (!data) {
+      toast.error(t("No orders to print."));
+      return;
+    }
+    print(data);
   };
   const buttons: ButtonType[] = [
     {
