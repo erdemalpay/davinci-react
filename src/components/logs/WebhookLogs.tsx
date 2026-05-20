@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
-import { FormElementsState, WebhookLog, commonDateOptions } from "../../types";
+import { DateRangeKey, FormElementsState, WebhookLog, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import {
   useGetQueryWebhookLogs,
@@ -450,6 +450,18 @@ export default function WebhookLogs() {
         }),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            const { before, after } = dateRange();
+            setFilterPanelFormElements((prev) => ({
+              ...prev,
+              startDate: after,
+              endDate: before,
+              date: value,
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,
@@ -472,7 +484,7 @@ export default function WebhookLogs() {
         isOnClearActive: false,
       },
     ],
-    [t, endpointOptions]
+    [t, endpointOptions, setFilterPanelFormElements]
   );
 
   const tableFilters = useMemo(

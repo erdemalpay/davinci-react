@@ -1552,5 +1552,5 @@
   "Sandwich Stocks": "Sandwich Stocks",
   "Search menu...": "Search menu...",
   "Comparision": "Comparision",
-  "Webhook Requests for Order": "Webhook Requests for Order"
+  "Webhook Requests for Order {{orderId}}": "Webhook Requests for Order {{orderId}}"
 }

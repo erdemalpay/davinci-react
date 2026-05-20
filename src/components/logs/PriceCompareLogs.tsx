@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
-import { commonDateOptions, FormElementsState, PriceCompareLog } from "../../types";
+import { commonDateOptions, DateRangeKey, FormElementsState, PriceCompareLog } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import {
   useGetPriceCompareLogTargets,
@@ -338,6 +338,18 @@ export default function PriceCompareLogs() {
         }),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            const { before, after } = dateRange();
+            setFilterPanelFormElements((prev) => ({
+              ...prev,
+              startDate: after,
+              endDate: before,
+              date: value,
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,
@@ -360,7 +372,7 @@ export default function PriceCompareLogs() {
         isOnClearActive: false,
       },
     ],
-    [t, targetList]
+    [t, targetList, setFilterPanelFormElements]
   );
 
   const tableFilters = useMemo(
