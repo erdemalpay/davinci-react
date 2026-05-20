@@ -2,56 +2,52 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
-import { commonDateOptions, PriceCompareLog } from "../../types";
+import { commonDateOptions, FormElementsState, PriceCompareLog } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
-import { useGetQueryPriceCompareLogs } from "../../utils/api/priceCompareLog";
-import { formatAsLocalDate } from "../../utils/format";
+import {
+  useGetPriceCompareLogTargets,
+  useGetQueryPriceCompareLogs,
+} from "../../utils/api/priceCompareLog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
-
 const PRICE_COMPARE_TYPES = [
-  { value: "CRON", label: "Cron" },
-  { value: "SITE", label: "Site" },
+  { value: "cron", label: "Cron" },
+  { value: "site", label: "Site" },
 ];
 
 const PRICE_COMPARE_STATUSES = [
-  { value: "PENDING", label: "Pending" },
-  { value: "SUCCESS", label: "Success" },
-  { value: "PARTIAL_SUCCESS", label: "Partial Success" },
-  { value: "FAILED", label: "Failed" },
+  { value: "pending", label: "Pending" },
+  { value: "success", label: "Success" },
+  { value: "partial_success", label: "Partial Success" },
+  { value: "failed", label: "Failed" },
 ];
+
+const initialFilterPanelFormElements = {
+  type: "",
+  status: "",
+  target: "",
+  date: "thisMonth",
+  endDate: dateRanges.thisMonth().before,
+  startDate: dateRanges.thisMonth().after,
+};
 
 export default function PriceCompareLogs() {
   const { t } = useTranslation();
-  const initialFilterPanelFormElements: FormElementsState = {
-    type: "",
-    status: "",
-    target: "",
-    date: "thisMonth",
-    endDate: dateRanges.thisMonth().before,
-    startDate: dateRanges.thisMonth().after,
-  };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
-  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
-  const {
-    data: priceCompareLogsPayload,
-    isLoading,
-    error,
-  } = useGetQueryPriceCompareLogs(
+  const [showPriceCompareLogsFilters, setShowPriceCompareLogsFilters] =
+    useState(false);
+  const { rowsPerPage, currentPage } = useGeneralContext();
+  const { data: priceCompareLogsPayload } = useGetQueryPriceCompareLogs(
     currentPage,
     rowsPerPage,
     filterPanelFormElements
   );
-  const [showPriceCompareLogsFilters, setShowPriceCompareLogsFilters] =
-    useState(false);
+  const { data: targetList } = useGetPriceCompareLogTargets();
 
-  // Helper function to get status color
+
   const getStatusColor = (status: string): string => {
     const statusColors: Record<string, string> = {
       pending: "bg-yellow-500",
@@ -62,7 +58,6 @@ export default function PriceCompareLogs() {
     return statusColors[status?.toLowerCase()] || "bg-gray-500";
   };
 
-  // Group logs by target
   const groupedRows = useMemo(() => {
     const allLogs = priceCompareLogsPayload?.logs || [];
     const grouped = new Map<string, PriceCompareLog[]>();
@@ -85,14 +80,12 @@ export default function PriceCompareLogs() {
     groupedRows.forEach((logs, target) => {
       if (logs.length === 0) return;
 
-      // Sort logs by createdAt (newest first)
       const sortedLogs = [...logs].sort((a, b) => {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
         return dateB - dateA;
       });
 
-      // First log is the main row
       const mainLog = sortedLogs[0];
 
       const mainRow: any = {
@@ -122,15 +115,11 @@ export default function PriceCompareLogs() {
               key: "createdAt",
               node: (row: PriceCompareLog) => {
                 const date = new Date(row.createdAt);
-                const offset = date.getTimezoneOffset();
-                const adjustedDate = new Date(
-                  date.getTime() + offset * 60 * 1000
-                );
                 return (
                   <div>
-                    <div>{formatAsLocalDate(row.createdAt.toString())}</div>
+                    <div>{format(new Date(row.createdAt), "dd/MM/yyyy")}</div>
                     <div className="text-xs text-gray-500">
-                      {format(adjustedDate, "HH:mm:ss")}
+                      {format(date, "HH:mm:ss")}
                     </div>
                   </div>
                 );
@@ -231,7 +220,7 @@ export default function PriceCompareLogs() {
         key: "createdAt",
         className: "min-w-32",
         node: (row: any) => {
-          return formatAsLocalDate(row.createdAt);
+          return format(new Date(row.createdAt), "dd/MM/yyyy");
         },
       },
       {
@@ -327,14 +316,15 @@ export default function PriceCompareLogs() {
         required: false,
       },
       {
-        type: InputTypes.TEXT,
+        type: InputTypes.SELECT,
         formKey: "target",
         label: t("Target"),
+        options: (targetList ?? []).map((target) => ({
+          value: target,
+          label: target,
+        })),
         placeholder: t("Target"),
         required: false,
-        isDatePicker: false,
-        isOnClearActive: false,
-        isDebounce: true,
       },
       {
         type: InputTypes.SELECT,
@@ -370,7 +360,7 @@ export default function PriceCompareLogs() {
         isOnClearActive: false,
       },
     ],
-    [t]
+    [t, targetList]
   );
 
   const tableFilters = useMemo(
@@ -386,7 +376,7 @@ export default function PriceCompareLogs() {
         ),
       },
     ],
-    [t, showPriceCompareLogsFilters]
+    [t, showPriceCompareLogsFilters, setShowPriceCompareLogsFilters]
   );
 
   const filterPanel = useMemo(
@@ -406,6 +396,7 @@ export default function PriceCompareLogs() {
       filterPanelInputs,
       filterPanelFormElements,
       setFilterPanelFormElements,
+      setShowPriceCompareLogsFilters,
       initialFilterPanelFormElements,
     ]
   );
@@ -418,34 +409,6 @@ export default function PriceCompareLogs() {
         }
       : null;
   }, [priceCompareLogsPayload, rowsPerPage]);
-
-  // Effect to reset current page when filters change
-  useMemo(() => {
-    setCurrentPage(1);
-  }, [filterPanelFormElements, setCurrentPage]);
-
-  if (isLoading) {
-    return (
-      <div className="w-[98%] mx-auto my-10">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">{t("Loading")}...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-[98%] mx-auto my-10">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-red-500">
-            {t("Error loading price compare logs")}:{" "}
-            {error instanceof Error ? error.message : String(error)}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-[98%] mx-auto my-10">

@@ -2,49 +2,52 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
-import { WebhookLog, commonDateOptions } from "../../types";
+import { FormElementsState, WebhookLog, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
-import { useGetQueryWebhookLogs } from "../../utils/api/webhookLog";
-import { formatAsLocalDate } from "../../utils/format";
+import {
+  useGetQueryWebhookLogs,
+  useGetWebhookLogEndpoints,
+} from "../../utils/api/webhookLog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
-
 const WEBHOOK_SOURCES = [
-  { value: "SHOPIFY", label: "Shopify" },
-  { value: "TRENDYOL", label: "Trendyol" },
-  { value: "HEPSIBURADA", label: "Hepsiburada" },
+  { value: "shopify", label: "Shopify" },
+  { value: "trendyol", label: "Trendyol" },
+  { value: "hepsiburada", label: "Hepsiburada" },
 ];
 
 const WEBHOOK_STATUSES = [
-  { value: "SUCCESS", label: "Success" },
-  { value: "FAILED", label: "Failed" },
-  { value: "PENDING", label: "Pending" },
+  { value: "success", label: "Success" },
+  { value: "failed", label: "Failed" },
+  { value: "pending", label: "Pending" },
+  { value: "error", label: "Error" },
+  { value: "order_not_created", label: "Order Not Created" },
 ];
+
+const initialFilterPanelFormElements = {
+  source: "",
+  status: "",
+  endpoint: "",
+  date: "thisMonth",
+  endDate: dateRanges.thisMonth().before,
+  startDate: dateRanges.thisMonth().after,
+};
 
 export default function WebhookLogs() {
   const { t } = useTranslation();
-  const initialFilterPanelFormElements: FormElementsState = {
-    source: "",
-    status: "",
-    endpoint: "",
-    date: "thisMonth",
-    endDate: dateRanges.thisMonth().before,
-    startDate: dateRanges.thisMonth().after,
-  };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
-  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
-  const {
-    data: webhookLogsPayload,
-    isLoading,
-    error,
-  } = useGetQueryWebhookLogs(currentPage, rowsPerPage, filterPanelFormElements);
   const [showWebhookLogsFilters, setShowWebhookLogsFilters] = useState(false);
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+  const { data: webhookLogsPayload } = useGetQueryWebhookLogs(
+    currentPage,
+    rowsPerPage,
+    filterPanelFormElements
+  );
+  const { data: endpointList } = useGetWebhookLogEndpoints();
+
 
   // Helper function to extract products from requestBody based on source
   const extractProducts = (log: WebhookLog) => {
@@ -56,29 +59,24 @@ export default function WebhookLogs() {
           ? JSON.parse(log.requestBody)
           : log.requestBody;
 
-      // Shopify format
       if (log.source === "SHOPIFY" || log.source === "shopify") {
         return body.line_items || body.items || [];
       }
 
-      // Trendyol format
       if (log.source === "TRENDYOL" || log.source === "trendyol") {
         return body.lines || body.items || body.orderLines || [];
       }
 
-      // Hepsiburada format
       if (log.source === "HEPSIBURADA" || log.source === "hepsiburada") {
         return body.items || body.orderItems || [];
       }
 
-      // Generic fallback
       return body.items || body.line_items || body.products || [];
     } catch (e) {
       return [];
     }
   };
 
-  // Helper function to get order ID from log
   const getOrderId = (log: WebhookLog) => {
     if (log.externalOrderId) return log.externalOrderId;
     if (log.orderIds && log.orderIds.length > 0) return String(log.orderIds[0]);
@@ -95,7 +93,6 @@ export default function WebhookLogs() {
     }
   };
 
-  // Helper function to get order number from log
   const getOrderNumber = (log: WebhookLog) => {
     try {
       const body =
@@ -103,17 +100,14 @@ export default function WebhookLogs() {
           ? JSON.parse(log.requestBody)
           : log.requestBody;
 
-      // Trendyol format
       if (log.source === "TRENDYOL" || log.source === "trendyol") {
         return body.orderNumber || "-";
       }
 
-      // Shopify format
       if (log.source === "SHOPIFY" || log.source === "shopify") {
         return body.order_number || body.name || body.number || "-";
       }
 
-      // Generic fallback
       return (
         body.orderNumber || body.order_number || body.name || body.number || "-"
       );
@@ -122,19 +116,14 @@ export default function WebhookLogs() {
     }
   };
 
-  // Group logs by order ID
   const groupedRows = useMemo(() => {
     const allLogs = webhookLogsPayload?.logs || [];
     const grouped = new Map<string, WebhookLog[]>();
 
     allLogs.forEach((log) => {
       const orderId = getOrderId(log);
-      // If orderId is missing or '-', use log._id to ensure each log gets its own group
       const groupKey = orderId && orderId !== "-" ? orderId : `log_${log._id}`;
-
-      if (!grouped.has(groupKey)) {
-        grouped.set(groupKey, []);
-      }
+      if (!grouped.has(groupKey)) grouped.set(groupKey, []);
       grouped.get(groupKey)?.push(log);
     });
 
@@ -147,23 +136,14 @@ export default function WebhookLogs() {
     groupedRows.forEach((logs, orderId) => {
       if (logs.length === 0) return;
 
-      // Sort logs by createdAt (newest first)
-      const sortedLogs = [...logs].sort((a, b) => {
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
-        return dateB - dateA;
-      });
-
-      // First log is the main row
+      const sortedLogs = [...logs].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
       const mainLog = sortedLogs[0];
-      const products = extractProducts(mainLog);
 
-      // Combine all products from all logs for this order
       const allProducts = new Map<string, any>();
       sortedLogs.forEach((log) => {
-        const logProducts = extractProducts(log);
-        logProducts.forEach((product: any) => {
-          // For Trendyol, use barcode or sku as key
+        extractProducts(log).forEach((product: any) => {
           const productKey =
             product.sku ||
             product.barcode ||
@@ -193,15 +173,13 @@ export default function WebhookLogs() {
         });
       });
 
-      const productsArray = Array.from(allProducts.values());
-
-      const mainRow: any = {
+      result.push({
         ...mainLog,
         statusDisplay: mainLog.status || "unknown",
         hasError: !!mainLog.errorMessage,
-        orderId: orderId,
+        orderId,
         orderNumber: getOrderNumber(mainLog),
-        products: productsArray,
+        products: Array.from(allProducts.values()),
         requestCount: sortedLogs.length,
         collapsible: {
           collapsibleHeader: t("Webhook Requests for Order {{orderId}}", {
@@ -224,15 +202,11 @@ export default function WebhookLogs() {
               key: "createdAt",
               node: (row: WebhookLog) => {
                 const date = new Date(row.createdAt);
-                const offset = date.getTimezoneOffset();
-                const adjustedDate = new Date(
-                  date.getTime() + offset * 60 * 1000
-                );
                 return (
                   <div>
-                    <div>{formatAsLocalDate(row.createdAt.toString())}</div>
+                    <div>{format(new Date(row.createdAt), "dd/MM/yyyy")}</div>
                     <div className="text-xs text-gray-500">
-                      {format(adjustedDate, "HH:mm:ss")}
+                      {format(date, "HH:mm:ss")}
                     </div>
                   </div>
                 );
@@ -311,9 +285,7 @@ export default function WebhookLogs() {
             },
           ],
         },
-      };
-
-      result.push(mainRow);
+      });
     });
 
     return result;
@@ -345,7 +317,7 @@ export default function WebhookLogs() {
         key: "createdAt",
         className: "min-w-32",
         node: (row: any) => {
-          return formatAsLocalDate(row.createdAt);
+          return format(new Date(row.createdAt), "dd/MM/yyyy");
         },
       },
       {
@@ -429,6 +401,11 @@ export default function WebhookLogs() {
     [t]
   );
 
+  const endpointOptions = useMemo(
+    () => (endpointList ?? []).map((ep) => ({ value: ep, label: ep })),
+    [endpointList]
+  );
+
   const filterPanelInputs = useMemo(
     () => [
       {
@@ -454,14 +431,12 @@ export default function WebhookLogs() {
         required: false,
       },
       {
-        type: InputTypes.TEXT,
+        type: InputTypes.SELECT,
         formKey: "endpoint",
         label: t("Endpoint"),
+        options: endpointOptions,
         placeholder: t("Endpoint"),
         required: false,
-        isDatePicker: false,
-        isOnClearActive: false,
-        isDebounce: true,
       },
       {
         type: InputTypes.SELECT,
@@ -497,7 +472,7 @@ export default function WebhookLogs() {
         isOnClearActive: false,
       },
     ],
-    [t]
+    [t, endpointOptions]
   );
 
   const tableFilters = useMemo(
@@ -513,7 +488,7 @@ export default function WebhookLogs() {
         ),
       },
     ],
-    [t, showWebhookLogsFilters]
+    [t, showWebhookLogsFilters, setShowWebhookLogsFilters]
   );
 
   const filterPanel = useMemo(
@@ -533,6 +508,7 @@ export default function WebhookLogs() {
       filterPanelInputs,
       filterPanelFormElements,
       setFilterPanelFormElements,
+      setShowWebhookLogsFilters,
       initialFilterPanelFormElements,
     ]
   );
@@ -545,34 +521,6 @@ export default function WebhookLogs() {
         }
       : null;
   }, [webhookLogsPayload, rowsPerPage]);
-
-  // Effect to reset current page when filters change
-  useMemo(() => {
-    setCurrentPage(1);
-  }, [filterPanelFormElements, setCurrentPage]);
-
-  if (isLoading) {
-    return (
-      <div className="w-[98%] mx-auto my-10">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">{t("Loading")}...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-[98%] mx-auto my-10">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-red-500">
-            {t("Error loading webhook logs")}:{" "}
-            {error instanceof Error ? error.message : String(error)}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-[98%] mx-auto my-10">
