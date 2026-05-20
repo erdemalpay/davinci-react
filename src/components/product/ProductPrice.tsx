@@ -21,23 +21,25 @@ const ProductPrice = () => {
 
   const sorted = useMemo(() => {
     const allSorted = [...(invoices ?? [])].sort((a, b) =>
-      (a.date ?? "").localeCompare(b.date ?? "")
+      (a?.date ?? "").localeCompare(b?.date ?? "")
     );
     let prevPrice: number | null = null;
-    return allSorted.filter((invoice) => {
-      const price = parseFloat(
-        (invoice.totalExpense / invoice.quantity).toFixed(4)
-      );
-      if (price === prevPrice) return false;
-      prevPrice = price;
-      return true;
-    });
+    return allSorted
+      .map((invoice) => ({
+        ...invoice,
+        price: parseFloat(
+          (invoice.totalExpense / invoice.quantity).toFixed(4)
+        ),
+      }))
+      .filter((invoice) => {
+        if (invoice.price === prevPrice) return false;
+        prevPrice = invoice.price;
+        return true;
+      });
   }, [invoices]);
 
   const chartConfig = useMemo(() => {
-    const prices = sorted.map((invoice) =>
-      parseFloat((invoice.totalExpense / invoice.quantity).toFixed(4))
-    );
+    const prices = sorted.map((invoice) => invoice.price);
     const dates = sorted.map((invoice) => invoice.date);
     const step = Math.max(1, Math.ceil(dates.length / 20));
     const tickValues = dates
@@ -144,9 +146,6 @@ const ProductPrice = () => {
   // 1 kayıt — fiyat kartı
   if (sorted.length === 1) {
     const invoice = sorted[0];
-    const price = parseFloat(
-      (invoice.totalExpense / invoice.quantity).toFixed(4)
-    );
     return (
       <Card className="shadow-none">
         <CardHeader
@@ -161,7 +160,7 @@ const ProductPrice = () => {
         </CardHeader>
         <CardBody className="flex flex-col items-center justify-center h-60 gap-2">
           <Typography variant="h4" color="blue-gray">
-            {price.toLocaleString("tr-TR")} ₺
+            {invoice.price.toLocaleString("tr-TR")} ₺
           </Typography>
           <Typography variant="small" className="text-gray-500">
             {invoice.date ? formatAsLocalDate(invoice.date) : ""}
