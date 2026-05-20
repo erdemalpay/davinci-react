@@ -52,6 +52,7 @@ class PrinterService {
   }
 
   async reconnect() {
+    if (this._isConnected) return;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) return;
