@@ -344,16 +344,18 @@ const OrderPaymentModal = ({
     allCollectionsTotalAmount,
   ]);
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!isConnected) {
       toast.error(t("Printer not connected. Please connect the printer first."));
       return;
     }
-    const data = buildReceiptData({
+    const data = await buildReceiptData({
       orders: orders ?? [],
       items: items ?? [],
-      title: "Siparişler",
-      showNotes: false,
+      tableName: table?.name,
+      title: "DA VINCI BOARD GAME CAFE",
+      showNotes: true,
+      printedAt: new Date(),
     });
     if (!data) {
       toast.error(t("No orders to print."));
