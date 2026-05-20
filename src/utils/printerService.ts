@@ -6,6 +6,8 @@ class PrinterService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private printer: any = null;
   private _isConnected = false;
+  private _opening = false;
+  private _reconnectAttempted = false;
   private connectedListeners = new Set<Listener>();
   private disconnectedListeners = new Set<Listener>();
 
@@ -24,6 +26,7 @@ class PrinterService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.printer.addEventListener("connected", (device: any) => {
       this._isConnected = true;
+      this._opening = false;
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
@@ -47,18 +50,28 @@ class PrinterService {
   }
 
   async connect() {
-    const printer = await this.getPrinter();
-    return printer.connect();
+    if (this._isConnected || this._opening) return;
+    this._opening = true;
+    try {
+      const printer = await this.getPrinter();
+      return printer.connect();
+    } catch {
+      this._opening = false;
+    }
   }
 
   async reconnect() {
-    if (this._isConnected) return;
+    if (this._isConnected || this._opening || this._reconnectAttempted) return;
+    this._reconnectAttempted = true;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) return;
+      this._opening = true;
       const printer = await this.getPrinter();
       printer.reconnect(JSON.parse(stored));
-    } catch {}
+    } catch {
+      this._opening = false;
+    }
   }
 
   async print(data: Uint8Array) {
