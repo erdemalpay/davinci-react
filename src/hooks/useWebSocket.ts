@@ -272,13 +272,26 @@ export function useWebSocket(shouldConnect = false) {
         }
       );
 
+      const isValidOrder = ![
+        OrderStatus.WASTED,
+        OrderStatus.CANCELLED,
+        OrderStatus.RETURNED,
+      ].includes(order.status as OrderStatus);
+
+      if (isValidOrder && printerService.isConnected) {
+        const { menuItems } = latestValuesRef.current;
+        buildReceiptData({
+          orders: [order],
+          items: menuItems,
+          tableName: (order.table as Table)?.name,
+        }).then((data) => {
+          if (data) printerService.print(data);
+        });
+      }
+
       if (
         order.createdBy === user?._id ||
-        [
-          OrderStatus.WASTED,
-          OrderStatus.CANCELLED,
-          OrderStatus.RETURNED,
-        ].includes(order.status as OrderStatus) ||
+        !isValidOrder ||
         order.location !== selectedLocationId
       ) {
         return;
@@ -292,7 +305,6 @@ export function useWebSocket(shouldConnect = false) {
       if (
         user?.role &&
         !foundCategory?.isAutoServed &&
-        order.status !== OrderStatus.CANCELLED &&
         foundKitchen?.soundRoles?.includes(user.role._id)
       ) {
         if (
@@ -306,43 +318,6 @@ export function useWebSocket(shouldConnect = false) {
             .play()
             .catch((error) => console.error("Error playing sound:", error));
         }
-      }
-
-      const isAutoPrintEnabled =
-        localStorage.getItem("davinci_auto_print") !== "false";
-
-      console.log("🖨️ [orderCreated] baskı kontrolü", {
-        isAutoPrintEnabled,
-        printerConnected: printerService.isConnected,
-        tableName: (order.table as Table)?.name,
-      });
-
-      console.log("🖨️ [orderCreated] fiş içeriği:", {
-        masa: (order.table as Table)?.name,
-        urun: (order.item as unknown as MenuItem)?.name ?? order.item,
-        adet: order.quantity,
-        not: order.note || "-",
-      });
-
-      if (isAutoPrintEnabled && printerService.isConnected) {
-        const { menuItems } = latestValuesRef.current;
-        console.log("🖨️ [orderCreated] fiş hazırlanıyor...");
-        buildReceiptData({
-          orders: [order],
-          items: menuItems,
-          tableName: (order.table as Table)?.name,
-        }).then((data) => {
-          if (data) {
-            console.log("🖨️ [orderCreated] yazdırılıyor ✅");
-            printerService.print(data);
-          } else {
-            console.warn("🖨️ [orderCreated] fiş verisi oluşturulamadı");
-          }
-        });
-      } else {
-        console.log("🖨️ [orderCreated] baskı atlandı", {
-          sebep: !isAutoPrintEnabled ? "toggle kapalı" : "printer bağlı değil",
-        });
       }
     });
 
