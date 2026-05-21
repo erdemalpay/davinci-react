@@ -346,7 +346,7 @@ const OrderPaymentModal = ({
 
   const handlePrint = async () => {
     if (!isConnected) {
-      toast.error(t("Printer not connected. Please connect the printer first."));
+      toast.error(t("Printer not connected, Please connect the printer first."));
       return;
     }
     const data = await buildReceiptData({
