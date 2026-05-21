@@ -49,6 +49,7 @@ import {
 } from "../../../utils/getItem";
 import { usePrinter } from "../../../hooks/usePrinter";
 import { buildReceiptData } from "../../../utils/printReceiptESCPOS";
+import { printTableReceipt } from "../../../utils/printReceipt";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -345,23 +346,29 @@ const OrderPaymentModal = ({
   ]);
 
   const handlePrint = async () => {
-    if (!isConnected) {
-      toast.error(t("Printer not connected. Please connect the printer first."));
-      return;
+    const isAutoPrintEnabled =
+      localStorage.getItem("davinci_auto_print") !== "false";
+    if (isAutoPrintEnabled) {
+      if (!isConnected) {
+        toast.error(t("Printer not connected. Please connect the printer first."));
+        return;
+      }
+      const data = await buildReceiptData({
+        orders: orders ?? [],
+        items: items ?? [],
+        tableName: table?.name,
+        title: "DA VINCI BOARD GAME CAFE",
+        showNotes: true,
+        printedAt: new Date(),
+      });
+      if (data) print(data);
+    } else {
+      printTableReceipt({
+        tableName: table?.name ?? "",
+        orders: orders ?? [],
+        items: items ?? [],
+      });
     }
-    const data = await buildReceiptData({
-      orders: orders ?? [],
-      items: items ?? [],
-      tableName: table?.name,
-      title: "DA VINCI BOARD GAME CAFE",
-      showNotes: true,
-      printedAt: new Date(),
-    });
-    if (!data) {
-      toast.error(t("No orders to print."));
-      return;
-    }
-    print(data);
   };
   const buttons: ButtonType[] = [
     {
