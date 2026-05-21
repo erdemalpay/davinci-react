@@ -628,6 +628,21 @@ export function useWebSocket(shouldConnect = false) {
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
         const { selectedDate, menuItems } = latestValuesRef.current;
+
+        const existingOrders = queryClient.getQueryData<Order[]>([
+          `${Paths.Order}/today`,
+          selectedDate,
+        ]);
+        const existingOrderIds = new Set(
+          existingOrders
+            ?.filter(
+              (o) =>
+                (typeof o.table === "number" ? o.table : o.table?._id) ===
+                table._id
+            )
+            .map((o) => o._id)
+        );
+
         queryClient
           .refetchQueries({ queryKey: [`${Paths.Order}/today`, selectedDate] })
           .then(() => {
@@ -635,24 +650,26 @@ export function useWebSocket(shouldConnect = false) {
               `${Paths.Order}/today`,
               selectedDate,
             ]);
-            const tableOrders = todayOrders?.filter(
+            const newOrders = todayOrders?.filter(
               (o) =>
                 (typeof o.table === "number" ? o.table : o.table?._id) ===
-                  table._id && o.status !== OrderStatus.CANCELLED
+                  table._id &&
+                o.status !== OrderStatus.CANCELLED &&
+                !existingOrderIds.has(o._id)
             );
             console.log("🖨️ [createMultipleOrder] fiş bilgileri:", {
               tableName: table.name,
-              orderCount: tableOrders?.length ?? 0,
-              orders: tableOrders?.map((o) => ({
+              orderCount: newOrders?.length ?? 0,
+              orders: newOrders?.map((o) => ({
                 urun: (o.item as unknown as MenuItem)?.name ?? o.item,
                 adet: o.quantity,
                 not: o.note || "-",
               })),
               printerConnected: printerService.isConnected,
             });
-            if (tableOrders?.length && printerService.isConnected) {
+            if (newOrders?.length && printerService.isConnected) {
               buildReceiptData({
-                orders: tableOrders,
+                orders: newOrders,
                 items: menuItems,
                 tableName: table.name,
               }).then((data) => {
