@@ -627,6 +627,40 @@ export function useWebSocket(shouldConnect = false) {
 
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
+        const { selectedDate, menuItems } = latestValuesRef.current;
+        queryClient
+          .refetchQueries({ queryKey: [`${Paths.Order}/today`, selectedDate] })
+          .then(() => {
+            const todayOrders = queryClient.getQueryData<Order[]>([
+              `${Paths.Order}/today`,
+              selectedDate,
+            ]);
+            const tableOrders = todayOrders?.filter(
+              (o) =>
+                (typeof o.table === "number" ? o.table : o.table?._id) ===
+                  table._id && o.status !== OrderStatus.CANCELLED
+            );
+            console.log("🖨️ [createMultipleOrder] fiş bilgileri:", {
+              tableName: table.name,
+              orderCount: tableOrders?.length ?? 0,
+              orders: tableOrders?.map((o) => ({
+                urun: (o.item as unknown as MenuItem)?.name ?? o.item,
+                adet: o.quantity,
+                not: o.note || "-",
+              })),
+              printerConnected: printerService.isConnected,
+            });
+            if (tableOrders?.length && printerService.isConnected) {
+              buildReceiptData({
+                orders: tableOrders,
+                items: menuItems,
+                tableName: table.name,
+              }).then((data) => {
+                if (data) printerService.print(data);
+              });
+            }
+          });
+
         if (!user) {
           console.log("User not found in createMultipleOrder");
           return;
