@@ -350,7 +350,7 @@ const OrderPaymentModal = ({
       localStorage.getItem("davinci_auto_print") !== "false";
     if (isAutoPrintEnabled) {
       if (!isConnected) {
-        toast.error(t("Printer not connected. Please connect the printer first."));
+        toast.error(t("Printer not connected, Please connect the printer first."));
         return;
       }
       const data = await buildReceiptData({
