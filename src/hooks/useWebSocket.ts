@@ -20,7 +20,7 @@ import { useUserContext } from "./../context/User.context";
 import { Table } from "./../types";
 import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
-import { buildReceiptData } from "./../utils/printReceiptESCPOS";
+import { buildNewOrderReceipt, buildReceiptData } from "./../utils/printReceiptESCPOS";
 import { printerService } from "./../utils/printerService";
 import { socketService } from "./../utils/socketService";
 import { socketEventListeners } from "./socketConstant";
@@ -243,7 +243,11 @@ export function useWebSocket(shouldConnect = false) {
         tableName?: string;
         title?: string;
       }) => {
-        if (!printerService.isConnected) return;
+        console.log("🖨️ [printReceipt] event alındı", { tableName, orderCount: orders.length, connected: printerService.isConnected });
+        if (!printerService.isConnected) {
+          console.warn("🖨️ [printReceipt] yazıcı bağlı değil, atlandı");
+          return;
+        }
         const data = await buildReceiptData({
           orders,
           items,
@@ -252,9 +256,22 @@ export function useWebSocket(shouldConnect = false) {
           showNotes: true,
           printedAt: new Date(),
         });
-        if (data) printerService.print(data);
+        if (data) {
+          console.log("🖨️ [printReceipt] yazdırılıyor...");
+          printerService.print(data);
+        }
       }
     );
+
+    socket.on("printNewOrder", () => {
+      console.log("🖨️ [printNewOrder] event alındı", { connected: printerService.isConnected });
+      if (!printerService.isConnected) {
+        console.warn("🖨️ [printNewOrder] yazıcı bağlı değil, atlandı");
+        return;
+      }
+      console.log("🖨️ [printNewOrder] dummy fiş yazdırılıyor...");
+      printerService.print(buildNewOrderReceipt());
+    });
 
     socket.on("orderCreated", ({ order }: { order: Order }) => {
       const {
