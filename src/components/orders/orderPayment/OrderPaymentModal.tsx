@@ -47,9 +47,8 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../../../utils/getItem";
-import { usePrinter } from "../../../hooks/usePrinter";
-import { buildReceiptData } from "../../../utils/printReceiptESCPOS";
 import { printTableReceipt } from "../../../utils/printReceipt";
+import { socketService } from "../../../utils/socketService";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -85,7 +84,6 @@ const OrderPaymentModal = ({
   tableCollectionsProp,
 }: Props) => {
   const { t } = useTranslation();
-  const { isConnected, print } = usePrinter();
   const user = useGetUser();
   const isMutating = useIsMutating();
   const {
@@ -345,23 +343,16 @@ const OrderPaymentModal = ({
     allCollectionsTotalAmount,
   ]);
 
-  const handlePrint = async () => {
+  const handlePrint = () => {
     const isAutoPrintEnabled =
       localStorage.getItem("davinci_auto_print") !== "false";
     if (isAutoPrintEnabled) {
-      if (!isConnected) {
-        toast.error(t("Printer not connected, Please connect the printer first."));
-        return;
-      }
-      const data = await buildReceiptData({
+      socketService.emit("requestPrint", {
         orders: orders ?? [],
         items: items ?? [],
         tableName: table?.name,
         title: "DA VINCI BOARD GAME CAFE",
-        showNotes: true,
-        printedAt: new Date(),
       });
-      if (data) print(data);
     } else {
       printTableReceipt({
         tableName: table?.name ?? "",

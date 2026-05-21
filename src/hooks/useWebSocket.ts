@@ -20,6 +20,9 @@ import { useUserContext } from "./../context/User.context";
 import { Table } from "./../types";
 import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
+import { buildReceiptData } from "./../utils/printReceiptESCPOS";
+import { printerService } from "./../utils/printerService";
+import { socketService } from "./../utils/socketService";
 import { socketEventListeners } from "./socketConstant";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
@@ -154,6 +157,7 @@ export function useWebSocket(shouldConnect = false) {
     });
 
     socketRef.current = socket;
+    socketService.setSocket(socket);
 
     socket.on("connect", () => {
       console.log("✅ WebSocket connection established.");
@@ -225,6 +229,32 @@ export function useWebSocket(shouldConnect = false) {
     socket.on("connect_error", (error) => {
       console.error("❌ WebSocket connection error:", error.message);
     });
+
+    socket.on(
+      "printReceipt",
+      async ({
+        orders,
+        items,
+        tableName,
+        title,
+      }: {
+        orders: Order[];
+        items: MenuItem[];
+        tableName?: string;
+        title?: string;
+      }) => {
+        if (!printerService.isConnected) return;
+        const data = await buildReceiptData({
+          orders,
+          items,
+          tableName,
+          title,
+          showNotes: true,
+          printedAt: new Date(),
+        });
+        if (data) printerService.print(data);
+      }
+    );
 
     socket.on("orderCreated", ({ order }: { order: Order }) => {
       const {
