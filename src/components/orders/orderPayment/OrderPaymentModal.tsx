@@ -48,7 +48,6 @@ import {
   menuItemHasDecrementStock,
 } from "../../../utils/getItem";
 import { printTableReceipt } from "../../../utils/printReceipt";
-import { socketService } from "../../../utils/socketService";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -344,22 +343,16 @@ const OrderPaymentModal = ({
   ]);
 
   const handlePrint = () => {
-    const isAutoPrintEnabled =
-      localStorage.getItem("davinci_auto_print") !== "false";
-    if (isAutoPrintEnabled) {
-      socketService.emit("requestPrint", {
-        orders: orders ?? [],
-        items: items ?? [],
-        tableName: table?.name,
-        title: "DA VINCI BOARD GAME CAFE",
-      });
-    } else {
-      printTableReceipt({
-        tableName: table?.name ?? "",
-        orders: orders ?? [],
-        items: items ?? [],
-      });
-    }
+    printTableReceipt({
+      tableName: table?.name ?? "",
+      orders: orders ?? [],
+      items: items ?? [],
+      title: "Siparişler",
+      showLogo: false,
+      showDate: false,
+      showTableInfo: false,
+      showNotes: false,
+    });
   };
   const buttons: ButtonType[] = [
     {

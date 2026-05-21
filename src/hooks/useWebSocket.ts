@@ -20,9 +20,8 @@ import { useUserContext } from "./../context/User.context";
 import { Table } from "./../types";
 import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
-import { buildNewOrderReceipt, buildReceiptData } from "./../utils/printReceiptESCPOS";
+import { buildNewOrderReceipt } from "./../utils/printReceiptESCPOS";
 import { printerService } from "./../utils/printerService";
-import { socketService } from "./../utils/socketService";
 import { socketEventListeners } from "./socketConstant";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
@@ -157,7 +156,6 @@ export function useWebSocket(shouldConnect = false) {
     });
 
     socketRef.current = socket;
-    socketService.setSocket(socket);
 
     socket.on("connect", () => {
       console.log("✅ WebSocket connection established.");
@@ -229,39 +227,6 @@ export function useWebSocket(shouldConnect = false) {
     socket.on("connect_error", (error) => {
       console.error("❌ WebSocket connection error:", error.message);
     });
-
-    socket.on(
-      "printReceipt",
-      async ({
-        orders,
-        items,
-        tableName,
-        title,
-      }: {
-        orders: Order[];
-        items: MenuItem[];
-        tableName?: string;
-        title?: string;
-      }) => {
-        console.log("🖨️ [printReceipt] event alındı", { tableName, orderCount: orders.length, connected: printerService.isConnected });
-        if (!printerService.isConnected) {
-          console.warn("🖨️ [printReceipt] yazıcı bağlı değil, atlandı");
-          return;
-        }
-        const data = await buildReceiptData({
-          orders,
-          items,
-          tableName,
-          title,
-          showNotes: true,
-          printedAt: new Date(),
-        });
-        if (data) {
-          console.log("🖨️ [printReceipt] yazdırılıyor...");
-          printerService.print(data);
-        }
-      }
-    );
 
     socket.on("printNewOrder", () => {
       console.log("🖨️ [printNewOrder] event alındı", { connected: printerService.isConnected });
