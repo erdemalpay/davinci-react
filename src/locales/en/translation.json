@@ -1551,5 +1551,9 @@
   "Member Discount": "Member Discount",
   "Sandwich Stocks": "Sandwich Stocks",
   "Search menu...": "Search menu...",
-  "Comparision": "Comparision"
+  "Comparision": "Comparision",
+  "Printer not connected, Please connect the printer first.": "Printer not connected, Please connect the printer first.",
+  "No orders to print.": "No orders to print.",
+  "Printer Connected": "Printer Connected",
+  "Connect Printer": "Connect Printer"
 }
