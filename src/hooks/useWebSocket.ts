@@ -228,16 +228,6 @@ export function useWebSocket(shouldConnect = false) {
       console.error("❌ WebSocket connection error:", error.message);
     });
 
-    socket.on("printNewOrder", () => {
-      console.log("🖨️ [printNewOrder] event alındı", { connected: printerService.isConnected });
-      if (!printerService.isConnected) {
-        console.warn("🖨️ [printNewOrder] yazıcı bağlı değil, atlandı");
-        return;
-      }
-      console.log("🖨️ [printNewOrder] dummy fiş yazdırılıyor...");
-      printerService.print(buildNewOrderReceipt());
-    });
-
     socket.on("orderCreated", ({ order }: { order: Order }) => {
       const {
         queryClient,
@@ -313,6 +303,10 @@ export function useWebSocket(shouldConnect = false) {
             .play()
             .catch((error) => console.error("Error playing sound:", error));
         }
+      }
+
+      if (printerService.isConnected) {
+        printerService.print(buildNewOrderReceipt());
       }
     });
 
