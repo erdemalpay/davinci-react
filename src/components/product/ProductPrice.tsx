@@ -30,10 +30,13 @@ const ProductPrice = () => {
         price: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(4)
         ),
+        comparePrice: parseFloat(
+          (invoice.totalExpense / invoice.quantity).toFixed(2)
+        ),
       }))
       .filter((invoice) => {
-        if (invoice.price === prevPrice) return false;
-        prevPrice = invoice.price;
+        if (invoice.comparePrice === prevPrice) return false;
+        prevPrice = invoice.comparePrice;
         return true;
       });
   }, [invoices]);
