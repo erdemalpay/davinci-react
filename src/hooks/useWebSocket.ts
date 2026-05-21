@@ -20,7 +20,7 @@ import { useUserContext } from "./../context/User.context";
 import { Table } from "./../types";
 import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
-import { buildNewOrderReceipt } from "./../utils/printReceiptESCPOS";
+import { buildReceiptData } from "./../utils/printReceiptESCPOS";
 import { printerService } from "./../utils/printerService";
 import { socketEventListeners } from "./socketConstant";
 
@@ -37,7 +37,7 @@ export function useWebSocket(shouldConnect = false) {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const { kitchens } = useDataContext();
+  const { kitchens, menuItems = [] } = useDataContext();
   const {
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -64,6 +64,7 @@ export function useWebSocket(shouldConnect = false) {
     selectedLocationId,
     selectedDate,
     kitchens,
+    menuItems,
     categories,
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -81,6 +82,7 @@ export function useWebSocket(shouldConnect = false) {
       selectedLocationId,
       selectedDate,
       kitchens,
+      menuItems,
       categories,
       setIsTakeAwayPaymentModalOpen,
       setOrderCreateBulk,
@@ -95,6 +97,7 @@ export function useWebSocket(shouldConnect = false) {
     selectedLocationId,
     selectedDate,
     kitchens,
+    menuItems,
     categories,
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -305,8 +308,41 @@ export function useWebSocket(shouldConnect = false) {
         }
       }
 
-      if (printerService.isConnected) {
-        printerService.print(buildNewOrderReceipt());
+      const isAutoPrintEnabled =
+        localStorage.getItem("davinci_auto_print") !== "false";
+
+      console.log("🖨️ [orderCreated] baskı kontrolü", {
+        isAutoPrintEnabled,
+        printerConnected: printerService.isConnected,
+        tableName: (order.table as Table)?.name,
+      });
+
+      console.log("🖨️ [orderCreated] fiş içeriği:", {
+        masa: (order.table as Table)?.name,
+        urun: (order.item as unknown as MenuItem)?.name ?? order.item,
+        adet: order.quantity,
+        not: order.note || "-",
+      });
+
+      if (isAutoPrintEnabled && printerService.isConnected) {
+        const { menuItems } = latestValuesRef.current;
+        console.log("🖨️ [orderCreated] fiş hazırlanıyor...");
+        buildReceiptData({
+          orders: [order],
+          items: menuItems,
+          tableName: (order.table as Table)?.name,
+        }).then((data) => {
+          if (data) {
+            console.log("🖨️ [orderCreated] yazdırılıyor ✅");
+            printerService.print(data);
+          } else {
+            console.warn("🖨️ [orderCreated] fiş verisi oluşturulamadı");
+          }
+        });
+      } else {
+        console.log("🖨️ [orderCreated] baskı atlandı", {
+          sebep: !isAutoPrintEnabled ? "toggle kapalı" : "printer bağlı değil",
+        });
       }
     });
 

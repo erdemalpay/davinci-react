@@ -6,18 +6,6 @@ import { tr } from "date-fns/locale";
 import { MenuItem, Order, OrderStatus } from "../types";
 import { getItem } from "./getItem";
 
-export const buildNewOrderReceipt = (): Uint8Array => {
-  return new ReceiptPrinterEncoder({ language: "esc-pos", columns: 32 })
-    .initialize()
-    .align("center")
-    .bold(true)
-    .line("YENI SIPARIS")
-    .bold(false)
-    .newline(3)
-    .cut("partial")
-    .encode();
-};
-
 type BuildReceiptParams = {
   orders: Order[];
   items: MenuItem[];
