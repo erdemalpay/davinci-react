@@ -278,7 +278,8 @@ export function useWebSocket(shouldConnect = false) {
         OrderStatus.RETURNED,
       ].includes(order.status as OrderStatus);
 
-      if (isValidOrder && printerService.isConnected) {
+      const foundKitchenForPrint = getItem(order.kitchen as string, kitchens ?? []);
+      if (isValidOrder && printerService.isConnected && foundKitchenForPrint?.isPrintEnabled) {
         const { menuItems } = latestValuesRef.current;
         buildReceiptData({
           orders: [order],
@@ -627,7 +628,10 @@ export function useWebSocket(shouldConnect = false) {
 
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
-        const { selectedDate, menuItems } = latestValuesRef.current;
+        const { selectedDate, menuItems, kitchens: currentKitchens } = latestValuesRef.current;
+
+        const shouldPrint = printerService.isConnected &&
+          kitchenIds.some((id) => getItem(id, currentKitchens ?? [])?.isPrintEnabled);
 
         const existingOrders = queryClient.getQueryData<Order[]>([
           `${Paths.Order}/today`,
@@ -667,7 +671,7 @@ export function useWebSocket(shouldConnect = false) {
               })),
               printerConnected: printerService.isConnected,
             });
-            if (newOrders?.length && printerService.isConnected) {
+            if (newOrders?.length && shouldPrint) {
               buildReceiptData({
                 orders: newOrders,
                 items: menuItems,

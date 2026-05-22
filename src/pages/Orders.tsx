@@ -16,6 +16,7 @@ import {
   useGetAllCategories,
   useUpdateKitchenCategoryMutation,
 } from "../utils/api/menu/category";
+import { useKitchenMutations } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { formatDate, parseDate } from "../utils/dateUtil";
@@ -41,6 +42,7 @@ function Orders() {
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
   const { mutate: updateKitchenCategory } = useUpdateKitchenCategoryMutation();
+  const { updateKitchen } = useKitchenMutations();
   const categories = useGetAllCategories();
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
@@ -104,11 +106,27 @@ function Orders() {
       []
     );
   }, [ordersActiveTab, tabs, categories]);
+  const activeKitchen = tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen;
+
   const tabPanelFilters = [
     <div
       key={"tabPanelFilters"}
       className="flex flex-row gap-4 items-center ml-auto"
     >
+      {activeKitchen && (
+        <div className="flex flex-row items-center gap-2">
+          <p className="font-medium text-md">{t("Auto Print")}</p>
+          <CheckSwitch
+            checked={activeKitchen.isPrintEnabled ?? false}
+            onChange={() => {
+              updateKitchen({
+                id: activeKitchen._id,
+                updates: { isPrintEnabled: !activeKitchen.isPrintEnabled },
+              });
+            }}
+          />
+        </div>
+      )}
       {kitchens &&
         kitchens.map((kitchen, index) => {
           if (

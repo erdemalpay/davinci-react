@@ -797,6 +797,7 @@ export type Kitchen = {
   locations: number[];
   soundRoles?: number[];
   selectedUsers?: string[];
+  isPrintEnabled?: boolean;
 };
 
 export type MenuItem = {
