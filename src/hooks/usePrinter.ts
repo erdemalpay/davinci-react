@@ -11,7 +11,6 @@ export const usePrinter = () => {
     const unsubDisconnected = printerService.onDisconnected(() =>
       setIsConnected(false)
     );
-    printerService.reconnect();
     return () => {
       unsubConnected();
       unsubDisconnected();

@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Slide, ToastContainer } from "react-toastify";
@@ -24,6 +24,7 @@ import { ShiftContextProvider } from "./context/Shift.context";
 import { UserContextProvider, useUserContext } from "./context/User.context";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
+import { printerService } from "./utils/printerService";
 import { ProfileTabEnum } from "./pages/Profile";
 
 const queryClient = new QueryClient({
@@ -91,6 +92,10 @@ function App() {
 
   // Only connect to WebSocket when user is authenticated
   useWebSocket(!!user);
+
+  useEffect(() => {
+    printerService.reconnect();
+  }, []);
 
   return (
     <div className="App">
