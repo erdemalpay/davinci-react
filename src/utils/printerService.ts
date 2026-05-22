@@ -1,49 +1,15 @@
 const STORAGE_KEY = "davinci_printer_device";
+const BAUD_RATE = 9600;
 
 type Listener = () => void;
 
 class PrinterService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private printer: any = null;
+  private port: any = null;
   private _isConnected = false;
   private _opening = false;
-  private _reconnectAttempted = false;
   private connectedListeners = new Set<Listener>();
   private disconnectedListeners = new Set<Listener>();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async getPrinter(): Promise<any> {
-    if (this.printer) return this.printer;
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const mod = await import("@point-of-sale/webserial-receipt-printer");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const WebSerialReceiptPrinter = (mod as any).default ?? mod;
-
-    this.printer = new WebSerialReceiptPrinter({ baudRate: 9600 });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.printer.addEventListener("connected", (device: any) => {
-      this._isConnected = true;
-      this._opening = false;
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          vendorId: device.vendorId,
-          productId: device.productId,
-        })
-      );
-      this.connectedListeners.forEach((l) => l());
-    });
-
-    this.printer.addEventListener("disconnected", () => {
-      this._isConnected = false;
-      this.disconnectedListeners.forEach((l) => l());
-    });
-
-    return this.printer;
-  }
 
   get isConnected() {
     return this._isConnected;
@@ -53,30 +19,94 @@ class PrinterService {
     if (this._isConnected || this._opening) return;
     this._opening = true;
     try {
-      const printer = await this.getPrinter();
-      return printer.connect();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const port = await (navigator as any).serial.requestPort();
+      await this._open(port);
     } catch {
       this._opening = false;
     }
   }
 
   async reconnect() {
-    if (this._isConnected || this._opening || this._reconnectAttempted) return;
-    this._reconnectAttempted = true;
+    if (this._isConnected || this._opening) return;
+
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ports: any[] = await (navigator as any).serial.getPorts();
+      if (ports.length === 0) return;
+
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let port: any = null;
+
+      if (stored) {
+        const { vendorId, productId } = JSON.parse(stored);
+        if (vendorId && productId) {
+          port =
+            ports.find((p) => {
+              const info = p.getInfo();
+              return (
+                info.usbVendorId === vendorId && info.usbProductId === productId
+              );
+            }) ?? null;
+        }
+      }
+
+      // vendorId/productId null ise (Windows sanal COM port) tek yetkili portu kullan
+      if (!port && ports.length === 1) {
+        port = ports[0];
+      }
+
+      if (!port) return;
+
       this._opening = true;
-      const printer = await this.getPrinter();
-      printer.reconnect(JSON.parse(stored));
+      await this._open(port);
     } catch {
       this._opening = false;
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async _open(port: any) {
+    this.port = port;
+    await port.open({ baudRate: BAUD_RATE });
+
+    this._isConnected = true;
+    this._opening = false;
+
+    const info = port.getInfo();
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        vendorId: info.usbVendorId ?? null,
+        productId: info.usbProductId ?? null,
+      })
+    );
+
+    this.connectedListeners.forEach((l) => l());
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (navigator as any).serial.addEventListener(
+      "disconnect",
+      (event: Event) => {
+        if (event.target === this.port) {
+          this._isConnected = false;
+          this.port = null;
+          this.disconnectedListeners.forEach((l) => l());
+        }
+      },
+      { once: true }
+    );
+  }
+
   async print(data: Uint8Array) {
-    const printer = await this.getPrinter();
-    printer.print(data);
+    if (!this.port || !this._isConnected) return;
+    const writer = this.port.writable.getWriter();
+    try {
+      await writer.write(data);
+    } finally {
+      writer.releaseLock();
+    }
   }
 
   onConnected(listener: Listener) {
