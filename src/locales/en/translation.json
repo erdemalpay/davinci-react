@@ -1551,5 +1551,6 @@
   "Member Discount": "Member Discount",
   "Sandwich Stocks": "Sandwich Stocks",
   "Search menu...": "Search menu...",
-  "Comparision": "Comparision"
+  "Comparision": "Comparision",
+  "Webhook Requests for Order {{orderId}}": "Webhook Requests for Order {{orderId}}"
 }

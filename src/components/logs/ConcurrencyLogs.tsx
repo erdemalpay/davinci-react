@@ -6,32 +6,30 @@ import {
   ConcurrencyLog,
   ConcurrentRequest,
   DateRangeKey,
+  FormElementsState,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetConcurrencyLogs } from "../../utils/api/concurrencyLog";
-import { formatAsLocalDate } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
+const initialFilterPanelFormElements = {
+  date: "thisMonth",
+  endDate: dateRanges.thisMonth().before,
+  startDate: dateRanges.thisMonth().after,
 };
 
 export default function ConcurrencyLogs() {
   const { t } = useTranslation();
-  const initialFilterPanelFormElements: FormElementsState = {
-    date: "thisMonth",
-    endDate: dateRanges.thisMonth().before,
-    startDate: dateRanges.thisMonth().after,
-  };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showConcurrencyLogsFilters, setShowConcurrencyLogsFilters] =
+    useState(false);
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
 
-  const { data, isLoading, error } = useGetConcurrencyLogs(
+  const { data } = useGetConcurrencyLogs(
     currentPage,
     rowsPerPage,
     filterPanelFormElements
@@ -60,7 +58,7 @@ export default function ConcurrencyLogs() {
           const date = new Date(row.createdAt);
           return (
             <div>
-              <div>{formatAsLocalDate(row.createdAt)}</div>
+              <div>{format(new Date(row.createdAt), "dd/MM/yyyy")}</div>
               <div className="text-xs text-gray-500">
                 {format(date, "HH:mm:ss")}
               </div>
@@ -164,12 +162,12 @@ export default function ConcurrencyLogs() {
           const dateRange = dateRanges[value as DateRangeKey];
           if (dateRange) {
             const { before, after } = dateRange();
-            setFilterPanelFormElements((prev: FormElementsState) => ({
-              ...prev,
+            setFilterPanelFormElements({
+              ...filterPanelFormElements,
               startDate: after,
               endDate: before,
               date: value,
-            }));
+            });
           }
         },
       },
@@ -194,7 +192,7 @@ export default function ConcurrencyLogs() {
         isOnClearActive: false,
       },
     ],
-    [t]
+    [t, filterPanelFormElements, setFilterPanelFormElements]
   );
 
   const tableFilters = useMemo(
@@ -203,26 +201,36 @@ export default function ConcurrencyLogs() {
         label: t("Show Filters"),
         isUpperSide: true,
         node: (
-          <SwitchButton checked={showFilters} onChange={setShowFilters} />
+          <SwitchButton
+            checked={showConcurrencyLogsFilters}
+            onChange={setShowConcurrencyLogsFilters}
+          />
         ),
       },
     ],
-    [t, showFilters]
+    [t, showConcurrencyLogsFilters, setShowConcurrencyLogsFilters]
   );
 
   const filterPanel = useMemo(
     () => ({
-      isFilterPanelActive: showFilters,
+      isFilterPanelActive: showConcurrencyLogsFilters,
       inputs: filterPanelInputs,
       formElements: filterPanelFormElements,
       setFormElements: setFilterPanelFormElements,
-      closeFilters: () => setShowFilters(false),
+      closeFilters: () => setShowConcurrencyLogsFilters(false),
       isApplyButtonActive: false,
       additionalFilterCleanFunction: () => {
         setFilterPanelFormElements(initialFilterPanelFormElements);
       },
     }),
-    [showFilters, filterPanelInputs, filterPanelFormElements]
+    [
+      showConcurrencyLogsFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+      setShowConcurrencyLogsFilters,
+      initialFilterPanelFormElements,
+    ]
   );
 
   const pagination = useMemo(
@@ -235,28 +243,6 @@ export default function ConcurrencyLogs() {
         : null,
     [data, rowsPerPage]
   );
-
-  useMemo(() => {
-    setCurrentPage(1);
-  }, [filterPanelFormElements, setCurrentPage]);
-
-  if (isLoading) {
-    return (
-      <div className="w-[98%] mx-auto my-10 flex items-center justify-center h-64">
-        <div className="text-gray-500">{t("Loading")}...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-[98%] mx-auto my-10 flex items-center justify-center h-64">
-        <div className="text-red-500">
-          {t("Error loading concurrency logs")}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-[98%] mx-auto my-10">
