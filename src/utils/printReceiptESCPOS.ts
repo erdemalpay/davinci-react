@@ -15,6 +15,15 @@ type BuildReceiptParams = {
   printedAt?: Date;
 };
 
+const trToAscii = (text: string): string =>
+  text
+    .replace(/ç/g, "c").replace(/Ç/g, "C")
+    .replace(/ş/g, "s").replace(/Ş/g, "S")
+    .replace(/ğ/g, "g").replace(/Ğ/g, "G")
+    .replace(/ı/g, "i").replace(/İ/g, "I")
+    .replace(/ö/g, "o").replace(/Ö/g, "O")
+    .replace(/ü/g, "u").replace(/Ü/g, "U");
+
 const loadLogoCanvas = (): Promise<HTMLCanvasElement | null> => {
   return new Promise((resolve) => {
     const img = new Image();
@@ -66,32 +75,32 @@ export const buildReceiptData = async ({
   }
 
   // Başlık
-  enc = enc.bold(true).line(title).bold(false).rule({ style: "single" });
+  enc = enc.bold(true).line(trToAscii(title)).bold(false).line("--------------------------------");
 
   // Masa adı
   if (tableName) {
     enc = enc
       .align("left")
       .bold(true)
-      .line(`Masa : ${tableName}`)
+      .line(trToAscii(`Masa : ${tableName}`))
       .bold(false);
   }
 
   // Tarih
   const formattedDate = format(printedAt, "dd.MM.yyyy HH:mm", { locale: tr });
-  enc = enc.align("left").line(`Tarih: ${formattedDate}`).rule({ style: "single" });
+  enc = enc.align("left").line(`Tarih: ${formattedDate}`).line("--------------------------------");
 
   // Siparişler
   for (const order of filteredOrders) {
     const quantity = Number(order?.quantity ?? 0);
-    const itemName = getItem(order?.item, items)?.name || "Ürün";
+    const itemName = getItem(order?.item, items)?.name || "Urun";
     enc = enc
       .align("left")
       .bold(true)
-      .line(`(${quantity}) ${itemName}`)
+      .line(trToAscii(`(${quantity}) ${itemName}`))
       .bold(false);
     if (showNotes && order?.note) {
-      enc = enc.line(`  - ${order.note}`);
+      enc = enc.line(trToAscii(`  - ${order.note}`));
     }
   }
 
