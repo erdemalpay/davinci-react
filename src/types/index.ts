@@ -1886,6 +1886,8 @@ export enum ActivityType {
   DELETE_SHIFT = "DELETE_SHIFT",
   ASSIGN_CHEF = "ASSIGN_CHEF",
   ASSIGN_MIDDLEMAN = "ASSIGN_MIDDLEMAN",
+  TRANSFER_TABLE = "TRANSFER_TABLE",
+  COMBINE_TABLE = "COMBINE_TABLE",
 }
 export const activityTypeDetails = [
   {
@@ -2227,6 +2229,16 @@ export const activityTypeDetails = [
     value: ActivityType.ASSIGN_MIDDLEMAN,
     label: "Assign Middleman",
     bgColor: "bg-purple-500",
+  },
+  {
+    value: ActivityType.TRANSFER_TABLE,
+    label: "Transfer Table",
+    bgColor: "bg-cyan-600",
+  },
+  {
+    value: ActivityType.COMBINE_TABLE,
+    label: "Combine Table",
+    bgColor: "bg-indigo-500",
   },
 ];
 
