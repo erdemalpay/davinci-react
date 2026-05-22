@@ -279,8 +279,20 @@ export function useWebSocket(shouldConnect = false) {
       ].includes(order.status as OrderStatus);
 
       const foundKitchenForPrint = getItem(order.kitchen as string, kitchens ?? []);
+      const { menuItems } = latestValuesRef.current;
+      console.log("🖨️ [createOrder] fiş bilgileri:", {
+        tableName: (order.table as Table)?.name,
+        orders: [{
+          urun: (order.item as unknown as MenuItem)?.name ?? order.item,
+          adet: order.quantity,
+          ...(order.activityTableName ? { activityMasa: order.activityTableName } : {}),
+          ...(order.activityPlayer ? { activityOyuncu: order.activityPlayer } : {}),
+          not: order.note || "-",
+        }],
+        printerConnected: printerService.isConnected,
+        isPrintEnabled: foundKitchenForPrint?.isPrintEnabled ?? false,
+      });
       if (isValidOrder && printerService.isConnected && foundKitchenForPrint?.isPrintEnabled) {
-        const { menuItems } = latestValuesRef.current;
         buildReceiptData({
           orders: [order],
           items: menuItems,
@@ -667,6 +679,8 @@ export function useWebSocket(shouldConnect = false) {
               orders: newOrders?.map((o) => ({
                 urun: (o.item as unknown as MenuItem)?.name ?? o.item,
                 adet: o.quantity,
+                ...(o.activityTableName ? { activityMasa: o.activityTableName } : {}),
+                ...(o.activityPlayer ? { activityOyuncu: o.activityPlayer } : {}),
                 not: o.note || "-",
               })),
               printerConnected: printerService.isConnected,

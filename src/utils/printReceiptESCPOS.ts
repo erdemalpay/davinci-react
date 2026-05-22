@@ -99,6 +99,12 @@ export const buildReceiptData = async ({
       .bold(true)
       .line(trToAscii(`(${quantity}) ${itemName}`))
       .bold(false);
+    if (order?.activityTableName || order?.activityPlayer) {
+      const parts: string[] = [];
+      if (order.activityTableName) parts.push(`Masa: ${order.activityTableName}`);
+      if (order.activityPlayer) parts.push(`Oyuncu: ${order.activityPlayer}`);
+      enc = enc.line(trToAscii(`  [${parts.join(", ")}]`));
+    }
     if (showNotes && order?.note) {
       enc = enc.line(trToAscii(`  - ${order.note}`));
     }
