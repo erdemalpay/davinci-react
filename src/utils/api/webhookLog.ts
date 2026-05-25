@@ -13,6 +13,16 @@ export interface WebhookLogPayload {
   limit: number;
 }
 
+export function useGetWebhookLogEndpoints() {
+  const url = `${baseUrl}/endpoints`;
+  return useQuery<string[]>({
+    queryKey: [url],
+    queryFn: () => get<string[]>({ path: url }),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+}
+
 export function useGetQueryWebhookLogs(
   page: number,
   limit: number,

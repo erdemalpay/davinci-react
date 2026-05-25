@@ -13,6 +13,16 @@ export interface PriceCompareLogPayload {
   limit: number;
 }
 
+export function useGetPriceCompareLogTargets() {
+  const url = `${baseUrl}/targets`;
+  return useQuery<string[]>({
+    queryKey: [url],
+    queryFn: () => get<string[]>({ path: url }),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+}
+
 export function useGetQueryPriceCompareLogs(
   page: number,
   limit: number,
