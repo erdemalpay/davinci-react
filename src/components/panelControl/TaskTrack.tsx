@@ -6,13 +6,16 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   FormElementsState,
   RoleEnum,
   TaskTrack,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useGetTaskTracks,
   useTaskTrackMutations,
@@ -45,6 +48,10 @@ const TaskTrackPage = () => {
   ] = useState(false);
   const { createTaskTrack, deleteTaskTrack, updateTaskTrack } =
     useTaskTrackMutations();
+  const disabledConditions = useGetDisabledConditions();
+  const taskTrackPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.PANELCONTROL_TASKTRACK, disabledConditions);
+  }, [disabledConditions]);
   const initialFilterPanelFormElements = {
     date: "thisWeek",
     after: dateRanges.thisWeek().after,
@@ -298,11 +305,16 @@ const TaskTrackPage = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: taskTrackPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createTaskTrack, user]
+    [t, isAddModalOpen, inputs, formKeys, createTaskTrack, taskTrackPageDisabledCondition, user]
   );
   const actions = useMemo(
     () => [
@@ -327,7 +339,12 @@ const TaskTrackPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+        isDisabled: taskTrackPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -357,7 +374,12 @@ const TaskTrackPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+        isDisabled: taskTrackPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -369,6 +391,7 @@ const TaskTrackPage = () => {
       inputs,
       formKeys,
       updateTaskTrack,
+      taskTrackPageDisabledCondition,
       user,
     ]
   );
