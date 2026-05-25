@@ -29,6 +29,10 @@ export interface DisabledConditionRow extends DisabledCondition {
   pageName: string;
 }
 
+const initialFilterPanelFormElements = {
+  page: [],
+};
+
 const DisabledConditions = () => {
   const { t } = useTranslation();
   const roles = useGetAllUserRoles();
@@ -49,9 +53,6 @@ const DisabledConditions = () => {
   const disabledConditions = useGetDisabledConditions();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const initialFilterPanelFormElements = {
-    page: [],
-  };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
   const { user } = useUserContext();

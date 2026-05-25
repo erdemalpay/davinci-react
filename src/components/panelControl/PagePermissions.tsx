@@ -15,6 +15,7 @@ import {
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -154,12 +155,7 @@ const PagePermissions = () => {
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
-        isDisabled: pagePermissionsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(pagePermissionsDisabledCondition, ActionEnum.ENABLEEDIT, user),
       },
     ],
     [t, isEnableEdit, pagePermissionsDisabledCondition, user]

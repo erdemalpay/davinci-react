@@ -18,6 +18,7 @@ import {
   useReleaseNoteMutations,
 } from "../../utils/api/panelControl/releaseNote";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -208,12 +209,7 @@ const ReleaseNotesTab = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: releaseNotesPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(releaseNotesPageDisabledCondition, ActionEnum.ADD, user),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
@@ -243,12 +239,7 @@ const ReleaseNotesTab = () => {
         isModalOpen: isDeleteConfirmOpen,
         setIsModal: setIsDeleteConfirmOpen,
         isPath: false,
-        isDisabled: releaseNotesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(releaseNotesPageDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -280,12 +271,7 @@ const ReleaseNotesTab = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: releaseNotesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(releaseNotesPageDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("ReleaseNotesPublish"),
@@ -293,12 +279,7 @@ const ReleaseNotesTab = () => {
         className: "text-emerald-600 cursor-pointer text-xl",
         isModal: false,
         isPath: false,
-        isDisabled: releaseNotesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.PUBLISH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(releaseNotesPageDisabledCondition, ActionEnum.PUBLISH, user),
         onClick: (row: ReleaseNote) => {
           if (row.isPublished) return;
           updateReleaseNote({ id: row._id, updates: { isPublished: true } });
