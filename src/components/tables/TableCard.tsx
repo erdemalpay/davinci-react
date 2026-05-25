@@ -184,6 +184,8 @@ export function TableCard({
     isOnlinePrice: false,
     location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
     stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+    activityPlayer: "",
+    activityTableName: "",
   });
   const [tableCombineForm, setTableCombineForm] = useState({
     table: "",
@@ -578,7 +580,7 @@ export function TableCard({
           };
         }),
         placeholder: t("Table"),
-        required: false,
+        required: table?.type === TableTypes.ACTIVITY,
         isDisabled: table?.type !== TableTypes.ACTIVITY,
         isTopFlexRow: isMobile,
       },
@@ -631,6 +633,26 @@ export function TableCard({
   const quickOrderInputs = useMemo(
     () => [
       {
+        type: InputTypes.TEXT,
+        formKey: "activityPlayer",
+        placeholder: t("Player Number"),
+        required: table?.type === TableTypes.ACTIVITY,
+        isDisabled: table?.type !== TableTypes.ACTIVITY,
+        isOnClearActive: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "activityTableName",
+        label: t("Table"),
+        options: table.tables?.map((tableName) => ({
+          value: tableName,
+          label: tableName,
+        })),
+        placeholder: t("Table"),
+        required: table?.type === TableTypes.ACTIVITY,
+        isDisabled: table?.type !== TableTypes.ACTIVITY,
+      },
+      {
         type: InputTypes.NUMBER,
         formKey: "quantity",
         label: t("Quantity"),
@@ -654,11 +676,13 @@ export function TableCard({
         gridCol: isMobile ? 3 : 5,
       },
     ],
-    [t, filteredPopularOrderItems, quickOrderItemOptions, isMobile]
+    [t, filteredPopularOrderItems, quickOrderItemOptions, isMobile, table]
   );
   const quickOrderFormKeys = [
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "item", type: FormKeyTypeEnum.NUMBER },
+    { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
+    { key: "activityTableName", type: FormKeyTypeEnum.STRING },
   ];
   const tableCombineInputs = useMemo(
     () => [

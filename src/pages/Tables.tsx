@@ -746,7 +746,7 @@ const Tables = () => {
         };
       }),
       placeholder: t("Table"),
-      required: false,
+      required: selectedTable?.type === TableTypes.ACTIVITY,
       isDisabled: selectedTable?.type !== TableTypes.ACTIVITY,
     },
     {
