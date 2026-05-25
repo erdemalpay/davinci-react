@@ -740,6 +740,7 @@ export enum ActionEnum {
   EQUAL = "equal",
   EQUAL_STOCKS = "equal_stocks",
   RESET_PASSWORD = "reset_password",
+  PUBLISH = "publish"
 }
 
 export type Membership = {
