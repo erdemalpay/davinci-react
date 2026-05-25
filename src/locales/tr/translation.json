@@ -1567,5 +1567,12 @@
   "No orders to print.": "Yazdırılacak sipariş yok.",
   "Printer Connected": "Yazıcı Bağlandı",
   "Connect Printer": "Yazıcı Bağla",
-  "Auto Print": "Otomatik Baskı"
+  "Auto Print": "Otomatik Fiş Çıkar",
+  "Mail": "Mail",
+  "Mail Templates": "Mail Şablonları",
+  "Mail Drafts": "Mail Taslakları",
+  "Concurrency Logs": "Eşzamanlılık Logları",
+  "ShiftLink": "ShiftLink",
+  "Game Batches (FIFO)": "Oyun Grupları (FIFO)"
+
 }

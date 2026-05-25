@@ -1558,5 +1558,12 @@
   "No orders to print.": "No orders to print.",
   "Printer Connected": "Printer Connected",
   "Connect Printer": "Connect Printer",
-  "Auto Print": "Auto Print"
+  "Auto Print": "Auto Print",
+  "Mail": "Mail",
+  "Mail Templates": "Mail Templates",
+  "Mail Drafts": "Mail Drafts",
+  "Concurrency Logs": "Concurrency Logs",
+  "ShiftLink": "ShiftLink",
+  "Game Batches (FIFO)": "Game Batches (FIFO)"
+
 }

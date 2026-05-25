@@ -2,7 +2,7 @@ import { subDays } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { CheckSwitch } from "../components/common/CheckSwitch";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import KitchenMenuPage from "../components/menu/KitchenMenuPage";
@@ -19,7 +19,10 @@ import {
 import { useKitchenMutations } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { formatDate, parseDate } from "../utils/dateUtil";
+import { getItem } from "../utils/getItem";
+import { ActionEnum, DisabledConditionEnum } from "../types";
 
 type OrderTabType = {
   number: number;
@@ -46,6 +49,10 @@ function Orders() {
   const categories = useGetAllCategories();
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
+  const disabledConditions = useGetDisabledConditions();
+  const ordersOrdersDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ORDERS_ORDERS, disabledConditions);
+  }, [disabledConditions]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
@@ -113,20 +120,26 @@ function Orders() {
       key={"tabPanelFilters"}
       className="flex flex-row gap-4 items-center ml-auto"
     >
-      {activeKitchen && (
-        <div className="flex flex-row items-center gap-2">
-          <p className="font-medium text-md">{t("Auto Print")}</p>
-          <CheckSwitch
-            checked={activeKitchen.isPrintEnabled ?? false}
-            onChange={() => {
-              updateKitchen({
-                id: activeKitchen._id,
-                updates: { isPrintEnabled: !activeKitchen.isPrintEnabled },
-              });
-            }}
-          />
-        </div>
-      )}
+      {activeKitchen &&
+        !ordersOrdersDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.AUTO_PRINT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ) && (
+          <div className="flex flex-row items-center gap-2">
+            <p className="font-medium text-md">{t("Auto Print")}</p>
+            <SwitchButton
+              checked={activeKitchen.isPrintEnabled ?? false}
+              onChange={() => {
+                updateKitchen({
+                  id: activeKitchen._id,
+                  updates: { isPrintEnabled: !activeKitchen.isPrintEnabled },
+                });
+              }}
+            />
+          </div>
+        )}
       {kitchens &&
         kitchens.map((kitchen, index) => {
           if (
@@ -145,7 +158,7 @@ function Orders() {
                 <p className="font-medium text-md">
                   {kitchen.name + " " + t("Activity")}
                 </p>
-                <CheckSwitch
+                <SwitchButton
                   checked={foundCategory?.active ?? false}
                   onChange={() => {
                     updateKitchenCategory({
