@@ -620,6 +620,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_CATEGORYBASEDSALESREPORT = "categorybasedsalesreport",
   ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
   ORDERDATAS_COLLECTIONS = "collections",
+  ORDERDATAS_SHOPIFYCOLLECTIONS = "shopifycollections",
   ORDERDATAS_ORDERS = "orders",
   ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
   ORDERDATAS_TRENDYOLORDERS = "trendyolorders",
@@ -743,7 +744,9 @@ export enum ActionEnum {
   EQUAL = "equal",
   EQUAL_STOCKS = "equal_stocks",
   RESET_PASSWORD = "reset_password",
-  PUBLISH = "publish"
+  PUBLISH = "publish",
+  ADD_TO_RETAILER = "add_to_retailer",
+  PROCESS = "process"
 }
 
 export type Membership = {

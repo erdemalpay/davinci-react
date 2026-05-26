@@ -34,42 +34,42 @@ import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
 export const OrderDataTabs = [
   {
-    number: OrderDataTabEnum.DAILYINCOME, //BURASI TAMAM
+    number: OrderDataTabEnum.DAILYINCOME,
     label: "Daily Income",
     icon: <TbReportMoney className="text-lg font-thin" />,
     content: <DailyIncome />,
     isDisabled: false,
   },
   {
-    number: OrderDataTabEnum.GROUPEDPRODUCTSALESREPORT, //BURASI TAMAM
+    number: OrderDataTabEnum.GROUPEDPRODUCTSALESREPORT,
     label: "Product Sales",
     icon: <HiOutlineDocumentReport className="text-lg font-thin" />,
     content: <GroupedProductSalesReport />,
     isDisabled: false,
   },
   {
-    number: OrderDataTabEnum.SINGLEPRODUCTSALESREPORT, //BURASI TAMAM
+    number: OrderDataTabEnum.SINGLEPRODUCTSALESREPORT,
     label: "Product Based Sales",
     icon: <TbReportSearch className="text-lg font-thin" />,
     content: <SingleProductSalesReport />,
     isDisabled: false,
   },
   {
-    number: OrderDataTabEnum.UPPERCATEGORYBASEDSALESREPORT, //BURASI TAMAM
+    number: OrderDataTabEnum.UPPERCATEGORYBASEDSALESREPORT,
     label: "Upper Category Based Sales",
     icon: <TbCategoryPlus className="text-lg font-thin" />,
     content: <UpperCategoryBasedSalesReport />,
     isDisabled: false,
   },
   {
-    number: OrderDataTabEnum.CATEGORYBASEDSALESREPORT, //BURASI TAMAM
+    number: OrderDataTabEnum.CATEGORYBASEDSALESREPORT,
     label: "Category Based Sales",
     icon: <BiCategory className="text-lg font-thin" />,
     content: <CategoryBasedSalesReport />,
     isDisabled: false,
   },
   {
-    number: OrderDataTabEnum.DISCOUNTBASEDSALES, //BURASI TAMAM
+    number: OrderDataTabEnum.DISCOUNTBASEDSALES,
     label: "Discount Based Sales",
     icon: <TbDiscount className="text-lg font-thin" />,
     content: <DiscountBasedSales />,

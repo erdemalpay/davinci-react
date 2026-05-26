@@ -30,6 +30,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -169,7 +170,15 @@ const ShopifyOrders = () => {
       ),
       formattedDate: "Total",
     };
-    allRows?.unshift(totalRow as any);
+    if (
+      !isActionDisabled(
+        shopifyOrdersPageDisabledCondition,
+        ActionEnum.SHOWTOTAL,
+        user
+      )
+    ) {
+      allRows?.unshift(totalRow as any);
+    }
     return allRows;
   }, [
     orders,
@@ -179,6 +188,8 @@ const ShopifyOrders = () => {
     items,
     sellLocations,
     t,
+    shopifyOrdersPageDisabledCondition,
+    user,
   ]);
 
   const columns = useMemo(
@@ -504,11 +515,10 @@ const ShopifyOrders = () => {
             }}
           />
         ),
-        isDisabled: shopifyOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          shopifyOrdersPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -572,11 +582,10 @@ const ShopifyOrders = () => {
         isModal: true,
         isModalOpen: isCancelOrderModalOpen,
         setIsModal: setIsCancelOrderModalOpen,
-        isDisabled: shopifyOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          shopifyOrdersPageDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
     ],
@@ -606,13 +615,7 @@ const ShopifyOrders = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
-            user &&
-            !shopifyOrdersPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
+            !isActionDisabled(shopifyOrdersPageDisabledCondition, ActionEnum.EXCEL, user)
           }
           excelFileName={t("ShopifyOrders.xlsx")}
           rowClassNameFunction={(row: any) => {

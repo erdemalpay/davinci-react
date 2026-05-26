@@ -30,6 +30,7 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -181,10 +182,10 @@ const OrdersReport = () => {
       ),
       formattedDate: "Total",
     };
-    const isShowTotalDisabled = ordersPageDisabledCondition?.actions?.some(
-      (ac) =>
-        ac.action === ActionEnum.SHOWTOTAL &&
-        (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
+    const isShowTotalDisabled = isActionDisabled(
+      ordersPageDisabledCondition,
+      ActionEnum.SHOWTOTAL,
+      user
     );
     if (!isShowTotalDisabled) {
       allRows?.unshift(totalRow as any);
@@ -549,10 +550,10 @@ const OrdersReport = () => {
             }}
           />
         ),
-        isDisabled: ordersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
+        isDisabled: isActionDisabled(
+          ordersPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -624,10 +625,10 @@ const OrdersReport = () => {
         isModalOpen: isReturnOrderModalOpen,
         setIsModal: setIsReturnOrderModalOpen,
         isPath: false,
-        isDisabled: ordersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFUND &&
-            (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
+        isDisabled: isActionDisabled(
+          ordersPageDisabledCondition,
+          ActionEnum.REFUND,
+          user
         ),
       },
     ],
@@ -657,12 +658,7 @@ const OrdersReport = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
-            user &&
-            !ordersPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                (!user?.role?._id || !ac?.permissionsRoles?.includes(user.role._id))
-            )
+            !isActionDisabled(ordersPageDisabledCondition, ActionEnum.EXCEL, user)
           }
           excelFileName={t("Orders.xlsx")}
           rowClassNameFunction={(row: any) => {

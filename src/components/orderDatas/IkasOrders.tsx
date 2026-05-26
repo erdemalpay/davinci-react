@@ -28,6 +28,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -496,11 +497,10 @@ const IkasOrders = () => {
             }}
           />
         ),
-        isDisabled: ikasOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          ikasOrdersPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -564,11 +564,10 @@ const IkasOrders = () => {
   //       isModal: true,
   //       isModalOpen: isCancelOrderModalOpen,
   //       setIsModal: setIsCancelOrderModalOpen,
-  //       isDisabled: ikasOrdersPageDisabledCondition?.actions?.some(
-  //         (ac) =>
-  //           ac.action === ActionEnum.DELETE &&
-  //           user?.role?._id &&
-  //           !ac?.permissionsRoles?.includes(user?.role?._id)
+  //       isDisabled: isActionDisabled(
+  //         ikasOrdersPageDisabledCondition,
+  //         ActionEnum.DELETE,
+  //         user
   //       ),
   //     },
   //   ],
@@ -597,13 +596,7 @@ const IkasOrders = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
-            user &&
-            !ikasOrdersPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
+            !isActionDisabled(ikasOrdersPageDisabledCondition, ActionEnum.EXCEL, user)
           }
           excelFileName={t("IkasOrders.xlsx")}
           rowClassNameFunction={(row: any) => {
