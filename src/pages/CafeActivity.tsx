@@ -24,6 +24,7 @@ import { useGetStoreLocations } from "../utils/api/location";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 
 const CafeActivity = () => {
   const cafeActivities = useGetCafeActivitys();
@@ -191,12 +192,7 @@ const CafeActivity = () => {
       setIsModal: setIsAddModalOpen,
       isPath: false,
       icon: null,
-      isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(cafeActivitiesDisabledCondition, ActionEnum.ADD, user),
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
     [
@@ -233,12 +229,7 @@ const CafeActivity = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(cafeActivitiesDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -261,12 +252,7 @@ const CafeActivity = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(cafeActivitiesDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("Toggle Active"),
@@ -286,12 +272,7 @@ const CafeActivity = () => {
             ></CheckSwitch>
           </div>
         ),
-        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TOGGLE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(cafeActivitiesDisabledCondition, ActionEnum.TOGGLE, user),
       },
     ],
     [
@@ -319,12 +300,7 @@ const CafeActivity = () => {
             onChange={setShowCompletedActivities}
           />
         ),
-        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_COMPLETED_ACTIVITIES &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(cafeActivitiesDisabledCondition, ActionEnum.SHOW_COMPLETED_ACTIVITIES, user),
       },
     ],
     [t, showCompletedCafeActivities, cafeActivitiesDisabledCondition, user]

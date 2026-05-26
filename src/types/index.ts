@@ -636,6 +636,7 @@ export enum DisabledConditionEnum {
   ANALYTICS_KNOWNGAMESCOUNT = "knowngamescount",
   ANALYTICS_WHOKNOWS = "whoknows",
   CAFE_ACTIVITIES = "cafe_activities",
+  MONTHLY_CAFE_ACTIVITIES = "monthly_cafe_activities",
   MEMBERSHIPS = "memberships",
   REWARDS = "rewards",
   COUNTARCHIVE = "countarchive",
