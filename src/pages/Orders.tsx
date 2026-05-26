@@ -22,6 +22,7 @@ import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { formatDate, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 import { ActionEnum, DisabledConditionEnum } from "../types";
 
 type OrderTabType = {
@@ -121,12 +122,7 @@ function Orders() {
       className="flex flex-row gap-4 items-center ml-auto"
     >
       {activeKitchen &&
-        !ordersOrdersDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.AUTO_PRINT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ) && (
+        !isActionDisabled(ordersOrdersDisabledCondition, ActionEnum.AUTO_PRINT, user) && (
           <div className="flex flex-row items-center gap-2">
             <p className="font-medium text-md">{t("Auto Print")}</p>
             <SwitchButton
