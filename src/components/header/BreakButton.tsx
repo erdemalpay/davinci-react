@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdFreeBreakfast } from "react-icons/md";
 import { toast } from "react-toastify";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
@@ -12,6 +13,7 @@ import {
   useGetBreaksByLocation,
 } from "../../utils/api/break";
 import { useGetMiddlemanByLocation } from "../../utils/api/middleman";
+import { getItem, getRefId } from "../../utils/getItem";
 
 interface BreakButtonProps {
   onBreakStart?: () => void;
@@ -21,16 +23,24 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
-  const { visits = [] } = useDataContext();
+  const { visits = [], users = [] } = useDataContext();
   const { createBreak, updateBreak } = useBreakMutations();
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [currentBreakId, setCurrentBreakId] = useState<number | null>(null);
+  const [isBreakWarningOpen, setIsBreakWarningOpen] = useState(false);
 
   // Get active breaks for current location
   const activeBreaks = useGetBreaksByLocation(selectedLocationId || 0);
 
   // Get active middlemen for current location
   const activeMiddlemen = useGetMiddlemanByLocation(selectedLocationId || 0);
+
+  const othersOnBreak = useMemo(() => {
+    if (!activeBreaks || !user) return [];
+    return activeBreaks
+      .filter((b) => !b.finishHour && getRefId(b.user) !== user?._id)
+      .map((b) => getItem(getRefId(b.user), users)?.name ?? t("Someone"));
+  }, [activeBreaks, user, users, t]);
 
   // Check if current user has an active visit (is at the cafe)
   const hasActiveVisit = useMemo(() => {
@@ -56,6 +66,20 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     }
   }, [activeBreaks, user, selectedLocationId]);
 
+  const doStartBreak = () => {
+    if (!user?._id || !selectedLocationId) return;
+    const breakData: CreateBreakDto = {
+      user: user._id,
+      location: selectedLocationId,
+      date: format(new Date(), "yyyy-MM-dd"),
+      startHour: format(new Date(), "HH:mm"),
+    };
+    createBreak(breakData);
+    toast.success(t("Break started"));
+    onBreakStart?.();
+    setIsBreakWarningOpen(false);
+  };
+
   const handleStartBreak = () => {
     if (!user || !selectedLocationId) {
       toast.error(t("Please select a location first"));
@@ -63,12 +87,10 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     }
 
     if (isOnBreak) {
-      // User is already on break, don't start another one
       toast.warning(t("You are already on a break"));
       return;
     }
 
-    // Check if user is currently a middleman
     const isCurrentUserMiddleman = activeMiddlemen?.some(
       (m) =>
         (typeof m.user === "string" ? m.user : m.user._id) === user._id &&
@@ -79,16 +101,12 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       return;
     }
 
-    // Start break
-    const breakData: CreateBreakDto = {
-      user: user._id,
-      location: selectedLocationId,
-      date: format(new Date(), "yyyy-MM-dd"),
-      startHour: format(new Date(), "HH:mm"),
-    };
-    createBreak(breakData);
-    toast.success(t("Break started"));
-    onBreakStart?.();
+    if (othersOnBreak.length >= 2) {
+      setIsBreakWarningOpen(true);
+      return;
+    }
+
+    doStartBreak();
   };
 
   const handleEndBreak = () => {
@@ -113,21 +131,35 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   }
 
   return (
-    <div className="relative">
-      <button
-        onClick={isOnBreak ? handleEndBreak : handleStartBreak}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105 ${
-          isOnBreak
-            ? "bg-red-600 hover:bg-red-700"
-            : "bg-green-600 hover:bg-green-700"
-        }`}
-        title={isOnBreak ? t("End Break") : t("Start Break")}
-      >
-        <MdFreeBreakfast className="text-lg" />
-        <span className="hidden sm:inline">
-          {isOnBreak ? t("End Break") : t("Start Break")}
-        </span>
-      </button>
-    </div>
+    <>
+      {isBreakWarningOpen && (
+        <ConfirmationDialog
+          isOpen={isBreakWarningOpen}
+          close={() => setIsBreakWarningOpen(false)}
+          confirm={doStartBreak}
+          title={t("Break Warning")}
+          text={t(
+            "{{names}} are currently on break. Do you still want to take a break?",
+            { names: othersOnBreak.join(", ") }
+          )}
+        />
+      )}
+      <div className="relative">
+        <button
+          onClick={isOnBreak ? handleEndBreak : handleStartBreak}
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105 ${
+            isOnBreak
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
+          title={isOnBreak ? t("End Break") : t("Start Break")}
+        >
+          <MdFreeBreakfast className="text-lg" />
+          <span className="hidden sm:inline">
+            {isOnBreak ? t("End Break") : t("Start Break")}
+          </span>
+        </button>
+      </div>
+    </>
   );
 };
