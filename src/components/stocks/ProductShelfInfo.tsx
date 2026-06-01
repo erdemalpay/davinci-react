@@ -12,6 +12,7 @@ import {
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -193,12 +194,7 @@ const ProductShelfInfo = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
-        isDisabled: productShelfInfoPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(productShelfInfoPageDisabledCondition, ActionEnum.ENABLEEDIT, user),
         node: (
           <SwitchButton
             checked={isEnableProductShelfEdit}
@@ -247,15 +243,7 @@ const ProductShelfInfo = () => {
           title={t("Product Shelf Info")}
           filters={filters}
           isActionsActive={false}
-          isExcel={
-            user &&
-            !productShelfInfoPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(productShelfInfoPageDisabledCondition, ActionEnum.EXCEL, user)}
           isToolTipEnabled={false}
           filterPanel={filterPanel}
           excelFileName="ProductShelfInfo.xlsx"

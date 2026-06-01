@@ -31,6 +31,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -104,23 +105,15 @@ const EnterConsumption = () => {
     });
   }, [stockHistoriesPayload, products, locations, users, pad]);
 
-  const isShowPricesDisabled = useMemo(() => {
-    return enterConsumptionPageDisabledCondition?.actions?.some(
-      (ac) =>
-        ac.action === ActionEnum.SHOWPRICES &&
-        user?.role?._id &&
-        !ac?.permissionsRoles?.includes(user?.role?._id)
-    );
-  }, [enterConsumptionPageDisabledCondition, user]);
+  const isShowPricesDisabled = useMemo(
+    () => isActionDisabled(enterConsumptionPageDisabledCondition, ActionEnum.SHOWPRICES, user),
+    [enterConsumptionPageDisabledCondition, user]
+  );
 
-  const isUnitPriceHidden = useMemo(() => {
-    return enterConsumptionPageDisabledCondition?.actions?.some(
-      (ac) =>
-        ac.action === ActionEnum.SHOW_UNIT_PRICES &&
-        user?.role?._id &&
-        !ac?.permissionsRoles?.includes(user?.role?._id)
-    );
-  }, [enterConsumptionPageDisabledCondition, user]);
+  const isUnitPriceHidden = useMemo(
+    () => isActionDisabled(enterConsumptionPageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user),
+    [enterConsumptionPageDisabledCondition, user]
+  );
 
   const menuItemsByProductId = useMemo(() => {
     if (!menuItems) {
@@ -376,12 +369,7 @@ const EnterConsumption = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: enterConsumptionPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(enterConsumptionPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -555,12 +543,7 @@ const EnterConsumption = () => {
         isModal: true,
         isModalOpen: isCancelOrderModalOpen,
         setIsModal: setIsCancelOrderModalOpen,
-        isDisabled: enterConsumptionPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(enterConsumptionPageDisabledCondition, ActionEnum.DELETE, user),
       },
     ],
     [

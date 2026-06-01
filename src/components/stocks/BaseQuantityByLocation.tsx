@@ -17,6 +17,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../panelComponents/FormElements/TextInput";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -234,13 +235,7 @@ const BaseQuantityByLocation = () => {
         keys.push({
           key: `${location._id}combined`,
           node: (row: any) => {
-            const isUpdateDisabled =
-              baseQuantityPageDisabledCondition?.actions?.some(
-                (ac) =>
-                  ac.action === ActionEnum.UPDATE &&
-                  user?.role?._id &&
-                  !ac?.permissionsRoles?.includes(user?.role?._id)
-              );
+            const isUpdateDisabled = isActionDisabled(baseQuantityPageDisabledCondition, ActionEnum.UPDATE, user);
 
             return (
               <div className="flex gap-2 items-center justify-center px-1">
@@ -438,12 +433,7 @@ const BaseQuantityByLocation = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(baseQuantityPageDisabledCondition, ActionEnum.UPDATE, user),
       },
     ],
     [
@@ -469,12 +459,7 @@ const BaseQuantityByLocation = () => {
       },
       isPath: false,
       className: "bg-blue-500 hover:bg-blue-600 text-white",
-      isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SETBASEAMOUNT &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(baseQuantityPageDisabledCondition, ActionEnum.SETBASEAMOUNT, user),
     }),
     [t, updateProductBaseStocks, baseQuantityPageDisabledCondition, user]
   );
@@ -495,12 +480,7 @@ const BaseQuantityByLocation = () => {
       },
       {
         isUpperSide: false,
-        isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPLOAD &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(baseQuantityPageDisabledCondition, ActionEnum.UPLOAD, user),
         node: (
           <div
             className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -561,15 +541,7 @@ const BaseQuantityByLocation = () => {
           filters={filters}
           addButton={addButton}
           isActionsActive={true}
-          isExcel={
-            user &&
-            !baseQuantityPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(baseQuantityPageDisabledCondition, ActionEnum.EXCEL, user)}
           filterPanel={filterPanel}
           isToolTipEnabled={false}
           excelFileName="BaseQuantityByLocation.xlsx"

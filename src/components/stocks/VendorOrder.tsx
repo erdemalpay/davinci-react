@@ -10,6 +10,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetAllLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -215,15 +216,7 @@ const VendorOrder = () => {
           title={t("Vendor Order")}
           filters={filters}
           isActionsActive={false}
-          isExcel={
-            user &&
-            !vendorOrderPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(vendorOrderPageDisabledCondition, ActionEnum.EXCEL, user)}
           isToolTipEnabled={false}
           filterPanel={filterPanel}
           excelFileName={"VendorOrder.xlsx"}

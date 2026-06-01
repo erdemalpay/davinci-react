@@ -29,6 +29,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -314,15 +315,7 @@ const SandwichStock = () => {
       { key: t("Total Price"), isSortable: true },
     ];
 
-    if (
-      !showSandwichStockPrices ||
-      sandwichStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWPRICES &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    ) {
+    if (!showSandwichStockPrices || isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.SHOWPRICES, user)) {
       const splicedColumns = [t("Unit Price"), t("Total Price")];
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
@@ -363,15 +356,7 @@ const SandwichStock = () => {
       },
     ];
 
-    if (
-      !showSandwichStockPrices ||
-      sandwichStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWPRICES &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    ) {
+    if (!showSandwichStockPrices || isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.SHOWPRICES, user)) {
       const splicedRowKeys = ["unitPrice", "totalGroupPrice"];
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
@@ -400,12 +385,7 @@ const SandwichStock = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -443,12 +423,7 @@ const SandwichStock = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -489,12 +464,7 @@ const SandwichStock = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("Transfer"),
@@ -531,12 +501,7 @@ const SandwichStock = () => {
         isModalOpen: isStockTransferModalOpen,
         setIsModal: setIsStockTransferModalOpen,
         isPath: false,
-        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TRANSFER &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.TRANSFER, user),
       },
     ],
     [
@@ -577,12 +542,7 @@ const SandwichStock = () => {
             </p>
           </div>
         ),
-        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWTOTAL &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.SHOWTOTAL, user),
       },
       {
         label: t("Show Prices"),
@@ -595,12 +555,7 @@ const SandwichStock = () => {
             }}
           />
         ),
-        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWPRICES &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.SHOWPRICES, user),
       },
       {
         label: t("Enable Edit"),
@@ -613,12 +568,7 @@ const SandwichStock = () => {
             }}
           />
         ),
-        isDisabled: sandwichStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.ENABLEEDIT, user),
       },
       {
         label: t("Show Filters"),
@@ -792,15 +742,7 @@ const SandwichStock = () => {
           isActionsActive={isSandwichStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
-          isExcel={
-            user &&
-            !sandwichStockPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(sandwichStockPageDisabledCondition, ActionEnum.EXCEL, user)}
           excelFileName="SandwichStok.xlsx"
         />
       </div>

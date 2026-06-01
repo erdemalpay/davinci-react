@@ -25,6 +25,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -296,15 +297,7 @@ const ColdDrinkStock = () => {
       { key: t("Total Price"), isSortable: true },
     ];
 
-    if (
-      !showColdDrinkStockPrices ||
-      coldDrinkStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWPRICES &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    ) {
+    if (!showColdDrinkStockPrices || isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.SHOWPRICES, user)) {
       const splicedColumns = [t("Unit Price"), t("Total Price")];
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
@@ -334,15 +327,7 @@ const ColdDrinkStock = () => {
       },
     ];
 
-    if (
-      !showColdDrinkStockPrices ||
-      coldDrinkStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWPRICES &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    ) {
+    if (!showColdDrinkStockPrices || isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.SHOWPRICES, user)) {
       const splicedRowKeys = ["unitPrice", "totalGroupPrice"];
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
@@ -371,12 +356,7 @@ const ColdDrinkStock = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: coldDrinkStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -414,12 +394,7 @@ const ColdDrinkStock = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: coldDrinkStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -460,12 +435,7 @@ const ColdDrinkStock = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: coldDrinkStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("Transfer"),
@@ -502,12 +472,7 @@ const ColdDrinkStock = () => {
         isModalOpen: isStockTransferModalOpen,
         setIsModal: setIsStockTransferModalOpen,
         isPath: false,
-        isDisabled: coldDrinkStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TRANSFER &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.TRANSFER, user),
       },
     ],
     [
@@ -548,12 +513,7 @@ const ColdDrinkStock = () => {
             </p>
           </div>
         ),
-        isDisabled: coldDrinkStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWTOTAL &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.SHOWTOTAL, user),
       },
       {
         label: t("Show Prices"),
@@ -566,12 +526,7 @@ const ColdDrinkStock = () => {
             }}
           />
         ),
-        isDisabled: coldDrinkStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWPRICES &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.SHOWPRICES, user),
       },
       {
         label: t("Enable Edit"),
@@ -584,12 +539,7 @@ const ColdDrinkStock = () => {
             }}
           />
         ),
-        isDisabled: coldDrinkStockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.ENABLEEDIT, user),
       },
       {
         label: t("Show Filters"),
@@ -707,15 +657,7 @@ const ColdDrinkStock = () => {
           isActionsActive={isColdDrinkStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
-          isExcel={
-            user &&
-            !coldDrinkStockPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(coldDrinkStockPageDisabledCondition, ActionEnum.EXCEL, user)}
           excelFileName="SogukIcecekStok.xlsx"
         />
       </div>

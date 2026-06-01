@@ -35,6 +35,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetUser, useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -90,14 +91,10 @@ const LossProduct = () => {
     return getItem(DisabledConditionEnum.STOCK_LOSSPRODUCT, disabledConditions);
   }, [disabledConditions]);
 
-  const isShowPricesDisabled = useMemo(() => {
-    return lossProductPageDisabledCondition?.actions?.some(
-      (ac) =>
-        ac.action === ActionEnum.SHOWPRICES &&
-        userContext?.role?._id &&
-        !ac?.permissionsRoles?.includes(userContext?.role?._id)
-    );
-  }, [lossProductPageDisabledCondition, userContext]);
+  const isShowPricesDisabled = useMemo(
+    () => isActionDisabled(lossProductPageDisabledCondition, ActionEnum.SHOWPRICES, userContext),
+    [lossProductPageDisabledCondition, userContext]
+  );
 
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
@@ -537,12 +534,7 @@ const LossProduct = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: lossProductPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          userContext?.role?._id &&
-          !ac?.permissionsRoles?.includes(userContext?.role?._id)
-      ),
+      isDisabled: isActionDisabled(lossProductPageDisabledCondition, ActionEnum.ADD, userContext),
     }),
     [
       t,
@@ -649,12 +641,7 @@ const LossProduct = () => {
         isModal: true,
         isModalOpen: isCancelOrderModalOpen,
         setIsModal: setIsCancelOrderModalOpen,
-        isDisabled: lossProductPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            userContext?.role?._id &&
-            !ac?.permissionsRoles?.includes(userContext?.role?._id)
-        ),
+        isDisabled: isActionDisabled(lossProductPageDisabledCondition, ActionEnum.DELETE, userContext),
       },
     ],
     [

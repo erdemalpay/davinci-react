@@ -19,6 +19,7 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -371,12 +372,7 @@ const GameStockLocation = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: gameStockLocationPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(gameStockLocationPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -447,12 +443,7 @@ const GameStockLocation = () => {
         isModalOpen: isStockTransferModalOpen,
         setIsModal: setIsStockTransferModalOpen,
         isPath: false,
-        isDisabled: gameStockLocationPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TRANSFER &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(gameStockLocationPageDisabledCondition, ActionEnum.TRANSFER, user),
       },
     ],
     [
@@ -500,15 +491,7 @@ const GameStockLocation = () => {
           actions={actions}
           isActionsActive={true}
           isToolTipEnabled={false}
-          isExcel={
-            user &&
-            !gameStockLocationPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(gameStockLocationPageDisabledCondition, ActionEnum.EXCEL, user)}
           excelFileName="GamesByLocation.xlsx"
         />
       </div>
