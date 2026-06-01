@@ -16,6 +16,7 @@ import {
 import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
 import { useGetAllUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
+import { isActionDisabled } from "../../../utils/permissions";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
@@ -176,12 +177,7 @@ export default function GameplaysByMentor() {
             }}
           />
         ),
-        isDisabled: gameplaysByMentorDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(gameplaysByMentorDisabledCondition, ActionEnum.SHOW_INACTIVE_ELEMENTS, user),
       },
       {
         label: t("Show Filters"),

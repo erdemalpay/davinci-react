@@ -17,6 +17,7 @@ import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetFilteredVisits, useVisitMutation } from "../../utils/api/visit";
 import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -190,12 +191,7 @@ const AllVisits = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: allVisitsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(allVisitsDisabledCondition, ActionEnum.DELETE, user),
       },
     ],
     [
@@ -325,15 +321,7 @@ const AllVisits = () => {
           filters={filters}
           title={t("All Visits")}
           actions={actions}
-          isExcel={
-            user &&
-            !allVisitsDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(allVisitsDisabledCondition, ActionEnum.EXCEL, user)}
           excelFileName={`Visits.xlsx`}
         />
       </div>

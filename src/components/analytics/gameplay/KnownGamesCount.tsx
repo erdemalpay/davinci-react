@@ -8,6 +8,7 @@ import {
 import { useGetAllUsers } from "../../../utils/api/user";
 import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../../utils/getItem";
+import { isActionDisabled } from "../../../utils/permissions";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 
@@ -77,12 +78,7 @@ const KnownGamesCount = () => {
             onChange={setShowInactiveUsers}
           />
         ),
-        isDisabled: knownGamesCountDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(knownGamesCountDisabledCondition, ActionEnum.SHOW_INACTIVE_ELEMENTS, user),
       },
     ],
     [t, showInactiveUsers, knownGamesCountDisabledCondition, user]

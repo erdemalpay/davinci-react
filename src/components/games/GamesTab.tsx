@@ -21,6 +21,7 @@ import { useGameMutations, useGetGames } from "../../utils/api/game";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 
 const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
@@ -118,13 +119,7 @@ const GamesTab = () => {
     () => [
       {
         name: t("Delete"),
-        isDisabled:
-          gamesPageDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.DELETE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ) ?? false,
+        isDisabled: isActionDisabled(gamesPageDisabledCondition, ActionEnum.DELETE, user),
         icon: <HiOutlineTrash />,
         setRow: setRowToAction,
         modal: rowToAction ? (
@@ -147,13 +142,7 @@ const GamesTab = () => {
       },
       {
         name: t("Edit"),
-        isDisabled:
-          gamesPageDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ) ?? false,
+        isDisabled: isActionDisabled(gamesPageDisabledCondition, ActionEnum.UPDATE, user),
         icon: <FiEdit />,
         className: "text-blue-500 cursor-pointer text-xl",
         isModal: true,
@@ -176,13 +165,7 @@ const GamesTab = () => {
       },
       {
         name: "Star Rating",
-        isDisabled:
-          gamesPageDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.RATE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ) ?? false,
+        isDisabled: isActionDisabled(gamesPageDisabledCondition, ActionEnum.RATE, user),
         node: (row: Game) => {
           return (
             <StarRating
@@ -211,16 +194,10 @@ const GamesTab = () => {
     ]
   );
 
-  const isEnableEditDisabled = useMemo(() => {
-    return (
-      gamesPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ENABLEEDIT &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ) ?? false
-    );
-  }, [gamesPageDisabledCondition, user]);
+  const isEnableEditDisabled = useMemo(
+    () => isActionDisabled(gamesPageDisabledCondition, ActionEnum.ENABLEEDIT, user),
+    [gamesPageDisabledCondition, user]
+  );
 
   const filters = useMemo(() => {
     return !isEnableEditDisabled
@@ -242,13 +219,7 @@ const GamesTab = () => {
   const addButton = useMemo(
     () => ({
       name: t("Add Game"),
-      isDisabled:
-        gamesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ADD &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ) ?? false,
+      isDisabled: isActionDisabled(gamesPageDisabledCondition, ActionEnum.ADD, user),
       isModal: true,
       modal: (
         <AddGameDialog

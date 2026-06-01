@@ -29,6 +29,7 @@ import {
 import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
@@ -1178,25 +1179,11 @@ const Shifts = () => {
         isModalOpen: isShiftsEditModalOpen,
         setIsModal: setIsShiftsEditModalOpen,
         isPath: false,
-        isDisabled:
-          selectedLocationId === -1 ||
-          shiftsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ),
+        isDisabled: selectedLocationId === -1 || isActionDisabled(shiftsDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("Delete"),
-        isDisabled:
-          selectedLocationId === -1 ||
-          shiftsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.DELETE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ),
+        isDisabled: selectedLocationId === -1 || isActionDisabled(shiftsDisabledCondition, ActionEnum.DELETE, user),
         icon: <HiOutlineTrash />,
         setRow: setRowToAction,
         modal: rowToAction ? (
@@ -1242,14 +1229,7 @@ const Shifts = () => {
         isModalOpen: isCopyShiftModalOpen,
         setIsModal: setIsCopyShiftModalOpen,
         isPath: false,
-        isDisabled:
-          selectedLocationId === -1 ||
-          shiftsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.COPY_SHIFT &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ),
+        isDisabled: selectedLocationId === -1 || isActionDisabled(shiftsDisabledCondition, ActionEnum.COPY_SHIFT, user),
       },
     ],
     [
@@ -1295,12 +1275,7 @@ const Shifts = () => {
       isModalOpen: isCopyShiftIntervalModalOpen,
       setIsModal: setIsCopyShiftIntervalModalOpen,
       isPath: false,
-      isDisabled: shiftsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.COPY_DAY_INTERVAL &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(shiftsDisabledCondition, ActionEnum.COPY_DAY_INTERVAL, user),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
@@ -1369,12 +1344,7 @@ const Shifts = () => {
             }}
           />
         ),
-        isDisabled: shiftsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ASSIGN_CHEF &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(shiftsDisabledCondition, ActionEnum.ASSIGN_CHEF, user),
       },
       {
         label: t("Assign Middleman"),
@@ -1387,12 +1357,7 @@ const Shifts = () => {
             }}
           />
         ),
-        isDisabled: shiftsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ASSIGN_MIDDLEMAN &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(shiftsDisabledCondition, ActionEnum.ASSIGN_MIDDLEMAN, user),
       },
       {
         label: t("Enable Edit"),
@@ -1405,12 +1370,7 @@ const Shifts = () => {
             }}
           />
         ),
-        isDisabled: shiftsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(shiftsDisabledCondition, ActionEnum.ENABLEEDIT, user),
       },
     ],
     [
@@ -1550,15 +1510,7 @@ const Shifts = () => {
           "  " +
           t("Shifts")
         }
-        isExcel={
-          user &&
-          !shiftsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.EXCEL &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          )
-        }
+        isExcel={!isActionDisabled(shiftsDisabledCondition, ActionEnum.EXCEL, user)}
         filterPanel={filterPanel as any}
         excelFileName={`${
           (getItem(selectedLocationId, locations)?.name || "All") +

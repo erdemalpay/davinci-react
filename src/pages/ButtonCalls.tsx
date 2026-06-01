@@ -25,6 +25,7 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 
 type FormElementsState = {
   [key: string]: any;
@@ -240,28 +241,16 @@ export default function ButtonCalls() {
 
   const { deleteButtonCall } = useButtonCallMutations();
 
-  const isEnableEditDisabled = useMemo(() => {
-    return (
-      buttonCallsPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ENABLEEDIT &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ) ?? false
-    );
-  }, [buttonCallsPageDisabledCondition, user]);
+  const isEnableEditDisabled = useMemo(
+    () => isActionDisabled(buttonCallsPageDisabledCondition, ActionEnum.ENABLEEDIT, user),
+    [buttonCallsPageDisabledCondition, user]
+  );
 
   const actions = useMemo(
     () => [
       {
         name: t("Delete"),
-        isDisabled:
-          buttonCallsPageDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.DELETE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ) ?? false,
+        isDisabled: isActionDisabled(buttonCallsPageDisabledCondition, ActionEnum.DELETE, user),
         icon: <HiOutlineTrash />,
         setRow: setRowToAction,
         modal: rowToAction ? (

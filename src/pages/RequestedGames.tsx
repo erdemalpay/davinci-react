@@ -7,7 +7,11 @@ import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
-import { FormElementsState } from "../types";
+import { useUserContext } from "../context/User.context";
+import { ActionEnum, DisabledConditionEnum, FormElementsState } from "../types";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 import {
   RequestedGame,
   RequestedGameRequest,
@@ -33,6 +37,12 @@ type RequestedGameRow = RequestedGame & {
 
 export default function RequestedGames() {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const requestedGamesDisabledCondition = useMemo(
+    () => getItem(DisabledConditionEnum.REQUESTEDGAMES, disabledConditions),
+    [disabledConditions]
+  );
   const [showFilters, setShowFilters] = useState(false);
   const initialFilterPanelFormElements = useMemo<FormElementsState>(
     () => ({
@@ -224,7 +234,7 @@ export default function RequestedGames() {
             updates: { status: "available" },
           });
         },
-        isDisabled: false,
+        isDisabled: isActionDisabled(requestedGamesDisabledCondition, ActionEnum.MARK_AVAILABLE, user),
       },
       {
         name: t("Delete"),
@@ -238,10 +248,10 @@ export default function RequestedGames() {
             updates: { status: "deleted" },
           });
         },
-        isDisabled: false,
+        isDisabled: isActionDisabled(requestedGamesDisabledCondition, ActionEnum.DELETE, user),
       },
     ],
-    [t, updateRequestedGame]
+    [t, updateRequestedGame, requestedGamesDisabledCondition, user]
   );
 
   return (

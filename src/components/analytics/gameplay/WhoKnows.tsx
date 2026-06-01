@@ -9,6 +9,7 @@ import { useGetGamesMinimal } from "../../../utils/api/game";
 import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
 import { useGetAllUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
+import { isActionDisabled } from "../../../utils/permissions";
 import { Autocomplete } from "../../common/Autocomplete";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
@@ -67,12 +68,7 @@ const WhoKnows = () => {
             onChange={setShowInactiveUsers}
           />
         ),
-        isDisabled: whoKnowsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(whoKnowsDisabledCondition, ActionEnum.SHOW_INACTIVE_ELEMENTS, user),
       },
     ],
     [t, showInactiveUsers, whoKnowsDisabledCondition, user]

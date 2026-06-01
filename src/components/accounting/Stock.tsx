@@ -28,6 +28,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -280,15 +281,7 @@ const Stock = () => {
       { key: t("Total Price"), isSortable: true },
     ];
 
-    if (
-      !showStockPrices ||
-      stockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWPRICES &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    ) {
+    if (!showStockPrices || isActionDisabled(stockPageDisabledCondition, ActionEnum.SHOWPRICES, user)) {
       const splicedColumns = [t("Unit Price"), t("Total Price")];
       return cols.filter((column) => !splicedColumns.includes(column.key));
     }
@@ -320,15 +313,7 @@ const Stock = () => {
       },
     ];
 
-    if (
-      !showStockPrices ||
-      stockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWPRICES &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    ) {
+    if (!showStockPrices || isActionDisabled(stockPageDisabledCondition, ActionEnum.SHOWPRICES, user)) {
       const splicedRowKeys = ["unitPrice", "totalGroupPrice"];
       return keys.filter((key) => !splicedRowKeys.includes(key.key));
     }
@@ -357,12 +342,7 @@ const Stock = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: stockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(stockPageDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -400,12 +380,7 @@ const Stock = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: stockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(stockPageDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -446,12 +421,7 @@ const Stock = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: stockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(stockPageDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("Transfer"),
@@ -488,12 +458,7 @@ const Stock = () => {
         isModalOpen: isStockTransferModalOpen,
         setIsModal: setIsStockTransferModalOpen,
         isPath: false,
-        isDisabled: stockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.TRANSFER &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(stockPageDisabledCondition, ActionEnum.TRANSFER, user),
       },
     ],
     [
@@ -534,12 +499,7 @@ const Stock = () => {
             </p>
           </div>
         ),
-        isDisabled: stockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWTOTAL &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(stockPageDisabledCondition, ActionEnum.SHOWTOTAL, user),
       },
       {
         label: t("Show Prices"),
@@ -552,12 +512,7 @@ const Stock = () => {
             }}
           />
         ),
-        isDisabled: stockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOWPRICES &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(stockPageDisabledCondition, ActionEnum.SHOWPRICES, user),
       },
       {
         label: t("Enable Edit"),
@@ -570,12 +525,7 @@ const Stock = () => {
             }}
           />
         ),
-        isDisabled: stockPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(stockPageDisabledCondition, ActionEnum.ENABLEEDIT, user),
       },
       {
         label: t("Show Filters"),
@@ -777,15 +727,7 @@ const Stock = () => {
           isCollapsible={true}
           isSearch={true}
           isToolTipEnabled={false}
-          isExcel={
-            user &&
-            !stockPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(stockPageDisabledCondition, ActionEnum.EXCEL, user)}
           excelFileName="GenelStok.xlsx"
         />
       </div>

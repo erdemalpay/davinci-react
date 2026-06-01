@@ -11,6 +11,7 @@ import { useGetTablePlayerCounts } from "../../../utils/api/table";
 import { formatAsLocalDate } from "../../../utils/format";
 import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../../utils/getItem";
+import { isActionDisabled } from "../../../utils/permissions";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
@@ -145,14 +146,7 @@ const TablePlayerCount = () => {
         isActionsActive={false}
         rows={rows}
         filters={filters}
-        isExcel={
-          !tablePlayerCountsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.EXCEL &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          )
-        }
+        isExcel={!isActionDisabled(tablePlayerCountsDisabledCondition, ActionEnum.EXCEL, user)}
         excelFileName="TablePlayerCounts.xlsx"
         title={t("Table Player Counts")}
       />

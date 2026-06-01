@@ -19,6 +19,7 @@ import { useAddShiftMutation, useGetUserShifts } from "../../utils/api/shift";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetUniqueVisits, useVisitMutation } from "../../utils/api/visit";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -457,12 +458,7 @@ const VisitScheduleOverview = () => {
         isModalOpen: isAddShiftModalOpen,
         setIsModal: setIsAddShiftModalOpen,
         isPath: false,
-        isDisabled: visitScheduleOverviewDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ADD &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(visitScheduleOverviewDisabledCondition, ActionEnum.ADD, user),
       },
     ],
     [
@@ -517,15 +513,7 @@ const VisitScheduleOverview = () => {
           isActionsActive={true}
           filterPanel={filterPanel}
           filters={filters}
-          isExcel={
-            user &&
-            !visitScheduleOverviewDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
-          }
+          isExcel={!isActionDisabled(visitScheduleOverviewDisabledCondition, ActionEnum.EXCEL, user)}
           excelFileName={"VisitSchedule.xlsx"}
           title={t("Visit Schedule Overview")}
         />

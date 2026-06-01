@@ -682,6 +682,7 @@ export enum DisabledConditionEnum {
   POINTS_USERSPOINT = "points_userspoint",
   POINTS_CONSUMERSPOINT = "points_consumerspoint",
   STOCK_SANDWICHSTOCK = "sandwichstock",
+  REQUESTEDGAMES = "requestedgames"
 }
 
 export enum ActionEnum {
@@ -740,6 +741,7 @@ export enum ActionEnum {
   EQUAL = "equal",
   EQUAL_STOCKS = "equal_stocks",
   RESET_PASSWORD = "reset_password",
+  MARK_AVAILABLE = "mark_available",
 }
 
 export type Membership = {
