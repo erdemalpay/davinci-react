@@ -1,13 +1,18 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TbTag } from "react-icons/tb";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useGetTrendyolProducts,
   useUpdateTrendyolPriceOnlyMutation,
   useUpdateTrendyolProductPriceMutation,
 } from "../../utils/api/trendyol";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -23,6 +28,12 @@ interface TrendyolPriceRow {
 
 const TrendyolPriceComparision = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const trendyolPriceComparisionPageDisabledCondition = useMemo(
+    () => getItem(DisabledConditionEnum.INTEGRATION_TRENDYOLPRICECOMPARISION, disabledConditions),
+    [disabledConditions]
+  );
   const trendyolProducts = useGetTrendyolProducts();
   const items = useGetMenuItems();
   const products = useGetAccountProducts();
@@ -106,16 +117,17 @@ const TrendyolPriceComparision = () => {
             listPrice: row.menuPrice,
           });
         },
+        isDisabled: isActionDisabled(trendyolPriceComparisionPageDisabledCondition, ActionEnum.UPDATESINGLEPRICE, user),
       },
     ],
-    [t, updateTrendyolProductPrice]
+    [t, updateTrendyolProductPrice, trendyolPriceComparisionPageDisabledCondition, user]
   );
 
   const filters = useMemo(
     () => [
       {
         isUpperSide: false,
-        isDisabled: isUpdatingTrendyolPrice,
+        isDisabled: isUpdatingTrendyolPrice || isActionDisabled(trendyolPriceComparisionPageDisabledCondition, ActionEnum.SYNC, user),
         node: (
           <ButtonFilter
             buttonName={
@@ -130,7 +142,7 @@ const TrendyolPriceComparision = () => {
         ),
       },
     ],
-    [t, updateTrendyolPriceOnly, isUpdatingTrendyolPrice]
+    [t, updateTrendyolPriceOnly, isUpdatingTrendyolPrice, trendyolPriceComparisionPageDisabledCondition, user]
   );
 
   return (

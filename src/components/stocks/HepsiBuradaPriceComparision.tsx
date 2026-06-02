@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TbTag } from "react-icons/tb";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   HepsiburadaListing,
@@ -9,6 +11,9 @@ import {
   useUpdateHepsiburadaProductPriceMutation,
 } from "../../utils/api/hepsiburada";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
@@ -31,6 +36,12 @@ interface HepsiburadaRow {
 
 const HepsiBuradaPriceComparision = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const hepsiburadaPriceComparisionPageDisabledCondition = useMemo(
+    () => getItem(DisabledConditionEnum.INTEGRATION_HEPSIBURADAPRICECOMPARISION, disabledConditions),
+    [disabledConditions]
+  );
   const hepsiburadaResponse = useGetHepsiburadaListings();
   const hepsiburadaListings =
     (hepsiburadaResponse as unknown as HepsiburadaListingsResponse)?.listings ||
@@ -125,15 +136,17 @@ const HepsiBuradaPriceComparision = () => {
             price: row.itemOnlinePrice,
           });
         },
+        isDisabled: isActionDisabled(hepsiburadaPriceComparisionPageDisabledCondition, ActionEnum.UPDATESINGLEPRICE, user),
       },
     ],
-    [t, updateHepsiburadaProductPrice]
+    [t, updateHepsiburadaProductPrice, hepsiburadaPriceComparisionPageDisabledCondition, user]
   );
 
   const filters = useMemo(
     () => [
       {
         isUpperSide: false,
+        isDisabled: isActionDisabled(hepsiburadaPriceComparisionPageDisabledCondition, ActionEnum.SYNC, user),
         node: (
           <ButtonFilter
             buttonName={t("Update All HepsiBurada Prices")}
@@ -144,7 +157,7 @@ const HepsiBuradaPriceComparision = () => {
         ),
       },
     ],
-    [t, updateAllHepsiburadaPrices]
+    [t, updateAllHepsiburadaPrices, hepsiburadaPriceComparisionPageDisabledCondition, user]
   );
 
   return (

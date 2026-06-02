@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { RiFileTransferFill } from "react-icons/ri";
 import { TbTransferOut } from "react-icons/tb";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -14,6 +16,9 @@ import {
   useUpdateHepsiburadaProductStockMutation,
 } from "../../utils/api/hepsiburada";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -39,6 +44,12 @@ interface HepsiburadaStockRow {
 
 const HepsiBuradaStockComparision = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const hepsiburadaStockComparisionPageDisabledCondition = useMemo(
+    () => getItem(DisabledConditionEnum.INTEGRATION_HEPSIBURADASTOCKCOMPARISION, disabledConditions),
+    [disabledConditions]
+  );
   const hepsiburadaResponse = useGetHepsiburadaListings();
   const hepsiburadaListings =
     (hepsiburadaResponse as unknown as HepsiburadaListingsResponse)?.listings ||
@@ -135,6 +146,7 @@ const HepsiBuradaStockComparision = () => {
             },
           });
         },
+        isDisabled: isActionDisabled(hepsiburadaStockComparisionPageDisabledCondition, ActionEnum.UPDATESTORESTOCK, user),
       },
       {
         name: t("Update HepsiBurada Stock"),
@@ -153,16 +165,17 @@ const HepsiBuradaStockComparision = () => {
             price: row.itemPrice ?? 0,
           });
         },
+        isDisabled: isActionDisabled(hepsiburadaStockComparisionPageDisabledCondition, ActionEnum.UPDATEREMOTESTOCK, user),
       },
     ],
-    [t, updateAccountStock, updateHepsiburadaProductStock]
+    [t, updateAccountStock, updateHepsiburadaProductStock, hepsiburadaStockComparisionPageDisabledCondition, user]
   );
 
   const filters = useMemo(
     () => [
       {
         isUpperSide: false,
-        isDisabled: isUpdatingHepsiburadaStocks,
+        isDisabled: isUpdatingHepsiburadaStocks || isActionDisabled(hepsiburadaStockComparisionPageDisabledCondition, ActionEnum.SYNC, user),
         node: (
           <ButtonFilter
             buttonName={
@@ -177,7 +190,7 @@ const HepsiBuradaStockComparision = () => {
         ),
       },
     ],
-    [t, updateAllHepsiburadaStocks, isUpdatingHepsiburadaStocks]
+    [t, updateAllHepsiburadaStocks, isUpdatingHepsiburadaStocks, hepsiburadaStockComparisionPageDisabledCondition, user]
   );
 
   return (

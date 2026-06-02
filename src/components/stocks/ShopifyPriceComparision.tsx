@@ -14,6 +14,7 @@ import {
   useUpdateShopifyProductPriceMutation,
 } from "../../utils/api/shopify";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
@@ -40,7 +41,7 @@ const ShopifyPriceComparision = () => {
 
   const shopifyPriceComparisionPageDisabledCondition = useMemo(() => {
     return getItem(
-      DisabledConditionEnum.STOCK_SHOPIFYPRICECOMPARISION,
+      DisabledConditionEnum.INTEGRATION_SHOPIFYPRICECOMPARISION,
       disabledConditions
     );
   }, [disabledConditions]);
@@ -128,21 +129,17 @@ const ShopifyPriceComparision = () => {
             newPrice: row.itemPrice ?? 0,
           });
         },
+        isDisabled: isActionDisabled(shopifyPriceComparisionPageDisabledCondition, ActionEnum.UPDATESINGLEPRICE, user),
       },
     ],
-    [t, updateShopifyProductPrice]
+    [t, updateShopifyProductPrice, shopifyPriceComparisionPageDisabledCondition, user]
   );
 
   const filters = useMemo(
     () => [
       {
         isUpperSide: false,
-        isDisabled: shopifyPriceComparisionPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SYNC &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(shopifyPriceComparisionPageDisabledCondition, ActionEnum.SYNC, user),
         node: (
           <ButtonFilter
             buttonName={t("Update Shopify Prices")}

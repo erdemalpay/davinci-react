@@ -604,10 +604,10 @@ export enum DisabledConditionEnum {
   STOCK_VENDORORDER = "vendororder",
   STOCK_IKASSTOCKCOMPARISION = "ikasstockcomparision",
   STOCK_IKASPRICECOMPARISION = "ikaspricecomparision",
-  STOCK_SHOPIFYSTOCKCOMPARISION = "shopifystockcomparision",
-  STOCK_SHOPIFYPRICECOMPARISION = "shopifypricecomparision",
-  STOCK_HEPSIBURADAPRICECOMPARISION = "hepsiburadapricecomparision",
-  STOCK_HEPSIBURADASTOCKCOMPARISION = "hepsiburadastockcomparision",
+  INTEGRATION_SHOPIFYSTOCKCOMPARISION = "shopifystockcomparision",
+  INTEGRATION_SHOPIFYPRICECOMPARISION = "shopifypricecomparision",
+  INTEGRATION_HEPSIBURADAPRICECOMPARISION = "hepsiburadapricecomparision",
+  INTEGRATION_HEPSIBURADASTOCKCOMPARISION = "hepsiburadastockcomparision",
   STOCK_ENTERCONSUMPTION = "enterconsumption",
   STOCK_LOSSPRODUCT = "lossproduct",
   ORDERDATAS_DAILYINCOME = "dailyincome",
@@ -682,7 +682,9 @@ export enum DisabledConditionEnum {
   POINTS_USERSPOINT = "points_userspoint",
   POINTS_CONSUMERSPOINT = "points_consumerspoint",
   STOCK_SANDWICHSTOCK = "sandwichstock",
-  REQUESTEDGAMES = "requestedgames"
+  REQUESTEDGAMES = "requestedgames",
+  INTEGRATION_TRENDYOLPRICECOMPARISION = "trendyolpricecomparision",
+  INTEGRATION_TRENDYOLSTOCKCOMPARISION = "trendyolstockcomparision",
 }
 
 export enum ActionEnum {
@@ -742,6 +744,10 @@ export enum ActionEnum {
   EQUAL_STOCKS = "equal_stocks",
   RESET_PASSWORD = "reset_password",
   MARK_AVAILABLE = "mark_available",
+  UPDATETRENDYOLSTOCK = "update_trendyol_stock",
+  UPDATEHEPSIBURADASTOCK = "update_hepsiburada_stock",
+  UPDATESINGLEPRICE = "update_single_price",
+  UPDATEREMOTESTOCK = "update_remote_stock",
 }
 
 export type Membership = {

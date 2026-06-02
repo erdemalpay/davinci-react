@@ -17,6 +17,7 @@ import {
   useUpdateShopifyProductStockMutation,
 } from "../../utils/api/shopify";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -48,7 +49,7 @@ const ShopifyStockComparision = () => {
 
   const shopifyStockComparisionPageDisabledCondition = useMemo(() => {
     return getItem(
-      DisabledConditionEnum.STOCK_SHOPIFYSTOCKCOMPARISION,
+      DisabledConditionEnum.INTEGRATION_SHOPIFYSTOCKCOMPARISION,
       disabledConditions
     );
   }, [disabledConditions]);
@@ -158,12 +159,7 @@ const ShopifyStockComparision = () => {
             },
           });
         },
-        isDisabled: shopifyStockComparisionPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATESTORESTOCK &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(shopifyStockComparisionPageDisabledCondition, ActionEnum.UPDATESTORESTOCK, user),
       },
       {
         name: t("Update Shopify Stocks"),
@@ -179,12 +175,7 @@ const ShopifyStockComparision = () => {
             stockCount: row.storeStock ?? 0,
           });
         },
-        isDisabled: shopifyStockComparisionPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATESHOPIFYSTOCK &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(shopifyStockComparisionPageDisabledCondition, ActionEnum.UPDATEREMOTESTOCK, user),
       },
     ],
     [
@@ -201,14 +192,7 @@ const ShopifyStockComparision = () => {
     () => [
       {
         isUpperSide: false,
-        isDisabled:
-          isUpdatingShopifyStocks ||
-          shopifyStockComparisionPageDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.SYNC &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ),
+        isDisabled: isUpdatingShopifyStocks || isActionDisabled(shopifyStockComparisionPageDisabledCondition, ActionEnum.SYNC, user),
         node: (
           <ButtonFilter
             buttonName={

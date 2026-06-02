@@ -2,17 +2,22 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { RiFileTransferFill } from "react-icons/ri";
 import { TbTransferOut } from "react-icons/tb";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
 } from "../../utils/api/account/stock";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useGetTrendyolProducts,
   useUpdateTrendyolInventoryOnlyMutation,
   useUpdateTrendyolProductStockMutation,
 } from "../../utils/api/trendyol";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -30,6 +35,12 @@ interface TrendyolStockRow {
 
 const TrendyolStockComparision = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const trendyolStockComparisionPageDisabledCondition = useMemo(
+    () => getItem(DisabledConditionEnum.INTEGRATION_TRENDYOLSTOCKCOMPARISION, disabledConditions),
+    [disabledConditions]
+  );
   const trendyolProducts = useGetTrendyolProducts();
   const items = useGetMenuItems();
   const stocks = useGetAccountStocks();
@@ -123,6 +134,7 @@ const TrendyolStockComparision = () => {
             },
           });
         },
+        isDisabled: isActionDisabled(trendyolStockComparisionPageDisabledCondition, ActionEnum.UPDATESTORESTOCK, user),
       },
       {
         name: t("Update Trendyol Stock"),
@@ -137,16 +149,17 @@ const TrendyolStockComparision = () => {
             listPrice: row.menuPrice,
           });
         },
+        isDisabled: isActionDisabled(trendyolStockComparisionPageDisabledCondition, ActionEnum.UPDATEREMOTESTOCK, user),
       },
     ],
-    [t, updateAccountStock, updateTrendyolProductStock]
+    [t, updateAccountStock, updateTrendyolProductStock, trendyolStockComparisionPageDisabledCondition, user]
   );
 
   const filters = useMemo(
     () => [
       {
         isUpperSide: false,
-        isDisabled: isUpdatingTrendyolInventory,
+        isDisabled: isUpdatingTrendyolInventory || isActionDisabled(trendyolStockComparisionPageDisabledCondition, ActionEnum.SYNC, user),
         node: (
           <ButtonFilter
             buttonName={
@@ -161,7 +174,7 @@ const TrendyolStockComparision = () => {
         ),
       },
     ],
-    [t, updateTrendyolInventoryOnly, isUpdatingTrendyolInventory]
+    [t, updateTrendyolInventoryOnly, isUpdatingTrendyolInventory, trendyolStockComparisionPageDisabledCondition, user]
   );
 
   return (
