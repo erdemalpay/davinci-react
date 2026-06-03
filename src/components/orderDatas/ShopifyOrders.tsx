@@ -33,6 +33,7 @@ import { getItem } from "../../utils/getItem";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -45,6 +46,8 @@ const ShopifyOrders = () => {
   const users = useGetUsersMinimal();
   const categories = useGetAllCategories();
   const [rowToAction, setRowToAction] = useState<any>({});
+  const [pickerStart, setPickerStart] = useState("");
+  const [pickerEnd, setPickerEnd] = useState("");
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelShopifyOrder } = useCancelShopifyOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
@@ -490,6 +493,25 @@ const ShopifyOrders = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={pickerStart}
+            endDate={pickerEnd}
+            onChange={(start: string, end: string) => {
+              setPickerStart(start);
+              setPickerEnd(end);
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: start,
+                before: end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         isUpperSide: false,
         node: (
           <ButtonFilter
@@ -531,6 +553,10 @@ const ShopifyOrders = () => {
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      pickerStart,
+      pickerEnd,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
     ]
   );
 
