@@ -2429,6 +2429,10 @@ export const NotificationEventColors: Record<
     gradient: "linear-gradient(135deg, #4299E1 0%, #3182CE 100%)", // Blue
     solid: "#4299E1",
   },
+  CONCURRENTBREAK: {
+    gradient: "linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)", // Orange
+    solid: "#ED8936",
+  },
 };
 
 // Fallback: Type'a göre modern renk şeması (event yoksa kullanılır)
@@ -2471,6 +2475,7 @@ export enum NotificationEventType {
   SHIFTCHANGEREJECTED = "SHIFTCHANGEREJECTED",
   SHOPIFYTAKEAWAY = "SHOPIFYTAKEAWAY",
   SHOPIFYORDER = "SHOPIFYORDER",
+  CONCURRENTBREAK = "CONCURRENTBREAK",
 }
 export const notificationEventsOptions = [
   {
@@ -2548,6 +2553,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.SHOPIFYORDER,
     label: "Shopify Order",
+  },
+  {
+    value: NotificationEventType.CONCURRENTBREAK,
+    label: "Concurrent Break Warning",
   },
 ];
 
