@@ -47,7 +47,9 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../../../utils/getItem";
+import { usePrinter } from "../../../hooks/usePrinter";
 import { printTableReceipt } from "../../../utils/printReceipt";
+import { buildReceiptData } from "../../../utils/printReceiptESCPOS";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -83,6 +85,7 @@ const OrderPaymentModal = ({
   tableCollectionsProp,
 }: Props) => {
   const { t } = useTranslation();
+  const { isConnected, print } = usePrinter();
   const user = useGetUser();
   const isMutating = useIsMutating();
   const {
@@ -342,17 +345,44 @@ const OrderPaymentModal = ({
     allCollectionsTotalAmount,
   ]);
 
-  const handlePrint = () => {
-    printTableReceipt({
-      tableName: table?.name ?? "",
-      orders: orders ?? [],
-      items: items ?? [],
-      title: "Siparişler",
-      showLogo: false,
-      showDate: false,
-      showTableInfo: false,
-      showNotes: false,
+  const handlePrint = async () => {
+    const isAutoPrintEnabled =
+      localStorage.getItem("davinci_auto_print") !== "false";
+
+    console.log("🖨️ [handlePrint] manuel yazdır tıklandı", {
+      isAutoPrintEnabled,
+      printerConnected: isConnected,
+      tableName: table?.name,
+      orderCount: (orders ?? []).length,
     });
+
+    if (isAutoPrintEnabled) {
+      if (!isConnected) {
+        console.warn("🖨️ [handlePrint] yazıcı bağlı değil");
+        toast.error(t("Printer not connected, Please connect the printer first."));
+        return;
+      }
+      console.log("🖨️ [handlePrint] USB printer'a basılıyor...");
+      const data = await buildReceiptData({
+        orders: orders ?? [],
+        items: items ?? [],
+        tableName: table?.name,
+        title: "DA VINCI BOARD GAME CAFE",
+        showNotes: true,
+        printedAt: new Date(),
+      });
+      if (data) {
+        console.log("🖨️ [handlePrint] yazdırılıyor ✅");
+        print(data);
+      }
+    } else {
+      console.log("🖨️ [handlePrint] browser dialog açılıyor...");
+      printTableReceipt({
+        tableName: table?.name ?? "",
+        orders: orders ?? [],
+        items: items ?? [],
+      });
+    }
   };
   const buttons: ButtonType[] = [
     {

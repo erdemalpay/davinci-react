@@ -634,7 +634,7 @@ export enum DisabledConditionEnum {
   ANALYTICS_TABLEPLAYERCOUNTS = "tableplayercounts",
   ANALYTICS_GAMEPLAYSBYMENTORSDETAILS = "gameplaysbymentorsdetails",
   ANALYTICS_KNOWNGAMESCOUNT = "knowngamescount",
-  ANALYTICS_WHOKNOWS = "whoknows",
+  GAMES_WHOKNOWS = "whoknows",
   CAFE_ACTIVITIES = "cafe_activities",
   MONTHLY_CAFE_ACTIVITIES = "monthly_cafe_activities",
   MEMBERSHIPS = "memberships",
@@ -687,6 +687,7 @@ export enum DisabledConditionEnum {
   POINTS_USERSPOINT = "points_userspoint",
   POINTS_CONSUMERSPOINT = "points_consumerspoint",
   STOCK_SANDWICHSTOCK = "sandwichstock",
+  ORDERS_ORDERS = "orders_orders"
 }
 
 export enum ActionEnum {
@@ -748,6 +749,7 @@ export enum ActionEnum {
   PUBLISH = "publish",
   ADD_TO_RETAILER = "add_to_retailer",
   PROCESS = "process"
+  AUTO_PRINT = "auto_print",
 }
 
 export type Membership = {
@@ -805,6 +807,7 @@ export type Kitchen = {
   locations: number[];
   soundRoles?: number[];
   selectedUsers?: string[];
+  isPrintEnabled?: boolean;
 };
 
 export type MenuItem = {

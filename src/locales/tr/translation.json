@@ -1562,5 +1562,17 @@
   "Sandwich Stocks": "Sandviç Stokları",
   "Search menu...": "Menüde ara...",
   "Comparision": "Karşılaştırma",
-  "Webhook Requests for Order {{orderId}}": "Sipariş {{orderId}} için Webhook İstekleri"
+  "Webhook Requests for Order {{orderId}}": "Sipariş {{orderId}} için Webhook İstekleri",
+  "Printer not connected, Please connect the printer first.": "Yazıcı bağlı değil, lütfen önce yazıcıyı bağlayın.",
+  "No orders to print.": "Yazdırılacak sipariş yok.",
+  "Printer Connected": "Yazıcı Bağlandı",
+  "Connect Printer": "Yazıcı Bağla",
+  "Auto Print": "Otomatik Fiş Çıkar",
+  "Mail": "Mail",
+  "Mail Templates": "Mail Şablonları",
+  "Mail Drafts": "Mail Taslakları",
+  "Concurrency Logs": "Eşzamanlılık Logları",
+  "ShiftLink": "ShiftLink",
+  "Game Batches (FIFO)": "Oyun Grupları (FIFO)"
+
 }
