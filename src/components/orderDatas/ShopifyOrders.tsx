@@ -478,6 +478,8 @@ const ShopifyOrders = () => {
       closeFilters: () => setShowOrderDataFilters(false),
       additionalFilterCleanFunction: () => {
         setFilterPanelFormElements(initialFilterPanelFormElements);
+        setPickerStart('');
+        setPickerEnd('');
       },
     }),
     [
