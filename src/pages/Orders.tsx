@@ -2,7 +2,7 @@ import { subDays } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { CheckSwitch } from "../components/common/CheckSwitch";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import KitchenMenuPage from "../components/menu/KitchenMenuPage";
@@ -16,9 +16,14 @@ import {
   useGetAllCategories,
   useUpdateKitchenCategoryMutation,
 } from "../utils/api/menu/category";
+import { useKitchenMutations } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { formatDate, parseDate } from "../utils/dateUtil";
+import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
+import { ActionEnum, DisabledConditionEnum } from "../types";
 
 type OrderTabType = {
   number: number;
@@ -41,9 +46,14 @@ function Orders() {
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
   const { mutate: updateKitchenCategory } = useUpdateKitchenCategoryMutation();
+  const { updateKitchen } = useKitchenMutations();
   const categories = useGetAllCategories();
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
+  const disabledConditions = useGetDisabledConditions();
+  const ordersOrdersDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ORDERS_ORDERS, disabledConditions);
+  }, [disabledConditions]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
@@ -104,11 +114,28 @@ function Orders() {
       []
     );
   }, [ordersActiveTab, tabs, categories]);
+  const activeKitchen = tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen;
+
   const tabPanelFilters = [
     <div
       key={"tabPanelFilters"}
       className="flex flex-row gap-4 items-center ml-auto"
     >
+      {activeKitchen &&
+        !isActionDisabled(ordersOrdersDisabledCondition, ActionEnum.AUTO_PRINT, user) && (
+          <div className="flex flex-row items-center gap-2">
+            <p className="font-medium text-md">{t("Auto Print")}</p>
+            <SwitchButton
+              checked={activeKitchen.isPrintEnabled ?? false}
+              onChange={() => {
+                updateKitchen({
+                  id: activeKitchen._id,
+                  updates: { isPrintEnabled: !activeKitchen.isPrintEnabled },
+                });
+              }}
+            />
+          </div>
+        )}
       {kitchens &&
         kitchens.map((kitchen, index) => {
           if (
@@ -127,7 +154,7 @@ function Orders() {
                 <p className="font-medium text-md">
                   {kitchen.name + " " + t("Activity")}
                 </p>
-                <CheckSwitch
+                <SwitchButton
                   checked={foundCategory?.active ?? false}
                   onChange={() => {
                     updateKitchenCategory({

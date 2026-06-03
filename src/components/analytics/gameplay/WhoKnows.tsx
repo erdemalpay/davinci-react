@@ -25,7 +25,7 @@ const WhoKnows = () => {
 
   const whoKnowsDisabledCondition = useMemo(() => {
     return getItem(
-      DisabledConditionEnum.ANALYTICS_WHOKNOWS,
+      DisabledConditionEnum.GAMES_WHOKNOWS,
       disabledConditions
     );
   }, [disabledConditions]);
