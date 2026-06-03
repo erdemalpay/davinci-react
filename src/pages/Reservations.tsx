@@ -39,6 +39,7 @@ import {
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 
 export default function Reservations() {
   const { t } = useTranslation();
@@ -344,11 +345,10 @@ export default function Reservations() {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: reservationsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          reservationsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
       {
@@ -371,11 +371,10 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
-        isDisabled: reservationsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.CALLED &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          reservationsDisabledCondition,
+          ActionEnum.CALLED,
+          user
         ),
       },
 
@@ -409,11 +408,10 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
-        isDisabled: reservationsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.GROUP_CAME &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          reservationsDisabledCondition,
+          ActionEnum.GROUP_CAME,
+          user
         ),
       },
       {
@@ -437,11 +435,10 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
-        isDisabled: reservationsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.CANCEL &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          reservationsDisabledCondition,
+          ActionEnum.CANCEL,
+          user
         ),
       },
       {
@@ -452,12 +449,7 @@ export default function Reservations() {
         setRow: setRowToAction,
         isDisabled:
           (rowToAction && isCompleted(rowToAction)) ||
-          reservationsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.OPENBACK &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ),
+          isActionDisabled(reservationsDisabledCondition, ActionEnum.OPENBACK, user),
         node: (row: Reservation) =>
           isCompleted(row) ? (
             <ButtonTooltip content={t("Open back")}>
@@ -502,11 +494,10 @@ export default function Reservations() {
             onChange={setHideCompletedReservations}
           />
         ),
-        isDisabled: reservationsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.HIDE_COMPLETED_RESERVATIONS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          reservationsDisabledCondition,
+          ActionEnum.HIDE_COMPLETED_RESERVATIONS,
+          user
         ),
       },
       {
@@ -520,11 +511,10 @@ export default function Reservations() {
             <H5>{t("Show Tables")}</H5>
           </GenericButton>
         ),
-        isDisabled: reservationsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_TABLES &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          reservationsDisabledCondition,
+          ActionEnum.SHOW_TABLES,
+          user
         ),
       },
     ],
@@ -617,11 +607,10 @@ export default function Reservations() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: reservationsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+      isDisabled: isActionDisabled(
+        reservationsDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
     }),
     [

@@ -4,14 +4,18 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
-import { PanelControlPage } from "../../types";
+import { ActionEnum, DisabledConditionEnum, PanelControlPage } from "../../types";
 import {
   useCreateMultiplePageMutation,
   useGetPanelControlPages,
   usePanelControlPageMutations,
 } from "../../utils/api/panelControl/page";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAllUserRoles } from "../../utils/api/user";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -19,9 +23,14 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 const PagePermissions = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const roles = useGetAllUserRoles();
   const pages = useGetPanelControlPages();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const disabledConditions = useGetDisabledConditions();
+  const pagePermissionsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.PANELCONTROL_PAGEPERMISSIONS, disabledConditions);
+  }, [disabledConditions]);
   const { mutate: createMultiplePage } = useCreateMultiplePageMutation();
   const { setCurrentPage, setSortConfigKey, setSearchQuery } =
     useGeneralContext();
@@ -146,9 +155,10 @@ const PagePermissions = () => {
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
+        isDisabled: isActionDisabled(pagePermissionsDisabledCondition, ActionEnum.ENABLEEDIT, user),
       },
     ],
-    [t, isEnableEdit]
+    [t, isEnableEdit, pagePermissionsDisabledCondition, user]
   );
 
   const sortedPages = useMemo(() => {

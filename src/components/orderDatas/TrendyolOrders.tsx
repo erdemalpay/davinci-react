@@ -31,6 +31,7 @@ import { useGetTables } from "../../utils/api/table";
 import { useProcessAcceptedClaimsMutation } from "../../utils/api/trendyol";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -171,7 +172,15 @@ const TrendyolOrders = () => {
       ),
       formattedDate: "Total",
     };
-    allRows?.unshift(totalRow as any);
+    if (
+      !isActionDisabled(
+        trendyolOrdersPageDisabledCondition,
+        ActionEnum.SHOWTOTAL,
+        user
+      )
+    ) {
+      allRows?.unshift(totalRow as any);
+    }
     return allRows;
   }, [
     orders,
@@ -181,6 +190,8 @@ const TrendyolOrders = () => {
     items,
     sellLocations,
     t,
+    trendyolOrdersPageDisabledCondition,
+    user,
   ]);
 
   const columns = useMemo(
@@ -324,11 +335,10 @@ const TrendyolOrders = () => {
         isModal: true,
         isModalOpen: isCancelOrderModalOpen,
         setIsModal: setIsCancelOrderModalOpen,
-        isDisabled: trendyolOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          trendyolOrdersPageDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
     ],
@@ -558,11 +568,10 @@ const TrendyolOrders = () => {
             }}
           />
         ),
-        isDisabled: trendyolOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          trendyolOrdersPageDisabledCondition,
+          ActionEnum.PROCESS,
+          user
         ),
       },
       {
@@ -580,11 +589,10 @@ const TrendyolOrders = () => {
             }}
           />
         ),
-        isDisabled: trendyolOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          trendyolOrdersPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -624,13 +632,7 @@ const TrendyolOrders = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
-            user &&
-            !trendyolOrdersPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
+            !isActionDisabled(trendyolOrdersPageDisabledCondition, ActionEnum.EXCEL, user)
           }
           excelFileName={t("TrendyolOrders.xlsx")}
           rowClassNameFunction={(row: any) => {

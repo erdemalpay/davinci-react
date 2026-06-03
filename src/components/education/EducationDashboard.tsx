@@ -13,6 +13,7 @@ import {
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -97,17 +98,9 @@ const EducationDashboard = () => {
     return getItem(DisabledConditionEnum.EDUCATION, disabledConditions);
   }, [disabledConditions]);
 
-  const isActionDisabled = (action: ActionEnum) =>
-    !educationPageDisabledCondition ||
-    educationPageDisabledCondition.actions.some(
-      (ac) =>
-        ac.action === action &&
-        user?.role?._id &&
-        !ac?.permissionsRoles?.includes(user?.role?._id)
-    );
-
-  const isEnableEditDisabled = isActionDisabled(ActionEnum.ENABLEEDIT);
-  const isAddDisabled = isActionDisabled(ActionEnum.ADD);
+  const isEnableEditDisabled = isActionDisabled(educationPageDisabledCondition, ActionEnum.ENABLEEDIT, user);
+  const isAddDisabled = isActionDisabled(educationPageDisabledCondition, ActionEnum.ADD, user);
+  const isDeleteDisabled = isActionDisabled(educationPageDisabledCondition, ActionEnum.DELETE, user);
   const isDisabledCondition = isEnableEdit && !isEnableEditDisabled ? false : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
@@ -300,7 +293,7 @@ const EducationDashboard = () => {
               onDragEnter={handleDragEnter}
               onSelect={handleSelect}
             />
-            {!isDisabledCondition && (
+            {!isDisabledCondition && !isDeleteDisabled && (
               <HiOutlineTrash
                 className="text-red-500 cursor-pointer text-xl"
                 onClick={() => {
@@ -373,7 +366,7 @@ const EducationDashboard = () => {
                       />
                     )}
                 </div>
-                {!isDisabledCondition && (
+                {!isDisabledCondition && !isDeleteDisabled && (
                   <HiOutlineTrash
                     className="text-red-500 cursor-pointer text-xl  "
                     onClick={() => {
@@ -458,7 +451,7 @@ const EducationDashboard = () => {
               >
                 {edu.header}
               </h2>
-              {!isDisabledCondition && (
+              {!isDisabledCondition && !isAddDisabled && (
                 <div className="flex flex-row items-center gap-4">
                   <GenericButton
                     variant="primary"
@@ -576,7 +569,7 @@ const EducationDashboard = () => {
                           }}
                         />
                       )}
-                    {!isDisabledCondition && (
+                    {!isDisabledCondition && !isDeleteDisabled && (
                       <HiOutlineTrash
                         className="text-red-500 cursor-pointer text-xl  "
                         onClick={() => {

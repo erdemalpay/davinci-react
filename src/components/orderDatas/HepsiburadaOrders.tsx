@@ -29,6 +29,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useProcessHepsiburadaAcceptedClaimsMutation } from "../../utils/api/hepsiburada";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -165,7 +166,15 @@ const HepsiburadaOrders = () => {
       ),
       formattedDate: "Total",
     };
-    allRows?.unshift(totalRow as any);
+    if (
+      !isActionDisabled(
+        hepsiburadaOrdersPageDisabledCondition,
+        ActionEnum.SHOWTOTAL,
+        user
+      )
+    ) {
+      allRows?.unshift(totalRow as any);
+    }
     return allRows;
   }, [
     orders,
@@ -175,6 +184,8 @@ const HepsiburadaOrders = () => {
     items,
     sellLocations,
     t,
+    hepsiburadaOrdersPageDisabledCondition,
+    user,
   ]);
 
   const columns = useMemo(
@@ -318,11 +329,10 @@ const HepsiburadaOrders = () => {
         isModal: true,
         isModalOpen: isCancelOrderModalOpen,
         setIsModal: setIsCancelOrderModalOpen,
-        isDisabled: hepsiburadaOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          hepsiburadaOrdersPageDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
     ],
@@ -552,11 +562,10 @@ const HepsiburadaOrders = () => {
             }}
           />
         ),
-        isDisabled: hepsiburadaOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          hepsiburadaOrdersPageDisabledCondition,
+          ActionEnum.PROCESS,
+          user
         ),
       },
       {
@@ -574,11 +583,10 @@ const HepsiburadaOrders = () => {
             }}
           />
         ),
-        isDisabled: hepsiburadaOrdersPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          hepsiburadaOrdersPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -618,13 +626,7 @@ const HepsiburadaOrders = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
-            user &&
-            !hepsiburadaOrdersPageDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.EXCEL &&
-                user?.role?._id &&
-                !ac?.permissionsRoles?.includes(user?.role?._id)
-            )
+            !isActionDisabled(hepsiburadaOrdersPageDisabledCondition, ActionEnum.EXCEL, user)
           }
           excelFileName={t("HepsiburadaOrders.xlsx")}
           rowClassNameFunction={(row: any) => {

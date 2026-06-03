@@ -6,19 +6,23 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   FormElementsState,
   RoleEnum,
   TaskTrack,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useGetTaskTracks,
   useTaskTrackMutations,
 } from "../../utils/api/panelControl/taskTrack";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -45,6 +49,10 @@ const TaskTrackPage = () => {
   ] = useState(false);
   const { createTaskTrack, deleteTaskTrack, updateTaskTrack } =
     useTaskTrackMutations();
+  const disabledConditions = useGetDisabledConditions();
+  const taskTrackPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.PANELCONTROL_TASKTRACK, disabledConditions);
+  }, [disabledConditions]);
   const initialFilterPanelFormElements = {
     date: "thisWeek",
     after: dateRanges.thisWeek().after,
@@ -298,11 +306,11 @@ const TaskTrackPage = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: isActionDisabled(taskTrackPageDisabledCondition, ActionEnum.ADD, user),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createTaskTrack, user]
+    [t, isAddModalOpen, inputs, formKeys, createTaskTrack, taskTrackPageDisabledCondition, user]
   );
   const actions = useMemo(
     () => [
@@ -327,7 +335,7 @@ const TaskTrackPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+        isDisabled: isActionDisabled(taskTrackPageDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -357,7 +365,7 @@ const TaskTrackPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+        isDisabled: isActionDisabled(taskTrackPageDisabledCondition, ActionEnum.UPDATE, user),
       },
     ],
     [
@@ -369,6 +377,7 @@ const TaskTrackPage = () => {
       inputs,
       formKeys,
       updateTaskTrack,
+      taskTrackPageDisabledCondition,
       user,
     ]
   );

@@ -29,6 +29,10 @@ export interface DisabledConditionRow extends DisabledCondition {
   pageName: string;
 }
 
+const initialFilterPanelFormElements = {
+  page: [],
+};
+
 const DisabledConditions = () => {
   const { t } = useTranslation();
   const roles = useGetAllUserRoles();
@@ -48,6 +52,9 @@ const DisabledConditions = () => {
   ] = useState(false);
   const disabledConditions = useGetDisabledConditions();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>(initialFilterPanelFormElements);
   const { user } = useUserContext();
   const {
     createDisabledCondition,
@@ -67,7 +74,7 @@ const DisabledConditions = () => {
     );
   }, [disabledConditions]);
 
-  const rows = useMemo(() => {
+  const allRows = useMemo(() => {
     return disabledConditions.map((dc) => {
       const page = getItem(dc.page, pages);
       return {
@@ -76,6 +83,15 @@ const DisabledConditions = () => {
       };
     });
   }, [disabledConditions, pages]);
+
+  const rows = useMemo(() => {
+    return allRows.filter((row) => {
+      return (
+        filterPanelFormElements.page.length === 0 ||
+        filterPanelFormElements.page.includes(row.page)
+      );
+    });
+  }, [allRows, filterPanelFormElements]);
 
   const inputs = useMemo(
     () => [
@@ -313,6 +329,40 @@ const DisabledConditions = () => {
     ]
   );
 
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "page",
+        label: t("Page"),
+        options: pages.map((p) => ({ value: p._id, label: p.name })),
+        isMultiple: true,
+        placeholder: t("Page"),
+        required: true,
+      },
+    ],
+    [t, pages]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters: () => setShowFilters(false),
+      additionalFilterCleanFunction: () => {
+        setFilterPanelFormElements(initialFilterPanelFormElements);
+      },
+    }),
+    [
+      showFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    ]
+  );
+
   const isEnableEditDisabled = useMemo(() => {
     return (
       disabledConditionsPageDisabledCondition?.actions?.some(
@@ -325,18 +375,26 @@ const DisabledConditions = () => {
   }, [disabledConditionsPageDisabledCondition, user]);
 
   const filters = useMemo(() => {
-    return !isEnableEditDisabled
-      ? [
-          {
-            label: t("Enable Edit"),
-            isUpperSide: true,
-            node: (
-              <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
-            ),
-          },
-        ]
-      : [];
-  }, [t, isEnableEditDisabled, isEnableEdit]);
+    const filterItems = [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton checked={showFilters} onChange={setShowFilters} />
+        ),
+      },
+    ];
+    if (!isEnableEditDisabled) {
+      filterItems.push({
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+        ),
+      });
+    }
+    return filterItems;
+  }, [t, showFilters, isEnableEditDisabled, isEnableEdit]);
 
   return (
     <>
@@ -346,6 +404,7 @@ const DisabledConditions = () => {
           columns={columns}
           rows={rows}
           filters={filters}
+          filterPanel={filterPanel}
           title={t("Disabled Conditions")}
           isActionsActive={isEnableEdit}
           actions={actions}

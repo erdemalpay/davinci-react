@@ -41,6 +41,7 @@ import {
 } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -601,11 +602,10 @@ const Collections = () => {
             }}
           />
         ),
-        isDisabled: collectionsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          collectionsPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -708,6 +708,11 @@ const Collections = () => {
         isModalOpen: isAddRetailerModalOpen,
         setIsModal: setIsAddRetailerModalOpen,
         isPath: false,
+        isDisabled: isActionDisabled(
+          collectionsPageDisabledCondition,
+          ActionEnum.ADD_TO_RETAILER,
+          user
+        ),
       },
       {
         name: t("Edit"),
@@ -736,11 +741,10 @@ const Collections = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: collectionsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          collectionsPageDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],
@@ -836,7 +840,15 @@ const Collections = () => {
           actions={actions}
           isCollapsible={true}
           filterPanel={filterPanel}
-          selectionActions={selectionActions}
+          selectionActions={
+            !isActionDisabled(
+              collectionsPageDisabledCondition,
+              ActionEnum.ACTIVATE_THE_SELECTION,
+              user
+            )
+              ? selectionActions
+              : undefined
+          }
           filters={filters}
           rowClassNameFunction={(row: CollectionRow) =>
             row?._id !== "total" &&
