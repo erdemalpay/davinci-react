@@ -748,8 +748,8 @@ export enum ActionEnum {
   RESET_PASSWORD = "reset_password",
   PUBLISH = "publish",
   ADD_TO_RETAILER = "add_to_retailer",
-  PROCESS = "process"
-  AUTO_PRINT = "auto_print",
+  PROCESS = "process",
+  AUTO_PRINT = "auto_print"
 }
 
 export type Membership = {
