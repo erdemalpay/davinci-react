@@ -42,6 +42,7 @@ import {
 } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -120,7 +121,7 @@ const ShopifyCollections = () => {
 
   const collectionsPageDisabledCondition = useMemo(() => {
     return getItem(
-      DisabledConditionEnum.ORDERDATAS_COLLECTIONS,
+      DisabledConditionEnum.ORDERDATAS_SHOPIFYCOLLECTIONS,
       disabledConditions
     );
   }, [disabledConditions]);
@@ -642,11 +643,10 @@ const ShopifyCollections = () => {
             }}
           />
         ),
-        isDisabled: collectionsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          collectionsPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -713,6 +713,11 @@ const ShopifyCollections = () => {
         isModalOpen: isAddRetailerModalOpen,
         setIsModal: setIsAddRetailerModalOpen,
         isPath: false,
+        isDisabled: isActionDisabled(
+          collectionsPageDisabledCondition,
+          ActionEnum.ADD_TO_RETAILER,
+          user
+        ),
       },
       {
         name: t("Edit"),
@@ -748,11 +753,10 @@ const ShopifyCollections = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: collectionsPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          collectionsPageDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],
@@ -848,7 +852,15 @@ const ShopifyCollections = () => {
           rows={rows}
           isActionsActive={true}
           actions={actions}
-          selectionActions={selectionActions}
+          selectionActions={
+            !isActionDisabled(
+              collectionsPageDisabledCondition,
+              ActionEnum.ACTIVATE_THE_SELECTION,
+              user
+            )
+              ? selectionActions
+              : undefined
+          }
           isCollapsible={true}
           filterPanel={filterPanel}
           filters={filters}

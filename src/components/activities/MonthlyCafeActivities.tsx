@@ -12,13 +12,23 @@ import {
   useGetMonthlyActivities,
   useMonthlyActivityMutations,
 } from "../../utils/api/cafeActivity";
-import { MonthlyActivity } from "../../types";
+import { ActionEnum, DisabledConditionEnum, MonthlyActivity } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 
 const MonthlyCafeActivities = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const monthlyActivities = useGetMonthlyActivities();
   const { createMonthlyActivity, updateMonthlyActivity, deleteMonthlyActivity } =
     useMonthlyActivityMutations();
+  const disabledConditions = useGetDisabledConditions();
+  const monthlyActivitiesDisabledCondition = useMemo(
+    () => getItem(DisabledConditionEnum.MONTHLY_CAFE_ACTIVITIES, disabledConditions),
+    [disabledConditions]
+  );
 
   // Add modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -242,8 +252,9 @@ const MonthlyCafeActivities = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+      isDisabled: isActionDisabled(monthlyActivitiesDisabledCondition, ActionEnum.ADD, user),
     }),
-    [t, isAddModalOpen, previewUrl, pendingFile, monthInfo]
+    [t, isAddModalOpen, previewUrl, pendingFile, monthInfo, monthlyActivitiesDisabledCondition, user]
   );
 
   const actions = useMemo(
@@ -302,6 +313,7 @@ const MonthlyCafeActivities = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
+        isDisabled: isActionDisabled(monthlyActivitiesDisabledCondition, ActionEnum.UPDATE, user),
       },
       {
         name: t("Delete"),
@@ -324,12 +336,14 @@ const MonthlyCafeActivities = () => {
         isModalOpen: isDeleteDialogOpen,
         setIsModal: setIsDeleteDialogOpen,
         isPath: false,
+        isDisabled: isActionDisabled(monthlyActivitiesDisabledCondition, ActionEnum.DELETE, user),
       },
     ],
     [
       t,
       rowToAction, isDeleteDialogOpen, deleteMonthlyActivity,
       rowToEdit, isEditModalOpen, editMonthInfo, editPreviewUrl, editPendingFile,
+      monthlyActivitiesDisabledCondition, user,
     ]
   );
 

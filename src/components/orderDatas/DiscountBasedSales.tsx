@@ -27,6 +27,7 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
+import { isActionDisabled } from "../../utils/permissions";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -563,11 +564,10 @@ const DiscountBasedSales = () => {
             }}
           />
         ),
-        isDisabled: discountBasedSalesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          discountBasedSalesPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {

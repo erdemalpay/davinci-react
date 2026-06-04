@@ -28,6 +28,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import { isActionDisabled } from "../../utils/permissions";
 
 interface PersonalOrderData {
   user: string;
@@ -309,11 +310,10 @@ const PersonalOrderDatas = () => {
             }}
           />
         ),
-        isDisabled: personalOrderDatasPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          personalOrderDatasPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {

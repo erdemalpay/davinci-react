@@ -20,6 +20,7 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { useGetRewards, useRewardMutations } from "../utils/api/reward";
 import { getItem } from "../utils/getItem";
 import { formatAsLocalDate } from "../utils/format";
+import { isActionDisabled } from "../utils/permissions";
 
 export default function Rewards() {
   const { t } = useTranslation();
@@ -127,12 +128,7 @@ export default function Rewards() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: rewardsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(rewardsDisabledCondition, ActionEnum.ADD, user),
     }),
     [t, isAddModalOpen, inputs, formKeys, createReward, rewardsDisabledCondition, user]
   );
@@ -144,18 +140,8 @@ export default function Rewards() {
         isPath: false,
         icon: null,
         node: (row: Reward) => {
-          const isSetUnusedDisabled = rewardsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.SET_UNUSED &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          );
-          const isSetUsedDisabled = rewardsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.SET_USED &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          );
+          const isSetUnusedDisabled = isActionDisabled(rewardsDisabledCondition, ActionEnum.SET_UNUSED, user);
+          const isSetUsedDisabled = isActionDisabled(rewardsDisabledCondition, ActionEnum.SET_USED, user);
 
           if (row.used && !isSetUnusedDisabled) {
             return (
@@ -191,12 +177,7 @@ export default function Rewards() {
         isPath: false,
         icon: null,
         node: (row: Reward) => {
-          const isDeleteDisabled = rewardsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.DELETE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          );
+          const isDeleteDisabled = isActionDisabled(rewardsDisabledCondition, ActionEnum.DELETE, user);
 
           if (isDeleteDisabled) return null;
 
@@ -233,12 +214,7 @@ export default function Rewards() {
         isPath: false,
         icon: null,
         node: (row: Reward) => {
-          const isUpdateDisabled = rewardsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          );
+          const isUpdateDisabled = isActionDisabled(rewardsDisabledCondition, ActionEnum.UPDATE, user);
 
           if (isUpdateDisabled) return null;
 
@@ -294,12 +270,7 @@ export default function Rewards() {
             onChange={setShowExpiredRewards}
           />
         ),
-        isDisabled: rewardsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_EXPIRED_OR_USED_REWARDS &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(rewardsDisabledCondition, ActionEnum.SHOW_EXPIRED_OR_USED_REWARDS, user),
       },
     ],
     [t, showExpiredRewards, rewardsDisabledCondition, user]

@@ -20,6 +20,8 @@ import { useUserContext } from "./../context/User.context";
 import { Table } from "./../types";
 import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
+import { buildReceiptData } from "./../utils/printReceiptESCPOS";
+import { printerService } from "./../utils/printerService";
 import { socketEventListeners } from "./socketConstant";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
@@ -35,7 +37,7 @@ export function useWebSocket(shouldConnect = false) {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const { kitchens } = useDataContext();
+  const { kitchens, menuItems = [] } = useDataContext();
   const {
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -62,6 +64,7 @@ export function useWebSocket(shouldConnect = false) {
     selectedLocationId,
     selectedDate,
     kitchens,
+    menuItems,
     categories,
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -79,6 +82,7 @@ export function useWebSocket(shouldConnect = false) {
       selectedLocationId,
       selectedDate,
       kitchens,
+      menuItems,
       categories,
       setIsTakeAwayPaymentModalOpen,
       setOrderCreateBulk,
@@ -93,6 +97,7 @@ export function useWebSocket(shouldConnect = false) {
     selectedLocationId,
     selectedDate,
     kitchens,
+    menuItems,
     categories,
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -267,13 +272,39 @@ export function useWebSocket(shouldConnect = false) {
         }
       );
 
+      const isValidOrder = ![
+        OrderStatus.WASTED,
+        OrderStatus.CANCELLED,
+        OrderStatus.RETURNED,
+      ].includes(order.status as OrderStatus);
+
+      const foundKitchenForPrint = getItem(order.kitchen as string, kitchens ?? []);
+      const { menuItems } = latestValuesRef.current;
+      console.log("🖨️ [createOrder] fiş bilgileri:", {
+        tableName: (order.table as Table)?.name,
+        orders: [{
+          urun: (order.item as unknown as MenuItem)?.name ?? order.item,
+          adet: order.quantity,
+          ...(order.activityTableName ? { activityMasa: order.activityTableName } : {}),
+          ...(order.activityPlayer ? { activityOyuncu: order.activityPlayer } : {}),
+          not: order.note || "-",
+        }],
+        printerConnected: printerService.isConnected,
+        isPrintEnabled: foundKitchenForPrint?.isPrintEnabled ?? false,
+      });
+      if (isValidOrder && printerService.isConnected && foundKitchenForPrint?.isPrintEnabled) {
+        buildReceiptData({
+          orders: [order],
+          items: menuItems,
+          tableName: (order.table as Table)?.name,
+        }).then((data) => {
+          if (data) printerService.print(data);
+        });
+      }
+
       if (
         order.createdBy === user?._id ||
-        [
-          OrderStatus.WASTED,
-          OrderStatus.CANCELLED,
-          OrderStatus.RETURNED,
-        ].includes(order.status as OrderStatus) ||
+        !isValidOrder ||
         order.location !== selectedLocationId
       ) {
         return;
@@ -287,7 +318,6 @@ export function useWebSocket(shouldConnect = false) {
       if (
         user?.role &&
         !foundCategory?.isAutoServed &&
-        order.status !== OrderStatus.CANCELLED &&
         foundKitchen?.soundRoles?.includes(user.role._id)
       ) {
         if (
@@ -609,6 +639,62 @@ export function useWebSocket(shouldConnect = false) {
         } = latestValuesRef.current;
 
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
+
+        const { selectedDate, menuItems, kitchens: currentKitchens } = latestValuesRef.current;
+
+        const shouldPrint = printerService.isConnected &&
+          kitchenIds.some((id) => getItem(id, currentKitchens ?? [])?.isPrintEnabled);
+
+        const existingOrders = queryClient.getQueryData<Order[]>([
+          `${Paths.Order}/today`,
+          selectedDate,
+        ]);
+        const existingOrderIds = new Set(
+          existingOrders
+            ?.filter(
+              (o) =>
+                (typeof o.table === "number" ? o.table : o.table?._id) ===
+                table._id
+            )
+            .map((o) => o._id)
+        );
+
+        queryClient
+          .refetchQueries({ queryKey: [`${Paths.Order}/today`, selectedDate] })
+          .then(() => {
+            const todayOrders = queryClient.getQueryData<Order[]>([
+              `${Paths.Order}/today`,
+              selectedDate,
+            ]);
+            const newOrders = todayOrders?.filter(
+              (o) =>
+                (typeof o.table === "number" ? o.table : o.table?._id) ===
+                  table._id &&
+                o.status !== OrderStatus.CANCELLED &&
+                !existingOrderIds.has(o._id)
+            );
+            console.log("🖨️ [createMultipleOrder] fiş bilgileri:", {
+              tableName: table.name,
+              orderCount: newOrders?.length ?? 0,
+              orders: newOrders?.map((o) => ({
+                urun: (o.item as unknown as MenuItem)?.name ?? o.item,
+                adet: o.quantity,
+                ...(o.activityTableName ? { activityMasa: o.activityTableName } : {}),
+                ...(o.activityPlayer ? { activityOyuncu: o.activityPlayer } : {}),
+                not: o.note || "-",
+              })),
+              printerConnected: printerService.isConnected,
+            });
+            if (newOrders?.length && shouldPrint) {
+              buildReceiptData({
+                orders: newOrders,
+                items: menuItems,
+                tableName: table.name,
+              }).then((data) => {
+                if (data) printerService.print(data);
+              });
+            }
+          });
 
         if (!user) {
           console.log("User not found in createMultipleOrder");

@@ -66,7 +66,7 @@ export const printTableReceipt = ({
     })
     .join("");
 
-  const formattedDate = format(printedAt, "dd MMMM yyyy EEEE HH:mm", {
+  const formattedDate = format(printedAt, "dd.MM.yyyy HH:mm", {
     locale: tr,
   });
   const safeTableName = escapeHtml(tableName);
@@ -79,7 +79,7 @@ export const printTableReceipt = ({
     ? `<div class="section bold">Tarih: ${formattedDate}</div>`
     : "";
   const tableInfoSection = showTableInfo
-    ? `<div class="table-info">${safeTableName} numaralı masa</div><div class="divider"></div>`
+    ? `<div class="table-info">Masa : ${safeTableName}</div><div class="divider"></div>`
     : "";
 
   const htmlContent = `

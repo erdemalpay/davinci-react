@@ -592,6 +592,9 @@ export enum DisabledConditionEnum {
   STOCK_STOCK = "stocks",
   GAMES_GAMES = "games",
   BUTTONCALLS_BUTTONCALLS = "button_calls",
+  PANELCONTROL_TASKTRACK = "tasktrack",
+  PANELCONTROL_RELEASENOTES = "releasenotes",
+  PANELCONTROL_PAGEPERMISSIONS = "pagepermissions",
   PANELCONTROL_DISABLEDCONDITIONS = "disabled_conditions",
   PANELCONTROL_ROUTEAUTHORIZATIONPERMISSIONS = "route_authorization_permissions",
   PANELCONTROL_EDUCATIONPERMISSIONS = "education_permissions",
@@ -617,6 +620,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_CATEGORYBASEDSALESREPORT = "categorybasedsalesreport",
   ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
   ORDERDATAS_COLLECTIONS = "collections",
+  ORDERDATAS_SHOPIFYCOLLECTIONS = "shopifycollections",
   ORDERDATAS_ORDERS = "orders",
   ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
   ORDERDATAS_TRENDYOLORDERS = "trendyolorders",
@@ -630,8 +634,9 @@ export enum DisabledConditionEnum {
   ANALYTICS_TABLEPLAYERCOUNTS = "tableplayercounts",
   ANALYTICS_GAMEPLAYSBYMENTORSDETAILS = "gameplaysbymentorsdetails",
   ANALYTICS_KNOWNGAMESCOUNT = "knowngamescount",
-  ANALYTICS_WHOKNOWS = "whoknows",
+  GAMES_WHOKNOWS = "whoknows",
   CAFE_ACTIVITIES = "cafe_activities",
+  MONTHLY_CAFE_ACTIVITIES = "monthly_cafe_activities",
   MEMBERSHIPS = "memberships",
   REWARDS = "rewards",
   COUNTARCHIVE = "countarchive",
@@ -682,6 +687,7 @@ export enum DisabledConditionEnum {
   POINTS_USERSPOINT = "points_userspoint",
   POINTS_CONSUMERSPOINT = "points_consumerspoint",
   STOCK_SANDWICHSTOCK = "sandwichstock",
+  ORDERS_ORDERS = "orders_orders",
   REQUESTEDGAMES = "requestedgames",
   INTEGRATION_TRENDYOLPRICECOMPARISION = "trendyolpricecomparision",
   INTEGRATION_TRENDYOLSTOCKCOMPARISION = "trendyolstockcomparision",
@@ -743,6 +749,10 @@ export enum ActionEnum {
   EQUAL = "equal",
   EQUAL_STOCKS = "equal_stocks",
   RESET_PASSWORD = "reset_password",
+  PUBLISH = "publish",
+  ADD_TO_RETAILER = "add_to_retailer",
+  PROCESS = "process",
+  AUTO_PRINT = "auto_print",
   MARK_AVAILABLE = "mark_available",
   UPDATETRENDYOLSTOCK = "update_trendyol_stock",
   UPDATEHEPSIBURADASTOCK = "update_hepsiburada_stock",
@@ -805,6 +815,7 @@ export type Kitchen = {
   locations: number[];
   soundRoles?: number[];
   selectedUsers?: string[];
+  isPrintEnabled?: boolean;
 };
 
 export type MenuItem = {
@@ -2426,6 +2437,10 @@ export const NotificationEventColors: Record<
     gradient: "linear-gradient(135deg, #4299E1 0%, #3182CE 100%)", // Blue
     solid: "#4299E1",
   },
+  CONCURRENTBREAK: {
+    gradient: "linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)", // Orange
+    solid: "#ED8936",
+  },
 };
 
 // Fallback: Type'a göre modern renk şeması (event yoksa kullanılır)
@@ -2468,6 +2483,7 @@ export enum NotificationEventType {
   SHIFTCHANGEREJECTED = "SHIFTCHANGEREJECTED",
   SHOPIFYTAKEAWAY = "SHOPIFYTAKEAWAY",
   SHOPIFYORDER = "SHOPIFYORDER",
+  CONCURRENTBREAK = "CONCURRENTBREAK",
 }
 export const notificationEventsOptions = [
   {
@@ -2545,6 +2561,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.SHOPIFYORDER,
     label: "Shopify Order",
+  },
+  {
+    value: NotificationEventType.CONCURRENTBREAK,
+    label: "Concurrent Break Warning",
   },
 ];
 

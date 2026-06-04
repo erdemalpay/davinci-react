@@ -27,6 +27,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatCurrency, formatPercentage } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -677,11 +678,10 @@ const UpperCategoryBasedSalesReport = () => {
             }}
           />
         ),
-        isDisabled: upperCategoryBasedSalesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          upperCategoryBasedSalesPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {

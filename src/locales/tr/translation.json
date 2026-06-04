@@ -1411,6 +1411,11 @@
   "No middleman sessions": "Ortacılık oturumu yok",
   "ongoing": "devam ediyor",
   "You cannot start a break while you are the middleman": "Ortacıyken mola başlatamazsınız",
+  "Break Warning": "Mola Uyarısı",
+  "{{names}} are currently on break. Do you still want to take a break?": "{{names}} şu an molada. Yine de molaya çıkmak istiyor musunuz?",
+  "Concurrent Break Warning": "Eş Zamanlı Mola Uyarısı",
+  "CONCURRENTBREAK": "Eş Zamanlı Mola Uyarısı",
+  "ConcurrentBreakWarning": "{{userName}} molaya çıktı. {{locationName}} lokasyonunda eş zamanlı en az 3 kişi molada.",
   "You cannot be a middleman while you are on a break": "Molada olduğunuzda ortacı olamazsınız",
   "You cannot be a middleman while you are in a gameplay session": "Oyun anlatımı sırasında ortacı olamazsınız",
   "Hover over a segment to see details": "Detay için bir dilimin üzerine gelin",
@@ -1562,5 +1567,17 @@
   "Sandwich Stocks": "Sandviç Stokları",
   "Search menu...": "Menüde ara...",
   "Comparision": "Karşılaştırma",
-  "Webhook Requests for Order {{orderId}}": "Sipariş {{orderId}} için Webhook İstekleri"
+  "Webhook Requests for Order {{orderId}}": "Sipariş {{orderId}} için Webhook İstekleri",
+  "Printer not connected, Please connect the printer first.": "Yazıcı bağlı değil, lütfen önce yazıcıyı bağlayın.",
+  "No orders to print.": "Yazdırılacak sipariş yok.",
+  "Printer Connected": "Yazıcı Bağlandı",
+  "Connect Printer": "Yazıcı Bağla",
+  "Auto Print": "Otomatik Fiş Çıkar",
+  "Mail": "Mail",
+  "Mail Templates": "Mail Şablonları",
+  "Mail Drafts": "Mail Taslakları",
+  "Concurrency Logs": "Eşzamanlılık Logları",
+  "ShiftLink": "ShiftLink",
+  "Game Batches (FIFO)": "Oyun Grupları (FIFO)"
+
 }

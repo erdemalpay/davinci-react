@@ -228,17 +228,17 @@ const FilterContext = createContext<FilterContextType>({
   },
   initialFilterFeedbackPanelFormElements: {
     location: "",
-    after: dateRanges.thisMonth().after,
-    before: dateRanges.thisMonth().before,
-    date: "thisMonth",
+    after: dateRanges.thisYear().after,
+    before: dateRanges.thisYear().before,
+    date: "thisYear",
     sort: "",
     asc: 1,
   },
   filterFeedbackPanelFormElements: {
     location: "",
-    after: dateRanges.thisMonth().after,
-    before: dateRanges.thisMonth().before,
-    date: "thisMonth",
+    after: dateRanges.thisYear().after,
+    before: dateRanges.thisYear().before,
+    date: "thisYear",
     sort: "",
     asc: 1,
   },
@@ -668,9 +668,9 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showMenuCostPrices, setShowMenuCostPrices] = useState(false);
   const initialFilterFeedbackPanelFormElements: FormElementsState = {
     location: selectedLocationId,
-    after: dateRanges.thisMonth().after,
-    before: dateRanges.thisMonth().before,
-    date: "thisMonth",
+    after: dateRanges.thisYear().after,
+    before: dateRanges.thisYear().before,
+    date: "thisYear",
     sort: "",
     asc: 1,
   };
