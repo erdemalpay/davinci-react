@@ -162,7 +162,7 @@ const ExpirationLists = () => {
     });
   }
   columns.push({ key: t("Actions"), isSortable: false });
-  const inputs = [NameInput()];
+  const inputs = [NameInput({ t })];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {

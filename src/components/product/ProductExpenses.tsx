@@ -90,10 +90,10 @@ const ProductExpenses = () => {
     };
   });
   const [rows, setRows] = useState(allRows);
-  const filterPanelInputs = [
-    VendorInput({ vendors: vendors, required: true }),
-    BrandInput({ brands: brands, required: true }),
-    StockLocationInput({ locations: locations }),
+  const filterPanelInputs = useMemo(() => [
+    VendorInput({ vendors: vendors, required: true, t }),
+    BrandInput({ brands: brands, required: true, t }),
+    StockLocationInput({ locations: locations, t }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -123,7 +123,7 @@ const ProductExpenses = () => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [vendors, brands, locations, t]);
   const columns = [
     {
       key: "ID",

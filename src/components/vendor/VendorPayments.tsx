@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGetAccountPayments } from "../../utils/api/account/payment";
@@ -87,7 +87,7 @@ const VendorPayments = () => {
     { key: "amount" },
   ];
 
-  const filterPanelInputs = [
+  const filterPanelInputs = useMemo(() => [
     {
       type: InputTypes.SELECT,
       formKey: "createdBy",
@@ -100,7 +100,7 @@ const VendorPayments = () => {
       placeholder: t("Created By"),
       required: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
+    StockLocationInput({ locations: locations, required: true, t }),
     {
       type: InputTypes.SELECT,
       formKey: "paymentMethod",
@@ -129,7 +129,7 @@ const VendorPayments = () => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [users, locations, paymentMethods, t]);
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
