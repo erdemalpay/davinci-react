@@ -5,11 +5,12 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { FormElementsState, Game, User } from "../types";
+import { DateRangeKey, FormElementsState, Game, User, commonDateOptions } from "../types";
 import { useGetGamesMinimal } from "../utils/api/game";
 import { useGetGameplays } from "../utils/api/gameplay";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetUsersMinimal } from "../utils/api/user";
+import { dateRanges } from "../utils/api/dateRanges";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
@@ -29,15 +30,17 @@ interface GameplayRow {
 
 export default function NewGameplays() {
   const { t } = useTranslation();
+  const thisMonth = dateRanges.thisMonth();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       limit: 10,
       page: 1,
       mentor: "",
       game: "",
-      location: "",
-      startDate: "",
-      endDate: "",
+      location: 2,
+      startDate: thisMonth.after,
+      endDate: thisMonth.before,
+      date: "thisMonth",
       search: "",
     });
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
@@ -139,6 +142,49 @@ export default function NewGameplays() {
     () => [
       {
         type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => ({
+          value: option.value,
+          label: t(option.label),
+        })),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({ value }: { value: string; label: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            const range = dateRange();
+            setFilterPanelFormElements((prev) => ({
+              ...prev,
+              startDate: range.after,
+              endDate: range.before,
+              date: value,
+            }));
+          }
+        },
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "startDate",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "endDate",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+      {
+        type: InputTypes.SELECT,
         formKey: "mentor",
         label: t("Game Mentor"),
         options: users.map((user) => ({
@@ -169,22 +215,6 @@ export default function NewGameplays() {
         })),
         placeholder: t("Location"),
         required: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "startDate",
-        label: t("Start Date"),
-        placeholder: t("Start Date"),
-        required: true,
-        isDatePicker: true,
-      },
-      {
-        type: InputTypes.DATE,
-        formKey: "endDate",
-        label: t("End Date"),
-        placeholder: t("End Date"),
-        required: true,
-        isDatePicker: true,
       },
     ],
     [t, users, games, locations]
