@@ -142,6 +142,8 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
                   );
                 }}
                 placeholder={t("Select a folder")}
+                menuPortalTarget={document.body}
+                menuZIndex={9999}
               />
             </div>
           )}

@@ -55,6 +55,8 @@ interface SelectInputProps {
   isSortDisabled?: boolean;
   customControlBackgroundColor?: string;
   isExpandedMultiValueLabel?: boolean;
+  menuPortalTarget?: HTMLElement | null;
+  menuZIndex?: number;
 }
 
 const normalizeText = (text: string) => {
@@ -110,6 +112,8 @@ const SelectInput = ({
   suggestedOption,
   customControlBackgroundColor,
   isExpandedMultiValueLabel = false,
+  menuPortalTarget,
+  menuZIndex,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -137,6 +141,9 @@ const SelectInput = ({
     menu: (base: any) => ({
       ...base,
       overflowY: "auto",
+    }),
+    ...(menuZIndex !== undefined && {
+      menuPortal: (base: any) => ({ ...base, zIndex: menuZIndex }),
     }),
     option: (base: any, state: any) => ({
       ...base,
@@ -332,6 +339,7 @@ const SelectInput = ({
               menuShouldScrollIntoView={true}
               menuPlacement={isMobile ? "bottom" : "auto"}
               menuPosition={isMobile ? "absolute" : "fixed"}
+              menuPortalTarget={menuPortalTarget}
             />
           ) : (
             <Select
@@ -358,6 +366,7 @@ const SelectInput = ({
               menuShouldScrollIntoView={true}
               menuPlacement={isMobile ? "bottom" : "auto"}
               menuPosition={isMobile ? "absolute" : "fixed"}
+              menuPortalTarget={menuPortalTarget}
               isClearable={false}
               backspaceRemovesValue={true}
             />
