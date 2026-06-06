@@ -5,9 +5,14 @@ import { FaImages } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { OptionType } from "../../types";
-import { useGetFolderNames, useGetUploadLogs, useUploadImagesMutation, UploadLog } from "../../utils/api/asset";
-import GenericTable from "../panelComponents/Tables/GenericTable";
+import {
+  UploadLog,
+  useGetFolderNames,
+  useGetUploadLogs,
+  useUploadImagesMutation,
+} from "../../utils/api/asset";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 interface FileWithPreview extends File {
   preview: string;
@@ -51,6 +56,7 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
     accept: {
       "image/jpeg": [".jpeg", ".jpg"],
       "image/png": [".png"],
+      "image/webp": [".webp"],
     },
     maxSize: 50 * 1024 * 1024, // 50MB
   });
@@ -64,32 +70,40 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
     uploadImagesMutation.mutate({ files, selectedFolder, itemId });
   };
 
-  const logColumns = useMemo(() => [
-    { key: t("Status"), isSortable: false },
-    { key: t("File Name"), isSortable: false },
-    { key: t("Folder"), isSortable: false },
-    { key: t("Uploaded By"), isSortable: false },
-    { key: t("Message"), isSortable: false },
-  ], [t]);
+  const logColumns = useMemo(
+    () => [
+      { key: t("Status"), isSortable: false },
+      { key: t("File Name"), isSortable: false },
+      { key: t("Folder"), isSortable: false },
+      { key: t("Uploaded By"), isSortable: false },
+      { key: t("Message"), isSortable: false },
+    ],
+    [t]
+  );
 
-  const logRowKeys = useMemo(() => [
-    {
-      key: "status",
-      node: (row: UploadLog) => (
-        <span
-          className={`font-semibold ${
-            row.status === "success" ? "text-green-600" : "text-red-500"
-          }`}
-        >
-          {row.status === "success" ? `${t("Upload Successful")}` : `${t("Upload Failed")}`}
-        </span>
-      ),
-    },
-    { key: "fileName" },
-    { key: "folder" },
-    { key: "uploadedBy" },
-    { key: "message" },
-  ], [t]);
+  const logRowKeys = useMemo(
+    () => [
+      {
+        key: "status",
+        node: (row: UploadLog) => (
+          <span
+            className={`font-semibold ${
+              row.status === "success" ? "text-green-600" : "text-red-500"
+            }`}
+          >
+            {row.status === "success"
+              ? `${t("Upload Successful")}`
+              : `${t("Upload Failed")}`}
+          </span>
+        ),
+      },
+      { key: "fileName" },
+      { key: "folder" },
+      { key: "uploadedBy" },
+      { key: "message" },
+    ],
+    [t]
+  );
 
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-4 bg-white rounded-lg my-6 __className_a182b8">
@@ -115,7 +129,8 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
             </span>
           </p>
           <p className="text-xs text-gray-400">
-            {t("File type")}: .jpg, .jpeg, .png / {t("Max file size")}: 50MB
+            {t("File type")}: .jpg, .jpeg, .png .webp / {t("Max file size")}:
+            50MB
           </p>
         </div>
         <div className="flex flex-row gap-2 justify-center mr-2">
