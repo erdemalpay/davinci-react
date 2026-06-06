@@ -47,8 +47,6 @@ const ShopifyOrders = () => {
   const users = useGetUsersMinimal();
   const categories = useGetAllCategories();
   const [rowToAction, setRowToAction] = useState<any>({});
-  const [pickerStart, setPickerStart] = useState("");
-  const [pickerEnd, setPickerEnd] = useState("");
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelShopifyOrder } = useCancelShopifyOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
@@ -489,8 +487,6 @@ const ShopifyOrders = () => {
       closeFilters: () => setShowOrderDataFilters(false),
       additionalFilterCleanFunction: () => {
         setFilterPanelFormElements(initialFilterPanelFormElements);
-        setPickerStart('');
-        setPickerEnd('');
       },
     }),
     [
@@ -509,15 +505,14 @@ const ShopifyOrders = () => {
         isUpperSide: true,
         node: (
           <QuickDateRangeFilter
-            startDate={pickerStart}
-            endDate={pickerEnd}
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
             onChange={(start: string, end: string) => {
-              setPickerStart(start);
-              setPickerEnd(end);
+              const isReset = !start && !end;
               setFilterPanelFormElements({
                 ...filterPanelFormElements,
-                after: start,
-                before: end,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
                 date: "",
               });
             }}
@@ -565,8 +560,6 @@ const ShopifyOrders = () => {
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
-      pickerStart,
-      pickerEnd,
       filterPanelFormElements,
       setFilterPanelFormElements,
     ]
