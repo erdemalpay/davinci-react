@@ -84,7 +84,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     });
   const [rows, setRows] = useState(allRows);
   const inputs = [
-    NameInput(),
+    NameInput({ t }),
     {
       type: InputTypes.SELECT,
       formKey: "kitchen",

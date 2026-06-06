@@ -100,7 +100,7 @@ const Income = () => {
     { key: t("Collections Income"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
-  const filterPanelInputs = [
+  const filterPanelInputs = useMemo(() => [
     {
       type: InputTypes.SELECT,
       formKey: "user",
@@ -113,7 +113,7 @@ const Income = () => {
       placeholder: t("User"),
       required: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
+    StockLocationInput({ locations: locations, required: true, t }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -162,7 +162,7 @@ const Income = () => {
       invalidateKeys: [{ key: "date", defaultValue: "" }],
       isOnClearActive: false,
     },
-  ];
+  ], [users, locations, filterCheckoutPanelFormElements, t]);
   const rowKeys = [
     {
       key: "date",
@@ -201,7 +201,7 @@ const Income = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    LocationInput({ locations: locations }),
+    LocationInput({ locations: locations, t }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",

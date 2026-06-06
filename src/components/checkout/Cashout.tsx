@@ -67,7 +67,7 @@ const Cashout = () => {
         formattedDate: formatAsLocalDate(cashout?.date),
       };
     }) ?? [];
-  const filterPanelInputs = [
+  const filterPanelInputs = useMemo(() => [
     {
       type: InputTypes.SELECT,
       formKey: "user",
@@ -80,7 +80,7 @@ const Cashout = () => {
       placeholder: t("User"),
       required: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
+    StockLocationInput({ locations: locations, required: true, t }),
     {
       type: InputTypes.DATE,
       formKey: "date",
@@ -107,7 +107,7 @@ const Cashout = () => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [users, locations, t]);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },

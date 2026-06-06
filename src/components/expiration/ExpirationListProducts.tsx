@@ -62,7 +62,7 @@ const ExpirationListProducts = () => {
     },
     [expirationListProductsPageDisabledCondition, user]
   );
-  const filterPanelInputs = [ExpenseTypeInput({ expenseTypes: expenseTypes })];
+  const filterPanelInputs = useMemo(() => [ExpenseTypeInput({ expenseTypes: expenseTypes, t })], [expenseTypes, t]);
   const allRows = products.filter((product) => {
     return (
       filterPanelFormElements.expenseType === "" ||

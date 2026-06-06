@@ -115,7 +115,7 @@ const Vendor = () => {
     [user, pages, vendorDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
   );
 
-  const inputs = [NameInput()];
+  const inputs = [NameInput({ t })];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const addProductInputs = useMemo(
     () => [

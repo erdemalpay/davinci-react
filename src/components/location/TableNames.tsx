@@ -42,7 +42,7 @@ const TableNames = ({ locationId }: Props) => {
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [{ key: "name" }];
-  const inputs = [NameInput()];
+  const inputs = [NameInput({ t })];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Table`),

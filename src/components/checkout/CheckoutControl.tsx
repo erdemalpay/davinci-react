@@ -244,7 +244,7 @@ const CheckoutControlPage = () => {
     { key: t("Difference"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
-  const filterPanelInputs = [
+  const filterPanelInputs = useMemo(() => [
     {
       type: InputTypes.SELECT,
       formKey: "user",
@@ -257,7 +257,7 @@ const CheckoutControlPage = () => {
       placeholder: t("User"),
       required: true,
     },
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, t }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -290,7 +290,7 @@ const CheckoutControlPage = () => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [users, locations, t]);
   const rowKeys = [
     {
       key: "date",
@@ -425,7 +425,7 @@ const CheckoutControlPage = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, t }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
