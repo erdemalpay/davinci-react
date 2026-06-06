@@ -21,6 +21,7 @@ export function OnboardingModal({ releases, onClose }: OnboardingModalProps) {
   if (releases.length === 0) return null;
 
   const release = releases[currentIndex];
+  if (!release) return null;
   const isLast = currentIndex === releases.length - 1;
   const total = releases.length;
   const items = release.items ?? [];

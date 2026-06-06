@@ -86,6 +86,7 @@ const ExpirationList = () => {
             ?.find((row) => row._id === expirationListId)
             ?.locations?.includes(l._id)
         ) ?? [],
+      t,
     }),
   ];
   const countLocationFormKeys = [

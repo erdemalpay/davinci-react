@@ -120,7 +120,7 @@ const Brand = () => {
     [user, pages, brandDisabledCondition, setCurrentPage, setSearchQuery, setSortConfigKey, navigate]
   );
 
-  const inputs = [NameInput()];
+  const inputs = [NameInput({ t })];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addProductInputs = useMemo(

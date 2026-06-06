@@ -26,6 +26,7 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { formatDate } from "../utils/dateUtil";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 
 export default function Memberships() {
   const { t } = useTranslation();
@@ -133,12 +134,7 @@ export default function Memberships() {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: membershipsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(membershipsDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Edit"),
@@ -169,12 +165,7 @@ export default function Memberships() {
         setIsModal: setIsEditModalOpen,
 
         isPath: false,
-        isDisabled: membershipsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled: isActionDisabled(membershipsDisabledCondition, ActionEnum.UPDATE, user),
       },
     ],
     [
@@ -213,12 +204,7 @@ export default function Memberships() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: membershipsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled: isActionDisabled(membershipsDisabledCondition, ActionEnum.ADD, user),
     }),
     [
       t,
@@ -232,13 +218,7 @@ export default function Memberships() {
   );
 
   const filters = useMemo(() => {
-    const isShowExpiredDisabled =
-      membershipsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOW_EXPIRED_MEMBERSHIPS &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ) ?? false;
+    const isShowExpiredDisabled = isActionDisabled(membershipsDisabledCondition, ActionEnum.SHOW_EXPIRED_MEMBERSHIPS, user);
 
     return [
       {

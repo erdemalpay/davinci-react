@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
@@ -40,13 +40,14 @@ const VendorExpenses = () => {
       asc: 1,
       search: "",
     });
-  const filterPanelInputs = [
+  const filterPanelInputs = useMemo(() => [
     ProductInput({
       products: products.filter((p) => p.vendor?.includes(vendorId ?? "")),
       required: true,
+      t,
     }),
-    BrandInput({ brands, required: true }),
-    StockLocationInput({ locations }),
+    BrandInput({ brands, required: true, t }),
+    StockLocationInput({ locations, t }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -74,7 +75,7 @@ const VendorExpenses = () => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [products, brands, locations, vendorId, t]);
   useEffect(() => {
     if (vendorId) {
       setFilterPanelFormElements((prev) => ({ ...prev, vendor: vendorId }));

@@ -1,18 +1,20 @@
 import { useTranslation } from "react-i18next";
+import { usePrinter } from "../../hooks/usePrinter";
 import {
   createPanelSettings,
   useGetPanelSettings,
   useResetRedisMutation,
 } from "../../utils/api/panelControl/panelSettings";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import { GenericButton } from "../common/GenericButton";
 import Loading from "../common/Loading";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import { InputTypes } from "../panelComponents/shared/types";
 
 const PanelSettings = () => {
   const { t } = useTranslation();
   const panelSettigns = useGetPanelSettings();
   const { mutate: resetRedis, isPending: isResettingRedis } = useResetRedisMutation();
+  const { isConnected, connect } = usePrinter();
   return (
     <div className="w-5/6 sm:w-1/3 flex flex-col gap-2 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">
       <TextInput
@@ -35,6 +37,13 @@ const PanelSettings = () => {
           createPanelSettings({ isVisitEntryDisabled: value });
         }}
       />
+      <GenericButton
+        variant={isConnected ? "secondary" : "primary"}
+        size="sm"
+        onClick={connect}
+      >
+        {isConnected ? t("Printer Connected") : t("Connect Printer")}
+      </GenericButton>
       <GenericButton
         variant="primary"
         size="sm"

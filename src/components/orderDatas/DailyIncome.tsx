@@ -20,6 +20,7 @@ import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate, formatCurrency, toIstDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -289,11 +290,10 @@ const DailyIncome = () => {
             }}
           />
         ),
-        isDisabled: dailyIncomePageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          dailyIncomePageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {

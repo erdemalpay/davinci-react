@@ -88,6 +88,7 @@ const CountList = () => {
             ?.find((row) => row._id === countListId)
             ?.locations?.includes(l._id)
         ) ?? [],
+      t,
     }),
   ];
   const countLocationFormKeys = [

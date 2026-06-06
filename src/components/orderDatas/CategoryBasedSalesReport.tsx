@@ -25,6 +25,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatCurrency, formatPercentage } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -586,11 +587,10 @@ const CategoryBasedSalesReport = () => {
             }}
           />
         ),
-        isDisabled: categoryBasedSalesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.REFRESH &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          categoryBasedSalesPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -633,7 +633,13 @@ const CategoryBasedSalesReport = () => {
           filterPanel={filterPanel}
           title={t("Category Based Sales")}
           isActionsActive={false}
-          isExcel={true}
+          isExcel={
+            !isActionDisabled(
+              categoryBasedSalesPageDisabledCondition,
+              ActionEnum.EXCEL,
+              user
+            )
+          }
           isCollapsible={true}
         />
       </div>

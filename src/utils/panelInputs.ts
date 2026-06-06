@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import {
   AccountBrand,
@@ -10,8 +9,7 @@ import {
 } from "../types/index";
 import { AccountService } from "./../types/index";
 
-export function NameInput({ required = true } = {}) {
-  const { t } = useTranslation();
+export function NameInput({ required = true, t }: { required?: boolean; t: (key: string) => string }) {
   return {
     type: InputTypes.TEXT,
     formKey: "name",
@@ -23,8 +21,12 @@ export function NameInput({ required = true } = {}) {
 export function QuantityInput({
   required = true,
   isNumberButtonActive = false,
-} = {}) {
-  const { t } = useTranslation();
+  t,
+}: {
+  required?: boolean;
+  isNumberButtonActive?: boolean;
+  t: (key: string) => string;
+}) {
   return {
     type: InputTypes.NUMBER,
     formKey: "quantity",
@@ -34,8 +36,7 @@ export function QuantityInput({
     isNumberButtonActive: isNumberButtonActive,
   };
 }
-export function BackgroundColorInput({ required = true } = {}) {
-  const { t } = useTranslation();
+export function BackgroundColorInput({ required = true, t }: { required?: boolean; t: (key: string) => string }) {
   return {
     type: InputTypes.COLOR,
     formKey: "backgroundColor",
@@ -44,8 +45,7 @@ export function BackgroundColorInput({ required = true } = {}) {
     required: required,
   };
 }
-export function DateInput({ required = true } = {}) {
-  const { t } = useTranslation();
+export function DateInput({ required = true, t }: { required?: boolean; t: (key: string) => string }) {
   return {
     type: InputTypes.DATE,
     formKey: "date",
@@ -59,13 +59,14 @@ export function BrandInput({
   isMultiple = false,
   isDisabled = false,
   brands,
+  t,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
   brands: AccountBrand[];
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "brand",
@@ -85,12 +86,13 @@ export function VendorInput({
   required = false,
   isMultiple = false,
   vendors,
+  t,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   vendors: AccountVendor[];
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "vendor",
@@ -112,13 +114,14 @@ export function ExpenseTypeInput({
   isMultiple = false,
   invalidateKeys = [],
   expenseTypes,
+  t,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   invalidateKeys?: { key: string; defaultValue: any }[];
   expenseTypes: AccountExpenseType[];
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "expenseType",
@@ -142,14 +145,15 @@ export function ProductInput({
   isMultiple = false,
   invalidateKeys = [],
   products,
+  t,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
   invalidateKeys?: { key: string; defaultValue: string }[];
   products: AccountProduct[];
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "product",
@@ -173,13 +177,14 @@ export function StockLocationInput({
   isMultiple = false,
   isDisabled = false,
   locations,
+  t,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   locations: Location[];
   isDisabled?: boolean;
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "location",
@@ -202,13 +207,14 @@ export function PaymentMethodInput({
   isMultiple = false,
   isDisabled = false,
   paymentMethods,
+  t,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
   paymentMethods: AccountPaymentMethod[];
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "paymentMethod",
@@ -233,14 +239,15 @@ export function LocationInput({
   isDisabled = false,
   isTopFlexRow = false,
   locations,
+  t,
 }: {
   locations: Location[];
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
   isTopFlexRow?: boolean;
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "location",
@@ -265,14 +272,15 @@ export function ServiceInput({
   isDisabled = false,
   invalidateKeys = [],
   services,
+  t,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
   invalidateKeys?: { key: string; defaultValue: string }[];
   services: AccountService[];
+  t: (key: string) => string;
 }) {
-  const { t } = useTranslation();
   return {
     type: InputTypes.SELECT,
     formKey: "service",

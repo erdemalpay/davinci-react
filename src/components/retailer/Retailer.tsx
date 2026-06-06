@@ -67,7 +67,7 @@ const Retailer = () => {
     [navigate, setCurrentPage, setSearchQuery, setSortConfigKey]
   );
 
-  const inputs = [NameInput()];
+  const inputs = [NameInput({ t })];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = useMemo(

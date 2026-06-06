@@ -177,3 +177,9 @@ export interface NavigationType {
   additionalSubmitFunction?: () => void;
   canBeClicked: boolean;
 }
+
+export interface DateRangeFilterType {
+  startDate: string;
+  endDate: string;
+  onChange: (start: string, end: string) => void;
+}

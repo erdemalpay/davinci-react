@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
@@ -80,10 +80,10 @@ const ProductStockHistory = () => {
     })
     .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
-  const filterPanelInputs = [
-    StockLocationInput({ locations: locations }),
-    VendorInput({ vendors: vendors }),
-    BrandInput({ brands: brands }),
+  const filterPanelInputs = useMemo(() => [
+    StockLocationInput({ locations: locations, t }),
+    VendorInput({ vendors: vendors, t }),
+    BrandInput({ brands: brands, t }),
     {
       type: InputTypes.SELECT,
       formKey: "status",
@@ -114,7 +114,7 @@ const ProductStockHistory = () => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [locations, vendors, brands, t]);
   const columns = [
     {
       key: t("Date"),

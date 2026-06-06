@@ -118,6 +118,9 @@ const Tables = () => {
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [isAutoPrintEnabled, setIsAutoPrintEnabled] = useState(
+    () => localStorage.getItem("davinci_auto_print") !== "false"
+  );
   const { selectedLocationId } = useLocationContext();
   const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
@@ -746,7 +749,7 @@ const Tables = () => {
         };
       }),
       placeholder: t("Table"),
-      required: false,
+      required: selectedTable?.type === TableTypes.ACTIVITY,
       isDisabled: selectedTable?.type !== TableTypes.ACTIVITY,
     },
     {
@@ -1666,6 +1669,14 @@ const Tables = () => {
       label: t("Show Closed Tables"),
       checked: showAllTables,
       onChange: setShowAllTables,
+    },
+    {
+      label: t("Auto Print"),
+      checked: isAutoPrintEnabled,
+      onChange: (value: boolean) => {
+        setIsAutoPrintEnabled(value);
+        localStorage.setItem("davinci_auto_print", String(value));
+      },
     },
   ];
   const tableInputs = [

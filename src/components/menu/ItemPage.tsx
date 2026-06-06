@@ -60,7 +60,7 @@ const ItemPage = () => {
     });
   };
   const createDamagedItemInputs = [
-    NameInput(),
+    NameInput({ t }),
     {
       type: InputTypes.SELECT,
       formKey: "oldStockLocation",

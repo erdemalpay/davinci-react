@@ -198,6 +198,7 @@ const Checklist = () => {
             ?.find((row) => row._id === checklistId)
             ?.locations?.includes(l._id)
         ) ?? [],
+      t,
     }),
   ];
   const checkLocationFormKeys = [
