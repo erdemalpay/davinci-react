@@ -807,7 +807,7 @@ const OrderPaymentModal = ({
         };
       }),
       placeholder: t("Table"),
-      required: false,
+      required: table?.type === TableTypes.ACTIVITY,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
     },
     {
