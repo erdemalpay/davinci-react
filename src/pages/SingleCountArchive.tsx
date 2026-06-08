@@ -1,5 +1,5 @@
 import { toZonedTime } from "date-fns-tz";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
@@ -34,6 +34,7 @@ import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
 
 const SingleCountArchive = () => {
   const { t } = useTranslation();
@@ -61,28 +62,12 @@ const SingleCountArchive = () => {
 
   const disabledConditions = useGetDisabledConditions();
 
-  const countArchiveInnerpageDisabledCondition = useMemo(() => {
+  const countArchiveCompletedCountDisabledCondition = useMemo(() => {
     return getItem(
-      DisabledConditionEnum.COUNTARCHIVE_INNERPAGE,
+      DisabledConditionEnum.COUNTARCHIVE_SINGLECOUNTARCHIVE,
       disabledConditions
     );
   }, [disabledConditions]);
-
-  const isActionDisabled = useCallback(
-    (actionType: ActionEnum) => {
-      if (!user?.role?._id) {
-        return true;
-      }
-      const action = countArchiveInnerpageDisabledCondition?.actions?.find(
-        (ac) => ac.action === actionType
-      );
-      if (!action) {
-        return false;
-      }
-      return !action.permissionsRoles?.includes(user.role._id);
-    },
-    [countArchiveInnerpageDisabledCondition, user]
-  );
 
   const currentCount = useMemo(() => {
     return count;
@@ -162,19 +147,22 @@ const SingleCountArchive = () => {
         })
         .filter((row): row is NonNullable<typeof row> => row !== null)
         .sort((a, b) => {
-          const rank = (row: typeof a) =>
-            row.stockQuantity > row.countQuantity
-              ? 0
-              : row.stockQuantity < row.countQuantity
-              ? 1
-              : 2;
-          return rank(a) - rank(b);
+          const colorRank = (row: { stockQuantity: number; countQuantity: number }) => {
+            const s = Number(row.stockQuantity);
+            const c = Number(row.countQuantity);
+            if (s > c) return 0; // red
+            if (s < c) return 1; // green
+            return 2;            // blue
+          };
+          const rankDiff = colorRank(a) - colorRank(b);
+          if (rankDiff !== 0) return rankDiff;
+          return a.product.localeCompare(b.product);
         }) ?? []
     );
   }, [currentCount, products, users, pad]);
 
   const { columns, rowKeys } = useMemo(() => {
-    const showInnerDatas = !isActionDisabled(ActionEnum.SHOW_INNER_DATAS);
+    const showInnerDatas = !isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user);
 
     const cols = [
       { key: t("Date"), isSortable: true },
@@ -183,6 +171,7 @@ const SingleCountArchive = () => {
       { key: t("SKU"), isSortable: false },
       { key: t("Stock Quantity"), isSortable: true },
       { key: t("Count Quantity"), isSortable: true },
+      { key: t("Difference"), isSortable: true },
       { key: t("Delete Request"), isSortable: true },
       ...(showInnerDatas
         ? [
@@ -199,6 +188,13 @@ const SingleCountArchive = () => {
       { key: "sku" },
       { key: "stockQuantity" },
       { key: "countQuantity" },
+      {
+        key: "difference",
+        node: (row: any) => {
+          const diff = Number(row.countQuantity) - Number(row.stockQuantity);
+          return <span>{diff > 0 ? `+${diff}` : diff}</span>;
+        },
+      },
       { key: "productDeleteRequest" },
       ...(showInnerDatas
         ? [
@@ -217,12 +213,12 @@ const SingleCountArchive = () => {
     ];
 
     return { columns: cols, rowKeys: keys };
-  }, [t, isActionDisabled]);
+  }, [t, countArchiveCompletedCountDisabledCondition, user]);
 
   const displayRows = useMemo(() => {
-    if (isActionDisabled(ActionEnum.SHOW_INNER_DATAS)) return [];
+    if (isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user)) return [];
     return rows;
-  }, [rows, isActionDisabled]);
+  }, [rows, countArchiveCompletedCountDisabledCondition, user]);
 
   function getBgColor(row: {
     stockQuantity: number;
@@ -310,7 +306,7 @@ const SingleCountArchive = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isActionDisabled(ActionEnum.DELETE),
+        isDisabled: isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.DELETE, user),
       },
       {
         name: t("Equalize"),
@@ -339,7 +335,7 @@ const SingleCountArchive = () => {
         className: "text-red-500 cursor-pointer text-2xl",
         isModal: false,
         isPath: false,
-        isDisabled: isActionDisabled(ActionEnum.EQUAL),
+        isDisabled: isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.EQUAL, user),
       },
     ],
     [
@@ -349,7 +345,8 @@ const SingleCountArchive = () => {
       currentCountList,
       updateAccountCountList,
       updateStockForStockCount,
-      isActionDisabled,
+      countArchiveCompletedCountDisabledCondition,
+      user,
     ]
   );
 
@@ -357,7 +354,7 @@ const SingleCountArchive = () => {
     () => [
       {
         isUpperSide: false,
-        isDisabled: isActionDisabled(ActionEnum.EQUAL_STOCKS),
+        isDisabled: isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.EQUAL_STOCKS, user),
         node: (
           <ButtonFilter
             buttonName={t("Stock Equalize")}
@@ -380,14 +377,14 @@ const SingleCountArchive = () => {
         ),
       },
     ],
-    [t, isActionDisabled, currentCount, archiveId, updateStockForStockCountBulk]
+    [t, countArchiveCompletedCountDisabledCondition, user, currentCount, archiveId, updateStockForStockCountBulk]
   );
 
   const rowClassNameFunction = useMemo(() => {
-    return !isActionDisabled(ActionEnum.SHOW_INNER_DATAS)
+    return !isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user)
       ? getBgColor
       : undefined;
-  }, [isActionDisabled]);
+  }, [countArchiveCompletedCountDisabledCondition, user]);
 
   return (
     <>
