@@ -1033,6 +1033,7 @@
   "Total Gameplays": "Total Gameplays",
   "Unique Games": "Unique Games",
   "Unique Mentors": "Unique Mentors",
+  "Exclude Mentors": "Exclude Mentors",
   "Disabled Conditions": "Disabled Conditions",
   "Add Disabled Condition": "Add Disabled Condition",
   "Delete Disabled Condition": "Delete Disabled Condition",
@@ -1570,5 +1571,4 @@
   "Concurrency Logs": "Concurrency Logs",
   "ShiftLink": "ShiftLink",
   "Game Batches (FIFO)": "Game Batches (FIFO)"
-
 }

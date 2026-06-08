@@ -142,7 +142,7 @@ const ExpenseType = () => {
     ]
   );
 
-  const inputs = [NameInput(), BackgroundColorInput()];
+  const inputs = [NameInput({ t }), BackgroundColorInput({ t })];
 
   const formKeys = useMemo(
     () => [

@@ -115,7 +115,7 @@ const Expenses = () => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
   const [rows, setRows] = useState(allRows);
-  const filterPanelInputs = [
+  const filterPanelInputs = useMemo(() => [
     {
       type: InputTypes.SELECT,
       formKey: "type",
@@ -139,23 +139,26 @@ const Expenses = () => {
       required: true,
       isDisabled:
         filterCheckoutPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
+      t,
     }),
     ServiceInput({
       services: services,
       required: true,
       isDisabled:
         filterCheckoutPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
+      t,
     }),
 
-    VendorInput({ vendors: vendors, required: true }),
-    BrandInput({ brands: brands, required: true }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    VendorInput({ vendors: vendors, required: true, t }),
+    BrandInput({ brands: brands, required: true, t }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true, t }),
     PaymentMethodInput({
       paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
       isMultiple: true,
+      t,
     }),
-    StockLocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations, t }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -187,7 +190,7 @@ const Expenses = () => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [products, services, vendors, brands, expenseTypes, paymentMethods, locations, filterCheckoutPanelFormElements?.type, t]);
   const expenseTypeInputOptions = () => {
     if (allExpenseForm?.type === ExpenseTypes.STOCKABLE) {
       return (
@@ -310,18 +313,22 @@ const Expenses = () => {
     ExpenseTypeInput({
       expenseTypes: expenseTypeInputOptions() ?? [],
       required: true,
+      t,
     }),
     BrandInput({
       isDisabled: allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE,
       brands: brandInputOptions() ?? [],
+      t,
     }),
     VendorInput({
       vendors: vendorInputOptions() ?? [],
       required: true,
+      t,
     }),
     PaymentMethodInput({
       paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
+      t,
     }),
     {
       type: InputTypes.CHECKBOX,
@@ -332,7 +339,7 @@ const Expenses = () => {
       isDisabled: allExpenseForm?.type !== ExpenseTypes.STOCKABLE,
       isTopFlexRow: true,
     },
-    QuantityInput(),
+    QuantityInput({ t }),
     {
       type: InputTypes.CHECKBOX,
       formKey: "isAfterCount",

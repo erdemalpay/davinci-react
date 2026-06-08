@@ -1041,6 +1041,7 @@
   "Total Gameplays": "Toplam Oyun Sayısı",
   "Unique Games": "Farklı Oyun Sayısı",
   "Unique Mentors": "Kaç Farklı Anlatıcı",
+  "Exclude Mentors": "Anlatıcıları Hariç Tut",
   "Disabled Conditions": "İşlem İzinleri",
   "Add Disabled Condition": "İşlem İzni Ekle",
   "Delete Disabled Condition": "İşlem İznini Sil",
@@ -1579,5 +1580,4 @@
   "Concurrency Logs": "Eşzamanlılık Logları",
   "ShiftLink": "ShiftLink",
   "Game Batches (FIFO)": "Oyun Grupları (FIFO)"
-
 }

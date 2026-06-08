@@ -68,7 +68,7 @@ export function QuickDateRangeFilter({
           </span>
           {(fromDate || toDate) && (
             <IoCloseOutline
-              className="text-gray-400 hover:text-red-500 text-base flex-shrink-0 ml-1 transition-colors"
+              className="text-black hover:text-red-500 text-base flex-shrink-0 ml-1 transition-colors"
               onClick={handleClear}
             />
           )}

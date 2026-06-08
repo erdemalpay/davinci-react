@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ExpenseTypes,
@@ -34,9 +34,9 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       asc: 1,
       search: "",
     });
-  const filterPanelInputs = [
-    VendorInput({ vendors, required: true }),
-    StockLocationInput({ locations }),
+  const filterPanelInputs = useMemo(() => [
+    VendorInput({ vendors, required: true, t }),
+    StockLocationInput({ locations, t }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -64,7 +64,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       required: true,
       isDatePicker: true,
     },
-  ];
+  ], [vendors, locations, t]);
   useEffect(() => {
     setFilterPanelFormElements((prev) => ({
       ...prev,

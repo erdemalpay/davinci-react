@@ -42,6 +42,8 @@ export default function GameplaysByGames() {
       endDate: "",
       game: "",
       location: "",
+      mentor: [],
+      mentorExclude: [],
     });
 
   // Sync end date with start date when "Single Day" is selected
@@ -81,11 +83,26 @@ export default function GameplaysByGames() {
   const gameplayGroupRows = useMemo(() => {
     if (!data) return [];
 
+    const selectedMentors: string[] = filterPanelFormElements.mentor || [];
+    const excludedMentors: string[] = filterPanelFormElements.mentorExclude || [];
+
     const formattedData = data
-      .map(({ secondary, total, _id }) => {
+      .map(({ secondary, _id }) => {
         const game = games.find((g) => String(g._id) === String(_id));
 
-        const collapsibleRows = secondary.map((sec) => {
+        const filteredSecondary =
+          selectedMentors.length > 0
+            ? secondary.filter((sec) => selectedMentors.includes(sec.field))
+            : excludedMentors.length > 0
+            ? secondary.filter((sec) => !excludedMentors.includes(sec.field))
+            : secondary;
+
+        const filteredTotal = filteredSecondary.reduce(
+          (acc, sec) => acc + sec.count,
+          0
+        );
+
+        const collapsibleRows = filteredSecondary.map((sec) => {
           const user = users.find((u) => u._id === sec.field);
           return {
             mentor: user?.name || sec.field,
@@ -96,9 +113,9 @@ export default function GameplaysByGames() {
         return {
           game: game?.name || `${_id}`,
           gameId: _id,
-          total,
-          secondary,
-          uniqueMentorsCount: secondary.length,
+          total: filteredTotal,
+          secondary: filteredSecondary,
+          uniqueMentorsCount: filteredSecondary.length,
           collapsible: {
             collapsibleColumns: [
               { key: t("Mentor"), isSortable: true },
@@ -110,20 +127,34 @@ export default function GameplaysByGames() {
         };
       })
       .filter((row) => {
+        const isMentorFilterActive =
+          selectedMentors.length > 0 || excludedMentors.length > 0;
+        if (isMentorFilterActive && row.total === 0) return false;
         if (!filterPanelFormElements.game) return true;
-        return row?.gameId === filterPanelFormElements.game;
+        return row.gameId === filterPanelFormElements.game;
       });
 
     formattedData.sort((a, b) => Number(b.total) - Number(a.total));
     return formattedData;
-  }, [data, games, users, filterPanelFormElements.game, t]);
+  }, [
+    data,
+    games,
+    users,
+    filterPanelFormElements.game,
+    filterPanelFormElements.mentor,
+    filterPanelFormElements.mentorExclude as string[],
+    t,
+  ]);
 
-  const locationOptions = useMemo(() => {
-    return locations.map((loc) => ({
-      value: loc._id,
-      label: loc.name,
-    }));
-  }, [locations]);
+  const locationOptions = useMemo(
+    () => locations.map((loc) => ({ value: loc._id, label: loc.name })),
+    [locations]
+  );
+
+  const userOptions = useMemo(
+    () => users.map((user) => ({ value: user._id, label: user.name })),
+    [users]
+  );
 
   const columns = useMemo(
     () => [
@@ -244,8 +275,29 @@ export default function GameplaysByGames() {
         placeholder: t("Location"),
         required: false,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "mentor",
+        label: t("Game Mentor"),
+        options: userOptions,
+        placeholder: t("Game Mentor"),
+        required: false,
+        isMultiple: true,
+        isDisabled:
+          (filterPanelFormElements.mentorExclude as string[]).length > 0,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "mentorExclude",
+        label: t("Exclude Mentors"),
+        options: userOptions,
+        placeholder: t("Exclude Mentors"),
+        required: false,
+        isMultiple: true,
+        isDisabled: (filterPanelFormElements.mentor as string[]).length > 0,
+      },
     ],
-    [t, games, locationOptions]
+    [t, games, locationOptions, userOptions, filterPanelFormElements.mentor, filterPanelFormElements.mentorExclude]
   );
 
   const filterPanel = useMemo(
