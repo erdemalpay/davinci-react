@@ -35,6 +35,7 @@ import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
+import { getCountStockBgColor } from "../utils/color";
 
 const Count = () => {
   const { t, i18n } = useTranslation();
@@ -63,12 +64,6 @@ const Count = () => {
   const countArchiveOpenCountDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.COUNTARCHIVE_COUNT, disabledConditions);
   }, [disabledConditions]);
-
-  function getBgColor(row: { stockQuantity: number; countQuantity: number }) {
-    if (Number(row.stockQuantity) === Number(row.countQuantity)) return "bg-blue-100";
-    if (Number(row.stockQuantity) > Number(row.countQuantity)) return "bg-red-100";
-    return "bg-green-100";
-  }
 
   const numericLocation = useMemo(
     () => (location ? Number(location) : undefined),
@@ -205,6 +200,7 @@ const Count = () => {
     numericLocation,
     products,
     items,
+    stocks,
     currentCount?.products,
     i18n.language,
   ]);
@@ -518,7 +514,7 @@ const Count = () => {
           addButton={addButton}
           filters={filters}
           actions={isEnableEdit ? actions : []}
-          rowClassNameFunction={showStockAndColors ? getBgColor : undefined}
+          rowClassNameFunction={showStockAndColors ? getCountStockBgColor : undefined}
         />
         <div className="flex justify-end flex-row gap-2 mt-4">
           <GenericButton variant="danger" size="sm" onClick={cancelCount}>

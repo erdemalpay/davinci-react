@@ -35,6 +35,7 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
+import { getCountStockBgColor } from "../utils/color";
 
 const SingleCountArchive = () => {
   const { t } = useTranslation();
@@ -159,7 +160,7 @@ const SingleCountArchive = () => {
           return a.product.localeCompare(b.product);
         }) ?? []
     );
-  }, [currentCount, products, users, pad]);
+  }, [currentCount, products, items, users, pad]);
 
   const { columns, rowKeys } = useMemo(() => {
     const showInnerDatas = !isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user);
@@ -219,21 +220,6 @@ const SingleCountArchive = () => {
     if (isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user)) return [];
     return rows;
   }, [rows, countArchiveCompletedCountDisabledCondition, user]);
-
-  function getBgColor(row: {
-    stockQuantity: number;
-    countQuantity: number;
-    product: string;
-  }) {
-    if (Number(row.stockQuantity) === Number(row.countQuantity)) {
-      return "bg-blue-100";
-    } else if (Number(row.stockQuantity) > Number(row.countQuantity)) {
-      return "bg-red-100";
-    } else if (Number(row.stockQuantity) < Number(row.countQuantity)) {
-      return "bg-green-100";
-    }
-    return "bg-green-500";
-  }
 
   const filters = useMemo(
     () => [
@@ -382,7 +368,7 @@ const SingleCountArchive = () => {
 
   const rowClassNameFunction = useMemo(() => {
     return !isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user)
-      ? getBgColor
+      ? getCountStockBgColor
       : undefined;
   }, [countArchiveCompletedCountDisabledCondition, user]);
 
