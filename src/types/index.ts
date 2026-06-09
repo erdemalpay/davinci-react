@@ -435,6 +435,7 @@ export type AccountOverallExpense = {
   paymentMethod: string;
   createdAt?: Date;
   discount?: number;
+  deposit?: number;
 };
 
 export type AccountExpense = {
@@ -458,6 +459,7 @@ export type AccountExpense = {
   createdAt?: Date;
   isAfterCount: boolean;
   discount?: number;
+  deposit?: number;
 };
 
 export type AccountStock = {
@@ -689,7 +691,7 @@ export enum DisabledConditionEnum {
   STOCK_SANDWICHSTOCK = "sandwichstock",
   ORDERS_ORDERS = "orders_orders",
   COUNTARCHIVE_SINGLECOUNTARCHIVE = "countarchive_singlecountarchive",
-  COUNTARCHIVE_COUNT = "countarchive_count"
+  COUNTARCHIVE_COUNT = "countarchive_count",
 }
 
 export enum ActionEnum {
@@ -752,7 +754,7 @@ export enum ActionEnum {
   ADD_TO_RETAILER = "add_to_retailer",
   PROCESS = "process",
   AUTO_PRINT = "auto_print",
-  ADVANCED_VIEW = "advanced_view"
+  ADVANCED_VIEW = "advanced_view",
 }
 
 export type Membership = {

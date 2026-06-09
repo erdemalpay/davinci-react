@@ -1581,5 +1581,6 @@
   "ShiftLink": "ShiftLink",
   "Game Batches (FIFO)": "Oyun Grupları (FIFO)",
   "Reference Price": "Referans Fiyat (Müşteri Menüsünde Üstü Çizili Olarak Görünür)",
-  "referencePricePlaceholder": "{{price}} değerinden büyük bir değer giriniz"
+  "referencePricePlaceholder": "{{price}} değerinden büyük bir değer giriniz",
+  "Deposit": "Depozito"
 }
