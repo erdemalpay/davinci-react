@@ -40,6 +40,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -916,6 +917,26 @@ const ServiceInvoice = () => {
   ];
   const tableFilters = useMemo(
     () => [
+      {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterServiceInvoicePanelFormElements.after}
+            endDate={filterServiceInvoicePanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterServiceInvoicePanelFormElements({
+                ...filterServiceInvoicePanelFormElements,
+                after: isReset
+                  ? initialFilterPanelServiceInvoiceFormElements.after
+                  : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
       {
         label: t("Total") + " :",
         isUpperSide: false,
