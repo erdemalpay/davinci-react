@@ -90,7 +90,10 @@ const AllExpenses = () => {
           lctn: getItem(invoice?.location, locations)?.name,
           formattedDate: formatAsLocalDate(invoice?.date),
           unitPrice: parseFloat(
-            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+            (invoice?.quantity
+              ? invoice?.totalExpense / invoice?.quantity
+              : 0
+            ).toFixed(4)
           ),
           expType: getItem(invoice?.expenseType, expenseTypes),
           service: getItem(invoice?.service, services)?.name,
@@ -576,6 +579,11 @@ const AllExpenses = () => {
       { key: t("Vat") + "%", isSortable: true },
       { key: t("Discount") + "%", isSortable: true },
       {
+        key: t("Deposit"),
+        isSortable: true,
+        correspondingKey: "deposit",
+      },
+      {
         key: t("Total Expense"),
         isSortable: true,
         correspondingKey: "totalExpense",
@@ -690,6 +698,21 @@ const AllExpenses = () => {
       { key: "vat", className: "min-w-32 pr-2" },
       { key: "discount", className: "min-w-32 pr-2" },
       {
+        key: "deposit",
+        node: (row: any) => {
+          return (
+            <div className="min-w-32">
+              <P1>
+                {parseFloat(row?.deposit ?? 0)
+                  .toFixed(2)
+                  .replace(/\.?0*$/, "")}{" "}
+                ₺
+              </P1>
+            </div>
+          );
+        },
+      },
+      {
         key: "totalExpense",
         node: (row: any) => {
           return (
@@ -745,6 +768,13 @@ const AllExpenses = () => {
               required: false,
             },
             {
+              type: InputTypes.NUMBER,
+              formKey: "deposit",
+              label: t("Deposit"),
+              placeholder: t("Deposit"),
+              required: false,
+            },
+            {
               type: InputTypes.TEXTAREA,
               formKey: "note",
               label: t("Note"),
@@ -757,6 +787,7 @@ const AllExpenses = () => {
             { key: "price", type: FormKeyTypeEnum.NUMBER },
             { key: "vat", type: FormKeyTypeEnum.NUMBER },
             { key: "discount", type: FormKeyTypeEnum.NUMBER },
+            { key: "deposit", type: FormKeyTypeEnum.NUMBER },
           ]}
           submitFunction={() => {
             const discountedPrice =
@@ -774,7 +805,9 @@ const AllExpenses = () => {
               totalExpense:
                 Number(discountedPrice) +
                 Number(allExpenseForm?.vat ?? 0) *
-                  (Number(discountedPrice) / 100),
+                  (Number(discountedPrice) / 100) -
+                Number(allExpenseForm?.deposit ?? 0),
+              deposit: Number(allExpenseForm?.deposit ?? 0),
             });
             setAllExpenseForm({});
           }}

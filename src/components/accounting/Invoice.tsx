@@ -138,7 +138,10 @@ const Invoice = () => {
         lctn: getItem(invoice?.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice?.date),
         unitPrice: parseFloat(
-          (invoice?.totalExpense / invoice?.quantity).toFixed(2)
+          (invoice?.quantity
+            ? invoice?.totalExpense / invoice?.quantity
+            : 0
+          ).toFixed(2)
         ),
         expType: getItem(invoice?.expenseType, expenseTypes),
         brnd: getItem(invoice?.brand, brands),
@@ -635,6 +638,11 @@ const Invoice = () => {
       { key: t("Vat") + "%", isSortable: true },
       { key: t("Discount") + "%", isSortable: true },
       {
+        key: t("Deposit"),
+        isSortable: true,
+        correspondingKey: "deposit",
+      },
+      {
         key: t("Total Expense"),
         isSortable: true,
         correspondingKey: "totalExpense",
@@ -823,6 +831,19 @@ const Invoice = () => {
       { key: "vat", className: "min-w-32 pr-2" },
       { key: "discount", className: "min-w-32 pr-2" },
       {
+        key: "deposit",
+        node: (row: any) => {
+          return (
+            <div className="min-w-32">
+              {parseFloat(row?.deposit ?? 0)
+                .toFixed(2)
+                .replace(/\.?0*$/, "")}{" "}
+              ₺
+            </div>
+          );
+        },
+      },
+      {
         key: "totalExpense",
         isParseFloat: true,
         className: "min-w-32",
@@ -868,6 +889,13 @@ const Invoice = () => {
               required: false,
             },
             {
+              type: InputTypes.NUMBER,
+              formKey: "deposit",
+              label: t("Deposit"),
+              placeholder: t("Deposit"),
+              required: false,
+            },
+            {
               type: InputTypes.TEXTAREA,
               formKey: "note",
               label: t("Note"),
@@ -880,6 +908,7 @@ const Invoice = () => {
             { key: "price", type: FormKeyTypeEnum.NUMBER },
             { key: "vat", type: FormKeyTypeEnum.NUMBER },
             { key: "discount", type: FormKeyTypeEnum.NUMBER },
+            { key: "deposit", type: FormKeyTypeEnum.NUMBER },
           ]}
           additionalCancelFunction={() => {
             setProductExpenseForm({});
@@ -901,7 +930,9 @@ const Invoice = () => {
               type: ExpenseTypes.STOCKABLE,
               totalExpense:
                 discountedPrice +
-                Number(productExpenseForm?.vat ?? 0) * (discountedPrice / 100),
+                Number(productExpenseForm?.vat ?? 0) * (discountedPrice / 100) -
+                Number(productExpenseForm?.deposit ?? 0),
+              deposit: Number(productExpenseForm?.deposit ?? 0),
             });
             setProductExpenseForm({});
           }}
@@ -995,6 +1026,13 @@ const Invoice = () => {
                 required: true,
               },
               {
+                type: InputTypes.NUMBER,
+                formKey: "deposit",
+                label: t("Deposit"),
+                placeholder: t("Deposit"),
+                required: false,
+              },
+              {
                 type: InputTypes.TEXTAREA,
                 formKey: "note",
                 label: t("Note"),
@@ -1005,6 +1043,7 @@ const Invoice = () => {
             formKeys={[
               ...formKeys,
               { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+              { key: "deposit", type: FormKeyTypeEnum.NUMBER },
             ]}
             setForm={setProductExpenseForm}
             submitItem={updateAccountExpense as any}
