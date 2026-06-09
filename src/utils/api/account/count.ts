@@ -116,7 +116,7 @@ export function useUpdateStockForStockCountBulkMutation() {
   });
 }
 export function useGetAccountCounts() {
-  return useGetList<AccountCount>(baseUrl);
+  return useGetList<AccountCount>(baseUrl, [baseUrl], true);
 }
 export function useGetQueryCounts(
   page: number,
