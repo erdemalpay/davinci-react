@@ -14,7 +14,6 @@ import {
   NOTPAID,
   commonDateOptions,
 } from "../../types";
-import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import {
   useAccountExpenseMutations,
@@ -27,6 +26,7 @@ import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
@@ -71,7 +71,10 @@ const AllExpenses = () => {
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
   const allExpensesPageDisabledCondition = useMemo(() => {
-    return getItem(DisabledConditionEnum.EXPENSES_ALLEXPENSES, disabledConditions);
+    return getItem(
+      DisabledConditionEnum.EXPENSES_ALLEXPENSES,
+      disabledConditions
+    );
   }, [disabledConditions]);
 
   const rows = useMemo(() => {
@@ -501,7 +504,11 @@ const AllExpenses = () => {
     []
   );
 
-  const isUnitPriceHidden = isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+  const isUnitPriceHidden = isActionDisabled(
+    allExpensesPageDisabledCondition,
+    ActionEnum.SHOW_UNIT_PRICES,
+    user
+  );
 
   const columns = useMemo(() => {
     const cols = [
@@ -753,7 +760,7 @@ const AllExpenses = () => {
           submitFunction={() => {
             const discountedPrice =
               Number(allExpenseForm.price) -
-              (Number(allExpenseForm.discount) / 100) *
+              (Number(allExpenseForm?.discount ?? 0) / 100) *
                 Number(allExpenseForm.price);
             createAccountExpense({
               ...allExpenseForm,
@@ -765,7 +772,8 @@ const AllExpenses = () => {
               quantity: Number(allExpenseForm.quantity),
               totalExpense:
                 Number(discountedPrice) +
-                Number(allExpenseForm.vat) * (Number(discountedPrice) / 100),
+                Number(allExpenseForm?.vat ?? 0) *
+                  (Number(discountedPrice) / 100),
             });
             setAllExpenseForm({});
           }}
@@ -795,7 +803,11 @@ const AllExpenses = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.ADD, user),
+      isDisabled: isActionDisabled(
+        allExpensesPageDisabledCondition,
+        ActionEnum.ADD,
+        user
+      ),
     }),
     [
       t,
@@ -815,7 +827,11 @@ const AllExpenses = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOWTOTAL, user),
+        isDisabled: isActionDisabled(
+          allExpensesPageDisabledCondition,
+          ActionEnum.SHOWTOTAL,
+          user
+        ),
         node: (
           <div className="flex flex-row gap-2">
             <p>
