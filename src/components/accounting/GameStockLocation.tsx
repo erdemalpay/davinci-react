@@ -23,7 +23,7 @@ import { passesFilter } from "../../utils/passesFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { ColumnType, FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const GameStockLocation = () => {
   const { t } = useTranslation();
@@ -324,7 +324,8 @@ const GameStockLocation = () => {
   );
 
   const columns = useMemo(() => {
-    const cols = [
+    const cols: ColumnType[] = [
+      { key: t("Action"), isSortable: false },
       { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
       { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
       { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
@@ -336,7 +337,6 @@ const GameStockLocation = () => {
         correspondingKey: `location_${location._id}`,
       });
     });
-    cols.push({ key: t("Action"), isSortable: false } as any);
     return cols;
   }, [t, locations]);
 
@@ -499,6 +499,7 @@ const GameStockLocation = () => {
           filters={filters}
           actions={actions}
           isActionsActive={true}
+          isActionsAtFront={true}
           isToolTipEnabled={false}
           isExcel={
             user &&
