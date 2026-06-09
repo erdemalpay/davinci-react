@@ -1133,7 +1133,7 @@ const GenericTable = <T,>({
                                   (!outsideSortProps ||
                                     !column?.correspondingKey) &&
                                   (sortConfig?.key ===
-                                    usedRowKeys[index]?.key &&
+                                    usedRowKeys[isActionsAtFront ? index - 1 : index]?.key &&
                                   sortConfig?.direction === "ascending" ? (
                                     <GenericButton
                                       variant="icon"
@@ -1141,7 +1141,7 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[index].key as Extract<
+                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
                                             keyof T,
                                             string
                                           >,
@@ -1158,7 +1158,7 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[index].key as Extract<
+                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
                                             keyof T,
                                             string
                                           >,
