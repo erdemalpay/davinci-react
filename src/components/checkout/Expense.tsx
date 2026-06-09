@@ -115,82 +115,95 @@ const Expenses = () => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
   const [rows, setRows] = useState(allRows);
-  const filterPanelInputs = useMemo(() => [
-    {
-      type: InputTypes.SELECT,
-      formKey: "type",
-      label: t("Expense Category"),
-      options: Object.entries(ExpenseTypes).map((item) => {
-        return {
-          value: item[1],
-          label: t(item[1]),
-        };
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "type",
+        label: t("Expense Category"),
+        options: Object.entries(ExpenseTypes).map((item) => {
+          return {
+            value: item[1],
+            label: t(item[1]),
+          };
+        }),
+        invalidateKeys: [
+          { key: "product", defaultValue: "" },
+          { key: "service", defaultValue: "" },
+        ],
+        placeholder: t("Expense Category"),
+        isMultiple: false,
+        required: true,
+      },
+      ProductInput({
+        products: products,
+        required: true,
+        isDisabled:
+          filterCheckoutPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
+        t,
       }),
-      invalidateKeys: [
-        { key: "product", defaultValue: "" },
-        { key: "service", defaultValue: "" },
-      ],
-      placeholder: t("Expense Category"),
-      isMultiple: false,
-      required: true,
-    },
-    ProductInput({
-      products: products,
-      required: true,
-      isDisabled:
-        filterCheckoutPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
-      t,
-    }),
-    ServiceInput({
-      services: services,
-      required: true,
-      isDisabled:
-        filterCheckoutPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
-      t,
-    }),
+      ServiceInput({
+        services: services,
+        required: true,
+        isDisabled:
+          filterCheckoutPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
+        t,
+      }),
 
-    VendorInput({ vendors: vendors, required: true, t }),
-    BrandInput({ brands: brands, required: true, t }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true, t }),
-    PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
-      required: true,
-      isMultiple: true,
-      t,
-    }),
-    StockLocationInput({ locations: locations, t }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
+      VendorInput({ vendors: vendors, required: true, t }),
+      BrandInput({ brands: brands, required: true, t }),
+      ExpenseTypeInput({ expenseTypes: expenseTypes, required: true, t }),
+      PaymentMethodInput({
+        paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
+        required: true,
+        isMultiple: true,
+        t,
       }),
-      placeholder: t("Date"),
-      required: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      required: true,
-      isDatePicker: true,
-    },
-  ], [products, services, vendors, brands, expenseTypes, paymentMethods, locations, filterCheckoutPanelFormElements?.type, t]);
+      StockLocationInput({ locations: locations, t }),
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => {
+          return {
+            value: option.value,
+            label: t(option.label),
+          };
+        }),
+        placeholder: t("Date"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [
+      products,
+      services,
+      vendors,
+      brands,
+      expenseTypes,
+      paymentMethods,
+      locations,
+      filterCheckoutPanelFormElements?.type,
+      t,
+    ]
+  );
   const expenseTypeInputOptions = () => {
     if (allExpenseForm?.type === ExpenseTypes.STOCKABLE) {
       return (
@@ -658,7 +671,7 @@ const Expenses = () => {
         submitFunction={() => {
           const discountedPrice =
             Number(allExpenseForm.price) -
-            (Number(allExpenseForm.discount || 0) / 100) *
+            (Number(allExpenseForm?.discount || 0) / 100) *
               Number(allExpenseForm.price);
           createAccountExpense({
             ...allExpenseForm,
@@ -668,7 +681,7 @@ const Expenses = () => {
             quantity: Number(allExpenseForm.quantity),
             totalExpense:
               discountedPrice +
-              Number(allExpenseForm.vat || 0) * (discountedPrice / 100),
+              Number(allExpenseForm?.vat || 0) * (discountedPrice / 100),
           });
           setAllExpenseForm({});
         }}

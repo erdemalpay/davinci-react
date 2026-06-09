@@ -18,7 +18,6 @@ import {
   NOTPAID,
   commonDateOptions,
 } from "../../types";
-import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useAccountBrandMutations,
   useGetAccountBrands,
@@ -43,6 +42,7 @@ import {
 } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
@@ -556,7 +556,11 @@ const Invoice = () => {
     []
   );
 
-  const isUnitPriceHidden = isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+  const isUnitPriceHidden = isActionDisabled(
+    invoicePageDisabledCondition,
+    ActionEnum.SHOW_UNIT_PRICES,
+    user
+  );
 
   const columns = useMemo(() => {
     const cols = [
@@ -881,9 +885,10 @@ const Invoice = () => {
           }}
           submitFunction={() => {
             const discountedPrice =
-              Number(productExpenseForm.price) -
-              (Number(productExpenseForm.discount) / 100) *
-                Number(productExpenseForm.price);
+              Number(productExpenseForm?.price) -
+              (Number(productExpenseForm?.discount ?? 0) / 100) *
+                Number(productExpenseForm?.price);
+
             createAccountExpense({
               ...productExpenseForm,
               paymentMethod:
@@ -895,7 +900,7 @@ const Invoice = () => {
               type: ExpenseTypes.STOCKABLE,
               totalExpense:
                 discountedPrice +
-                Number(productExpenseForm.vat) * (discountedPrice / 100),
+                Number(productExpenseForm?.vat ?? 0) * (discountedPrice / 100),
             });
             setProductExpenseForm({});
           }}
@@ -918,7 +923,11 @@ const Invoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ADD, user),
+      isDisabled: isActionDisabled(
+        invoicePageDisabledCondition,
+        ActionEnum.ADD,
+        user
+      ),
     }),
     [
       t,
@@ -1048,7 +1057,11 @@ const Invoice = () => {
       {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOWTOTAL, user),
+        isDisabled: isActionDisabled(
+          invoicePageDisabledCondition,
+          ActionEnum.SHOWTOTAL,
+          user
+        ),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -1065,7 +1078,11 @@ const Invoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
-        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ENABLEEDIT, user),
+        isDisabled: isActionDisabled(
+          invoicePageDisabledCondition,
+          ActionEnum.ENABLEEDIT,
+          user
+        ),
         node: (
           <SwitchButton
             checked={isInvoiceEnableEdit}
