@@ -1570,5 +1570,7 @@
   "Mail Drafts": "Mail Drafts",
   "Concurrency Logs": "Concurrency Logs",
   "ShiftLink": "ShiftLink",
-  "Game Batches (FIFO)": "Game Batches (FIFO)"
+  "Game Batches (FIFO)": "Game Batches (FIFO)",
+  "Reference Price": "Reference Price (Shown with a Strikethrough in the Customer Menu)",
+  "referencePricePlaceholder": "Enter a value greater than {{price}}"
 }

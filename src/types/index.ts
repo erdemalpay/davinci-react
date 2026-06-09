@@ -835,6 +835,7 @@ export type MenuItem = {
   }[];
   price: number;
   onlinePrice?: number;
+  referencePrice?: number;
   locations: number[];
   priceHistory: {
     date: string;
