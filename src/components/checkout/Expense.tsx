@@ -40,6 +40,7 @@ import {
   VendorInput,
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -583,6 +584,26 @@ const Expenses = () => {
     },
   ];
   const tableFilters = [
+    {
+      isUpperSide: true,
+      node: (
+        <QuickDateRangeFilter
+          startDate={filterCheckoutPanelFormElements.after}
+          endDate={filterCheckoutPanelFormElements.before}
+          onChange={(start: string, end: string) => {
+            const isReset = !start && !end;
+            setFilterCheckoutPanelFormElements({
+              ...filterCheckoutPanelFormElements,
+              after: isReset
+                ? initialFilterCheckoutPanelFormElements.after
+                : start,
+              before: isReset ? "" : end,
+              date: "",
+            });
+          }}
+        />
+      ),
+    },
     {
       label: t("Total") + " :",
       isUpperSide: false,

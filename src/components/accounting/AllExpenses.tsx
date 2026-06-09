@@ -30,6 +30,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -824,6 +825,26 @@ const AllExpenses = () => {
 
   const tableFilters = useMemo(
     () => [
+      {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterAllExpensesPanelFormElements.after}
+            endDate={filterAllExpensesPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterAllExpensesPanelFormElements({
+                ...filterAllExpensesPanelFormElements,
+                after: isReset
+                  ? initialFilterPanelAllExpensesFormElements.after
+                  : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
       {
         label: t("Total") + " :",
         isUpperSide: false,
