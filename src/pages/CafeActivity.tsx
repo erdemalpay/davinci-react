@@ -28,7 +28,7 @@ import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
 
-const defaultAfter =
+const getDefaultAfter = () =>
   new Date().getMonth() === 0
     ? dateRanges.last3Months().after
     : dateRanges.thisYear().after;
@@ -47,7 +47,7 @@ const CafeActivity = () => {
   ] = useState(false);
   const [showCompletedCafeActivities, setShowCompletedActivities] =
     useState(false);
-  const [after, setAfter] = useState<string>(defaultAfter);
+  const [after, setAfter] = useState<string>(getDefaultAfter);
   const [before, setBefore] = useState<string>("");
 
   const cafeActivities = useGetCafeActivitysByDateRange(after, before);
@@ -309,7 +309,7 @@ const CafeActivity = () => {
             endDate={before}
             onChange={(start: string, end: string) => {
               const isReset = !start && !end;
-              setAfter(isReset ? defaultAfter : start);
+              setAfter(isReset ? getDefaultAfter() : start);
               setBefore(isReset ? "" : end);
             }}
           />
