@@ -672,21 +672,22 @@ const GenericTable = <T,>({
               </td>
             );
           })}
-          <td>
-            {actions &&
-              isActionsActive &&
-              !(row?.isSortable === false) &&
-              !(row?.isActionsDisabled ?? false) &&
-              !isActionsAtFront &&
-              renderActionButtons(row, actions)}
-            {actions &&
-              isActionsActive &&
-              (row?.isActionsDisabled ?? false) && (
-                <div className="flex flex-row my-auto h-full gap-3 items-center">
-                  <P1>{t("Constant")}</P1>
-                </div>
-              )}
-          </td>
+          {!isActionsAtFront && (
+            <td>
+              {actions &&
+                isActionsActive &&
+                !(row?.isSortable === false) &&
+                !(row?.isActionsDisabled ?? false) &&
+                renderActionButtons(row, actions)}
+              {actions &&
+                isActionsActive &&
+                (row?.isActionsDisabled ?? false) && (
+                  <div className="flex flex-row my-auto h-full gap-3 items-center">
+                    <P1>{t("Constant")}</P1>
+                  </div>
+                )}
+            </td>
+          )}
         </tr>
         {isRowExpanded && (
           <tr>
@@ -1133,7 +1134,7 @@ const GenericTable = <T,>({
                                   (!outsideSortProps ||
                                     !column?.correspondingKey) &&
                                   (sortConfig?.key ===
-                                    usedRowKeys[index]?.key &&
+                                    usedRowKeys[isActionsAtFront ? index - 1 : index]?.key &&
                                   sortConfig?.direction === "ascending" ? (
                                     <GenericButton
                                       variant="icon"
@@ -1141,7 +1142,7 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[index].key as Extract<
+                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
                                             keyof T,
                                             string
                                           >,
@@ -1158,7 +1159,7 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[index].key as Extract<
+                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
                                             keyof T,
                                             string
                                           >,
