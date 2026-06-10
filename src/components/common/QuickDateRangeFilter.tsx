@@ -87,6 +87,7 @@ export function QuickDateRangeFilter({
           mode="range"
           selected={selected}
           onSelect={handleSelect}
+          defaultMonth={fromDate ?? toDate}
           locale={tr}
           captionLayout="dropdown"
           startMonth={new Date(2020, 0)}
