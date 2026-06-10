@@ -1129,6 +1129,7 @@ const OrderPaymentModal = ({
                             format(new Date(table.date), "dd/MM/yyyy")}
                         </span>
                         {table?.startHour && <span> - {table?.startHour}</span>}
+                        <span> - {tableId}</span>
                       </div>
                     )}
                   </div>
