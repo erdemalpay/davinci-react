@@ -13,7 +13,7 @@ const Settings = () => {
   const { setRowsPerPage } = useGeneralContext();
   const user = useGetUser();
   return (
-    <div className="w-5/6 sm:w-1/2 flex flex-col gap-2 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">
+    <div className="w-5/6 sm:w-1/2 flex flex-col gap-4 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">
       <CommonSelectInput
         label={t("Language")}
         value={{
