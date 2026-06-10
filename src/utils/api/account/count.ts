@@ -118,6 +118,19 @@ export function useUpdateStockForStockCountBulkMutation() {
 export function useGetAccountCounts() {
   return useGetList<AccountCount>(baseUrl, [baseUrl], true);
 }
+
+export function useGetActiveCount(
+  location: number | undefined,
+  countListId: string | undefined
+) {
+  const url = `${baseUrl}/active?location=${location}&countList=${countListId}`;
+  return useGet<AccountCount>(
+    url,
+    [baseUrl, "active", location, countListId],
+    true,
+    { enabled: location !== undefined && !!countListId }
+  );
+}
 export function useGetQueryCounts(
   page: number,
   limit: number,

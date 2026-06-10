@@ -22,7 +22,7 @@ import { Routes } from "../navigation/constants";
 import { ActionEnum, CountListPageTabEnum, DisabledConditionEnum } from "../types";
 import {
   useAccountCountMutations,
-  useGetAccountCounts,
+  useGetActiveCount,
   useUpdateCountQuantityMutation,
 } from "../utils/api/account/count";
 import {
@@ -43,7 +43,6 @@ const Count = () => {
   const navigate = useNavigate();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
-  const counts = useGetAccountCounts();
   const stocks = useGetAccountStocks();
   const { updateAccountCount, deleteAccountCount } = useAccountCountMutations();
   const updateCountQuantity = useUpdateCountQuantityMutation();
@@ -70,15 +69,7 @@ const Count = () => {
     [location]
   );
 
-  const currentCount = useMemo(() => {
-    const openCounts = counts?.filter(
-      (item) =>
-        item.isCompleted === false &&
-        item.location === numericLocation &&
-        item.countList === countListId
-    );
-    return openCounts?.find((item) => item.user === user?._id) ?? openCounts?.[0];
-  }, [counts, numericLocation, user?._id, countListId]);
+  const currentCount = useGetActiveCount(numericLocation, countListId);
 
   const currentCountList = useMemo(
     () => countLists?.find((cl) => cl?._id === countListId),
