@@ -509,6 +509,15 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isDisabled: !singleItemGroup?.category?.isOnlineOrder,
       },
       {
+        type: InputTypes.NUMBER,
+        formKey: "referencePrice",
+        label: t("Reference Price"),
+        placeholder: rowToAction?.price
+          ? t("referencePricePlaceholder", { price: rowToAction.price })
+          : t("Reference Price"),
+        required: false,
+      },
+      {
         type: InputTypes.SELECT,
         formKey: "category",
         label: t("Category"),
@@ -644,7 +653,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           ]
         : []),
     ],
-    [t, singleItemGroup, discounts, products, categories]
+    [t, singleItemGroup, discounts, products, categories, rowToAction]
   );
 
   const formKeys = useMemo(
@@ -653,6 +662,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "description", type: FormKeyTypeEnum.STRING },
       { key: "price", type: FormKeyTypeEnum.NUMBER },
       { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
+      { key: "referencePrice", type: FormKeyTypeEnum.NUMBER },
       { key: "category", type: FormKeyTypeEnum.NUMBER },
       { key: "additionalCategories", type: FormKeyTypeEnum.ARRAY },
       // { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },

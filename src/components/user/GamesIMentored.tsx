@@ -1,8 +1,12 @@
+import { format, startOfMonth } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Gameplay } from "../../types";
 import { useGetGamesMinimal } from "../../utils/api/game";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
+const defaultStartDate = format(startOfMonth(new Date()), "yyyy-MM-dd");
 
 type Props = {
   data: Gameplay[];
@@ -15,8 +19,9 @@ type GameplayAccumulator = {
 const GamesIMentored = ({ data }: Props) => {
   const { t } = useTranslation();
   const games = useGetGamesMinimal();
-  const [startDateFilter, setStartDateFilter] = useState<string | null>();
-  const [endDateFilter, setEndDateFilter] = useState<string | null>();
+  const [startDateFilter, setStartDateFilter] =
+    useState<string>(defaultStartDate);
+  const [endDateFilter, setEndDateFilter] = useState<string>("");
 
   const gameplays = useMemo(() => {
     return data.reduce<GameplayAccumulator>((acc, gameplay) => {
@@ -75,29 +80,17 @@ const GamesIMentored = ({ data }: Props) => {
   const filters = useMemo(
     () => [
       {
-        isUpperSide: false,
+        isUpperSide: true,
         node: (
-          <div className=" flex flex-col sm:flex-row gap-2   ">
-            <input
-              className="border px-2 rounded-md"
-              type="date"
-              name="startDay"
-              value={startDateFilter ?? ""}
-              onChange={(e) => {
-                setStartDateFilter(e.target.value);
-              }}
-            />
-            <span className="mx-auto sm:mx-0">to</span>
-            <input
-              className="border px-2 rounded-md"
-              name="endDay"
-              type="date"
-              value={endDateFilter ?? ""}
-              onChange={(e) => {
-                setEndDateFilter(e.target.value);
-              }}
-            />
-          </div>
+          <QuickDateRangeFilter
+            startDate={startDateFilter}
+            endDate={endDateFilter}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setStartDateFilter(isReset ? defaultStartDate : start);
+              setEndDateFilter(isReset ? "" : end);
+            }}
+          />
         ),
       },
     ],

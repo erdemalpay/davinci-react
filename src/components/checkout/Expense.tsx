@@ -40,6 +40,7 @@ import {
   VendorInput,
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -105,7 +106,10 @@ const Expenses = () => {
         lctn: getItem(invoice?.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice?.date),
         unitPrice: parseFloat(
-          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+          (invoice?.quantity
+            ? invoice?.totalExpense / invoice?.quantity
+            : 0
+          ).toFixed(4)
         ),
         expType: getItem(invoice?.expenseType, expenseTypes),
         service: getItem(invoice?.service, services)?.name,
@@ -115,82 +119,95 @@ const Expenses = () => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
   const [rows, setRows] = useState(allRows);
-  const filterPanelInputs = useMemo(() => [
-    {
-      type: InputTypes.SELECT,
-      formKey: "type",
-      label: t("Expense Category"),
-      options: Object.entries(ExpenseTypes).map((item) => {
-        return {
-          value: item[1],
-          label: t(item[1]),
-        };
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "type",
+        label: t("Expense Category"),
+        options: Object.entries(ExpenseTypes).map((item) => {
+          return {
+            value: item[1],
+            label: t(item[1]),
+          };
+        }),
+        invalidateKeys: [
+          { key: "product", defaultValue: "" },
+          { key: "service", defaultValue: "" },
+        ],
+        placeholder: t("Expense Category"),
+        isMultiple: false,
+        required: true,
+      },
+      ProductInput({
+        products: products,
+        required: true,
+        isDisabled:
+          filterCheckoutPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
+        t,
       }),
-      invalidateKeys: [
-        { key: "product", defaultValue: "" },
-        { key: "service", defaultValue: "" },
-      ],
-      placeholder: t("Expense Category"),
-      isMultiple: false,
-      required: true,
-    },
-    ProductInput({
-      products: products,
-      required: true,
-      isDisabled:
-        filterCheckoutPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
-      t,
-    }),
-    ServiceInput({
-      services: services,
-      required: true,
-      isDisabled:
-        filterCheckoutPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
-      t,
-    }),
+      ServiceInput({
+        services: services,
+        required: true,
+        isDisabled:
+          filterCheckoutPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
+        t,
+      }),
 
-    VendorInput({ vendors: vendors, required: true, t }),
-    BrandInput({ brands: brands, required: true, t }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true, t }),
-    PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
-      required: true,
-      isMultiple: true,
-      t,
-    }),
-    StockLocationInput({ locations: locations, t }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
+      VendorInput({ vendors: vendors, required: true, t }),
+      BrandInput({ brands: brands, required: true, t }),
+      ExpenseTypeInput({ expenseTypes: expenseTypes, required: true, t }),
+      PaymentMethodInput({
+        paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
+        required: true,
+        isMultiple: true,
+        t,
       }),
-      placeholder: t("Date"),
-      required: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      required: true,
-      isDatePicker: true,
-    },
-  ], [products, services, vendors, brands, expenseTypes, paymentMethods, locations, filterCheckoutPanelFormElements?.type, t]);
+      StockLocationInput({ locations: locations, t }),
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => {
+          return {
+            value: option.value,
+            label: t(option.label),
+          };
+        }),
+        placeholder: t("Date"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [
+      products,
+      services,
+      vendors,
+      brands,
+      expenseTypes,
+      paymentMethods,
+      locations,
+      filterCheckoutPanelFormElements?.type,
+      t,
+    ]
+  );
   const expenseTypeInputOptions = () => {
     if (allExpenseForm?.type === ExpenseTypes.STOCKABLE) {
       return (
@@ -421,6 +438,11 @@ const Expenses = () => {
     { key: t("Vat") + "%", isSortable: true },
     { key: t("Discount") + "%", isSortable: true },
     {
+      key: t("Deposit"),
+      isSortable: false,
+      correspondingKey: "deposit",
+    },
+    {
       key: t("Total Expense"),
       isSortable: true,
       correspondingKey: "totalExpense",
@@ -554,6 +576,21 @@ const Expenses = () => {
     { key: "vat", className: "min-w-32 pr-2" },
     { key: "discount", className: "min-w-32 pr-2" },
     {
+      key: "deposit",
+      node: (row: any) => {
+        return (
+          <div className="min-w-32">
+            <P1>
+              {parseFloat(row?.deposit ?? 0)
+                .toFixed(2)
+                .replace(/\.?0*$/, "")}{" "}
+              ₺
+            </P1>
+          </div>
+        );
+      },
+    },
+    {
       key: "totalExpense",
       node: (row: any) => {
         return (
@@ -570,6 +607,26 @@ const Expenses = () => {
     },
   ];
   const tableFilters = [
+    {
+      isUpperSide: true,
+      node: (
+        <QuickDateRangeFilter
+          startDate={filterCheckoutPanelFormElements.after}
+          endDate={filterCheckoutPanelFormElements.before}
+          onChange={(start: string, end: string) => {
+            const isReset = !start && !end;
+            setFilterCheckoutPanelFormElements({
+              ...filterCheckoutPanelFormElements,
+              after: isReset
+                ? initialFilterCheckoutPanelFormElements.after
+                : start,
+              before: isReset ? "" : end,
+              date: "",
+            });
+          }}
+        />
+      ),
+    },
     {
       label: t("Total") + " :",
       isUpperSide: false,
@@ -641,6 +698,13 @@ const Expenses = () => {
             required: false,
           },
           {
+            type: InputTypes.NUMBER,
+            formKey: "deposit",
+            label: t("Deposit"),
+            placeholder: t("Deposit"),
+            required: false,
+          },
+          {
             type: InputTypes.TEXTAREA,
             formKey: "note",
             label: t("Note"),
@@ -653,12 +717,13 @@ const Expenses = () => {
           { key: "price", type: FormKeyTypeEnum.NUMBER },
           { key: "vat", type: FormKeyTypeEnum.NUMBER },
           { key: "discount", type: FormKeyTypeEnum.NUMBER },
+          { key: "deposit", type: FormKeyTypeEnum.NUMBER },
         ]}
         generalClassName="overflow-scroll"
         submitFunction={() => {
           const discountedPrice =
             Number(allExpenseForm.price) -
-            (Number(allExpenseForm.discount || 0) / 100) *
+            (Number(allExpenseForm?.discount || 0) / 100) *
               Number(allExpenseForm.price);
           createAccountExpense({
             ...allExpenseForm,
@@ -668,7 +733,9 @@ const Expenses = () => {
             quantity: Number(allExpenseForm.quantity),
             totalExpense:
               discountedPrice +
-              Number(allExpenseForm.vat || 0) * (discountedPrice / 100),
+              Number(allExpenseForm?.vat || 0) * (discountedPrice / 100) -
+              Number(allExpenseForm?.deposit ?? 0),
+            deposit: Number(allExpenseForm?.deposit ?? 0),
           });
           setAllExpenseForm({});
         }}
@@ -756,6 +823,13 @@ const Expenses = () => {
               required: true,
             },
             {
+              type: InputTypes.NUMBER,
+              formKey: "deposit",
+              label: t("Deposit"),
+              placeholder: t("Deposit"),
+              required: false,
+            },
+            {
               type: InputTypes.TEXTAREA,
               formKey: "note",
               label: t("Note"),
@@ -766,6 +840,7 @@ const Expenses = () => {
           formKeys={[
             ...formKeys,
             { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+            { key: "deposit", type: FormKeyTypeEnum.NUMBER },
           ]}
           setForm={setAllExpenseForm}
           submitItem={updateAccountExpense as any}

@@ -293,8 +293,6 @@ const SandwichStock = () => {
   const columns = useMemo(() => {
     const cols = [
       { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
-      { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
-      { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
       {
         key: t("Quantity"),
         isSortable: true,
@@ -332,8 +330,6 @@ const SandwichStock = () => {
   const rowKeys = useMemo(() => {
     const keys = [
       { key: "prdct" },
-      { key: "sku" },
-      { key: "barcode" },
       { key: "totalQuantity" },
       {
         key: "unitPrice",

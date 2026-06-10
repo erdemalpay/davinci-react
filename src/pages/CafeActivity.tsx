@@ -4,6 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../components/common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -18,21 +19,24 @@ import {
 } from "../types";
 import {
   useCafeActivityMutations,
-  useGetCafeActivitys,
+  useGetCafeActivitysByDateRange,
 } from "../utils/api/cafeActivity";
+import { dateRanges } from "../utils/api/dateRanges";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
 
+const getDefaultAfter = () =>
+  new Date().getMonth() === 0
+    ? dateRanges.last3Months().after
+    : dateRanges.thisYear().after;
+
 const CafeActivity = () => {
-  const cafeActivities = useGetCafeActivitys();
   const locations = useGetStoreLocations();
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const { createCafeActivity, deleteCafeActivity, updateCafeActivity } =
-    useCafeActivityMutations();
   const disabledConditions = useGetDisabledConditions();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -43,6 +47,12 @@ const CafeActivity = () => {
   ] = useState(false);
   const [showCompletedCafeActivities, setShowCompletedActivities] =
     useState(false);
+  const [after, setAfter] = useState<string>(getDefaultAfter);
+  const [before, setBefore] = useState<string>("");
+
+  const cafeActivities = useGetCafeActivitysByDateRange(after, before);
+  const { createCafeActivity, deleteCafeActivity, updateCafeActivity } =
+    useCafeActivityMutations(after, before);
 
   const cafeActivitiesDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.CAFE_ACTIVITIES, disabledConditions);
@@ -292,6 +302,20 @@ const CafeActivity = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={after}
+            endDate={before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setAfter(isReset ? getDefaultAfter() : start);
+              setBefore(isReset ? "" : end);
+            }}
+          />
+        ),
+      },
+      {
         label: t("Show Completed Activities"),
         isUpperSide: true,
         node: (
@@ -303,7 +327,7 @@ const CafeActivity = () => {
         isDisabled: isActionDisabled(cafeActivitiesDisabledCondition, ActionEnum.SHOW_COMPLETED_ACTIVITIES, user),
       },
     ],
-    [t, showCompletedCafeActivities, cafeActivitiesDisabledCondition, user]
+    [t, showCompletedCafeActivities, cafeActivitiesDisabledCondition, user, after, before]
   );
 
   return (

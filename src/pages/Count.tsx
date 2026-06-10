@@ -19,10 +19,10 @@ import {
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { CountListPageTabEnum } from "../types";
+import { ActionEnum, CountListPageTabEnum, DisabledConditionEnum } from "../types";
 import {
   useAccountCountMutations,
-  useGetAccountCounts,
+  useGetActiveCount,
   useUpdateCountQuantityMutation,
 } from "../utils/api/account/count";
 import {
@@ -32,6 +32,10 @@ import {
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetAccountStocks } from "../utils/api/account/stock";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getItem } from "../utils/getItem";
+import { isActionDisabled } from "../utils/permissions";
+import { getCountStockBgColor } from "../utils/color";
 
 const Count = () => {
   const { t, i18n } = useTranslation();
@@ -39,7 +43,6 @@ const Count = () => {
   const navigate = useNavigate();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
-  const counts = useGetAccountCounts();
   const stocks = useGetAccountStocks();
   const { updateAccountCount, deleteAccountCount } = useAccountCountMutations();
   const updateCountQuantity = useUpdateCountQuantityMutation();
@@ -55,20 +58,18 @@ const Count = () => {
     product: [],
   });
 
+  const disabledConditions = useGetDisabledConditions();
+
+  const countArchiveOpenCountDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.COUNTARCHIVE_COUNT, disabledConditions);
+  }, [disabledConditions]);
+
   const numericLocation = useMemo(
     () => (location ? Number(location) : undefined),
     [location]
   );
 
-  const currentCount = useMemo(() => {
-    return counts?.find(
-      (item) =>
-        item.isCompleted === false &&
-        item.location === numericLocation &&
-        item.user === user?._id &&
-        item.countList === countListId
-    );
-  }, [counts, numericLocation, user?._id, countListId]);
+  const currentCount = useGetActiveCount(numericLocation, countListId);
 
   const currentCountList = useMemo(
     () => countLists?.find((cl) => cl?._id === countListId),
@@ -117,15 +118,26 @@ const Count = () => {
     []
   );
 
+  const showStockAndColors = useMemo(
+    () => !isActionDisabled(countArchiveOpenCountDisabledCondition, ActionEnum.ADVANCED_VIEW, user),
+    [countArchiveOpenCountDisabledCondition, user]
+  );
+
   const columns = useMemo(() => {
     const base = [
       { key: t("Product"), isSortable: true },
       { key: t("Shelf"), isSortable: true },
+      ...(showStockAndColors
+        ? [
+            { key: t("Stock Quantity"), isSortable: true },
+            { key: t("Difference"), isSortable: false },
+          ]
+        : []),
       { key: t("Quantity"), isSortable: true, className: "mx-auto" },
     ];
     if (isEnableEdit) base.push({ key: t("Actions"), isSortable: false });
     return base;
-  }, [t, isEnableEdit]);
+  }, [t, isEnableEdit, showStockAndColors]);
 
   const rows = useMemo(() => {
     const listProducts = currentCountList?.products ?? [];
@@ -152,7 +164,7 @@ const Count = () => {
               product: foundProduct?.name || "",
               countQuantity: currentCount?.products?.find(
                 (cp: any) => cp.product === countListProduct.product
-              )?.countQuantity,
+              )?.countQuantity ?? 0,
               productDeleteRequest: currentCount?.products?.find(
                 (cp: any) => cp.product === countListProduct.product
               )?.productDeleteRequest,
@@ -162,6 +174,12 @@ const Count = () => {
                 )?.shelf || "",
               sku: foundMenuItem?.sku || "",
               barcode: foundMenuItem?.barcode || "",
+              stockQuantity:
+                stocks?.find(
+                  (s) =>
+                    s?.product === countListProduct.product &&
+                    s?.location === numericLocation
+                )?.quantity || 0,
             };
           }
           return { product: "", countQuantity: 0 };
@@ -173,9 +191,28 @@ const Count = () => {
     numericLocation,
     products,
     items,
+    stocks,
     currentCount?.products,
     i18n.language,
   ]);
+
+  const sortedRows = useMemo(() => {
+    if (!showStockAndColors) {
+      return [...rows].sort((a, b) => a.product.localeCompare(b.product));
+    }
+    const colorRank = (row: { stockQuantity?: number; countQuantity: number }) => {
+      const s = Number(row.stockQuantity ?? 0);
+      const c = Number(row.countQuantity);
+      if (s > c) return 0; // red
+      if (s < c) return 1; // green
+      return 2;            // blue
+    };
+    return [...rows].sort((a, b) => {
+      const rankDiff = colorRank(a) - colorRank(b);
+      if (rankDiff !== 0) return rankDiff;
+      return a.product.localeCompare(b.product);
+    });
+  }, [rows, showStockAndColors]);
 
   const addButton = useMemo(
     () => ({
@@ -312,6 +349,18 @@ const Count = () => {
         },
       },
       { key: "shelfInfo" },
+      ...(showStockAndColors
+        ? [
+            { key: "stockQuantity" },
+            {
+              key: "difference",
+              node: (row: any) => {
+                const diff = Number(row.countQuantity) - Number(row.stockQuantity);
+                return <span>{diff > 0 ? `+${diff}` : diff}</span>;
+              },
+            },
+          ]
+        : []),
       {
         key: "countQuantity",
         node: (row: any) => {
@@ -356,14 +405,14 @@ const Count = () => {
                 isTopFlexRow={false}
                 minNumber={0}
                 isMinNumber={true}
-                className="w-20 h-10 text-center"
+                className="w-20 h-10 text-center bg-transparent"
               />
             </div>
           );
         },
       },
     ],
-    [products, currentCount, stocks, numericLocation, updateCountQuantity]
+    [products, currentCount, stocks, numericLocation, updateCountQuantity, showStockAndColors]
   );
 
   const filters = useMemo(
@@ -449,13 +498,14 @@ const Count = () => {
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}
-          rows={rows}
+          rows={sortedRows}
           title={t("Count")}
           searchRowKeys={[...rowKeys, { key: "sku" }, { key: "barcode" }]}
           isActionsActive={isEnableEdit}
           addButton={addButton}
           filters={filters}
           actions={isEnableEdit ? actions : []}
+          rowClassNameFunction={showStockAndColors ? getCountStockBgColor : undefined}
         />
         <div className="flex justify-end flex-row gap-2 mt-4">
           <GenericButton variant="danger" size="sm" onClick={cancelCount}>

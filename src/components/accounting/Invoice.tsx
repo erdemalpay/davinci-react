@@ -18,7 +18,6 @@ import {
   NOTPAID,
   commonDateOptions,
 } from "../../types";
-import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useAccountBrandMutations,
   useGetAccountBrands,
@@ -43,10 +42,12 @@ import {
 } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -137,7 +138,10 @@ const Invoice = () => {
         lctn: getItem(invoice?.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice?.date),
         unitPrice: parseFloat(
-          (invoice?.totalExpense / invoice?.quantity).toFixed(2)
+          (invoice?.quantity
+            ? invoice?.totalExpense / invoice?.quantity
+            : 0
+          ).toFixed(2)
         ),
         expType: getItem(invoice?.expenseType, expenseTypes),
         brnd: getItem(invoice?.brand, brands),
@@ -556,7 +560,11 @@ const Invoice = () => {
     []
   );
 
-  const isUnitPriceHidden = isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+  const isUnitPriceHidden = isActionDisabled(
+    invoicePageDisabledCondition,
+    ActionEnum.SHOW_UNIT_PRICES,
+    user
+  );
 
   const columns = useMemo(() => {
     const cols = [
@@ -629,6 +637,11 @@ const Invoice = () => {
       { key: t("Unit Price"), isSortable: false },
       { key: t("Vat") + "%", isSortable: true },
       { key: t("Discount") + "%", isSortable: true },
+      {
+        key: t("Deposit"),
+        isSortable: true,
+        correspondingKey: "deposit",
+      },
       {
         key: t("Total Expense"),
         isSortable: true,
@@ -818,6 +831,19 @@ const Invoice = () => {
       { key: "vat", className: "min-w-32 pr-2" },
       { key: "discount", className: "min-w-32 pr-2" },
       {
+        key: "deposit",
+        node: (row: any) => {
+          return (
+            <div className="min-w-32">
+              {parseFloat(row?.deposit ?? 0)
+                .toFixed(2)
+                .replace(/\.?0*$/, "")}{" "}
+              ₺
+            </div>
+          );
+        },
+      },
+      {
         key: "totalExpense",
         isParseFloat: true,
         className: "min-w-32",
@@ -863,6 +889,13 @@ const Invoice = () => {
               required: false,
             },
             {
+              type: InputTypes.NUMBER,
+              formKey: "deposit",
+              label: t("Deposit"),
+              placeholder: t("Deposit"),
+              required: false,
+            },
+            {
               type: InputTypes.TEXTAREA,
               formKey: "note",
               label: t("Note"),
@@ -875,15 +908,17 @@ const Invoice = () => {
             { key: "price", type: FormKeyTypeEnum.NUMBER },
             { key: "vat", type: FormKeyTypeEnum.NUMBER },
             { key: "discount", type: FormKeyTypeEnum.NUMBER },
+            { key: "deposit", type: FormKeyTypeEnum.NUMBER },
           ]}
           additionalCancelFunction={() => {
             setProductExpenseForm({});
           }}
           submitFunction={() => {
             const discountedPrice =
-              Number(productExpenseForm.price) -
-              (Number(productExpenseForm.discount) / 100) *
-                Number(productExpenseForm.price);
+              Number(productExpenseForm?.price) -
+              (Number(productExpenseForm?.discount ?? 0) / 100) *
+                Number(productExpenseForm?.price);
+
             createAccountExpense({
               ...productExpenseForm,
               paymentMethod:
@@ -895,7 +930,9 @@ const Invoice = () => {
               type: ExpenseTypes.STOCKABLE,
               totalExpense:
                 discountedPrice +
-                Number(productExpenseForm.vat) * (discountedPrice / 100),
+                Number(productExpenseForm?.vat ?? 0) * (discountedPrice / 100) -
+                Number(productExpenseForm?.deposit ?? 0),
+              deposit: Number(productExpenseForm?.deposit ?? 0),
             });
             setProductExpenseForm({});
           }}
@@ -918,7 +955,11 @@ const Invoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ADD, user),
+      isDisabled: isActionDisabled(
+        invoicePageDisabledCondition,
+        ActionEnum.ADD,
+        user
+      ),
     }),
     [
       t,
@@ -985,6 +1026,13 @@ const Invoice = () => {
                 required: true,
               },
               {
+                type: InputTypes.NUMBER,
+                formKey: "deposit",
+                label: t("Deposit"),
+                placeholder: t("Deposit"),
+                required: false,
+              },
+              {
                 type: InputTypes.TEXTAREA,
                 formKey: "note",
                 label: t("Note"),
@@ -995,6 +1043,7 @@ const Invoice = () => {
             formKeys={[
               ...formKeys,
               { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+              { key: "deposit", type: FormKeyTypeEnum.NUMBER },
             ]}
             setForm={setProductExpenseForm}
             submitItem={updateAccountExpense as any}
@@ -1046,9 +1095,33 @@ const Invoice = () => {
   const tableFilters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelInvoiceFormElements.after}
+            endDate={filterPanelInvoiceFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelInvoiceFormElements({
+                ...filterPanelInvoiceFormElements,
+                after: isReset
+                  ? initialFilterPanelInvoiceFormElements.after
+                  : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.SHOWTOTAL, user),
+        isDisabled: isActionDisabled(
+          invoicePageDisabledCondition,
+          ActionEnum.SHOWTOTAL,
+          user
+        ),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -1065,7 +1138,11 @@ const Invoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
-        isDisabled: isActionDisabled(invoicePageDisabledCondition, ActionEnum.ENABLEEDIT, user),
+        isDisabled: isActionDisabled(
+          invoicePageDisabledCondition,
+          ActionEnum.ENABLEEDIT,
+          user
+        ),
         node: (
           <SwitchButton
             checked={isInvoiceEnableEdit}

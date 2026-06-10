@@ -57,6 +57,7 @@ export function PageSelector() {
               key={tab.label}
               onClick={() => {
                 resetGeneralContext();
+                setSearchValue("");
                 navigate(`${item.path}?tab=${tabSlug}`);
                 window.scrollTo(0, 0);
                 setIsMenuOpen(false);

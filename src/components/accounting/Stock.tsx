@@ -96,6 +96,9 @@ const Stock = () => {
     return getItem(DisabledConditionEnum.STOCK_STOCK, disabledConditions);
   }, [disabledConditions]);
 
+  const isActionsVisible =
+    isStockEnableEdit || !!filterStockPanelFormElements?.location;
+
   const filteredStocks = useMemo(() => {
     return stocks?.filter((stock) => {
       const rowProduct = getItem(stock?.product, products);
@@ -143,7 +146,7 @@ const Stock = () => {
             collapsibleColumns: [
               { key: t("Location"), isSortable: true },
               { key: t("Quantity"), isSortable: true },
-              isStockEnableEdit
+              isActionsVisible
                 ? { key: t("Actions"), isSortable: false }
                 : undefined,
             ].filter(Boolean),
@@ -169,7 +172,7 @@ const Stock = () => {
     }, {});
 
     return Object.values(processedRows || {});
-  }, [filteredStocks, products, items, locations, t, isStockEnableEdit]);
+  }, [filteredStocks, products, items, locations, t, isActionsVisible]);
 
   const generalTotalExpense = useMemo(() => {
     return (rows?.reduce((acc: number, stock: any) => {
@@ -766,14 +769,14 @@ const Stock = () => {
       <div className="w-full px-4 my-6">
         <GenericTable
           rowKeys={rowKeys}
-          collapsibleActions={isStockEnableEdit ? collapsibleActions : []}
+          collapsibleActions={isActionsVisible ? collapsibleActions : []}
           filters={filters}
           columns={columns}
           rows={rows}
           title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isActionsActive={isStockEnableEdit}
+          isActionsActive={isActionsVisible}
           isCollapsible={true}
           isSearch={true}
           isToolTipEnabled={false}

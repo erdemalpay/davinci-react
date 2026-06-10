@@ -7,7 +7,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
+import { useDataContext } from "../context/Data.context";
 import { useFilteredRoutes } from "./useFilteredRoutes";
+import { Routes } from "../navigation/constants";
 import { Role } from "../types";
 import { useGetBreaksByDate } from "../utils/api/break";
 import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
@@ -48,9 +50,28 @@ export function useSidebarNavigation(onClose: () => void) {
 
   const { setUser } = useUserContext();
   const { resetGeneralContext, setIsLogoutModalOpen } = useGeneralContext();
+  const { kitchens } = useDataContext();
 
   const user = useGetUser();
-  const routes = useFilteredRoutes() as SidebarRouteItem[];
+  const rawRoutes = useFilteredRoutes() as SidebarRouteItem[];
+
+  const routes = useMemo(() => {
+    if (!kitchens?.length) return rawRoutes;
+    const kitchenTabs: Tab[] = kitchens.map((kitchen, index) => ({
+      number: index,
+      label: kitchen.name,
+      content: null,
+      isDisabled: false,
+    }));
+    return rawRoutes.map((route) =>
+      route.path === Routes.Orders
+        ? {
+            ...route,
+            tabs: kitchenTabs,
+          } : route
+
+    );
+  }, [rawRoutes, kitchens]);
   const pages = useGetPanelControlPages();
 
   const todayDate = format(new Date(), "yyyy-MM-dd");
@@ -147,6 +168,7 @@ export function useSidebarNavigation(onClose: () => void) {
     if (!item.path) return;
 
     resetGeneralContext();
+    setSearchValue("");
 
     const allowedTabs = getAllowedTabs(item);
 

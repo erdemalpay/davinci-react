@@ -186,15 +186,13 @@ const OrderStatusContainer = ({
           {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
             <div key={tableId} className=" flex flex-col gap-1 px-1 ">
               <div className="flex justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-1 items-center gap-2">
                   <h2
                     onClick={() => toggleTable(tableId)}
-                    className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
+                    className="font-semibold text-blue-800 flex flex-1 items-center justify-between cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
                   >
-                    {t("Table")} {(tableOrders[0]?.table as Table)?.name}
-                    <span // Toggle icon
-                      className="inline-flex  cursor-pointer"
-                    >
+                    <span>{t("Table")} {(tableOrders[0]?.table as Table)?.name}</span>
+                    <span className="inline-flex cursor-pointer">
                       {expandedTables[tableId] ? "▲" : "▼"}
                     </span>
                   </h2>

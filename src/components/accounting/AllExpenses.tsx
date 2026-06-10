@@ -14,7 +14,6 @@ import {
   NOTPAID,
   commonDateOptions,
 } from "../../types";
-import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import {
   useAccountExpenseMutations,
@@ -27,9 +26,11 @@ import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -71,7 +72,10 @@ const AllExpenses = () => {
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
   const allExpensesPageDisabledCondition = useMemo(() => {
-    return getItem(DisabledConditionEnum.EXPENSES_ALLEXPENSES, disabledConditions);
+    return getItem(
+      DisabledConditionEnum.EXPENSES_ALLEXPENSES,
+      disabledConditions
+    );
   }, [disabledConditions]);
 
   const rows = useMemo(() => {
@@ -86,7 +90,10 @@ const AllExpenses = () => {
           lctn: getItem(invoice?.location, locations)?.name,
           formattedDate: formatAsLocalDate(invoice?.date),
           unitPrice: parseFloat(
-            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+            (invoice?.quantity
+              ? invoice?.totalExpense / invoice?.quantity
+              : 0
+            ).toFixed(4)
           ),
           expType: getItem(invoice?.expenseType, expenseTypes),
           service: getItem(invoice?.service, services)?.name,
@@ -501,7 +508,11 @@ const AllExpenses = () => {
     []
   );
 
-  const isUnitPriceHidden = isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+  const isUnitPriceHidden = isActionDisabled(
+    allExpensesPageDisabledCondition,
+    ActionEnum.SHOW_UNIT_PRICES,
+    user
+  );
 
   const columns = useMemo(() => {
     const cols = [
@@ -567,6 +578,11 @@ const AllExpenses = () => {
       { key: t("Unit Price"), isSortable: false },
       { key: t("Vat") + "%", isSortable: true },
       { key: t("Discount") + "%", isSortable: true },
+      {
+        key: t("Deposit"),
+        isSortable: true,
+        correspondingKey: "deposit",
+      },
       {
         key: t("Total Expense"),
         isSortable: true,
@@ -682,6 +698,21 @@ const AllExpenses = () => {
       { key: "vat", className: "min-w-32 pr-2" },
       { key: "discount", className: "min-w-32 pr-2" },
       {
+        key: "deposit",
+        node: (row: any) => {
+          return (
+            <div className="min-w-32">
+              <P1>
+                {parseFloat(row?.deposit ?? 0)
+                  .toFixed(2)
+                  .replace(/\.?0*$/, "")}{" "}
+                ₺
+              </P1>
+            </div>
+          );
+        },
+      },
+      {
         key: "totalExpense",
         node: (row: any) => {
           return (
@@ -737,6 +768,13 @@ const AllExpenses = () => {
               required: false,
             },
             {
+              type: InputTypes.NUMBER,
+              formKey: "deposit",
+              label: t("Deposit"),
+              placeholder: t("Deposit"),
+              required: false,
+            },
+            {
               type: InputTypes.TEXTAREA,
               formKey: "note",
               label: t("Note"),
@@ -749,11 +787,12 @@ const AllExpenses = () => {
             { key: "price", type: FormKeyTypeEnum.NUMBER },
             { key: "vat", type: FormKeyTypeEnum.NUMBER },
             { key: "discount", type: FormKeyTypeEnum.NUMBER },
+            { key: "deposit", type: FormKeyTypeEnum.NUMBER },
           ]}
           submitFunction={() => {
             const discountedPrice =
               Number(allExpenseForm.price) -
-              (Number(allExpenseForm.discount) / 100) *
+              (Number(allExpenseForm?.discount ?? 0) / 100) *
                 Number(allExpenseForm.price);
             createAccountExpense({
               ...allExpenseForm,
@@ -765,7 +804,10 @@ const AllExpenses = () => {
               quantity: Number(allExpenseForm.quantity),
               totalExpense:
                 Number(discountedPrice) +
-                Number(allExpenseForm.vat) * (Number(discountedPrice) / 100),
+                Number(allExpenseForm?.vat ?? 0) *
+                  (Number(discountedPrice) / 100) -
+                Number(allExpenseForm?.deposit ?? 0),
+              deposit: Number(allExpenseForm?.deposit ?? 0),
             });
             setAllExpenseForm({});
           }}
@@ -795,7 +837,11 @@ const AllExpenses = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.ADD, user),
+      isDisabled: isActionDisabled(
+        allExpensesPageDisabledCondition,
+        ActionEnum.ADD,
+        user
+      ),
     }),
     [
       t,
@@ -813,9 +859,33 @@ const AllExpenses = () => {
   const tableFilters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterAllExpensesPanelFormElements.after}
+            endDate={filterAllExpensesPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterAllExpensesPanelFormElements({
+                ...filterAllExpensesPanelFormElements,
+                after: isReset
+                  ? initialFilterPanelAllExpensesFormElements.after
+                  : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: isActionDisabled(allExpensesPageDisabledCondition, ActionEnum.SHOWTOTAL, user),
+        isDisabled: isActionDisabled(
+          allExpensesPageDisabledCondition,
+          ActionEnum.SHOWTOTAL,
+          user
+        ),
         node: (
           <div className="flex flex-row gap-2">
             <p>

@@ -1579,5 +1579,8 @@
   "Mail Drafts": "Mail Taslakları",
   "Concurrency Logs": "Eşzamanlılık Logları",
   "ShiftLink": "ShiftLink",
-  "Game Batches (FIFO)": "Oyun Grupları (FIFO)"
+  "Game Batches (FIFO)": "Oyun Grupları (FIFO)",
+  "Reference Price": "Referans Fiyat (Müşteri Menüsünde Üstü Çizili Olarak Görünür)",
+  "referencePricePlaceholder": "{{price}} değerinden büyük bir değer giriniz",
+  "Deposit": "Depozito"
 }

@@ -16,7 +16,6 @@ import {
   NOTPAID,
   commonDateOptions,
 } from "../../types";
-import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import {
   useAccountExpenseMutations,
   useGetAccountExpenses,
@@ -36,10 +35,12 @@ import {
 } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -123,7 +124,10 @@ const ServiceInvoice = () => {
         lctn: getItem(invoice?.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice?.date),
         unitPrice: parseFloat(
-          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+          (invoice?.quantity
+            ? invoice?.totalExpense / invoice?.quantity
+            : 0
+          ).toFixed(4)
         ),
         expType: getItem(invoice?.expenseType, expenseTypes),
         vndr: getItem(invoice?.vendor, vendors),
@@ -467,7 +471,11 @@ const ServiceInvoice = () => {
     ],
     []
   );
-  const isUnitPriceHidden = isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.SHOW_UNIT_PRICES, user);
+  const isUnitPriceHidden = isActionDisabled(
+    serviceInvoicePageDisabledCondition,
+    ActionEnum.SHOW_UNIT_PRICES,
+    user
+  );
 
   const columns = useMemo(() => {
     const cols = [
@@ -531,6 +539,11 @@ const ServiceInvoice = () => {
       { key: t("Vat") + "%", isSortable: true },
       { key: t("Discount") + "%", isSortable: true },
       {
+        key: t("Deposit"),
+        isSortable: true,
+        correspondingKey: "deposit",
+      },
+      {
         key: t("Total Expense"),
         isSortable: true,
         correspondingKey: "totalExpense",
@@ -544,165 +557,182 @@ const ServiceInvoice = () => {
 
   const rowKeys = useMemo(() => {
     const keys = [
-    { key: "_id", className: "min-w-32 px-2" },
-    {
-      key: "date",
-      className: "min-w-32 pr-2",
-      node: (row: any) => {
-        return row?.formattedDate;
+      { key: "_id", className: "min-w-32 px-2" },
+      {
+        key: "date",
+        className: "min-w-32 pr-2",
+        node: (row: any) => {
+          return row?.formattedDate;
+        },
       },
-    },
-    { key: "note", className: "min-w-40 pr-2" },
-    {
-      key: "vendor",
-      node: (row: any) => {
-        return (
-          <div
-            onClick={() => {
-              if (!isServiceInvoiceEnableEdit) return;
-              setIsVendorEditModalOpen(true);
-              setCurrentRow(row);
-            }}
-          >
-            <p
-              className={` min-w-32 pr-2 ${
-                isServiceInvoiceEnableEdit
-                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-                  : ""
-              }`}
-            >
-              {row?.vendor ?? "-"}
-            </p>
-          </div>
-        );
-      },
-    },
-    {
-      key: "lctn",
-      node: (row: any) => {
-        return (
-          <div>
-            <p className={` min-w-32 pr-4 `}>{row?.lctn ?? "-"}</p>
-          </div>
-        );
-      },
-    },
-    {
-      key: "expenseType",
-      node: (row: any) => {
-        return (
-          <div
-            onClick={() => {
-              if (!isServiceInvoiceEnableEdit) return;
-              setIsExpenseTypeEditModalOpen(true);
-              setCurrentRow(row);
-            }}
-          >
-            <p
-              className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
-                isServiceInvoiceEnableEdit
-                  ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-                  : "text-white"
-              }`}
-              style={{
-                backgroundColor: row?.expType?.backgroundColor,
+      { key: "note", className: "min-w-40 pr-2" },
+      {
+        key: "vendor",
+        node: (row: any) => {
+          return (
+            <div
+              onClick={() => {
+                if (!isServiceInvoiceEnableEdit) return;
+                setIsVendorEditModalOpen(true);
+                setCurrentRow(row);
               }}
             >
-              {(row?.expType as AccountExpenseType)?.name}
-            </p>
-          </div>
-        );
+              <p
+                className={` min-w-32 pr-2 ${
+                  isServiceInvoiceEnableEdit
+                    ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                    : ""
+                }`}
+              >
+                {row?.vendor ?? "-"}
+              </p>
+            </div>
+          );
+        },
       },
-    },
-    {
-      key: "service",
-      className: "min-w-32 pr-2",
-      node: (row: any) => {
-        return (
-          <div
-            onClick={() => {
-              if (!isServiceInvoiceEnableEdit) return;
-              setIsServiceEditModalOpen(true);
-              setCurrentRow(row);
-            }}
-          >
-            <p
-              className={`${
-                isServiceInvoiceEnableEdit
-                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-                  : ""
-              }`}
+      {
+        key: "lctn",
+        node: (row: any) => {
+          return (
+            <div>
+              <p className={` min-w-32 pr-4 `}>{row?.lctn ?? "-"}</p>
+            </div>
+          );
+        },
+      },
+      {
+        key: "expenseType",
+        node: (row: any) => {
+          return (
+            <div
+              onClick={() => {
+                if (!isServiceInvoiceEnableEdit) return;
+                setIsExpenseTypeEditModalOpen(true);
+                setCurrentRow(row);
+              }}
             >
-              {row?.service}
-            </p>
-          </div>
-        );
+              <p
+                className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
+                  isServiceInvoiceEnableEdit
+                    ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                    : "text-white"
+                }`}
+                style={{
+                  backgroundColor: row?.expType?.backgroundColor,
+                }}
+              >
+                {(row?.expType as AccountExpenseType)?.name}
+              </p>
+            </div>
+          );
+        },
       },
-    },
-    { key: "paymentMethodName", className: "min-w-32" },
-    { key: "quantity", className: "min-w-32" },
-    {
-      key: "isAfterCount",
-      node: (row: any) => {
-        return isServiceInvoiceEnableEdit ? (
-          <SwitchButton
-            checked={row?.isAfterCount}
-            onChange={() => {
-              updateAccountExpense({
-                id: row?._id,
-                updates: {
-                  ...row,
-                  product: invoices?.find(
-                    (invoice) => invoice?._id === row?._id
-                  )?.product,
-                  expenseType: invoices?.find(
-                    (invoice) => invoice?._id === row?._id
-                  )?.expenseType,
-                  quantity: row?.quantity,
-                  totalExpense: row?.totalExpense,
-                  brand: invoices?.find((invoice) => invoice?._id === row?._id)
-                    ?.brand,
-                  vendor: invoices?.find((invoice) => invoice?._id === row?._id)
-                    ?.vendor,
-                  isAfterCount: !row?.isAfterCount,
-                },
-              });
-            }}
-          />
-        ) : row?.isAfterCount ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        );
+      {
+        key: "service",
+        className: "min-w-32 pr-2",
+        node: (row: any) => {
+          return (
+            <div
+              onClick={() => {
+                if (!isServiceInvoiceEnableEdit) return;
+                setIsServiceEditModalOpen(true);
+                setCurrentRow(row);
+              }}
+            >
+              <p
+                className={`${
+                  isServiceInvoiceEnableEdit
+                    ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                    : ""
+                }`}
+              >
+                {row?.service}
+              </p>
+            </div>
+          );
+        },
       },
-    },
-    {
-      key: "unitPrice",
-      node: (row: any) => {
-        return (
-          <div className="min-w-32">
-            <P1>{row?.unitPrice} ₺</P1>
-          </div>
-        );
+      { key: "paymentMethodName", className: "min-w-32" },
+      { key: "quantity", className: "min-w-32" },
+      {
+        key: "isAfterCount",
+        node: (row: any) => {
+          return isServiceInvoiceEnableEdit ? (
+            <SwitchButton
+              checked={row?.isAfterCount}
+              onChange={() => {
+                updateAccountExpense({
+                  id: row?._id,
+                  updates: {
+                    ...row,
+                    product: invoices?.find(
+                      (invoice) => invoice?._id === row?._id
+                    )?.product,
+                    expenseType: invoices?.find(
+                      (invoice) => invoice?._id === row?._id
+                    )?.expenseType,
+                    quantity: row?.quantity,
+                    totalExpense: row?.totalExpense,
+                    brand: invoices?.find(
+                      (invoice) => invoice?._id === row?._id
+                    )?.brand,
+                    vendor: invoices?.find(
+                      (invoice) => invoice?._id === row?._id
+                    )?.vendor,
+                    isAfterCount: !row?.isAfterCount,
+                  },
+                });
+              }}
+            />
+          ) : row?.isAfterCount ? (
+            <IoCheckmark className="text-blue-500 text-2xl" />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl" />
+          );
+        },
       },
-    },
-    { key: "vat", className: "min-w-32 pr-2" },
-    { key: "discount", className: "min-w-32 pr-2" },
-    {
-      key: "totalExpense",
-      node: (row: any) => {
-        return (
-          <div className="min-w-32">
-            <P1>
-              {parseFloat(row?.totalExpense)
-                .toFixed(4)
-                .replace(/\.?0*$/, "")}{" "}
-              ₺
-            </P1>
-          </div>
-        );
+      {
+        key: "unitPrice",
+        node: (row: any) => {
+          return (
+            <div className="min-w-32">
+              <P1>{row?.unitPrice} ₺</P1>
+            </div>
+          );
+        },
       },
-    },
+      { key: "vat", className: "min-w-32 pr-2" },
+      { key: "discount", className: "min-w-32 pr-2" },
+      {
+        key: "deposit",
+        node: (row: any) => {
+          return (
+            <div className="min-w-32">
+              <P1>
+                {parseFloat(row?.deposit ?? 0)
+                  .toFixed(2)
+                  .replace(/\.?0*$/, "")}{" "}
+                ₺
+              </P1>
+            </div>
+          );
+        },
+      },
+      {
+        key: "totalExpense",
+        node: (row: any) => {
+          return (
+            <div className="min-w-32">
+              <P1>
+                {parseFloat(row?.totalExpense)
+                  .toFixed(4)
+                  .replace(/\.?0*$/, "")}{" "}
+                ₺
+              </P1>
+            </div>
+          );
+        },
+      },
     ];
     if (isUnitPriceHidden) {
       return keys.filter((k) => k.key !== "unitPrice");
@@ -744,6 +774,13 @@ const ServiceInvoice = () => {
               required: false,
             },
             {
+              type: InputTypes.NUMBER,
+              formKey: "deposit",
+              label: t("Deposit"),
+              placeholder: t("Deposit"),
+              required: false,
+            },
+            {
               type: InputTypes.TEXTAREA,
               formKey: "note",
               label: t("Note"),
@@ -756,11 +793,12 @@ const ServiceInvoice = () => {
             { key: "price", type: FormKeyTypeEnum.NUMBER },
             { key: "vat", type: FormKeyTypeEnum.NUMBER },
             { key: "discount", type: FormKeyTypeEnum.NUMBER },
+            { key: "deposit", type: FormKeyTypeEnum.NUMBER },
           ]}
           submitFunction={() => {
             const discountedPrice =
               Number(serviceExpenseForm.price) -
-              (Number(serviceExpenseForm.discount) / 100) *
+              (Number(serviceExpenseForm?.discount ?? 0) / 100) *
                 Number(serviceExpenseForm.price);
             createAccountExpense({
               ...serviceExpenseForm,
@@ -773,7 +811,9 @@ const ServiceInvoice = () => {
                 serviceExpenseForm?.paymentMethod === NOTPAID ? false : true,
               totalExpense:
                 discountedPrice +
-                Number(serviceExpenseForm?.vat) * (discountedPrice / 100),
+                Number(serviceExpenseForm?.vat ?? 0) * (discountedPrice / 100) -
+                Number(serviceExpenseForm?.deposit ?? 0),
+              deposit: Number(serviceExpenseForm?.deposit ?? 0),
             });
             setServiceExpenseForm({});
           }}
@@ -798,7 +838,11 @@ const ServiceInvoice = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.ADD, user),
+      isDisabled: isActionDisabled(
+        serviceInvoicePageDisabledCondition,
+        ActionEnum.ADD,
+        user
+      ),
     }),
     [
       t,
@@ -864,6 +908,13 @@ const ServiceInvoice = () => {
                 required: true,
               },
               {
+                type: InputTypes.NUMBER,
+                formKey: "deposit",
+                label: t("Deposit"),
+                placeholder: t("Deposit"),
+                required: false,
+              },
+              {
                 type: InputTypes.TEXTAREA,
                 formKey: "note",
                 label: t("Note"),
@@ -874,6 +925,7 @@ const ServiceInvoice = () => {
             formKeys={[
               ...formKeys,
               { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+              { key: "deposit", type: FormKeyTypeEnum.NUMBER },
             ]}
             setForm={setServiceExpenseForm}
             submitItem={updateAccountExpense as any}
@@ -907,9 +959,33 @@ const ServiceInvoice = () => {
   const tableFilters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterServiceInvoicePanelFormElements.after}
+            endDate={filterServiceInvoicePanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterServiceInvoicePanelFormElements({
+                ...filterServiceInvoicePanelFormElements,
+                after: isReset
+                  ? initialFilterPanelServiceInvoiceFormElements.after
+                  : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Total") + " :",
         isUpperSide: false,
-        isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.SHOWTOTAL, user),
+        isDisabled: isActionDisabled(
+          serviceInvoicePageDisabledCondition,
+          ActionEnum.SHOWTOTAL,
+          user
+        ),
         node: (
           <div className="flex flex-row gap-2">
             <p>
@@ -926,7 +1002,11 @@ const ServiceInvoice = () => {
       {
         label: t("Enable Edit"),
         isUpperSide: true,
-        isDisabled: isActionDisabled(serviceInvoicePageDisabledCondition, ActionEnum.ENABLEEDIT, user),
+        isDisabled: isActionDisabled(
+          serviceInvoicePageDisabledCondition,
+          ActionEnum.ENABLEEDIT,
+          user
+        ),
         node: (
           <SwitchButton
             checked={isServiceInvoiceEnableEdit}
