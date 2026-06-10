@@ -672,21 +672,22 @@ const GenericTable = <T,>({
               </td>
             );
           })}
-          <td>
-            {actions &&
-              isActionsActive &&
-              !(row?.isSortable === false) &&
-              !(row?.isActionsDisabled ?? false) &&
-              !isActionsAtFront &&
-              renderActionButtons(row, actions)}
-            {actions &&
-              isActionsActive &&
-              (row?.isActionsDisabled ?? false) && (
-                <div className="flex flex-row my-auto h-full gap-3 items-center">
-                  <P1>{t("Constant")}</P1>
-                </div>
-              )}
-          </td>
+          {!isActionsAtFront && (
+            <td>
+              {actions &&
+                isActionsActive &&
+                !(row?.isSortable === false) &&
+                !(row?.isActionsDisabled ?? false) &&
+                renderActionButtons(row, actions)}
+              {actions &&
+                isActionsActive &&
+                (row?.isActionsDisabled ?? false) && (
+                  <div className="flex flex-row my-auto h-full gap-3 items-center">
+                    <P1>{t("Constant")}</P1>
+                  </div>
+                )}
+            </td>
+          )}
         </tr>
         {isRowExpanded && (
           <tr>
