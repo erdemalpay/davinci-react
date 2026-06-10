@@ -82,11 +82,9 @@ const CommonSelectInput = ({
 
   return (
     <div
-      className={`flex flex-col gap-2  __className_a182b8 ${
-        className ? className : "mt-4"
-      }`}
+      className={`flex flex-col gap-2 __className_a182b8 ${className ?? ""}`}
     >
-      {label && <label className="font-medium text-gray-900">{label}</label>}
+      {label && <label className="text-sm font-medium text-gray-900">{label}</label>}
       <Select
         options={options}
         onChange={onChange}
