@@ -219,6 +219,7 @@ const TextInput = ({
             onChange(newValue);
           }}
           variant="icon"
+          className="-mr-4"
         >
           {localValue ?? value ? (
             <MdOutlineCheckBox className="h-6 w-6" />
