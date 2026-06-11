@@ -72,11 +72,11 @@ export function useSidebarNavigation(onClose: () => void) {
     }
 
     if (categories?.length) {
-      const validCategories = [...categories]
+      const activeAndSortedCategories = [...categories]
         .filter((c) => c.active || c.isKitchenMenu)
         .sort((a, b) => a.order - b.order);
 
-      const categoryTabs: Tab[] = validCategories.map((category, index) => ({
+      const categoryTabs: Tab[] = activeAndSortedCategories.map((category, index) => ({
         number: index,
         label: category.name,
         content: null,
