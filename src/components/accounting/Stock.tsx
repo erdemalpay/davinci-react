@@ -6,6 +6,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
+import { useStockTableMode } from "../../hooks/useStockTableMode";
 import {
   ActionEnum,
   DateRangeKey,
@@ -96,9 +97,6 @@ const Stock = () => {
     return getItem(DisabledConditionEnum.STOCK_STOCK, disabledConditions);
   }, [disabledConditions]);
 
-  const isActionsVisible =
-    isStockEnableEdit || !!filterStockPanelFormElements?.location;
-
   const filteredStocks = useMemo(() => {
     return stocks?.filter((stock) => {
       const rowProduct = getItem(stock?.product, products);
@@ -119,67 +117,6 @@ const Stock = () => {
       );
     });
   }, [stocks, filterStockPanelFormElements, products]);
-
-  const rows = useMemo(() => {
-    const processedRows = filteredStocks?.reduce((acc: any, stock) => {
-      const rowProduct = getItem(stock?.product, products);
-      const rowItem = getItem(rowProduct?.matchedMenuItem, items);
-      const productName = rowProduct?.name;
-      const locationName = getItem(stock?.location, locations)?.name;
-      const unitPrice = rowProduct?.unitPrice ?? 0;
-      const quantity = stock?.quantity;
-      const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
-      if (!productName) {
-        return acc;
-      }
-      if (!acc[productName]) {
-        acc[productName] = {
-          ...stock,
-          sku: rowItem?.sku ?? "",
-          barcode: rowItem?.barcode ?? "",
-          prdct: productName,
-          unitPrice,
-          menuPrice: rowItem?.price ?? "",
-          totalGroupPrice: 0,
-          totalQuantity: 0,
-          collapsible: {
-            collapsibleColumns: [
-              { key: t("Location"), isSortable: true },
-              { key: t("Quantity"), isSortable: true },
-              isActionsVisible
-                ? { key: t("Actions"), isSortable: false }
-                : undefined,
-            ].filter(Boolean),
-            collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
-            collapsibleRows: [],
-          },
-        };
-      }
-      acc[productName].totalGroupPrice += totalPrice;
-      acc[productName].totalQuantity += quantity;
-      acc[productName].collapsible.collapsibleRows.push({
-        stockId: stock?._id,
-        stockProduct: stock?.product,
-        stockLocation: stock?.location,
-        stockQuantity: stock?.quantity,
-        stockUnitPrice: rowProduct?.unitPrice ?? 0,
-        location: locationName,
-        quantity: quantity,
-        totalPrice: totalPrice,
-      });
-
-      return acc;
-    }, {});
-
-    return Object.values(processedRows || {});
-  }, [filteredStocks, products, items, locations, t, isActionsVisible]);
-
-  const generalTotalExpense = useMemo(() => {
-    return (rows?.reduce((acc: number, stock: any) => {
-      const expense = parseFloat(stock?.totalGroupPrice?.toFixed(1) || "0");
-      return acc + expense;
-    }, 0) || 0) as number;
-  }, [rows]);
 
   const inputs = useMemo(
     () => [
@@ -297,6 +234,21 @@ const Stock = () => {
     }
     return cols;
   }, [t, stockPageDisabledCondition, user, showStockPrices]);
+
+  const {
+    rows,
+    columns: tableColumns,
+    generalTotalExpense,
+    getTableModeProps,
+  } = useStockTableMode({
+    filteredStocks,
+    products,
+    items,
+    locations,
+    locationFilter: filterStockPanelFormElements?.location,
+    isEnableEdit: isStockEnableEdit,
+    columns,
+  });
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -769,15 +721,13 @@ const Stock = () => {
       <div className="w-full px-4 my-6">
         <GenericTable
           rowKeys={rowKeys}
-          collapsibleActions={isActionsVisible ? collapsibleActions : []}
+          {...getTableModeProps(collapsibleActions)}
           filters={filters}
-          columns={columns}
+          columns={tableColumns}
           rows={rows}
           title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isActionsActive={isActionsVisible}
-          isCollapsible={true}
           isSearch={true}
           isToolTipEnabled={false}
           isExcel={

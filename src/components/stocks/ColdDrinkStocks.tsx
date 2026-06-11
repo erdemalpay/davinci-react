@@ -6,6 +6,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
+import { useStockTableMode } from "../../hooks/useStockTableMode";
 import {
   ActionEnum,
   COLDDRINKEXPENSETYPE,
@@ -123,77 +124,6 @@ const ColdDrinkStock = () => {
       });
   }, [stocks, filterColdDrinkStockPanelFormElements, products]);
 
-  const rows = useMemo(() => {
-    const processedRows = filteredStocks?.reduce((acc: any, stock) => {
-      const rowProduct = getItem(stock?.product, products);
-      const rowItem = getItem(rowProduct?.matchedMenuItem, items);
-      const productName = rowProduct?.name;
-      const locationName = getItem(stock?.location, locations)?.name;
-      const unitPrice = rowProduct?.unitPrice ?? 0;
-      const quantity = stock?.quantity;
-      const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
-      if (!productName || !locationName) {
-        return acc;
-      }
-      if (!acc[productName]) {
-        acc[productName] = {
-          ...stock,
-          prdct: productName,
-          unitPrice,
-          menuPrice: rowItem?.price ?? "",
-          onlineMenuPrice: rowItem?.onlinePrice ?? "",
-          totalGroupPrice: 0,
-          totalQuantity: 0,
-          collapsible: {
-            collapsibleColumns: [
-              { key: t("Location"), isSortable: true },
-              { key: t("Quantity"), isSortable: true },
-              isColdDrinkStockEnableEdit
-                ? { key: t("Actions"), isSortable: false }
-                : undefined,
-            ].filter(Boolean),
-            collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
-            collapsibleRows: [],
-          },
-        };
-      }
-      acc[productName].totalGroupPrice += totalPrice;
-      acc[productName].totalQuantity += quantity;
-      acc[productName].collapsible.collapsibleRows.push({
-        stockId: stock?._id,
-        stockProduct: stock?.product,
-        stockLocation: stock?.location,
-        stockQuantity: stock?.quantity,
-        stockUnitPrice: rowProduct?.unitPrice ?? 0,
-        location: locationName,
-        quantity: quantity,
-        totalPrice: totalPrice,
-      });
-
-      return acc;
-    }, {});
-
-    return Object.values(processedRows || {}).sort(
-      (a, b) =>
-        (b as { totalQuantity: number }).totalQuantity -
-        (a as { totalQuantity: number }).totalQuantity
-    );
-  }, [
-    filteredStocks,
-    products,
-    items,
-    locations,
-    t,
-    isColdDrinkStockEnableEdit,
-  ]);
-
-  const generalTotalExpense = useMemo(() => {
-    return (rows?.reduce((acc: number, stock: any) => {
-      const expense = parseFloat(stock?.totalGroupPrice?.toFixed(1) || "0");
-      return acc + expense;
-    }, 0) || 0) as number;
-  }, [rows]);
-
   const inputs = useMemo(
     () => [
       {
@@ -310,6 +240,23 @@ const ColdDrinkStock = () => {
     }
     return cols;
   }, [t, coldDrinkStockPageDisabledCondition, user, showColdDrinkStockPrices]);
+
+  const {
+    rows,
+    columns: tableColumns,
+    generalTotalExpense,
+    getTableModeProps,
+  } = useStockTableMode({
+    filteredStocks,
+    products,
+    items,
+    locations,
+    locationFilter: filterColdDrinkStockPanelFormElements?.location,
+    isEnableEdit: isColdDrinkStockEnableEdit,
+    columns,
+    sortByTotalQuantity: true,
+    requireLocationName: true,
+  });
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -695,17 +642,13 @@ const ColdDrinkStock = () => {
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}
-          collapsibleActions={
-            isColdDrinkStockEnableEdit ? collapsibleActions : []
-          }
+          {...getTableModeProps(collapsibleActions)}
           filters={filters}
-          columns={columns}
+          columns={tableColumns}
           rows={rows}
           title={t("Cold Drink Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isActionsActive={isColdDrinkStockEnableEdit}
-          isCollapsible={true}
           isToolTipEnabled={false}
           isExcel={
             user &&
