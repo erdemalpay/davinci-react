@@ -181,11 +181,27 @@ const GameStock = () => {
       return acc;
     }, {});
 
-    return Object.values(processedRows || {}).sort(
-      (a, b) =>
-        (b as { totalQuantity: number }).totalQuantity -
-        (a as { totalQuantity: number }).totalQuantity
-    );
+    return Object.values(processedRows || {})
+      .map((row: any) => ({
+        ...row,
+        collapsible: {
+          ...row.collapsible,
+          collapsibleRows: [...row.collapsible.collapsibleRows].sort((a, b) => {
+            const orderA =
+              locations.find((l) => l._id === a.stockLocation)?.order ??
+              Infinity;
+            const orderB =
+              locations.find((l) => l._id === b.stockLocation)?.order ??
+              Infinity;
+            return orderA - orderB;
+          }),
+        },
+      }))
+      .sort(
+        (a, b) =>
+          (b as { totalQuantity: number }).totalQuantity -
+          (a as { totalQuantity: number }).totalQuantity
+      );
   }, [filteredStocks, products, items, locations, t, isGameStockEnableEdit]);
 
   const generalTotalExpense = useMemo(() => {
@@ -214,12 +230,15 @@ const GameStock = () => {
         type: InputTypes.SELECT,
         formKey: "location",
         label: t("Location"),
-        options: locations.map((input) => ({
-          value: input._id,
-          label: input.name,
-        })),
+        options: [...locations]
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+          .map((input) => ({
+            value: input._id,
+            label: input.name,
+          })),
         placeholder: t("Location"),
         required: true,
+        isSortDisabled: true,
       },
       {
         type: InputTypes.NUMBER,
@@ -243,12 +262,16 @@ const GameStock = () => {
               (location) => location._id !== rowToAction?.stockLocation
             )
           : locations
-        )?.map((input) => ({
-          value: input._id,
-          label: input.name,
-        })),
+        )
+          ?.slice()
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+          ?.map((input) => ({
+            value: input._id,
+            label: input.name,
+          })),
         placeholder: t("Location"),
         required: true,
+        isSortDisabled: true,
       },
       {
         type: InputTypes.NUMBER,

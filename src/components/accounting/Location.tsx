@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
@@ -9,6 +9,7 @@ import { ActionEnum, DisabledConditionEnum, Location } from "../../types";
 import {
   useGetAllLocations,
   useLocationMutations,
+  useUpdateLocationOrderMutation,
 } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
@@ -38,6 +39,7 @@ const LocationPage = () => {
   };
   const [form, setForm] = useState(initialForm as Partial<Location>);
   const { updateLocation, createStockLocation } = useLocationMutations();
+  const { mutate: updateLocationOrder } = useUpdateLocationOrderMutation();
   const disabledConditions = useGetDisabledConditions();
 
   const locationsDisabledCondition = useMemo(() => {
@@ -66,7 +68,46 @@ const LocationPage = () => {
     [t]
   );
 
-  const rows = useMemo(() => locations, [locations]);
+  const rows = useMemo(() => {
+    return [...locations].sort(
+      (a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)
+    );
+  }, [locations]);
+
+  const [localRows, setLocalRows] = useState<Location[]>([]);
+  const localRowsRef = useRef<Location[]>([]);
+
+  useEffect(() => {
+    setLocalRows(rows);
+    localRowsRef.current = rows;
+  }, [rows]);
+
+  const handleDragHover = (dragRow: Location, hoverRow: Location) => {
+    setLocalRows((prev) => {
+      const dragIndex = prev.findIndex((r) => r._id === dragRow._id);
+      const hoverIndex = prev.findIndex((r) => r._id === hoverRow._id);
+      if (dragIndex === -1 || hoverIndex === -1 || dragIndex === hoverIndex)
+        return prev;
+      const next = [...prev];
+      const [removed] = next.splice(dragIndex, 1);
+      next.splice(hoverIndex, 0, removed);
+      localRowsRef.current = next;
+      return next;
+    });
+  };
+
+  const handleDrag = (dragRow: Location) => {
+    const dragIndex = localRowsRef.current.findIndex(
+      (r) => r._id === dragRow._id
+    );
+    if (dragIndex === -1) return;
+    const originalAtPosition = rows[dragIndex];
+    if (!originalAtPosition || originalAtPosition._id === dragRow._id) return;
+    updateLocationOrder({
+      id: dragRow._id,
+      newOrder: originalAtPosition.order ?? 0,
+    });
+  };
 
   const columns = useMemo(() => {
     const cols = [
@@ -651,10 +692,15 @@ const LocationPage = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={rows}
+          rows={localRows}
           title={t("Locations")}
           addButton={addButton}
           isActionsActive={true}
+          isDraggable={true}
+          onDragHover={(dragRow: Location, hoverRow) =>
+            handleDragHover(dragRow, hoverRow)
+          }
+          onDragEnter={(dragRow: Location) => handleDrag(dragRow)}
         />
       </div>
     </>
