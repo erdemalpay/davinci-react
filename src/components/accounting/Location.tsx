@@ -101,12 +101,15 @@ const LocationPage = () => {
       (r) => r._id === dragRow._id
     );
     if (dragIndex === -1) return;
+    const originalIndex = rows.findIndex((r) => r._id === dragRow._id);
+    if (dragIndex === originalIndex) return;
     const originalAtPosition = rows[dragIndex];
-    if (!originalAtPosition || originalAtPosition._id === dragRow._id) return;
-    updateLocationOrder({
-      id: dragRow._id,
-      newOrder: originalAtPosition.order ?? 0,
-    });
+    if (!originalAtPosition) return;
+    const newOrder =
+      dragRow.order === undefined || dragRow.order === null
+        ? (rows[dragIndex - 1]?.order ?? 0) + 1
+        : originalAtPosition.order ?? 0;
+    updateLocationOrder({ id: dragRow._id, newOrder });
   };
 
   const columns = useMemo(() => {
