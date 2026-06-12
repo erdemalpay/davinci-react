@@ -298,6 +298,8 @@ const EnterConsumption = () => {
         placeholder: t("Start Date"),
         required: true,
         isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
       },
       {
         type: InputTypes.DATE,
@@ -306,6 +308,8 @@ const EnterConsumption = () => {
         placeholder: t("End Date"),
         required: true,
         isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
       },
     ],
     [expenseTypes, products, vendors, brands, locations, t]
@@ -423,7 +427,7 @@ const EnterConsumption = () => {
         ? [{ key: "productCost", className: "min-w-32 pr-1", isParseFloat: true }]
         : []),
       ...(!isShowPricesDisabled
-        ? [{ key: "currentAmount", className: "min-w-32 pr-1" }]
+        ? [{ key: "currentAmount", className: "min-w-32 pr-1", isParseFloat: true }]
         : []),
       {
         key: "change",
