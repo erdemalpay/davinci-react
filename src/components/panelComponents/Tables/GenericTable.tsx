@@ -517,6 +517,10 @@ const GenericTable = <T,>({
         <tr
           draggable={isDraggable}
           onDragStart={(e) => handleDragStart(e, row)}
+          onDragEnd={() => {
+            draggedRowRef.current = null;
+            dragOverRowIdRef.current = null;
+          }}
           onDragOver={handleDragOver}
           onDragEnter={(e) => handleDragEnterRow(e, row, rowId)}
           onDrop={(e) => handleDrop(e, row)}
