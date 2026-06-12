@@ -30,6 +30,7 @@ import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { formatAmount } from "../../utils/formatValue";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -427,7 +428,13 @@ const EnterConsumption = () => {
         ? [{ key: "productCost", className: "min-w-32 pr-1", isParseFloat: true }]
         : []),
       ...(!isShowPricesDisabled
-        ? [{ key: "currentAmount", className: "min-w-32 pr-1", isParseFloat: true }]
+        ? [
+            {
+              key: "currentAmount",
+              className: "min-w-32 pr-1",
+              node: (row: any) => formatAmount(row.currentAmount),
+            },
+          ]
         : []),
       {
         key: "change",
