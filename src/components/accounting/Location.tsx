@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
@@ -74,24 +74,22 @@ const LocationPage = () => {
     );
   }, [locations]);
 
-  const [localRows, setLocalRows] = useState<Location[]>([]);
+  const [dragRows, setDragRows] = useState<Location[] | null>(null);
   const localRowsRef = useRef<Location[]>([]);
 
-  useEffect(() => {
-    setLocalRows(rows);
-    localRowsRef.current = rows;
-  }, [rows]);
+  const localRows = dragRows ?? rows;
+  localRowsRef.current = localRows;
 
   const handleDragHover = (dragRow: Location, hoverRow: Location) => {
-    setLocalRows((prev) => {
-      const dragIndex = prev.findIndex((r) => r._id === dragRow._id);
-      const hoverIndex = prev.findIndex((r) => r._id === hoverRow._id);
+    setDragRows((prev) => {
+      const current = prev ?? rows;
+      const dragIndex = current.findIndex((r) => r._id === dragRow._id);
+      const hoverIndex = current.findIndex((r) => r._id === hoverRow._id);
       if (dragIndex === -1 || hoverIndex === -1 || dragIndex === hoverIndex)
         return prev;
-      const next = [...prev];
+      const next = [...current];
       const [removed] = next.splice(dragIndex, 1);
       next.splice(hoverIndex, 0, removed);
-      localRowsRef.current = next;
       return next;
     });
   };
@@ -102,14 +100,21 @@ const LocationPage = () => {
     );
     if (dragIndex === -1) return;
     const originalIndex = rows.findIndex((r) => r._id === dragRow._id);
-    if (dragIndex === originalIndex) return;
+    if (dragIndex === originalIndex) {
+      setDragRows(null);
+      return;
+    }
     const originalAtPosition = rows[dragIndex];
-    if (!originalAtPosition) return;
+    if (!originalAtPosition) {
+      setDragRows(null);
+      return;
+    }
     const newOrder =
       dragRow.order === undefined || dragRow.order === null
         ? (rows[dragIndex - 1]?.order ?? 0) + 1
         : originalAtPosition.order ?? 0;
     updateLocationOrder({ id: dragRow._id, newOrder });
+    setDragRows(null);
   };
 
   const columns = useMemo(() => {
