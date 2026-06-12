@@ -42,7 +42,7 @@ const UserShifts = () => {
 
   const events: ShiftEvent[] = (shifts || []).flatMap((shift) =>
     (shift.shifts || [])
-      .filter((sv) => user?._id && sv.user.includes(user._id))
+      .filter((sv) => user?._id && sv.user?.includes(user._id))
       .map((sv) => ({
         date: shift.day,
         locationName:
@@ -53,7 +53,7 @@ const UserShifts = () => {
   );
 
   return (
-    <div className="__className_a182b8 w-[95%] my-5 mx-auto">
+    <div className="w-[95%] my-5 mx-auto">
       <MonthlyCalendar
         currentMonth={currentMonth}
         onCurrentMonthChange={(date) => setCurrentMonth(date)}
