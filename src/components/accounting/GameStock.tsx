@@ -6,6 +6,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
+import { useStockTableMode } from "../../hooks/useStockTableMode";
 import {
   ActionEnum,
   DateRangeKey,
@@ -339,6 +340,22 @@ const GameStock = () => {
     }
     return cols;
   }, [t, gameStockPageDisabledCondition, user, showGameStockPrices]);
+
+  const {
+    rows,
+    columns: tableColumns,
+    generalTotalExpense,
+    getTableModeProps,
+  } = useStockTableMode({
+    filteredStocks,
+    products,
+    items,
+    locations,
+    locationFilter: filterGameStockPanelFormElements?.location,
+    isEnableEdit: isGameStockEnableEdit,
+    columns,
+    sortByTotalQuantity: true,
+  });
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -789,15 +806,13 @@ const GameStock = () => {
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}
-          collapsibleActions={isGameStockEnableEdit ? collapsibleActions : []}
+          {...getTableModeProps(collapsibleActions)}
           filters={filters}
-          columns={columns}
+          columns={tableColumns}
           rows={rows}
           title={t("Game Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isActionsActive={isGameStockEnableEdit}
-          isCollapsible={true}
           isToolTipEnabled={false}
           isExcel={
             user &&

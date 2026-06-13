@@ -6,6 +6,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
+import { useStockTableMode } from "../../hooks/useStockTableMode";
 import {
   ActionEnum,
   DateRangeKey,
@@ -95,9 +96,6 @@ const Stock = () => {
   const stockPageDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.STOCK_STOCK, disabledConditions);
   }, [disabledConditions]);
-
-  const isActionsVisible =
-    isStockEnableEdit || !!filterStockPanelFormElements?.location;
 
   const filteredStocks = useMemo(() => {
     return stocks?.filter((stock) => {
@@ -312,6 +310,21 @@ const Stock = () => {
     }
     return cols;
   }, [t, stockPageDisabledCondition, user, showStockPrices]);
+
+  const {
+    rows,
+    columns: tableColumns,
+    generalTotalExpense,
+    getTableModeProps,
+  } = useStockTableMode({
+    filteredStocks,
+    products,
+    items,
+    locations,
+    locationFilter: filterStockPanelFormElements?.location,
+    isEnableEdit: isStockEnableEdit,
+    columns,
+  });
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -784,15 +797,13 @@ const Stock = () => {
       <div className="w-full px-4 my-6">
         <GenericTable
           rowKeys={rowKeys}
-          collapsibleActions={isActionsVisible ? collapsibleActions : []}
+          {...getTableModeProps(collapsibleActions)}
           filters={filters}
-          columns={columns}
+          columns={tableColumns}
           rows={rows}
           title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isActionsActive={isActionsVisible}
-          isCollapsible={true}
           isSearch={true}
           isToolTipEnabled={false}
           isExcel={
