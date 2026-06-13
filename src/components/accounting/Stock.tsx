@@ -171,7 +171,19 @@ const Stock = () => {
       return acc;
     }, {});
 
-    return Object.values(processedRows || {});
+    return Object.values(processedRows || {}).map((row: any) => ({
+      ...row,
+      collapsible: {
+        ...row.collapsible,
+        collapsibleRows: [...row.collapsible.collapsibleRows].sort((a, b) => {
+          const orderA =
+            locations.find((l) => l._id === a.stockLocation)?.order ?? Infinity;
+          const orderB =
+            locations.find((l) => l._id === b.stockLocation)?.order ?? Infinity;
+          return orderA - orderB;
+        }),
+      },
+    }));
   }, [filteredStocks, products, items, locations, t, isActionsVisible]);
 
   const generalTotalExpense = useMemo(() => {
@@ -200,14 +212,15 @@ const Stock = () => {
         type: InputTypes.SELECT,
         formKey: "location",
         label: t("Location"),
-        options: locations.map((input) => {
-          return {
+        options: [...locations]
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+          .map((input) => ({
             value: input._id,
             label: input.name,
-          };
-        }),
+          })),
         placeholder: t("Location"),
         required: true,
+        isSortDisabled: true,
       },
       {
         type: InputTypes.NUMBER,
@@ -231,14 +244,16 @@ const Stock = () => {
               (location) => location?._id !== rowToAction?.stockLocation
             )
           : locations
-        )?.map((input) => {
-          return {
+        )
+          ?.slice()
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+          ?.map((input) => ({
             value: input._id,
             label: input.name,
-          };
-        }),
+          })),
         placeholder: t("Location"),
         required: true,
+        isSortDisabled: true,
       },
       {
         type: InputTypes.NUMBER,
