@@ -50,28 +50,60 @@ export function useSidebarNavigation(onClose: () => void) {
 
   const { setUser } = useUserContext();
   const { resetGeneralContext, setIsLogoutModalOpen } = useGeneralContext();
-  const { kitchens } = useDataContext();
+  const { kitchens, categories } = useDataContext();
 
   const user = useGetUser();
   const rawRoutes = useFilteredRoutes() as SidebarRouteItem[];
 
   const routes = useMemo(() => {
-    if (!kitchens?.length) return rawRoutes;
-    const kitchenTabs: Tab[] = kitchens.map((kitchen, index) => ({
-      number: index,
-      label: kitchen.name,
-      content: null,
-      isDisabled: false,
-    }));
-    return rawRoutes.map((route) =>
-      route.path === Routes.Orders
-        ? {
-            ...route,
-            tabs: kitchenTabs,
-          } : route
 
-    );
-  }, [rawRoutes, kitchens]);
+    let result = rawRoutes;
+
+    if (kitchens?.length) {
+      const kitchenTabs: Tab[] = kitchens.map((kitchen, index) => ({
+        number: index,
+        label: kitchen.name,
+        content: null,
+        isDisabled: false,
+      }));
+      result = result.map((route) =>
+        route.path === Routes.Orders ? { ...route, tabs: kitchenTabs } : route
+      );
+    }
+
+    if (categories?.length) {
+      const activeAndSortedCategories = [...categories]
+        .filter((c) => c.active || c.isKitchenMenu)
+        .sort((a, b) => a.order - b.order);
+
+      const categoryTabs: Tab[] = activeAndSortedCategories.map((category, index) => ({
+        number: index,
+        label: category.name,
+        content: null,
+        isDisabled: false,
+      }));
+
+      const menuTabs: Tab[] = [
+        ...categoryTabs,
+        ...["Popular", "Closed Items", "Categories", "Order Categories Order", "Customer Popups"].map(
+          (label, i) => ({ number: categoryTabs.length + i, label, content: null, isDisabled: false })
+        ),
+      ];
+
+      result = result.map((route) =>
+        route.path === Routes.Menu && route.children
+          ? {
+              ...route,
+              children: route.children.map((child) =>
+                child.path === Routes.Menu ? { ...child, tabs: menuTabs } : child
+              ),
+            }
+          : route
+      );
+    }
+
+    return result;
+  }, [rawRoutes, kitchens, categories]);
   const pages = useGetPanelControlPages();
 
   const todayDate = format(new Date(), "yyyy-MM-dd");
@@ -128,10 +160,14 @@ export function useSidebarNavigation(onClose: () => void) {
         (pathBasedId ? pages?.find((p) => p._id === pathBasedId) : undefined) ||
         pages?.find((p) => p.name === item.name);
 
-      const controlTabs = (controlPage?.tabs as {
+      if (!controlPage) return [];
+
+      const controlTabs = (controlPage.tabs as {
         name: string;
         permissionRoles?: number[];
       }[]) ?? [];
+
+      if (controlTabs.length === 0) return item.tabs;
 
       return item.tabs.filter(
         (ct) =>

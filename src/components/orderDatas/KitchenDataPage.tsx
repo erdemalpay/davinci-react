@@ -25,6 +25,7 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUser, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -560,6 +561,24 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         isUpperSide: false,
         node: (
           <ButtonFilter
@@ -601,6 +620,9 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
       currentUser,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      filterPanelFormElements,
+      initialFilterPanelFormElements,
+      setFilterPanelFormElements,
     ]
   );
 

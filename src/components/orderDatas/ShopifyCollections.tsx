@@ -43,6 +43,7 @@ import {
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
 import { isActionDisabled } from "../../utils/permissions";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -629,6 +630,24 @@ const ShopifyCollections = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         isUpperSide: false,
         node: (
           <ButtonFilter
@@ -669,6 +688,9 @@ const ShopifyCollections = () => {
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      filterPanelFormElements,
+      initialFilterPanelFormElements,
+      setFilterPanelFormElements,
     ]
   );
 

@@ -182,6 +182,7 @@ export type Location = {
   phoneNumber?: string;
   fallbackStockLocation?: number;
   googleMapsUrl?: string;
+  order?: number;
   dailyHours?: {
     day: string;
     openingTime?: string;

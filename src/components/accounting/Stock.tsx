@@ -118,6 +118,79 @@ const Stock = () => {
     });
   }, [stocks, filterStockPanelFormElements, products]);
 
+  const rows = useMemo(() => {
+    const processedRows = filteredStocks?.reduce((acc: any, stock) => {
+      const rowProduct = getItem(stock?.product, products);
+      const rowItem = getItem(rowProduct?.matchedMenuItem, items);
+      const productName = rowProduct?.name;
+      const locationName = getItem(stock?.location, locations)?.name;
+      const unitPrice = rowProduct?.unitPrice ?? 0;
+      const quantity = stock?.quantity;
+      const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
+      if (!productName) {
+        return acc;
+      }
+      if (!acc[productName]) {
+        acc[productName] = {
+          ...stock,
+          sku: rowItem?.sku ?? "",
+          barcode: rowItem?.barcode ?? "",
+          prdct: productName,
+          unitPrice,
+          menuPrice: rowItem?.price ?? "",
+          totalGroupPrice: 0,
+          totalQuantity: 0,
+          collapsible: {
+            collapsibleColumns: [
+              { key: t("Location"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+              isActionsVisible
+                ? { key: t("Actions"), isSortable: false }
+                : undefined,
+            ].filter(Boolean),
+            collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
+            collapsibleRows: [],
+          },
+        };
+      }
+      acc[productName].totalGroupPrice += totalPrice;
+      acc[productName].totalQuantity += quantity;
+      acc[productName].collapsible.collapsibleRows.push({
+        stockId: stock?._id,
+        stockProduct: stock?.product,
+        stockLocation: stock?.location,
+        stockQuantity: stock?.quantity,
+        stockUnitPrice: rowProduct?.unitPrice ?? 0,
+        location: locationName,
+        quantity: quantity,
+        totalPrice: totalPrice,
+      });
+
+      return acc;
+    }, {});
+
+    return Object.values(processedRows || {}).map((row: any) => ({
+      ...row,
+      collapsible: {
+        ...row.collapsible,
+        collapsibleRows: [...row.collapsible.collapsibleRows].sort((a, b) => {
+          const orderA =
+            locations.find((l) => l._id === a.stockLocation)?.order ?? Infinity;
+          const orderB =
+            locations.find((l) => l._id === b.stockLocation)?.order ?? Infinity;
+          return orderA - orderB;
+        }),
+      },
+    }));
+  }, [filteredStocks, products, items, locations, t, isActionsVisible]);
+
+  const generalTotalExpense = useMemo(() => {
+    return (rows?.reduce((acc: number, stock: any) => {
+      const expense = parseFloat(stock?.totalGroupPrice?.toFixed(1) || "0");
+      return acc + expense;
+    }, 0) || 0) as number;
+  }, [rows]);
+
   const inputs = useMemo(
     () => [
       {
@@ -137,14 +210,15 @@ const Stock = () => {
         type: InputTypes.SELECT,
         formKey: "location",
         label: t("Location"),
-        options: locations.map((input) => {
-          return {
+        options: [...locations]
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+          .map((input) => ({
             value: input._id,
             label: input.name,
-          };
-        }),
+          })),
         placeholder: t("Location"),
         required: true,
+        isSortDisabled: true,
       },
       {
         type: InputTypes.NUMBER,
@@ -168,14 +242,16 @@ const Stock = () => {
               (location) => location?._id !== rowToAction?.stockLocation
             )
           : locations
-        )?.map((input) => {
-          return {
+        )
+          ?.slice()
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+          ?.map((input) => ({
             value: input._id,
             label: input.name,
-          };
-        }),
+          })),
         placeholder: t("Location"),
         required: true,
+        isSortDisabled: true,
       },
       {
         type: InputTypes.NUMBER,

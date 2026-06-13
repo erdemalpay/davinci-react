@@ -32,6 +32,7 @@ import { useProcessAcceptedClaimsMutation } from "../../utils/api/trendyol";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -559,6 +560,24 @@ const TrendyolOrders = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         isUpperSide: false,
         node: (
           <ButtonFilter
@@ -616,6 +635,9 @@ const TrendyolOrders = () => {
       showOrderDataFilters,
       setShowOrderDataFilters,
       processAcceptedClaims,
+      filterPanelFormElements,
+      initialFilterPanelFormElements,
+      setFilterPanelFormElements,
     ]
   );
 
