@@ -5,6 +5,7 @@ import {
 } from "@material-tailwind/react";
 import { format, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
+import { useState } from "react";
 import { DateRange, DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { useTranslation } from "react-i18next";
@@ -21,21 +22,34 @@ export function QuickDateRangeFilter({
 
   const fromDate = startDate ? parseISO(startDate) : undefined;
   const toDate = endDate ? parseISO(endDate) : undefined;
-  const selected: DateRange = { from: fromDate, to: toDate };
 
-  const handleSelect = (range: DateRange | undefined) => {
-    if (!range?.from) {
-      onChange("", "");
+  const [pendingFrom, setPendingFrom] = useState<Date | undefined>();
+
+  const selected: DateRange | undefined = pendingFrom
+    ? { from: pendingFrom, to: undefined }
+    : fromDate
+    ? { from: fromDate, to: toDate }
+    : undefined;
+
+  const handleSelect = (
+    _range: DateRange | undefined,
+    selectedDay: Date
+  ) => {
+    if (!pendingFrom) {
+      setPendingFrom(selectedDay);
       return;
     }
-    onChange(
-      format(range.from, "yyyy-MM-dd"),
-      range.to ? format(range.to, "yyyy-MM-dd") : ""
-    );
+    const [start, end] =
+      selectedDay < pendingFrom
+        ? [selectedDay, pendingFrom]
+        : [pendingFrom, selectedDay];
+    setPendingFrom(undefined);
+    onChange(format(start, "yyyy-MM-dd"), format(end, "yyyy-MM-dd"));
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setPendingFrom(undefined);
     onChange("", "");
   };
 
