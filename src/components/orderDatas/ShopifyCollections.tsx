@@ -436,13 +436,14 @@ const ShopifyCollections = () => {
           return (
             <div className="flex flex-col gap-1">
               <button
-                onClick={() =>
+                onClick={(e) => {
+                  e.stopPropagation();
                   setExpandedDiscountNotes((prev) => {
                     const next = new Set(prev);
                     isOpen ? next.delete(row._id) : next.add(row._id);
                     return next;
-                  })
-                }
+                  });
+                }}
                 className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
               >
                 {isOpen ? <IoChevronUp /> : <IoChevronDown />}
