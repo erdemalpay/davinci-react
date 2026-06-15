@@ -4,6 +4,7 @@ import { toZonedTime } from "date-fns-tz";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
+import { IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { MdOutlineStorefront } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
@@ -95,6 +96,9 @@ const ShopifyCollections = () => {
   const retailers = useGetAccountRetailers();
   const [rowToAction, setRowToAction] = useState<CollectionRow>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [expandedDiscountNotes, setExpandedDiscountNotes] = useState(
+    new Set<number | string>()
+  );
   const [isAddRetailerModalOpen, setIsAddRetailerModalOpen] = useState(false);
   const [isBulkAddRetailerModalOpen, setIsBulkAddRetailerModalOpen] =
     useState(false);
@@ -309,6 +313,7 @@ const ShopifyCollections = () => {
             : acc,
         0
       ),
+      shopifyDiscountNote: "",
       shopifyShippingAmount: totalShippingCost,
       shopifyDiscountAmount: totalDiscount,
       netAmount: totalNetAmount,
@@ -381,6 +386,7 @@ const ShopifyCollections = () => {
       { key: t("Create Hour"), isSortable: true },
       { key: t("Gross Amount"), isSortable: true },
       { key: t("Discount"), isSortable: true },
+      { key: t("Discount Note"), isSortable: true },
       { key: t("Shipping Cost"), isSortable: true },
       { key: t("Retailer"), isSortable: true },
       { key: t("Cancelled Amount"), isSortable: true },
@@ -419,6 +425,36 @@ const ShopifyCollections = () => {
           const value = row?.shopifyDiscountAmount ?? 0;
           if (value === 0 && row?._id !== "total") return null;
           return <p className={row?.className}>{formatCurrency(value)} ₺</p>;
+        },
+      },
+      {
+        key: "shopifyDiscountNote",
+        className: "min-w-40 pr-2",
+        node: (row: CollectionRow) => {
+          if (!row?.shopifyDiscountNote) return null;
+          const isOpen = expandedDiscountNotes.has(row._id);
+          return (
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpandedDiscountNotes((prev) => {
+                    const next = new Set(prev);
+                    isOpen ? next.delete(row._id) : next.add(row._id);
+                    return next;
+                  });
+                }}
+                className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
+              >
+                {isOpen ? <IoChevronUp /> : <IoChevronDown />}
+              </button>
+              {isOpen && (
+                <p className="text-sm text-gray-600 max-w-48 break-words whitespace-normal">
+                  {row.shopifyDiscountNote}
+                </p>
+              )}
+            </div>
+          );
         },
       },
       {
@@ -485,7 +521,7 @@ const ShopifyCollections = () => {
         },
       },
     ],
-    [collectionStatus]
+    [collectionStatus, expandedDiscountNotes, setExpandedDiscountNotes]
   );
 
   const filterPanelInputs = useMemo(

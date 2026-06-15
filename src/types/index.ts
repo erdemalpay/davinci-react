@@ -1073,6 +1073,7 @@ export type OrderCollection = {
   shopifyShippingAmount?: number;
   shopifyDiscountAmount?: number;
   shopifyDiscountType?: string;
+  shopifyDiscountNote?: string;
   retailer?: number;
 };
 
