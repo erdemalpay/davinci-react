@@ -2301,11 +2301,7 @@ const Tables = () => {
           anotherPanel={
             <OrderListForPanel
               table={selectedTable}
-              tableOrdersProp={
-                selectedTable
-                  ? tableOrdersMap.get(selectedTable._id) ?? []
-                  : []
-              }
+              tableOrdersProp={tableOrdersMap.get(selectedTable._id) ?? []}
             />
           }
           additionalButtons={[
