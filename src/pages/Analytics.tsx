@@ -46,7 +46,7 @@ export default function Analytics() {
       {analyticOptions &&
         analyticOptions.filter((option) => option.isDisabled === false).length >
           1 && (
-          <div className="w-[95%] mx-auto">
+          <div className="w-[98%] mx-auto mt-4">
             <div className="sm:w-1/5 ">
               <CommonSelectInput
                 options={analyticOptions
