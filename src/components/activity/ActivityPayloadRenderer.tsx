@@ -404,13 +404,17 @@ const ActivityPayloadRenderer = ({
 
   const isFinishMiddlemanByManager =
     resolvedType === "FINISH_MIDDLEMAN_BY_MANAGER";
-  const summaryLine =
-    isFinishMiddlemanByManager && (actorName || middlemanUserName)
-      ? t("Middleman session of {{name}} closed by {{actor}}", {
-          name: middlemanUserName ?? t("Someone"),
-          actor: actorName ?? t("Someone"),
-        })
-      : null;
+  const isFinishMiddlemanAuto = resolvedType === "FINISH_MIDDLEMAN_AUTO";
+  const summaryLine = isFinishMiddlemanByManager && (actorName || middlemanUserName)
+    ? t("Middleman session of {{name}} closed by {{actor}}", {
+        name: middlemanUserName ?? t("Someone"),
+        actor: actorName ?? t("Someone"),
+      })
+    : isFinishMiddlemanAuto && middlemanUserName
+    ? t("Middleman session of {{name}} closed automatically", {
+        name: middlemanUserName,
+      })
+    : null;
 
   // Parse ve stripVersionKeys tek seferinde yapılıyor — hem shift hem default branch kullanır
   const { action, entity, detailFields, rawPayload, hasReadableDetails, parsedPayload } =
