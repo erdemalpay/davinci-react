@@ -1354,6 +1354,36 @@ export type ShopifyProduct = {
   };
 };
 
+export type ShopifyAdminCustomerOrder = {
+  shopifyOrderNumber: string | null;
+  itemName: string | null;
+  quantity: number;
+  unitPrice: number;
+  createdAt: string;
+};
+
+export type ShopifyAdminCustomer = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  defaultEmailAddress: { emailAddress: string } | null;
+  defaultPhoneNumber: { phoneNumber: string } | null;
+  createdAt: string;
+  updatedAt: string;
+  numberOfOrders: string;
+  amountSpent: { amount: string; currencyCode: string };
+  tags: string[];
+  orders: ShopifyAdminCustomerOrder[];
+};
+
+export type ShopifyCustomersPaginatedResponse = {
+  data: ShopifyAdminCustomer[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+};
+
 export enum RoleEnum {
   MANAGER = 1,
   GAMEMASTER,
@@ -1553,7 +1583,8 @@ export enum PointsPageTabEnum {
 }
 
 export enum ConsumerPageTabEnum {
-  CONSUMERS,
+  CAFE_CUSTOMERS,
+  SHOPIFY_CUSTOMERS,
 }
 
 export enum GamesPageTabEnum {

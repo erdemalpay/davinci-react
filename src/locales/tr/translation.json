@@ -1582,5 +1582,9 @@
   "Game Batches (FIFO)": "Oyun Grupları (FIFO)",
   "Reference Price": "Referans Fiyat (Müşteri Menüsünde Üstü Çizili Olarak Görünür)",
   "referencePricePlaceholder": "{{price}} değerinden büyük bir değer giriniz",
-  "Deposit": "Depozito"
+  "Deposit": "Depozito",
+  "Cafe Customers": "Kafe Müşterileri",
+  "Shopify Customers": "Shopify Müşterileri",
+  "Total Spent": "Alışveriş Tutarı",
+  "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.": "Shopify API tarafından uygulanan rate limiting nedeniyle verilerin yüklenmesinin geciktiği bir durumda lütfen kısa bir süre bekleyip tekrar deneyiniz."
 }

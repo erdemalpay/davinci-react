@@ -151,7 +151,7 @@ export enum Routes {
   Mail = "/mail",
   Retailer = "/retailer",
   RetailerOrders = "/retailer/:retailerId",
-  Consumers = "/consumers",
+  Consumers = "/customers",
   Logs = "/logs",
   BackInStock = "/back-in-stock",
   EventSurveyBuilder = "/event-survey-builder",

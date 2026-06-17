@@ -179,13 +179,6 @@ const Consumers = () => {
         required: false,
         isDatePicker: true,
       },
-      //   {
-      //     type: InputTypes.PASSWORD,
-      //     formKey: "password",
-      //     label: t("Password"),
-      //     placeholder: t("Password"),
-      //     required: true,
-      //   },
     ],
     [t]
   );
@@ -266,7 +259,6 @@ const Consumers = () => {
       { key: "phone", type: FormKeyTypeEnum.STRING },
       { key: "address", type: FormKeyTypeEnum.STRING },
       { key: "birthDate", type: FormKeyTypeEnum.DATE },
-      //   { key: "password", type: FormKeyTypeEnum.STRING },
       { key: "status", type: FormKeyTypeEnum.STRING },
     ],
     []

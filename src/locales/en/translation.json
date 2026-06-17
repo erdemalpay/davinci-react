@@ -1573,5 +1573,9 @@
   "Game Batches (FIFO)": "Game Batches (FIFO)",
   "Reference Price": "Reference Price (Shown with a Strikethrough in the Customer Menu)",
   "referencePricePlaceholder": "Enter a value greater than {{price}}",
-  "Deposit": "Deposit"
+  "Deposit": "Deposit",
+  "Cafe Customers": "Cafe Customers",
+  "Shopify Customers": "Shopify Customers",
+  "Total Spent": "Total Spent",
+  "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.": "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again."
 }

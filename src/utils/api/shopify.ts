@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { patch, post } from ".";
-import { ShopifyProduct } from "../../types";
-import { Paths, useGetList } from "./factory";
+import { ShopifyAdminCustomer, ShopifyCustomersPaginatedResponse, ShopifyProduct } from "../../types";
+import { Paths, useGet, useGetList } from "./factory";
 
 interface UpdateShopifyProductPayload {
   variantId: string;
@@ -19,6 +19,43 @@ interface UpdateShopifyProductPricePayload {
 }
 export function useGetShopifyProducts() {
   return useGetList<ShopifyProduct>(`${Paths.Shopify}/product`);
+}
+
+export function useGetShopifyCustomers(
+  page: number,
+  limit: number,
+  search?: string
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  if (search) params.append("search", search);
+  const path = `${Paths.Shopify}/customer?${params.toString()}`;
+  return useGet<ShopifyCustomersPaginatedResponse>(path, [
+    `${Paths.Shopify}/customer`,
+    page,
+    limit,
+    search ?? "",
+  ]);
+}
+
+export function useRefreshShopifyCustomersMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      post({ path: `${Paths.Shopify}/customer/refresh`, payload: {} }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Shopify}/customer`],
+      });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
 }
 
 export function updateShopifyProductStock(

@@ -1,0 +1,163 @@
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useGeneralContext } from "../../context/General.context";
+import { FormElementsState, RowPerPageEnum, ShopifyAdminCustomer } from "../../types";
+import {
+  useGetShopifyCustomers,
+  useRefreshShopifyCustomersMutation,
+} from "../../utils/api/shopify";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+
+const ShopifyCustomers = () => {
+  const { t } = useTranslation();
+  const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } = useGeneralContext();
+  const [filterFormElements, setFilterFormElements] =
+    useState<FormElementsState>({ search: "" });
+  const { mutate: refreshCache, isPending: isRefreshing } =
+    useRefreshShopifyCustomersMutation();
+
+  const search = filterFormElements.search?.trim() || undefined;
+
+  useEffect(() => {
+    const prev = rowsPerPage;
+    if (rowsPerPage > RowPerPageEnum.THIRD) {
+      setRowsPerPage(RowPerPageEnum.THIRD);
+    }
+    return () => {
+      setRowsPerPage(prev);
+    };
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, setCurrentPage]);
+
+  const safeLimit = rowsPerPage > RowPerPageEnum.THIRD ? RowPerPageEnum.THIRD : rowsPerPage;
+  const payload = useGetShopifyCustomers(currentPage, safeLimit, search);
+
+  const rows = useMemo(() => {
+    if (!payload?.data) return [];
+    return payload.data.map((customer: ShopifyAdminCustomer) => ({
+      ...customer,
+      collapsible: {
+        collapsibleHeader: t("Orders"),
+        collapsibleColumns: [
+          { key: t("Order No"), isSortable: false },
+          { key: t("Product"), isSortable: false },
+          { key: t("Quantity"), isSortable: false },
+          { key: t("Unit Price"), isSortable: false },
+          { key: t("Date"), isSortable: false },
+        ],
+        collapsibleRows: customer.orders.map((o) => ({
+          shopifyOrderNumber: o.shopifyOrderNumber ?? "-",
+          itemName: o.itemName ?? "-",
+          quantity: o.quantity,
+          unitPrice: `${o.unitPrice?.toFixed(2)} ₺`,
+          createdAt: o.createdAt
+            ? new Date(o.createdAt).toLocaleDateString("tr-TR")
+            : "-",
+        })),
+        collapsibleRowKeys: [
+          { key: "shopifyOrderNumber" },
+          { key: "itemName" },
+          { key: "quantity" },
+          { key: "unitPrice" },
+          { key: "createdAt" },
+        ],
+      },
+    }));
+  }, [payload, t]);
+
+  const pagination = useMemo(
+    () =>
+      payload
+        ? { totalPages: payload.totalPages, totalRows: payload.totalCount }
+        : undefined,
+    [payload]
+  );
+
+  const columns = useMemo(
+    () => [
+      { key: t("Name"), isSortable: false },
+      { key: t("Last Name"), isSortable: false },
+      { key: "Email", isSortable: false },
+      { key: t("Phone"), isSortable: false },
+      { key: t("Orders"), isSortable: false },
+      { key: t("Total Spent"), isSortable: false },
+      { key: t("Created At"), isSortable: false },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      { key: "firstName" },
+      { key: "lastName" },
+      {
+        key: "defaultEmailAddress",
+        node: (row: ShopifyAdminCustomer) =>
+          row.defaultEmailAddress?.emailAddress ?? "-",
+      },
+      {
+        key: "defaultPhoneNumber",
+        node: (row: ShopifyAdminCustomer) =>
+          row.defaultPhoneNumber?.phoneNumber ?? "-",
+      },
+      { key: "numberOfOrders" },
+      {
+        key: "amountSpent",
+        node: (row: ShopifyAdminCustomer) =>
+          `${parseFloat(row.amountSpent?.amount ?? "0").toFixed(2)} ${row.amountSpent?.currencyCode ?? ""}`,
+      },
+      {
+        key: "createdAt",
+        node: (row: ShopifyAdminCustomer) =>
+          new Date(row.createdAt).toLocaleDateString("tr-TR"),
+      },
+    ],
+    []
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        isUpperSide: false,
+        node: (
+          <ButtonFilter
+            buttonName={isRefreshing ? t("Refreshing...") : t("Refresh Data")}
+            onclick={() => refreshCache()}
+          />
+        ),
+      },
+    ],
+    [t, refreshCache, isRefreshing]
+  );
+
+  return (
+    <div className="w-[95%] mx-auto">
+      <p className="text-base text-gray-500 italic mb-2">
+        * {t("Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.")}
+      </p>
+      <GenericTable
+        title={t("Shopify Customers")}
+        columns={columns}
+        rowKeys={rowKeys as any}
+        rows={rows}
+        isActionsActive={false}
+        isCollapsible={true}
+        filters={filters}
+        rowsPerPageOptions={[RowPerPageEnum.FIRST, RowPerPageEnum.SECOND, RowPerPageEnum.THIRD]}
+        isSearch={false}
+        outsideSearchProps={{
+          t,
+          filterPanelFormElements: filterFormElements,
+          setFilterPanelFormElements: setFilterFormElements,
+        }}
+        {...(pagination && { pagination })}
+      />
+    </div>
+  );
+};
+
+export default ShopifyCustomers;
