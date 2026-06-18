@@ -54,11 +54,8 @@ const ShopifyCustomers = () => {
   const columns = useMemo(
     () => [
       { key: t("Name"), isSortable: false },
-      { key: "Email", isSortable: false },
-      { key: t("Phone"), isSortable: false },
       { key: t("Orders"), isSortable: false },
       { key: t("Total Spent"), isSortable: false },
-      { key: t("Created At"), isSortable: false },
     ],
     [t]
   );
@@ -82,28 +79,14 @@ const ShopifyCustomers = () => {
         ),
       },
       {
-        key: "defaultEmailAddress",
-        node: (row: ShopifyAdminCustomer) =>
-          row.defaultEmailAddress?.emailAddress ?? "-",
-      },
-      {
-        key: "defaultPhoneNumber",
-        node: (row: ShopifyAdminCustomer) =>
-          row.defaultPhoneNumber?.phoneNumber ?? "-",
-      },
-      {
         key: "numberOfOrders",
-        node: (row: ShopifyAdminCustomer) => row.orders.length,
+        node: (row: ShopifyAdminCustomer) =>
+          new Set(row.orders.map((o) => o.shopifyOrderNumber).filter(Boolean)).size,
       },
       {
         key: "amountSpent",
         node: (row: ShopifyAdminCustomer) =>
           `${parseFloat(row.amountSpent?.amount ?? "0").toFixed(2)} ${row.amountSpent?.currencyCode ?? ""}`,
-      },
-      {
-        key: "createdAt",
-        node: (row: ShopifyAdminCustomer) =>
-          new Date(row.createdAt).toLocaleDateString("tr-TR"),
       },
     ],
     []

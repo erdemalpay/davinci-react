@@ -1368,6 +1368,14 @@ export type ShopifyAdminCustomer = {
   lastName: string | null;
   defaultEmailAddress: { emailAddress: string } | null;
   defaultPhoneNumber: { phoneNumber: string } | null;
+  emailMarketingConsent: { marketingState: string } | null;
+  defaultAddress: {
+    address1: string | null;
+    city: string | null;
+    province: string | null;
+    country: string | null;
+    zip: string | null;
+  } | null;
   createdAt: string;
   updatedAt: string;
   numberOfOrders: string;

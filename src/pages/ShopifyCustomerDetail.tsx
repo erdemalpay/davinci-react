@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineShoppingCart } from "react-icons/md";
+import { MdOutlineAccountCircle, MdOutlineShoppingCart } from "react-icons/md";
 import { useLocation } from "react-router-dom";
 import ShopifyCustomerOrders from "../components/consumer/ShopifyCustomerOrders";
+import ShopifyCustomerSummary from "../components/consumer/ShopifyCustomerSummary";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -13,6 +14,13 @@ import { ShopifyAdminCustomer } from "../types";
 export const ShopifyCustomerDetailPageTabs = [
   {
     number: 0,
+    label: "Customer Summary",
+    icon: <MdOutlineAccountCircle className="text-lg font-thin" />,
+    content: <ShopifyCustomerSummary />,
+    isDisabled: false,
+  },
+  {
+    number: 1,
     label: "Orders",
     icon: <MdOutlineShoppingCart className="text-lg font-thin" />,
     content: <ShopifyCustomerOrders />,
@@ -64,6 +72,13 @@ export default function ShopifyCustomerDetail() {
         label: t("Orders"),
         icon: <MdOutlineShoppingCart className="text-lg font-thin" />,
         content: <ShopifyCustomerOrders customer={customer} />,
+        isDisabled: false,
+      },
+      {
+        number: 1,
+        label: t("Customer Summary"),
+        icon: <MdOutlineAccountCircle className="text-lg font-thin" />,
+        content: <ShopifyCustomerSummary customer={customer} />,
         isDisabled: false,
       },
     ],

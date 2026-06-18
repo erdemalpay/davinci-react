@@ -1579,5 +1579,12 @@
   "Cafe Customers": "Cafe Customers",
   "Shopify Customers": "Shopify Customers",
   "Total Spent": "Total Spent",
-  "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.": "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again."
+  "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.": "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.",
+  "Customer Summary": "Customer Summary",
+  "Shopify Customer Detail": "Shopify Customer Detail",
+  "Email Subscription": "Email Subscription",
+  "Subscribed": "Subscribed",
+  "Not Subscribed": "Not Subscribed",
+  "Default Address": "Default Address",
+  "Order No": "Order No"
 }

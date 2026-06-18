@@ -1588,5 +1588,12 @@
   "Cafe Customers": "Kafe Müşterileri",
   "Shopify Customers": "Shopify Müşterileri",
   "Total Spent": "Alışveriş Tutarı",
-  "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.": "Shopify API tarafından uygulanan rate limiting nedeniyle verilerin yüklenmesinin geciktiği bir durumda lütfen kısa bir süre bekleyip tekrar deneyiniz."
+  "Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.": "Shopify API tarafından uygulanan rate limiting nedeniyle verilerin yüklenmesinin geciktiği bir durumda lütfen kısa bir süre bekleyip tekrar deneyiniz.",
+  "Customer Summary": "Müşteri Özeti",
+  "Shopify Customer Detail": "Shopify Müşteri Detay Sayfası",
+  "Email Subscription": "E-posta Aboneliği",
+  "Subscribed": "Abone",
+  "Not Subscribed": "Abone Değil",
+  "Default Address": "Varsayılan Adres",
+  "Order No": "Sipariş Numarası"
 }
