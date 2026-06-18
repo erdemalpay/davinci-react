@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { FormElementsState, RowPerPageEnum, ShopifyAdminCustomer } from "../../types";
 import {
@@ -11,7 +12,8 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const ShopifyCustomers = () => {
   const { t } = useTranslation();
-  const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } = useGeneralContext();
+  const navigate = useNavigate();
+  const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage, setSearchQuery, setSortConfigKey } = useGeneralContext();
   const [filterFormElements, setFilterFormElements] =
     useState<FormElementsState>({ search: "" });
   const { mutate: refreshCache, isPending: isRefreshing } =
@@ -38,36 +40,8 @@ const ShopifyCustomers = () => {
 
   const rows = useMemo(() => {
     if (!payload?.data) return [];
-    return payload.data.map((customer: ShopifyAdminCustomer) => ({
-      ...customer,
-      collapsible: {
-        collapsibleHeader: t("Orders"),
-        collapsibleColumns: [
-          { key: t("Order No"), isSortable: false },
-          { key: t("Product"), isSortable: false },
-          { key: t("Quantity"), isSortable: false },
-          { key: t("Unit Price"), isSortable: false },
-          { key: t("Date"), isSortable: false },
-        ],
-        collapsibleRows: customer.orders.map((o) => ({
-          shopifyOrderNumber: o.shopifyOrderNumber ?? "-",
-          itemName: o.itemName ?? "-",
-          quantity: o.quantity,
-          unitPrice: `${o.unitPrice?.toFixed(2)} ₺`,
-          createdAt: o.createdAt
-            ? new Date(o.createdAt).toLocaleDateString("tr-TR")
-            : "-",
-        })),
-        collapsibleRowKeys: [
-          { key: "shopifyOrderNumber" },
-          { key: "itemName" },
-          { key: "quantity" },
-          { key: "unitPrice" },
-          { key: "createdAt" },
-        ],
-      },
-    }));
-  }, [payload, t]);
+    return payload.data;
+  }, [payload]);
 
   const pagination = useMemo(
     () =>
@@ -80,7 +54,6 @@ const ShopifyCustomers = () => {
   const columns = useMemo(
     () => [
       { key: t("Name"), isSortable: false },
-      { key: t("Last Name"), isSortable: false },
       { key: "Email", isSortable: false },
       { key: t("Phone"), isSortable: false },
       { key: t("Orders"), isSortable: false },
@@ -92,8 +65,22 @@ const ShopifyCustomers = () => {
 
   const rowKeys = useMemo(
     () => [
-      { key: "firstName" },
-      { key: "lastName" },
+      {
+        key: "firstName",
+        node: (row: ShopifyAdminCustomer) => (
+          <p
+            className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/shopify-customer/${row.id.split("/").pop()}`, { state: { customer: row } });
+            }}
+          >
+            {[row.firstName, row.lastName].filter(Boolean).join(" ") || "-"}
+          </p>
+        ),
+      },
       {
         key: "defaultEmailAddress",
         node: (row: ShopifyAdminCustomer) =>
@@ -104,7 +91,10 @@ const ShopifyCustomers = () => {
         node: (row: ShopifyAdminCustomer) =>
           row.defaultPhoneNumber?.phoneNumber ?? "-",
       },
-      { key: "numberOfOrders" },
+      {
+        key: "numberOfOrders",
+        node: (row: ShopifyAdminCustomer) => row.orders.length,
+      },
       {
         key: "amountSpent",
         node: (row: ShopifyAdminCustomer) =>
@@ -145,7 +135,6 @@ const ShopifyCustomers = () => {
         rowKeys={rowKeys as any}
         rows={rows}
         isActionsActive={false}
-        isCollapsible={true}
         filters={filters}
         rowsPerPageOptions={[RowPerPageEnum.FIRST, RowPerPageEnum.SECOND, RowPerPageEnum.THIRD]}
         isSearch={false}
