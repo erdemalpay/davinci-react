@@ -972,6 +972,11 @@ const GenericAddEditPanel = <T,>({
                           </div>
                         </div>
                       )}
+                      {input.helperText && (
+                        <span className="text-xs text-gray-400">
+                          {input.helperText}
+                        </span>
+                      )}
                       {showError && (
                         <span className="text-xs text-red-600">
                           {t("This field is required")}

@@ -1,8 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { patch, post } from ".";
-import { ShopifyAdminCustomer, ShopifyCustomersPaginatedResponse, ShopifyProduct } from "../../types";
+import { patch, post, remove } from ".";
+import { ShopifyCustomersPaginatedResponse, ShopifyDiscountNode, ShopifyProduct } from "../../types";
 import { Paths, useGet, useGetList } from "./factory";
+
+export interface CreateShopifyDiscountPayload {
+  title: string;
+  code: string;
+  valueType: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  startsAt: string;
+  endsAt?: string;
+  minimumRequirementType?: "NONE" | "SUBTOTAL" | "QUANTITY";
+  minimumRequirementValue?: number;
+  usageLimit?: number;
+  appliesOncePerCustomer?: boolean;
+  combinesWithProductDiscounts?: boolean;
+  combinesWithOrderDiscounts?: boolean;
+  combinesWithShippingDiscounts?: boolean;
+}
+
+export interface UpdateShopifyDiscountPayload extends Partial<CreateShopifyDiscountPayload> {
+  id: string;
+}
 
 interface UpdateShopifyProductPayload {
   variantId: string;
@@ -124,6 +144,60 @@ export function useUpdateShopifyProductPriceMutation() {
       await queryClient.cancelQueries({ queryKey });
     },
 
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+const DISCOUNT_QUERY_KEY = [`${Paths.Shopify}/discount`];
+
+export function useGetShopifyDiscounts() {
+  return useGetList<ShopifyDiscountNode>(`${Paths.Shopify}/discount`, DISCOUNT_QUERY_KEY);
+}
+
+export function useCreateShopifyDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateShopifyDiscountPayload) =>
+      post({ path: `${Paths.Shopify}/discount`, payload }),
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateShopifyDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateShopifyDiscountPayload) =>
+      patch({ path: `${Paths.Shopify}/discount`, payload }),
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useDeleteShopifyDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      remove({ path: `${Paths.Shopify}/discount/${id}` }),
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";

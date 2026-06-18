@@ -125,6 +125,7 @@ export interface GenericInputType {
   additionalOnChange?: (value: any) => void;
   onChangeTrigger?: (value: any) => void;
   isReadOnly?: boolean;
+  helperText?: string;
   invalidateKeys?: {
     key: string;
     defaultValue:

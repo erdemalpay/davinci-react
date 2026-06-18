@@ -1593,6 +1593,36 @@ export enum PointsPageTabEnum {
 export enum ConsumerPageTabEnum {
   CAFE_CUSTOMERS,
   SHOPIFY_CUSTOMERS,
+  SHOPIFY_DISCOUNTS,
+}
+
+export interface ShopifyDiscountNode {
+  id: string;
+  codeDiscount: {
+    title: string;
+    summary: string;
+    status: string;
+    startsAt: string;
+    endsAt?: string;
+    usageLimit?: number;
+    appliesOncePerCustomer: boolean;
+    codes: {
+      edges: Array<{ node: { code: string; asyncUsageCount: number } }>;
+    };
+    customerGets?: {
+      value?:
+        | { percentage: number }
+        | { amount: { amount: string } };
+    };
+    minimumRequirement?:
+      | { greaterThanOrEqualToSubtotal: { amount: string; currencyCode: string } }
+      | { greaterThanOrEqualToQuantity: number };
+    combinesWith?: {
+      productDiscounts: boolean;
+      orderDiscounts: boolean;
+      shippingDiscounts: boolean;
+    };
+  };
 }
 
 export enum GamesPageTabEnum {
