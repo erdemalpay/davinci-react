@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { post } from ".";
+import { patch, post } from ".";
 import { FormElementsState, Notification } from "../../types";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
@@ -144,5 +144,58 @@ export function useMarkAsReadMutation() {
         // Only refetch when the mutation is successful
         queryClient.invalidateQueries({ queryKey });
       },
+  });
+}
+
+function toggleNotificationMuteRequest({
+  id,
+  userId,
+  mute,
+}: {
+  id: number;
+  userId: string;
+  mute: boolean;
+}) {
+  return patch<{ userId: string; mute: boolean }, Notification>({
+    path: `${Paths.Notification}/${id}/mute`,
+    payload: { userId, mute },
+  });
+}
+
+export function useToggleNotificationMuteMutation() {
+  const queryKey = [`${Paths.Notification}/event`];
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: toggleNotificationMuteRequest,
+    onMutate: async ({ id, userId, mute }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousNotifications =
+        queryClient.getQueryData<Notification[]>(queryKey) ?? [];
+      queryClient.setQueryData<Notification[]>(
+        queryKey,
+        previousNotifications.map((n) =>
+          n._id === id
+            ? {
+                ...n,
+                mutedBy: mute
+                  ? Array.from(new Set([...(n.mutedBy ?? []), userId]))
+                  : (n.mutedBy ?? []).filter((u) => u !== userId),
+              }
+            : n
+        )
+      );
+      return { previousNotifications };
+    },
+    onError: (_err: any, _vars, context) => {
+      if (context?.previousNotifications) {
+        queryClient.setQueryData<Notification[]>(
+          queryKey,
+          context.previousNotifications
+        );
+      }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
   });
 }

@@ -1171,6 +1171,7 @@ export type Notification = {
   selectedRoles?: number[];
   selectedLocations?: number[];
   seenBy?: string[];
+  mutedBy?: string[];
   isAssigned?: boolean;
   isActive?: boolean;
 };

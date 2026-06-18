@@ -4,7 +4,7 @@ import {
   FaRegUserCircle,
 } from "react-icons/fa";
 import { GiTwoCoins } from "react-icons/gi";
-import { IoIosSettings, IoMdNotifications } from "react-icons/io";
+import { IoIosSettings, IoMdNotifications, IoMdNotificationsOff } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
 import { Header } from "../components/header/Header";
@@ -13,6 +13,7 @@ import PersonalDetails from "../components/panelComponents/Profile/PersonalDetai
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import Settings from "../components/panelComponents/Profile/Settings";
 import UserNotifications from "../components/panelComponents/Profile/UserNotifications";
+import NotificationPreferences from "../components/notification/NotificationPreferences";
 import UserShifts from "../components/panelComponents/Profile/UserShifts";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import UserPointHistory from "../components/points/UserPointHistory";
@@ -38,6 +39,7 @@ export enum ProfileTabEnum {
   SHIFTS,
   NOTIFICATIONS,
   POINTHISTORY,
+  NOTIFICATION_PREFERENCES,
 }
 export const ProfilePageTabs = [
   {
@@ -117,6 +119,13 @@ export const ProfilePageTabs = [
     content: <UserPointHistory />,
     isDisabled: false,
   },
+  {
+    number: ProfileTabEnum.NOTIFICATION_PREFERENCES,
+    label: "Notification Preferences",
+    icon: <IoMdNotificationsOff className="text-lg font-thin" />,
+    content: null,
+    isDisabled: false,
+  },
 ];
 
 export default function Profile() {
@@ -174,6 +183,14 @@ export default function Profile() {
           <div className="px-4 w-full">
             <ServicePersonalSummary userId={user._id} />
           </div>
+        ),
+      }),
+      ...(tab.number === ProfileTabEnum.NOTIFICATION_PREFERENCES && {
+        content: user && (
+          <NotificationPreferences
+            targetUserId={user._id}
+            isManagerView={false}
+          />
         ),
       }),
     };
