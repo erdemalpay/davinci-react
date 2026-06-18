@@ -1404,6 +1404,8 @@
   "Do you want to end middleman session for {{name}}?": "{{name}} için ortacılığı bitirmek istiyor musunuz?",
   "Click to end middleman": "Ortacılığı bitirmek için tıklayın",
   "Middleman session of {{name}} closed by {{actor}}": "Ortacılık {{name}} — {{actor}} tarafından kapatıldı",
+  "Middleman session of {{name}} closed automatically": "{{name}} kullanıcısının ortacılığı otomatik olarak kapatıldı",
+  "Finish Middleman Auto": "Otomatik Ortacılık Bitirme",
   "No active middleman session found": "Aktif ortacılık oturumu bulunamadı",
   "Someone": "Biri",
   "is the middleman": "ortacı",

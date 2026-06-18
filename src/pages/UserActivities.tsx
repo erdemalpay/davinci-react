@@ -85,7 +85,8 @@ const UserActivities = () => {
                   payload: activity.payload,
                   actorName: getItem(activity.user, users)?.name,
                   middlemanUserName:
-                    activity.type === "FINISH_MIDDLEMAN_BY_MANAGER"
+                    activity.type === "FINISH_MIDDLEMAN_BY_MANAGER" ||
+                    activity.type === "FINISH_MIDDLEMAN_AUTO"
                       ? getItem(
                           (activity.payload as { user?: string })?.user,
                           users

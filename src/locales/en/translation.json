@@ -1393,6 +1393,8 @@
   "Do you want to end middleman session for {{name}}?": "Do you want to end middleman session for {{name}}?",
   "Click to end middleman": "Click to end middleman",
   "Middleman session of {{name}} closed by {{actor}}": "Middleman session of {{name}} closed by {{actor}}",
+  "Middleman session of {{name}} closed automatically": "Middleman session of {{name}} closed automatically",
+  "Finish Middleman Auto": "Finish Middleman Auto",
   "No active middleman session found": "No active middleman session found",
   "Someone": "Someone",
   "is the middleman": "is the middleman",

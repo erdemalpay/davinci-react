@@ -1931,6 +1931,7 @@ export enum ActivityType {
   START_MIDDLEMAN = "START_MIDDLEMAN",
   FINISH_MIDDLEMAN = "FINISH_MIDDLEMAN",
   FINISH_MIDDLEMAN_BY_MANAGER = "FINISH_MIDDLEMAN_BY_MANAGER",
+  FINISH_MIDDLEMAN_AUTO = "FINISH_MIDDLEMAN_AUTO",
   CREATE_SHIFT = "CREATE_SHIFT",
   UPDATE_SHIFT = "UPDATE_SHIFT",
   DELETE_SHIFT = "DELETE_SHIFT",
@@ -2254,6 +2255,11 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_MIDDLEMAN_BY_MANAGER,
     label: "Finish Middleman By Manager",
     bgColor: "bg-amber-600",
+  },
+  {
+    value: ActivityType.FINISH_MIDDLEMAN_AUTO,
+    label: "Finish Middleman Auto",
+    bgColor: "bg-gray-500",
   },
   {
     value: ActivityType.CREATE_SHIFT,
