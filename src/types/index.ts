@@ -1392,6 +1392,14 @@ export type ShopifyCustomersPaginatedResponse = {
   limit: number;
 };
 
+export type ShopifyDiscountsPaginatedResponse = {
+  data: ShopifyDiscountNode[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+};
+
 export enum RoleEnum {
   MANAGER = 1,
   GAMEMASTER,
@@ -1499,6 +1507,7 @@ export enum AccountingPageTabEnum {
   SHOPIFYCATEGORIES,
   SERVICES,
   DISCOUNTS,
+  SHOPIFY_DISCOUNTS,
   PAYMENTMETHODS,
   KITCHENS,
   LOCATIONS,
@@ -1593,7 +1602,6 @@ export enum PointsPageTabEnum {
 export enum ConsumerPageTabEnum {
   CAFE_CUSTOMERS,
   SHOPIFY_CUSTOMERS,
-  SHOPIFY_DISCOUNTS,
 }
 
 export interface ShopifyDiscountNode {

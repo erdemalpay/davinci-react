@@ -1,5 +1,6 @@
 import { AiOutlinePercentage } from "react-icons/ai";
 import { FaServicestack, FaShopify } from "react-icons/fa";
+import { TbDiscount } from "react-icons/tb";
 import { FaKitchenSet } from "react-icons/fa6";
 import { GrActions } from "react-icons/gr";
 import { IoStorefrontSharp } from "react-icons/io5";
@@ -17,6 +18,7 @@ import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import KitchenPage from "../components/accounting/Kitchen";
 import LocationPage from "../components/accounting/Location";
+import ShopifyDiscounts from "../components/consumer/ShopifyDiscounts";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import OrderNotes from "../components/accounting/OrderNotes";
 import PaymentMethods from "../components/accounting/PaymentMethod";
@@ -88,6 +90,13 @@ export const AccountingPageTabs = [
     label: "Discounts",
     icon: <AiOutlinePercentage className="text-lg font-thin" />,
     content: <OrderDiscountPage />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.SHOPIFY_DISCOUNTS,
+    label: "Shopify Discounts",
+    icon: <TbDiscount className="text-lg font-thin" />,
+    content: <ShopifyDiscounts />,
     isDisabled: false,
   },
   {

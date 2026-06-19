@@ -977,6 +977,12 @@ const GenericAddEditPanel = <T,>({
                           {input.helperText}
                         </span>
                       )}
+                      {input.helperNode &&
+                        (isValidElement(input.helperNode)
+                          ? cloneElement(input.helperNode as any, {
+                              setFormElements,
+                            })
+                          : input.helperNode)}
                       {showError && (
                         <span className="text-xs text-red-600">
                           {t("This field is required")}

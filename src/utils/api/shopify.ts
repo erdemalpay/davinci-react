@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { patch, post, remove } from ".";
-import { ShopifyCustomersPaginatedResponse, ShopifyDiscountNode, ShopifyProduct } from "../../types";
+import { ShopifyCustomersPaginatedResponse, ShopifyDiscountNode, ShopifyDiscountsPaginatedResponse, ShopifyProduct } from "../../types";
 import { Paths, useGet, useGetList } from "./factory";
 
 export interface CreateShopifyDiscountPayload {
@@ -154,8 +154,24 @@ export function useUpdateShopifyProductPriceMutation() {
 
 const DISCOUNT_QUERY_KEY = [`${Paths.Shopify}/discount`];
 
-export function useGetShopifyDiscounts() {
-  return useGetList<ShopifyDiscountNode>(`${Paths.Shopify}/discount`, DISCOUNT_QUERY_KEY);
+export function useGetShopifyDiscountsPaginated(
+  page: number,
+  limit: number,
+  search?: string,
+  status?: string,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  if (search) params.append("search", search);
+  if (status) params.append("status", status);
+  const path = `${Paths.Shopify}/discount?${params.toString()}`;
+  return useGet<ShopifyDiscountsPaginatedResponse>(
+    path,
+    [`${Paths.Shopify}/discount`, page, limit, search ?? "", status ?? ""],
+    true,
+  );
 }
 
 export function useCreateShopifyDiscountMutation() {
@@ -164,7 +180,7 @@ export function useCreateShopifyDiscountMutation() {
     mutationFn: (payload: CreateShopifyDiscountPayload) =>
       post({ path: `${Paths.Shopify}/discount`, payload }),
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -180,7 +196,7 @@ export function useUpdateShopifyDiscountMutation() {
     mutationFn: (payload: UpdateShopifyDiscountPayload) =>
       patch({ path: `${Paths.Shopify}/discount`, payload }),
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -196,7 +212,7 @@ export function useDeleteShopifyDiscountMutation() {
     mutationFn: (id: string) =>
       remove({ path: `${Paths.Shopify}/discount/${id}` }),
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
     },
     onError: (_err: any) => {
       const errorMessage =

@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -9,12 +9,15 @@ import {
   UpdateShopifyDiscountPayload,
   useCreateShopifyDiscountMutation,
   useDeleteShopifyDiscountMutation,
-  useGetShopifyDiscounts,
+  useGetShopifyDiscountsPaginated,
   useUpdateShopifyDiscountMutation,
 } from "../../utils/api/shopify";
+import { FormElementsState, RowPerPageEnum, ShopifyDiscountNode } from "../../types";
+import { useGeneralContext } from "../../context/General.context";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 interface DiscountRow {
@@ -55,82 +58,151 @@ const MIN_REQ_OPTIONS = [
   { value: "QUANTITY", label: "Minimum Ürün Adedi" },
 ];
 
+function generateDiscountCode(length = 12): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({ length }, () =>
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join("");
+}
+
+function CodeGenerateButton({
+  setFormElements,
+}: {
+  setFormElements?: (updater: (prev: any) => any) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const code = generateDiscountCode();
+        setFormElements?.((prev: any) => ({ ...prev, code }));
+      }}
+      className="self-start text-xs text-blue-500 hover:text-blue-700 underline cursor-pointer mt-0.5"
+    >
+      Rastgele Oluştur
+    </button>
+  );
+}
+
+const STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "Aktif" },
+  { value: "EXPIRED", label: "Süresi Dolmuş" },
+  { value: "SCHEDULED", label: "Planlanmış" },
+];
+
+function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
+  const cd = n.codeDiscount as any;
+  const codeNode = cd.codes?.edges?.[0]?.node;
+  const numericId = n.id.split("/").pop() ?? n.id;
+
+  let valueType = "";
+  let value = 0;
+  const cgValue = cd.customerGets?.value;
+  if (cgValue) {
+    if ("percentage" in cgValue) {
+      valueType = "PERCENTAGE";
+      value = Math.round(cgValue.percentage * 100);
+    } else if ("amount" in cgValue) {
+      valueType = "FIXED_AMOUNT";
+      value = parseFloat(cgValue.amount?.amount ?? "0");
+    }
+  }
+
+  let minimumRequirementType = "NONE";
+  let minimumRequirementValue: number | undefined;
+  const mr = cd.minimumRequirement;
+  if (mr) {
+    if ("greaterThanOrEqualToSubtotal" in mr) {
+      minimumRequirementType = "SUBTOTAL";
+      const subtotalField = (mr as any).greaterThanOrEqualToSubtotal;
+      minimumRequirementValue = parseFloat(
+        typeof subtotalField === "object" ? subtotalField.amount : subtotalField
+      );
+    } else if ("greaterThanOrEqualToQuantity" in mr) {
+      minimumRequirementType = "QUANTITY";
+      minimumRequirementValue = mr.greaterThanOrEqualToQuantity;
+    }
+  }
+
+  return {
+    _id: n.id,
+    numericId,
+    title: cd.title ?? "",
+    code: codeNode?.code ?? "",
+    status: cd.status ?? "",
+    valueType,
+    value,
+    startsAt: cd.startsAt ?? "",
+    endsAt: cd.endsAt ?? "",
+    usageCount: codeNode?.asyncUsageCount ?? 0,
+    usageLimit: cd.usageLimit != null ? String(cd.usageLimit) : "∞",
+    appliesOncePerCustomer: cd.appliesOncePerCustomer ?? false,
+    minimumRequirementType,
+    minimumRequirementValue,
+    combinesWithProductDiscounts: cd.combinesWith?.productDiscounts ?? false,
+    combinesWithOrderDiscounts: cd.combinesWith?.orderDiscounts ?? false,
+    combinesWithShippingDiscounts: cd.combinesWith?.shippingDiscounts ?? false,
+  };
+}
+
 const ShopifyDiscounts = () => {
   const { t } = useTranslation();
-  const discountNodes = useGetShopifyDiscounts();
+  const {
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    setRowsPerPage,
+  } = useGeneralContext();
 
+  const [filterFormElements, setFilterFormElements] = useState<FormElementsState>({
+    search: "",
+    status: "",
+  });
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<DiscountRow | undefined>();
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
   const { mutate: createDiscount } = useCreateShopifyDiscountMutation();
   const { mutate: updateDiscount } = useUpdateShopifyDiscountMutation();
   const { mutate: deleteDiscount } = useDeleteShopifyDiscountMutation();
 
+  useEffect(() => {
+    const prev = rowsPerPage;
+    if (rowsPerPage > RowPerPageEnum.THIRD) setRowsPerPage(RowPerPageEnum.THIRD);
+    return () => setRowsPerPage(prev);
+  }, []);
+
+  const search = filterFormElements.search?.trim() || undefined;
+  const status = filterFormElements.status || undefined;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, status]);
+
+  const safeLimit = rowsPerPage > RowPerPageEnum.THIRD ? RowPerPageEnum.THIRD : rowsPerPage;
+  const payload = useGetShopifyDiscountsPaginated(currentPage, safeLimit, search, status);
+
   const rows = useMemo<DiscountRow[]>(() => {
-    return discountNodes
+    if (!payload?.data) return [];
+    return payload.data
       .filter((n) => n.codeDiscount && typeof n.codeDiscount === "object")
-      .map((n) => {
-        const cd = n.codeDiscount as any;
-        const codeNode = cd.codes?.edges?.[0]?.node;
-        const numericId = n.id.split("/").pop() ?? n.id;
+      .map(nodeToRow);
+  }, [payload]);
 
-        let valueType = "";
-        let value = 0;
-        const cgValue = cd.customerGets?.value;
-        if (cgValue) {
-          if ("percentage" in cgValue) {
-            valueType = "PERCENTAGE";
-            value = Math.round(cgValue.percentage * 100);
-          } else if ("amount" in cgValue) {
-            valueType = "FIXED_AMOUNT";
-            value = parseFloat(cgValue.amount?.amount ?? "0");
-          }
-        }
-
-        let minimumRequirementType = "NONE";
-        let minimumRequirementValue: number | undefined;
-        const mr = cd.minimumRequirement;
-        if (mr) {
-          if ("greaterThanOrEqualToSubtotal" in mr) {
-            minimumRequirementType = "SUBTOTAL";
-            const subtotalField = (mr as any).greaterThanOrEqualToSubtotal;
-            minimumRequirementValue = parseFloat(
-              typeof subtotalField === "object" ? subtotalField.amount : subtotalField
-            );
-          } else if ("greaterThanOrEqualToQuantity" in mr) {
-            minimumRequirementType = "QUANTITY";
-            minimumRequirementValue = mr.greaterThanOrEqualToQuantity;
-          }
-        }
-
-        return {
-          _id: n.id,
-          numericId,
-          title: cd.title ?? "",
-          code: codeNode?.code ?? "",
-          status: cd.status ?? "",
-          valueType,
-          value,
-          startsAt: cd.startsAt ?? "",
-          endsAt: cd.endsAt ?? "",
-          usageCount: codeNode?.asyncUsageCount ?? 0,
-          usageLimit: cd.usageLimit != null ? String(cd.usageLimit) : "∞",
-          appliesOncePerCustomer: cd.appliesOncePerCustomer ?? false,
-          minimumRequirementType,
-          minimumRequirementValue,
-          combinesWithProductDiscounts: cd.combinesWith?.productDiscounts ?? false,
-          combinesWithOrderDiscounts: cd.combinesWith?.orderDiscounts ?? false,
-          combinesWithShippingDiscounts: cd.combinesWith?.shippingDiscounts ?? false,
-        };
-      });
-  }, [discountNodes]);
+  const pagination = useMemo(
+    () =>
+      payload
+        ? { totalPages: payload.totalPages, totalRows: payload.totalCount }
+        : undefined,
+    [payload]
+  );
 
   const columns = useMemo(
     () => [
-      { key: t("Code"), isSortable: true },
-      { key: t("Title"), isSortable: true },
+      { key: t("Code"), isSortable: false },
+      { key: t("Title"), isSortable: false },
       { key: t("Discount Type"), isSortable: false },
       { key: t("Value"), isSortable: false },
       { key: t("Status"), isSortable: false },
@@ -237,6 +309,7 @@ const ShopifyDiscounts = () => {
         label: t("Discount Code"),
         placeholder: "YAZINDIRIMI",
         required: true,
+        helperNode: <CodeGenerateButton />,
       },
       {
         type: InputTypes.SELECT,
@@ -319,6 +392,50 @@ const ShopifyDiscounts = () => {
       },
     ],
     [t]
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "status",
+        label: t("Status"),
+        options: STATUS_OPTIONS,
+        placeholder: t("All"),
+        required: false,
+        isMultiple: false,
+      },
+    ],
+    [t]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: isFilterPanelOpen,
+      inputs: filterPanelInputs,
+      formElements: filterFormElements,
+      setFormElements: setFilterFormElements as any,
+      closeFilters: () => setIsFilterPanelOpen(false),
+      additionalFilterCleanFunction: () =>
+        setFilterFormElements((prev) => ({ ...prev, status: "" })),
+    }),
+    [isFilterPanelOpen, filterPanelInputs, filterFormElements]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={isFilterPanelOpen}
+            onChange={() => setIsFilterPanelOpen((prev) => !prev)}
+          />
+        ),
+      },
+    ],
+    [t, isFilterPanelOpen]
   );
 
   const addButton = useMemo(
@@ -438,7 +555,17 @@ const ShopifyDiscounts = () => {
         rows={rows}
         title={t("Shopify Discounts")}
         addButton={addButton}
+        filters={filters}
+        filterPanel={filterPanel}
         isActionsActive={true}
+        isSearch={false}
+        outsideSearchProps={{
+          t,
+          filterPanelFormElements: filterFormElements,
+          setFilterPanelFormElements: setFilterFormElements,
+        }}
+        rowsPerPageOptions={[RowPerPageEnum.FIRST, RowPerPageEnum.SECOND, RowPerPageEnum.THIRD]}
+        {...(pagination && { pagination })}
       />
     </div>
   );

@@ -1,8 +1,6 @@
 import { HiOutlineUsers } from "react-icons/hi2";
-import { TbDiscount } from "react-icons/tb";
 import CafeCustomers from "../components/consumer/CafeCustomers";
 import ShopifyCustomers from "../components/consumer/ShopifyCustomers";
-import ShopifyDiscounts from "../components/consumer/ShopifyDiscounts";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -23,13 +21,6 @@ export const ConsumerPageTabs = [
     label: "Shopify Customers",
     icon: <HiOutlineUsers className="text-lg font-thin" />,
     content: <ShopifyCustomers />,
-    isDisabled: false,
-  },
-  {
-    number: ConsumerPageTabEnum.SHOPIFY_DISCOUNTS,
-    label: "Shopify Discounts",
-    icon: <TbDiscount className="text-lg font-thin" />,
-    content: <ShopifyDiscounts />,
     isDisabled: false,
   },
 ];

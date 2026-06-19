@@ -154,7 +154,7 @@ export enum Routes {
   Mail = "/mail",
   Retailer = "/retailer",
   RetailerOrders = "/retailer/:retailerId",
-  Consumers = "/customers",
+  Consumers = "/consumers",
   ShopifyCustomerDetail = "/shopify-customer/:customerId",
   Logs = "/logs",
   BackInStock = "/back-in-stock",
