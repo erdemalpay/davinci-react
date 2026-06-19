@@ -45,12 +45,13 @@ export function useAccountProductMutations() {
   const {
     deleteItem: deleteAccountProduct,
     updateItem: updateAccountProduct,
+    updateItemAsync: updateAccountProductAsync,
     createItem: createAccountProduct,
   } = useMutationApi<AccountProduct>({
     baseQuery: baseUrl,
   });
 
-  return { deleteAccountProduct, updateAccountProduct, createAccountProduct };
+  return { deleteAccountProduct, updateAccountProduct, updateAccountProductAsync, createAccountProduct };
 }
 
 export function createBulkProductAndMenuItem(

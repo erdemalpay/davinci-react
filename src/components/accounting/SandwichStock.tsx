@@ -17,6 +17,7 @@ import {
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useAccountProductMutations, useGetAccountProducts } from "../../utils/api/account/product";
+import Loading from "../common/Loading";
 import {
   useAccountStockMutations,
   useGetFilteredStocks,
@@ -91,10 +92,11 @@ const SandwichStock = () => {
 
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
-  const { updateAccountProduct } = useAccountProductMutations();
+  const { updateAccountProductAsync } = useAccountProductMutations();
   const [pendingHideChanges, setPendingHideChanges] = useState<
     Record<string, boolean>
   >({});
+  const [isSavingHideChanges, setIsSavingHideChanges] = useState(false);
 
   const sandwichStockPageDisabledCondition = useMemo(() => {
     return getItem(
@@ -142,7 +144,7 @@ const SandwichStock = () => {
             ))
         );
       });
-  }, [stocks, filterSandwichStockPanelFormElements, products, showHiddenSandwichStocks, pendingHideChanges]);
+  }, [stocks, filterSandwichStockPanelFormElements, products, items, showHiddenSandwichStocks, pendingHideChanges]);
 
   const inputs = useMemo(
     () => [
@@ -372,7 +374,7 @@ const SandwichStock = () => {
       ];
     }
     return [...keys, ...hideCheckboxEntry];
-  }, [sandwichStockPageDisabledCondition, user, showSandwichStockPrices, isSandwichStockEnableEdit, pendingHideChanges, products]);
+  }, [sandwichStockPageDisabledCondition, user, showSandwichStockPrices, isSandwichStockEnableEdit, pendingHideChanges, products, t]);
 
   const addButton = useMemo(
     () => ({
@@ -604,14 +606,16 @@ const SandwichStock = () => {
         node: (
           <SwitchButton
             checked={isSandwichStockEnableEdit}
-            onChange={() => {
-              if (isSandwichStockEnableEdit) {
-                Object.entries(pendingHideChanges).forEach(
-                  ([productId, isHidden]) => {
-                    updateAccountProduct({ id: productId, updates: { isHidden } });
-                  }
+            onChange={async () => {
+              if (isSandwichStockEnableEdit && Object.keys(pendingHideChanges).length > 0) {
+                setIsSavingHideChanges(true);
+                await Promise.all(
+                  Object.entries(pendingHideChanges).map(([productId, isHidden]) =>
+                    updateAccountProductAsync({ id: productId, updates: { isHidden } })
+                  )
                 );
                 setPendingHideChanges({});
+                setIsSavingHideChanges(false);
               }
               setIsSandwichStockEnableEdit(!isSandwichStockEnableEdit);
             }}
@@ -663,7 +667,7 @@ const SandwichStock = () => {
       showHiddenSandwichStocks,
       setShowHiddenSandwichStocks,
       pendingHideChanges,
-      updateAccountProduct,
+      updateAccountProductAsync,
     ]
   );
 
@@ -797,6 +801,7 @@ const SandwichStock = () => {
 
   return (
     <>
+      {isSavingHideChanges && <Loading />}
       <div className="w-[95%] mx-auto ">
         <GenericTable
           rowKeys={rowKeys}
