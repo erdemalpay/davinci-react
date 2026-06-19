@@ -1575,5 +1575,9 @@
   "Game Batches (FIFO)": "Game Batches (FIFO)",
   "Reference Price": "Reference Price (Shown with a Strikethrough in the Customer Menu)",
   "referencePricePlaceholder": "Enter a value greater than {{price}}",
-  "Deposit": "Deposit"
+  "Deposit": "Deposit",
+  "Item hidden": "Item hidden",
+  "Item visible": "Item visible",
+  "Show Hidden Items": "Show Hidden Items"
+
 }

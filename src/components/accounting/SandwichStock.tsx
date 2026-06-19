@@ -16,7 +16,7 @@ import {
   commonDateOptions,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useAccountProductMutations, useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetFilteredStocks,
@@ -52,6 +52,8 @@ const SandwichStock = () => {
     setShowSandwichStockPrices,
     isSandwichStockEnableEdit,
     setIsSandwichStockEnableEdit,
+    showHiddenSandwichStocks,
+    setShowHiddenSandwichStocks,
   } = useFilterContext();
   const stocks = useGetFilteredStocks(
     filterSandwichStockPanelFormElements.after,
@@ -89,6 +91,10 @@ const SandwichStock = () => {
 
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
+  const { updateAccountProduct } = useAccountProductMutations();
+  const [pendingHideChanges, setPendingHideChanges] = useState<
+    Record<string, boolean>
+  >({});
 
   const sandwichStockPageDisabledCondition = useMemo(() => {
     return getItem(
@@ -106,6 +112,11 @@ const SandwichStock = () => {
       )
       ?.filter((stock) => {
         const rowProduct = getItem(stock?.product, products);
+        const isHidden =
+          stock?.product in pendingHideChanges
+            ? pendingHideChanges[stock?.product]
+            : (rowProduct?.isHidden ?? false);
+        if (!showHiddenSandwichStocks && isHidden) return false;
         return (
           passesFilter(
             filterSandwichStockPanelFormElements?.location,
@@ -131,7 +142,7 @@ const SandwichStock = () => {
             ))
         );
       });
-  }, [stocks, filterSandwichStockPanelFormElements, products]);
+  }, [stocks, filterSandwichStockPanelFormElements, products, showHiddenSandwichStocks, pendingHideChanges]);
 
   const inputs = useMemo(
     () => [
@@ -250,10 +261,19 @@ const SandwichStock = () => {
       )
     ) {
       const splicedColumns = [t("Unit Price"), t("Total Price")];
-      return cols.filter((column) => !splicedColumns.includes(column.key));
+      const filtered = cols.filter(
+        (column) => !splicedColumns.includes(column.key)
+      );
+      if (isSandwichStockEnableEdit) {
+        filtered.push({ key: t("Hide"), isSortable: false });
+      }
+      return filtered;
+    }
+    if (isSandwichStockEnableEdit) {
+      cols.push({ key: t("Hide"), isSortable: false });
     }
     return cols;
-  }, [t, sandwichStockPageDisabledCondition, user, showSandwichStockPrices]);
+  }, [t, sandwichStockPageDisabledCondition, user, showSandwichStockPrices, isSandwichStockEnableEdit]);
 
   const {
     rows,
@@ -304,6 +324,38 @@ const SandwichStock = () => {
       },
     ];
 
+    const hideCheckboxEntry = isSandwichStockEnableEdit
+      ? [
+          {
+            key: "isHiddenCheckbox",
+            node: (row: any) => {
+              const productId = row?.product;
+              const isHidden =
+                productId in pendingHideChanges
+                  ? pendingHideChanges[productId]
+                  : (getItem(productId, products)?.isHidden ?? false);
+              return (
+                <input
+                  type="checkbox"
+                  checked={isHidden}
+                  onChange={() => {
+                    const nextHidden = !isHidden;
+                    setPendingHideChanges((prev) => ({
+                      ...prev,
+                      [productId]: nextHidden,
+                    }));
+                    toast.success(
+                      nextHidden ? t("Item hidden") : t("Item visible")
+                    );
+                  }}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              );
+            },
+          },
+        ]
+      : [];
+
     if (
       !showSandwichStockPrices ||
       sandwichStockPageDisabledCondition?.actions?.some(
@@ -314,10 +366,13 @@ const SandwichStock = () => {
       )
     ) {
       const splicedRowKeys = ["unitPrice", "totalGroupPrice"];
-      return keys.filter((key) => !splicedRowKeys.includes(key.key));
+      return [
+        ...keys.filter((key) => !splicedRowKeys.includes(key.key)),
+        ...hideCheckboxEntry,
+      ];
     }
-    return keys;
-  }, [sandwichStockPageDisabledCondition, user, showSandwichStockPrices]);
+    return [...keys, ...hideCheckboxEntry];
+  }, [sandwichStockPageDisabledCondition, user, showSandwichStockPrices, isSandwichStockEnableEdit, pendingHideChanges, products]);
 
   const addButton = useMemo(
     () => ({
@@ -550,6 +605,14 @@ const SandwichStock = () => {
           <SwitchButton
             checked={isSandwichStockEnableEdit}
             onChange={() => {
+              if (isSandwichStockEnableEdit) {
+                Object.entries(pendingHideChanges).forEach(
+                  ([productId, isHidden]) => {
+                    updateAccountProduct({ id: productId, updates: { isHidden } });
+                  }
+                );
+                setPendingHideChanges({});
+              }
               setIsSandwichStockEnableEdit(!isSandwichStockEnableEdit);
             }}
           />
@@ -559,6 +622,18 @@ const SandwichStock = () => {
             ac.action === ActionEnum.ENABLEEDIT &&
             user?.role?._id &&
             !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        label: t("Show Hidden Items"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showHiddenSandwichStocks}
+            onChange={() => {
+              setShowHiddenSandwichStocks(!showHiddenSandwichStocks);
+            }}
+          />
         ),
       },
       {
@@ -585,6 +660,10 @@ const SandwichStock = () => {
       setIsSandwichStockEnableEdit,
       showSandwichStockFilters,
       setShowSandwichStockFilters,
+      showHiddenSandwichStocks,
+      setShowHiddenSandwichStocks,
+      pendingHideChanges,
+      updateAccountProduct,
     ]
   );
 
