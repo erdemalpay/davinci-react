@@ -5,11 +5,15 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { UpdatePayload } from "../../utils/api";
 import {
+  CreateFreeShippingDiscountPayload,
   CreateShopifyDiscountPayload,
+  UpdateFreeShippingDiscountPayload,
   UpdateShopifyDiscountPayload,
+  useCreateFreeShippingDiscountMutation,
   useCreateShopifyDiscountMutation,
   useDeleteShopifyDiscountMutation,
   useGetShopifyDiscountsPaginated,
+  useUpdateFreeShippingDiscountMutation,
   useUpdateShopifyDiscountMutation,
 } from "../../utils/api/shopify";
 import { FormElementsState, RowPerPageEnum, ShopifyDiscountNode } from "../../types";
@@ -26,6 +30,7 @@ interface DiscountRow {
   title: string;
   code: string;
   status: string;
+  discountKind: "ORDER_DISCOUNT" | "FREE_SHIPPING";
   valueType: string;
   value: number;
   startsAt: string;
@@ -42,9 +47,14 @@ interface DiscountRow {
 
 const DISCOUNT_TYPE_OPTIONS = [
   { value: "ORDER_DISCOUNT", label: "Siparişte İndirim Tutarı" },
+  { value: "FREE_SHIPPING", label: "Ücretsiz Kargo" },
   { value: "PRODUCT_DISCOUNT", label: "Ürünlerde İndirim Tutarı (Yakında)", isDisabled: true },
   { value: "BXGY", label: "X Alana Y Kazan (Yakında)", isDisabled: true },
-  { value: "FREE_SHIPPING", label: "Ücretsiz Kargo (Yakında)", isDisabled: true },
+];
+
+const FREE_SHIPPING_METHOD_OPTIONS = [
+  { value: "CODE", label: "İndirim Kodu" },
+  { value: "AUTOMATIC", label: "Otomatik İndirim" },
 ];
 
 const VALUE_TYPE_OPTIONS = [
@@ -95,10 +105,12 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
   const codeNode = cd.codes?.edges?.[0]?.node;
   const numericId = n.id.split("/").pop() ?? n.id;
 
+  const cgValue = cd.customerGets?.value;
+  const isFreeShipping = !cgValue;
+
   let valueType = "";
   let value = 0;
-  const cgValue = cd.customerGets?.value;
-  if (cgValue) {
+  if (!isFreeShipping && cgValue) {
     if ("percentage" in cgValue) {
       valueType = "PERCENTAGE";
       value = Math.round(cgValue.percentage * 100);
@@ -106,6 +118,8 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
       valueType = "FIXED_AMOUNT";
       value = parseFloat(cgValue.amount?.amount ?? "0");
     }
+  } else {
+    valueType = "FREE_SHIPPING";
   }
 
   let minimumRequirementType = "NONE";
@@ -128,8 +142,9 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
     _id: n.id,
     numericId,
     title: cd.title ?? "",
-    code: codeNode?.code ?? "",
+    code: codeNode?.code ?? "-",
     status: cd.status ?? "",
+    discountKind: isFreeShipping ? "FREE_SHIPPING" : "ORDER_DISCOUNT",
     valueType,
     value,
     startsAt: cd.startsAt ?? "",
@@ -164,9 +179,15 @@ const ShopifyDiscounts = () => {
   const [rowToAction, setRowToAction] = useState<DiscountRow | undefined>();
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
+  // Tracked externally so addInputs can react to user's selection
+  const [addDiscountType, setAddDiscountType] = useState<string>("ORDER_DISCOUNT");
+  const [addMethod, setAddMethod] = useState<string>("CODE");
+
   const { mutate: createDiscount } = useCreateShopifyDiscountMutation();
   const { mutate: updateDiscount } = useUpdateShopifyDiscountMutation();
   const { mutate: deleteDiscount } = useDeleteShopifyDiscountMutation();
+  const { mutate: createFreeShippingDiscount } = useCreateFreeShippingDiscountMutation();
+  const { mutate: updateFreeShippingDiscount } = useUpdateFreeShippingDiscountMutation();
 
   useEffect(() => {
     const prev = rowsPerPage;
@@ -224,13 +245,17 @@ const ShopifyDiscounts = () => {
       { key: "title" },
       {
         key: "valueType",
-        node: (row: DiscountRow) =>
-          row.valueType === "PERCENTAGE" ? t("Percentage") : t("Fixed Amount"),
+        node: (row: DiscountRow) => {
+          if (row.valueType === "FREE_SHIPPING") return t("Free Shipping");
+          return row.valueType === "PERCENTAGE" ? t("Percentage") : t("Fixed Amount");
+        },
       },
       {
         key: "value",
-        node: (row: DiscountRow) =>
-          row.valueType === "PERCENTAGE" ? `%${row.value}` : `₺${row.value}`,
+        node: (row: DiscountRow) => {
+          if (row.valueType === "FREE_SHIPPING") return "-";
+          return row.valueType === "PERCENTAGE" ? `%${row.value}` : `₺${row.value}`;
+        },
       },
       {
         key: "status",
@@ -266,9 +291,13 @@ const ShopifyDiscounts = () => {
     [t]
   );
 
+  const isFreeShipping = addDiscountType === "FREE_SHIPPING";
+  const isCodeMethod = addMethod === "CODE";
+
   const formKeys = useMemo(
     () => [
       { key: "discountType", type: FormKeyTypeEnum.STRING },
+      { key: "method", type: FormKeyTypeEnum.STRING },
       { key: "title", type: FormKeyTypeEnum.STRING },
       { key: "code", type: FormKeyTypeEnum.STRING },
       { key: "valueType", type: FormKeyTypeEnum.STRING },
@@ -291,11 +320,150 @@ const ShopifyDiscounts = () => {
       {
         type: InputTypes.SELECT,
         formKey: "discountType",
-        label: t("Discount Method"),
+        label: t("Discount Type"),
         options: DISCOUNT_TYPE_OPTIONS,
-        placeholder: t("Select discount method"),
+        placeholder: t("Select discount type"),
+        required: true,
+        additionalOnChange: (value: string) => {
+          setAddDiscountType(value);
+          setAddMethod("CODE");
+        },
+      },
+      // Free shipping: method toggle (İndirim Kodu / Otomatik İndirim)
+      ...(isFreeShipping
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "method",
+              label: t("Method"),
+              options: FREE_SHIPPING_METHOD_OPTIONS,
+              placeholder: t("Select method"),
+              required: true,
+              additionalOnChange: (value: string) => setAddMethod(value),
+            },
+          ]
+        : []),
+      {
+        type: InputTypes.TEXT,
+        formKey: "title",
+        label: t("Title"),
+        placeholder: t("Title"),
         required: true,
       },
+      // Code field: always for ORDER_DISCOUNT; for FREE_SHIPPING only when method === CODE
+      ...(!isFreeShipping || isCodeMethod
+        ? [
+            {
+              type: InputTypes.TEXT,
+              formKey: "code",
+              label: t("Discount Code"),
+              placeholder: isFreeShipping ? "FREEKARGO" : "YAZINDIRIMI",
+              required: true,
+              helperNode: <CodeGenerateButton />,
+            },
+          ]
+        : []),
+      // Value fields: only for ORDER_DISCOUNT
+      ...(!isFreeShipping
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "valueType",
+              label: t("Discount Type"),
+              options: VALUE_TYPE_OPTIONS,
+              placeholder: t("Discount Type"),
+              required: true,
+            },
+            {
+              type: InputTypes.NUMBER,
+              formKey: "value",
+              label: t("Value"),
+              placeholder: "10",
+              required: true,
+              minNumber: 0,
+            },
+          ]
+        : []),
+      {
+        type: InputTypes.DATE,
+        formKey: "startsAt",
+        label: t("Start Date"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "endsAt",
+        label: t("End Date"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "minimumRequirementType",
+        label: t("Minimum Requirement"),
+        options: MIN_REQ_OPTIONS,
+        placeholder: t("Minimum Requirement"),
+        required: false,
+        helperText: t("Minimum requirement helper"),
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "minimumRequirementValue",
+        label: t("Minimum Requirement Value"),
+        placeholder: "0",
+        required: false,
+        minNumber: 0,
+        helperText: t("Minimum requirement value helper"),
+      },
+      // Usage limits: always for ORDER_DISCOUNT; for FREE_SHIPPING only when method === CODE
+      ...(!isFreeShipping || isCodeMethod
+        ? [
+            {
+              type: InputTypes.NUMBER,
+              formKey: "usageLimit",
+              label: t("Usage Limit"),
+              placeholder: t("Unlimited"),
+              required: false,
+              minNumber: 1,
+              helperText: t("Usage limit helper"),
+            },
+            {
+              type: InputTypes.CHECKBOX,
+              formKey: "appliesOncePerCustomer",
+              label: t("Once Per Customer"),
+              required: false,
+            },
+          ]
+        : []),
+      // Combination options: only for ORDER_DISCOUNT
+      ...(!isFreeShipping
+        ? [
+            {
+              type: InputTypes.CHECKBOX,
+              formKey: "combinesWithProductDiscounts",
+              label: t("Combine with Product Discounts"),
+              required: false,
+            },
+            {
+              type: InputTypes.CHECKBOX,
+              formKey: "combinesWithOrderDiscounts",
+              label: t("Combine with Order Discounts"),
+              required: false,
+            },
+            {
+              type: InputTypes.CHECKBOX,
+              formKey: "combinesWithShippingDiscounts",
+              label: t("Combine with Shipping Discounts"),
+              required: false,
+            },
+          ]
+        : []),
+    ],
+    [t, isFreeShipping, isCodeMethod]
+  );
+
+  // Edit modal uses fixed order-discount inputs (no conditional logic needed)
+  const editInputs = useMemo(
+    () => [
       {
         type: InputTypes.TEXT,
         formKey: "title",
@@ -394,6 +562,72 @@ const ShopifyDiscounts = () => {
     [t]
   );
 
+  const freeShippingEditInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "title",
+        label: t("Title"),
+        placeholder: t("Title"),
+        required: true,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "code",
+        label: t("Discount Code"),
+        placeholder: "FREEKARGO",
+        required: true,
+        helperNode: <CodeGenerateButton />,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "startsAt",
+        label: t("Start Date"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "endsAt",
+        label: t("End Date"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "minimumRequirementType",
+        label: t("Minimum Requirement"),
+        options: MIN_REQ_OPTIONS,
+        placeholder: t("Minimum Requirement"),
+        required: false,
+        helperText: t("Minimum requirement helper"),
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "minimumRequirementValue",
+        label: t("Minimum Requirement Value"),
+        placeholder: "0",
+        required: false,
+        minNumber: 0,
+        helperText: t("Minimum requirement value helper"),
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "usageLimit",
+        label: t("Usage Limit"),
+        placeholder: t("Unlimited"),
+        required: false,
+        minNumber: 1,
+        helperText: t("Usage limit helper"),
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "appliesOncePerCustomer",
+        label: t("Once Per Customer"),
+        required: false,
+      },
+    ],
+    [t]
+  );
+
   const filterPanelInputs = useMemo(
     () => [
       {
@@ -445,19 +679,39 @@ const ShopifyDiscounts = () => {
       modal: (
         <GenericAddEditPanel
           isOpen={isAddModalOpen}
-          close={() => setIsAddModalOpen(false)}
+          close={() => {
+            setIsAddModalOpen(false);
+            setAddDiscountType("ORDER_DISCOUNT");
+            setAddMethod("CODE");
+          }}
           inputs={addInputs}
           formKeys={formKeys}
           submitItem={
             ((item: any) => {
-              const { discountType: _dt, ...payload } = item;
-              createDiscount(payload as CreateShopifyDiscountPayload);
-            }) as unknown as (
-              item: CreateShopifyDiscountPayload | UpdatePayload<CreateShopifyDiscountPayload>
-            ) => void
+              const { discountType, method, ...rest } = item;
+              if (discountType === "FREE_SHIPPING") {
+                const payload: CreateFreeShippingDiscountPayload = {
+                  method: method ?? "CODE",
+                  title: rest.title,
+                  startsAt: rest.startsAt,
+                  endsAt: rest.endsAt || undefined,
+                  minimumRequirementType: rest.minimumRequirementType || undefined,
+                  minimumRequirementValue: rest.minimumRequirementValue || undefined,
+                  ...(method !== "AUTOMATIC" && {
+                    code: rest.code,
+                    usageLimit: rest.usageLimit || undefined,
+                    appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
+                  }),
+                };
+                createFreeShippingDiscount(payload);
+              } else {
+                const { method: _m, ...orderPayload } = rest;
+                createDiscount(orderPayload as CreateShopifyDiscountPayload);
+              }
+            }) as any
           }
           topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
-          constantValues={{ discountType: "ORDER_DISCOUNT" }}
+          constantValues={{ discountType: "ORDER_DISCOUNT", method: "CODE" }}
         />
       ),
       isModalOpen: isAddModalOpen,
@@ -465,7 +719,7 @@ const ShopifyDiscounts = () => {
       isPath: false,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, addInputs, formKeys, createDiscount]
+    [t, isAddModalOpen, addInputs, formKeys, createDiscount, createFreeShippingDiscount]
   );
 
   const actions = useMemo(
@@ -477,44 +731,76 @@ const ShopifyDiscounts = () => {
         isModal: true,
         setRow: setRowToAction,
         modal: rowToAction ? (
-          <GenericAddEditPanel
-            isOpen={isEditModalOpen}
-            close={() => setIsEditModalOpen(false)}
-            inputs={addInputs}
-            formKeys={formKeys}
-            submitItem={
-              ((item: Partial<DiscountRow> & { discountType?: string }) => {
-                const { discountType: _dt, ...rest } = item;
-                updateDiscount({
-                  id: rowToAction._id,
-                  ...rest,
-                } as UpdateShopifyDiscountPayload);
-              }) as unknown as (
-                item: DiscountRow | UpdatePayload<DiscountRow>
-              ) => void
-            }
-            isEditMode={true}
-            topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
-            itemToEdit={{
-              id: rowToAction._id,
-              updates: {
-                discountType: "ORDER_DISCOUNT",
-                title: rowToAction.title,
-                code: rowToAction.code,
-                valueType: rowToAction.valueType,
-                value: rowToAction.value,
-                startsAt: rowToAction.startsAt,
-                endsAt: rowToAction.endsAt || undefined,
-                minimumRequirementType: rowToAction.minimumRequirementType,
-                minimumRequirementValue: rowToAction.minimumRequirementValue,
-                usageLimit: rowToAction.usageLimit !== "∞" ? Number(rowToAction.usageLimit) : undefined,
-                appliesOncePerCustomer: rowToAction.appliesOncePerCustomer,
-                combinesWithProductDiscounts: rowToAction.combinesWithProductDiscounts,
-                combinesWithOrderDiscounts: rowToAction.combinesWithOrderDiscounts,
-                combinesWithShippingDiscounts: rowToAction.combinesWithShippingDiscounts,
-              } as any,
-            }}
-          />
+          rowToAction.discountKind === "FREE_SHIPPING" ? (
+            <GenericAddEditPanel
+              isOpen={isEditModalOpen}
+              close={() => setIsEditModalOpen(false)}
+              inputs={freeShippingEditInputs}
+              formKeys={formKeys}
+              submitItem={
+                ((item: Partial<DiscountRow>) => {
+                  updateFreeShippingDiscount({
+                    id: rowToAction._id,
+                    ...item,
+                  } as UpdateFreeShippingDiscountPayload);
+                }) as unknown as (
+                  item: DiscountRow | UpdatePayload<DiscountRow>
+                ) => void
+              }
+              isEditMode={true}
+              topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
+              itemToEdit={{
+                id: rowToAction._id,
+                updates: {
+                  title: rowToAction.title,
+                  code: rowToAction.code !== "-" ? rowToAction.code : "",
+                  startsAt: rowToAction.startsAt,
+                  endsAt: rowToAction.endsAt || undefined,
+                  minimumRequirementType: rowToAction.minimumRequirementType,
+                  minimumRequirementValue: rowToAction.minimumRequirementValue,
+                  usageLimit: rowToAction.usageLimit !== "∞" ? Number(rowToAction.usageLimit) : undefined,
+                  appliesOncePerCustomer: rowToAction.appliesOncePerCustomer,
+                } as any,
+              }}
+            />
+          ) : (
+            <GenericAddEditPanel
+              isOpen={isEditModalOpen}
+              close={() => setIsEditModalOpen(false)}
+              inputs={editInputs}
+              formKeys={formKeys}
+              submitItem={
+                ((item: Partial<DiscountRow>) => {
+                  updateDiscount({
+                    id: rowToAction._id,
+                    ...item,
+                  } as UpdateShopifyDiscountPayload);
+                }) as unknown as (
+                  item: DiscountRow | UpdatePayload<DiscountRow>
+                ) => void
+              }
+              isEditMode={true}
+              topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
+              itemToEdit={{
+                id: rowToAction._id,
+                updates: {
+                  title: rowToAction.title,
+                  code: rowToAction.code,
+                  valueType: rowToAction.valueType,
+                  value: rowToAction.value,
+                  startsAt: rowToAction.startsAt,
+                  endsAt: rowToAction.endsAt || undefined,
+                  minimumRequirementType: rowToAction.minimumRequirementType,
+                  minimumRequirementValue: rowToAction.minimumRequirementValue,
+                  usageLimit: rowToAction.usageLimit !== "∞" ? Number(rowToAction.usageLimit) : undefined,
+                  appliesOncePerCustomer: rowToAction.appliesOncePerCustomer,
+                  combinesWithProductDiscounts: rowToAction.combinesWithProductDiscounts,
+                  combinesWithOrderDiscounts: rowToAction.combinesWithOrderDiscounts,
+                  combinesWithShippingDiscounts: rowToAction.combinesWithShippingDiscounts,
+                } as any,
+              }}
+            />
+          )
         ) : null,
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
@@ -543,7 +829,7 @@ const ShopifyDiscounts = () => {
         isPath: false,
       },
     ],
-    [t, rowToAction, isEditModalOpen, isDeleteModalOpen, addInputs, formKeys, updateDiscount, deleteDiscount]
+    [t, rowToAction, isEditModalOpen, isDeleteModalOpen, editInputs, freeShippingEditInputs, formKeys, updateDiscount, updateFreeShippingDiscount, deleteDiscount]
   );
 
   return (

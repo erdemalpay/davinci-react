@@ -152,6 +152,18 @@ export function useUpdateShopifyProductPriceMutation() {
   });
 }
 
+export interface CreateFreeShippingDiscountPayload {
+  method: 'CODE' | 'AUTOMATIC';
+  title: string;
+  code?: string;
+  startsAt: string;
+  endsAt?: string;
+  minimumRequirementType?: 'NONE' | 'SUBTOTAL' | 'QUANTITY';
+  minimumRequirementValue?: number;
+  usageLimit?: number;
+  appliesOncePerCustomer?: boolean;
+}
+
 const DISCOUNT_QUERY_KEY = [`${Paths.Shopify}/discount`];
 
 export function useGetShopifyDiscountsPaginated(
@@ -195,6 +207,50 @@ export function useUpdateShopifyDiscountMutation() {
   return useMutation({
     mutationFn: (payload: UpdateShopifyDiscountPayload) =>
       patch({ path: `${Paths.Shopify}/discount`, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export interface UpdateFreeShippingDiscountPayload {
+  id: string;
+  title?: string;
+  code?: string;
+  startsAt?: string;
+  endsAt?: string;
+  minimumRequirementType?: 'NONE' | 'SUBTOTAL' | 'QUANTITY';
+  minimumRequirementValue?: number;
+  usageLimit?: number;
+  appliesOncePerCustomer?: boolean;
+}
+
+export function useUpdateFreeShippingDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateFreeShippingDiscountPayload) =>
+      patch({ path: `${Paths.Shopify}/discount/free-shipping`, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useCreateFreeShippingDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateFreeShippingDiscountPayload) =>
+      post({ path: `${Paths.Shopify}/discount/free-shipping`, payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
     },
