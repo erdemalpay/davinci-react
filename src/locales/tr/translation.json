@@ -1347,7 +1347,7 @@
   "face_recognition": "Yüz Okutma",
   "qr": "QR",
   "Scan QR to check in/out": "Giriş/çıkış için QR okutun",
-  "Point your camera at the QR shown at the cafe": "Kameranı kafedeki ekranda gösterilen QR'a tut",
+  "Point your camera at the QR shown at the cafe": "Kameranızı kafedeki ekranda gösterilen QR'a tutun",
   "Check-in successful": "Giriş yapıldı",
   "Check-out successful": "Çıkış yapıldı",
   "Camera access denied or unavailable": "Kamera erişimi reddedildi veya kullanılamıyor",
