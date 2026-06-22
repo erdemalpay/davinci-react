@@ -299,7 +299,7 @@ const Product = () => {
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "expenseType", type: FormKeyTypeEnum.STRING },
       { key: "vendor", type: FormKeyTypeEnum.STRING },
-      { key: "brand", type: FormKeyTypeEnum.STRING },
+      { key: "brand", type: FormKeyTypeEnum.ARRAY },
       { key: "countList", type: FormKeyTypeEnum.ARRAY },
       { key: "locations", type: FormKeyTypeEnum.ARRAY },
       { key: "matchedMenuItem", type: FormKeyTypeEnum.STRING },
