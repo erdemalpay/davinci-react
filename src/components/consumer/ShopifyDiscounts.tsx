@@ -327,17 +327,13 @@ const ShopifyDiscounts = () => {
     { value: "AMOUNT", label: t("Minimum Purchase Amount") },
   ], [t]);
 
+  // Shopify doesn't allow ALL scope for BXGY buy or get side (code or automatic)
   const bxgyProductScopeOptions = useMemo(() => [
-    { value: "ALL", label: t("All Products") },
     { value: "PRODUCTS", label: t("Specific Products") },
     { value: "COLLECTIONS", label: t("Specific Collections") },
   ], [t]);
 
-  // Automatic BXGY: Shopify doesn't allow ALL scope for either buy or get side
-  const bxgyProductScopeOptionsAutomatic = useMemo(() => [
-    { value: "PRODUCTS", label: t("Specific Products") },
-    { value: "COLLECTIONS", label: t("Specific Collections") },
-  ], [t]);
+  const bxgyProductScopeOptionsAutomatic = bxgyProductScopeOptions;
 
   const bxgyDiscountTypeOptions = useMemo(() => [
     { value: "FREE", label: t("Free") },
