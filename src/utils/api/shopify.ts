@@ -192,7 +192,9 @@ export function useCreateShopifyDiscountMutation() {
     mutationFn: (payload: CreateShopifyDiscountPayload) =>
       post({ path: `${Paths.Shopify}/discount`, payload }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      }, 3000);
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -252,7 +254,9 @@ export function useCreateFreeShippingDiscountMutation() {
     mutationFn: (payload: CreateFreeShippingDiscountPayload) =>
       post({ path: `${Paths.Shopify}/discount/free-shipping`, payload }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      }, 3000);
     },
     onError: (_err: any) => {
       const errorMessage =
