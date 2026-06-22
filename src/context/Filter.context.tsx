@@ -48,6 +48,8 @@ type FilterContextType = {
   setShowSandwichStockPrices: (state: boolean) => void;
   isSandwichStockEnableEdit: boolean;
   setIsSandwichStockEnableEdit: (state: boolean) => void;
+  showHiddenSandwichStocks: boolean;
+  setShowHiddenSandwichStocks: (state: boolean) => void;
   showStockPrices: boolean;
   setShowStockPrices: (state: boolean) => void;
   isStockEnableEdit: boolean;
@@ -301,6 +303,8 @@ const FilterContext = createContext<FilterContextType>({
   setShowSandwichStockPrices: () => {},
   isSandwichStockEnableEdit: false,
   setIsSandwichStockEnableEdit: () => {},
+  showHiddenSandwichStocks: false,
+  setShowHiddenSandwichStocks: () => {},
   showStockPrices: false,
   setShowStockPrices: () => {},
   isStockEnableEdit: false,
@@ -648,6 +652,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     useState(false);
   const [showSandwichStockPrices, setShowSandwichStockPrices] = useState(false);
   const [isSandwichStockEnableEdit, setIsSandwichStockEnableEdit] =
+    useState(false);
+  const [showHiddenSandwichStocks, setShowHiddenSandwichStocks] =
     useState(false);
   const [showStockPrices, setShowStockPrices] = useState(false);
   const [isStockEnableEdit, setIsStockEnableEdit] = useState(false);
@@ -1059,6 +1065,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowSandwichStockPrices: setShowSandwichStockPrices,
         isSandwichStockEnableEdit: isSandwichStockEnableEdit,
         setIsSandwichStockEnableEdit: setIsSandwichStockEnableEdit,
+        showHiddenSandwichStocks: showHiddenSandwichStocks,
+        setShowHiddenSandwichStocks: setShowHiddenSandwichStocks,
         showStockPrices: showStockPrices,
         setShowStockPrices: setShowStockPrices,
         isStockEnableEdit: isStockEnableEdit,

@@ -1584,5 +1584,8 @@
   "Game Batches (FIFO)": "Oyun Grupları (FIFO)",
   "Reference Price": "Referans Fiyat (Müşteri Menüsünde Üstü Çizili Olarak Görünür)",
   "referencePricePlaceholder": "{{price}} değerinden büyük bir değer giriniz",
-  "Deposit": "Depozito"
+  "Deposit": "Depozito",
+  "Item hidden": "Öge gizlendi",
+  "Item visible": "Öge görünür hale getirildi",
+  "Show Hidden Items": "Gizlenen Ögeleri Göster"
 }

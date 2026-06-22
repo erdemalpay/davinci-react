@@ -280,6 +280,7 @@ export type AccountProduct = {
   unitPrice: number;
   matchedMenuItem?: number;
   deleted?: boolean;
+  isHidden?: boolean;
   baseQuantities?: {
     location: number;
     minQuantity: number;
