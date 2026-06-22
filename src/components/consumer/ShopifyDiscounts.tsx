@@ -738,10 +738,11 @@ const ShopifyDiscounts = () => {
               inputs={freeShippingEditInputs}
               formKeys={formKeys}
               submitItem={
-                ((item: Partial<DiscountRow>) => {
+                ((item: any) => {
+                  const updates = item?.updates ?? item;
                   updateFreeShippingDiscount({
                     id: rowToAction._id,
-                    ...item,
+                    ...updates,
                   } as UpdateFreeShippingDiscountPayload);
                 }) as unknown as (
                   item: DiscountRow | UpdatePayload<DiscountRow>
@@ -770,10 +771,11 @@ const ShopifyDiscounts = () => {
               inputs={editInputs}
               formKeys={formKeys}
               submitItem={
-                ((item: Partial<DiscountRow>) => {
+                ((item: any) => {
+                  const updates = item?.updates ?? item;
                   updateDiscount({
                     id: rowToAction._id,
-                    ...item,
+                    ...updates,
                   } as UpdateShopifyDiscountPayload);
                 }) as unknown as (
                   item: DiscountRow | UpdatePayload<DiscountRow>
