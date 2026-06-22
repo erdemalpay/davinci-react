@@ -41,6 +41,7 @@ import PanelControl, { PanelControlPageTabs } from "../pages/PanelControl";
 import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
+import QrDisplay from "../pages/QrDisplay";
 import Reservations from "../pages/Reservations";
 import Retailer, { RetailerPageTabs } from "../pages/Retailer";
 import RetailerOrders, {
@@ -145,6 +146,7 @@ export enum Routes {
   Location = "/location/:locationId",
   Activities = "/activities",
   DailySummary = "/daily-summary",
+  QrDisplay = "/qr-display",
   IkasPickUp = "/ikas-pickup",
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
@@ -218,6 +220,12 @@ export const allRoutes: {
     name: "Daily Summary",
     path: Routes.DailySummary,
     element: DailySummary,
+    isOnSidebar: true,
+  },
+  {
+    name: "QR Display",
+    path: Routes.QrDisplay,
+    element: QrDisplay,
     isOnSidebar: true,
   },
   {

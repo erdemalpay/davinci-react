@@ -15,21 +15,16 @@ import {
   RoleEnum,
   Table,
   Visit,
-  VisitSource,
 } from "../../types";
 import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import {
   useGetMiddlemanByDate,
   useMiddlemanMutations,
 } from "../../utils/api/middleman";
-import {
-  useCreateVisitMutation,
-  useFinishVisitMutation,
-} from "../../utils/api/visit";
 import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
-import Loading from "../common/Loading";
+import { QrScannerModal } from "./QrScannerModal";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
   visits: Visit[];
@@ -48,8 +43,6 @@ export function ActiveVisitList({
   tables = [],
 }: ActiveMentorListProps) {
   const { t } = useTranslation();
-  const { mutate: createVisit } = useCreateVisitMutation();
-  const { mutate: finishVisit } = useFinishVisitMutation();
   const { users = [], panelSettings } = useDataContext();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
@@ -60,12 +53,7 @@ export function ActiveVisitList({
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const activeMiddlemen = useGetMiddlemanByDate(todayDate);
   const { updateMiddleman } = useMiddlemanMutations();
-  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
-    useState(false);
-  const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
-  const [closedVisitFinishHour, setClosedVisitFinishHour] =
-    useState<string>("");
-  const [isCreatingVisit, setIsCreatingVisit] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
 
   const canEndOthersMiddleman = useMemo(() => {
@@ -80,61 +68,14 @@ export function ActiveVisitList({
     if (!isUserActive(userId)) {
       return;
     }
-    const visit = visits.find(
-      (visitItem) => visitItem.user === userId && !visitItem?.finishHour
-    );
-    if (visit) {
-      const now = new Date();
-      const finishHour = format(now, "HH:mm");
-      setClosedVisitId(visit._id);
-      setClosedVisitFinishHour(finishHour);
-      setIsConfirmationDialogOpen(true);
-    }
-
-    // setItems(items.filter((t) => t._id !== user._id));
+    setIsScannerOpen(true);
   }
 
-  function handleCheckboxChange(checked: boolean) {
+  function handleCheckboxChange() {
     if (isDisabledCondition) {
       return;
     }
-    if (checked) {
-      setIsCreatingVisit(true);
-
-      const now = new Date();
-      const startHour = format(now, "HH:mm");
-      const date = format(now, "yyyy-MM-dd");
-      createVisit(
-        {
-          location: selectedLocationId,
-          date,
-          startHour,
-          visitStartSource: VisitSource.PANEL,
-        },
-        {
-          onSuccess: () => {
-            setIsCreatingVisit(false);
-          },
-          onError: () => {
-            setIsCreatingVisit(false);
-          },
-        }
-      );
-    } else {
-      // Uncheck: finish the visit
-      if (user?._id) {
-        const visit = visits.find(
-          (visitItem) => visitItem.user === user._id && !visitItem?.finishHour
-        );
-        if (visit) {
-          const now = new Date();
-          const finishHour = format(now, "HH:mm");
-          setClosedVisitId(visit._id);
-          setClosedVisitFinishHour(finishHour);
-          setIsConfirmationDialogOpen(true);
-        }
-      }
-    }
+    setIsScannerOpen(true);
   }
   const isUserActive = (userId: string) => {
     return visits
@@ -246,38 +187,13 @@ export function ActiveVisitList({
     );
   }
 
-  if (isConfirmationDialogOpen) {
-    return (
-      <ConfirmationDialog
-        isOpen={isConfirmationDialogOpen}
-        close={() => {
-          setIsConfirmationDialogOpen(false);
-        }}
-        confirm={() => {
-          if (!closedVisitId) return;
-          finishVisit({
-            id: closedVisitId,
-            finishHour: closedVisitFinishHour,
-            visitFinishSource: VisitSource.PANEL,
-          });
-          setIsConfirmationDialogOpen(false);
-        }}
-        title={t("Close Visit")}
-        text={`${t("Are you sure you want to close this visit?")}`}
-      />
-    );
-  }
-
-  if (isCreatingVisit) {
-    return <Loading />;
-  }
   return (
     <div className="flex flex-col w-full">
       {!isDisabledCondition && (
         <div className="flex flex-row w-full items-center gap-3">
           <Checkbox
             checked={isCurrentUserCheckedIn}
-            onChange={(e) => handleCheckboxChange(e.target.checked)}
+            onChange={() => handleCheckboxChange()}
             disabled={isDisabledCondition}
             label={label}
             className="hover:before:opacity-0"
@@ -401,6 +317,10 @@ export function ActiveVisitList({
           );
         })}
       </div>
+      <QrScannerModal
+        isOpen={isScannerOpen}
+        close={() => setIsScannerOpen(false)}
+      />
     </div>
   );
 }
