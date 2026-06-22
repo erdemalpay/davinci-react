@@ -230,6 +230,7 @@ const ShopifyDiscounts = () => {
       { key: t("Usage"), isSortable: false },
       { key: t("Start Date"), isSortable: false },
       { key: t("End Date"), isSortable: false },
+      { key: t("Actions"), isSortable: false },
     ],
     [t]
   );
