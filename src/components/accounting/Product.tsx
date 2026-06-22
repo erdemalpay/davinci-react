@@ -230,7 +230,7 @@ const Product = () => {
         })),
         isMultiple: true,
         placeholder: t("Brand"),
-        required: true,
+        required: false,
       },
       {
         type: InputTypes.SELECT,
