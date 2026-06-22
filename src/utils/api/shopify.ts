@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { patch, post, remove } from ".";
-import { ShopifyCustomersPaginatedResponse, ShopifyDiscountNode, ShopifyDiscountsPaginatedResponse, ShopifyProduct } from "../../types";
+import { ShopifyCollection, ShopifyCustomersPaginatedResponse, ShopifyDiscountNode, ShopifyDiscountsPaginatedResponse, ShopifyProduct } from "../../types";
 import { Paths, useGet, useGetList } from "./factory";
 
 export interface CreateShopifyDiscountPayload {
@@ -152,6 +152,57 @@ export function useUpdateShopifyProductPriceMutation() {
   });
 }
 
+export interface CreateAutomaticOrderDiscountPayload {
+  title: string;
+  valueType: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  startsAt: string;
+  endsAt?: string;
+  minimumRequirementType?: "NONE" | "SUBTOTAL" | "QUANTITY";
+  minimumRequirementValue?: number;
+  combinesWithProductDiscounts?: boolean;
+  combinesWithOrderDiscounts?: boolean;
+  combinesWithShippingDiscounts?: boolean;
+}
+
+export interface UpdateAutomaticOrderDiscountPayload extends Partial<CreateAutomaticOrderDiscountPayload> {
+  id: string;
+}
+
+export function useCreateAutomaticOrderDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateAutomaticOrderDiscountPayload) =>
+      post({ path: `${Paths.Shopify}/discount/automatic`, payload }),
+    onSuccess: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      }, 3000);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateAutomaticOrderDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateAutomaticOrderDiscountPayload) =>
+      patch({ path: `${Paths.Shopify}/discount/automatic`, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export interface CreateFreeShippingDiscountPayload {
   method: 'CODE' | 'AUTOMATIC';
   title: string;
@@ -257,6 +308,186 @@ export function useCreateFreeShippingDiscountMutation() {
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
       }, 3000);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export interface CreateProductDiscountPayload {
+  title: string;
+  code: string;
+  valueType: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  appliesTo: "ALL" | "PRODUCTS" | "COLLECTIONS";
+  productIds?: string[];
+  collectionIds?: string[];
+  startsAt: string;
+  endsAt?: string;
+  minimumRequirementType?: "NONE" | "SUBTOTAL" | "QUANTITY";
+  minimumRequirementValue?: number;
+  usageLimit?: number;
+  appliesOncePerCustomer?: boolean;
+  combinesWithProductDiscounts?: boolean;
+  combinesWithOrderDiscounts?: boolean;
+  combinesWithShippingDiscounts?: boolean;
+}
+
+export interface UpdateProductDiscountPayload extends Partial<CreateProductDiscountPayload> {
+  id: string;
+}
+
+export function useGetShopifyCollections() {
+  return useGetList<ShopifyCollection>(`${Paths.Shopify}/collection`);
+}
+
+export function useCreateProductDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateProductDiscountPayload) =>
+      post({ path: `${Paths.Shopify}/discount/product`, payload }),
+    onSuccess: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      }, 3000);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateProductDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateProductDiscountPayload) =>
+      patch({ path: `${Paths.Shopify}/discount/product`, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export interface CreateBxgyDiscountPayload {
+  title: string;
+  code: string;
+  startsAt: string;
+  endsAt?: string;
+  buyRequirementType: "QUANTITY" | "AMOUNT";
+  buyQuantityOrAmount: number;
+  buyProductScope: "ALL" | "PRODUCTS" | "COLLECTIONS";
+  buyProductIds?: string[];
+  buyCollectionIds?: string[];
+  getQuantity: number;
+  getProductScope: "ALL" | "PRODUCTS" | "COLLECTIONS";
+  getProductIds?: string[];
+  getCollectionIds?: string[];
+  bxgyDiscountType: "PERCENTAGE" | "AMOUNT" | "FREE";
+  bxgyDiscountValue?: number;
+  usageLimit?: number;
+  appliesOncePerCustomer?: boolean;
+  combinesWithProductDiscounts?: boolean;
+  combinesWithOrderDiscounts?: boolean;
+  combinesWithShippingDiscounts?: boolean;
+}
+
+export interface UpdateBxgyDiscountPayload extends Partial<CreateBxgyDiscountPayload> {
+  id: string;
+}
+
+export function useCreateBxgyDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateBxgyDiscountPayload) =>
+      post({ path: `${Paths.Shopify}/discount/bxgy`, payload }),
+    onSuccess: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      }, 3000);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateBxgyDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateBxgyDiscountPayload) =>
+      patch({ path: `${Paths.Shopify}/discount/bxgy`, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export interface CreateAutomaticBxgyDiscountPayload {
+  title: string;
+  startsAt: string;
+  endsAt?: string;
+  buyRequirementType: "QUANTITY" | "AMOUNT";
+  buyQuantityOrAmount: number;
+  buyProductScope: "ALL" | "PRODUCTS" | "COLLECTIONS";
+  buyProductIds?: string[];
+  buyCollectionIds?: string[];
+  getQuantity: number;
+  getProductScope: "ALL" | "PRODUCTS" | "COLLECTIONS";
+  getProductIds?: string[];
+  getCollectionIds?: string[];
+  bxgyDiscountType: "PERCENTAGE" | "AMOUNT" | "FREE";
+  bxgyDiscountValue?: number;
+  combinesWithProductDiscounts?: boolean;
+  combinesWithOrderDiscounts?: boolean;
+  combinesWithShippingDiscounts?: boolean;
+}
+
+export interface UpdateAutomaticBxgyDiscountPayload extends Partial<CreateAutomaticBxgyDiscountPayload> {
+  id: string;
+}
+
+export function useCreateAutomaticBxgyDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateAutomaticBxgyDiscountPayload) =>
+      post({ path: `${Paths.Shopify}/discount/bxgy/automatic`, payload }),
+    onSuccess: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      }, 3000);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateAutomaticBxgyDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateAutomaticBxgyDiscountPayload) =>
+      patch({ path: `${Paths.Shopify}/discount/bxgy/automatic`, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
     },
     onError: (_err: any) => {
       const errorMessage =

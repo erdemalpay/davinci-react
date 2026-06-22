@@ -1604,6 +1604,18 @@ export enum ConsumerPageTabEnum {
   SHOPIFY_CUSTOMERS,
 }
 
+export interface ShopifyCollection {
+  id: string;
+  title: string;
+  handle: string;
+  description?: string;
+}
+
+type DiscountItems =
+  | { allItems: boolean }
+  | { products: { nodes: Array<{ id: string; title: string }> } }
+  | { collections: { nodes: Array<{ id: string; title: string }> } };
+
 export interface ShopifyDiscountNode {
   id: string;
   codeDiscount: {
@@ -1620,7 +1632,20 @@ export interface ShopifyDiscountNode {
     customerGets?: {
       value?:
         | { percentage: number }
-        | { amount: { amount: string } };
+        | { amount: { amount: string } }
+        | {
+            discountOnQuantity: {
+              quantity: { quantity: string };
+              effect?: { percentage?: number } | { amount: { amount: string } };
+            };
+          };
+      items?: DiscountItems;
+    };
+    customerBuys?: {
+      value?:
+        | { quantity: { quantity: string } }
+        | { amount: string };
+      items?: DiscountItems;
     };
     minimumRequirement?:
       | { greaterThanOrEqualToSubtotal: { amount: string; currencyCode: string } }

@@ -5,18 +5,36 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { UpdatePayload } from "../../utils/api";
 import {
+  CreateAutomaticBxgyDiscountPayload,
+  CreateBxgyDiscountPayload,
   CreateFreeShippingDiscountPayload,
+  CreateProductDiscountPayload,
   CreateShopifyDiscountPayload,
+  UpdateAutomaticBxgyDiscountPayload,
+  CreateAutomaticOrderDiscountPayload,
+  UpdateAutomaticOrderDiscountPayload,
+  UpdateBxgyDiscountPayload,
   UpdateFreeShippingDiscountPayload,
+  UpdateProductDiscountPayload,
   UpdateShopifyDiscountPayload,
+  useCreateAutomaticBxgyDiscountMutation,
+  useCreateAutomaticOrderDiscountMutation,
+  useCreateBxgyDiscountMutation,
   useCreateFreeShippingDiscountMutation,
+  useCreateProductDiscountMutation,
   useCreateShopifyDiscountMutation,
   useDeleteShopifyDiscountMutation,
+  useGetShopifyCollections,
   useGetShopifyDiscountsPaginated,
+  useUpdateAutomaticBxgyDiscountMutation,
+  useUpdateAutomaticOrderDiscountMutation,
+  useUpdateBxgyDiscountMutation,
   useUpdateFreeShippingDiscountMutation,
+  useUpdateProductDiscountMutation,
   useUpdateShopifyDiscountMutation,
 } from "../../utils/api/shopify";
 import { FormElementsState, RowPerPageEnum, ShopifyDiscountNode } from "../../types";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGeneralContext } from "../../context/General.context";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -30,7 +48,7 @@ interface DiscountRow {
   title: string;
   code: string;
   status: string;
-  discountKind: "ORDER_DISCOUNT" | "FREE_SHIPPING";
+  discountKind: "ORDER_DISCOUNT" | "ORDER_DISCOUNT_AUTOMATIC" | "FREE_SHIPPING" | "PRODUCT_DISCOUNT" | "BXGY" | "BXGY_AUTOMATIC";
   valueType: string;
   value: number;
   startsAt: string;
@@ -43,30 +61,23 @@ interface DiscountRow {
   combinesWithProductDiscounts: boolean;
   combinesWithOrderDiscounts: boolean;
   combinesWithShippingDiscounts: boolean;
+  appliesTo?: "ALL" | "PRODUCTS" | "COLLECTIONS";
+  productIds?: string[];
+  collectionIds?: string[];
+  // BXGY fields
+  buyRequirementType?: string;
+  buyQuantityOrAmount?: number;
+  buyProductScope?: string;
+  buyProductIds?: string[];
+  buyCollectionIds?: string[];
+  getQuantity?: number;
+  getProductScope?: string;
+  getProductIds?: string[];
+  getCollectionIds?: string[];
+  bxgyDiscountType?: string;
+  bxgyDiscountValue?: number;
 }
 
-const DISCOUNT_TYPE_OPTIONS = [
-  { value: "ORDER_DISCOUNT", label: "Siparişte İndirim Tutarı" },
-  { value: "FREE_SHIPPING", label: "Ücretsiz Kargo" },
-  { value: "PRODUCT_DISCOUNT", label: "Ürünlerde İndirim Tutarı (Yakında)", isDisabled: true },
-  { value: "BXGY", label: "X Alana Y Kazan (Yakında)", isDisabled: true },
-];
-
-const FREE_SHIPPING_METHOD_OPTIONS = [
-  { value: "CODE", label: "İndirim Kodu" },
-  { value: "AUTOMATIC", label: "Otomatik İndirim" },
-];
-
-const VALUE_TYPE_OPTIONS = [
-  { value: "PERCENTAGE", label: "Yüzde (%)" },
-  { value: "FIXED_AMOUNT", label: "Sabit Tutar (₺)" },
-];
-
-const MIN_REQ_OPTIONS = [
-  { value: "NONE", label: "Minimum Koşul Yok" },
-  { value: "SUBTOTAL", label: "Minimum Sepet Tutarı (₺)" },
-  { value: "QUANTITY", label: "Minimum Ürün Adedi" },
-];
 
 function generateDiscountCode(length = 12): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -80,6 +91,7 @@ function CodeGenerateButton({
 }: {
   setFormElements?: (updater: (prev: any) => any) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -89,16 +101,18 @@ function CodeGenerateButton({
       }}
       className="self-start text-xs text-blue-500 hover:text-blue-700 underline cursor-pointer mt-0.5"
     >
-      Rastgele Oluştur
+      {t("Generate Random Code")}
     </button>
   );
 }
 
-const STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Aktif" },
-  { value: "EXPIRED", label: "Süresi Dolmuş" },
-  { value: "SCHEDULED", label: "Planlanmış" },
-];
+
+function extractDiscountItems(items: any): { scope: "ALL" | "PRODUCTS" | "COLLECTIONS"; productIds?: string[]; collectionIds?: string[] } {
+  if (!items || "allItems" in items) return { scope: "ALL" };
+  if ("products" in items) return { scope: "PRODUCTS", productIds: items.products.nodes.map((p: any) => p.id) };
+  if ("collections" in items) return { scope: "COLLECTIONS", collectionIds: items.collections.nodes.map((c: any) => c.id) };
+  return { scope: "ALL" };
+}
 
 function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
   const cd = n.codeDiscount as any;
@@ -106,11 +120,42 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
   const numericId = n.id.split("/").pop() ?? n.id;
 
   const cgValue = cd.customerGets?.value;
-  const isFreeShipping = !cgValue;
+  const cgItems = cd.customerGets?.items;
+
+  // BXGY: has customerBuys field; automatic if GID contains DiscountAutomaticNode
+  const isBxgy = !!cd.customerBuys;
+  const isBxgyAutomatic = isBxgy && n.id.includes('DiscountAutomaticNode');
+  // Automatic order discount: no customerBuys, has customerGets, GID is DiscountAutomaticNode
+  const isOrderDiscountAutomatic = !isBxgy && n.id.includes('DiscountAutomaticNode') && !!cgValue;
+  // Free shipping: no customerGets value and not BXGY
+  const isFreeShipping = !isBxgy && !isOrderDiscountAutomatic && !cgValue;
+  // Product discount: not BXGY, not free shipping, has items that are NOT allItems
+  const isProductDiscount =
+    !isBxgy &&
+    !isFreeShipping &&
+    cgItems != null &&
+    !("allItems" in cgItems);
 
   let valueType = "";
   let value = 0;
-  if (!isFreeShipping && cgValue) {
+
+  if (isBxgy) {
+    const doq = (cgValue as any)?.discountOnQuantity;
+    if (doq?.effect) {
+      if ("percentage" in doq.effect) {
+        if (doq.effect.percentage >= 1.0) {
+          valueType = "FREE";
+          value = 100;
+        } else {
+          valueType = "PERCENTAGE";
+          value = Math.round(doq.effect.percentage * 100);
+        }
+      } else if ("amount" in doq.effect) {
+        valueType = "AMOUNT";
+        value = parseFloat(doq.effect.amount?.amount ?? "0");
+      }
+    }
+  } else if (!isFreeShipping && cgValue) {
     if ("percentage" in cgValue) {
       valueType = "PERCENTAGE";
       value = Math.round(cgValue.percentage * 100);
@@ -138,13 +183,78 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
     }
   }
 
+  // PRODUCT_DISCOUNT appliesTo
+  let appliesTo: "ALL" | "PRODUCTS" | "COLLECTIONS" | undefined;
+  let productIds: string[] | undefined;
+  let collectionIds: string[] | undefined;
+  if (isProductDiscount && cgItems) {
+    const extracted = extractDiscountItems(cgItems);
+    appliesTo = extracted.scope;
+    productIds = extracted.productIds;
+    collectionIds = extracted.collectionIds;
+  } else if (!isFreeShipping && !isBxgy) {
+    appliesTo = "ALL";
+  }
+
+  // BXGY fields
+  let buyRequirementType: string | undefined;
+  let buyQuantityOrAmount: number | undefined;
+  let buyProductScope: string | undefined;
+  let buyProductIds: string[] | undefined;
+  let buyCollectionIds: string[] | undefined;
+  let getQuantity: number | undefined;
+  let getProductScope: string | undefined;
+  let getProductIds: string[] | undefined;
+  let getCollectionIds: string[] | undefined;
+  let bxgyDiscountType: string | undefined;
+  let bxgyDiscountValue: number | undefined;
+
+  if (isBxgy) {
+    const cb = cd.customerBuys;
+    if (cb?.value) {
+      if ("quantity" in cb.value) {
+        buyRequirementType = "QUANTITY";
+        buyQuantityOrAmount = parseInt(cb.value.quantity?.quantity ?? "0");
+      } else if ("amount" in cb.value) {
+        buyRequirementType = "AMOUNT";
+        buyQuantityOrAmount = parseFloat((cb.value.amount as string) ?? "0");
+      }
+    }
+    if (cb?.items) {
+      const ex = extractDiscountItems(cb.items);
+      buyProductScope = ex.scope;
+      buyProductIds = ex.productIds;
+      buyCollectionIds = ex.collectionIds;
+    }
+
+    const doq = (cgValue as any)?.discountOnQuantity;
+    if (doq) {
+      getQuantity = parseInt(doq.quantity?.quantity ?? "0");
+      if (doq.effect) {
+        if ("percentage" in doq.effect) {
+          bxgyDiscountType = doq.effect.percentage >= 1.0 ? "FREE" : "PERCENTAGE";
+          bxgyDiscountValue = doq.effect.percentage < 1.0 ? Math.round(doq.effect.percentage * 100) : undefined;
+        } else if ("amount" in doq.effect) {
+          bxgyDiscountType = "AMOUNT";
+          bxgyDiscountValue = parseFloat(doq.effect.amount?.amount ?? "0");
+        }
+      }
+    }
+    if (cgItems) {
+      const ex = extractDiscountItems(cgItems);
+      getProductScope = ex.scope;
+      getProductIds = ex.productIds;
+      getCollectionIds = ex.collectionIds;
+    }
+  }
+
   return {
     _id: n.id,
     numericId,
     title: cd.title ?? "",
     code: codeNode?.code ?? "-",
     status: cd.status ?? "",
-    discountKind: isFreeShipping ? "FREE_SHIPPING" : "ORDER_DISCOUNT",
+    discountKind: isBxgyAutomatic ? "BXGY_AUTOMATIC" : isBxgy ? "BXGY" : isOrderDiscountAutomatic ? "ORDER_DISCOUNT_AUTOMATIC" : isFreeShipping ? "FREE_SHIPPING" : isProductDiscount ? "PRODUCT_DISCOUNT" : "ORDER_DISCOUNT",
     valueType,
     value,
     startsAt: cd.startsAt ?? "",
@@ -157,11 +267,84 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
     combinesWithProductDiscounts: cd.combinesWith?.productDiscounts ?? false,
     combinesWithOrderDiscounts: cd.combinesWith?.orderDiscounts ?? false,
     combinesWithShippingDiscounts: cd.combinesWith?.shippingDiscounts ?? false,
+    appliesTo,
+    productIds,
+    collectionIds,
+    buyRequirementType,
+    buyQuantityOrAmount,
+    buyProductScope,
+    buyProductIds,
+    buyCollectionIds,
+    getQuantity,
+    getProductScope,
+    getProductIds,
+    getCollectionIds,
+    bxgyDiscountType,
+    bxgyDiscountValue,
   };
 }
 
 const ShopifyDiscounts = () => {
   const { t } = useTranslation();
+
+  const discountTypeOptions = useMemo(() => [
+    { value: "ORDER_DISCOUNT", label: t("Order Amount Discount") },
+    { value: "FREE_SHIPPING", label: t("Free Shipping") },
+    { value: "PRODUCT_DISCOUNT", label: t("Product Collection Discount") },
+    { value: "BXGY", label: t("Buy X Get Y") },
+  ], [t]);
+
+  const appliesToOptions = useMemo(() => [
+    { value: "ALL", label: t("All Products") },
+    { value: "PRODUCTS", label: t("Specific Products") },
+    { value: "COLLECTIONS", label: t("Specific Collections") },
+  ], [t]);
+
+  const freeShippingMethodOptions = useMemo(() => [
+    { value: "CODE", label: t("Discount Code Method") },
+    { value: "AUTOMATIC", label: t("Automatic Discount") },
+  ], [t]);
+
+  const valueTypeOptions = useMemo(() => [
+    { value: "PERCENTAGE", label: t("Percentage (%)") },
+    { value: "FIXED_AMOUNT", label: t("Fixed Amount (₺)") },
+  ], [t]);
+
+  const minReqOptions = useMemo(() => [
+    { value: "NONE", label: t("No Minimum Requirement") },
+    { value: "SUBTOTAL", label: t("Minimum Cart Amount (₺)") },
+    { value: "QUANTITY", label: t("Minimum Item Quantity") },
+  ], [t]);
+
+  const statusOptions = useMemo(() => [
+    { value: "ACTIVE", label: t("Active") },
+    { value: "EXPIRED", label: t("Expired") },
+    { value: "SCHEDULED", label: t("Scheduled") },
+  ], [t]);
+
+  const bxgyBuyRequirementOptions = useMemo(() => [
+    { value: "QUANTITY", label: t("Minimum Quantity") },
+    { value: "AMOUNT", label: t("Minimum Purchase Amount") },
+  ], [t]);
+
+  const bxgyProductScopeOptions = useMemo(() => [
+    { value: "ALL", label: t("All Products") },
+    { value: "PRODUCTS", label: t("Specific Products") },
+    { value: "COLLECTIONS", label: t("Specific Collections") },
+  ], [t]);
+
+  // Automatic BXGY: Shopify doesn't allow ALL scope for either buy or get side
+  const bxgyProductScopeOptionsAutomatic = useMemo(() => [
+    { value: "PRODUCTS", label: t("Specific Products") },
+    { value: "COLLECTIONS", label: t("Specific Collections") },
+  ], [t]);
+
+  const bxgyDiscountTypeOptions = useMemo(() => [
+    { value: "FREE", label: t("Free") },
+    { value: "PERCENTAGE", label: t("Percentage (%)") },
+    { value: "AMOUNT", label: t("Fixed Amount (₺)") },
+  ], [t]);
+
   const {
     currentPage,
     setCurrentPage,
@@ -182,12 +365,42 @@ const ShopifyDiscounts = () => {
   // Tracked externally so addInputs can react to user's selection
   const [addDiscountType, setAddDiscountType] = useState<string>("ORDER_DISCOUNT");
   const [addMethod, setAddMethod] = useState<string>("CODE");
+  const [addAppliesTo, setAddAppliesTo] = useState<string>("ALL");
+  const [addBuyProductScope, setAddBuyProductScope] = useState<string>("ALL");
+  const [addGetProductScope, setAddGetProductScope] = useState<string>("ALL");
+  const [addBxgyDiscountType, setAddBxgyDiscountType] = useState<string>("FREE");
+  const [addBxgyMethod, setAddBxgyMethod] = useState<string>("CODE");
 
   const { mutate: createDiscount } = useCreateShopifyDiscountMutation();
   const { mutate: updateDiscount } = useUpdateShopifyDiscountMutation();
   const { mutate: deleteDiscount } = useDeleteShopifyDiscountMutation();
   const { mutate: createFreeShippingDiscount } = useCreateFreeShippingDiscountMutation();
   const { mutate: updateFreeShippingDiscount } = useUpdateFreeShippingDiscountMutation();
+  const { mutate: createProductDiscount } = useCreateProductDiscountMutation();
+  const { mutate: updateProductDiscount } = useUpdateProductDiscountMutation();
+  const { mutate: createBxgyDiscount } = useCreateBxgyDiscountMutation();
+  const { mutate: updateBxgyDiscount } = useUpdateBxgyDiscountMutation();
+  const { mutate: createAutomaticBxgyDiscount } = useCreateAutomaticBxgyDiscountMutation();
+  const { mutate: updateAutomaticBxgyDiscount } = useUpdateAutomaticBxgyDiscountMutation();
+  const { mutate: createAutomaticOrderDiscount } = useCreateAutomaticOrderDiscountMutation();
+  const { mutate: updateAutomaticOrderDiscount } = useUpdateAutomaticOrderDiscountMutation();
+
+  const menuItems = useGetMenuItems();
+  const shopifyCollections = useGetShopifyCollections();
+
+  const menuItemOptions = useMemo(
+    () =>
+      (menuItems ?? [])
+        .filter((item) => !!item.shopifyId)
+        .map((item) => ({ value: item.shopifyId as string, label: item.name })),
+    [menuItems]
+  );
+
+  const collectionOptions = useMemo(
+    () =>
+      (shopifyCollections ?? []).map((c) => ({ value: c.id, label: c.title })),
+    [shopifyCollections]
+  );
 
   useEffect(() => {
     const prev = rowsPerPage;
@@ -247,6 +460,7 @@ const ShopifyDiscounts = () => {
       {
         key: "valueType",
         node: (row: DiscountRow) => {
+          if (row.discountKind === "BXGY" || row.discountKind === "BXGY_AUTOMATIC") return t("Buy X Get Y");
           if (row.valueType === "FREE_SHIPPING") return t("Free Shipping");
           return row.valueType === "PERCENTAGE" ? t("Percentage") : t("Fixed Amount");
         },
@@ -254,6 +468,13 @@ const ShopifyDiscounts = () => {
       {
         key: "value",
         node: (row: DiscountRow) => {
+          if (row.discountKind === "BXGY" || row.discountKind === "BXGY_AUTOMATIC") {
+            const buys = row.buyQuantityOrAmount ?? "?";
+            const gets = row.getQuantity ?? "?";
+            if (row.bxgyDiscountType === "FREE") return `${buys}→${gets} ${t("Free")}`;
+            if (row.bxgyDiscountType === "PERCENTAGE") return `${buys}→${gets} %${row.bxgyDiscountValue ?? ""}`;
+            return `${buys}→${gets} ₺${row.bxgyDiscountValue ?? ""}`;
+          }
           if (row.valueType === "FREE_SHIPPING") return "-";
           return row.valueType === "PERCENTAGE" ? `%${row.value}` : `₺${row.value}`;
         },
@@ -293,6 +514,11 @@ const ShopifyDiscounts = () => {
   );
 
   const isFreeShipping = addDiscountType === "FREE_SHIPPING";
+  const isProductDiscount = addDiscountType === "PRODUCT_DISCOUNT";
+  const isBxgy = addDiscountType === "BXGY";
+  const isBxgyAutomatic = isBxgy && addBxgyMethod === "AUTOMATIC";
+  const isOrderDiscount = addDiscountType === "ORDER_DISCOUNT";
+  const isOrderDiscountAutomaticAdd = isOrderDiscount && addMethod === "AUTOMATIC";
   const isCodeMethod = addMethod === "CODE";
 
   const formKeys = useMemo(
@@ -303,6 +529,23 @@ const ShopifyDiscounts = () => {
       { key: "code", type: FormKeyTypeEnum.STRING },
       { key: "valueType", type: FormKeyTypeEnum.STRING },
       { key: "value", type: FormKeyTypeEnum.NUMBER },
+      { key: "appliesTo", type: FormKeyTypeEnum.STRING },
+      { key: "productIds", type: FormKeyTypeEnum.ARRAY },
+      { key: "collectionIds", type: FormKeyTypeEnum.ARRAY },
+      // BXGY keys
+      { key: "bxgyMethod", type: FormKeyTypeEnum.STRING },
+      { key: "buyRequirementType", type: FormKeyTypeEnum.STRING },
+      { key: "buyQuantityOrAmount", type: FormKeyTypeEnum.NUMBER },
+      { key: "buyProductScope", type: FormKeyTypeEnum.STRING },
+      { key: "buyProductIds", type: FormKeyTypeEnum.ARRAY },
+      { key: "buyCollectionIds", type: FormKeyTypeEnum.ARRAY },
+      { key: "getQuantity", type: FormKeyTypeEnum.NUMBER },
+      { key: "getProductScope", type: FormKeyTypeEnum.STRING },
+      { key: "getProductIds", type: FormKeyTypeEnum.ARRAY },
+      { key: "getCollectionIds", type: FormKeyTypeEnum.ARRAY },
+      { key: "bxgyDiscountType", type: FormKeyTypeEnum.STRING },
+      { key: "bxgyDiscountValue", type: FormKeyTypeEnum.NUMBER },
+      // Common
       { key: "startsAt", type: FormKeyTypeEnum.DATE },
       { key: "endsAt", type: FormKeyTypeEnum.DATE },
       { key: "minimumRequirementType", type: FormKeyTypeEnum.STRING },
@@ -322,22 +565,27 @@ const ShopifyDiscounts = () => {
         type: InputTypes.SELECT,
         formKey: "discountType",
         label: t("Discount Type"),
-        options: DISCOUNT_TYPE_OPTIONS,
+        options: discountTypeOptions,
         placeholder: t("Select discount type"),
         required: true,
         additionalOnChange: (value: string) => {
           setAddDiscountType(value);
           setAddMethod("CODE");
+          setAddAppliesTo("ALL");
+          setAddBuyProductScope("ALL");
+          setAddGetProductScope("ALL");
+          setAddBxgyDiscountType("FREE");
+          setAddBxgyMethod("CODE");
         },
       },
-      // Free shipping: method toggle (İndirim Kodu / Otomatik İndirim)
-      ...(isFreeShipping
+      // Free shipping or Order Discount: method toggle (İndirim Kodu / Otomatik İndirim)
+      ...(isFreeShipping || isOrderDiscount
         ? [
             {
               type: InputTypes.SELECT,
               formKey: "method",
               label: t("Method"),
-              options: FREE_SHIPPING_METHOD_OPTIONS,
+              options: freeShippingMethodOptions,
               placeholder: t("Select method"),
               required: true,
               additionalOnChange: (value: string) => setAddMethod(value),
@@ -351,8 +599,8 @@ const ShopifyDiscounts = () => {
         placeholder: t("Title"),
         required: true,
       },
-      // Code field: always for ORDER_DISCOUNT; for FREE_SHIPPING only when method === CODE
-      ...(!isFreeShipping || isCodeMethod
+      // Code field: not for BXGY_AUTOMATIC or ORDER_DISCOUNT_AUTOMATIC; FREE_SHIPPING only when CODE
+      ...(!isBxgyAutomatic && !isOrderDiscountAutomaticAdd && (!isFreeShipping && !isOrderDiscount || isCodeMethod)
         ? [
             {
               type: InputTypes.TEXT,
@@ -364,14 +612,14 @@ const ShopifyDiscounts = () => {
             },
           ]
         : []),
-      // Value fields: only for ORDER_DISCOUNT
-      ...(!isFreeShipping
+      // Value fields: for ORDER_DISCOUNT and PRODUCT_DISCOUNT (not BXGY)
+      ...(!isFreeShipping && !isBxgy
         ? [
             {
               type: InputTypes.SELECT,
               formKey: "valueType",
               label: t("Discount Type"),
-              options: VALUE_TYPE_OPTIONS,
+              options: valueTypeOptions,
               placeholder: t("Discount Type"),
               required: true,
             },
@@ -383,6 +631,179 @@ const ShopifyDiscounts = () => {
               required: true,
               minNumber: 0,
             },
+          ]
+        : []),
+      // Applies to: only for PRODUCT_DISCOUNT
+      ...(isProductDiscount
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "appliesTo",
+              label: t("Applies To"),
+              options: appliesToOptions,
+              placeholder: t("Select"),
+              required: true,
+              additionalOnChange: (value: string) => setAddAppliesTo(value),
+            },
+            ...(addAppliesTo === "PRODUCTS"
+              ? [
+                  {
+                    type: InputTypes.SELECT,
+                    formKey: "productIds",
+                    label: t("Products"),
+                    options: menuItemOptions,
+                    placeholder: t("Select Product"),
+                    required: true,
+                    isMultiple: true,
+                  } as any,
+                ]
+              : []),
+            ...(addAppliesTo === "COLLECTIONS"
+              ? [
+                  {
+                    type: InputTypes.SELECT,
+                    formKey: "collectionIds",
+                    label: t("Shopify Categories"),
+                    options: collectionOptions,
+                    placeholder: t("Select Collection"),
+                    required: true,
+                    isMultiple: true,
+                  } as any,
+                ]
+              : []),
+          ]
+        : []),
+      // BXGY fields
+      ...(isBxgy
+        ? [
+            // Method toggle
+            {
+              type: InputTypes.SELECT,
+              formKey: "bxgyMethod",
+              label: t("Method"),
+              options: freeShippingMethodOptions,
+              placeholder: t("Select method"),
+              required: true,
+              additionalOnChange: (value: string) => setAddBxgyMethod(value),
+            },
+            // --- Customer Buys ---
+            {
+              type: InputTypes.SELECT,
+              formKey: "buyRequirementType",
+              label: t("Customer Buys"),
+              options: bxgyBuyRequirementOptions,
+              placeholder: t("Select"),
+              required: true,
+            },
+            {
+              type: InputTypes.NUMBER,
+              formKey: "buyQuantityOrAmount",
+              label: t("Buy Quantity or Amount"),
+              placeholder: "2",
+              required: true,
+              minNumber: 1,
+            },
+            {
+              type: InputTypes.SELECT,
+              formKey: "buyProductScope",
+              label: t("Buy Product Scope"),
+              options: isBxgyAutomatic ? bxgyProductScopeOptionsAutomatic : bxgyProductScopeOptions,
+              placeholder: t("Select"),
+              required: true,
+              additionalOnChange: (value: string) => setAddBuyProductScope(value),
+            },
+            ...(addBuyProductScope === "PRODUCTS"
+              ? [
+                  {
+                    type: InputTypes.SELECT,
+                    formKey: "buyProductIds",
+                    label: t("Buy Products"),
+                    options: menuItemOptions,
+                    placeholder: t("Select Product"),
+                    required: true,
+                    isMultiple: true,
+                  } as any,
+                ]
+              : []),
+            ...(addBuyProductScope === "COLLECTIONS"
+              ? [
+                  {
+                    type: InputTypes.SELECT,
+                    formKey: "buyCollectionIds",
+                    label: t("Buy Collections"),
+                    options: collectionOptions,
+                    placeholder: t("Select Collection"),
+                    required: true,
+                    isMultiple: true,
+                  } as any,
+                ]
+              : []),
+            // --- Customer Gets ---
+            {
+              type: InputTypes.NUMBER,
+              formKey: "getQuantity",
+              label: t("Get Quantity"),
+              placeholder: "1",
+              required: true,
+              minNumber: 1,
+              helperText: t("Get Quantity helper"),
+            },
+            {
+              type: InputTypes.SELECT,
+              formKey: "getProductScope",
+              label: t("Get Product Scope"),
+              options: isBxgyAutomatic ? bxgyProductScopeOptionsAutomatic : bxgyProductScopeOptions,
+              placeholder: t("Select"),
+              required: true,
+              additionalOnChange: (value: string) => setAddGetProductScope(value),
+            },
+            ...(addGetProductScope === "PRODUCTS"
+              ? [
+                  {
+                    type: InputTypes.SELECT,
+                    formKey: "getProductIds",
+                    label: t("Get Products"),
+                    options: menuItemOptions,
+                    placeholder: t("Select Product"),
+                    required: true,
+                    isMultiple: true,
+                  } as any,
+                ]
+              : []),
+            ...(addGetProductScope === "COLLECTIONS"
+              ? [
+                  {
+                    type: InputTypes.SELECT,
+                    formKey: "getCollectionIds",
+                    label: t("Get Collections"),
+                    options: collectionOptions,
+                    placeholder: t("Select Collection"),
+                    required: true,
+                    isMultiple: true,
+                  } as any,
+                ]
+              : []),
+            {
+              type: InputTypes.SELECT,
+              formKey: "bxgyDiscountType",
+              label: t("Discount Value"),
+              options: bxgyDiscountTypeOptions,
+              placeholder: t("Select"),
+              required: true,
+              additionalOnChange: (value: string) => setAddBxgyDiscountType(value),
+            },
+            ...(addBxgyDiscountType !== "FREE"
+              ? [
+                  {
+                    type: InputTypes.NUMBER,
+                    formKey: "bxgyDiscountValue",
+                    label: addBxgyDiscountType === "PERCENTAGE" ? t("Percentage Value") : t("Amount Value"),
+                    placeholder: addBxgyDiscountType === "PERCENTAGE" ? "10" : "50",
+                    required: true,
+                    minNumber: 0,
+                  },
+                ]
+              : []),
           ]
         : []),
       {
@@ -397,25 +818,30 @@ const ShopifyDiscounts = () => {
         label: t("End Date"),
         required: false,
       },
-      {
-        type: InputTypes.SELECT,
-        formKey: "minimumRequirementType",
-        label: t("Minimum Requirement"),
-        options: MIN_REQ_OPTIONS,
-        placeholder: t("Minimum Requirement"),
-        required: false,
-        helperText: t("Minimum requirement helper"),
-      },
-      {
-        type: InputTypes.NUMBER,
-        formKey: "minimumRequirementValue",
-        label: t("Minimum Requirement Value"),
-        placeholder: "0",
-        required: false,
-        minNumber: 0,
-        helperText: t("Minimum requirement value helper"),
-      },
-      // Usage limits: always for ORDER_DISCOUNT; for FREE_SHIPPING only when method === CODE
+      // Minimum requirement: not applicable for BXGY (customerBuys already serves as the threshold)
+      ...(!isBxgy
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "minimumRequirementType",
+              label: t("Minimum Requirement"),
+              options: minReqOptions,
+              placeholder: t("Minimum Requirement"),
+              required: false,
+              helperText: t("Minimum requirement helper"),
+            },
+            {
+              type: InputTypes.NUMBER,
+              formKey: "minimumRequirementValue",
+              label: t("Minimum Requirement Value"),
+              placeholder: "0",
+              required: false,
+              minNumber: 0,
+              helperText: t("Minimum requirement value helper"),
+            },
+          ]
+        : []),
+      // Usage limits: always for ORDER_DISCOUNT/PRODUCT_DISCOUNT; for FREE_SHIPPING only when method === CODE
       ...(!isFreeShipping || isCodeMethod
         ? [
             {
@@ -435,7 +861,7 @@ const ShopifyDiscounts = () => {
             },
           ]
         : []),
-      // Combination options: only for ORDER_DISCOUNT
+      // Combination options: for ORDER_DISCOUNT and PRODUCT_DISCOUNT
       ...(!isFreeShipping
         ? [
             {
@@ -459,7 +885,7 @@ const ShopifyDiscounts = () => {
           ]
         : []),
     ],
-    [t, isFreeShipping, isCodeMethod]
+    [t, isFreeShipping, isOrderDiscount, isOrderDiscountAutomaticAdd, isProductDiscount, isBxgy, isBxgyAutomatic, isCodeMethod, addAppliesTo, addBuyProductScope, addGetProductScope, addBxgyDiscountType, addBxgyMethod, menuItemOptions, collectionOptions, discountTypeOptions, freeShippingMethodOptions, valueTypeOptions, minReqOptions, appliesToOptions, bxgyBuyRequirementOptions, bxgyProductScopeOptions, bxgyProductScopeOptionsAutomatic, bxgyDiscountTypeOptions]
   );
 
   // Edit modal uses fixed order-discount inputs (no conditional logic needed)
@@ -484,7 +910,7 @@ const ShopifyDiscounts = () => {
         type: InputTypes.SELECT,
         formKey: "valueType",
         label: t("Discount Type"),
-        options: VALUE_TYPE_OPTIONS,
+        options: valueTypeOptions,
         placeholder: t("Discount Type"),
         required: true,
       },
@@ -512,7 +938,7 @@ const ShopifyDiscounts = () => {
         type: InputTypes.SELECT,
         formKey: "minimumRequirementType",
         label: t("Minimum Requirement"),
-        options: MIN_REQ_OPTIONS,
+        options: minReqOptions,
         placeholder: t("Minimum Requirement"),
         required: false,
         helperText: t("Minimum requirement helper"),
@@ -560,7 +986,7 @@ const ShopifyDiscounts = () => {
         required: false,
       },
     ],
-    [t]
+    [t, valueTypeOptions, minReqOptions]
   );
 
   const freeShippingEditInputs = useMemo(
@@ -596,7 +1022,7 @@ const ShopifyDiscounts = () => {
         type: InputTypes.SELECT,
         formKey: "minimumRequirementType",
         label: t("Minimum Requirement"),
-        options: MIN_REQ_OPTIONS,
+        options: minReqOptions,
         placeholder: t("Minimum Requirement"),
         required: false,
         helperText: t("Minimum requirement helper"),
@@ -626,7 +1052,292 @@ const ShopifyDiscounts = () => {
         required: false,
       },
     ],
-    [t]
+    [t, minReqOptions]
+  );
+
+  const productDiscountEditInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "title",
+        label: t("Title"),
+        placeholder: t("Title"),
+        required: true,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "code",
+        label: t("Discount Code"),
+        placeholder: "URUNINDIRIMI",
+        required: true,
+        helperNode: <CodeGenerateButton />,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "valueType",
+        label: t("Discount Type"),
+        options: valueTypeOptions,
+        placeholder: t("Discount Type"),
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "value",
+        label: t("Value"),
+        placeholder: "10",
+        required: true,
+        minNumber: 0,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "appliesTo",
+        label: t("Applies To"),
+        options: appliesToOptions,
+        placeholder: t("Select"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "productIds",
+        label: t("Products"),
+        options: menuItemOptions,
+        placeholder: t("Select Product"),
+        required: false,
+        isMultiple: true,
+      } as any,
+      {
+        type: InputTypes.SELECT,
+        formKey: "collectionIds",
+        label: t("Shopify Categories"),
+        options: collectionOptions,
+        placeholder: t("Select Collection"),
+        required: false,
+        isMultiple: true,
+      } as any,
+      {
+        type: InputTypes.DATE,
+        formKey: "startsAt",
+        label: t("Start Date"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "endsAt",
+        label: t("End Date"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "minimumRequirementType",
+        label: t("Minimum Requirement"),
+        options: minReqOptions,
+        placeholder: t("Minimum Requirement"),
+        required: false,
+        helperText: t("Minimum requirement helper"),
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "minimumRequirementValue",
+        label: t("Minimum Requirement Value"),
+        placeholder: "0",
+        required: false,
+        minNumber: 0,
+        helperText: t("Minimum requirement value helper"),
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "usageLimit",
+        label: t("Usage Limit"),
+        placeholder: t("Unlimited"),
+        required: false,
+        minNumber: 1,
+        helperText: t("Usage limit helper"),
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "appliesOncePerCustomer",
+        label: t("Once Per Customer"),
+        required: false,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "combinesWithProductDiscounts",
+        label: t("Combine with Product Discounts"),
+        required: false,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "combinesWithOrderDiscounts",
+        label: t("Combine with Order Discounts"),
+        required: false,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "combinesWithShippingDiscounts",
+        label: t("Combine with Shipping Discounts"),
+        required: false,
+      },
+    ],
+    [t, menuItemOptions, collectionOptions, valueTypeOptions, appliesToOptions, minReqOptions]
+  );
+
+  const bxgyEditInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "title",
+        label: t("Title"),
+        placeholder: t("Title"),
+        required: true,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "code",
+        label: t("Discount Code"),
+        placeholder: "BUY2GET1",
+        required: true,
+        helperNode: <CodeGenerateButton />,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "buyRequirementType",
+        label: t("Customer Buys"),
+        options: bxgyBuyRequirementOptions,
+        placeholder: t("Select"),
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "buyQuantityOrAmount",
+        label: t("Buy Quantity or Amount"),
+        placeholder: "2",
+        required: true,
+        minNumber: 1,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "buyProductScope",
+        label: t("Buy Product Scope"),
+        options: bxgyProductScopeOptions,
+        placeholder: t("Select"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "buyProductIds",
+        label: t("Buy Products"),
+        options: menuItemOptions,
+        placeholder: t("Select Product"),
+        required: false,
+        isMultiple: true,
+      } as any,
+      {
+        type: InputTypes.SELECT,
+        formKey: "buyCollectionIds",
+        label: t("Buy Collections"),
+        options: collectionOptions,
+        placeholder: t("Select Collection"),
+        required: false,
+        isMultiple: true,
+      } as any,
+      {
+        type: InputTypes.NUMBER,
+        formKey: "getQuantity",
+        label: t("Get Quantity"),
+        placeholder: "1",
+        required: true,
+        minNumber: 1,
+        helperText: t("Get Quantity helper"),
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "getProductScope",
+        label: t("Get Product Scope"),
+        options: bxgyProductScopeOptions,
+        placeholder: t("Select"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "getProductIds",
+        label: t("Get Products"),
+        options: menuItemOptions,
+        placeholder: t("Select Product"),
+        required: false,
+        isMultiple: true,
+      } as any,
+      {
+        type: InputTypes.SELECT,
+        formKey: "getCollectionIds",
+        label: t("Get Collections"),
+        options: collectionOptions,
+        placeholder: t("Select Collection"),
+        required: false,
+        isMultiple: true,
+      } as any,
+      {
+        type: InputTypes.SELECT,
+        formKey: "bxgyDiscountType",
+        label: t("Discount Value"),
+        options: bxgyDiscountTypeOptions,
+        placeholder: t("Select"),
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "bxgyDiscountValue",
+        label: t("Discount Value"),
+        placeholder: "10",
+        required: false,
+        minNumber: 0,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "startsAt",
+        label: t("Start Date"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "endsAt",
+        label: t("End Date"),
+        required: false,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "usageLimit",
+        label: t("Usage Limit"),
+        placeholder: t("Unlimited"),
+        required: false,
+        minNumber: 1,
+        helperText: t("Usage limit helper"),
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "appliesOncePerCustomer",
+        label: t("Once Per Customer"),
+        required: false,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "combinesWithProductDiscounts",
+        label: t("Combine with Product Discounts"),
+        required: false,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "combinesWithOrderDiscounts",
+        label: t("Combine with Order Discounts"),
+        required: false,
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "combinesWithShippingDiscounts",
+        label: t("Combine with Shipping Discounts"),
+        required: false,
+      },
+    ],
+    [t, menuItemOptions, collectionOptions, bxgyBuyRequirementOptions, bxgyProductScopeOptions, bxgyDiscountTypeOptions]
   );
 
   const filterPanelInputs = useMemo(
@@ -635,13 +1346,13 @@ const ShopifyDiscounts = () => {
         type: InputTypes.SELECT,
         formKey: "status",
         label: t("Status"),
-        options: STATUS_OPTIONS,
+        options: statusOptions,
         placeholder: t("All"),
         required: false,
         isMultiple: false,
       },
     ],
-    [t]
+    [t, statusOptions]
   );
 
   const filterPanel = useMemo(
@@ -684,6 +1395,11 @@ const ShopifyDiscounts = () => {
             setIsAddModalOpen(false);
             setAddDiscountType("ORDER_DISCOUNT");
             setAddMethod("CODE");
+            setAddAppliesTo("ALL");
+            setAddBuyProductScope("ALL");
+            setAddGetProductScope("ALL");
+            setAddBxgyDiscountType("FREE");
+            setAddBxgyMethod("CODE");
           }}
           inputs={addInputs}
           formKeys={formKeys}
@@ -705,6 +1421,71 @@ const ShopifyDiscounts = () => {
                   }),
                 };
                 createFreeShippingDiscount(payload);
+              } else if (discountType === "PRODUCT_DISCOUNT") {
+                const productPayload: CreateProductDiscountPayload = {
+                  title: rest.title,
+                  code: rest.code,
+                  valueType: rest.valueType,
+                  value: rest.value,
+                  appliesTo: rest.appliesTo ?? "ALL",
+                  productIds: rest.productIds?.length ? rest.productIds : undefined,
+                  collectionIds: rest.collectionIds?.length ? rest.collectionIds : undefined,
+                  startsAt: rest.startsAt,
+                  endsAt: rest.endsAt || undefined,
+                  minimumRequirementType: rest.minimumRequirementType || undefined,
+                  minimumRequirementValue: rest.minimumRequirementValue || undefined,
+                  usageLimit: rest.usageLimit || undefined,
+                  appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
+                  combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
+                  combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
+                  combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
+                };
+                createProductDiscount(productPayload);
+              } else if (discountType === "BXGY") {
+                const bxgyBase = {
+                  title: rest.title,
+                  startsAt: rest.startsAt,
+                  endsAt: rest.endsAt || undefined,
+                  buyRequirementType: rest.buyRequirementType ?? "QUANTITY",
+                  buyQuantityOrAmount: rest.buyQuantityOrAmount,
+                  buyProductScope: rest.buyProductScope ?? "ALL",
+                  buyProductIds: rest.buyProductIds?.length ? rest.buyProductIds : undefined,
+                  buyCollectionIds: rest.buyCollectionIds?.length ? rest.buyCollectionIds : undefined,
+                  getQuantity: rest.getQuantity,
+                  getProductScope: rest.getProductScope ?? "ALL",
+                  getProductIds: rest.getProductIds?.length ? rest.getProductIds : undefined,
+                  getCollectionIds: rest.getCollectionIds?.length ? rest.getCollectionIds : undefined,
+                  bxgyDiscountType: rest.bxgyDiscountType ?? "FREE",
+                  bxgyDiscountValue: rest.bxgyDiscountValue || undefined,
+                  combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
+                  combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
+                  combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
+                };
+                if (rest.bxgyMethod === "AUTOMATIC") {
+                  createAutomaticBxgyDiscount(bxgyBase as CreateAutomaticBxgyDiscountPayload);
+                } else {
+                  const bxgyPayload: CreateBxgyDiscountPayload = {
+                    ...bxgyBase,
+                    code: rest.code,
+                    usageLimit: rest.usageLimit || undefined,
+                    appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
+                  };
+                  createBxgyDiscount(bxgyPayload);
+                }
+              } else if (method === "AUTOMATIC") {
+                const autoOrderPayload: CreateAutomaticOrderDiscountPayload = {
+                  title: rest.title,
+                  valueType: rest.valueType,
+                  value: rest.value,
+                  startsAt: rest.startsAt,
+                  endsAt: rest.endsAt || undefined,
+                  minimumRequirementType: rest.minimumRequirementType || undefined,
+                  minimumRequirementValue: rest.minimumRequirementValue || undefined,
+                  combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
+                  combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
+                  combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
+                };
+                createAutomaticOrderDiscount(autoOrderPayload);
               } else {
                 const { method: _m, ...orderPayload } = rest;
                 createDiscount(orderPayload as CreateShopifyDiscountPayload);
@@ -712,7 +1493,7 @@ const ShopifyDiscounts = () => {
             }) as any
           }
           topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
-          constantValues={{ discountType: "ORDER_DISCOUNT", method: "CODE" }}
+          constantValues={{ discountType: "ORDER_DISCOUNT", method: "CODE", bxgyMethod: "CODE", buyProductScope: "ALL", getProductScope: "ALL", bxgyDiscountType: "FREE" }}
         />
       ),
       isModalOpen: isAddModalOpen,
@@ -720,7 +1501,7 @@ const ShopifyDiscounts = () => {
       isPath: false,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, addInputs, formKeys, createDiscount, createFreeShippingDiscount]
+    [t, isAddModalOpen, addInputs, formKeys, createDiscount, createFreeShippingDiscount, createProductDiscount, createBxgyDiscount, createAutomaticBxgyDiscount, createAutomaticOrderDiscount]
   );
 
   const actions = useMemo(
@@ -762,6 +1543,169 @@ const ShopifyDiscounts = () => {
                   minimumRequirementValue: rowToAction.minimumRequirementValue,
                   usageLimit: rowToAction.usageLimit !== "∞" ? Number(rowToAction.usageLimit) : undefined,
                   appliesOncePerCustomer: rowToAction.appliesOncePerCustomer,
+                } as any,
+              }}
+            />
+          ) : rowToAction.discountKind === "PRODUCT_DISCOUNT" ? (
+            <GenericAddEditPanel
+              isOpen={isEditModalOpen}
+              close={() => setIsEditModalOpen(false)}
+              inputs={productDiscountEditInputs}
+              formKeys={formKeys}
+              submitItem={
+                ((item: any) => {
+                  const updates = item?.updates ?? item;
+                  updateProductDiscount({
+                    id: rowToAction._id,
+                    ...updates,
+                  } as UpdateProductDiscountPayload);
+                }) as unknown as (
+                  item: DiscountRow | UpdatePayload<DiscountRow>
+                ) => void
+              }
+              isEditMode={true}
+              topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
+              itemToEdit={{
+                id: rowToAction._id,
+                updates: {
+                  title: rowToAction.title,
+                  code: rowToAction.code,
+                  valueType: rowToAction.valueType,
+                  value: rowToAction.value,
+                  appliesTo: rowToAction.appliesTo ?? "ALL",
+                  productIds: rowToAction.productIds ?? [],
+                  collectionIds: rowToAction.collectionIds ?? [],
+                  startsAt: rowToAction.startsAt,
+                  endsAt: rowToAction.endsAt || undefined,
+                  minimumRequirementType: rowToAction.minimumRequirementType,
+                  minimumRequirementValue: rowToAction.minimumRequirementValue,
+                  usageLimit: rowToAction.usageLimit !== "∞" ? Number(rowToAction.usageLimit) : undefined,
+                  appliesOncePerCustomer: rowToAction.appliesOncePerCustomer,
+                  combinesWithProductDiscounts: rowToAction.combinesWithProductDiscounts,
+                  combinesWithOrderDiscounts: rowToAction.combinesWithOrderDiscounts,
+                  combinesWithShippingDiscounts: rowToAction.combinesWithShippingDiscounts,
+                } as any,
+              }}
+            />
+          ) : rowToAction.discountKind === "ORDER_DISCOUNT_AUTOMATIC" ? (
+            <GenericAddEditPanel
+              isOpen={isEditModalOpen}
+              close={() => setIsEditModalOpen(false)}
+              inputs={editInputs.filter(i => i.formKey !== "code" && i.formKey !== "usageLimit" && i.formKey !== "appliesOncePerCustomer")}
+              formKeys={formKeys}
+              submitItem={
+                ((item: any) => {
+                  const updates = item?.updates ?? item;
+                  updateAutomaticOrderDiscount({
+                    id: rowToAction._id,
+                    ...updates,
+                  } as UpdateAutomaticOrderDiscountPayload);
+                }) as unknown as (
+                  item: DiscountRow | UpdatePayload<DiscountRow>
+                ) => void
+              }
+              isEditMode={true}
+              topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
+              itemToEdit={{
+                id: rowToAction._id,
+                updates: {
+                  title: rowToAction.title,
+                  valueType: rowToAction.valueType,
+                  value: rowToAction.value,
+                  startsAt: rowToAction.startsAt,
+                  endsAt: rowToAction.endsAt || undefined,
+                  minimumRequirementType: rowToAction.minimumRequirementType,
+                  minimumRequirementValue: rowToAction.minimumRequirementValue,
+                  combinesWithProductDiscounts: rowToAction.combinesWithProductDiscounts,
+                  combinesWithOrderDiscounts: rowToAction.combinesWithOrderDiscounts,
+                  combinesWithShippingDiscounts: rowToAction.combinesWithShippingDiscounts,
+                } as any,
+              }}
+            />
+          ) : rowToAction.discountKind === "BXGY_AUTOMATIC" ? (
+            <GenericAddEditPanel
+              isOpen={isEditModalOpen}
+              close={() => setIsEditModalOpen(false)}
+              inputs={bxgyEditInputs.filter(i => i.formKey !== "code" && i.formKey !== "usageLimit" && i.formKey !== "appliesOncePerCustomer")}
+              formKeys={formKeys}
+              submitItem={
+                ((item: any) => {
+                  const updates = item?.updates ?? item;
+                  updateAutomaticBxgyDiscount({
+                    id: rowToAction._id,
+                    ...updates,
+                  } as UpdateAutomaticBxgyDiscountPayload);
+                }) as unknown as (
+                  item: DiscountRow | UpdatePayload<DiscountRow>
+                ) => void
+              }
+              isEditMode={true}
+              topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
+              itemToEdit={{
+                id: rowToAction._id,
+                updates: {
+                  title: rowToAction.title,
+                  buyRequirementType: rowToAction.buyRequirementType ?? "QUANTITY",
+                  buyQuantityOrAmount: rowToAction.buyQuantityOrAmount,
+                  buyProductScope: rowToAction.buyProductScope ?? "ALL",
+                  buyProductIds: rowToAction.buyProductIds ?? [],
+                  buyCollectionIds: rowToAction.buyCollectionIds ?? [],
+                  getQuantity: rowToAction.getQuantity,
+                  getProductScope: rowToAction.getProductScope ?? "ALL",
+                  getProductIds: rowToAction.getProductIds ?? [],
+                  getCollectionIds: rowToAction.getCollectionIds ?? [],
+                  bxgyDiscountType: rowToAction.bxgyDiscountType ?? "FREE",
+                  bxgyDiscountValue: rowToAction.bxgyDiscountValue,
+                  startsAt: rowToAction.startsAt,
+                  endsAt: rowToAction.endsAt || undefined,
+                  combinesWithProductDiscounts: rowToAction.combinesWithProductDiscounts,
+                  combinesWithOrderDiscounts: rowToAction.combinesWithOrderDiscounts,
+                  combinesWithShippingDiscounts: rowToAction.combinesWithShippingDiscounts,
+                } as any,
+              }}
+            />
+          ) : rowToAction.discountKind === "BXGY" ? (
+            <GenericAddEditPanel
+              isOpen={isEditModalOpen}
+              close={() => setIsEditModalOpen(false)}
+              inputs={bxgyEditInputs}
+              formKeys={formKeys}
+              submitItem={
+                ((item: any) => {
+                  const updates = item?.updates ?? item;
+                  updateBxgyDiscount({
+                    id: rowToAction._id,
+                    ...updates,
+                  } as UpdateBxgyDiscountPayload);
+                }) as unknown as (
+                  item: DiscountRow | UpdatePayload<DiscountRow>
+                ) => void
+              }
+              isEditMode={true}
+              topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
+              itemToEdit={{
+                id: rowToAction._id,
+                updates: {
+                  title: rowToAction.title,
+                  code: rowToAction.code,
+                  buyRequirementType: rowToAction.buyRequirementType ?? "QUANTITY",
+                  buyQuantityOrAmount: rowToAction.buyQuantityOrAmount,
+                  buyProductScope: rowToAction.buyProductScope ?? "ALL",
+                  buyProductIds: rowToAction.buyProductIds ?? [],
+                  buyCollectionIds: rowToAction.buyCollectionIds ?? [],
+                  getQuantity: rowToAction.getQuantity,
+                  getProductScope: rowToAction.getProductScope ?? "ALL",
+                  getProductIds: rowToAction.getProductIds ?? [],
+                  getCollectionIds: rowToAction.getCollectionIds ?? [],
+                  bxgyDiscountType: rowToAction.bxgyDiscountType ?? "FREE",
+                  bxgyDiscountValue: rowToAction.bxgyDiscountValue,
+                  startsAt: rowToAction.startsAt,
+                  endsAt: rowToAction.endsAt || undefined,
+                  usageLimit: rowToAction.usageLimit !== "∞" ? Number(rowToAction.usageLimit) : undefined,
+                  appliesOncePerCustomer: rowToAction.appliesOncePerCustomer,
+                  combinesWithProductDiscounts: rowToAction.combinesWithProductDiscounts,
+                  combinesWithOrderDiscounts: rowToAction.combinesWithOrderDiscounts,
+                  combinesWithShippingDiscounts: rowToAction.combinesWithShippingDiscounts,
                 } as any,
               }}
             />
@@ -832,7 +1776,7 @@ const ShopifyDiscounts = () => {
         isPath: false,
       },
     ],
-    [t, rowToAction, isEditModalOpen, isDeleteModalOpen, editInputs, freeShippingEditInputs, formKeys, updateDiscount, updateFreeShippingDiscount, deleteDiscount]
+    [t, rowToAction, isEditModalOpen, isDeleteModalOpen, editInputs, freeShippingEditInputs, productDiscountEditInputs, bxgyEditInputs, formKeys, updateDiscount, updateFreeShippingDiscount, updateProductDiscount, updateBxgyDiscount, updateAutomaticBxgyDiscount, updateAutomaticOrderDiscount, deleteDiscount]
   );
 
   return (
