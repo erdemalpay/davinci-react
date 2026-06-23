@@ -16,11 +16,11 @@ export default function BackInStockMailTemplate({ values }: MailTemplateProps) {
             sipariş vererek ürünü kaçırmayın.
           </p>
           {values.productImage && (
-            <div className="mb-8 text-center bg-white">
+            <div className="mb-8 text-center">
               <img
                 src={values.productImage}
                 alt={values.productName}
-                className="mx-auto h-auto w-full max-w-[400px] rounded-lg border border-[#e9ecef] bg-white"
+                className="mx-auto h-auto w-full max-w-[400px] rounded-lg border border-[#e9ecef]"
               />
             </div>
           )}
