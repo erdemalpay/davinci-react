@@ -161,6 +161,7 @@ const AllExpenses = () => {
           label: vendor.name,
         })),
         placeholder: t("Vendor"),
+        isMultiple: true,
         required: true,
       },
       {
@@ -171,6 +172,7 @@ const AllExpenses = () => {
           value: brand._id,
           label: brand.name,
         })),
+        isMultiple: true,
         placeholder: t("Brand"),
         required: true,
       },
