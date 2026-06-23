@@ -1,4 +1,6 @@
-import { post } from ".";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosHeaders } from "axios";
+import { post, postWithHeader } from ".";
 import { FormElementsState } from "../../types";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
@@ -114,6 +116,21 @@ export type SendMailDraftPayload = {
   recipients?: string[];
   metadata?: Record<string, unknown>;
 };
+
+export function useUploadMailImageMutation() {
+  return useMutation<{ url: string }, Error, File>({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("filename", file.name);
+      return postWithHeader<FormData, { url: string }>({
+        path: `${Paths.Mail}/upload-image`,
+        payload: formData,
+        headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
+      });
+    },
+  });
+}
 
 const baseUrl = `${Paths.Mail}/subscriptions`;
 
