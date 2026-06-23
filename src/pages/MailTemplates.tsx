@@ -60,12 +60,10 @@ const MailTemplates = () => {
 
   const mailTypeSelectOptions = useMemo(
     () =>
-      mailTemplateOptions
-        .filter((option) => option.value !== MailType.BACK_IN_STOCK)
-        .map((option) => ({
-          value: option.value,
-          label: t(option.label),
-        })),
+      mailTemplateOptions.map((option) => ({
+        value: option.value,
+        label: t(option.label),
+      })),
     [t]
   );
 
