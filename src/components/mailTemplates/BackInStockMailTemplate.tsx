@@ -20,7 +20,7 @@ export default function BackInStockMailTemplate({ values }: MailTemplateProps) {
               <img
                 src={values.productImage}
                 alt={values.productName}
-                className="mx-auto h-auto w-full max-w-[400px] rounded-lg border border-[#e9ecef] bg-white"
+                className="mx-auto h-auto w-full max-w-[400px] rounded-lg border border-[#e9ecef]"
               />
             </div>
           )}

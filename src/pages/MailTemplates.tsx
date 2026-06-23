@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useRef, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineSave, MdOutlineUpload } from "react-icons/md";
+import { MdOutlineSave } from "react-icons/md";
 import { toast } from "react-toastify";
 import {
   MailTemplatePreview,
@@ -21,7 +21,6 @@ import {
   MailDraftStatus,
   MailType,
   useMailDraftMutations,
-  useUploadMailImageMutation,
 } from "../utils/api/mail";
 
 const getInputType = (type: MailTemplateParameterDefinition["type"]) => {
@@ -29,16 +28,10 @@ const getInputType = (type: MailTemplateParameterDefinition["type"]) => {
   return "text";
 };
 
-const IMAGE_URL_KEYS = new Set(["imageUrl", "productImage"]);
-
 const MailTemplates = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { createMailDraft } = useMailDraftMutations();
-  const { mutateAsync: uploadMailImage, isPending: isUploading } =
-    useUploadMailImageMutation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [mailType, setMailType] = useState<MailType>(MailType.CUSTOMER_MESSAGE);
   const [draftName, setDraftName] = useState("");
   const [subject, setSubject] = useState("");
@@ -224,26 +217,6 @@ const MailTemplates = () => {
               onClear={() => setRecipients("")}
             />
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file || !uploadingKey) return;
-              e.target.value = "";
-              try {
-                const { url } = await uploadMailImage(file);
-                updateValue(uploadingKey, url);
-                toast.success(t("Image uploaded"));
-              } catch {
-                toast.error(t("Image upload failed"));
-              } finally {
-                setUploadingKey(null);
-              }
-            }}
-          />
           <div className="space-y-4">
             {definitions.map((definition) => (
               <div key={definition.key} className="block">
@@ -269,34 +242,6 @@ const MailTemplates = () => {
                     placeholder={definition.example}
                     className="min-h-[110px] w-full rounded-md border border-gray-300 p-2 text-sm"
                   />
-                ) : IMAGE_URL_KEYS.has(definition.key) ? (
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <TextInput
-                        type="url"
-                        label={t(definition.label)}
-                        value={values[definition.key] ?? ""}
-                        onChange={(value) => updateValue(definition.key, value)}
-                        placeholder={definition.example}
-                        requiredField={definition.required}
-                        onClear={() => updateValue(definition.key, "")}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      disabled={isUploading}
-                      onClick={() => {
-                        setUploadingKey(definition.key);
-                        fileInputRef.current?.click();
-                      }}
-                      className="mt-6 flex h-10 shrink-0 items-center gap-1.5 rounded-md border border-gray-300 px-3 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      <MdOutlineUpload className="text-base" />
-                      {isUploading && uploadingKey === definition.key
-                        ? t("Uploading...")
-                        : t("Upload")}
-                    </button>
-                  </div>
                 ) : (
                   <TextInput
                     type={getInputType(definition.type)}
