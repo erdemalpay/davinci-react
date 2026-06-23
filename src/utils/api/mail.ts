@@ -126,7 +126,7 @@ export function useUploadMailImageMutation() {
       return postWithHeader<FormData, { url: string }>({
         path: `${Paths.Mail}/upload-image`,
         payload: formData,
-        headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
+        headers: new AxiosHeaders(),
       });
     },
   });

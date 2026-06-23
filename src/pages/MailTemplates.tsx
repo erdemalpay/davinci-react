@@ -284,7 +284,7 @@ const MailTemplates = () => {
                     </div>
                     <button
                       type="button"
-                      disabled={isUploading && uploadingKey === definition.key}
+                      disabled={isUploading}
                       onClick={() => {
                         setUploadingKey(definition.key);
                         fileInputRef.current?.click();
