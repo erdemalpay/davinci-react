@@ -104,7 +104,8 @@ const ShopifyPickUp = () => {
           groupOrders.find((o) => o.isShopifyCustomerPicked) ?? first;
         const deliveryHour =
           pickedOrder?.deliveredAt &&
-          pickedOrder?.deliveredAt !== pickedOrder?.createdAt
+          new Date(pickedOrder.deliveredAt).getTime() !==
+            new Date(pickedOrder.createdAt).getTime()
             ? format(pickedOrder?.deliveredAt, "HH:mm")
             : "";
 
