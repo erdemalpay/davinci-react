@@ -154,8 +154,8 @@ const Expenses = () => {
         t,
       }),
 
-      VendorInput({ vendors: vendors, required: true, t }),
-      BrandInput({ brands: brands, required: true, t }),
+      VendorInput({ vendors: vendors, required: true, isMultiple: true, t }),
+      BrandInput({ brands: brands, required: true, isMultiple: true, t }),
       ExpenseTypeInput({ expenseTypes: expenseTypes, required: true, t }),
       PaymentMethodInput({
         paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),

@@ -1337,6 +1337,17 @@
   "Shopify Takeaway": "Shopify Takeaway",
   "Apply Discount": "Apply Discount",
   "face_recognition": "Face Recognition",
+  "qr": "QR",
+  "Scan QR to check in/out": "Scan QR to check in/out",
+  "Point your camera at the QR shown at the cafe": "Point your camera at the QR shown at the cafe",
+  "Check-in successful": "Check-in successful",
+  "Check-out successful": "Check-out successful",
+  "Camera access denied or unavailable": "Camera access denied or unavailable",
+  "Camera requires a secure (HTTPS) connection": "Camera requires a secure (HTTPS) connection",
+  "Cafe Check-in QR": "Cafe Check-in QR",
+  "QR Display": "QR Display",
+  "Could not load QR": "Could not load QR",
+  "Refreshes automatically": "Refreshes automatically",
   "Total Change": "Total Change",
   "Total Value": "Total Value",
   "Total Cost": "Total Cost",
@@ -1646,5 +1657,9 @@
   "Minimum Purchase Amount": "Minimum Purchase Amount",
   "Percentage Value": "Percentage Value",
   "Amount Value": "Amount Value",
-  "Get Quantity helper": "Items the customer gets at the discounted price"
+  "Get Quantity helper": "Items the customer gets at the discounted price",
+  "Item hidden": "Item hidden",
+  "Item visible": "Item visible",
+  "Show Hidden Items": "Show Hidden Items"
+
 }

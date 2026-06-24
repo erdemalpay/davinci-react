@@ -21,6 +21,7 @@ import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useFilterContext } from "../context/Filter.context";
 import { OptionType } from "../types";
 import { useGetStoreLocations } from "../utils/api/location";
+import { useGetTables } from "../utils/api/table";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetMiddlemanByDate } from "../utils/api/middleman";
 import { useGetDailySummary } from "../utils/api/order/order";
@@ -41,6 +42,7 @@ const DailySummary = () => {
   const locations = useGetStoreLocations();
   const items = useGetMenuItems();
   const users = useGetUsers();
+  const tables = useGetTables();
   const usersMinimal = useGetUsersMinimal();
   const [componentKey, setComponentKey] = useState(0);
   const [hoveredSegmentText, setHoveredSegmentText] = useState<string | null>(
@@ -338,6 +340,7 @@ const DailySummary = () => {
               name="employees"
               label={t("Who's at cafe?")}
               visits={visits}
+              tables={tables}
             />
           ) : (
             <PreviousVisitList visits={visits} isLabel={false} />

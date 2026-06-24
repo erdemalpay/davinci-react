@@ -160,6 +160,7 @@ const ServiceInvoice = () => {
           value: vendor._id,
           label: vendor.name,
         })),
+        isMultiple: true,
         placeholder: t("Vendor"),
         required: true,
       },

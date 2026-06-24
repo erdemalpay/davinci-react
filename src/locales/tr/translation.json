@@ -1346,6 +1346,17 @@
   "Shopify Order": "Shopify Sipariş",
   "Apply Discount": "İndirim Uygula",
   "face_recognition": "Yüz Okutma",
+  "qr": "QR",
+  "Scan QR to check in/out": "Giriş/çıkış için QR okutun",
+  "Point your camera at the QR shown at the cafe": "Kameranızı kafedeki ekranda gösterilen QR'a tutun",
+  "Check-in successful": "Giriş yapıldı",
+  "Check-out successful": "Çıkış yapıldı",
+  "Camera access denied or unavailable": "Kamera erişimi reddedildi veya kullanılamıyor",
+  "Camera requires a secure (HTTPS) connection": "Kamera için güvenli (HTTPS) bağlantı gerekiyor",
+  "Cafe Check-in QR": "Kafe Giriş QR'ı",
+  "QR Display": "QR Ekranı",
+  "Could not load QR": "QR yüklenemedi",
+  "Refreshes automatically": "Otomatik yenilenir",
   "panel": "Panel",
   "ShopifyOrderReceived": "Shopify'dan #{{orderNumber}} numaralı gel-al sipariş geldi. Ürünler: {{products}}",
   "ApproveShiftChangeConfirmation": "Shift değiştirme talebi onaylanacaktır, emin misiniz?",
@@ -1655,6 +1666,8 @@
   "Minimum Purchase Amount": "Minimum Satın Alım Tutarı",
   "Percentage Value": "Yüzde Değeri",
   "Amount Value": "Tutar Değeri",
-  "Get Quantity helper": "Müşterinin bedava/indirimli alacağı ürün adedi"
-
+  "Get Quantity helper": "Müşterinin bedava/indirimli alacağı ürün adedi",
+  "Item hidden": "Öge gizlendi",
+  "Item visible": "Öge görünür hale getirildi",
+  "Show Hidden Items": "Gizlenen Ögeleri Göster"
 }

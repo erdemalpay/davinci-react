@@ -29,7 +29,7 @@ const VendorExpenses = () => {
       service: "",
       type: ExpenseTypes.STOCKABLE,
       vendor: vendorId ?? "",
-      brand: "",
+      brand: [],
       expenseType: "",
       paymentMethod: "",
       location: "",
@@ -40,42 +40,45 @@ const VendorExpenses = () => {
       asc: 1,
       search: "",
     });
-  const filterPanelInputs = useMemo(() => [
-    ProductInput({
-      products: products.filter((p) => p.vendor?.includes(vendorId ?? "")),
-      required: true,
-      t,
-    }),
-    BrandInput({ brands, required: true, t }),
-    StockLocationInput({ locations, t }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((o) => ({
-        value: o.value,
-        label: t(o.label),
-      })),
-      placeholder: t("Date"),
-      required: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ], [products, brands, locations, vendorId, t]);
+  const filterPanelInputs = useMemo(
+    () => [
+      ProductInput({
+        products: products.filter((p) => p.vendor?.includes(vendorId ?? "")),
+        required: true,
+        t,
+      }),
+      BrandInput({ brands, required: true, isMultiple: true, t }),
+      StockLocationInput({ locations, t }),
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((o) => ({
+          value: o.value,
+          label: t(o.label),
+        })),
+        placeholder: t("Date"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [products, brands, locations, vendorId, t]
+  );
   useEffect(() => {
     if (vendorId) {
       setFilterPanelFormElements((prev) => ({ ...prev, vendor: vendorId }));

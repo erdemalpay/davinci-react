@@ -280,6 +280,7 @@ export type AccountProduct = {
   unitPrice: number;
   matchedMenuItem?: number;
   deleted?: boolean;
+  isHidden?: boolean;
   baseQuantities?: {
     location: number;
     minQuantity: number;
@@ -483,6 +484,7 @@ export type AccountProductStockHistory = {
 export enum VisitSource {
   PANEL = "panel",
   FACE_RECOGNITION = "face_recognition",
+  QR = "qr",
 }
 export enum VisitStatus {
   WRONG_ENTRY = "wrong_entry",
