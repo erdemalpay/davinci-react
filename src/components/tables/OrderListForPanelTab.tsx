@@ -15,7 +15,7 @@ import {
   useUpdateOrderForCancelMutation,
 } from "../../utils/api/order/order";
 import { useGetStockLocations } from "../../utils/api/location";
-import { getItem } from "../../utils/getItem";
+import { getItem, getRefId } from "../../utils/getItem";
 import { orderBgColor } from "./OrderCard";
 
 type Props = {
@@ -147,10 +147,7 @@ const OrderListForPanelTab = ({
                   ) {
                     createOrder({
                       ...order,
-                      table:
-                        typeof order.table === "object"
-                          ? (order.table as any)._id
-                          : order.table,
+                      table: getRefId(order.table),
                       status: OrderStatus.CANCELLED,
                       quantity: 1,
                       paidQuantity: 0,
@@ -175,12 +172,50 @@ const OrderListForPanelTab = ({
                     toast.error(t("Discounted orders cannot be increased."));
                     return;
                   }
-                  updateOrder({
-                    id: order?._id,
-                    updates: {
-                      quantity: order?.quantity + 1,
-                    },
-                  });
+                  if (
+                    [OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
+                      order?.status as OrderStatus
+                    )
+                  ) {
+                    const pendingStatuses = [
+                      OrderStatus.PENDING,
+                      OrderStatus.CONFIRMATIONREQ,
+                    ];
+                    const existingPendingOrder = tableOrders?.find(
+                      (o) =>
+                        getRefId(o.item) === getRefId(order.item) &&
+                        pendingStatuses.includes(o.status as OrderStatus) &&
+                        o._id !== order._id
+                    );
+                    if (existingPendingOrder) {
+                      updateOrder({
+                        id: existingPendingOrder._id,
+                        updates: {
+                          quantity: existingPendingOrder.quantity + 1,
+                        },
+                      });
+                    } else {
+                      const { _id, ...orderWithoutId } = order;
+                      createOrder({
+                        ...orderWithoutId,
+                        table: getRefId(order.table),
+                        status: isOrderConfirmationRequired
+                          ? OrderStatus.CONFIRMATIONREQ
+                          : OrderStatus.PENDING,
+                        quantity: 1,
+                        paidQuantity: 0,
+                        createdAt: new Date(),
+                        createdBy: user._id,
+                      });
+                    }
+                  } else {
+                    updateOrder({
+                      id: order?._id,
+                      updates: {
+                        quantity: order?.quantity + 1,
+                      },
+                    });
+                  }
                 }}
               />
             </div>
