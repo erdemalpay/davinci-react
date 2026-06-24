@@ -55,7 +55,7 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   );
   const locations = useGetStoreLocations();
 
-  const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.5;
+  const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.75;
 
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(
