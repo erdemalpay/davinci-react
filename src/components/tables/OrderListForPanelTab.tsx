@@ -147,7 +147,9 @@ const OrderListForPanelTab = ({
                   ) {
                     createOrder({
                       ...order,
-                      table: getRefId(order.table),
+                      table: order.table
+                        ? (getRefId(order.table) as number)
+                        : undefined,
                       status: OrderStatus.CANCELLED,
                       quantity: 1,
                       paidQuantity: 0,
@@ -198,7 +200,9 @@ const OrderListForPanelTab = ({
                       const { _id, ...orderWithoutId } = order;
                       createOrder({
                         ...orderWithoutId,
-                        table: getRefId(order.table),
+                        table: order.table
+                        ? (getRefId(order.table) as number)
+                        : undefined,
                         status: isOrderConfirmationRequired
                           ? OrderStatus.CONFIRMATIONREQ
                           : OrderStatus.PENDING,
