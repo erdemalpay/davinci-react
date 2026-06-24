@@ -131,7 +131,7 @@ const OrderListForPanelTab = ({
                     };
                   }
                   if (
-                    ![OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
+                    ![OrderStatus.SERVED].includes(
                       order?.status as OrderStatus
                     )
                   ) {
@@ -141,12 +141,16 @@ const OrderListForPanelTab = ({
                     });
                   }
                   if (
-                    [OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
+                    [OrderStatus.SERVED].includes(
                       order?.status as OrderStatus
                     )
                   ) {
                     createOrder({
                       ...order,
+                      table:
+                        typeof order.table === "object"
+                          ? (order.table as any)._id
+                          : order.table,
                       status: OrderStatus.CANCELLED,
                       quantity: 1,
                       paidQuantity: 0,
@@ -171,30 +175,12 @@ const OrderListForPanelTab = ({
                     toast.error(t("Discounted orders cannot be increased."));
                     return;
                   }
-                  if (
-                    ![OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
-                      order?.status as OrderStatus
-                    ) &&
-                    !order?.discount
-                  ) {
-                    updateOrder({
-                      id: order?._id,
-                      updates: {
-                        quantity: order?.quantity + 1,
-                      },
-                    });
-                  } else {
-                    createOrder({
-                      ...order,
-                      status: isOrderConfirmationRequired
-                        ? OrderStatus.CONFIRMATIONREQ
-                        : OrderStatus.PENDING,
-                      quantity: 1,
-                      paidQuantity: 0,
-                      createdAt: new Date(),
-                      createdBy: user._id,
-                    });
-                  }
+                  updateOrder({
+                    id: order?._id,
+                    updates: {
+                      quantity: order?.quantity + 1,
+                    },
+                  });
                 }}
               />
             </div>
