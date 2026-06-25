@@ -155,6 +155,8 @@ type FilterContextType = {
   setShowDeletedItems: (state: boolean) => void;
   isEnableProductShelfEdit: boolean;
   setIsEnableProductShelfEdit: (state: boolean) => void;
+  showProductsWithoutShelf: boolean;
+  setShowProductsWithoutShelf: (state: boolean) => void;
   filterProductShelfInfoFormElements: FormElementsState;
   setFilterProductShelfInfoFormElements: (state: FormElementsState) => void;
   showProductShelfInfoFilters: boolean;
@@ -581,6 +583,7 @@ const FilterContext = createContext<FilterContextType>({
   filterProductShelfInfoFormElements: {
     product: [],
     expenseType: [GAMEEXPENSETYPE],
+    location: "",
   },
   setFilterProductShelfInfoFormElements: () => {},
   setFilterAllExpensesPanelFormElements: () => {},
@@ -599,6 +602,8 @@ const FilterContext = createContext<FilterContextType>({
   setShowDeletedItems: () => {},
   isEnableProductShelfEdit: false,
   setIsEnableProductShelfEdit: () => {},
+  showProductsWithoutShelf: false,
+  setShowProductsWithoutShelf: () => {},
   showProductShelfInfoFilters: false,
   setShowProductShelfInfoFilters: () => {},
   showDesertStockFilters: false,
@@ -760,6 +765,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     useState(false);
   const [isEnableProductShelfEdit, setIsEnableProductShelfEdit] =
     useState(false);
+  const [showProductsWithoutShelf, setShowProductsWithoutShelf] =
+    useState(false);
   const [showPersonalSummaryFilters, setShowPersonalSummaryFilters] =
     useState(false);
   const [showServiceInvoiceFilters, setShowServiceInvoiceFilters] =
@@ -813,6 +820,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   ] = useState<FormElementsState>({
     product: [],
     expenseType: [GAMEEXPENSETYPE],
+    location: "",
   });
   const [
     filterAllVisitsPanelFormElements,
@@ -1179,6 +1187,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowDeletedItems: setShowDeletedItems,
         isEnableProductShelfEdit: isEnableProductShelfEdit,
         setIsEnableProductShelfEdit: setIsEnableProductShelfEdit,
+        showProductsWithoutShelf: showProductsWithoutShelf,
+        setShowProductsWithoutShelf: setShowProductsWithoutShelf,
         filterProductShelfInfoFormElements: filterProductShelfInfoFormElements,
         setFilterProductShelfInfoFormElements:
           setFilterProductShelfInfoFormElements,
