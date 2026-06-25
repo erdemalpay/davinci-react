@@ -17,14 +17,15 @@ import { useGetUserWithId } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { isTargetedBy } from "../../utils/notification";
 import { getNotificationTypeIcon } from "../../utils/notificationIcons";
-import { CheckSwitch } from "../common/CheckSwitch";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 
 type Props = {
   targetUserId: string;
   isManagerView: boolean;
 };
 
-const typeIconClass = "text-xl";
+const typeIconClass = "text-sm sm:text-base h-6 w-6";
 
 const NotificationPreferences = ({ targetUserId, isManagerView }: Props) => {
   const { t } = useTranslation();
@@ -32,10 +33,9 @@ const NotificationPreferences = ({ targetUserId, isManagerView }: Props) => {
   const targetUser = useGetUserWithId(targetUserId);
   const notifications = useGetEventNotifications();
   const locations = useGetAllLocations();
-
   const { mutate: toggleMute } = useToggleNotificationMuteMutation();
 
-  const targetedNotifications = useMemo(() => {
+  const rows = useMemo(() => {
     if (!targetUser) return [] as Notification[];
     return notifications
       .filter((n) => n.isActive)
@@ -52,21 +52,14 @@ const NotificationPreferences = ({ targetUserId, isManagerView }: Props) => {
     });
   };
 
-  const renderLocationChip = (notification: Notification) => {
+  const renderLocationNames = (notification: Notification) => {
     const locIds = notification.selectedLocations ?? [];
-    if (locIds.length === 0) {
-      return (
-        <span className="text-xs text-gray-500">{t("All Locations")}</span>
-      );
-    }
-    const names = locIds
-      .map((id) => getItem(id, locations)?.name)
-      .filter(Boolean)
-      .join(", ");
+    if (locIds.length === 0) return t("All Locations");
     return (
-      <span className="text-xs text-gray-700 font-medium">
-        📍 {names || t("All Locations")}
-      </span>
+      locIds
+        .map((id) => getItem(id, locations)?.name)
+        .filter(Boolean)
+        .join(", ") || t("All Locations")
     );
   };
 
@@ -76,66 +69,94 @@ const NotificationPreferences = ({ targetUserId, isManagerView }: Props) => {
     return opt ? t(opt.label) : eventValue;
   };
 
+  const columns = useMemo(
+    () => [
+      { key: t("Type"), isSortable: false },
+      { key: t("Triggered Event"), isSortable: false },
+      { key: t("Location"), isSortable: false },
+      { key: t("Status"), isSortable: false },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "type",
+        node: (row: Notification) => {
+          const type = row?.type as NotificationType | undefined;
+          const solidColor = type ? NotificationColors[type] : undefined;
+          return (
+            <div
+              className="flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-gray-200 shadow-sm"
+              style={{
+                backgroundColor: solidColor ? `${solidColor}15` : "#F1F5F9",
+                color: solidColor ?? "#0F172A",
+              }}
+              title={type ? t(type) : "-"}
+            >
+              {getNotificationTypeIcon(type, typeIconClass)}
+            </div>
+          );
+        },
+      },
+      {
+        key: "event",
+        node: (row: Notification) => {
+          if (!row?.event) {
+            return <span className="text-xs text-gray-400">-</span>;
+          }
+          const eventColors = NotificationEventColors[row.event] ?? null;
+          const badgeColor =
+            eventColors?.solid ??
+            NotificationColors[row.type as NotificationType] ??
+            "#64748B";
+          return (
+            <span
+              className="w-fit rounded-md text-sm px-2 py-1 font-semibold"
+              style={{ backgroundColor: badgeColor, color: "#FFFFFF" }}
+            >
+              {renderEventLabel(row.event)}
+            </span>
+          );
+        },
+      },
+      {
+        key: "location",
+        node: (row: Notification) => (
+          <span className="text-sm text-gray-700">
+            {renderLocationNames(row)}
+          </span>
+        ),
+      },
+      {
+        key: "mute",
+        node: (row: Notification) => {
+          const isOn = !(row.mutedBy ?? []).includes(targetUserId);
+          return (
+            <SwitchButton
+              checked={isOn}
+              onChange={() => handleToggle(row, isOn)}
+            />
+          );
+        },
+      },
+    ],
+    [t, targetUserId, locations]
+  );
+
   if (!targetUser) return <></>;
 
   return (
-    <div className="w-[95%] mx-auto flex flex-col gap-3 mt-2">
-      <h3 className="text-base font-semibold text-gray-800">
-        {t("Notification Preferences")}
-      </h3>
-
-      {targetedNotifications.length === 0 ? (
-        <div className="flex items-center justify-center py-12 text-center text-sm text-gray-500 border border-dashed border-gray-300 rounded-lg">
-          {t("No notification rules targeting this user")}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {targetedNotifications.map((notification) => {
-            const muted = (notification.mutedBy ?? []).includes(targetUserId);
-            const isOn = !muted;
-            const eventColors = notification.event
-              ? NotificationEventColors[notification.event]
-              : null;
-            const solidColor =
-              eventColors?.solid ??
-              NotificationColors[notification.type as NotificationType] ??
-              "#64748B";
-            return (
-              <div
-                key={notification._id}
-                className="grid grid-cols-[auto,1fr,auto] gap-3 items-center bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-gray-300 transition-colors"
-              >
-                <div
-                  className="flex items-center justify-center h-10 w-10 rounded-lg"
-                  style={{
-                    backgroundColor: solidColor + "20",
-                    color: solidColor,
-                  }}
-                  title={t(notification.type)}
-                >
-                  {getNotificationTypeIcon(
-                    notification.type as NotificationType,
-                    typeIconClass
-                  )}
-                </div>
-                <div className="flex flex-col gap-1 min-w-0">
-                  <span
-                    className="self-start inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold text-white"
-                    style={{ backgroundColor: solidColor }}
-                  >
-                    {renderEventLabel(notification.event)}
-                  </span>
-                  {renderLocationChip(notification)}
-                </div>
-                <CheckSwitch
-                  checked={isOn}
-                  onChange={() => handleToggle(notification, isOn)}
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
+    <div className="w-[95%] mx-auto ">
+      <GenericTable
+        rowKeys={rowKeys}
+        columns={columns}
+        rows={rows}
+        title={t("Notification Preferences")}
+        isActionsActive={false}
+        isToolTipEnabled={false}
+      />
     </div>
   );
 };
