@@ -13,6 +13,8 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
 type ShiftCalendarEvent = Shift & { date: string };
 
+const DEFAULT_FALLBACK_COLOR = "#6B7280";
+
 export default function ShiftsCalendar() {
   const { t } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState<Date>(
@@ -42,7 +44,7 @@ export default function ShiftsCalendar() {
           <ButtonFilter
             buttonName={t("All")}
             onclick={() => setSelectedLocationId(-1)}
-            backgroundColor="#6B7280"
+            backgroundColor={DEFAULT_FALLBACK_COLOR}
             isActive={selectedLocationId === -1}
           />
           {locations.map((location) => (
@@ -122,7 +124,7 @@ export default function ShiftsCalendar() {
                                   className="text-xs font-semibold mb-0.5"
                                   style={{
                                     color:
-                                      location.backgroundColor || "#6B7280",
+                                      location.backgroundColor || DEFAULT_FALLBACK_COLOR,
                                   }}
                                 >
                                   {location.name}
@@ -138,7 +140,7 @@ export default function ShiftsCalendar() {
                                       className="text-xs px-1 py-0.5 rounded text-white leading-tight"
                                       style={{
                                         backgroundColor:
-                                          foundUser.role?.color || "#6B7280",
+                                          foundUser.role?.color || DEFAULT_FALLBACK_COLOR,
                                       }}
                                     >
                                       {foundUser.name}
