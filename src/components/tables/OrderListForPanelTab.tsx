@@ -92,10 +92,15 @@ const OrderListForPanelTab = ({
               order
             )} `}
           >
-            <div className="flex flex-row gap-2  items-center  ">
-              {/* decrement */}
+            {/* name and quantity */}
+            <div className="flex gap-1 items-center">
+              <p>{orderItem?.name}</p>
+              <h1 className="text-xs">({order?.quantity})</h1>
+            </div>
+
+            <div className="flex flex-row gap-2 items-center">
               <FiMinusCircle
-                className="w-5 h-5 flex-shrink-0  text-red-500  hover:text-red-800 cursor-pointer focus:outline-none"
+                className="w-5 h-5 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
                 onClick={() => {
                   if (order?.quantity === 1) {
                     toast.error(t("Order quantity cannot be less than 1"));
@@ -131,19 +136,12 @@ const OrderListForPanelTab = ({
                     };
                   }
                   if (
-                    ![OrderStatus.SERVED].includes(
-                      order?.status as OrderStatus
-                    )
+                    ![OrderStatus.SERVED].includes(order?.status as OrderStatus)
                   ) {
-                    updateOrder({
-                      id: order?._id,
-                      updates: updates,
-                    });
+                    updateOrder({ id: order?._id, updates });
                   }
                   if (
-                    [OrderStatus.SERVED].includes(
-                      order?.status as OrderStatus
-                    )
+                    [OrderStatus.SERVED].includes(order?.status as OrderStatus)
                   ) {
                     createOrder({
                       ...order,
@@ -154,77 +152,65 @@ const OrderListForPanelTab = ({
                       quantity: 1,
                       paidQuantity: 0,
                     });
-                    updateOrder({
-                      id: order?._id,
-                      updates: updates,
-                    });
+                    updateOrder({ id: order?._id, updates });
                   }
                 }}
               />
-              {/* name and quantity */}
-              <div className="flex w-5/6 gap-1 items-center">
-                <p>{orderItem?.name}</p>
-                <h1 className="text-xs">({order?.quantity})</h1>
-              </div>
-              {/* increment */}
-              <GoPlusCircle
-                className="w-5 h-5 flex-shrink-0  text-green-500  hover:text-green-800 cursor-pointer focus:outline-none"
-                onClick={() => {
-                  if (order?.discount) {
-                    toast.error(t("Discounted orders cannot be increased."));
-                    return;
-                  }
-                  if (
-                    [OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
-                      order?.status as OrderStatus
-                    )
-                  ) {
-                    const pendingStatuses = [
-                      OrderStatus.PENDING,
-                      OrderStatus.CONFIRMATIONREQ,
-                    ];
-                    const existingPendingOrder = tableOrders?.find(
-                      (o) =>
-                        getRefId(o.item) === getRefId(order.item) &&
-                        pendingStatuses.includes(o.status as OrderStatus) &&
-                        o._id !== order._id
-                    );
-                    if (existingPendingOrder) {
-                      updateOrder({
-                        id: existingPendingOrder._id,
-                        updates: {
-                          quantity: existingPendingOrder.quantity + 1,
-                        },
-                      });
+              {![OrderStatus.SERVED, OrderStatus.AUTOSERVED].includes(
+                order?.status as OrderStatus
+              ) && (
+                <GoPlusCircle
+                  className="w-5 h-5 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
+                  onClick={() => {
+                    if (order?.discount) {
+                      toast.error(t("Discounted orders cannot be increased."));
+                      return;
+                    }
+                    if (
+                      [OrderStatus.READYTOSERVE].includes(
+                        order?.status as OrderStatus
+                      )
+                    ) {
+                      const pendingStatuses = [
+                        OrderStatus.PENDING,
+                        OrderStatus.CONFIRMATIONREQ,
+                      ];
+                      const existingPendingOrder = tableOrders?.find(
+                        (o) =>
+                          getRefId(o.item) === getRefId(order.item) &&
+                          pendingStatuses.includes(o.status as OrderStatus) &&
+                          o._id !== order._id
+                      );
+                      if (existingPendingOrder) {
+                        updateOrder({
+                          id: existingPendingOrder._id,
+                          updates: { quantity: existingPendingOrder.quantity + 1 },
+                        });
+                      } else {
+                        const { _id, ...orderWithoutId } = order;
+                        createOrder({
+                          ...orderWithoutId,
+                          table: order.table
+                            ? (getRefId(order.table) as number)
+                            : undefined,
+                          status: isOrderConfirmationRequired
+                            ? OrderStatus.CONFIRMATIONREQ
+                            : OrderStatus.PENDING,
+                          quantity: 1,
+                          paidQuantity: 0,
+                          createdAt: new Date(),
+                          createdBy: user._id,
+                        });
+                      }
                     } else {
-                      const { _id, ...orderWithoutId } = order;
-                      createOrder({
-                        ...orderWithoutId,
-                        table: order.table
-                        ? (getRefId(order.table) as number)
-                        : undefined,
-                        status: isOrderConfirmationRequired
-                          ? OrderStatus.CONFIRMATIONREQ
-                          : OrderStatus.PENDING,
-                        quantity: 1,
-                        paidQuantity: 0,
-                        createdAt: new Date(),
-                        createdBy: user._id,
+                      updateOrder({
+                        id: order?._id,
+                        updates: { quantity: order?.quantity + 1 },
                       });
                     }
-                  } else {
-                    updateOrder({
-                      id: order?._id,
-                      updates: {
-                        quantity: order?.quantity + 1,
-                      },
-                    });
-                  }
-                }}
-              />
-            </div>
-
-            <div className="flex flex-row gap-2 items-center">
+                  }}
+                />
+              )}
               {order?.stockLocation && (
                 <span className="text-xs text-gray-500">
                   ({getItem(order.stockLocation, stockLocations)?.name})

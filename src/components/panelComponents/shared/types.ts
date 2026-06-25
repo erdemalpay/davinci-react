@@ -5,6 +5,7 @@ export interface Tab {
   content: React.ReactNode;
   icon?: React.ReactNode | null;
   label: string;
+  count?: number;
   isDisabled: boolean;
   onOpenAction?: () => void;
   onCloseAction?: () => void;
