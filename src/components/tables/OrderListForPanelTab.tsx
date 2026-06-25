@@ -135,25 +135,7 @@ const OrderListForPanelTab = ({
                       paidQuantity: order?.paidQuantity - 1,
                     };
                   }
-                  if (
-                    ![OrderStatus.SERVED].includes(order?.status as OrderStatus)
-                  ) {
-                    updateOrder({ id: order?._id, updates });
-                  }
-                  if (
-                    [OrderStatus.SERVED].includes(order?.status as OrderStatus)
-                  ) {
-                    createOrder({
-                      ...order,
-                      table: order.table
-                        ? (getRefId(order.table) as number)
-                        : undefined,
-                      status: OrderStatus.CANCELLED,
-                      quantity: 1,
-                      paidQuantity: 0,
-                    });
-                    updateOrder({ id: order?._id, updates });
-                  }
+                  updateOrder({ id: order?._id, updates });
                 }}
               />
               {![OrderStatus.SERVED, OrderStatus.AUTOSERVED].includes(
