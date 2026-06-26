@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import { GenericButton } from "../../common/GenericButton";
@@ -40,7 +40,11 @@ const getOptionValue = (option: string | { value: string; label?: string }) =>
 const getOptionLabel = (option: string | { value: string; label?: string }) =>
   typeof option === "string" ? option : option.label ?? option.value;
 
-const AutocompleteInput = ({
+export type AutocompleteInputHandle = {
+  focus: () => void;
+};
+
+const AutocompleteInput = forwardRef<AutocompleteInputHandle, AutocompleteInputProps>(({
   label,
   placeholder,
   value,
@@ -56,7 +60,7 @@ const AutocompleteInput = ({
   isSortDisabled = false,
   className = "px-4 py-2.5 border border-gray-300 rounded-md",
   clearOnFocus = false,
-}: AutocompleteInputProps) => {
+}: AutocompleteInputProps, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [filteredOptions, setFilteredOptions] = useState<
@@ -64,6 +68,10 @@ const AutocompleteInput = ({
   >([]);
   const [searchInput, setSearchInput] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+  }));
   const containerRef = useRef<HTMLDivElement>(null);
   const listboxIdRef = useRef(
     `autocomplete-listbox-${Math.random().toString(36).slice(2, 10)}`
@@ -306,6 +314,8 @@ const AutocompleteInput = ({
       </div>
     </div>
   );
-};
+});
+
+AutocompleteInput.displayName = "AutocompleteInput";
 
 export default AutocompleteInput;
