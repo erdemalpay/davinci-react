@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import type { AutocompleteInputHandle } from "../panelComponents/FormElements/AutocompleteInput";
+import { useHotkey } from "../../hooks/useHotkey";
 import {
   FiChevronDown,
   FiChevronLeft,
@@ -35,6 +37,8 @@ export const Sidebar = () => {
   const isExpanded = isSidebarOpen || isHoverExpanded;
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousRouteRef = useRef<string | null>(null);
+  const searchInputRef = useRef<AutocompleteInputHandle>(null);
+  const isFirstRender = useRef(true);
 
   const {
     user,
@@ -53,6 +57,14 @@ export const Sidebar = () => {
     setSearchValue,
     handleLogoutClick,
   } = useSidebarNavigation(() => setIsSidebarOpen(false));
+
+  useHotkey("meta+shift+f, ctrl+shift+f", () => {
+    if (!isSidebarOpen) {
+      setIsSidebarOpen(true);
+    } else {
+      searchInputRef.current?.focus();
+    }
+  });
 
   const handleMouseEnter = () => {
     if (isSidebarOpen) return;
@@ -140,7 +152,17 @@ export const Sidebar = () => {
   };
 
   useEffect(() => {
-    if (!isSidebarOpen) {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (!isSidebarOpen) {
+        setOpenGroups({});
+      }
+      return;
+    }
+
+    if (isSidebarOpen) {
+      searchInputRef.current?.focus();
+    } else {
       setOpenGroups({});
     }
   }, [isSidebarOpen]);
@@ -246,6 +268,7 @@ export const Sidebar = () => {
           <div className="mb-4">
             {isExpanded ? (
               <AutocompleteInput
+                ref={searchInputRef}
                 placeholder={t("Search menu...") || "Search menu..."}
                 value={searchValue}
                 options={menuOptions}
