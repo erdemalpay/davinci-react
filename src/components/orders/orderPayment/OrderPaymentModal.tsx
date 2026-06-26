@@ -306,6 +306,15 @@ const OrderPaymentModal = ({
   );
   const totalAmount = useMemo(
     () =>
+      tableOrders
+        ?.filter((order) => order?.status !== OrderStatus.RETURNED)
+        ?.reduce((acc, order) => {
+          return acc + order?.unitPrice * order?.quantity;
+        }, 0),
+    [tableOrders]
+  );
+  const displayedTotalAmount = useMemo(
+    () =>
       tableOrders?.reduce((acc, order) => {
         return acc + order?.unitPrice * order?.quantity;
       }, 0),
@@ -1219,7 +1228,7 @@ const OrderPaymentModal = ({
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
                   tables={tables}
-                  totalAmount={totalAmount}
+                  totalAmount={displayedTotalAmount}
                   discountAmount={discountAmount}
                   unpaidAmount={unpaidAmount}
                 />

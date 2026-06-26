@@ -382,9 +382,13 @@ export function useWebSocket(shouldConnect = false) {
                 continue;
               }
             }
-            oldData = oldData.map((order) =>
-              order._id === normalizedOrder._id ? normalizedOrder : order
-            );
+            if (oldData.find((o) => o._id === normalizedOrder._id)) {
+              oldData = oldData.map((order) =>
+                order._id === normalizedOrder._id ? normalizedOrder : order
+              );
+            } else {
+              oldData = [...oldData, normalizedOrder];
+            }
           }
           return oldData;
         }
