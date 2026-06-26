@@ -197,5 +197,9 @@ export function useToggleNotificationMuteMutation() {
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
+    // Not: /event listesi ileride çok büyürse her toggle'da tüm template'leri yeniden çeker; o zaman daha dar bir invalidate düşünülebilir.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
   });
 }
