@@ -312,16 +312,16 @@ const OrderPaymentModal = ({
   );
   const totalAmount = useMemo(
     () =>
-      tableOrders
-        ?.filter((order) => order?.status !== OrderStatus.RETURNED)
-        ?.reduce((acc, order) => {
+      (tableOrders ?? [])
+        .filter((order) => order?.status !== OrderStatus.RETURNED)
+        .reduce((acc, order) => {
           return acc + order?.unitPrice * order?.quantity;
         }, 0),
     [tableOrders]
   );
   const displayedTotalAmount = useMemo(
     () =>
-      tableOrders?.reduce((acc, order) => {
+      (tableOrders ?? []).reduce((acc, order) => {
         return acc + order?.unitPrice * order?.quantity;
       }, 0),
     [tableOrders]

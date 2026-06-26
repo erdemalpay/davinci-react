@@ -382,13 +382,15 @@ export function useWebSocket(shouldConnect = false) {
                 continue;
               }
             }
-            if (oldData.find((o) => o._id === normalizedOrder._id)) {
-              oldData = oldData.map((order) =>
-                order._id === normalizedOrder._id ? normalizedOrder : order
-              );
-            } else {
-              oldData = [...oldData, normalizedOrder];
-            }
+            let found = false;
+            const updatedData = oldData.map((order) => {
+              if (order._id === normalizedOrder._id) {
+                found = true;
+                return normalizedOrder;
+              }
+              return order;
+            });
+            oldData = found ? updatedData : [...oldData, normalizedOrder];
           }
           return oldData;
         }
