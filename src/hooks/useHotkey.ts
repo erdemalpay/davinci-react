@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 type HotkeyCombo = {
   key: string;
@@ -38,8 +38,18 @@ export function useHotkey(combo: string, callback: () => void) {
     [combo]
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
       if (combos.some((c) => matchesCombo(e, c))) {
         e.preventDefault();
         callbackRef.current();

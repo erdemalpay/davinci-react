@@ -60,7 +60,6 @@ export const Sidebar = () => {
   useHotkey("meta+shift+f, ctrl+shift+f", () => {
     if (!isSidebarOpen) {
       setIsSidebarOpen(true);
-      setTimeout(() => searchInputRef.current?.focus(), 350);
     } else {
       searchInputRef.current?.focus();
     }
@@ -152,7 +151,9 @@ export const Sidebar = () => {
   };
 
   useEffect(() => {
-    if (!isSidebarOpen) {
+    if (isSidebarOpen) {
+      searchInputRef.current?.focus();
+    } else {
       setOpenGroups({});
     }
   }, [isSidebarOpen]);
