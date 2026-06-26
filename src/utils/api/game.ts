@@ -7,6 +7,10 @@ const BASE_URL = `/games`;
 
 export type MinimalGame = Pick<Game, "_id" | "name">;
 
+export type GameWithGameplayCount = Game & {
+  gameplayCount: number;
+};
+
 export type RequestedGameRequest = {
   email: string;
   requestedAt: string;
@@ -65,6 +69,14 @@ export function useGetGames() {
 }
 export function useGetGamesMinimal() {
   return useGetList<MinimalGame>(`${Paths.Games}/minimal`);
+}
+
+export function useGetGamesSortedByGameplayCount() {
+  return useGetList<GameWithGameplayCount>(
+    `${Paths.Games}/sorted-by-gameplay-count`,
+    [Paths.Games, "sorted-by-gameplay-count"],
+    true
+  );
 }
 
 export function useGetGameDetails(gameId: number) {
