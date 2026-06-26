@@ -38,6 +38,7 @@ export const Sidebar = () => {
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousRouteRef = useRef<string | null>(null);
   const searchInputRef = useRef<AutocompleteInputHandle>(null);
+  const isFirstRender = useRef(true);
 
   const {
     user,
@@ -151,6 +152,14 @@ export const Sidebar = () => {
   };
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (!isSidebarOpen) {
+        setOpenGroups({});
+      }
+      return;
+    }
+
     if (isSidebarOpen) {
       searchInputRef.current?.focus();
     } else {

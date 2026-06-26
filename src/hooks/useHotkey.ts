@@ -9,7 +9,7 @@ type HotkeyCombo = {
 };
 
 function parseCombo(combo: string): HotkeyCombo {
-  const parts = combo.toLowerCase().split("+");
+  const parts = combo.toLowerCase().replace(/\s+/g, "").split("+");
   return {
     key: parts[parts.length - 1],
     meta: parts.includes("meta") || parts.includes("cmd"),
