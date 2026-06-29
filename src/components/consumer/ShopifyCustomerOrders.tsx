@@ -38,7 +38,13 @@ const ShopifyCustomerOrders = ({ customer }: Props) => {
       groups.get(key)!.push(order);
     }
 
-    return Array.from(groups.entries()).map(([orderNo, items]) => ({
+    return Array.from(groups.entries())
+      .sort(([, aItems], [, bItems]) => {
+        const aDate = aItems[0].createdAt ? new Date(aItems[0].createdAt).getTime() : 0;
+        const bDate = bItems[0].createdAt ? new Date(bItems[0].createdAt).getTime() : 0;
+        return bDate - aDate;
+      })
+      .map(([orderNo, items]) => ({
       shopifyOrderNumber: orderNo,
       createdAt: items[0].createdAt
         ? new Date(items[0].createdAt).toLocaleDateString("tr-TR")
