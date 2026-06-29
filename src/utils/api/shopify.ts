@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { patch, post, remove } from ".";
-import { ShopifyCollection, ShopifyCustomersPaginatedResponse, ShopifyDiscountNode, ShopifyDiscountsPaginatedResponse, ShopifyProduct } from "../../types";
+import { ShopifyAdminCustomer, ShopifyCollection, ShopifyCustomersPaginatedResponse, ShopifyDiscountNode, ShopifyDiscountsPaginatedResponse, ShopifyProduct } from "../../types";
 import { Paths, useGet, useGetList } from "./factory";
 
 export interface CreateShopifyDiscountPayload {
@@ -58,6 +58,15 @@ export function useGetShopifyCustomers(
     limit,
     search ?? "",
   ]);
+}
+
+export function useGetShopifyCustomerById(id?: string) {
+  return useGet<ShopifyAdminCustomer>(
+    `${Paths.Shopify}/customer/${id}`,
+    [`${Paths.Shopify}/customer`, id],
+    false,
+    { enabled: !!id }
+  );
 }
 
 export function useRefreshShopifyCustomersMutation() {

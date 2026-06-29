@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineAccountCircle, MdOutlineShoppingCart } from "react-icons/md";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import ShopifyCustomerOrders from "../components/consumer/ShopifyCustomerOrders";
 import ShopifyCustomerSummary from "../components/consumer/ShopifyCustomerSummary";
 import { Header } from "../components/header/Header";
@@ -10,6 +10,7 @@ import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPa
 import { useGeneralContext } from "../context/General.context";
 import { Routes } from "../navigation/constants";
 import { ShopifyAdminCustomer } from "../types";
+import { useGetShopifyCustomerById } from "../utils/api/shopify";
 
 export const ShopifyCustomerDetailPageTabs = [
   {
@@ -33,12 +34,16 @@ export default function ShopifyCustomerDetail() {
   const [activeTab, setActiveTab] = useState(0);
   const { setCurrentPage, setSearchQuery, setSortConfigKey } = useGeneralContext();
   const location = useLocation();
+  const { customerId } = useParams<{ customerId: string }>();
 
   // Capture on mount — UnifiedTabPanel does a replace navigate to add ?tab=
   // which clears location.state, so we freeze it in component state.
-  const [customer] = useState<ShopifyAdminCustomer | undefined>(
+  const [stateCustomer] = useState<ShopifyAdminCustomer | undefined>(
     (location.state as { customer?: ShopifyAdminCustomer } | null)?.customer
   );
+
+  const fetchedCustomer = useGetShopifyCustomerById(stateCustomer ? undefined : customerId);
+  const customer = stateCustomer ?? fetchedCustomer;
 
   const customerName = customer
     ? `${customer.firstName ?? ""} ${customer.lastName ?? ""}`.trim() || "-"
