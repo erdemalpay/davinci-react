@@ -1446,6 +1446,7 @@ export enum VisitPageTabEnum {
   USERCHANGEREQUESTTAB,
   ALLBREAKS,
   ALLGAMEPLAYTIME,
+  SHIFTSCALENDAR,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,

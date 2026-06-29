@@ -211,7 +211,49 @@ export function useShopifyPickUpOrderMutation() {
     },
   });
 
-  return { updateSimpleOrder, isPending };
+  const { mutate: updateSimpleOrdersBulk, isPending: isBulkPending } = useMutation({
+    mutationFn: ({ ids, updates }: { ids: number[]; updates: Partial<Order> }) =>
+      patch<{ ids: number[]; updates: Partial<Order> }, Order[]>({
+        path: `${Paths.Order}/simple-bulk`,
+        payload: { ids, updates },
+      }),
+    onMutate: async ({ ids, updates }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeyPrefix });
+      const snapshots = queryClient
+        .getQueriesData<Order[]>({ queryKey: queryKeyPrefix })
+        .map(([key, data]) => ({ key, data }));
+      queryClient.setQueriesData<Order[]>({ queryKey: queryKeyPrefix }, (old) =>
+        old?.map((order) =>
+          ids.includes(order._id) ? { ...order, ...updates } : order
+        ) ?? []
+      );
+      return { snapshots };
+    },
+    onSuccess: (_data, variables) => {
+      if (variables.updates.isShopifyCustomerPicked === true) {
+        toast.success(t("Order marked as delivered"));
+      } else if (variables.updates.isShopifyCustomerPicked === false) {
+        toast.success(t("Order marked as undelivered"));
+      } else {
+        toast.success(t("Order updated successfully"));
+      }
+    },
+    onError: (_err, _variables, context) => {
+      context?.snapshots?.forEach(({ key, data }) => {
+        queryClient.setQueryData(key, data);
+      });
+      const message =
+        (_err as any)?.response?.data?.message ?? t("An unexpected error occurred");
+      toast.error(message);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
+      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/collection/query`] });
+    },
+  });
+
+  return { updateSimpleOrder, updateSimpleOrdersBulk, isPending: isPending || isBulkPending };
 }
 
 export function deleteTableOrders({ ids }: { ids: number[] }) {

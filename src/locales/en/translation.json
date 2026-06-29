@@ -195,6 +195,7 @@
   "Add": "Add",
   "Cost": "Cost",
   "Show Filters": "Show Filters",
+  "Show Products Without Shelf Info": "Show Products Without Shelf Info",
   "Filters": "Filters",
   "Vat": "Vat",
   "Note": "Note",
@@ -1660,6 +1661,7 @@
   "Get Quantity helper": "Items the customer gets at the discounted price",
   "Item hidden": "Item hidden",
   "Item visible": "Item visible",
-  "Show Hidden Items": "Show Hidden Items"
+  "Show Hidden Items": "Show Hidden Items",
+  "ShiftsCalendar": "Shifts Calendar"
 
 }

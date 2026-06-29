@@ -67,6 +67,7 @@ const OrderListForPanel = ({
     {
       number: 0,
       label: "New Orders",
+      count: orderCounts.newOrders,
       content: (
         <NewOrderListPanel
           setFormElements={setFormElements}
@@ -78,6 +79,7 @@ const OrderListForPanel = ({
     {
       number: 1,
       label: "Waiting",
+      count: orderCounts.waiting,
       content: (
         <OrderListForPanelTab
           tableId={table?._id}
@@ -94,6 +96,7 @@ const OrderListForPanel = ({
     {
       number: 2,
       label: "Served",
+      count: orderCounts.served,
       content: (
         <OrderListForPanelTab
           orderStatus={[OrderStatus.SERVED, OrderStatus.AUTOSERVED]}

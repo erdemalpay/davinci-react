@@ -198,6 +198,7 @@
   "Add": "Ekle",
   "Cost": "Maliyet",
   "Show Filters": "Filtreleri Göster",
+  "Show Products Without Shelf Info": "Raf Bilgisi Olmayanları Göster",
   "Filters": "Filtreler",
   "Vat": "Kdv",
   "Note": "Not",
@@ -1669,5 +1670,6 @@
   "Get Quantity helper": "Müşterinin bedava/indirimli alacağı ürün adedi",
   "Item hidden": "Öge gizlendi",
   "Item visible": "Öge görünür hale getirildi",
-  "Show Hidden Items": "Gizlenen Ögeleri Göster"
+  "Show Hidden Items": "Gizlenen Ögeleri Göster",
+  "ShiftsCalendar": "Çalışma Saatleri (Takvim)"
 }

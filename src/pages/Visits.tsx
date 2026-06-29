@@ -5,6 +5,7 @@ import {
   MdChangeCircle,
   MdFreeBreakfast,
   MdOutlineAdminPanelSettings,
+  MdOutlineCalendarMonth,
   MdOutlinePerson,
   MdOutlineSchedule,
 } from "react-icons/md";
@@ -18,6 +19,7 @@ import ChangeRequestManagement from "../components/visits/ChangeRequestManagemen
 import DailyVisit from "../components/visits/DailyVisit";
 import ShiftChange from "../components/visits/ShiftChange";
 import Shifts from "../components/visits/Shifts";
+import ShiftsCalendar from "../components/visits/ShiftsCalendar";
 import UserChangeRequestTab from "../components/visits/UserChangeRequestTab";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
@@ -61,6 +63,13 @@ export const VisitPageTabs = [
     label: "Shifts",
     icon: <FaPhoenixFramework className="text-lg font-thin" />,
     content: <Shifts />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.SHIFTSCALENDAR,
+    label: "ShiftsCalendar",
+    icon: <MdOutlineCalendarMonth className="text-lg font-thin" />,
+    content: <ShiftsCalendar />,
     isDisabled: false,
   },
   {
