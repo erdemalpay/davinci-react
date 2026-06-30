@@ -436,14 +436,13 @@ const ShopifyDiscounts = () => {
       .map((n) => nodeToRow(n, t));
   }, [payload]);
 
-  const pagination = useMemo(() => {
-    if (!payload) return undefined;
-    const automaticCount = (payload.data ?? []).filter(n => n.id.includes("Automatic")).length;
-    return {
-      totalPages: payload.totalPages,
-      totalRows: (payload.totalCount ?? 0) + automaticCount,
-    };
-  }, [payload]);
+  const pagination = useMemo(
+    () =>
+      payload
+        ? { totalPages: payload.totalPages, totalRows: payload.totalCount }
+        : undefined,
+    [payload]
+  );
 
   const columns = useMemo(
     () => [
@@ -1823,7 +1822,7 @@ const ShopifyDiscounts = () => {
             isOpen={isDeleteModalOpen}
             close={() => setIsDeleteModalOpen(false)}
             confirm={() => {
-              deleteDiscount(rowToAction.numericId);
+              deleteDiscount(rowToAction._id);
               setIsDeleteModalOpen(false);
             }}
             title={t("Delete")}

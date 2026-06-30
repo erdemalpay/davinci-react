@@ -229,7 +229,8 @@ const DISCOUNT_QUERY_KEY = [`${Paths.Shopify}/discount`];
 export function useRefreshShopifyDiscountsMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY }),
+    mutationFn: () => post({ path: `${Paths.Shopify}/discount/refresh`, payload: {} }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY }),
   });
 }
 
@@ -517,7 +518,7 @@ export function useDeleteShopifyDiscountMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
-      remove({ path: `${Paths.Shopify}/discount/${id}` }),
+      remove({ path: `${Paths.Shopify}/discount?id=${encodeURIComponent(id)}` }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
     },
