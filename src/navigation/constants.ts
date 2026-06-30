@@ -46,6 +46,9 @@ import Retailer, { RetailerPageTabs } from "../pages/Retailer";
 import RetailerOrders, {
   RetailerOrdersPageTabs,
 } from "../pages/RetailerOrders";
+import ShopifyCustomerDetail, {
+  ShopifyCustomerDetailPageTabs,
+} from "../pages/ShopifyCustomerDetail";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import ShopifyPickUp from "../pages/ShopifyPickUp";
@@ -152,6 +155,7 @@ export enum Routes {
   Retailer = "/retailer",
   RetailerOrders = "/retailer/:retailerId",
   Consumers = "/consumers",
+  ShopifyCustomerDetail = "/shopify-customer/:customerId",
   Logs = "/logs",
   BackInStock = "/back-in-stock",
   EventSurveyBuilder = "/event-survey-builder",
@@ -673,6 +677,13 @@ export const allRoutes: {
     element: RetailerOrders,
     isOnSidebar: false,
     tabs: RetailerOrdersPageTabs,
+  },
+  {
+    name: "Consumers",
+    path: Routes.ShopifyCustomerDetail,
+    element: ShopifyCustomerDetail,
+    isOnSidebar: false,
+    tabs: ShopifyCustomerDetailPageTabs,
   },
   {
     name: "Menu",

@@ -1352,6 +1352,52 @@ export type ShopifyProduct = {
   };
 };
 
+export type ShopifyAdminCustomerOrder = {
+  shopifyOrderNumber: string | null;
+  itemName: string | null;
+  quantity: number;
+  unitPrice: number;
+  createdAt: string;
+};
+
+export type ShopifyAdminCustomer = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  defaultEmailAddress: { emailAddress: string } | null;
+  defaultPhoneNumber: { phoneNumber: string } | null;
+  emailMarketingConsent: { marketingState: string } | null;
+  defaultAddress: {
+    address1: string | null;
+    city: string | null;
+    province: string | null;
+    country: string | null;
+    zip: string | null;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+  numberOfOrders: string;
+  amountSpent: { amount: string; currencyCode: string };
+  tags: string[];
+  orders: ShopifyAdminCustomerOrder[];
+};
+
+export type ShopifyCustomersPaginatedResponse = {
+  data: ShopifyAdminCustomer[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+};
+
+export type ShopifyDiscountsPaginatedResponse = {
+  data: ShopifyDiscountNode[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+};
+
 export enum RoleEnum {
   MANAGER = 1,
   GAMEMASTER,
@@ -1459,6 +1505,7 @@ export enum AccountingPageTabEnum {
   SHOPIFYCATEGORIES,
   SERVICES,
   DISCOUNTS,
+  SHOPIFY_DISCOUNTS,
   PAYMENTMETHODS,
   KITCHENS,
   LOCATIONS,
@@ -1551,7 +1598,62 @@ export enum PointsPageTabEnum {
 }
 
 export enum ConsumerPageTabEnum {
-  CONSUMERS,
+  CAFE_CUSTOMERS,
+  SHOPIFY_CUSTOMERS,
+}
+
+export interface ShopifyCollection {
+  id: string;
+  title: string;
+  handle: string;
+  description?: string;
+}
+
+type DiscountItems =
+  | { allItems: boolean }
+  | { products: { nodes: Array<{ id: string; title: string }> } }
+  | { collections: { nodes: Array<{ id: string; title: string }> } };
+
+export interface ShopifyDiscountNode {
+  id: string;
+  codeDiscount: {
+    title: string;
+    summary: string;
+    status: string;
+    startsAt: string;
+    endsAt?: string;
+    usageLimit?: number;
+    appliesOncePerCustomer: boolean;
+    codes: {
+      edges: Array<{ node: { code: string; asyncUsageCount: number } }>;
+    };
+    customerGets?: {
+      value?:
+        | { percentage: number }
+        | { amount: { amount: string } }
+        | {
+            discountOnQuantity: {
+              quantity: { quantity: string };
+              effect?: { percentage?: number } | { amount: { amount: string } };
+            };
+          };
+      items?: DiscountItems;
+    };
+    customerBuys?: {
+      value?:
+        | { quantity: { quantity: string } }
+        | { amount: string };
+      items?: DiscountItems;
+    };
+    minimumRequirement?:
+      | { greaterThanOrEqualToSubtotal: { amount: string; currencyCode: string } }
+      | { greaterThanOrEqualToQuantity: number };
+    combinesWith?: {
+      productDiscounts: boolean;
+      orderDiscounts: boolean;
+      shippingDiscounts: boolean;
+    };
+  };
 }
 
 export enum GamesPageTabEnum {

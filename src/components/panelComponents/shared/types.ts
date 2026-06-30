@@ -125,6 +125,8 @@ export interface GenericInputType {
   additionalOnChange?: (value: any) => void;
   onChangeTrigger?: (value: any) => void;
   isReadOnly?: boolean;
+  helperText?: string;
+  helperNode?: React.ReactNode;
   invalidateKeys?: {
     key: string;
     defaultValue:
