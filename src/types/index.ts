@@ -1560,8 +1560,11 @@ export enum ConsumerPageTabEnum {
 }
 
 export enum GamesPageTabEnum {
-  GAMES,
-  WHOKNOWS,
+  GAMES = 0,
+  ASSIGNGAME = 1,
+  ASSIGNMENTS = 2,
+  WHOKNOWS = 3,
+  USERGAMEASSIGNMENTS = 4,
 }
 export enum GameplayAnalyticsTabEnum {
   GAMEPLAYBYGAMEMENTORS,

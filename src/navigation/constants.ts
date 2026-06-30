@@ -23,6 +23,9 @@ import Expirations, { ExpirationTabs } from "../pages/Expiration";
 import ExpirationCount from "../pages/ExpirationCount";
 import ExpirationList from "../pages/ExpirationList";
 import Feedback from "../pages/Feedback";
+import GameAssignments, {
+  GameAssignmentsPageTabs,
+} from "../pages/GameAssignments";
 import Gameplays from "../pages/Gameplays";
 import Games, { GamesPageTabs } from "../pages/Games";
 import Images from "../pages/Images";
@@ -90,6 +93,7 @@ export enum PublicRoutes {
 
 export enum Routes {
   Games = "/games",
+  GameAssignments = "/game-assignments",
   RequestedGames = "/games/requested",
   Feedback = "/feedback",
   Memberships = "/memberships",
@@ -364,7 +368,21 @@ export const allRoutes: {
         element: RequestedGames,
         isOnSidebar: true,
       },
+      {
+        name: "Game Assignments",
+        path: Routes.GameAssignments,
+        element: GameAssignments,
+        isOnSidebar: true,
+        tabs: GameAssignmentsPageTabs,
+      },
     ],
+  },
+  {
+    name: "Game Assignments",
+    path: Routes.GameAssignments,
+    element: GameAssignments,
+    isOnSidebar: false,
+    tabs: GameAssignmentsPageTabs,
   },
   {
     name: "Games",

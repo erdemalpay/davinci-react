@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   FaPhoenixFramework,
   FaRegListAlt,
@@ -20,6 +21,7 @@ import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
+import UserGameAssignments from "../components/user/UserGameAssignments";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
@@ -35,6 +37,7 @@ export enum ProfileTabEnum {
   KNOWN_GAMES,
   GAMEMASTERUSERSUMMARY,
   SERVICEPERSONALUSERSUMMARY,
+  USERGAMEASSIGNMENTS,
   SHIFTS,
   NOTIFICATIONS,
   POINTHISTORY,
@@ -97,6 +100,13 @@ export const ProfilePageTabs = [
     isDisabled: true,
   },
   {
+    number: ProfileTabEnum.USERGAMEASSIGNMENTS,
+    label: "User Game Assignments",
+    icon: <FaRegListAlt className="text-lg font-thin" />,
+    content: null,
+    isDisabled: false,
+  },
+  {
     number: ProfileTabEnum.SHIFTS,
     label: "Shifts",
     icon: <FaPhoenixFramework className="text-lg font-thin" />,
@@ -120,6 +130,7 @@ export const ProfilePageTabs = [
 ];
 
 export default function Profile() {
+  const { t } = useTranslation();
   const updatedUser = useGetUser();
   const { user } = useUserContext();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
@@ -175,6 +186,10 @@ export default function Profile() {
             <ServicePersonalSummary userId={user._id} />
           </div>
         ),
+      }),
+      ...(tab.number === ProfileTabEnum.USERGAMEASSIGNMENTS && {
+        label: t("User Game Assignments"),
+        content: user && <UserGameAssignments />,
       }),
     };
   });

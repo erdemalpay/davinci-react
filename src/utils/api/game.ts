@@ -9,6 +9,7 @@ export type MinimalGame = Pick<Game, "_id" | "name">;
 
 export type GameWithGameplayCount = Game & {
   gameplayCount: number;
+  knownUserCount: number;
 };
 
 export type RequestedGameRequest = {

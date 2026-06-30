@@ -66,6 +66,17 @@ export interface CreateAssignmentDto {
   payload?: Record<string, unknown>;
 }
 
+export interface CreateGameAssignmentDto {
+  gameId: string | number;
+  assignedBy: string;
+  assignUsers: string[];
+  title?: string;
+  description?: string;
+  dueDate?: Date | string;
+  priority?: AssignmentPriorityEnum;
+  payload?: Record<string, unknown>;
+}
+
 export type UpdateAssignmentDto = Partial<CreateAssignmentDto>;
 
 export interface AssignmentQueryDto {
@@ -77,6 +88,7 @@ export interface AssignmentQueryDto {
   assignedTo?: string;
   subjectEntityType?: string;
   subjectEntityId?: string;
+  subjectId?: string | number | Array<string | number>;
   after?: string;
   before?: string;
   page?: number;
@@ -101,7 +113,13 @@ function buildQueryString(filters: AssignmentQueryDto = {}) {
   Object.entries(filters).forEach(([key, value]) => {
     if (value === undefined || value === null || value === "") return;
     if (Array.isArray(value)) {
-      value.forEach((item) => searchParams.append(key, String(item)));
+      const normalizedValues = value
+        .map((item) => String(item).trim())
+        .filter(Boolean);
+
+      if (normalizedValues.length === 0) return;
+
+      searchParams.append(key, normalizedValues.join(","));
       return;
     }
 
@@ -131,6 +149,15 @@ export function useGetAssignment(id?: string | number) {
 function createAssignment(payload: CreateAssignmentDto): Promise<Assignment> {
   return post<CreateAssignmentDto, Assignment>({
     path: baseUrl,
+    payload,
+  });
+}
+
+function createGameAssignments(
+  payload: CreateGameAssignmentDto
+): Promise<Assignment[]> {
+  return post<CreateGameAssignmentDto, Assignment[]>({
+    path: `${baseUrl}/game`,
     payload,
   });
 }
@@ -196,6 +223,14 @@ export function useAssignmentMutations() {
     },
   });
 
+  const createGameAssignmentsMutation = useMutation({
+    mutationFn: createGameAssignments,
+    onSuccess: invalidateAssignments,
+    onError: (error: unknown) => {
+      setTimeout(() => toast.error(t(extractErrorMessage(error))), 200);
+    },
+  });
+
   return {
     createAssignment: createMutation.mutate,
     updateAssignment: updateMutation.mutate,
@@ -203,5 +238,7 @@ export function useAssignmentMutations() {
     createAssignmentAsync: createMutation.mutateAsync,
     updateAssignmentAsync: updateMutation.mutateAsync,
     deleteAssignmentAsync: deleteMutation.mutateAsync,
+    createGameAssignments: createGameAssignmentsMutation.mutate,
+    createGameAssignmentsAsync: createGameAssignmentsMutation.mutateAsync,
   };
 }

@@ -4,9 +4,15 @@ import { toast } from "react-toastify";
 import { Role, User } from "../../types";
 import { get, patch, post } from "../api";
 import { UserGameUpdateType } from "./../../types/index";
+import { Assignment } from "./assignment";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 export type MinimalUser = Pick<User, "_id" | "name" | "role">;
+
+export interface CompleteGameLearningTaskDto {
+  assignmentId: number;
+  learnDate?: string;
+}
 
 export function getUserWithToken(): Promise<User> {
   return get<User>({ path: "/users/me" });
@@ -109,6 +115,23 @@ function updateUserGames({
     payload: { learnDate, gameId, updateType },
   });
 }
+
+function completeGameLearningTaskRequest({
+  assignmentId,
+  learnDate,
+}: CompleteGameLearningTaskDto): Promise<{
+  assignment: Assignment;
+  user: User;
+}> {
+  return post<
+    CompleteGameLearningTaskDto,
+    { assignment: Assignment; user: User }
+  >({
+    path: `${Paths.Users}/games/complete-learning-task`,
+    payload: { assignmentId, learnDate },
+  });
+}
+
 export function updateUserGamesMutation() {
   const queryClient = useQueryClient();
 
@@ -120,6 +143,29 @@ export function updateUserGamesMutation() {
   });
 
   return { updateUserGame };
+}
+
+export function useCompleteGameLearningTaskMutation() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  const {
+    mutate: completeGameLearningTask,
+    mutateAsync: completeGameLearningTaskAsync,
+  } = useMutation({
+    mutationFn: completeGameLearningTaskRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [Paths.Assignments] });
+      queryClient.invalidateQueries({ queryKey: [Paths.Users] });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(t(errorMessage)), 200);
+    },
+  });
+
+  return { completeGameLearningTask, completeGameLearningTaskAsync };
 }
 
 export function useGetUsers() {
