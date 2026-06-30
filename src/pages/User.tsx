@@ -5,6 +5,7 @@ import { IoMdNotificationsOff } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import CommonSelectInput from "../components/common/SelectInput";
+import GameAssignmentActions from "../components/games/UserGameAssignments";
 import { Header } from "../components/header/Header";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -13,11 +14,16 @@ import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
+import UserGameAssignments from "../components/user/UserGameAssignments";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
-import { MinimalUser, useGetUsersMinimal, useGetUserWithId } from "../utils/api/user";
+import {
+  MinimalUser,
+  useGetUsersMinimal,
+  useGetUserWithId,
+} from "../utils/api/user";
 
 export default function UserView() {
   const navigate = useNavigate();
@@ -37,11 +43,11 @@ export default function UserView() {
   const users = useGetUsersMinimal();
   const { data } = useGetMentorGamePlays(userId as string);
   const userOptions = users?.map((user) => {
-      return {
-        value: user._id,
-        label: user.name,
-      };
-    });
+    return {
+      value: user._id,
+      label: user.name,
+    };
+  });
   const tabs = [
     {
       number: 0,
@@ -82,6 +88,31 @@ export default function UserView() {
     },
     {
       number: 3,
+      label: `${t("Assign Game")}`,
+      icon: <FaRegListAlt className="text-lg font-thin" />,
+      content: user && (
+        <div className="px-4 w-full">
+          <GameAssignmentActions userId={user._id} />
+        </div>
+      ),
+      isDisabled: !(
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.GAMEMASTER
+      ),
+    },
+    {
+      number: 4,
+      label: `${t("User Game Assignments")}`,
+      icon: <FaRegListAlt className="text-lg font-thin" />,
+      content: user && <UserGameAssignments userId={user._id} />,
+      isDisabled: !(
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.GAMEMASTER
+      ),
+    },
+
+    {
+      number: 5,
       label: `${t("User Summary")}`,
       icon: <FaRegListAlt className="text-lg font-thin" />,
       content: user && (
@@ -94,8 +125,9 @@ export default function UserView() {
         user?.role._id === RoleEnum.GAMEMASTER
       ),
     },
+
     {
-      number: 4,
+      number: 6,
       label: `${t("User Summary")}`,
       icon: <FaRegListAlt className="text-lg font-thin" />,
       content: user && (
@@ -126,7 +158,7 @@ export default function UserView() {
     <>
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-4">
-        <div className="w-[95%] mx-auto">
+        <div className="w-[98%] mx-auto mt-4">
           <div className="sm:w-1/4 ">
             <CommonSelectInput
               options={userOptions}

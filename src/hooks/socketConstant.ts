@@ -15,6 +15,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Visits}`, `${Paths.Visits}/panel`],
   },
   {
+    event: "qrCodeChanged",
+    invalidateKeys: [`${Paths.Visits}/qr/code`],
+  },
+  {
     event: "userChanged",
     invalidateKeys: [`${Paths.Users}`, `${Paths.Users}/minimal`],
   },

@@ -155,6 +155,9 @@ const TabPanel: React.FC<Props> = ({
                 {tab.icon}
                 <P1 className="w-max">
                   {isLanguageChange ? t(tab.label) : tab.label}
+                  {tab.count !== undefined && (
+                    <span className="ml-1">({tab.count})</span>
+                  )}
                 </P1>
               </div>
             ))}

@@ -77,7 +77,7 @@ const GameMasterSummary = ({ userId }: Props) => {
   const locations = useGetStoreLocations();
   const gameplayCountsByDate = useGetGameplayCountsByDate(userId);
 
-  const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.5;
+  const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.75;
 
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(

@@ -280,6 +280,7 @@ export type AccountProduct = {
   unitPrice: number;
   matchedMenuItem?: number;
   deleted?: boolean;
+  isHidden?: boolean;
   baseQuantities?: {
     location: number;
     minQuantity: number;
@@ -483,6 +484,7 @@ export type AccountProductStockHistory = {
 export enum VisitSource {
   PANEL = "panel",
   FACE_RECOGNITION = "face_recognition",
+  QR = "qr",
 }
 export enum VisitStatus {
   WRONG_ENTRY = "wrong_entry",
@@ -1355,6 +1357,52 @@ export type ShopifyProduct = {
   };
 };
 
+export type ShopifyAdminCustomerOrder = {
+  shopifyOrderNumber: string | null;
+  itemName: string | null;
+  quantity: number;
+  unitPrice: number;
+  createdAt: string;
+};
+
+export type ShopifyAdminCustomer = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  defaultEmailAddress: { emailAddress: string } | null;
+  defaultPhoneNumber: { phoneNumber: string } | null;
+  emailMarketingConsent: { marketingState: string } | null;
+  defaultAddress: {
+    address1: string | null;
+    city: string | null;
+    province: string | null;
+    country: string | null;
+    zip: string | null;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+  numberOfOrders: string;
+  amountSpent: { amount: string; currencyCode: string };
+  tags: string[];
+  orders: ShopifyAdminCustomerOrder[];
+};
+
+export type ShopifyCustomersPaginatedResponse = {
+  data: ShopifyAdminCustomer[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+};
+
+export type ShopifyDiscountsPaginatedResponse = {
+  data: ShopifyDiscountNode[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+};
+
 export enum RoleEnum {
   MANAGER = 1,
   GAMEMASTER,
@@ -1399,6 +1447,7 @@ export enum VisitPageTabEnum {
   USERCHANGEREQUESTTAB,
   ALLBREAKS,
   ALLGAMEPLAYTIME,
+  SHIFTSCALENDAR,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
@@ -1462,6 +1511,7 @@ export enum AccountingPageTabEnum {
   SHOPIFYCATEGORIES,
   SERVICES,
   DISCOUNTS,
+  SHOPIFY_DISCOUNTS,
   PAYMENTMETHODS,
   KITCHENS,
   LOCATIONS,
@@ -1554,12 +1604,70 @@ export enum PointsPageTabEnum {
 }
 
 export enum ConsumerPageTabEnum {
-  CONSUMERS,
+  CAFE_CUSTOMERS,
+  SHOPIFY_CUSTOMERS,
+}
+
+export interface ShopifyCollection {
+  id: string;
+  title: string;
+  handle: string;
+  description?: string;
+}
+
+type DiscountItems =
+  | { allItems: boolean }
+  | { products: { nodes: Array<{ id: string; title: string }> } }
+  | { collections: { nodes: Array<{ id: string; title: string }> } };
+
+export interface ShopifyDiscountNode {
+  id: string;
+  codeDiscount: {
+    title: string;
+    summary: string;
+    status: string;
+    startsAt: string;
+    endsAt?: string;
+    usageLimit?: number;
+    appliesOncePerCustomer: boolean;
+    codes: {
+      edges: Array<{ node: { code: string; asyncUsageCount: number } }>;
+    };
+    customerGets?: {
+      value?:
+        | { percentage: number }
+        | { amount: { amount: string } }
+        | {
+            discountOnQuantity: {
+              quantity: { quantity: string };
+              effect?: { percentage?: number } | { amount: { amount: string } };
+            };
+          };
+      items?: DiscountItems;
+    };
+    customerBuys?: {
+      value?:
+        | { quantity: { quantity: string } }
+        | { amount: string };
+      items?: DiscountItems;
+    };
+    minimumRequirement?:
+      | { greaterThanOrEqualToSubtotal: { amount: string; currencyCode: string } }
+      | { greaterThanOrEqualToQuantity: number };
+    combinesWith?: {
+      productDiscounts: boolean;
+      orderDiscounts: boolean;
+      shippingDiscounts: boolean;
+    };
+  };
 }
 
 export enum GamesPageTabEnum {
-  GAMES,
-  WHOKNOWS,
+  GAMES = 0,
+  ASSIGNGAME = 1,
+  ASSIGNMENTS = 2,
+  WHOKNOWS = 3,
+  USERGAMEASSIGNMENTS = 4,
 }
 export enum GameplayAnalyticsTabEnum {
   GAMEPLAYBYGAMEMENTORS,
@@ -1901,6 +2009,7 @@ export enum ActivityType {
   START_MIDDLEMAN = "START_MIDDLEMAN",
   FINISH_MIDDLEMAN = "FINISH_MIDDLEMAN",
   FINISH_MIDDLEMAN_BY_MANAGER = "FINISH_MIDDLEMAN_BY_MANAGER",
+  FINISH_MIDDLEMAN_AUTO = "FINISH_MIDDLEMAN_AUTO",
   CREATE_SHIFT = "CREATE_SHIFT",
   UPDATE_SHIFT = "UPDATE_SHIFT",
   DELETE_SHIFT = "DELETE_SHIFT",
@@ -2224,6 +2333,11 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_MIDDLEMAN_BY_MANAGER,
     label: "Finish Middleman By Manager",
     bgColor: "bg-amber-600",
+  },
+  {
+    value: ActivityType.FINISH_MIDDLEMAN_AUTO,
+    label: "Finish Middleman Auto",
+    bgColor: "bg-gray-500",
   },
   {
     value: ActivityType.CREATE_SHIFT,

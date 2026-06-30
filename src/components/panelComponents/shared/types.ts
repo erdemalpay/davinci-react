@@ -5,6 +5,7 @@ export interface Tab {
   content: React.ReactNode;
   icon?: React.ReactNode | null;
   label: string;
+  count?: number;
   isDisabled: boolean;
   onOpenAction?: () => void;
   onCloseAction?: () => void;
@@ -23,7 +24,7 @@ export interface ActionType<T> {
   icon?: React.ReactNode;
   isButton?: boolean;
   buttonClassName?: string;
-  isDisabled?: boolean;
+  isDisabled?: boolean | ((row: T) => boolean);
   node?: (row: T) => React.ReactNode;
   modal?: React.ReactNode;
   onClick?: (row: T) => void;
@@ -125,6 +126,8 @@ export interface GenericInputType {
   additionalOnChange?: (value: any) => void;
   onChangeTrigger?: (value: any) => void;
   isReadOnly?: boolean;
+  helperText?: string;
+  helperNode?: React.ReactNode;
   invalidateKeys?: {
     key: string;
     defaultValue:

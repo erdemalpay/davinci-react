@@ -32,6 +32,7 @@ export const Paths = {
   Categories: "/categories",
   Kitchen: "/menu/kitchens",
   Items: "/items",
+  Assignments: "/assignments",
   AllUsers: "/users?all=true",
   Location: "/location",
   Login: "/login",

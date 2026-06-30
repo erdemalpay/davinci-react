@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { get, patch, post } from ".";
 import { useDateContext } from "../../context/Date.context";
@@ -137,6 +138,55 @@ export function useCreateVisitMutation() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });
     },
+  });
+}
+
+export type QrCheckInResult = {
+  action: "entry" | "exit";
+  visit: Visit;
+};
+
+export type QrCodeResponse = {
+  code: string;
+};
+
+function qrCheckInOut(code: string): Promise<QrCheckInResult> {
+  return post<{ code: string }, QrCheckInResult>({
+    path: `${Paths.Visits}/qr`,
+    payload: { code },
+  });
+}
+
+export function useQrCheckInOutMutation() {
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: qrCheckInOut,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Visits, selectedLocationId, selectedDate],
+      });
+    },
+    onError: (_err: { response?: { data?: { message?: string } } }) => {
+      const errorMessage =
+        _err?.response?.data?.message || t("An unexpected error occurred");
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useGetQrCode(location: number, enabled: boolean) {
+  return useQuery({
+    queryKey: [`${Paths.Visits}/qr/code`, location],
+    queryFn: () =>
+      get<QrCodeResponse>({
+        path: `${Paths.Visits}/qr/code?location=${location}`,
+      }),
+    enabled: enabled && !!location,
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 

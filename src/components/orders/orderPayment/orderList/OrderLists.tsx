@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, Table } from "../../../../types";
+import { Order, OrderStatus, Table } from "../../../../types";
 import {
   useCreateOrderForDiscountMutation,
   useCreateOrderForDivideMutation,
@@ -259,7 +259,9 @@ const OrderLists = ({
           <DiscountScreen table={table} />
         ) : (
           <UnpaidOrders
-            tableOrders={tableOrders}
+            tableOrders={tableOrders?.filter(
+              (order) => order?.status !== OrderStatus.RETURNED
+            )}
             collectionsTotalAmount={collectionsTotalAmount}
           />
         ))}
