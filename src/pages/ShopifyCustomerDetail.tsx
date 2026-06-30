@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineAccountCircle, MdOutlineShoppingCart } from "react-icons/md";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import Select from "react-select";
 import ShopifyCustomerOrders from "../components/consumer/ShopifyCustomerOrders";
 import ShopifyCustomerSummary from "../components/consumer/ShopifyCustomerSummary";
 import { Header } from "../components/header/Header";
@@ -10,7 +11,7 @@ import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPa
 import { useGeneralContext } from "../context/General.context";
 import { Routes } from "../navigation/constants";
 import { ShopifyAdminCustomer } from "../types";
-import { useGetShopifyCustomerById } from "../utils/api/shopify";
+import { useGetShopifyCustomerById, useGetShopifyCustomers } from "../utils/api/shopify";
 
 export const ShopifyCustomerDetailPageTabs = [
   {
@@ -31,7 +32,9 @@ export const ShopifyCustomerDetailPageTabs = [
 
 export default function ShopifyCustomerDetail() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
+  const [dropdownSearch, setDropdownSearch] = useState("");
   const { setCurrentPage, setSearchQuery, setSortConfigKey } = useGeneralContext();
   const location = useLocation();
   const { customerId } = useParams<{ customerId: string }>();
@@ -42,8 +45,23 @@ export default function ShopifyCustomerDetail() {
     (location.state as { customer?: ShopifyAdminCustomer } | null)?.customer
   );
 
-  const fetchedCustomer = useGetShopifyCustomerById(stateCustomer ? undefined : customerId);
-  const customer = stateCustomer ?? fetchedCustomer;
+  const stateCustomerMatchesRoute =
+    stateCustomer?.id.split("/").pop() === customerId;
+
+  const fetchedCustomer = useGetShopifyCustomerById(
+    stateCustomerMatchesRoute ? undefined : customerId
+  );
+  const customer = stateCustomerMatchesRoute ? stateCustomer : fetchedCustomer;
+
+  const searchResult = useGetShopifyCustomers(1, 20, dropdownSearch || undefined);
+  const customerOptions = useMemo(
+    () =>
+      (searchResult?.data ?? []).map((c) => ({
+        value: c.id.split("/").pop() ?? c.id,
+        label: `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() || c.defaultEmailAddress?.emailAddress || c.id,
+      })),
+    [searchResult]
+  );
 
   const customerName = customer
     ? `${customer.firstName ?? ""} ${customer.lastName ?? ""}`.trim() || "-"
@@ -95,6 +113,56 @@ export default function ShopifyCustomerDetail() {
       <Header showLocationSelector={false} />
       <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4 mt-5">
+        <div className="w-[95%] mx-auto">
+          <div className="sm:w-1/4">
+            <Select
+              options={customerOptions}
+              value={
+                customer
+                  ? {
+                      value: customer.id.split("/").pop() ?? customer.id,
+                      label: customerName,
+                    }
+                  : null
+              }
+              onInputChange={(val) => setDropdownSearch(val)}
+              filterOption={() => true}
+              onChange={(selected) => {
+                if (!selected) return;
+                setCurrentPage(1);
+                setSearchQuery("");
+                setSortConfigKey(null);
+                navigate(`/shopify-customer/${selected.value}`);
+              }}
+              placeholder={t("Select a customer")}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  border: "1px solid #E2E8F0",
+                  borderRadius: "4px",
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  color: "#4B5563",
+                  cursor: "pointer",
+                  backgroundColor: state.isSelected ? "#EDF7FF" : base.backgroundColor,
+                }),
+                placeholder: (base) => ({
+                  ...base,
+                  color: "#b0b5ba",
+                  fontSize: "14px",
+                  fontWeight: 400,
+                }),
+                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+              }}
+              menuPosition="fixed"
+            />
+          </div>
+        </div>
         <UnifiedTabPanel
           tabs={tabs}
           activeTab={activeTab}
