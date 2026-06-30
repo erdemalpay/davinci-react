@@ -4,7 +4,7 @@ import { ShopifyAdminCustomer } from "../../types";
 type Props = { customer?: ShopifyAdminCustomer };
 
 const ShopifyCustomerSummary = ({ customer }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const addr = customer?.defaultAddress;
   const addressParts = [addr?.address1, addr?.city, addr?.province, addr?.zip, addr?.country]
@@ -16,7 +16,7 @@ const ShopifyCustomerSummary = ({ customer }: Props) => {
 
   const fields = [
     {
-      label: "Email",
+      label: t("Email"),
       value: customer?.defaultEmailAddress?.emailAddress ?? "-",
     },
     {
@@ -39,7 +39,7 @@ const ShopifyCustomerSummary = ({ customer }: Props) => {
     {
       label: t("Created At"),
       value: customer?.createdAt
-        ? new Date(customer.createdAt).toLocaleDateString("tr-TR")
+        ? new Date(customer.createdAt).toLocaleDateString(i18n.language)
         : "-",
     },
   ];

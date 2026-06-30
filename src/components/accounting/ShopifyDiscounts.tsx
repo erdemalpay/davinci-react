@@ -434,7 +434,7 @@ const ShopifyDiscounts = () => {
     return payload.data
       .filter((n) => n.codeDiscount && typeof n.codeDiscount === "object")
       .map((n) => nodeToRow(n, t));
-  }, [payload]);
+  }, [payload, t]);
 
   const pagination = useMemo(
     () =>
@@ -585,8 +585,8 @@ const ShopifyDiscounts = () => {
           setAddDiscountType(value);
           setAddMethod("CODE");
           setAddAppliesTo("ALL");
-          setAddBuyProductScope("ALL");
-          setAddGetProductScope("ALL");
+          setAddBuyProductScope("PRODUCTS");
+          setAddGetProductScope("PRODUCTS");
           setAddBxgyDiscountType("FREE");
           setAddBxgyMethod("CODE");
         },
@@ -1528,7 +1528,7 @@ const ShopifyDiscounts = () => {
         }) as any
       }
       topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
-      constantValues={{ discountType: "ORDER_DISCOUNT", method: "CODE", bxgyMethod: "CODE", buyProductScope: "ALL", getProductScope: "ALL", bxgyDiscountType: "FREE" }}
+      constantValues={{ discountType: "ORDER_DISCOUNT", method: "CODE", bxgyMethod: "CODE", buyProductScope: "PRODUCTS", getProductScope: "PRODUCTS", bxgyDiscountType: "FREE" }}
     />
   );
 

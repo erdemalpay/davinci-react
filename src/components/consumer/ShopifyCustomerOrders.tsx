@@ -17,7 +17,7 @@ type OrderRow = {
 };
 
 const ShopifyCustomerOrders = ({ customer }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const columns = useMemo(
     () => [
@@ -47,7 +47,7 @@ const ShopifyCustomerOrders = ({ customer }: Props) => {
       .map(([orderNo, items]) => ({
       shopifyOrderNumber: orderNo,
       createdAt: items[0].createdAt
-        ? new Date(items[0].createdAt).toLocaleDateString("tr-TR")
+        ? new Date(items[0].createdAt).toLocaleDateString(i18n.language)
         : "-",
       productCount: items.length,
       collapsible: {
