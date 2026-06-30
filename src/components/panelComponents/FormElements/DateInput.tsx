@@ -5,7 +5,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { createPortal } from "react-dom";
 import { FaRegCalendar } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward, IoIosClose } from "react-icons/io";
 import InputMask from "react-input-mask";
@@ -248,31 +247,29 @@ export default function DateInput({
           )}
         </div>
 
-        {showCalendar &&
-          createPortal(
-            <div
-              ref={calendarRef}
-              className="fixed z-[9999] bg-white shadow-lg rounded-md p-2 border border-gray-200"
-              style={{
-                top: calendarPosition.top,
-                left: calendarPosition.left,
-              }}
-              onMouseDown={(event) => event.stopPropagation()}
-            >
-              <DayPicker
-                mode="single"
-                selected={selectedDate}
-                onSelect={handleSelect}
-                month={month}
-                onMonthChange={setMonth}
-                captionLayout="dropdown"
-                locale={tr}
-                fromYear={2000}
-                toYear={dayjs().year() + 10}
-              />
-            </div>,
-            document.body
-          )}
+        {showCalendar && (
+          <div
+            ref={calendarRef}
+            className="fixed z-[9999] bg-white shadow-lg rounded-md p-2 border border-gray-200"
+            style={{
+              top: calendarPosition.top,
+              left: calendarPosition.left,
+            }}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <DayPicker
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleSelect}
+              month={month}
+              onMonthChange={setMonth}
+              captionLayout="dropdown"
+              locale={tr}
+              fromYear={2000}
+              toYear={dayjs().year() + 10}
+            />
+          </div>
+        )}
 
         {isOnClearActive && inputText && (
           <GenericButton
