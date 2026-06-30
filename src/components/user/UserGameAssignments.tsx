@@ -82,7 +82,8 @@ const UserGameAssignments = ({ userId }: Props) => {
     [resolvedUserId, users]
   );
   const selectedUserKnownGameIds = useMemo(
-    () => new Set((selectedUser?.userGames ?? []).map((userGame) => userGame.game)),
+    () =>
+      new Set((selectedUser?.userGames ?? []).map((userGame) => userGame.game)),
     [selectedUser]
   );
 

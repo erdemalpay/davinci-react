@@ -5,16 +5,20 @@ import {
   FaRegUserCircle,
 } from "react-icons/fa";
 import { GiTwoCoins } from "react-icons/gi";
-import { IoIosSettings, IoMdNotifications, IoMdNotificationsOff } from "react-icons/io";
+import {
+  IoIosSettings,
+  IoMdNotifications,
+  IoMdNotificationsOff,
+} from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
 import { Header } from "../components/header/Header";
+import NotificationPreferences from "../components/notification/NotificationPreferences";
 import ChangePassword from "../components/panelComponents/Profile/ChangePassword";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import Settings from "../components/panelComponents/Profile/Settings";
 import UserNotifications from "../components/panelComponents/Profile/UserNotifications";
-import NotificationPreferences from "../components/notification/NotificationPreferences";
 import UserShifts from "../components/panelComponents/Profile/UserShifts";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import UserPointHistory from "../components/points/UserPointHistory";
@@ -171,7 +175,7 @@ export default function Profile() {
       ...(tab.number === ProfileTabEnum.MENTORED_GAMES && {
         content: data && (
           <div className="px-4 w-full ">
-            <GamesIMentored data={data} />,
+            <GamesIMentored data={data} />
           </div>
         ),
       }),
@@ -203,6 +207,7 @@ export default function Profile() {
             isManagerView={false}
           />
         ),
+      }),
       ...(tab.number === ProfileTabEnum.USERGAMEASSIGNMENTS && {
         label: t("User Game Assignments"),
         content: user && <UserGameAssignments />,
