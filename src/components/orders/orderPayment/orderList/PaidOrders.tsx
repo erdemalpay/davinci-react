@@ -1,4 +1,5 @@
 import { Tooltip } from "@material-tailwind/react";
+import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { MdOutlineOnlinePrediction } from "react-icons/md";
 import { useDataContext } from "../../../../context/Data.context";
@@ -13,6 +14,7 @@ type Props = {
   tableOrders: Order[];
 };
 const PaidOrders = ({ tableOrders }: Props) => {
+  const { t } = useTranslation();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -68,6 +70,9 @@ const PaidOrders = ({ tableOrders }: Props) => {
                   {")"}-
                 </p>
                 <p>{getItem(order?.item, items)?.name}</p>
+                {order.status === OrderStatus.RETURNED && (
+                  <span className="text-xs self-center">({t("Returned")})</span>
+                )}
                 {order?.isOnlinePrice && (
                   <Tooltip
                     content={"online"}

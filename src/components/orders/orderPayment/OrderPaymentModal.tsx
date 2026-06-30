@@ -229,7 +229,10 @@ const OrderPaymentModal = ({
             (collection) => (collection?.table as Table)?._id === tableId
           )
           ?.reduce((acc, collection) => {
-            if (collection?.status === OrderCollectionStatus.CANCELLED) {
+            if (
+              collection?.status === OrderCollectionStatus.CANCELLED ||
+              collection?.status === OrderCollectionStatus.RETURNED
+            ) {
               return acc;
             }
             return acc + (collection?.amount ?? 0);
@@ -263,7 +266,10 @@ const OrderPaymentModal = ({
               collection?.activityPlayer === selectedActivityUser)
         )
         ?.reduce((acc, collection) => {
-          if (collection?.status === OrderCollectionStatus.CANCELLED) {
+          if (
+            collection?.status === OrderCollectionStatus.CANCELLED ||
+            collection?.status === OrderCollectionStatus.RETURNED
+          ) {
             return acc;
           }
           return acc + (collection?.amount ?? 0);
@@ -306,7 +312,16 @@ const OrderPaymentModal = ({
   );
   const totalAmount = useMemo(
     () =>
-      tableOrders?.reduce((acc, order) => {
+      (tableOrders ?? [])
+        .filter((order) => order?.status !== OrderStatus.RETURNED)
+        .reduce((acc, order) => {
+          return acc + order?.unitPrice * order?.quantity;
+        }, 0),
+    [tableOrders]
+  );
+  const displayedTotalAmount = useMemo(
+    () =>
+      (tableOrders ?? []).reduce((acc, order) => {
         return acc + order?.unitPrice * order?.quantity;
       }, 0),
     [tableOrders]
@@ -318,7 +333,7 @@ const OrderPaymentModal = ({
     [tableOrders, collectionsTotalAmount, totalAmount, discountAmount]
   );
   const refundAmount = Math.max(
-    totalMoneySpend - (totalAmount - discountAmount),
+    totalMoneySpend - (displayedTotalAmount - discountAmount),
     allTotalMoneySpend - (allTotalAmount - allDiscountAmount)
   );
 
@@ -331,9 +346,12 @@ const OrderPaymentModal = ({
       return Math.max(0, totalAmount - discountAmount - collectionsTotalAmount);
     }
     // For normal case (no specific user): minimum of filtered orders and all orders
-    return Math.min(
-      totalAmount - discountAmount - collectionsTotalAmount,
-      allTotalAmount - allDiscountAmount - allCollectionsTotalAmount
+    return Math.max(
+      0,
+      Math.min(
+        totalAmount - discountAmount - collectionsTotalAmount,
+        allTotalAmount - allDiscountAmount - allCollectionsTotalAmount
+      )
     );
   }, [
     selectedActivityUser,
@@ -1219,7 +1237,7 @@ const OrderPaymentModal = ({
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
                   tables={tables}
-                  totalAmount={totalAmount}
+                  totalAmount={displayedTotalAmount}
                   discountAmount={discountAmount}
                   unpaidAmount={unpaidAmount}
                 />
