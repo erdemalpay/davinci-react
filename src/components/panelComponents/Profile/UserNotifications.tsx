@@ -1,13 +1,6 @@
 import { format, startOfYear } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  MdCheckCircle,
-  MdError,
-  MdInfo,
-  MdShoppingCart,
-  MdWarning,
-} from "react-icons/md";
 import { useUserContext } from "../../../context/User.context";
 import {
   DateRangeKey,
@@ -24,6 +17,7 @@ import { useGetUserAllNotifications } from "../../../utils/api/notification";
 import { useGetUsersMinimal } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
 import { getNotificationLanguageMessage } from "../../../utils/notification";
+import { getNotificationTypeIcon } from "../../../utils/notificationIcons";
 import GenericTable from "../Tables/GenericTable";
 import CustomTooltip from "../Tables/Tooltip";
 import SwitchButton from "../common/SwitchButton";
@@ -34,14 +28,6 @@ type FormElementsState = {
 };
 
 const typeIconClass = "text-sm sm:text-base h-6 w-6";
-
-const typeIconMap: Record<NotificationType, JSX.Element> = {
-  [NotificationType.INFORMATION]: <MdInfo className={typeIconClass} />,
-  [NotificationType.WARNING]: <MdWarning className={typeIconClass} />,
-  [NotificationType.ERROR]: <MdError className={typeIconClass} />,
-  [NotificationType.SUCCESS]: <MdCheckCircle className={typeIconClass} />,
-  [NotificationType.ORDER]: <MdShoppingCart className={typeIconClass} />,
-};
 
 const UserNotifications = () => {
   const { t } = useTranslation();
@@ -111,7 +97,7 @@ const UserNotifications = () => {
         node: (row: NotificationRow) => {
           const type = row?.type as NotificationType | undefined;
           const solidColor = type ? NotificationColors[type] : undefined;
-          const icon = type ? typeIconMap[type] : null;
+          const icon = getNotificationTypeIcon(type, typeIconClass);
           const tooltipContent = (
             <div className="flex flex-col gap-1  text-[11px] sm:text-xs">
               <span className="font-semibold text-gray-800">
@@ -130,7 +116,7 @@ const UserNotifications = () => {
                   color: solidColor ?? "#0F172A",
                 }}
               >
-                {icon ?? <MdInfo className={typeIconClass} />}
+                {icon}
               </div>
             </CustomTooltip>
           );

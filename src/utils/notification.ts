@@ -13,3 +13,13 @@ export const getNotificationLanguageMessage = (
   const { key, params } = notification.message;
   return i18n.t(key, { ...params, lng: lang });
 };
+
+export const isTargetedBy = (
+  userId: string,
+  roleId: number,
+  notification: Notification
+): boolean => {
+  const users = (notification.selectedUsers ?? []).filter(Boolean);
+  const roles = notification.selectedRoles ?? [];
+  return users.includes(userId) || roles.includes(roleId);
+};

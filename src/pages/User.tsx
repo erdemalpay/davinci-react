@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegListAlt, FaRegUserCircle } from "react-icons/fa";
+import { IoMdNotificationsOff } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import CommonSelectInput from "../components/common/SelectInput";
@@ -8,12 +9,14 @@ import GameAssignmentActions from "../components/games/UserGameAssignments";
 import { Header } from "../components/header/Header";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
+import NotificationPreferences from "../components/notification/NotificationPreferences";
 import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
 import UserGameAssignments from "../components/user/UserGameAssignments";
 import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
 import {
@@ -32,6 +35,7 @@ export default function UserView() {
     setSearchQuery,
     setSortConfigKey,
   } = useGeneralContext();
+  const { user: viewer } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedUser, setSelectedUser] = useState<MinimalUser>();
   const user = useGetUserWithId(userId as string);
@@ -135,6 +139,18 @@ export default function UserView() {
         user?.role._id === RoleEnum.BARISTA ||
         user?.role._id === RoleEnum.SERVICE
       ),
+    },
+    {
+      number: 5,
+      label: "Notification Preferences",
+      icon: <IoMdNotificationsOff className="text-lg font-thin" />,
+      content: user && (
+        <NotificationPreferences
+          targetUserId={user._id}
+          isManagerView={true}
+        />
+      ),
+      isDisabled: viewer?.role._id !== RoleEnum.MANAGER,
     },
   ];
   if (!user) return <></>;
