@@ -357,6 +357,60 @@ export interface UpdateProductDiscountPayload extends Partial<CreateProductDisco
   id: string;
 }
 
+export interface CreateAutomaticProductDiscountPayload {
+  title: string;
+  valueType: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  appliesTo: "ALL" | "PRODUCTS" | "COLLECTIONS";
+  productIds?: string[];
+  collectionIds?: string[];
+  startsAt: string;
+  endsAt?: string;
+  minimumRequirementType?: "NONE" | "SUBTOTAL" | "QUANTITY";
+  minimumRequirementValue?: number;
+  combinesWithProductDiscounts?: boolean;
+  combinesWithOrderDiscounts?: boolean;
+  combinesWithShippingDiscounts?: boolean;
+}
+
+export interface UpdateAutomaticProductDiscountPayload extends Partial<CreateAutomaticProductDiscountPayload> {
+  id: string;
+}
+
+export function useCreateAutomaticProductDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateAutomaticProductDiscountPayload) =>
+      post({ path: `${Paths.Shopify}/discount/product/automatic`, payload }),
+    onSuccess: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+      }, 3000);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateAutomaticProductDiscountMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateAutomaticProductDiscountPayload) =>
+      patch({ path: `${Paths.Shopify}/discount/product/automatic`, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useGetShopifyCollections() {
   return useGetList<ShopifyCollection>(`${Paths.Shopify}/collection`);
 }
