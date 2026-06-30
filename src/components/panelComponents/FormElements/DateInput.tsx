@@ -46,8 +46,10 @@ export default function DateInput({
   const [inputText, setInputText] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
   const [month, setMonth] = useState(new Date());
+  const [calendarPosition, setCalendarPosition] = useState({ top: 0, left: 0 });
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const todayYear = String(dayjs().year());
 
@@ -72,10 +74,35 @@ export default function DateInput({
   }, [isDateInitiallyOpen]);
 
   useEffect(() => {
+    if (!showCalendar) return;
+
+    const updateCalendarPosition = () => {
+      const inputElement = inputRef.current;
+      if (!inputElement) return;
+
+      const rect = inputElement.getBoundingClientRect();
+      setCalendarPosition({
+        top: rect.bottom + 8,
+        left: Math.max(8, Math.min(rect.left, window.innerWidth - 344)),
+      });
+    };
+
+    updateCalendarPosition();
+    window.addEventListener("resize", updateCalendarPosition);
+    window.addEventListener("scroll", updateCalendarPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateCalendarPosition);
+      window.removeEventListener("scroll", updateCalendarPosition, true);
+    };
+  }, [showCalendar]);
+
+  useEffect(() => {
     function onClickOutside(e: MouseEvent) {
       if (
         containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
+        !containerRef.current.contains(e.target as Node) &&
+        !calendarRef.current?.contains(e.target as Node)
       ) {
         setShowCalendar(false);
       }
@@ -203,22 +230,6 @@ export default function DateInput({
               className="absolute right-3 cursor-pointer text-gray-500"
               onClick={() => setShowCalendar((v) => !v)}
             />
-
-            {showCalendar && (
-              <div className="absolute top-full mt-1 z-10 bg-white shadow-lg rounded-md p-2">
-                <DayPicker
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleSelect}
-                  month={month}
-                  onMonthChange={setMonth}
-                  captionLayout="dropdown"
-                  locale={tr}
-                  fromYear={2000}
-                  toYear={dayjs().year() + 10}
-                />
-              </div>
-            )}
           </div>
 
           {isArrowsEnabled && (
@@ -235,6 +246,30 @@ export default function DateInput({
             </GenericButton>
           )}
         </div>
+
+        {showCalendar && (
+          <div
+            ref={calendarRef}
+            className="fixed z-[9999] bg-white shadow-lg rounded-md p-2 border border-gray-200"
+            style={{
+              top: calendarPosition.top,
+              left: calendarPosition.left,
+            }}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <DayPicker
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleSelect}
+              month={month}
+              onMonthChange={setMonth}
+              captionLayout="dropdown"
+              locale={tr}
+              fromYear={2000}
+              toYear={dayjs().year() + 10}
+            />
+          </div>
+        )}
 
         {isOnClearActive && inputText && (
           <GenericButton

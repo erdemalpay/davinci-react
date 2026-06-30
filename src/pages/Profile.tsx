@@ -1,13 +1,19 @@
+import { useTranslation } from "react-i18next";
 import {
   FaPhoenixFramework,
   FaRegListAlt,
   FaRegUserCircle,
 } from "react-icons/fa";
 import { GiTwoCoins } from "react-icons/gi";
-import { IoIosSettings, IoMdNotifications } from "react-icons/io";
+import {
+  IoIosSettings,
+  IoMdNotifications,
+  IoMdNotificationsOff,
+} from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
 import { Header } from "../components/header/Header";
+import NotificationPreferences from "../components/notification/NotificationPreferences";
 import ChangePassword from "../components/panelComponents/Profile/ChangePassword";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
@@ -20,6 +26,7 @@ import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
+import UserGameAssignments from "../components/user/UserGameAssignments";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
@@ -35,9 +42,11 @@ export enum ProfileTabEnum {
   KNOWN_GAMES,
   GAMEMASTERUSERSUMMARY,
   SERVICEPERSONALUSERSUMMARY,
+  USERGAMEASSIGNMENTS,
   SHIFTS,
   NOTIFICATIONS,
   POINTHISTORY,
+  NOTIFICATION_PREFERENCES,
 }
 export const ProfilePageTabs = [
   {
@@ -97,6 +106,13 @@ export const ProfilePageTabs = [
     isDisabled: true,
   },
   {
+    number: ProfileTabEnum.USERGAMEASSIGNMENTS,
+    label: "User Game Assignments",
+    icon: <FaRegListAlt className="text-lg font-thin" />,
+    content: null,
+    isDisabled: false,
+  },
+  {
     number: ProfileTabEnum.SHIFTS,
     label: "Shifts",
     icon: <FaPhoenixFramework className="text-lg font-thin" />,
@@ -117,9 +133,17 @@ export const ProfilePageTabs = [
     content: <UserPointHistory />,
     isDisabled: false,
   },
+  {
+    number: ProfileTabEnum.NOTIFICATION_PREFERENCES,
+    label: "Notification Preferences",
+    icon: <IoMdNotificationsOff className="text-lg font-thin" />,
+    content: null,
+    isDisabled: false,
+  },
 ];
 
 export default function Profile() {
+  const { t } = useTranslation();
   const updatedUser = useGetUser();
   const { user } = useUserContext();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
@@ -151,7 +175,7 @@ export default function Profile() {
       ...(tab.number === ProfileTabEnum.MENTORED_GAMES && {
         content: data && (
           <div className="px-4 w-full ">
-            <GamesIMentored data={data} />,
+            <GamesIMentored data={data} />
           </div>
         ),
       }),
@@ -175,6 +199,18 @@ export default function Profile() {
             <ServicePersonalSummary userId={user._id} />
           </div>
         ),
+      }),
+      ...(tab.number === ProfileTabEnum.NOTIFICATION_PREFERENCES && {
+        content: user && (
+          <NotificationPreferences
+            targetUserId={user._id}
+            isManagerView={false}
+          />
+        ),
+      }),
+      ...(tab.number === ProfileTabEnum.USERGAMEASSIGNMENTS && {
+        label: t("User Game Assignments"),
+        content: user && <UserGameAssignments />,
       }),
     };
   });

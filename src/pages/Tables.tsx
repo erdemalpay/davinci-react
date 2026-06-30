@@ -2298,7 +2298,12 @@ const Tables = () => {
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
-          anotherPanel={<OrderListForPanel table={selectedTable} />}
+          anotherPanel={
+            <OrderListForPanel
+              table={selectedTable}
+              tableOrdersProp={tableOrdersMap.get(selectedTable._id) ?? []}
+            />
+          }
           additionalButtons={[
             {
               label: "Add",

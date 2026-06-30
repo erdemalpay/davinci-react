@@ -382,9 +382,15 @@ export function useWebSocket(shouldConnect = false) {
                 continue;
               }
             }
-            oldData = oldData.map((order) =>
-              order._id === normalizedOrder._id ? normalizedOrder : order
-            );
+            let found = false;
+            const updatedData: any[] = (oldData as any[]).map((order) => {
+              if (order._id === normalizedOrder._id) {
+                found = true;
+                return normalizedOrder;
+              }
+              return order;
+            });
+            oldData = found ? updatedData : [...(oldData as any[]), normalizedOrder];
           }
           return oldData;
         }
@@ -402,7 +408,7 @@ export function useWebSocket(shouldConnect = false) {
         [`${Paths.Order}/table`, tableId],
         (oldData) => {
           if (!oldData) return oldData;
-          return oldData.filter((order) => order._id !== order._id);
+          return oldData.filter((o) => o._id !== order._id);
         }
       );
 
@@ -411,7 +417,7 @@ export function useWebSocket(shouldConnect = false) {
         [`${Paths.Order}/today`, selectedDate],
         (oldData) => {
           if (!oldData) return oldData;
-          return oldData.filter((order) => order._id !== order._id);
+          return oldData.filter((o) => o._id !== order._id);
         }
       );
 

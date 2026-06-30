@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { ActionEnum, DisabledConditionEnum } from "../../types";
+import { AccountProduct, ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
@@ -32,8 +32,21 @@ const ProductShelfInfo = () => {
     setFilterProductShelfInfoFormElements,
     showProductShelfInfoFilters,
     setShowProductShelfInfoFilters,
+    showProductsWithoutShelf,
+    setShowProductsWithoutShelf,
   } = useFilterContext();
   const { updateAccountProduct } = useAccountProductMutations();
+
+  const selectedLocation = filterProductShelfInfoFormElements?.location;
+  const selectedLocationKey = selectedLocation ? String(selectedLocation) : "";
+
+  const productHasShelfAtLocation = (
+    product: AccountProduct,
+    locationKey: string
+  ) =>
+    (product?.shelfInfo ?? []).some(
+      (si) => String(si.location) === locationKey && !!si.shelf?.trim()
+    );
 
   const productShelfInfoPageDisabledCondition = useMemo(() => {
     return getItem(
@@ -54,7 +67,16 @@ const ProductShelfInfo = () => {
         const matchesProduct =
           filterProductShelfInfoFormElements?.product?.length === 0 ||
           filterProductShelfInfoFormElements?.product?.includes(product._id);
-        return matchesExpense && matchesProduct;
+
+        let matchesLocation = true;
+        if (selectedLocationKey && !showProductsWithoutShelf) {
+          matchesLocation = productHasShelfAtLocation(
+            product,
+            selectedLocationKey
+          );
+        }
+
+        return matchesExpense && matchesProduct && matchesLocation;
       })
       ?.map((product) => {
         const shelfFields = (product.shelfInfo ?? [])?.reduce<
@@ -68,15 +90,24 @@ const ProductShelfInfo = () => {
           ...shelfFields,
         };
       });
-  }, [products, filterProductShelfInfoFormElements]);
+  }, [
+    products,
+    filterProductShelfInfoFormElements,
+    selectedLocationKey,
+    showProductsWithoutShelf,
+  ]);
 
   const columns = useMemo(() => {
     const cols = [
-      { key: t("Name"), isSortable: true, correspondingKey: "name" },
+      { key: t("Product"), isSortable: true, correspondingKey: "name" },
     ];
 
     locations
-      ?.filter((location) => location?.isShelfInfoRequired)
+      ?.filter(
+        (location) =>
+          location?.isShelfInfoRequired &&
+          (!selectedLocationKey || String(location._id) === selectedLocationKey)
+      )
       ?.forEach((location) => {
         cols.push({
           key: location.name,
@@ -86,7 +117,7 @@ const ProductShelfInfo = () => {
       });
 
     return cols;
-  }, [t, locations]);
+  }, [t, locations, selectedLocationKey]);
 
   const rowKeys = useMemo(() => {
     const keys = [
@@ -99,7 +130,11 @@ const ProductShelfInfo = () => {
     ];
 
     locations
-      ?.filter((location) => location?.isShelfInfoRequired)
+      ?.filter(
+        (location) =>
+          location?.isShelfInfoRequired &&
+          (!selectedLocationKey || String(location._id) === selectedLocationKey)
+      )
       ?.forEach((location) => {
         keys.push({
           key: `${location._id}`,
@@ -144,18 +179,45 @@ const ProductShelfInfo = () => {
       });
 
     return keys;
-  }, [locations, isEnableProductShelfEdit, currentPage, updateAccountProduct]);
+  }, [
+    locations,
+    selectedLocationKey,
+    isEnableProductShelfEdit,
+    currentPage,
+    updateAccountProduct,
+  ]);
 
-  const filterPanelInputs = useMemo(
-    () => [
+  const filterPanelInputs = useMemo(() => {
+    const productOptions = (
+      selectedLocationKey && !showProductsWithoutShelf
+        ? products.filter((product) =>
+            productHasShelfAtLocation(product, selectedLocationKey)
+          )
+        : products
+    ).map((product) => ({
+      value: product._id,
+      label: product.name,
+    }));
+
+    return [
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations
+          ?.filter((location) => location?.isShelfInfoRequired)
+          ?.map((location) => ({
+            value: location._id,
+            label: location.name,
+          })),
+        placeholder: t("Location"),
+        required: false,
+      },
       {
         type: InputTypes.SELECT,
         formKey: "product",
         label: t("Product"),
-        options: products.map((product) => ({
-          value: product._id,
-          label: product.name,
-        })),
+        options: productOptions,
         placeholder: t("Product"),
         isMultiple: true,
         required: false,
@@ -172,9 +234,15 @@ const ProductShelfInfo = () => {
         isMultiple: true,
         required: false,
       },
-    ],
-    [products, expenseTypes, t]
-  );
+    ];
+  }, [
+    products,
+    expenseTypes,
+    locations,
+    selectedLocationKey,
+    showProductsWithoutShelf,
+    t,
+  ]);
 
   const filters = useMemo(
     () => [
@@ -208,6 +276,18 @@ const ProductShelfInfo = () => {
           />
         ),
       },
+      {
+        label: t("Show Products Without Shelf Info"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showProductsWithoutShelf}
+            onChange={() => {
+              setShowProductsWithoutShelf(!showProductsWithoutShelf);
+            }}
+          />
+        ),
+      },
     ],
     [
       t,
@@ -217,6 +297,8 @@ const ProductShelfInfo = () => {
       user,
       isEnableProductShelfEdit,
       setIsEnableProductShelfEdit,
+      showProductsWithoutShelf,
+      setShowProductsWithoutShelf,
     ]
   );
 

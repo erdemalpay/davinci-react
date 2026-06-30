@@ -55,6 +55,7 @@ type Props<T> = {
   rows: any[];
   isDraggable?: boolean;
   onDragEnter?: (DraggedRow: T, TargetRow: T) => void;
+  onDragHover?: (DraggedRow: T, TargetRow: T) => void;
   isActionsActive: boolean;
   columns: ColumnType[];
   isCollapsible?: boolean;
@@ -109,6 +110,7 @@ const GenericTable = <T,>({
   isColumnFilter = true,
   collapsibleActions,
   onDragEnter,
+  onDragHover,
   outsideSortProps,
   outsideSearchProps,
   isSearch = true,
@@ -291,20 +293,35 @@ const GenericTable = <T,>({
     setSortConfigKey({ key, direction });
   };
 
+  const draggedRowRef = useRef<T | null>(null);
+  const dragOverRowIdRef = useRef<string | null>(null);
+
   const handleDragStart = (
     e: React.DragEvent<HTMLTableRowElement>,
     draggedRow: T
   ) => {
     e.dataTransfer.setData("draggedRow", JSON.stringify(draggedRow));
+    draggedRowRef.current = draggedRow;
   };
   const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
     e.preventDefault();
+  };
+  const handleDragEnterRow = (
+    _e: React.DragEvent<HTMLTableRowElement>,
+    targetRow: T,
+    rowId: string
+  ) => {
+    if (!onDragHover || !draggedRowRef.current) return;
+    if (dragOverRowIdRef.current === rowId) return;
+    dragOverRowIdRef.current = rowId;
+    onDragHover(draggedRowRef.current, targetRow);
   };
   const handleDrop = (
     e: React.DragEvent<HTMLTableRowElement>,
     targetRow: T
   ) => {
     e.preventDefault();
+    dragOverRowIdRef.current = null;
     const draggedRowData = e.dataTransfer.getData("draggedRow");
     const draggedRow: T = JSON.parse(draggedRowData);
     if (onDragEnter) onDragEnter(draggedRow, targetRow);
@@ -467,8 +484,17 @@ const GenericTable = <T,>({
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
     <div className="flex flex-row my-auto h-full gap-3 justify-center items-center">
       {actions?.map((action, index) => {
-        if (action?.isDisabled || action?.node === null) return null;
-        if (action.node) return <div key={index}>{action.node(row)}</div>;
+        const isActionDisabled =
+          typeof action?.isDisabled === "function"
+            ? action.isDisabled(row)
+            : action?.isDisabled;
+
+        if (isActionDisabled || action?.node === null) return null;
+        if (action.node) {
+          const node = action.node(row);
+          if (node === null || node === undefined) return null;
+          return <div key={index}>{node}</div>;
+        }
         return (
           <div
             key={index}
@@ -500,7 +526,12 @@ const GenericTable = <T,>({
         <tr
           draggable={isDraggable}
           onDragStart={(e) => handleDragStart(e, row)}
+          onDragEnd={() => {
+            draggedRowRef.current = null;
+            dragOverRowIdRef.current = null;
+          }}
           onDragOver={handleDragOver}
+          onDragEnter={(e) => handleDragEnterRow(e, row, rowId)}
           onDrop={(e) => handleDrop(e, row)}
           className={`${
             rowIndex !== currentRows.length - 1 && !isRowExpanded

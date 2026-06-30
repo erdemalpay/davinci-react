@@ -174,6 +174,7 @@ const BaseQuantityByLocation = () => {
 
   const columns = useMemo(() => {
     const cols: ColumnType[] = [
+      { key: t("Actions"), isSortable: false },
       {
         key: t("Name"),
         isSortable: true,
@@ -214,7 +215,6 @@ const BaseQuantityByLocation = () => {
         });
       });
 
-    cols.push({ key: t("Actions"), isSortable: false });
     return cols;
   }, [t, locations]);
 
@@ -332,7 +332,7 @@ const BaseQuantityByLocation = () => {
 
   const processExcelData = (data: any[]) => {
     const headers = data[0];
-    const columnKeys = columns.map((column) => column.key);
+    const columnKeys = columns.slice(1).map((column) => column.key);
     const keys = rowKeys.map((rowKey) => rowKey.key);
     const items = data.slice(1).reduce((accum: any[], row) => {
       const item: any = {};
@@ -561,6 +561,7 @@ const BaseQuantityByLocation = () => {
           filters={filters}
           addButton={addButton}
           isActionsActive={true}
+          isActionsAtFront={true}
           isExcel={
             user &&
             !baseQuantityPageDisabledCondition?.actions?.some(

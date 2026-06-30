@@ -48,6 +48,8 @@ type FilterContextType = {
   setShowSandwichStockPrices: (state: boolean) => void;
   isSandwichStockEnableEdit: boolean;
   setIsSandwichStockEnableEdit: (state: boolean) => void;
+  showHiddenSandwichStocks: boolean;
+  setShowHiddenSandwichStocks: (state: boolean) => void;
   showStockPrices: boolean;
   setShowStockPrices: (state: boolean) => void;
   isStockEnableEdit: boolean;
@@ -153,6 +155,8 @@ type FilterContextType = {
   setShowDeletedItems: (state: boolean) => void;
   isEnableProductShelfEdit: boolean;
   setIsEnableProductShelfEdit: (state: boolean) => void;
+  showProductsWithoutShelf: boolean;
+  setShowProductsWithoutShelf: (state: boolean) => void;
   filterProductShelfInfoFormElements: FormElementsState;
   setFilterProductShelfInfoFormElements: (state: FormElementsState) => void;
   showProductShelfInfoFilters: boolean;
@@ -301,6 +305,8 @@ const FilterContext = createContext<FilterContextType>({
   setShowSandwichStockPrices: () => {},
   isSandwichStockEnableEdit: false,
   setIsSandwichStockEnableEdit: () => {},
+  showHiddenSandwichStocks: false,
+  setShowHiddenSandwichStocks: () => {},
   showStockPrices: false,
   setShowStockPrices: () => {},
   isStockEnableEdit: false,
@@ -315,8 +321,8 @@ const FilterContext = createContext<FilterContextType>({
     product: [],
     service: [],
     type: ExpenseTypes.STOCKABLE,
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -366,8 +372,8 @@ const FilterContext = createContext<FilterContextType>({
     product: [],
     service: [],
     type: ExpenseTypes.NONSTOCKABLE,
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -382,8 +388,8 @@ const FilterContext = createContext<FilterContextType>({
     product: [],
     service: [],
     type: "",
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -522,8 +528,8 @@ const FilterContext = createContext<FilterContextType>({
     product: [],
     service: [],
     type: ExpenseTypes.STOCKABLE,
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -543,8 +549,8 @@ const FilterContext = createContext<FilterContextType>({
     product: [],
     service: [],
     type: ExpenseTypes.NONSTOCKABLE,
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -562,8 +568,8 @@ const FilterContext = createContext<FilterContextType>({
     product: [],
     service: [],
     type: "",
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -577,6 +583,7 @@ const FilterContext = createContext<FilterContextType>({
   filterProductShelfInfoFormElements: {
     product: [],
     expenseType: [GAMEEXPENSETYPE],
+    location: "",
   },
   setFilterProductShelfInfoFormElements: () => {},
   setFilterAllExpensesPanelFormElements: () => {},
@@ -595,6 +602,8 @@ const FilterContext = createContext<FilterContextType>({
   setShowDeletedItems: () => {},
   isEnableProductShelfEdit: false,
   setIsEnableProductShelfEdit: () => {},
+  showProductsWithoutShelf: false,
+  setShowProductsWithoutShelf: () => {},
   showProductShelfInfoFilters: false,
   setShowProductShelfInfoFilters: () => {},
   showDesertStockFilters: false,
@@ -649,6 +658,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showSandwichStockPrices, setShowSandwichStockPrices] = useState(false);
   const [isSandwichStockEnableEdit, setIsSandwichStockEnableEdit] =
     useState(false);
+  const [showHiddenSandwichStocks, setShowHiddenSandwichStocks] =
+    useState(false);
   const [showStockPrices, setShowStockPrices] = useState(false);
   const [isStockEnableEdit, setIsStockEnableEdit] = useState(false);
   const [showBaseQuantityFilters, setShowBaseQuantityFilters] = useState(false);
@@ -699,8 +710,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     product: [],
     service: [],
     type: "",
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -715,8 +726,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     product: [],
     service: [],
     type: ExpenseTypes.STOCKABLE,
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -753,6 +764,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showProductShelfInfoFilters, setShowProductShelfInfoFilters] =
     useState(false);
   const [isEnableProductShelfEdit, setIsEnableProductShelfEdit] =
+    useState(false);
+  const [showProductsWithoutShelf, setShowProductsWithoutShelf] =
     useState(false);
   const [showPersonalSummaryFilters, setShowPersonalSummaryFilters] =
     useState(false);
@@ -807,6 +820,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   ] = useState<FormElementsState>({
     product: [],
     expenseType: [GAMEEXPENSETYPE],
+    location: "",
   });
   const [
     filterAllVisitsPanelFormElements,
@@ -829,8 +843,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     product: [],
     service: [],
     type: ExpenseTypes.NONSTOCKABLE,
-    vendor: "",
-    brand: "",
+    vendor: [],
+    brand: [],
     expenseType: "",
     paymentMethod: [],
     location: "",
@@ -1059,6 +1073,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowSandwichStockPrices: setShowSandwichStockPrices,
         isSandwichStockEnableEdit: isSandwichStockEnableEdit,
         setIsSandwichStockEnableEdit: setIsSandwichStockEnableEdit,
+        showHiddenSandwichStocks: showHiddenSandwichStocks,
+        setShowHiddenSandwichStocks: setShowHiddenSandwichStocks,
         showStockPrices: showStockPrices,
         setShowStockPrices: setShowStockPrices,
         isStockEnableEdit: isStockEnableEdit,
@@ -1171,6 +1187,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowDeletedItems: setShowDeletedItems,
         isEnableProductShelfEdit: isEnableProductShelfEdit,
         setIsEnableProductShelfEdit: setIsEnableProductShelfEdit,
+        showProductsWithoutShelf: showProductsWithoutShelf,
+        setShowProductsWithoutShelf: setShowProductsWithoutShelf,
         filterProductShelfInfoFormElements: filterProductShelfInfoFormElements,
         setFilterProductShelfInfoFormElements:
           setFilterProductShelfInfoFormElements,

@@ -23,6 +23,9 @@ import Expirations, { ExpirationTabs } from "../pages/Expiration";
 import ExpirationCount from "../pages/ExpirationCount";
 import ExpirationList from "../pages/ExpirationList";
 import Feedback from "../pages/Feedback";
+import GameAssignments, {
+  GameAssignmentsPageTabs,
+} from "../pages/GameAssignments";
 import Gameplays from "../pages/Gameplays";
 import Games, { GamesPageTabs } from "../pages/Games";
 import Images from "../pages/Images";
@@ -41,6 +44,7 @@ import PanelControl, { PanelControlPageTabs } from "../pages/PanelControl";
 import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
+import QrDisplay from "../pages/QrDisplay";
 import Reservations from "../pages/Reservations";
 import Retailer, { RetailerPageTabs } from "../pages/Retailer";
 import RetailerOrders, {
@@ -92,6 +96,7 @@ export enum PublicRoutes {
 
 export enum Routes {
   Games = "/games",
+  GameAssignments = "/game-assignments",
   RequestedGames = "/games/requested",
   Feedback = "/feedback",
   Memberships = "/memberships",
@@ -148,6 +153,7 @@ export enum Routes {
   Location = "/location/:locationId",
   Activities = "/activities",
   DailySummary = "/daily-summary",
+  QrDisplay = "/qr-display",
   IkasPickUp = "/ikas-pickup",
   ShopifyPickUp = "/shopify-pickup",
   Points = "/points",
@@ -222,6 +228,12 @@ export const allRoutes: {
     name: "Daily Summary",
     path: Routes.DailySummary,
     element: DailySummary,
+    isOnSidebar: true,
+  },
+  {
+    name: "QR Display",
+    path: Routes.QrDisplay,
+    element: QrDisplay,
     isOnSidebar: true,
   },
   {
@@ -360,7 +372,21 @@ export const allRoutes: {
         element: RequestedGames,
         isOnSidebar: true,
       },
+      {
+        name: "Game Assignments",
+        path: Routes.GameAssignments,
+        element: GameAssignments,
+        isOnSidebar: true,
+        tabs: GameAssignmentsPageTabs,
+      },
     ],
+  },
+  {
+    name: "Game Assignments",
+    path: Routes.GameAssignments,
+    element: GameAssignments,
+    isOnSidebar: false,
+    tabs: GameAssignmentsPageTabs,
   },
   {
     name: "Games",
