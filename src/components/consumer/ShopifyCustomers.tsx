@@ -7,6 +7,7 @@ import {
   useGetShopifyCustomers,
   useRefreshShopifyCustomersMutation,
 } from "../../utils/api/shopify";
+import Loading from "../common/Loading";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -109,6 +110,7 @@ const ShopifyCustomers = () => {
 
   return (
     <div className="w-[95%] mx-auto">
+      {isRefreshing && <Loading />}
       <p className="text-base text-gray-500 italic mb-2">
         * {t("Due to Shopify API rate limits, data may not load immediately. If the table appears empty, please wait a moment and try again.")}
       </p>
@@ -118,6 +120,7 @@ const ShopifyCustomers = () => {
         rowKeys={rowKeys as any}
         rows={rows}
         isActionsActive={false}
+        isColumnFilter={false}
         filters={filters}
         rowsPerPageOptions={[RowPerPageEnum.FIRST, RowPerPageEnum.SECOND, RowPerPageEnum.THIRD]}
         isSearch={false}

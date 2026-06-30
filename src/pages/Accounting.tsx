@@ -18,7 +18,7 @@ import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import KitchenPage from "../components/accounting/Kitchen";
 import LocationPage from "../components/accounting/Location";
-import ShopifyDiscounts from "../components/consumer/ShopifyDiscounts";
+import ShopifyDiscounts from "../components/accounting/ShopifyDiscounts";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import OrderNotes from "../components/accounting/OrderNotes";
 import PaymentMethods from "../components/accounting/PaymentMethod";

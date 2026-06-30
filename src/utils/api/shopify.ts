@@ -226,6 +226,13 @@ export interface CreateFreeShippingDiscountPayload {
 
 const DISCOUNT_QUERY_KEY = [`${Paths.Shopify}/discount`];
 
+export function useRefreshShopifyDiscountsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => queryClient.invalidateQueries({ queryKey: DISCOUNT_QUERY_KEY }),
+  });
+}
+
 export function useGetShopifyDiscountsPaginated(
   page: number,
   limit: number,

@@ -32,13 +32,18 @@ import {
   useUpdateFreeShippingDiscountMutation,
   useUpdateProductDiscountMutation,
   useUpdateShopifyDiscountMutation,
+  useRefreshShopifyDiscountsMutation,
 } from "../../utils/api/shopify";
 import { FormElementsState, RowPerPageEnum, ShopifyDiscountNode } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGeneralContext } from "../../context/General.context";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { GenericButton } from "../common/GenericButton";
+import Loading from "../common/Loading";
+import { H5 } from "../panelComponents/Typography";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -48,7 +53,7 @@ interface DiscountRow {
   title: string;
   code: string;
   status: string;
-  discountKind: "ORDER_DISCOUNT" | "ORDER_DISCOUNT_AUTOMATIC" | "FREE_SHIPPING" | "FREE_SHIPPING_AUTOMATIC" | "PRODUCT_DISCOUNT" | "BXGY" | "BXGY_AUTOMATIC";
+  discountKind: "ORDER_DISCOUNT" | "ORDER_DISCOUNT_AUTOMATIC" | "FREE_SHIPPING" | "FREE_SHIPPING_AUTOMATIC" | "PRODUCT_DISCOUNT" | "PRODUCT_DISCOUNT_AUTOMATIC" | "BXGY" | "BXGY_AUTOMATIC";
   valueType: string;
   value: number;
   startsAt: string;
@@ -121,7 +126,7 @@ function extractDiscountItems(items: any): { scope: "ALL" | "PRODUCTS" | "COLLEC
   return { scope: "ALL" };
 }
 
-function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
+function nodeToRow(n: ShopifyDiscountNode, t: (key: string) => string): DiscountRow {
   const cd = n.codeDiscount as any;
   const codeNode = cd.codes?.edges?.[0]?.node;
   const numericId = n.id.split("/").pop() ?? n.id;
@@ -143,12 +148,13 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
     !isFreeShipping &&
     cgItems != null &&
     !("allItems" in cgItems);
+  const isProductDiscountAutomatic = isProductDiscount && n.id.includes('DiscountAutomaticNode');
 
   let valueType = "";
   let value = 0;
 
   if (isBxgy) {
-    const doq = (cgValue as any)?.discountOnQuantity;
+    const doq = cgValue as any;
     if (doq?.effect) {
       if ("percentage" in doq.effect) {
         if (doq.effect.percentage >= 1.0) {
@@ -222,7 +228,7 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
     if (cb?.value) {
       if ("quantity" in cb.value) {
         buyRequirementType = "QUANTITY";
-        buyQuantityOrAmount = parseInt(cb.value.quantity?.quantity ?? "0");
+        buyQuantityOrAmount = parseInt((cb.value.quantity as any) ?? "0");
       } else if ("amount" in cb.value) {
         buyRequirementType = "AMOUNT";
         buyQuantityOrAmount = parseFloat((cb.value.amount as string) ?? "0");
@@ -235,7 +241,7 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
       buyCollectionIds = ex.collectionIds;
     }
 
-    const doq = (cgValue as any)?.discountOnQuantity;
+    const doq = cgValue as any;
     if (doq) {
       getQuantity = parseInt(doq.quantity?.quantity ?? "0");
       if (doq.effect) {
@@ -260,9 +266,9 @@ function nodeToRow(n: ShopifyDiscountNode): DiscountRow {
     _id: n.id,
     numericId,
     title: cd.title ?? "",
-    code: codeNode?.code ?? "-",
+    code: codeNode?.code ?? (n.id.includes('DiscountAutomaticNode') ? t("Automatically Applied") : "-"),
     status: cd.status ?? "",
-    discountKind: isBxgyAutomatic ? "BXGY_AUTOMATIC" : isBxgy ? "BXGY" : isOrderDiscountAutomatic ? "ORDER_DISCOUNT_AUTOMATIC" : isFreeShippingAutomatic ? "FREE_SHIPPING_AUTOMATIC" : isFreeShipping ? "FREE_SHIPPING" : isProductDiscount ? "PRODUCT_DISCOUNT" : "ORDER_DISCOUNT",
+    discountKind: isBxgyAutomatic ? "BXGY_AUTOMATIC" : isBxgy ? "BXGY" : isOrderDiscountAutomatic ? "ORDER_DISCOUNT_AUTOMATIC" : isFreeShippingAutomatic ? "FREE_SHIPPING_AUTOMATIC" : isFreeShipping ? "FREE_SHIPPING" : isProductDiscountAutomatic ? "PRODUCT_DISCOUNT_AUTOMATIC" : isProductDiscount ? "PRODUCT_DISCOUNT" : "ORDER_DISCOUNT",
     valueType,
     value,
     startsAt: cd.startsAt ?? "",
@@ -375,6 +381,7 @@ const ShopifyDiscounts = () => {
   const [addBxgyDiscountType, setAddBxgyDiscountType] = useState<string>("FREE");
   const [addBxgyMethod, setAddBxgyMethod] = useState<string>("CODE");
 
+  const { mutate: refreshDiscounts, isPending: isRefreshing } = useRefreshShopifyDiscountsMutation();
   const { mutate: createDiscount } = useCreateShopifyDiscountMutation();
   const { mutate: updateDiscount } = useUpdateShopifyDiscountMutation();
   const { mutate: deleteDiscount } = useDeleteShopifyDiscountMutation();
@@ -426,16 +433,17 @@ const ShopifyDiscounts = () => {
     if (!payload?.data) return [];
     return payload.data
       .filter((n) => n.codeDiscount && typeof n.codeDiscount === "object")
-      .map(nodeToRow);
+      .map((n) => nodeToRow(n, t));
   }, [payload]);
 
-  const pagination = useMemo(
-    () =>
-      payload
-        ? { totalPages: payload.totalPages, totalRows: payload.totalCount }
-        : undefined,
-    [payload]
-  );
+  const pagination = useMemo(() => {
+    if (!payload) return undefined;
+    const automaticCount = (payload.data ?? []).filter(n => n.id.includes("Automatic")).length;
+    return {
+      totalPages: payload.totalPages,
+      totalRows: (payload.totalCount ?? 0) + automaticCount,
+    };
+  }, [payload]);
 
   const columns = useMemo(
     () => [
@@ -473,11 +481,13 @@ const ShopifyDiscounts = () => {
         key: "value",
         node: (row: DiscountRow) => {
           if (row.discountKind === "BXGY" || row.discountKind === "BXGY_AUTOMATIC") {
-            const buys = row.buyQuantityOrAmount ?? "?";
-            const gets = row.getQuantity ?? "?";
-            if (row.bxgyDiscountType === "FREE") return `${buys}→${gets} ${t("Free")}`;
-            if (row.bxgyDiscountType === "PERCENTAGE") return `${buys}→${gets} %${row.bxgyDiscountValue ?? ""}`;
-            return `${buys}→${gets} ₺${row.bxgyDiscountValue ?? ""}`;
+            const buySide = row.buyRequirementType === "AMOUNT"
+              ? `₺${row.buyQuantityOrAmount ?? "?"}`
+              : `${row.buyQuantityOrAmount ?? "?"} ${t("pcs")}`;
+            const getSide = `${row.getQuantity ?? "?"} ${t("pcs")}`;
+            if (row.bxgyDiscountType === "FREE") return `${buySide} → ${getSide} ${t("Free")}`;
+            if (row.bxgyDiscountType === "PERCENTAGE") return `${buySide} → ${getSide} %${row.bxgyDiscountValue ?? ""} ${t("off")}`;
+            return `${buySide} → ${getSide} ₺${row.bxgyDiscountValue ?? ""} ${t("off")}`;
           }
           if (row.valueType === "FREE_SHIPPING") return "-";
           return row.valueType === "PERCENTAGE" ? `%${row.value}` : `₺${row.value}`;
@@ -1382,6 +1392,25 @@ const ShopifyDiscounts = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: false,
+        node: (
+          <div className="flex flex-row gap-2">
+            <GenericButton
+              variant="black"
+              size="sm"
+              className="bg-blue-500 hover:text-blue-500 hover:border-blue-500 text-sm"
+              onClick={() => setIsAddModalOpen(true)}
+            >
+              <H5 className="text-xs sm:text-sm whitespace-nowrap">{t("Add Shopify Discount")}</H5>
+            </GenericButton>
+            <ButtonFilter
+              buttonName={isRefreshing ? t("Refreshing...") : t("Refresh Data")}
+              onclick={() => refreshDiscounts()}
+            />
+          </div>
+        ),
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: (
@@ -1392,127 +1421,116 @@ const ShopifyDiscounts = () => {
         ),
       },
     ],
-    [t, isFilterPanelOpen]
+    [t, isFilterPanelOpen, isRefreshing, refreshDiscounts, setIsAddModalOpen]
   );
 
-  const addButton = useMemo(
-    () => ({
-      name: t("Add Shopify Discount"),
-      isModal: true,
-      modal: (
-        <GenericAddEditPanel
-          isOpen={isAddModalOpen}
-          close={() => {
-            setIsAddModalOpen(false);
-            setAddDiscountType("ORDER_DISCOUNT");
-            setAddMethod("CODE");
-            setAddAppliesTo("ALL");
-            setAddBuyProductScope("ALL");
-            setAddGetProductScope("ALL");
-            setAddBxgyDiscountType("FREE");
-            setAddBxgyMethod("CODE");
-          }}
-          inputs={addInputs}
-          formKeys={formKeys}
-          submitItem={
-            ((item: any) => {
-              const { discountType, method, ...rest } = item;
-              if (discountType === "FREE_SHIPPING") {
-                const payload: CreateFreeShippingDiscountPayload = {
-                  method: method ?? "CODE",
-                  title: rest.title,
-                  startsAt: rest.startsAt,
-                  endsAt: rest.endsAt || undefined,
-                  minimumRequirementType: rest.minimumRequirementType || undefined,
-                  minimumRequirementValue: rest.minimumRequirementValue || undefined,
-                  ...(method !== "AUTOMATIC" && {
-                    code: rest.code,
-                    usageLimit: rest.usageLimit || undefined,
-                    appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
-                  }),
-                };
-                createFreeShippingDiscount(payload);
-              } else if (discountType === "PRODUCT_DISCOUNT") {
-                const productPayload: CreateProductDiscountPayload = {
-                  title: rest.title,
-                  code: rest.code,
-                  valueType: rest.valueType,
-                  value: rest.value,
-                  appliesTo: rest.appliesTo ?? "ALL",
-                  productIds: rest.productIds?.length ? rest.productIds : undefined,
-                  collectionIds: rest.collectionIds?.length ? rest.collectionIds : undefined,
-                  startsAt: rest.startsAt,
-                  endsAt: rest.endsAt || undefined,
-                  minimumRequirementType: rest.minimumRequirementType || undefined,
-                  minimumRequirementValue: rest.minimumRequirementValue || undefined,
-                  usageLimit: rest.usageLimit || undefined,
-                  appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
-                  combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
-                  combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
-                  combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
-                };
-                createProductDiscount(productPayload);
-              } else if (discountType === "BXGY") {
-                const bxgyBase = {
-                  title: rest.title,
-                  startsAt: rest.startsAt,
-                  endsAt: rest.endsAt || undefined,
-                  buyRequirementType: rest.buyRequirementType ?? "QUANTITY",
-                  buyQuantityOrAmount: rest.buyQuantityOrAmount,
-                  buyProductScope: rest.buyProductScope ?? "ALL",
-                  buyProductIds: rest.buyProductIds?.length ? rest.buyProductIds : undefined,
-                  buyCollectionIds: rest.buyCollectionIds?.length ? rest.buyCollectionIds : undefined,
-                  getQuantity: rest.getQuantity,
-                  getProductScope: rest.getProductScope ?? "ALL",
-                  getProductIds: rest.getProductIds?.length ? rest.getProductIds : undefined,
-                  getCollectionIds: rest.getCollectionIds?.length ? rest.getCollectionIds : undefined,
-                  bxgyDiscountType: rest.bxgyDiscountType ?? "FREE",
-                  bxgyDiscountValue: rest.bxgyDiscountValue || undefined,
-                  combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
-                  combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
-                  combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
-                };
-                if (rest.bxgyMethod === "AUTOMATIC") {
-                  createAutomaticBxgyDiscount(bxgyBase as CreateAutomaticBxgyDiscountPayload);
-                } else {
-                  const bxgyPayload: CreateBxgyDiscountPayload = {
-                    ...bxgyBase,
-                    code: rest.code,
-                    usageLimit: rest.usageLimit || undefined,
-                    appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
-                  };
-                  createBxgyDiscount(bxgyPayload);
-                }
-              } else if (method === "AUTOMATIC") {
-                const autoOrderPayload: CreateAutomaticOrderDiscountPayload = {
-                  title: rest.title,
-                  valueType: rest.valueType,
-                  value: rest.value,
-                  startsAt: rest.startsAt,
-                  endsAt: rest.endsAt || undefined,
-                  minimumRequirementType: rest.minimumRequirementType || undefined,
-                  minimumRequirementValue: rest.minimumRequirementValue || undefined,
-                  combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
-                  combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
-                  combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
-                };
-                createAutomaticOrderDiscount(autoOrderPayload);
-              } else {
-                const { method: _m, ...orderPayload } = rest;
-                createDiscount(orderPayload as CreateShopifyDiscountPayload);
-              }
-            }) as any
+  const addModal = (
+    <GenericAddEditPanel
+      isOpen={isAddModalOpen}
+      close={() => {
+        setIsAddModalOpen(false);
+        setAddDiscountType("ORDER_DISCOUNT");
+        setAddMethod("CODE");
+        setAddAppliesTo("ALL");
+        setAddBuyProductScope("ALL");
+        setAddGetProductScope("ALL");
+        setAddBxgyDiscountType("FREE");
+        setAddBxgyMethod("CODE");
+      }}
+      inputs={addInputs}
+      formKeys={formKeys}
+      submitItem={
+        ((item: any) => {
+          const { discountType, method, ...rest } = item;
+          if (discountType === "FREE_SHIPPING") {
+            const payload: CreateFreeShippingDiscountPayload = {
+              method: method ?? "CODE",
+              title: rest.title,
+              startsAt: rest.startsAt,
+              endsAt: rest.endsAt || undefined,
+              minimumRequirementType: rest.minimumRequirementType || undefined,
+              minimumRequirementValue: rest.minimumRequirementValue || undefined,
+              ...(method !== "AUTOMATIC" && {
+                code: rest.code,
+                usageLimit: rest.usageLimit || undefined,
+                appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
+              }),
+            };
+            createFreeShippingDiscount(payload);
+          } else if (discountType === "PRODUCT_DISCOUNT") {
+            const productPayload: CreateProductDiscountPayload = {
+              title: rest.title,
+              code: rest.code,
+              valueType: rest.valueType,
+              value: rest.value,
+              appliesTo: rest.appliesTo ?? "ALL",
+              productIds: rest.productIds?.length ? rest.productIds : undefined,
+              collectionIds: rest.collectionIds?.length ? rest.collectionIds : undefined,
+              startsAt: rest.startsAt,
+              endsAt: rest.endsAt || undefined,
+              minimumRequirementType: rest.minimumRequirementType || undefined,
+              minimumRequirementValue: rest.minimumRequirementValue || undefined,
+              usageLimit: rest.usageLimit || undefined,
+              appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
+              combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
+              combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
+              combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
+            };
+            createProductDiscount(productPayload);
+          } else if (discountType === "BXGY") {
+            const bxgyBase = {
+              title: rest.title,
+              startsAt: rest.startsAt,
+              endsAt: rest.endsAt || undefined,
+              buyRequirementType: rest.buyRequirementType ?? "QUANTITY",
+              buyQuantityOrAmount: rest.buyQuantityOrAmount,
+              buyProductScope: rest.buyProductScope ?? "ALL",
+              buyProductIds: rest.buyProductIds?.length ? rest.buyProductIds : undefined,
+              buyCollectionIds: rest.buyCollectionIds?.length ? rest.buyCollectionIds : undefined,
+              getQuantity: rest.getQuantity,
+              getProductScope: rest.getProductScope ?? "ALL",
+              getProductIds: rest.getProductIds?.length ? rest.getProductIds : undefined,
+              getCollectionIds: rest.getCollectionIds?.length ? rest.getCollectionIds : undefined,
+              bxgyDiscountType: rest.bxgyDiscountType ?? "FREE",
+              bxgyDiscountValue: rest.bxgyDiscountValue || undefined,
+              combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
+              combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
+              combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
+            };
+            if (rest.bxgyMethod === "AUTOMATIC") {
+              createAutomaticBxgyDiscount(bxgyBase as CreateAutomaticBxgyDiscountPayload);
+            } else {
+              const bxgyPayload: CreateBxgyDiscountPayload = {
+                ...bxgyBase,
+                code: rest.code,
+                usageLimit: rest.usageLimit || undefined,
+                appliesOncePerCustomer: rest.appliesOncePerCustomer ?? false,
+              };
+              createBxgyDiscount(bxgyPayload);
+            }
+          } else if (method === "AUTOMATIC") {
+            const autoOrderPayload: CreateAutomaticOrderDiscountPayload = {
+              title: rest.title,
+              valueType: rest.valueType,
+              value: rest.value,
+              startsAt: rest.startsAt,
+              endsAt: rest.endsAt || undefined,
+              minimumRequirementType: rest.minimumRequirementType || undefined,
+              minimumRequirementValue: rest.minimumRequirementValue || undefined,
+              combinesWithProductDiscounts: rest.combinesWithProductDiscounts ?? false,
+              combinesWithOrderDiscounts: rest.combinesWithOrderDiscounts ?? false,
+              combinesWithShippingDiscounts: rest.combinesWithShippingDiscounts ?? false,
+            };
+            createAutomaticOrderDiscount(autoOrderPayload);
+          } else {
+            const { method: _m, ...orderPayload } = rest;
+            createDiscount(orderPayload as CreateShopifyDiscountPayload);
           }
-          topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
-          constantValues={{ discountType: "ORDER_DISCOUNT", method: "CODE", bxgyMethod: "CODE", buyProductScope: "ALL", getProductScope: "ALL", bxgyDiscountType: "FREE" }}
-        />
-      ),
-      isModalOpen: isAddModalOpen,
-      setIsModal: setIsAddModalOpen,
-      isPath: false,
-      className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-    }),
-    [t, isAddModalOpen, addInputs, formKeys, createDiscount, createFreeShippingDiscount, createProductDiscount, createBxgyDiscount, createAutomaticBxgyDiscount, createAutomaticOrderDiscount]
+        }) as any
+      }
+      topClassName="flex flex-col gap-2 max-h-[70vh] overflow-y-auto"
+      constantValues={{ discountType: "ORDER_DISCOUNT", method: "CODE", bxgyMethod: "CODE", buyProductScope: "ALL", getProductScope: "ALL", bxgyDiscountType: "FREE" }}
+    />
   );
 
   const actions = useMemo(
@@ -1822,16 +1840,18 @@ const ShopifyDiscounts = () => {
 
   return (
     <div className="w-[95%] mx-auto">
+      {isRefreshing && <Loading />}
+      {addModal}
       <GenericTable
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
         rows={rows}
         title={t("Shopify Discounts")}
-        addButton={addButton}
         filters={filters}
         filterPanel={filterPanel}
         isActionsActive={true}
+        isColumnFilter={false}
         isSearch={false}
         outsideSearchProps={{
           t,
