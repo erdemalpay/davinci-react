@@ -1,4 +1,4 @@
-import { endOfMonth, format, startOfMonth } from "date-fns";
+import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-fns";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
@@ -27,8 +27,16 @@ export default function ShiftsCalendar() {
   const locations = useGetStoreLocations();
   const users = useGetUsersMinimal();
 
-  const after = format(currentMonth, "yyyy-MM-dd");
-  const before = format(endOfMonth(currentMonth), "yyyy-MM-dd");
+  // include the leading/trailing days of the adjacent months that show up
+  // as shaded overflow cells on the calendar grid (week starts on Monday)
+  const after = format(
+    startOfWeek(currentMonth, { weekStartsOn: 1 }),
+    "yyyy-MM-dd"
+  );
+  const before = format(
+    endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 }),
+    "yyyy-MM-dd"
+  );
 
   const shifts = useGetShifts(after, before, selectedLocationId);
 
@@ -63,7 +71,7 @@ export default function ShiftsCalendar() {
         onCurrentMonthChange={(date) => setCurrentMonth(date)}
       >
         <MonthlyNav />
-        <MonthlyBody<ShiftCalendarEvent> events={events}>
+        <MonthlyBody<ShiftCalendarEvent> events={events} showOverflowDays>
           <MonthlyDay<ShiftCalendarEvent>
             renderDay={(dayShifts) => {
               if (!dayShifts.length) return null;
