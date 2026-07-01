@@ -1,5 +1,5 @@
 import { addDays, format, getDay, isSameDay, Locale, parseISO, subDays } from "date-fns";
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { H5 } from "../panelComponents/Typography";
 import { useMonthlyCalendar } from "./MonthlyCalendar";
@@ -103,6 +103,14 @@ export function MonthlyBody<DayData>({
         addDays(daysToRender[daysToRender.length - 1], index + 1)
       )
     : [];
+  const parsedEvents = useMemo(
+    () => events.map((event) => ({ event, parsedDate: parseISO(event.date) })),
+    [events]
+  );
+  const eventsForDay = (day: Date) =>
+    parsedEvents
+      .filter(({ parsedDate }) => isSameDay(parsedDate, day))
+      .map(({ event }) => event);
   return (
     <div className="bg-white border-l-2 border-t-2 rounded-lg mb-6">
       <div
@@ -126,9 +134,7 @@ export function MonthlyBody<DayData>({
                 value={{
                   day,
                   isOutsideMonth: true,
-                  events: events.filter((data) =>
-                    isSameDay(parseISO(data.date), day)
-                  ),
+                  events: eventsForDay(day),
                 }}
               >
                 {children}
@@ -146,9 +152,7 @@ export function MonthlyBody<DayData>({
             key={day.toISOString()}
             value={{
               day,
-              events: events.filter((data) =>
-                isSameDay(parseISO(data.date), day)
-              ),
+              events: eventsForDay(day),
             }}
           >
             {children}
@@ -160,9 +164,7 @@ export function MonthlyBody<DayData>({
             value={{
               day,
               isOutsideMonth: true,
-              events: events.filter((data) =>
-                isSameDay(parseISO(data.date), day)
-              ),
+              events: eventsForDay(day),
             }}
           >
             {children}
