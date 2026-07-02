@@ -1,5 +1,5 @@
-import { format, getDay, isSameDay, Locale, parseISO } from "date-fns";
-import { createContext, ReactNode, useContext } from "react";
+import { addDays, format, getDay, isSameDay, Locale, parseISO, subDays } from "date-fns";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { H5 } from "../panelComponents/Typography";
 import { useMonthlyCalendar } from "./MonthlyCalendar";
@@ -10,6 +10,7 @@ const MonthlyBodyContext = createContext({} as any);
 type BodyState<DayData> = {
   day: Date;
   events: DayData[];
+  isOutsideMonth?: boolean;
 };
 
 export function useMonthlyBody<DayData>() {
@@ -69,12 +70,20 @@ type MonthlyBodyProps<DayData> = {
   omitDays?: number[];
   events: (DayData & { date: string })[];
   children: ReactNode;
+  /*
+    when true, the empty cells before the first day and after the last day
+    of the month are replaced with the adjacent days of the previous/next
+    month (shaded), instead of being left blank. the caller is responsible
+    for fetching events that cover this leading/trailing range as well.
+  */
+  showOverflowDays?: boolean;
 };
 
 export function MonthlyBody<DayData>({
   omitDays,
   events,
   children,
+  showOverflowDays,
 }: MonthlyBodyProps<DayData>) {
   const { days, locale } = useMonthlyCalendar();
   const { t } = useTranslation();
@@ -85,6 +94,23 @@ export function MonthlyBody<DayData>({
     locale,
   });
   const headingClassName = "border-b-2 p-2 border-r-2 lg:block hidden";
+  const overflowDays = showOverflowDays
+    ? padding.map((_, index) => subDays(daysToRender[0], padding.length - index))
+    : [];
+  const lastDayIndex = (getDay(daysToRender[daysToRender.length - 1]) + 6) % 7; // Monday=0..Sunday=6
+  const trailingOverflowDays = showOverflowDays
+    ? Array.from({ length: 6 - lastDayIndex }, (_, index) =>
+        addDays(daysToRender[daysToRender.length - 1], index + 1)
+      )
+    : [];
+  const parsedEvents = useMemo(
+    () => events.map((event) => ({ event, parsedDate: parseISO(event.date) })),
+    [events]
+  );
+  const eventsForDay = (day: Date) =>
+    parsedEvents
+      .filter(({ parsedDate }) => isSameDay(parsedDate, day))
+      .map(({ event }) => event);
   return (
     <div className="bg-white border-l-2 border-t-2 rounded-lg mb-6">
       <div
@@ -101,21 +127,44 @@ export function MonthlyBody<DayData>({
             <H5>{t(day.label)}</H5>
           </div>
         ))}
-        {padding.map((_, index) => (
-          <div
-            key={index}
-            className={headingClassName}
-            aria-label="Empty Day"
-          />
-        ))}
+        {overflowDays.length > 0
+          ? overflowDays.map((day) => (
+              <MonthlyBodyContext.Provider
+                key={day.toISOString()}
+                value={{
+                  day,
+                  isOutsideMonth: true,
+                  events: eventsForDay(day),
+                }}
+              >
+                {children}
+              </MonthlyBodyContext.Provider>
+            ))
+          : padding.map((_, index) => (
+              <div
+                key={index}
+                className={headingClassName}
+                aria-label="Empty Day"
+              />
+            ))}
         {daysToRender.map((day) => (
           <MonthlyBodyContext.Provider
             key={day.toISOString()}
             value={{
               day,
-              events: events.filter((data) =>
-                isSameDay(parseISO(data.date), day)
-              ),
+              events: eventsForDay(day),
+            }}
+          >
+            {children}
+          </MonthlyBodyContext.Provider>
+        ))}
+        {trailingOverflowDays.map((day) => (
+          <MonthlyBodyContext.Provider
+            key={day.toISOString()}
+            value={{
+              day,
+              isOutsideMonth: true,
+              events: eventsForDay(day),
             }}
           >
             {children}
@@ -131,16 +180,20 @@ type MonthlyDayProps<DayData> = {
 };
 export function MonthlyDay<DayData>({ renderDay }: MonthlyDayProps<DayData>) {
   const { locale } = useMonthlyCalendar();
-  const { day, events } = useMonthlyBody<DayData>();
+  const { day, events, isOutsideMonth } = useMonthlyBody<DayData>();
   const dayNumber = format(day, "d", { locale });
 
   return (
     <div
       aria-label={`Events for day ${dayNumber}`}
-      className="h-48 p-2 border-b-2 border-r-2"
+      className={`h-48 p-2 border-b-2 border-r-2 ${
+        isOutsideMonth ? "bg-gray-100 opacity-60" : ""
+      }`}
     >
       <div className="flex justify-between">
-        <div className="font-bold">{dayNumber}</div>
+        <div className={`font-bold ${isOutsideMonth ? "text-gray-400" : ""}`}>
+          {dayNumber}
+        </div>
         <div className="lg:hidden block">{format(day, "EEEE", { locale })}</div>
       </div>
       <ul className="overflow-hidden max-h-36 overflow-y-auto">
