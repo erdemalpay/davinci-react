@@ -20,7 +20,7 @@ import { ActionEnum, DisabledConditionEnum, Shift, ShiftValue } from "../../type
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetShifts, useShiftMutations } from "../../utils/api/shift";
-import { useGetUsersMinimal } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { MonthlyBody, MonthlyDay } from "../calendar/MonthlyBody";
@@ -28,6 +28,7 @@ import { MonthlyCalendar, MonthlyNav } from "../calendar/MonthlyCalendar";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import FilterPanel from "../panelComponents/Tables/FilterPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type ShiftCalendarEvent = Shift & { date: string };
@@ -46,6 +47,7 @@ export default function ShiftsCalendar() {
   );
   const locations = useGetStoreLocations();
   const users = useGetUsersMinimal();
+  const roles = useGetAllUserRoles();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
   const shiftsDisabledCondition = getItem(
@@ -91,6 +93,55 @@ export default function ShiftsCalendar() {
   const [assignForm, setAssignForm] = useState<{ selectedUsers: string[] }>({
     selectedUsers: [],
   });
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterPanelFormElements, setFilterPanelFormElements] = useState<{
+    role: number[];
+    user: string;
+  }>({ role: [], user: "" });
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "role",
+      label: t("Roles"),
+      options: roles?.map((role) => ({ value: role._id, label: role.name })),
+      isMultiple: true,
+      placeholder: t("Roles"),
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "user",
+      label: t("User"),
+      options: users
+        ?.filter((u) => {
+          if (filterPanelFormElements?.role?.length > 0) {
+            return filterPanelFormElements.role.includes(u?.role?._id);
+          }
+          return true;
+        })
+        ?.map((u) => ({ value: u._id, label: u.name })),
+      placeholder: t("User"),
+      required: false,
+    },
+  ];
+  const matchesShiftFilters = (userId: string) => {
+    const foundUser = getItem(userId, users);
+    if (!foundUser) return false;
+    if (
+      filterPanelFormElements?.role?.length > 0 &&
+      !filterPanelFormElements.role.includes(foundUser.role?._id)
+    ) {
+      return false;
+    }
+    if (
+      filterPanelFormElements?.user &&
+      filterPanelFormElements.user !== userId
+    ) {
+      return false;
+    }
+    return true;
+  };
 
   // include the leading/trailing days of the adjacent months that show up
   // as shaded overflow cells on the calendar grid (week starts on Monday)
@@ -168,7 +219,28 @@ export default function ShiftsCalendar() {
             }
           />
         </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">{t("Show Filters")}</span>
+          <SwitchButton
+            checked={showFilters}
+            onChange={() => setShowFilters(!showFilters)}
+          />
+        </div>
       </div>
+      <div className={showFilters ? "flex flex-row gap-2" : ""}>
+        {showFilters && (
+          <FilterPanel
+            isFilterPanelActive={showFilters}
+            inputs={filterPanelInputs}
+            formElements={filterPanelFormElements as any}
+            setFormElements={setFilterPanelFormElements as any}
+            closeFilters={() => setShowFilters(false)}
+            additionalFilterCleanFunction={() =>
+              setFilterPanelFormElements({ role: [], user: "" })
+            }
+          />
+        )}
+        <div className="flex-1">
       <MonthlyCalendar
         currentMonth={currentMonth}
         onCurrentMonthChange={(date) => setCurrentMonth(date)}
@@ -190,6 +262,7 @@ export default function ShiftsCalendar() {
               type LocationEntry = {
                 locationId: number;
                 users: string[];
+                displayUsers: string[];
                 shiftRecordId?: number;
                 shiftLabel: string;
                 shiftEndHour?: string;
@@ -264,9 +337,11 @@ export default function ShiftsCalendar() {
                       s.shift === definedShift.shift &&
                       (s.shiftEndHour || "") === (definedShift.shiftEndHour || "")
                   );
+                  const svUsers = sv?.user || [];
                   slot.locationEntries.push({
                     locationId,
-                    users: sv?.user || [],
+                    users: svUsers,
+                    displayUsers: svUsers.filter(matchesShiftFilters),
                     shiftRecordId: shiftRecord?._id,
                     shiftLabel: definedShift.shift,
                     shiftEndHour: definedShift.shiftEndHour,
@@ -336,7 +411,7 @@ export default function ShiftsCalendar() {
                                 </div>
                               )}
                               <div className="flex flex-wrap gap-0.5">
-                                {entry.users.map((userId, idx) => {
+                                {entry.displayUsers.map((userId, idx) => {
                                   const foundUser = getItem(userId, users);
                                   if (!foundUser) return null;
                                   const isChef = entry.chefUser === userId;
@@ -416,6 +491,8 @@ export default function ShiftsCalendar() {
           />
         </MonthlyBody>
       </MonthlyCalendar>
+        </div>
+      </div>
       {activeEntry && (
         <GenericAddEditPanel
           isOpen={isAssignModalOpen}
