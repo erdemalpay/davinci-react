@@ -958,7 +958,7 @@
   "Tables And Orders": "Masalar ve Siparişler",
   "Orders Details": "Sipariş Detayları",
   "Links": "Linkler",
-  "Chef Assign": "Şef Ata",
+  "Chef Assign": "Servis Elemanı Ata",
   "Table Player Counts": "Masa Oyuncu Sayıları",
   "Minimum Base Quantity": "Minimum Baz Miktar",
   "Maximum Base Quantity": "Maksimum Baz Miktar",
@@ -1693,5 +1693,7 @@
   "Assign Game": "Oyun Ata",
   "Automatically Applied": "Otomatik Uygulanır",
   "pcs": "ürün",
-  "off": "indirim"
+  "off": "indirim",
+  "Assign Shift": "Vardiya Ata",
+  "Calendar Info Text": "Sarı renkli hücre içinde bulunduğunuz günü, kırmızı renkli hücreler geçmiş tarihleri, gri renkli hücreler takvimde görüntülenen aydan önceki/sonraki aya ait günleri temsil eder."
 }

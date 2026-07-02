@@ -1684,6 +1684,8 @@
   "Assign Game": "Assign Game",
   "Automatically Applied": "Automatically Applied",
   "pcs": "pcs",
-  "off": "off"
+  "off": "off",
+  "Assign Shift": "Assign Shift",
+  "Calendar Info Text": "The yellow cell represents today, red cells represent past dates, and gray cells represent days belonging to the previous/next month shown on the calendar."
 
 }

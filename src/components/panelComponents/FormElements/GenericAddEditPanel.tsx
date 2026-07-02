@@ -79,6 +79,13 @@ type Props<T> = {
   upperMessageColumns?: 1 | 2;
   additionalButtons?: AdditionalButtonProps[];
   stickyFooterButtons?: boolean;
+  /*
+    centers the modal vertically on mobile too (default: aligned to the top
+    on mobile, centered from sm upward). only use for short panels that are
+    guaranteed to fit within the viewport, since centering a panel taller
+    than the screen can push its top content out of scroll reach on mobile.
+  */
+  centerOnMobile?: boolean;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -133,6 +140,7 @@ const GenericAddEditPanel = <T,>({
   submitItem,
   nonImageInputsClassName,
   stickyFooterButtons = false,
+  centerOnMobile = false,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -1091,7 +1099,9 @@ const GenericAddEditPanel = <T,>({
   };
   return (
     <div
-      className={`__className_a182b8 fixed inset-0 flex items-start sm:items-center justify-center overflow-y-auto bg-gray-800 bg-opacity-50 z-50 ${
+      className={`__className_a182b8 fixed inset-0 flex ${
+        centerOnMobile ? "items-center" : "items-start sm:items-center"
+      } justify-center overflow-y-auto bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
     >
