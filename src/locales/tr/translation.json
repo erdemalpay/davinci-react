@@ -726,8 +726,10 @@
   "Upper Category": "Üst Kategori",
   "Add Upper Category": "Üst Kategori Ekle",
   "Show Inactive Categories": "Aktif Olmayan Kategorileri Göster",
-  "Select a upper category": "Bir üst kategori seçin",
-  "Select a category": "Bir kategori seçin",
+  "Select a upper category": "Tüm Üst Kategoriler",
+  "Select a category": "Tüm Alt Kategoriler",
+  "Related Sub Category": "Alt Kategoriler",
+  "Orders Summary Information Text": "Bir 'Üst Kategori' seçildiğinde yapılan seçime ait toplam satış verisi gösterilir ve 'Alt Kategoriler' listesi buna göre filtrelenir. Alt Kategori seçildiğinde grafik yalnızca seçilen alt kategoriye ait satış verisini gösterir. Üst Kategori seçilmezse tüm alt kategoriler listelenir.",
   "Discounted orders cannot be increased.": "İndirimli siparişler artırılamaz.",
   "The status of an inactive count cannot be changed.": "Aktif olmayan sayımın durumu değiştirilemez.",
   "Cafe ID": "Cafe ID",
@@ -958,7 +960,7 @@
   "Tables And Orders": "Masalar ve Siparişler",
   "Orders Details": "Sipariş Detayları",
   "Links": "Linkler",
-  "Chef Assign": "Şef Ata",
+  "Chef Assign": "Servis Elemanı Ata",
   "Table Player Counts": "Masa Oyuncu Sayıları",
   "Minimum Base Quantity": "Minimum Baz Miktar",
   "Maximum Base Quantity": "Maksimum Baz Miktar",
@@ -1693,5 +1695,7 @@
   "Assign Game": "Oyun Ata",
   "Automatically Applied": "Otomatik Uygulanır",
   "pcs": "ürün",
-  "off": "indirim"
+  "off": "indirim",
+  "Assign Shift": "Vardiya Ata",
+  "Calendar Info Text": "Sarı renkli hücre içinde bulunduğunuz günü, kırmızı renkli hücreler geçmiş tarihleri, gri renkli hücreler takvimde görüntülenen aydan önceki/sonraki aya ait günleri temsil eder."
 }

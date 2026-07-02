@@ -1,5 +1,5 @@
-import { format, getDay, isSameDay, Locale, parseISO } from "date-fns";
-import { createContext, ReactNode, useContext } from "react";
+import { addDays, format, getDay, isSameDay, Locale, parseISO, subDays } from "date-fns";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { H5 } from "../panelComponents/Typography";
 import { useMonthlyCalendar } from "./MonthlyCalendar";
@@ -10,6 +10,7 @@ const MonthlyBodyContext = createContext({} as any);
 type BodyState<DayData> = {
   day: Date;
   events: DayData[];
+  isOutsideMonth?: boolean;
 };
 
 export function useMonthlyBody<DayData>() {
@@ -30,7 +31,7 @@ export const handleOmittedDays = ({
   let headings = daysInWeek({ locale });
   let daysToRender = days;
 
-  //omit the headings and days of the week that were passed in
+  //parametre olarak geçilen gün başlıklarını ve günleri hariç tut
   if (omitDays) {
     headings = daysInWeek({ locale }).filter(
       (day) => !omitDays.includes(day.day)
@@ -38,8 +39,8 @@ export const handleOmittedDays = ({
     daysToRender = days.filter((day) => !omitDays.includes(getDay(day)));
   }
 
-  // omit the padding if an omitted day was before the start of the month
-  let firstDayOfMonth = getDay(daysToRender[0]) as number;
+  // hariç tutulan bir gün ayın başlangıcından önceyse dolguyu (padding) hariç tut
+  let firstDayOfMonth = daysToRender[0] ? (getDay(daysToRender[0]) as number) : 0;
   firstDayOfMonth = (firstDayOfMonth + 6) % 7;
   if (omitDays) {
     const subtractOmittedDays = omitDays.filter(
@@ -52,7 +53,7 @@ export const handleOmittedDays = ({
   return { headings, daysToRender, padding };
 };
 
-//to prevent these from being purged in production, we make a lookup object
+//production'da bu class'ların silinmesini (purge) önlemek için bir lookup objesi oluşturuyoruz
 const headingClasses: { [key: string]: string } = {
   l3: "lg:grid-cols-3",
   l4: "lg:grid-cols-4",
@@ -63,18 +64,26 @@ const headingClasses: { [key: string]: string } = {
 
 type MonthlyBodyProps<DayData> = {
   /*
-    skip days, an array of days, starts at sunday (0), saturday is 6
-    ex: [0,6] would remove sunday and saturday from rendering
+    atlanacak günler, bir gün dizisi, pazar (0) ile başlar, cumartesi 6'dır
+    örn: [0,6] pazar ve cumartesiyi görüntülemeden kaldırır
   */
   omitDays?: number[];
   events: (DayData & { date: string })[];
   children: ReactNode;
+  /*
+    true olduğunda, ayın ilk gününden önceki ve son gününden sonraki boş
+    hücreler, boş bırakılmak yerine önceki/sonraki ayın günleriyle
+    (gölgeli olarak) doldurulur. bu baştaki/sondaki aralığı kapsayan
+    event'leri getirmek çağıran tarafın sorumluluğundadır.
+  */
+  showOverflowDays?: boolean;
 };
 
 export function MonthlyBody<DayData>({
   omitDays,
   events,
   children,
+  showOverflowDays,
 }: MonthlyBodyProps<DayData>) {
   const { days, locale } = useMonthlyCalendar();
   const { t } = useTranslation();
@@ -85,6 +94,27 @@ export function MonthlyBody<DayData>({
     locale,
   });
   const headingClassName = "border-b-2 p-2 border-r-2 lg:block hidden";
+  const firstDay = daysToRender[0];
+  const lastDay = daysToRender[daysToRender.length - 1];
+  const overflowDays =
+    showOverflowDays && firstDay
+      ? padding.map((_, index) => subDays(firstDay, padding.length - index))
+      : [];
+  const lastDayIndex = lastDay ? (getDay(lastDay) + 6) % 7 : 0; // Pazartesi=0..Pazar=6
+  const trailingOverflowDays =
+    showOverflowDays && lastDay
+      ? Array.from({ length: 6 - lastDayIndex }, (_, index) =>
+          addDays(lastDay, index + 1)
+        )
+      : [];
+  const parsedEvents = useMemo(
+    () => events.map((event) => ({ event, parsedDate: parseISO(event.date) })),
+    [events]
+  );
+  const eventsForDay = (day: Date) =>
+    parsedEvents
+      .filter(({ parsedDate }) => isSameDay(parsedDate, day))
+      .map(({ event }) => event);
   return (
     <div className="bg-white border-l-2 border-t-2 rounded-lg mb-6">
       <div
@@ -101,21 +131,44 @@ export function MonthlyBody<DayData>({
             <H5>{t(day.label)}</H5>
           </div>
         ))}
-        {padding.map((_, index) => (
-          <div
-            key={index}
-            className={headingClassName}
-            aria-label="Empty Day"
-          />
-        ))}
+        {overflowDays.length > 0
+          ? overflowDays.map((day) => (
+              <MonthlyBodyContext.Provider
+                key={day.toISOString()}
+                value={{
+                  day,
+                  isOutsideMonth: true,
+                  events: eventsForDay(day),
+                }}
+              >
+                {children}
+              </MonthlyBodyContext.Provider>
+            ))
+          : padding.map((_, index) => (
+              <div
+                key={index}
+                className={headingClassName}
+                aria-label="Empty Day"
+              />
+            ))}
         {daysToRender.map((day) => (
           <MonthlyBodyContext.Provider
             key={day.toISOString()}
             value={{
               day,
-              events: events.filter((data) =>
-                isSameDay(parseISO(data.date), day)
-              ),
+              events: eventsForDay(day),
+            }}
+          >
+            {children}
+          </MonthlyBodyContext.Provider>
+        ))}
+        {trailingOverflowDays.map((day) => (
+          <MonthlyBodyContext.Provider
+            key={day.toISOString()}
+            value={{
+              day,
+              isOutsideMonth: true,
+              events: eventsForDay(day),
             }}
           >
             {children}
@@ -127,24 +180,52 @@ export function MonthlyBody<DayData>({
 }
 
 type MonthlyDayProps<DayData> = {
-  renderDay: (events: DayData[]) => ReactNode;
+  renderDay: (events: DayData[], day: Date) => ReactNode;
+  /*
+    renderDay çıktısını saran <ul>'un varsayılan className'ini geçersiz kılar.
+    günün öğelerini varsayılan tek sütunlu dizilim yerine bir grid içinde
+    (örn. mobilde 2 sütun) göstermek için kullanışlıdır.
+  */
+  listClassName?: string;
+  /*
+    çağıranın tek tek gün hücrelerini renklendirmesini sağlar (örn. geçmiş
+    günler, bugün). hücrenin tarihini ve komşu aya ait taşan bir gün olup
+    olmadığını alır; varsayılan stili değiştirmemek için "" döndürün.
+  */
+  dayClassName?: (day: Date, isOutsideMonth: boolean) => string;
 };
-export function MonthlyDay<DayData>({ renderDay }: MonthlyDayProps<DayData>) {
+export function MonthlyDay<DayData>({
+  renderDay,
+  listClassName,
+  dayClassName,
+}: MonthlyDayProps<DayData>) {
   const { locale } = useMonthlyCalendar();
-  const { day, events } = useMonthlyBody<DayData>();
+  const { day, events, isOutsideMonth } = useMonthlyBody<DayData>();
   const dayNumber = format(day, "d", { locale });
 
   return (
     <div
       aria-label={`Events for day ${dayNumber}`}
-      className="h-48 p-2 border-b-2 border-r-2"
+      className={`h-48 p-2 border-b-2 border-r-2 ${
+        isOutsideMonth
+          ? "bg-gray-100 opacity-60"
+          : dayClassName?.(day, !!isOutsideMonth) ?? ""
+      }`}
     >
-      <div className="flex justify-between">
-        <div className="font-bold">{dayNumber}</div>
-        <div className="lg:hidden block">{format(day, "EEEE", { locale })}</div>
+      <div className="flex justify-between leading-none">
+        <div
+          className={`font-bold leading-none ${
+            isOutsideMonth ? "text-gray-400" : ""
+          }`}
+        >
+          {dayNumber}
+        </div>
+        <div className="lg:hidden block leading-none">
+          {format(day, "EEEE", { locale })}
+        </div>
       </div>
-      <ul className="overflow-hidden max-h-36 overflow-y-auto">
-        {renderDay(events)}
+      <ul className={listClassName ?? "overflow-hidden max-h-36 overflow-y-auto"}>
+        {renderDay(events, day)}
       </ul>
     </div>
   );
