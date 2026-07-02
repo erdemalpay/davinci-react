@@ -5,7 +5,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { IoCheckmark, IoCloseOutline, IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -119,6 +119,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     ...initialBulkInputForm,
   });
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
+  const [openDescriptionId, setOpenDescriptionId] = useState<number | null>(
+    null
+  );
   const [form, setForm] = useState({
     product: "",
     quantity: 0,
@@ -754,7 +757,31 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           );
         },
       },
-      { key: "description" },
+      {
+        key: "description",
+        className: "min-w-48 pr-1",
+        node: (item: MenuItem) => {
+          if (!item?.description) return null;
+          const isOpen = openDescriptionId === item._id;
+          return (
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() =>
+                  setOpenDescriptionId(isOpen ? null : item._id)
+                }
+                className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
+              >
+                {isOpen ? <IoChevronUp /> : <IoChevronDown />}
+              </button>
+              {isOpen && (
+                <p className="max-w-64 whitespace-pre-wrap">
+                  {item.description}
+                </p>
+              )}
+            </div>
+          );
+        },
+      },
       {
         key: "price",
         node: (item: MenuItem) => {
@@ -962,6 +989,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     updateItem,
     locations,
     isMenuLocationEdit,
+    openDescriptionId,
   ]);
 
   const addButton = useMemo(
