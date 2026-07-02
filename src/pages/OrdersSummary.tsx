@@ -36,12 +36,9 @@ const OrdersSummary = () => {
   const categories = useGetCategories();
   const upperCategories = useGetUpperCategories();
   if (!categories || !upperCategories) return <></>;
-  const [selectedCategory, setSelectedCategory] =
-    useState<MenuCategory | null>();
-  const [selectedUpperCategory, setSelectedUpperCategory] =
-    useState<UpperCategory | null>(upperCategories[0]);
-  const [selectedDateRange, setSelectedDateRange] =
-    useState<DateRangeKey>("thisMonth");
+  const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>();
+  const [selectedUpperCategory, setSelectedUpperCategory] = useState<UpperCategory | null | undefined>(upperCategories[0]);
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRangeKey>("thisMonth");
 
   const ordersSummaryDateOptions = [
     { value: "thisWeek", label: "This Week" },
@@ -52,7 +49,14 @@ const OrdersSummary = () => {
     { value: "lastYear", label: "Last Year" },
     { value: "customDate", label: "Custom Date" },
   ];
-  const categoryOptions = categories?.map((category) => {
+  const categoriesForOptions = selectedUpperCategory
+    ? categories?.filter((category) =>
+        selectedUpperCategory.categoryGroup.some(
+          (group) => group.category === category._id
+        )
+      )
+    : categories;
+  const categoryOptions = categoriesForOptions?.map((category) => {
     return {
       value: String(category._id),
       label: category.name,
@@ -185,12 +189,16 @@ const OrdersSummary = () => {
       ? `${afterDate} - ${beforeDate}`
       : `${afterDate} - ${currentDate}`;
   }
-  // componentKey useEffect kaldırıldı - sonsuz döngüye sebep oluyordu
+
   useEffect(() => {
-    if (!selectedCategory && upperCategories && upperCategories.length > 0) {
+    if (
+      selectedUpperCategory === undefined &&
+      upperCategories &&
+      upperCategories.length > 0
+    ) {
       setSelectedUpperCategory(upperCategories[0]);
     }
-  }, [upperCategories, selectedCategory]);
+  }, [upperCategories, selectedUpperCategory]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -310,12 +318,16 @@ const OrdersSummary = () => {
           {/* category summary chart */}
           <div className="w-full">
             <div className="w-full flex flex-col gap-4">
+              {/* usage info */}
+              <p className="px-4 text-sm text-gray-500">
+                {t("Orders Summary Information Text")}
+              </p>
               {/* selections */}
               <div className="flex flex-col sm:flex-row gap-2 relative z-20">
                 {/* upper category  selection*/}
                 <div className="sm:w-1/4 px-4 relative z-30">
                   <SelectInput
-                    label={t("Upper Category")}
+                    label={t("Upper Categories")}
                     options={upperCategoryOptions}
                     isMultiple={false}
                     value={
@@ -326,7 +338,8 @@ const OrdersSummary = () => {
                           }
                         : null
                     }
-                    isOnClearActive={false}
+                    isOnClearActive={true}
+                    onClear={() => setSelectedUpperCategory(null)}
                     onChange={(selectedOption) => {
                       if (categories) {
                         setSelectedUpperCategory(
@@ -346,7 +359,7 @@ const OrdersSummary = () => {
                 {/* category selection */}
                 <div className="sm:w-1/4 px-4 relative z-20">
                   <SelectInput
-                    label={t("Category")}
+                    label={t("Related Sub Category")}
                     options={categoryOptions}
                     isMultiple={false}
                     value={
