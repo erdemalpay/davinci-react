@@ -419,7 +419,11 @@ export default function ShiftsCalendar() {
       {activeEntry && (
         <GenericAddEditPanel
           isOpen={isAssignModalOpen}
-          close={() => setIsAssignModalOpen(false)}
+          close={() => {
+            setIsAssignModalOpen(false);
+            setActiveEntry(null);
+          }}
+          centerOnMobile
           header={t("Assign Shift")}
           upperMessage={[
             `${t("Location")}: ${
@@ -441,7 +445,7 @@ export default function ShiftsCalendar() {
               required: false,
             },
           ]}
-          formKeys={[{ key: "selectedUsers", type: FormKeyTypeEnum.STRING }]}
+          formKeys={[{ key: "selectedUsers", type: FormKeyTypeEnum.ARRAY }]}
           setForm={setAssignForm as any}
           submitItem={updateShift as any}
           isEditMode={true}
@@ -483,6 +487,7 @@ export default function ShiftsCalendar() {
               });
             }
             setIsAssignModalOpen(false);
+            setActiveEntry(null);
           }}
           topClassName="flex flex-col gap-2"
         />

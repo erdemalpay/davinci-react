@@ -40,7 +40,7 @@ export const handleOmittedDays = ({
   }
 
   // hariç tutulan bir gün ayın başlangıcından önceyse dolguyu (padding) hariç tut
-  let firstDayOfMonth = getDay(daysToRender[0]) as number;
+  let firstDayOfMonth = daysToRender[0] ? (getDay(daysToRender[0]) as number) : 0;
   firstDayOfMonth = (firstDayOfMonth + 6) % 7;
   if (omitDays) {
     const subtractOmittedDays = omitDays.filter(
@@ -94,15 +94,19 @@ export function MonthlyBody<DayData>({
     locale,
   });
   const headingClassName = "border-b-2 p-2 border-r-2 lg:block hidden";
-  const overflowDays = showOverflowDays
-    ? padding.map((_, index) => subDays(daysToRender[0], padding.length - index))
-    : [];
-  const lastDayIndex = (getDay(daysToRender[daysToRender.length - 1]) + 6) % 7; // Pazartesi=0..Pazar=6
-  const trailingOverflowDays = showOverflowDays
-    ? Array.from({ length: 6 - lastDayIndex }, (_, index) =>
-        addDays(daysToRender[daysToRender.length - 1], index + 1)
-      )
-    : [];
+  const firstDay = daysToRender[0];
+  const lastDay = daysToRender[daysToRender.length - 1];
+  const overflowDays =
+    showOverflowDays && firstDay
+      ? padding.map((_, index) => subDays(firstDay, padding.length - index))
+      : [];
+  const lastDayIndex = lastDay ? (getDay(lastDay) + 6) % 7 : 0; // Pazartesi=0..Pazar=6
+  const trailingOverflowDays =
+    showOverflowDays && lastDay
+      ? Array.from({ length: 6 - lastDayIndex }, (_, index) =>
+          addDays(lastDay, index + 1)
+        )
+      : [];
   const parsedEvents = useMemo(
     () => events.map((event) => ({ event, parsedDate: parseISO(event.date) })),
     [events]
