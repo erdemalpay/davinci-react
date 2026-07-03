@@ -144,11 +144,13 @@ export default function ItemPlatformSalesTable({ item }: Props) {
 
   useEffect(() => {
     availablePlatforms.forEach((platform, index) => {
-      if (expandedRows[`row-${index}`] && !requested[platform.key]) {
-        setRequested((prev) => ({ ...prev, [platform.key]: true }));
+      if (expandedRows[`row-${index}`]) {
+        setRequested((prev) =>
+          prev[platform.key] ? prev : { ...prev, [platform.key]: true }
+        );
       }
     });
-  }, [expandedRows, requested, availablePlatforms]);
+  }, [expandedRows, availablePlatforms]);
 
   const shopifyData = useGetItemPlatformOrders(
     itemId,
@@ -169,34 +171,41 @@ export default function ItemPlatformSalesTable({ item }: Props) {
     requested.hepsiburada
   );
 
-  const platformData: Record<ItemPlatformKey, typeof shopifyData> = {
-    shopify: shopifyData,
-    trendyol: trendyolData,
-    hepsiburada: hepsiburadaData,
+  const applyPlatformOrders = (
+    platform: ItemPlatformKey,
+    data: typeof shopifyData
+  ) => {
+    if (!data) return;
+    setOrdersByPlatform((prev) => {
+      if (data.page === 1) {
+        return { ...prev, [platform]: data.orders };
+      }
+      const existingIds = new Set(prev[platform].map((order) => order._id));
+      return {
+        ...prev,
+        [platform]: [
+          ...prev[platform],
+          ...data.orders.filter((order) => !existingIds.has(order._id)),
+        ],
+      };
+    });
+    setHasMoreByPlatform((prev) => ({ ...prev, [platform]: data.hasMore }));
   };
 
   useEffect(() => {
-    (["shopify", "trendyol", "hepsiburada"] as ItemPlatformKey[]).forEach(
-      (platform) => {
-        const data = platformData[platform];
-        if (!data) return;
-        setOrdersByPlatform((prev) => {
-          if (data.page === 1) {
-            return { ...prev, [platform]: data.orders };
-          }
-          const existingIds = new Set(prev[platform].map((order) => order._id));
-          return {
-            ...prev,
-            [platform]: [
-              ...prev[platform],
-              ...data.orders.filter((order) => !existingIds.has(order._id)),
-            ],
-          };
-        });
-        setHasMoreByPlatform((prev) => ({ ...prev, [platform]: data.hasMore }));
-      }
-    );
-  }, [shopifyData, trendyolData, hepsiburadaData]); // eslint-disable-line
+    applyPlatformOrders("shopify", shopifyData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shopifyData]);
+
+  useEffect(() => {
+    applyPlatformOrders("trendyol", trendyolData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trendyolData]);
+
+  useEffect(() => {
+    applyPlatformOrders("hepsiburada", hepsiburadaData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hepsiburadaData]);
 
   const rows: PlatformSummaryRow[] = useMemo(
     () =>
