@@ -1697,5 +1697,10 @@
   "pcs": "ürün",
   "off": "indirim",
   "Assign Shift": "Vardiya Ata",
-  "Calendar Info Text": "Sarı renkli hücre içinde bulunduğunuz günü, kırmızı renkli hücreler geçmiş tarihleri, gri renkli hücreler takvimde görüntülenen aydan önceki/sonraki aya ait günleri temsil eder."
+  "Calendar Info Text": "Sarı renkli hücre içinde bulunduğunuz günü, kırmızı renkli hücreler geçmiş tarihleri, gri renkli hücreler takvimde görüntülenen aydan önceki/sonraki aya ait günleri temsil eder.",
+  "Price History": "Fiyat Geçmişi",
+  "Sold Quantity": "Satılan Miktar",
+  "Order Count": "Sipariş Sayısı",
+  "Platform Sales": "Platform Satışları",
+  "Load More": "Daha Fazla Yükle"
 }

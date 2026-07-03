@@ -1688,6 +1688,10 @@
   "pcs": "pcs",
   "off": "off",
   "Assign Shift": "Assign Shift",
-  "Calendar Info Text": "The yellow cell represents today, red cells represent past dates, and gray cells represent days belonging to the previous/next month shown on the calendar."
-
+  "Calendar Info Text": "The yellow cell represents today, red cells represent past dates, and gray cells represent days belonging to the previous/next month shown on the calendar.",
+  "Price History": "Price History",
+  "Sold Quantity": "Sold Quantity",
+  "Order Count": "Order Count",
+  "Platform Sales": "Platform Sales",
+  "Load More": "Load More"
 }

@@ -9,6 +9,9 @@ import { useLocationContext } from "./../../../context/Location.context";
 import { useOrderContext } from "./../../../context/Order.context";
 import {
   CategorySummaryCompareResponse,
+  ItemPlatformKey,
+  ItemPlatformOrdersResponse,
+  ItemPlatformSummaryResponse,
   Order,
   PersonalOrderDataType,
   PopularDiscounts,
@@ -1112,4 +1115,30 @@ export function useGetPopularItemsLast30Days() {
     `${baseUrl}/popular-items-last-30-days`,
     selectedLocationId,
   ]);
+}
+
+export function useGetItemPlatformSummary(itemId?: number | string) {
+  return useGet<ItemPlatformSummaryResponse>(
+    itemId ? `${baseUrl}/item/${itemId}/platform-summary` : "",
+    [`${baseUrl}/item`, itemId, "platform-summary"],
+    true,
+    { enabled: Boolean(itemId) }
+  );
+}
+
+export function useGetItemPlatformOrders(
+  itemId: number | string | undefined,
+  platform: ItemPlatformKey,
+  page: number,
+  enabled: boolean
+) {
+  const limit = 20;
+  return useGet<ItemPlatformOrdersResponse>(
+    itemId
+      ? `${baseUrl}/item/${itemId}/platform-orders?platform=${platform}&page=${page}&limit=${limit}`
+      : "",
+    [`${baseUrl}/item`, itemId, "platform-orders", platform, page, limit],
+    true,
+    { enabled: Boolean(itemId) && enabled }
+  );
 }
