@@ -24,6 +24,7 @@ import { useGetGamesMinimal } from "../../utils/api/game";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate, formatDateInTurkey } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -71,7 +72,8 @@ const GameAssignments = () => {
   const users = useGetUsers();
   const games = useGetGamesMinimal();
   const { currentPage, rowsPerPage, setCurrentPage } = useGeneralContext();
-  const { updateAssignment, deleteAssignment } = useAssignmentMutations();
+  const { updateAssignment, isUpdatingAssignment, deleteAssignment } =
+    useAssignmentMutations();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilters);
@@ -592,6 +594,7 @@ const GameAssignments = () => {
         filterPanel={filterPanel}
         filters={filters}
       />
+      {isUpdatingAssignment && <Loading />}
     </div>
   );
 };

@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
-import { DateRangeKey, FormElementsState, commonDateOptions } from "../../types";
+import {
+  DateRangeKey,
+  FormElementsState,
+  RowPerPageEnum,
+  commonDateOptions,
+} from "../../types";
 import {
   Assignment,
   AssignmentPriorityEnum,
@@ -53,7 +58,7 @@ const MyGameAssignments = ({ userId }: Props) => {
   const { t } = useTranslation();
   const users = useGetUsers();
   const games = useGetGamesMinimal();
-  const { currentPage, rowsPerPage, setCurrentPage } = useGeneralContext();
+  const { setCurrentPage } = useGeneralContext();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilters);
@@ -78,8 +83,8 @@ const MyGameAssignments = ({ userId }: Props) => {
   );
 
   const assignmentsPayload = useGetAssignments(
-    currentPage,
-    rowsPerPage,
+    1,
+    RowPerPageEnum.ALL,
     queryFilters
   );
 
@@ -163,17 +168,6 @@ const MyGameAssignments = ({ userId }: Props) => {
     []
   );
 
-  const pagination = useMemo(
-    () =>
-      assignmentsPayload
-        ? {
-            totalRows: assignmentsPayload.totalNumber,
-            totalPages: assignmentsPayload.totalPages,
-          }
-        : null,
-    [assignmentsPayload]
-  );
-
   const filterPanelInputs = useMemo(
     () => [
       {
@@ -189,10 +183,10 @@ const MyGameAssignments = ({ userId }: Props) => {
         additionalOnChange: ({ value }: { value: string }) => {
           const dateRange = dateRanges[value as DateRangeKey];
           if (dateRange) {
-            setFilterPanelFormElements({
-              ...filterPanelFormElements,
+            setFilterPanelFormElements((prev) => ({
+              ...prev,
               ...dateRange(),
-            });
+            }));
           }
         },
       },
@@ -253,7 +247,7 @@ const MyGameAssignments = ({ userId }: Props) => {
         isOnClearActive: false,
       },
     ],
-    [t, games, filterPanelFormElements, setFilterPanelFormElements]
+    [t, games, setFilterPanelFormElements]
   );
 
   useEffect(() => {
@@ -316,10 +310,9 @@ const MyGameAssignments = ({ userId }: Props) => {
         isActionsActive={false}
         isSearch={false}
         isColumnFilter={false}
-        isPagination={true}
+        isPagination={false}
         isRowsPerPage={false}
         rowClassNameFunction={getRowBgColor}
-        pagination={pagination ?? undefined}
         filterPanel={filterPanel}
         filters={filters}
       />
