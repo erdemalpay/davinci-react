@@ -1701,7 +1701,6 @@
   "Assign Shift": "Vardiya Ata",
   "Calendar Info Text": "Sarı renkli hücre içinde bulunduğunuz günü, kırmızı renkli hücreler geçmiş tarihleri, gri renkli hücreler takvimde görüntülenen aydan önceki/sonraki aya ait günleri temsil eder.",
   "User Custom": "Kullanıcı (Seçildiğinde bilmediği oyunlar filtrelenir)",
-  "My Game Assignments": "Oyun Atamalarım",
   "Assigned Date": "Atama Tarihi",
   "Delete Assignment": "Atamayı Sil",
   "AssignmentDeleteMessage": "\"{{userName}}\" kullanıcısından \"{{title}}\" ataması silinmek üzeredir. Devam etmek istediğinizden emin misiniz?",

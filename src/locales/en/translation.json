@@ -1692,7 +1692,6 @@
   "Assign Shift": "Assign Shift",
   "Calendar Info Text": "The yellow cell represents today, red cells represent past dates, and gray cells represent days belonging to the previous/next month shown on the calendar.",
   "User Custom": "User (Filters unknown games when selected)",
-  "My Game Assignments": "My Game Assignments",
   "Assigned Date": "Assigned Date",
   "Delete Assignment": "Delete Assignment",
   "AssignmentDeleteMessage": "The {{title}} assignment from {{userName}} is about to be deleted. Are you sure you want to continue?",

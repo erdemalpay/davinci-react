@@ -26,7 +26,6 @@ import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
-import MyGameAssignments from "../components/user/MyGameAssignments";
 import UserGameAssignments from "../components/user/UserGameAssignments";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -41,7 +40,6 @@ export enum ProfileTabEnum {
   SETTINGS,
   MENTORED_GAMES,
   KNOWN_GAMES,
-  MY_GAME_ASSIGNMENTS,
   GAMEMASTERUSERSUMMARY,
   SERVICEPERSONALUSERSUMMARY,
   USERGAMEASSIGNMENTS,
@@ -91,13 +89,6 @@ export const ProfilePageTabs = [
     label: "Known Games",
     icon: <MdOutlineEventNote className="text-lg font-thin" />,
     content: null, // needs user + translate count
-    isDisabled: true,
-  },
-  {
-    number: ProfileTabEnum.MY_GAME_ASSIGNMENTS,
-    label: "My Game Assignments",
-    icon: <MdOutlineEventNote className="text-lg font-thin" />,
-    content: null, // needs user
     isDisabled: true,
   },
   {
@@ -192,13 +183,6 @@ export default function Profile() {
         content: (
           <div className="px-4 w-full ">
             {user && <GamesIKnow userId={user._id} />}
-          </div>
-        ),
-      }),
-      ...(tab.number === ProfileTabEnum.MY_GAME_ASSIGNMENTS && {
-        content: (
-          <div className="px-4 w-full ">
-            {user && <MyGameAssignments userId={user._id} />}
           </div>
         ),
       }),
