@@ -21,7 +21,10 @@ import {
 } from "../../utils/api/assignment";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGamesMinimal } from "../../utils/api/game";
-import { useGetUsers } from "../../utils/api/user";
+import {
+  useCompleteGameLearningTaskMutation,
+  useGetUsers,
+} from "../../utils/api/user";
 import { formatAsLocalDate, formatDateInTurkey } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import Loading from "../common/Loading";
@@ -74,6 +77,8 @@ const GameAssignments = () => {
   const { currentPage, rowsPerPage, setCurrentPage } = useGeneralContext();
   const { updateAssignment, isUpdatingAssignment, deleteAssignment } =
     useAssignmentMutations();
+  const { completeGameLearningTask, isCompletingGameLearningTask } =
+    useCompleteGameLearningTaskMutation();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilters);
@@ -311,14 +316,16 @@ const GameAssignments = () => {
               className="w-4 h-4 cursor-pointer"
               checked={row.status === AssignmentStatusEnum.COMPLETED}
               onChange={(event) => {
-                updateAssignment({
-                  id: row._id,
-                  updates: {
-                    status: event.target.checked
-                      ? AssignmentStatusEnum.COMPLETED
-                      : AssignmentStatusEnum.ASSIGNED,
-                  },
-                });
+                if (event.target.checked) {
+                  completeGameLearningTask({ assignmentId: row._id });
+                } else {
+                  updateAssignment({
+                    id: row._id,
+                    updates: {
+                      status: AssignmentStatusEnum.ASSIGNED,
+                    },
+                  });
+                }
               }}
             />
           </ButtonTooltip>
@@ -393,6 +400,7 @@ const GameAssignments = () => {
       editInputs,
       editFormKeys,
       updateAssignment,
+      completeGameLearningTask,
       isDeleteModalOpen,
       deleteAssignment,
     ]
@@ -594,7 +602,7 @@ const GameAssignments = () => {
         filterPanel={filterPanel}
         filters={filters}
       />
-      {isUpdatingAssignment && <Loading />}
+      {(isUpdatingAssignment || isCompletingGameLearningTask) && <Loading />}
     </div>
   );
 };

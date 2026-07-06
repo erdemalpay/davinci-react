@@ -3,10 +3,18 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
-import { DateRangeKey, commonDateOptions, RoleEnum } from "../../types";
+import {
+  DateRangeKey,
+  RowPerPageEnum,
+  commonDateOptions,
+  RoleEnum,
+} from "../../types";
 import {
   AssignmentPriorityEnum,
+  AssignmentStatusEnum,
+  AssignmentTypeEnum,
   useAssignmentMutations,
+  useGetAssignments,
 } from "../../utils/api/assignment";
 import { dateRanges } from "../../utils/api/dateRanges";
 import {
@@ -47,6 +55,22 @@ const AssignGame = () => {
   });
 
   const users = useGetUsers();
+  const existingGameAssignments = useGetAssignments(1, RowPerPageEnum.ALL, {
+    subjectId: rowToAction?._id,
+    assignmentType: AssignmentTypeEnum.GAME_LEARNING,
+    status: AssignmentStatusEnum.ASSIGNED,
+  })?.data;
+
+  const alreadyAssignedUserIds = useMemo(() => {
+    return new Set(
+      (existingGameAssignments ?? []).map((assignment) =>
+        typeof assignment.assignedTo === "object" && assignment.assignedTo
+          ? (assignment.assignedTo as unknown as { _id: string })._id
+          : assignment.assignedTo
+      )
+    );
+  }, [existingGameAssignments]);
+
   const columns = useMemo(
     () => [
       { key: t("Game"), isSortable: true },
@@ -86,7 +110,9 @@ const AssignGame = () => {
           )
           .map((user) => ({
             value: user._id,
-            label: user.name,
+            label: alreadyAssignedUserIds.has(user._id)
+              ? `${user.name} (${t("Already Assigned")})`
+              : user.name,
           })),
         placeholder: t("Assign Users"),
         isMultiple: true,
@@ -114,7 +140,7 @@ const AssignGame = () => {
         required: false,
       },
     ],
-    [t, users, rowToAction]
+    [t, users, rowToAction, alreadyAssignedUserIds]
   );
 
   const formKeys = useMemo(
