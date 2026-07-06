@@ -1,12 +1,14 @@
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum } from "../../types";
+import { DateRangeKey, commonDateOptions, RoleEnum } from "../../types";
 import {
   AssignmentPriorityEnum,
   useAssignmentMutations,
 } from "../../utils/api/assignment";
+import { dateRanges } from "../../utils/api/dateRanges";
 import {
   GameWithGameplayCount,
   useGetGamesSortedByGameplayCount,
@@ -15,12 +17,23 @@ import { useGetUsers } from "../../utils/api/user";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 
 const AssignGame = () => {
   const { t } = useTranslation();
-  const games = useGetGamesSortedByGameplayCount() || [];
   const { user } = useUserContext();
   const { createGameAssignments } = useAssignmentMutations();
+  const {
+    showAssignGameFilters,
+    setShowAssignGameFilters,
+    filterAssignGamePanelFormElements,
+    setFilterAssignGamePanelFormElements,
+  } = useFilterContext();
+  const games =
+    useGetGamesSortedByGameplayCount(
+      filterAssignGamePanelFormElements?.after,
+      filterAssignGamePanelFormElements?.before
+    ) || [];
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<GameWithGameplayCount>();
   const formDataRef = useRef<{
@@ -113,6 +126,119 @@ const AssignGame = () => {
     []
   );
 
+  const filteredGames = useMemo(() => {
+    const selectedUserId = filterAssignGamePanelFormElements?.user;
+    if (!selectedUserId) return games;
+    const selectedUser = users?.find((u) => u._id === selectedUserId);
+    if (!selectedUser) return games;
+    return games.filter(
+      (game) =>
+        !selectedUser.userGames?.some(
+          (userGameObject) => userGameObject.game === game._id
+        )
+    );
+  }, [games, users, filterAssignGamePanelFormElements]);
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "user",
+        label: t("User Custom"),
+        options: users
+          ?.filter(
+            (user) =>
+              !user._id.startsWith("test_") &&
+              [RoleEnum.GAMEMASTER, RoleEnum.GAMEMANAGER].includes(
+                user.role._id as RoleEnum
+              )
+          )
+          ?.map((user) => ({
+            value: user._id,
+            label: user.name,
+          })),
+        placeholder: t("User"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date Custom"),
+        options: commonDateOptions.map((option) => ({
+          value: option.value,
+          label: t(option.label),
+        })),
+        placeholder: t("Date"),
+        required: false,
+        additionalOnChange: ({ value }: { value: string; label: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterAssignGamePanelFormElements({
+              ...filterAssignGamePanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: false,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: false,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+    ],
+    [t, users, filterAssignGamePanelFormElements, setFilterAssignGamePanelFormElements]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showAssignGameFilters,
+      inputs: filterPanelInputs,
+      formElements: filterAssignGamePanelFormElements,
+      setFormElements: setFilterAssignGamePanelFormElements,
+      closeFilters: () => setShowAssignGameFilters(false),
+    }),
+    [
+      showAssignGameFilters,
+      filterPanelInputs,
+      filterAssignGamePanelFormElements,
+      setFilterAssignGamePanelFormElements,
+      setShowAssignGameFilters,
+    ]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showAssignGameFilters}
+            onChange={() => {
+              setShowAssignGameFilters(!showAssignGameFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [t, showAssignGameFilters, setShowAssignGameFilters]
+  );
+
   const rowKeys = useMemo(
     () => [
       { key: "name", className: "min-w-32 pr-1" },
@@ -189,12 +315,15 @@ const AssignGame = () => {
     <div className="w-[95%] mx-auto">
       <GenericTable
         title={t("AssignGame")}
-        rows={games}
+        rows={filteredGames}
         columns={columns}
         rowKeys={rowKeys}
         actions={actions}
+        filters={filters}
+        filterPanel={filterPanel}
         isActionsActive={true}
-        isSearch={false}
+        isSearch={true}
+        searchRowKeys={[{ key: "name" }]}
         isColumnFilter={false}
         isPagination={false}
         isRowsPerPage={false}
