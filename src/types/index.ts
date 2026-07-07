@@ -663,6 +663,7 @@ export enum DisabledConditionEnum {
   ACCOUNTING_ACTIONS = "actions",
   MENU = "menu",
   MENU_CATEGORIES = "menu_categories",
+  ITEMPAGE = "itempage",
   VISITS_VISITSCHEDULEOVERVIEW = "visits_visitscheduleoverview",
   VISITS_ALLVISITS = "visits_allvisits",
   VISITS_SHIFTS = "visits_shifts",
@@ -1213,6 +1214,35 @@ export enum RowPerPageEnum {
   THIRD = 50,
   ALL = 10000000000,
 }
+
+export type ItemPlatformKey = "shopify" | "trendyol" | "hepsiburada";
+
+export type ItemPlatformSummaryResponse = {
+  itemId: number | string;
+  shopify: { totalQuantity: number; orderCount: number };
+  trendyol: { totalQuantity: number; orderCount: number };
+  hepsiburada: { totalQuantity: number; orderCount: number };
+};
+
+export type ItemPlatformOrder = {
+  _id: number | string;
+  quantity: number;
+  unitPrice: number;
+  status: string;
+  createdAt: string;
+  shopifyOrderNumber?: string;
+  trendyolOrderNumber?: string;
+  hepsiburadaOrderNumber?: string;
+};
+
+export type ItemPlatformOrdersResponse = {
+  itemId: number | string;
+  platform: ItemPlatformKey;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+  orders: ItemPlatformOrder[];
+};
 
 export type IkasProduct = {
   id: string;

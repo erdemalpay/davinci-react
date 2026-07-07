@@ -328,4 +328,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "retailerChanged",
     invalidateKeys: [`${Paths.Order}/retailer`, `${Paths.Order}/query`],
   },
+  {
+    event: "assignmentChanged",
+    invalidateKeys: [`${Paths.Assignments}`],
+  },
 ];

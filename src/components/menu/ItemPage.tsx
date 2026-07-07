@@ -23,6 +23,8 @@ import ImageUpload from "../imageUpload/ImageUpload";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import ItemPlatformSalesTable from "./ItemPlatformSalesTable";
+import MenuItemPriceHistoryChart from "./MenuItemPriceHistoryChart";
 
 const ItemPage = () => {
   const { t } = useTranslation();
@@ -239,6 +241,8 @@ const ItemPage = () => {
             </div>
           </div>
         </div>
+        <MenuItemPriceHistoryChart item={foundItem} />
+        <ItemPlatformSalesTable item={foundItem} />
         <ImageUpload isFolderSelect={false} itemId={selectedMenuItem._id} />
       </div>
       {isCreateDamagedItemOpen && (
