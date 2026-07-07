@@ -62,11 +62,11 @@ export function menuItemHasDecrementStock(
 export function getCategoryFilterOptions(
   categories: MenuCategory[] | undefined,
   t: (key: string) => string
-) {
+): { value: string | number; label: string }[] {
   return [
     ...(categories ?? []).map((category) => ({
-      value: category?._id,
-      label: category?.name,
+      value: category._id,
+      label: category.name,
     })),
     {
       value: DAVINCI_GAME_CATEGORY_FILTER_VALUE,
