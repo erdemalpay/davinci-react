@@ -25,7 +25,7 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { getItem } from "../../utils/getItem";
+import { getCategoryFilterOptions, getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
 import { isActionDisabled } from "../../utils/permissions";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
@@ -433,12 +433,7 @@ const DiscountBasedSales = () => {
         type: InputTypes.SELECT,
         formKey: "category",
         label: t("Category"),
-        options: categories?.map((category) => {
-          return {
-            value: category?._id,
-            label: category?.name,
-          };
-        }),
+        options: getCategoryFilterOptions(categories, t),
         isMultiple: true,
         placeholder: t("Category"),
         required: true,

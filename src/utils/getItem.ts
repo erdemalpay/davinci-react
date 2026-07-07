@@ -1,4 +1,8 @@
-import { MenuCategory, MenuItem } from "../types";
+import {
+  DAVINCI_GAME_CATEGORY_FILTER_VALUE,
+  MenuCategory,
+  MenuItem,
+} from "../types";
 
 export function getRefId(
   ref: string | number | { _id: string | number }
@@ -51,4 +55,22 @@ export function menuItemHasDecrementStock(
   item: MenuItem | undefined
 ): boolean {
   return item?.itemProduction?.some((p) => p.isDecrementStock) ?? false;
+}
+
+/** Category filter SELECT options for order data reports: real categories
+ * plus a fake "Da Vinci Games" option that filters items by isDaVinciGame. */
+export function getCategoryFilterOptions(
+  categories: MenuCategory[] | undefined,
+  t: (key: string) => string
+): { value: string | number; label: string }[] {
+  return [
+    ...(categories ?? []).map((category) => ({
+      value: category._id,
+      label: category.name,
+    })),
+    {
+      value: DAVINCI_GAME_CATEGORY_FILTER_VALUE,
+      label: t("Da Vinci Games"),
+    },
+  ];
 }

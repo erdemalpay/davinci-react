@@ -113,6 +113,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const initialBulkInputForm = {
     productCategories: [],
     price: 0,
+    isDaVinciGame: false,
     bulkEditSelection: [],
   };
   const [bulkInputForm, setBulkInputForm] = useState({
@@ -363,6 +364,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         _id: "price",
         label: t("Price"),
       },
+      {
+        _id: "isDaVinciGame",
+        label: t("Da Vinci Game"),
+      },
     ],
     [t]
   );
@@ -409,6 +414,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           !(bulkInputForm?.bulkEditSelection as string[])?.includes("price"),
         required: false,
       },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isDaVinciGame",
+        label: t("Da Vinci Game"),
+        placeholder: t("Da Vinci Game"),
+        isDisabled:
+          !isEditSelectionCompeted ||
+          !(bulkInputForm?.bulkEditSelection as string[])?.includes(
+            "isDaVinciGame"
+          ),
+        required: false,
+      },
     ],
     [
       t,
@@ -424,6 +441,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "bulkEditSelection", type: FormKeyTypeEnum.STRING },
       // { key: "productCategories", type: FormKeyTypeEnum.STRING },
       { key: "price", type: FormKeyTypeEnum.NUMBER },
+      { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
     ],
     []
   );
@@ -637,6 +655,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         placeholder: t("Barcode"),
         required: false,
       },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isDaVinciGame",
+        label: t("Da Vinci Game"),
+        placeholder: t("Da Vinci Game"),
+        required: false,
+      },
       ...(singleItemGroup?.category?.isLimitedTime
         ? [
             {
@@ -679,6 +704,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "hepsiBuradaSku", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
+      { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
       { key: "startDate", type: FormKeyTypeEnum.STRING },
       { key: "endDate", type: FormKeyTypeEnum.STRING },
     ],

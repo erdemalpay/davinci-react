@@ -26,7 +26,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { getItem } from "../../utils/getItem";
+import { getCategoryFilterOptions, getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -340,12 +340,7 @@ const SingleProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "category",
         label: t("Category"),
-        options: categories?.map((category) => {
-          return {
-            value: category?._id,
-            label: category?.name,
-          };
-        }),
+        options: getCategoryFilterOptions(categories, t),
         isMultiple: true,
         placeholder: t("Category"),
         required: true,

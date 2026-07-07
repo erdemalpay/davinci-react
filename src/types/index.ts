@@ -819,6 +819,11 @@ export type Kitchen = {
   isPrintEnabled?: boolean;
 };
 
+/** Sentinel value sent as a fake `category` filter option to ask the
+ * backend for items where `isDaVinciGame` is true. Must match
+ * DAVINCI_GAME_CATEGORY_FILTER_VALUE in the backend's order.dto.ts. */
+export const DAVINCI_GAME_CATEGORY_FILTER_VALUE = "davinci-games";
+
 export type MenuItem = {
   trendyolBarcode: unknown;
   hepsiBuradaSku?: unknown;
@@ -834,6 +839,7 @@ export type MenuItem = {
   order: number;
   isAutoServed?: boolean;
   isAutoPrepared?: boolean;
+  isDaVinciGame?: boolean;
   itemProduction?: {
     product: string;
     quantity: number;
