@@ -103,6 +103,7 @@ const AssignGame = () => {
           )
           ?.filter(
             (user) =>
+              !user._id.startsWith("test_") &&
               user.userGames &&
               !user.userGames.find(
                 (userGameObject) => userGameObject.game === rowToAction?._id
