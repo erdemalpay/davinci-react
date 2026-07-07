@@ -637,6 +637,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         placeholder: t("Barcode"),
         required: false,
       },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isDaVinciGame",
+        label: t("Da Vinci Game"),
+        placeholder: t("Da Vinci Game"),
+        required: false,
+      },
       ...(singleItemGroup?.category?.isLimitedTime
         ? [
             {
@@ -679,6 +686,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "hepsiBuradaSku", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
+      { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
       { key: "startDate", type: FormKeyTypeEnum.STRING },
       { key: "endDate", type: FormKeyTypeEnum.STRING },
     ],
