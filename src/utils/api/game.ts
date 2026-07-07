@@ -72,10 +72,21 @@ export function useGetGamesMinimal() {
   return useGetList<MinimalGame>(`${Paths.Games}/minimal`);
 }
 
-export function useGetGamesSortedByGameplayCount() {
+export function useGetGamesSortedByGameplayCount(
+  startDate?: string,
+  endDate?: string
+) {
+  const params = new URLSearchParams();
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+  const query = params.toString();
+  const url = `${Paths.Games}/sorted-by-gameplay-count${
+    query ? `?${query}` : ""
+  }`;
+
   return useGetList<GameWithGameplayCount>(
-    `${Paths.Games}/sorted-by-gameplay-count`,
-    [Paths.Games, "sorted-by-gameplay-count"],
+    url,
+    [Paths.Games, "sorted-by-gameplay-count", startDate, endDate],
     true
   );
 }

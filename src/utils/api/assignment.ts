@@ -234,6 +234,7 @@ export function useAssignmentMutations() {
   return {
     createAssignment: createMutation.mutate,
     updateAssignment: updateMutation.mutate,
+    isUpdatingAssignment: updateMutation.isPending,
     deleteAssignment: deleteMutation.mutate,
     createAssignmentAsync: createMutation.mutateAsync,
     updateAssignmentAsync: updateMutation.mutateAsync,

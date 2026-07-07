@@ -95,6 +95,7 @@
   "User Game Assignments": "Kullanıcı Oyun Atamaları",
   "Assign": "Ata",
   "Assign Users": "Kullanıcıları Ata",
+  "Already Assigned": "Zaten Atanmış",
   "Assigned By": "Atayan",
   "Assigned To": "Atanan",
   "Gameplay Count": "Oynanış Sayısı",
@@ -106,6 +107,7 @@
   "Subject Type": "Konu Türü",
   "Subject ID": "Konu ID",
   "Due Date": "Son Tarih",
+  "Completed Date": "Tamamlanma Tarihi",
   "Learn Date": "Öğrenme Tarihi",
   "Active": "Aktif",
   "Toggle Active": "Aktif Durumu Değiştir",
@@ -1697,5 +1699,10 @@
   "pcs": "ürün",
   "off": "indirim",
   "Assign Shift": "Vardiya Ata",
-  "Calendar Info Text": "Sarı renkli hücre içinde bulunduğunuz günü, kırmızı renkli hücreler geçmiş tarihleri, gri renkli hücreler takvimde görüntülenen aydan önceki/sonraki aya ait günleri temsil eder."
+  "Calendar Info Text": "Sarı renkli hücre içinde bulunduğunuz günü, kırmızı renkli hücreler geçmiş tarihleri, gri renkli hücreler takvimde görüntülenen aydan önceki/sonraki aya ait günleri temsil eder.",
+  "User Custom": "Kullanıcı (Seçildiğinde bilmediği oyunlar filtrelenir)",
+  "Assigned Date": "Atama Tarihi",
+  "Delete Assignment": "Atamayı Sil",
+  "AssignmentDeleteMessage": "\"{{userName}}\" kullanıcısından \"{{title}}\" ataması silinmek üzeredir. Devam etmek istediğinizden emin misiniz?",
+  "Date Custom": "Tarih (Oyunların belirtilen tarihlerde oynanış sayısını getirir)"
 }
