@@ -97,6 +97,7 @@
   "User Game Assignments": "User Game Assignments",
   "Assign": "Assign",
   "Assign Users": "Assign Users",
+  "Already Assigned": "Already Assigned",
   "Assigned By": "Assigned By",
   "Assigned To": "Assigned To",
   "Gameplay Count": "Gameplay Count",
@@ -108,6 +109,7 @@
   "Subject Type": "Subject Type",
   "Subject ID": "Subject ID",
   "Due Date": "Due Date",
+  "Completed Date": "Completed Date",
   "Learn Date": "Learn Date",
   "Active": "Active",
   "Toggle Active": "Toggle Active",
@@ -1693,5 +1695,10 @@
   "Sold Quantity": "Sold Quantity",
   "Order Count": "Order Count",
   "Platform Sales": "Platform Sales",
-  "Load More": "Load More"
+  "Load More": "Load More",
+  "User Custom": "User (Filters unknown games when selected)",
+  "Assigned Date": "Assigned Date",
+  "Delete Assignment": "Delete Assignment",
+  "AssignmentDeleteMessage": "The {{title}} assignment from {{userName}} is about to be deleted. Are you sure you want to continue?",
+  "Date Custom": "Date (Returns the number of times games were played on the specified dates)"
 }

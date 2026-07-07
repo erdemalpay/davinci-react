@@ -92,6 +92,13 @@ export const ProfilePageTabs = [
     isDisabled: true,
   },
   {
+    number: ProfileTabEnum.USERGAMEASSIGNMENTS,
+    label: "User Game Assignments",
+    icon: <FaRegListAlt className="text-lg font-thin" />,
+    content: null,
+    isDisabled: false,
+  },
+  {
     number: ProfileTabEnum.GAMEMASTERUSERSUMMARY,
     label: "User Summary(Game)",
     icon: <FaRegListAlt className="text-lg font-thin" />,
@@ -104,13 +111,6 @@ export const ProfilePageTabs = [
     icon: <FaRegListAlt className="text-lg font-thin" />,
     content: null, // needs user + role
     isDisabled: true,
-  },
-  {
-    number: ProfileTabEnum.USERGAMEASSIGNMENTS,
-    label: "User Game Assignments",
-    icon: <FaRegListAlt className="text-lg font-thin" />,
-    content: null,
-    isDisabled: false,
   },
   {
     number: ProfileTabEnum.SHIFTS,

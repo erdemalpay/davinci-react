@@ -1,5 +1,4 @@
-import { CheckIcon } from "@heroicons/react/24/solid";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -18,15 +17,11 @@ import {
 } from "../../utils/api/assignment";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGamesMinimal } from "../../utils/api/game";
-import {
-  useCompleteGameLearningTaskMutation,
-  useGetUsers,
-} from "../../utils/api/user";
+import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   userId?: string;
@@ -38,6 +33,7 @@ type AssignmentRow = Assignment & {
   subjectEntityId?: string;
   formattedDueDate?: string;
   formattedCreatedAt?: string;
+  formattedCompletedDate?: string;
 };
 
 function getAssignmentStatusSortPriority(status: AssignmentStatusEnum) {
@@ -63,29 +59,12 @@ const UserGameAssignments = ({ userId }: Props) => {
   const games = useGetGamesMinimal();
   const { currentPage, rowsPerPage, setCurrentPage, searchQuery } =
     useGeneralContext();
-  const { completeGameLearningTaskAsync } =
-    useCompleteGameLearningTaskMutation();
 
   const [showFilters, setShowFilters] = useState(false);
-  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AssignmentRow>();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(() => buildInitialFilters(userId ?? ""));
-  const formDataRef = useRef<{ learnDate?: string }>({
-    learnDate: new Date().toISOString().split("T")[0],
-  });
 
   const resolvedUserId = userId ?? user?._id;
-  const isProfileView = !userId;
-  const selectedUser = useMemo(
-    () => users?.find((userItem) => userItem._id === resolvedUserId),
-    [resolvedUserId, users]
-  );
-  const selectedUserKnownGameIds = useMemo(
-    () =>
-      new Set((selectedUser?.userGames ?? []).map((userGame) => userGame.game)),
-    [selectedUser]
-  );
 
   useEffect(() => {
     if (!resolvedUserId) return;
@@ -159,6 +138,15 @@ const UserGameAssignments = ({ userId }: Props) => {
                     : String(assignment.createdAt)
                 )
               : "",
+            formattedCompletedDate:
+              assignment.status === AssignmentStatusEnum.COMPLETED &&
+              assignment.completedAt
+                ? formatAsLocalDate(
+                    assignment.completedAt instanceof Date
+                      ? assignment.completedAt.toISOString()
+                      : String(assignment.completedAt)
+                  )
+                : "",
           };
         })
         ?.sort(
@@ -185,26 +173,22 @@ const UserGameAssignments = ({ userId }: Props) => {
         correspondingKey: "subjectEntityId",
       },
       {
+        key: t("Assigned Date"),
+        isSortable: true,
+        correspondingKey: "formattedCreatedAt",
+      },
+      {
         key: t("Due Date"),
         isSortable: true,
         correspondingKey: "formattedDueDate",
       },
       {
-        key: t("Created At"),
+        key: t("Completed Date"),
         isSortable: true,
-        correspondingKey: "formattedCreatedAt",
+        correspondingKey: "formattedCompletedDate",
       },
-      ...(isProfileView
-        ? [
-            {
-              key: t("Actions"),
-              isSortable: false,
-              correspondingKey: "actions",
-            },
-          ]
-        : []),
     ],
-    [isProfileView, t]
+    [t]
   );
 
   const rowKeys = useMemo(
@@ -224,10 +208,11 @@ const UserGameAssignments = ({ userId }: Props) => {
           return <p>{game ? game.name : row.subjectEntityId}</p>;
         },
       },
-      { key: "formattedDueDate", className: "min-w-28 pr-2" },
       { key: "formattedCreatedAt", className: "min-w-28 pr-2" },
+      { key: "formattedDueDate", className: "min-w-28 pr-2" },
+      { key: "formattedCompletedDate", className: "min-w-28 pr-2" },
     ],
-    [games, isProfileView]
+    [games]
   );
 
   const pagination = useMemo(
@@ -355,82 +340,6 @@ const UserGameAssignments = ({ userId }: Props) => {
     [showFilters, t]
   );
 
-  const completeActionInputs = useMemo(
-    () => [
-      {
-        type: InputTypes.DATE,
-        formKey: "learnDate",
-        label: t("Learn Date"),
-        placeholder: t("Learn Date"),
-        required: false,
-        isDatePicker: true,
-        isOnClearActive: false,
-      },
-    ],
-    [t]
-  );
-
-  const completeActionFormKeys = useMemo(
-    () => [{ key: "learnDate", type: FormKeyTypeEnum.DATE }],
-    []
-  );
-
-  const completeActions = useMemo(
-    () => [
-      {
-        name: t("Complete"),
-        icon: <CheckIcon className="w-5 h-5" />,
-        className: "text-green-600 cursor-pointer text-xl",
-        isModal: true,
-        isPath: false,
-        isDisabled: (row: AssignmentRow) =>
-          !!row.subjectEntityId &&
-          selectedUserKnownGameIds.has(Number(row.subjectEntityId)),
-        setRow: setRowToAction,
-        setIsModal: setIsCompleteModalOpen,
-        isModalOpen: isCompleteModalOpen,
-        modal: rowToAction ? (
-          <GenericAddEditPanel
-            isOpen={isCompleteModalOpen}
-            close={() => setIsCompleteModalOpen(false)}
-            header={`${t("Complete")}: ${rowToAction.title}`}
-            inputs={completeActionInputs}
-            formKeys={completeActionFormKeys}
-            submitItem={() => undefined}
-            buttonName={t("Complete")}
-            submitFunction={async () => {
-              if (!rowToAction?._id) return;
-
-              await completeGameLearningTaskAsync({
-                assignmentId: rowToAction._id,
-                learnDate: formDataRef.current.learnDate,
-              });
-              setIsCompleteModalOpen(false);
-            }}
-            setForm={(item) => {
-              formDataRef.current = item as { learnDate?: string };
-            }}
-            constantValues={{
-              learnDate: new Date().toISOString().split("T")[0],
-            }}
-            generalClassName="overflow-scroll min-w-[90%] sm:min-w-[60%]"
-            anotherPanelTopClassName=""
-            topClassName="flex flex-col gap-2"
-          />
-        ) : null,
-      },
-    ],
-    [
-      completeActionFormKeys,
-      completeActionInputs,
-      completeGameLearningTaskAsync,
-      isCompleteModalOpen,
-      selectedUserKnownGameIds,
-      rowToAction,
-      t,
-    ]
-  );
-
   const filterPanel = useMemo(
     () => ({
       isFilterPanelActive: showFilters,
@@ -466,8 +375,7 @@ const UserGameAssignments = ({ userId }: Props) => {
         rows={rows}
         columns={columns}
         rowKeys={rowKeys}
-        actions={isProfileView ? completeActions : undefined}
-        isActionsActive={isProfileView}
+        isActionsActive={false}
         isSearch={true}
         isColumnFilter={false}
         isPagination={true}

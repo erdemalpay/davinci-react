@@ -40,6 +40,10 @@ type FilterContextType = {
   setShowGameStockPrices: (state: boolean) => void;
   isGameStockEnableEdit: boolean;
   setIsGameStockEnableEdit: (state: boolean) => void;
+  showAssignGameFilters: boolean;
+  setShowAssignGameFilters: (state: boolean) => void;
+  filterAssignGamePanelFormElements: FormElementsState;
+  setFilterAssignGamePanelFormElements: (state: FormElementsState) => void;
   showSandwichStockFilters: boolean;
   setShowSandwichStockFilters: (state: boolean) => void;
   filterSandwichStockPanelFormElements: FormElementsState;
@@ -293,6 +297,15 @@ const FilterContext = createContext<FilterContextType>({
   setShowGameStockPrices: () => {},
   isGameStockEnableEdit: false,
   setIsGameStockEnableEdit: () => {},
+  showAssignGameFilters: false,
+  setShowAssignGameFilters: () => {},
+  filterAssignGamePanelFormElements: {
+    user: "",
+    date: "",
+    after: "",
+    before: "",
+  },
+  setFilterAssignGamePanelFormElements: () => {},
   showSandwichStockFilters: false,
   setShowSandwichStockFilters: () => {},
   filterSandwichStockPanelFormElements: {
@@ -653,6 +666,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showGameStockFilters, setShowGameStockFilters] = useState(false);
   const [showGameStockPrices, setShowGameStockPrices] = useState(false);
   const [isGameStockEnableEdit, setIsGameStockEnableEdit] = useState(false);
+  const [showAssignGameFilters, setShowAssignGameFilters] = useState(false);
   const [showSandwichStockFilters, setShowSandwichStockFilters] =
     useState(false);
   const [showSandwichStockPrices, setShowSandwichStockPrices] = useState(false);
@@ -1034,6 +1048,15 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     setFilterGameStockPanelFormElements,
   ] = useState<FormElementsState>({ product: [], location: "" });
   const [
+    filterAssignGamePanelFormElements,
+    setFilterAssignGamePanelFormElements,
+  ] = useState<FormElementsState>({
+    user: "",
+    date: "",
+    after: "",
+    before: "",
+  });
+  const [
     filterSandwichStockPanelFormElements,
     setFilterSandwichStockPanelFormElements,
   ] = useState<FormElementsState>({ product: [], location: "" });
@@ -1063,6 +1086,11 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowGameStockPrices: setShowGameStockPrices,
         isGameStockEnableEdit: isGameStockEnableEdit,
         setIsGameStockEnableEdit: setIsGameStockEnableEdit,
+        showAssignGameFilters: showAssignGameFilters,
+        setShowAssignGameFilters: setShowAssignGameFilters,
+        filterAssignGamePanelFormElements: filterAssignGamePanelFormElements,
+        setFilterAssignGamePanelFormElements:
+          setFilterAssignGamePanelFormElements,
         showSandwichStockFilters: showSandwichStockFilters,
         setShowSandwichStockFilters: setShowSandwichStockFilters,
         filterSandwichStockPanelFormElements:

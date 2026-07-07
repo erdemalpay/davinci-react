@@ -152,6 +152,7 @@ export function useCompleteGameLearningTaskMutation() {
   const {
     mutate: completeGameLearningTask,
     mutateAsync: completeGameLearningTaskAsync,
+    isPending: isCompletingGameLearningTask,
   } = useMutation({
     mutationFn: completeGameLearningTaskRequest,
     onSuccess: () => {
@@ -165,7 +166,11 @@ export function useCompleteGameLearningTaskMutation() {
     },
   });
 
-  return { completeGameLearningTask, completeGameLearningTaskAsync };
+  return {
+    completeGameLearningTask,
+    completeGameLearningTaskAsync,
+    isCompletingGameLearningTask,
+  };
 }
 
 export function useGetUsers() {
