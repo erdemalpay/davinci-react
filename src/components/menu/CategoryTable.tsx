@@ -171,6 +171,14 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       isTopFlexRow: true,
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "isGameSalesReport",
+      label: t("Used in Game Sales by Channel Report"),
+      placeholder: t("Used in Game Sales by Channel Report"),
+      required: false,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
       label: t("Image"),
@@ -228,6 +236,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     { key: "isLimitedTime", type: FormKeyTypeEnum.BOOLEAN },
     { key: "showItemProductionOnMenu", type: FormKeyTypeEnum.BOOLEAN },
     { key: "disableWhenOutOfStock", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isGameSalesReport", type: FormKeyTypeEnum.BOOLEAN },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [

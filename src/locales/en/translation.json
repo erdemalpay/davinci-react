@@ -1702,5 +1702,16 @@
   "Assigned Date": "Assigned Date",
   "Delete Assignment": "Delete Assignment",
   "AssignmentDeleteMessage": "The {{title}} assignment from {{userName}} is about to be deleted. Are you sure you want to continue?",
-  "Date Custom": "Date (Returns the number of times games were played on the specified dates)"
+  "Date Custom": "Date (Returns the number of times games were played on the specified dates)",
+  "Pick Up": "Pick Up",
+  "Retailer (Wholesale)": "Retailer (Wholesale)",
+  "Shopify Shipped": "Shopify Shipped",
+  "Channel": "Channel",
+  "Total Quantity": "Total Quantity",
+  "Game Sales by Channel": "Game Sales by Channel",
+  "Add Selected To Retailer": "Add Selected To Retailer",
+  "Used in Game Sales by Channel Report": "Used in Game Sales by Channel Report",
+  "GameSalesByChannel Info Text": "Cancelled/returned orders and quiz tickets are not included in the records in this table."
+
+
 }

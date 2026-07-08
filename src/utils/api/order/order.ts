@@ -748,7 +748,7 @@ export function useUpdateMultipleOrderMutation() {
   });
 }
 
-export function useGetOrders(category?: number[]) {
+export function useGetOrders(category?: number[], enabled = true) {
   const { filterPanelFormElements } = useOrderContext();
   let url = `${baseUrl}/query?after=${filterPanelFormElements.after}`;
   const parameters = [
@@ -793,7 +793,8 @@ export function useGetOrders(category?: number[]) {
       filterPanelFormElements.item,
       category,
     ],
-    true
+    true,
+    { enabled }
   );
 }
 export function useGetIkasPickUpOrders(category?: number[]) {

@@ -633,6 +633,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
   ORDERDATAS_IKASORDERS = "ikasorders", //bunu silince build hatası alıyoruz
+  ORDERDATAS_GAMESALESBYCHANNEL = "gamesalesbychannel",
   IKAS_PICK_UP = "ikas_pick_up",
   SHOPIFY_PICK_UP = "shopify_pick_up",
   RESERVATIONS = "reservations",
@@ -793,6 +794,7 @@ export type MenuCategory = {
   isLimitedTime?: boolean;
   showItemProductionOnMenu?: boolean;
   disableWhenOutOfStock?: boolean;
+  isGameSalesReport?: boolean;
 };
 
 export type UpperCategory = {
@@ -1054,6 +1056,7 @@ export type Order = {
   shopifyCustomer?: ShopifyCustomer;
   isShopifyCustomerPicked?: boolean;
   isShopifyPickUpOrderBrought?: boolean;
+  isShopifyPickUp?: boolean;
   shopifyOrderNumber?: string;
 };
 
@@ -1756,6 +1759,7 @@ export enum OrderDataTabEnum {
   TRENDYOLORDERS,
   HEPSIBURADAORDERS,
   PERSONALORDERDATAS,
+  GAMESALESBYCHANNEL,
 }
 export enum StockHistoryStatusEnum {
   EXPENSEENTRY = "EXPENSEENTRY",

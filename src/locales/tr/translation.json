@@ -1711,5 +1711,14 @@
   "Assigned Date": "Atama Tarihi",
   "Delete Assignment": "Atamayı Sil",
   "AssignmentDeleteMessage": "\"{{userName}}\" kullanıcısından \"{{title}}\" ataması silinmek üzeredir. Devam etmek istediğinizden emin misiniz?",
-  "Date Custom": "Tarih (Oyunların belirtilen tarihlerde oynanış sayısını getirir)"
+  "Date Custom": "Tarih (Oyunların belirtilen tarihlerde oynanış sayısını getirir)",
+  "Pick Up": "Gel Al",
+  "Retailer (Wholesale)": "Toptan Satış",
+  "Shopify Shipped": "Shopify Kargo",
+  "Channel": "Kanal",
+  "Total Quantity": "Toplam Ürün Adedi",
+  "Game Sales by Channel": "Kanal Bazında Oyun Satışları",
+  "Add Selected To Retailer": "Seçili Kaydı Perakendeciye Ekle",
+  "Used in Game Sales by Channel Report": "Kanal Bazlı Oyun Satışlarına dahil et",
+  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir."
 }
