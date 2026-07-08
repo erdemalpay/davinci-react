@@ -7,6 +7,7 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
+  Order,
   OrderStatus,
   TURKISHLIRA,
   commonDateOptions,
@@ -56,7 +57,7 @@ const channelOrder = [
   Channel.RETAILER,
 ];
 
-function getChannel(order: any, retailerId?: number): Channel {
+function getChannel(order: Order, retailerId?: number): Channel {
   if (retailerId) return Channel.RETAILER;
   if (order?.shopifyOrderId) {
     return order?.isShopifyPickUp ? Channel.PICKUP : Channel.SHOPIFY_SHIPPED;
@@ -74,7 +75,7 @@ type CategoryBreakdownRow = {
 };
 
 type ChannelRow = {
-  channel: Channel;
+  channel?: Channel;
   channelLabel: string;
   totalQuantity: number;
   totalAmount: number;
@@ -265,7 +266,7 @@ const GameSalesByChannel = () => {
     });
 
     allRowsWithRatio.unshift({
-      channel: undefined as unknown as Channel,
+      channel: undefined,
       channelLabel: t("Total"),
       className: "font-semibold",
       isSortable: false,
@@ -273,7 +274,7 @@ const GameSalesByChannel = () => {
       totalQuantity,
       totalAmount,
       categoryTotals: totalCategoryTotals,
-      collapsible: { ...buildCollapsible(totalCategoryTotals), collapsibleRows: [] },
+      collapsible: buildCollapsible(totalCategoryTotals),
     });
 
     return allRowsWithRatio;
@@ -458,6 +459,9 @@ const GameSalesByChannel = () => {
             onclick={() => {
               queryClient.invalidateQueries({
                 queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
               });
             }}
           />
