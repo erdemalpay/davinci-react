@@ -98,43 +98,30 @@ const DaVinciGameSalesReport = () => {
       ?.reduce((acc, order) => {
         if (!order || order?.paidQuantity === 0) return acc;
         const zonedTime = toZonedTime(order.createdAt, "UTC");
-        const orderDate = new Date(zonedTime);
         const existingEntry = acc.find((entry) => entry.item === order?.item);
+        const orderQuantity = order?.paidQuantity;
+        const orderAmount = order?.paidQuantity * order?.unitPrice;
+        const discountAmount = order?.discountPercentage
+          ? order?.discountPercentage *
+            order?.paidQuantity *
+            order?.unitPrice *
+            0.01
+          : (order?.discountAmount ?? 0) * order?.paidQuantity;
         if (existingEntry) {
-          (existingEntry.paidQuantity +=
-            order?.status !== OrderStatus.RETURNED
-              ? order?.paidQuantity
-              : -order?.quantity),
-            (existingEntry.discount += order?.discountPercentage
-              ? order?.discountPercentage *
-                order?.paidQuantity *
-                order?.unitPrice *
-                0.01
-              : (order?.discountAmount ?? 0) * order?.paidQuantity);
-          existingEntry.amount += order?.paidQuantity * order?.unitPrice;
+          existingEntry.paidQuantity += orderQuantity;
+          existingEntry.discount += discountAmount;
+          existingEntry.amount += orderAmount;
           existingEntry.totalAmountWithDiscount +=
-            order?.paidQuantity * order?.unitPrice -
-            (order?.discountPercentage
-              ? order?.discountPercentage *
-                order?.paidQuantity *
-                order?.unitPrice *
-                0.01
-              : (order?.discountAmount ?? 0) * order?.paidQuantity);
+            orderAmount - discountAmount;
           const existingUnitPrice = existingEntry.unitPriceQuantity.find(
             (item) => item.unitPrice === order?.unitPrice
           );
           if (existingUnitPrice) {
-            existingUnitPrice.quantity +=
-              order?.status !== OrderStatus.RETURNED
-                ? order?.paidQuantity
-                : -order?.quantity;
+            existingUnitPrice.quantity += orderQuantity;
           } else {
             existingEntry.unitPriceQuantity.push({
               unitPrice: order?.unitPrice,
-              quantity:
-                order?.status !== OrderStatus.RETURNED
-                  ? order?.paidQuantity
-                  : -order?.quantity,
+              quantity: orderQuantity,
             });
           }
           if (existingEntry.unitPriceQuantity.length > 1) {
@@ -151,37 +138,26 @@ const DaVinciGameSalesReport = () => {
                 .sort((a, b) => b.quantity - a.quantity);
           }
         } else {
+          const menuItem = getItem(order?.item, items);
           acc.push({
             item: order?.item,
-            itemName: getItem(order?.item, items)?.name ?? "",
+            itemName: menuItem?.name ?? "",
             unitPrice: order?.unitPrice,
-            paidQuantity:
-              order?.status !== OrderStatus.RETURNED
-                ? order?.paidQuantity
-                : -order?.quantity,
-            discount: order?.discountPercentage
-              ? order?.discountPercentage *
-                order?.paidQuantity *
-                order?.unitPrice *
-                0.01
-              : (order?.discountAmount ?? 0) * order?.paidQuantity,
-            amount: order?.paidQuantity * order?.unitPrice,
+            paidQuantity: orderQuantity,
+            discount: discountAmount,
+            amount: orderAmount,
             location: order?.location,
-            date: format(orderDate, "yyyy-MM-dd"),
-            formattedDate: format(orderDate, "dd-MM-yyyy"),
+            date: format(zonedTime, "yyyy-MM-dd"),
+            formattedDate: format(zonedTime, "dd-MM-yyyy"),
             category:
               categories?.find(
-                (category) =>
-                  category._id === getItem(order?.item, items)?.category
+                (category) => category._id === menuItem?.category
               )?.name ?? "",
-            categoryId: getItem(order?.item, items)?.category ?? 0,
+            categoryId: menuItem?.category ?? 0,
             unitPriceQuantity: [
               {
                 unitPrice: order?.unitPrice,
-                quantity:
-                  order?.status !== OrderStatus.RETURNED
-                    ? order?.paidQuantity
-                    : -order?.quantity,
+                quantity: orderQuantity,
               },
             ],
             collapsible: {
@@ -192,14 +168,7 @@ const DaVinciGameSalesReport = () => {
               collapsibleRows: [],
               collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
             },
-            totalAmountWithDiscount:
-              order?.paidQuantity * order?.unitPrice -
-              (order?.discountPercentage
-                ? order?.discountPercentage *
-                  order?.paidQuantity *
-                  order?.unitPrice *
-                  0.01
-                : (order?.discountAmount ?? 0) * order?.paidQuantity),
+            totalAmountWithDiscount: orderAmount - discountAmount,
           });
         }
 
@@ -239,7 +208,7 @@ const DaVinciGameSalesReport = () => {
     }
 
     return allRows;
-  }, [orders, categories, items, t]);
+  }, [orders, categories, items, sellLocations, t]);
 
   const columns = useMemo(
     () => [
