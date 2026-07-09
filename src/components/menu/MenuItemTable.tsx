@@ -758,6 +758,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: t("Shown In Menu"), isSortable: false },
       // { key: t("Auto Served"), isSortable: false },
       { key: t("Auto Prepared"), isSortable: false },
+      { key: t("Da Vinci Game"), isSortable: false },
     ];
 
     const keys: RowKeyType<
@@ -962,6 +963,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                   updates: {
                     ...row,
                     isAutoPrepared: !row.isAutoPrepared,
+                  },
+                });
+              }}
+            />
+          );
+        },
+      },
+      {
+        key: "isDaVinciGame",
+        node: (row: MenuItem) => {
+          return (
+            <CheckSwitch
+              checked={row?.isDaVinciGame ?? false}
+              onChange={() => {
+                updateItem({
+                  id: row._id,
+                  updates: {
+                    ...row,
+                    isDaVinciGame: !row.isDaVinciGame,
                   },
                 });
               }}
