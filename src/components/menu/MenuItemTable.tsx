@@ -789,21 +789,27 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         className: "min-w-48 pr-1",
         node: (item: MenuItem) => {
           if (!item?.description) return null;
+          const DESCRIPTION_PREVIEW_LENGTH = 40;
+          const description = item.description;
+          const isTruncatable = description.length > DESCRIPTION_PREVIEW_LENGTH;
           const isOpen = openDescriptionId === item._id;
+          const previewText = isTruncatable
+            ? `${description.slice(0, DESCRIPTION_PREVIEW_LENGTH)}...`
+            : description;
           return (
             <div className="flex flex-col gap-1">
-              <button
-                onClick={() =>
-                  setOpenDescriptionId(isOpen ? null : item._id)
-                }
-                className="flex items-center gap-1 text-xl text-gray-700 hover:text-gray-900"
-              >
-                {isOpen ? <IoChevronUp /> : <IoChevronDown />}
-              </button>
-              {isOpen && (
-                <p className="max-w-64 whitespace-pre-wrap">
-                  {item.description}
-                </p>
+              <p className="max-w-64 whitespace-pre-wrap">
+                {isOpen ? description : previewText}
+              </p>
+              {isTruncatable && (
+                <button
+                  onClick={() =>
+                    setOpenDescriptionId(isOpen ? null : item._id)
+                  }
+                  className="flex items-center text-xl text-gray-700 hover:text-gray-900"
+                >
+                  {isOpen ? <IoChevronUp /> : <IoChevronDown />}
+                </button>
               )}
             </div>
           );
