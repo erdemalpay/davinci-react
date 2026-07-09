@@ -71,8 +71,12 @@ const AssignGame = () => {
     );
   }, [existingGameAssignments]);
 
+  const gameIds = useMemo(() => {
+    return games.length > 0 ? games.map((game) => game._id) : ["none"];
+  }, [games]);
+
   const allGameAssignments = useGetAssignments(1, RowPerPageEnum.ALL, {
-    subjectId: games.map((game) => game._id),
+    subjectId: gameIds,
     assignmentType: AssignmentTypeEnum.GAME_LEARNING,
     status: AssignmentStatusEnum.ASSIGNED,
   })?.data;
