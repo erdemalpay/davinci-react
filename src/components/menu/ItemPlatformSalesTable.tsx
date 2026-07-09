@@ -211,15 +211,18 @@ export default function ItemPlatformSalesTable({ item }: Props) {
     () =>
       availablePlatforms.map((platform) => {
         const orders = ordersByPlatform[platform.key];
-        const collapsibleRows: PlatformOrderRow[] = orders.map((order) => ({
-          _id: String(order._id),
-          dateDisplay: format(toIstDate(order.createdAt), "dd/MM/yyyy"),
-          hourDisplay: format(toIstDate(order.createdAt), "HH:mm"),
-          orderNumberDisplay:
-            (order[ORDER_NUMBER_KEY[platform.key]] as string) || "-",
-          quantityDisplay: order.quantity,
-          unitPriceDisplay: `${formatCurrency(order.unitPrice)} ${TURKISHLIRA}`,
-        }));
+        const collapsibleRows: PlatformOrderRow[] = orders.map((order) => {
+          const zonedDate = toIstDate(order.createdAt);
+          return {
+            _id: String(order._id),
+            dateDisplay: format(zonedDate, "dd/MM/yyyy"),
+            hourDisplay: format(zonedDate, "HH:mm"),
+            orderNumberDisplay:
+              (order[ORDER_NUMBER_KEY[platform.key]] as string) || "-",
+            quantityDisplay: order.quantity,
+            unitPriceDisplay: `${formatCurrency(order.unitPrice)} ${TURKISHLIRA}`,
+          };
+        });
 
         if (hasMoreByPlatform[platform.key]) {
           collapsibleRows.push({
