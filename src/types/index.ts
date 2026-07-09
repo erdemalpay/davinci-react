@@ -621,6 +621,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_DAILYINCOME = "dailyincome",
   ORDERDATAS_GROUPEDPRODUCTSALESREPORT = "groupedproductsalesreport",
   ORDERDATAS_SINGLEPRODUCTSALESREPORT = "singleproductsalesreport",
+  ORDERDATAS_DAVINCIGAMESALESREPORT = "davincigamesalesreport",
   ORDERDATAS_UPPERCATEGORYBASEDSALESREPORT = "uppercategorybasedsalesreport",
   ORDERDATAS_CATEGORYBASEDSALESREPORT = "categorybasedsalesreport",
   ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
@@ -1756,6 +1757,7 @@ export enum OrderDataTabEnum {
   TRENDYOLORDERS,
   HEPSIBURADAORDERS,
   PERSONALORDERDATAS,
+  DAVINCIGAMESALESREPORT,
 }
 export enum StockHistoryStatusEnum {
   EXPENSEENTRY = "EXPENSEENTRY",
