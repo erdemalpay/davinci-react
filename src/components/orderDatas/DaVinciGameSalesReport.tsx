@@ -39,6 +39,16 @@ type UnitPriceQuantity = {
   unitPrice: number;
   quantity: number;
 };
+type CollapsibleRow = {
+  unitPrice?: string;
+  quantity?: number;
+  unitPriceValue?: number;
+};
+type Collapsible = {
+  collapsibleColumns: { key: string; isSortable?: boolean }[];
+  collapsibleRows: CollapsibleRow[];
+  collapsibleRowKeys: { key: string }[];
+};
 type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
@@ -53,7 +63,7 @@ type OrderWithPaymentInfo = {
   categoryId: number;
   totalAmountWithDiscount: number;
   unitPriceQuantity: UnitPriceQuantity[];
-  collapsible: any;
+  collapsible: Collapsible;
   className?: string;
   isSortable?: boolean;
 };
@@ -228,7 +238,7 @@ const DaVinciGameSalesReport = () => {
       {
         key: "itemName",
         className: "min-w-fit pr-2",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p key={"itemName" + row?.item} className={`${row?.className}`}>
               {row?.itemName}
@@ -238,7 +248,7 @@ const DaVinciGameSalesReport = () => {
       },
       {
         key: "paidQuantity",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p key={"paidQuantity" + row?.item} className={`${row?.className}`}>
               {row?.paidQuantity}
@@ -249,7 +259,7 @@ const DaVinciGameSalesReport = () => {
       { key: "category", className: "min-w-32 pr-2" },
       {
         key: "unitPrice",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"unitPrice" + row?.item}>
               {row?.unitPriceQuantity.length > 1 || row?.unitPrice === 0
@@ -263,10 +273,10 @@ const DaVinciGameSalesReport = () => {
       },
       {
         key: "discount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"discount" + row?.item}>
-              {row?.discount?.toFixed(2) > 0 &&
+              {row?.discount > 0 &&
                 row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
                   " " +
                   TURKISHLIRA}
@@ -276,7 +286,7 @@ const DaVinciGameSalesReport = () => {
       },
       {
         key: "amount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p className={`${row?.className}`} key={"amount" + row?.item}>
               {TURKISHLIRA +
@@ -288,7 +298,7 @@ const DaVinciGameSalesReport = () => {
       },
       {
         key: "totalAmountWithDiscount",
-        node: (row: any) => {
+        node: (row: OrderWithPaymentInfo) => {
           return (
             <p
               className={`${row?.className}`}
@@ -343,13 +353,7 @@ const DaVinciGameSalesReport = () => {
         }),
         placeholder: t("Date"),
         required: true,
-        additionalOnChange: ({
-          value,
-          label,
-        }: {
-          value: string;
-          label: string;
-        }) => {
+        additionalOnChange: ({ value }: { value: string }) => {
           const dateRange = dateRanges[value as DateRangeKey];
           if (dateRange) {
             setFilterPanelFormElements({
