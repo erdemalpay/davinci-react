@@ -85,17 +85,18 @@ const OrderStatusContainer = ({
       [tableId]: !prev[tableId],
     }));
   };
-  const groupedOrders = orders.reduce<{ [key: string]: Order[] }>(
-    (acc, order) => {
-      const tableId = (order?.table as Table)?._id;
-      if (!acc[tableId]) {
-        acc[tableId] = [];
-      }
+  const groupedOrders = useMemo(
+    () =>
+      orders.reduce<{ [key: string]: Order[] }>((acc, order) => {
+        const tableId = (order?.table as Table)?._id;
+        if (!acc[tableId]) {
+          acc[tableId] = [];
+        }
 
-      acc[tableId].push(order);
-      return acc;
-    },
-    {}
+        acc[tableId].push(order);
+        return acc;
+      }, {}),
+    [orders]
   );
   const getEarliestDate = (orders: Order[]): Date | null => {
     return orders.reduce<Date | null>((earliest, order) => {
@@ -123,20 +124,24 @@ const OrderStatusContainer = ({
     }, null);
   };
 
-  const sortedGroupedOrders = Object.entries(groupedOrders).sort((a, b) => {
-    const earliestA = getEarliestDate(a[1]);
-    const earliestB = getEarliestDate(b[1]);
-    if (earliestA === null && earliestB === null) {
-      return 0;
-    }
-    if (earliestA === null) {
-      return 1;
-    }
-    if (earliestB === null) {
-      return -1;
-    }
-    return earliestB.getTime() - earliestA.getTime();
-  });
+  const sortedGroupedOrders = useMemo(
+    () =>
+      Object.entries(groupedOrders).sort((a, b) => {
+        const earliestA = getEarliestDate(a[1]);
+        const earliestB = getEarliestDate(b[1]);
+        if (earliestA === null && earliestB === null) {
+          return 0;
+        }
+        if (earliestA === null) {
+          return 1;
+        }
+        if (earliestB === null) {
+          return -1;
+        }
+        return earliestB.getTime() - earliestA.getTime();
+      }),
+    [groupedOrders]
+  );
   useEffect(() => {
     const currentTableIds = new Set(
       sortedGroupedOrders.map(([tableId]) => tableId)
@@ -159,7 +164,7 @@ const OrderStatusContainer = ({
       }
       return hasChanges ? next : prev;
     });
-  }, [orders]);
+  }, [sortedGroupedOrders, status]);
 
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const showPrint = useMemo(() => {
