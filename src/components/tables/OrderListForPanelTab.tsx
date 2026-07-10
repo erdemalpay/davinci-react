@@ -138,7 +138,7 @@ const OrderListForPanelTab = ({
                   updateOrder({ id: order?._id, updates });
                 }}
               />
-              {order?.status !== OrderStatus.SERVED && (
+              {(
                 <GoPlusCircle
                   className="w-5 h-5 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
                   onClick={() => {
@@ -147,7 +147,7 @@ const OrderListForPanelTab = ({
                       return;
                     }
                     if (
-                      [OrderStatus.READYTOSERVE].includes(
+                      [OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
                         order?.status as OrderStatus
                       )
                     ) {
