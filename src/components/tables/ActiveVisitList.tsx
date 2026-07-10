@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
+import { FaConciergeBell } from "react-icons/fa";
 import { GiPerspectiveDiceSixFacesRandom, GiRoundTable } from "react-icons/gi";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
@@ -13,6 +14,7 @@ import {
   GameplayTime,
   Middleman,
   RoleEnum,
+  Shift,
   Table,
   Visit,
 } from "../../types";
@@ -21,6 +23,7 @@ import {
   useGetMiddlemanByDate,
   useMiddlemanMutations,
 } from "../../utils/api/middleman";
+import { useGetShifts } from "../../utils/api/shift";
 import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
@@ -52,6 +55,11 @@ export function ActiveVisitList({
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const activeMiddlemen = useGetMiddlemanByDate(todayDate);
+  const todayShifts = useGetShifts(
+    todayDate,
+    todayDate,
+    selectedLocationId
+  ) as unknown as Shift[] | undefined;
   const { updateMiddleman } = useMiddlemanMutations();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
@@ -111,6 +119,13 @@ export function ActiveVisitList({
     );
   };
 
+  const isUserChef = (userId: string): boolean => {
+    if (!todayShifts || todayShifts.length === 0) return false;
+    return todayShifts.some((day) =>
+      day?.shifts?.some((s) => s.chefUser === userId)
+    );
+  };
+
   const isUserMiddleman = (userId: string): Middleman | null => {
     if (!activeMiddlemen || activeMiddlemen.length === 0) return null;
     return (
@@ -140,22 +155,25 @@ export function ActiveVisitList({
     const userBreak = isUserOnBreak(visit.user);
     const userInGameplayTime = isUserInGameplayTime(visit.user);
     const userMiddleman = isUserMiddleman(visit.user);
+    const userChef = isUserChef(visit.user);
     const userActive = isUserActive(visit.user);
 
     if (userActive) {
-      if (!userBreak && !userInGameplayTime && !userMiddleman) return 1;
-      if (userInGameplayTime) return 2;
-      if (userBreak) return 3;
-      if (userMiddleman) return 4;
+      if (!userBreak && !userInGameplayTime && !userMiddleman) {
+        return userChef ? 1 : 2;
+      }
+      if (userInGameplayTime) return 3;
+      if (userBreak) return 4;
+      if (userMiddleman) return 5;
     }
-    return 5;
+    return 6;
   };
 
   const sortedVisits = useMemo(() => {
     return [...uniqueVisits].sort((a, b) => {
       return getVisitBadgePriority(a) - getVisitBadgePriority(b);
     });
-  }, [uniqueVisits, breaks, activeGameplayTimes, activeMiddlemen]);
+  }, [uniqueVisits, breaks, activeGameplayTimes, activeMiddlemen, todayShifts]);
 
   if (middlemanToEnd) {
     const userRef = middlemanToEnd.user;
@@ -218,6 +236,7 @@ export function ActiveVisitList({
           const userBreak = isUserOnBreak(visit.user);
           const userGameplayTime = isUserInGameplayTime(visit.user);
           const userMiddleman = isUserMiddleman(visit.user);
+          const userChef = isUserChef(visit.user);
           const userName = userOnVisit.name ?? "";
           const userRole = userOnVisit.role?.name ?? "";
 
@@ -229,6 +248,8 @@ export function ActiveVisitList({
             tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
           } else if (userMiddleman) {
             tooltipContent = `${userRole}  •  ${t("Middleman")}`;
+          } else if (userChef) {
+            tooltipContent = `${userRole}  •  ${t("Service Staff")}`;
           }
 
           const getChipValue = () => {
@@ -260,6 +281,14 @@ export function ActiveVisitList({
                 </span>
               );
             }
+            if (userChef) {
+              return (
+                <span className="flex items-center gap-1">
+                  <FaConciergeBell className="text-sm" />
+                  {userName}
+                </span>
+              );
+            }
             return userName;
           };
 
@@ -270,6 +299,8 @@ export function ActiveVisitList({
               return "#255691";
             } else if (userMiddleman) {
               return "#0D9488";
+            } else if (userChef) {
+              return "#9333EA";
             } else return "#288809";
           };
 
