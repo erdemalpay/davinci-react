@@ -230,15 +230,23 @@ const GameAssignments = () => {
   const rowKeys = useMemo(
     () => [
       { key: "title", className: "min-w-40 pr-2" },
-      { key: "status", className: "min-w-28 pr-2" },
-      { key: "priority", className: "min-w-24 pr-2" },
+      {
+        key: "status",
+        className: "min-w-28 pr-2",
+        node: (row: AssignmentRow) => t(row.status),
+      },
+      {
+        key: "priority",
+        className: "min-w-24 pr-2",
+        node: (row: AssignmentRow) => t(row.priority),
+      },
       { key: "assignedByName", className: "min-w-32 pr-2" },
       { key: "assignedToName", className: "min-w-32 pr-2" },
       { key: "formattedCreatedAt", className: "min-w-28 pr-2" },
       { key: "formattedDueDate", className: "min-w-28 pr-2" },
       { key: "formattedCompletedDate", className: "min-w-28 pr-2" },
     ],
-    [games]
+    [games, t]
   );
 
   const pagination = useMemo(

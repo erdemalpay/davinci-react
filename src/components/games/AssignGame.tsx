@@ -71,11 +71,33 @@ const AssignGame = () => {
     );
   }, [existingGameAssignments]);
 
+  const gameIds = useMemo(() => {
+    return games.length > 0 ? games.map((game) => game._id) : ["none"];
+  }, [games]);
+
+  const allGameAssignments = useGetAssignments(1, RowPerPageEnum.ALL, {
+    subjectId: gameIds,
+    assignmentType: AssignmentTypeEnum.GAME_LEARNING,
+    status: AssignmentStatusEnum.ASSIGNED,
+  })?.data;
+
+  const assignedUserCountByGameId = useMemo(() => {
+    const counts = new Map<string, number>();
+    (allGameAssignments ?? []).forEach((assignment) => {
+      const gameId = assignment.subject?.entityId;
+      if (gameId === undefined || gameId === null) return;
+      const key = String(gameId);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return counts;
+  }, [allGameAssignments]);
+
   const columns = useMemo(
     () => [
       { key: t("Game"), isSortable: true },
       { key: t("Gameplay Count"), isSortable: true },
       { key: t("Known User Count"), isSortable: true },
+      { key: t("Assigned User Count"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
@@ -107,13 +129,12 @@ const AssignGame = () => {
               user.userGames &&
               !user.userGames.find(
                 (userGameObject) => userGameObject.game === rowToAction?._id
-              )
+              ) &&
+              !alreadyAssignedUserIds.has(user._id)
           )
           .map((user) => ({
             value: user._id,
-            label: alreadyAssignedUserIds.has(user._id)
-              ? `${user.name} (${t("Already Assigned")})`
-              : user.name,
+            label: user.name,
           })),
         placeholder: t("Assign Users"),
         isMultiple: true,
@@ -155,16 +176,28 @@ const AssignGame = () => {
 
   const filteredGames = useMemo(() => {
     const selectedUserId = filterAssignGamePanelFormElements?.user;
-    if (!selectedUserId) return games;
-    const selectedUser = users?.find((u) => u._id === selectedUserId);
-    if (!selectedUser) return games;
-    return games.filter(
-      (game) =>
-        !selectedUser.userGames?.some(
-          (userGameObject) => userGameObject.game === game._id
-        )
-    );
-  }, [games, users, filterAssignGamePanelFormElements]);
+    const baseGames = !selectedUserId
+      ? games
+      : (() => {
+          const selectedUser = users?.find((u) => u._id === selectedUserId);
+          if (!selectedUser) return games;
+          return games.filter(
+            (game) =>
+              !selectedUser.userGames?.some(
+                (userGameObject) => userGameObject.game === game._id
+              )
+          );
+        })();
+    return baseGames.map((game) => ({
+      ...game,
+      assignedUserCount: assignedUserCountByGameId.get(String(game._id)) ?? 0,
+    }));
+  }, [
+    games,
+    users,
+    filterAssignGamePanelFormElements,
+    assignedUserCountByGameId,
+  ]);
 
   const filterPanelInputs = useMemo(
     () => [
@@ -271,6 +304,7 @@ const AssignGame = () => {
       { key: "name", className: "min-w-32 pr-1" },
       { key: "gameplayCount", className: "min-w-24 pr-1" },
       { key: "knownUserCount", className: "min-w-24 pr-1" },
+      { key: "assignedUserCount", className: "min-w-24 pr-1" },
     ],
     []
   );
@@ -290,6 +324,7 @@ const AssignGame = () => {
           <GenericAddEditPanel
             isOpen={isAssignModalOpen}
             close={() => setIsAssignModalOpen(false)}
+            header={rowToAction.name}
             inputs={inputs}
             formKeys={formKeys}
             submitItem={() => undefined}
