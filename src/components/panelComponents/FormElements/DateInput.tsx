@@ -2,7 +2,7 @@ import { TextField } from "@mui/material";
 import { tr } from "date-fns/locale";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { FaRegCalendar } from "react-icons/fa";
@@ -73,7 +73,7 @@ export default function DateInput({
     }
   }, [isDateInitiallyOpen]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!showCalendar) return;
 
     const updateCalendarPosition = () => {
@@ -81,10 +81,18 @@ export default function DateInput({
       if (!inputElement) return;
 
       const rect = inputElement.getBoundingClientRect();
-      setCalendarPosition({
-        top: rect.bottom + 8,
-        left: Math.max(8, Math.min(rect.left, window.innerWidth - 344)),
-      });
+      const calendarWidth = calendarRef.current?.offsetWidth ?? 336;
+
+      // Always position below the input, in document coordinates so the
+      // calendar scrolls with the page instead of being clipped by the
+      // viewport when it overflows the bottom of the screen.
+      const top = rect.bottom + window.scrollY + 8;
+      const left = Math.max(
+        8,
+        Math.min(rect.left + window.scrollX, window.innerWidth - calendarWidth - 8)
+      );
+
+      setCalendarPosition({ top, left });
     };
 
     updateCalendarPosition();
@@ -250,7 +258,7 @@ export default function DateInput({
         {showCalendar && (
           <div
             ref={calendarRef}
-            className="fixed z-[9999] bg-white shadow-lg rounded-md p-2 border border-gray-200"
+            className="absolute z-[9999] bg-white shadow-lg rounded-md p-2 border border-gray-200"
             style={{
               top: calendarPosition.top,
               left: calendarPosition.left,
