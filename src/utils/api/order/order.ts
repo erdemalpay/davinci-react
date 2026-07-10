@@ -748,7 +748,7 @@ export function useUpdateMultipleOrderMutation() {
   });
 }
 
-export function useGetOrders(category?: number[], enabled = true) {
+export function useGetOrders(category?: (number | string)[] | string, enabled = true) {
   const { filterPanelFormElements } = useOrderContext();
   let url = `${baseUrl}/query?after=${filterPanelFormElements.after}`;
   const parameters = [
