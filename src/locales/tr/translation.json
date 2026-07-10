@@ -532,6 +532,7 @@
   "Table {{tableName}} closed": "{{tableName}} masası kapatıldı",
   "Table is being closed. Are you sure?": "Masa kapatılmak üzeredir. Emin misiniz?",
   "Product Sales": "Ürün Bazlı Satış(Toplu)",
+  "Product Sales (Da Vinci)": "Ürün Bazlı Satış(Da Vinci)",
   "Product Based Sales": "Ürün Bazlı Satış",
   "Category Based Sales": "Kategori Bazlı Satış",
   "Total Amount": "Toplam Tutar",

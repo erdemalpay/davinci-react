@@ -1,0 +1,588 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
+import {
+  ActionEnum,
+  DateRangeKey,
+  DAVINCI_GAME_CATEGORY_FILTER_VALUE,
+  DisabledConditionEnum,
+  OrderStatus,
+  TURKISHLIRA,
+  commonDateOptions,
+  orderFilterStatusOptions,
+} from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
+import { Paths } from "../../utils/api/factory";
+import {
+  useGetSellLocations,
+  useGetStockLocations,
+} from "../../utils/api/location";
+import { useGetAllCategories } from "../../utils/api/menu/category";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetOrders } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetUsersMinimal } from "../../utils/api/user";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { InputTypes } from "../panelComponents/shared/types";
+
+type UnitPriceQuantity = {
+  unitPrice: number;
+  quantity: number;
+};
+type OrderWithPaymentInfo = {
+  item: number;
+  itemName: string;
+  unitPrice: number;
+  paidQuantity: number;
+  discount: number;
+  amount: number;
+  location: number;
+  date: string;
+  formattedDate: string;
+  category: string;
+  categoryId: number;
+  totalAmountWithDiscount: number;
+  unitPriceQuantity: UnitPriceQuantity[];
+  collapsible: any;
+  className?: string;
+  isSortable?: boolean;
+};
+
+const DaVinciGameSalesReport = () => {
+  const { t } = useTranslation();
+  const orders = useGetOrders([DAVINCI_GAME_CATEGORY_FILTER_VALUE]);
+  const categories = useGetAllCategories();
+  const items = useGetAllMenuItems();
+  const sellLocations = useGetSellLocations();
+  const stockLocations = useGetStockLocations();
+  const users = useGetUsersMinimal();
+  const discounts = useGetOrderDiscounts();
+  const queryClient = useQueryClient();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
+  } = useOrderContext();
+
+  const daVinciGameSalesPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ORDERDATAS_DAVINCIGAMESALESREPORT,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const rows = useMemo(() => {
+    if (!orders || !categories || !sellLocations) return [];
+    const allRows = orders
+      ?.filter(
+        (order) =>
+          ![OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(
+            order.status as OrderStatus
+          )
+      )
+      ?.reduce((acc, order) => {
+        if (!order || order?.paidQuantity === 0) return acc;
+        const zonedTime = toZonedTime(order.createdAt, "UTC");
+        const existingEntry = acc.find((entry) => entry.item === order?.item);
+        const orderQuantity = order?.paidQuantity;
+        const orderAmount = order?.paidQuantity * order?.unitPrice;
+        const discountAmount = order?.discountPercentage
+          ? order?.discountPercentage *
+            order?.paidQuantity *
+            order?.unitPrice *
+            0.01
+          : (order?.discountAmount ?? 0) * order?.paidQuantity;
+        if (existingEntry) {
+          existingEntry.paidQuantity += orderQuantity;
+          existingEntry.discount += discountAmount;
+          existingEntry.amount += orderAmount;
+          existingEntry.totalAmountWithDiscount +=
+            orderAmount - discountAmount;
+          const existingUnitPrice = existingEntry.unitPriceQuantity.find(
+            (item) => item.unitPrice === order?.unitPrice
+          );
+          if (existingUnitPrice) {
+            existingUnitPrice.quantity += orderQuantity;
+          } else {
+            existingEntry.unitPriceQuantity.push({
+              unitPrice: order?.unitPrice,
+              quantity: orderQuantity,
+            });
+          }
+          if (existingEntry.unitPriceQuantity.length > 1) {
+            existingEntry.collapsible.collapsibleRows =
+              existingEntry.unitPriceQuantity
+                .map((item) => ({
+                  unitPrice:
+                    item.unitPrice.toFixed(2).replace(/\.?0*$/, "") +
+                    " " +
+                    TURKISHLIRA,
+                  quantity: item.quantity,
+                  unitPriceValue: item.unitPrice,
+                }))
+                .sort((a, b) => b.quantity - a.quantity);
+          }
+        } else {
+          const menuItem = getItem(order?.item, items);
+          acc.push({
+            item: order?.item,
+            itemName: menuItem?.name ?? "",
+            unitPrice: order?.unitPrice,
+            paidQuantity: orderQuantity,
+            discount: discountAmount,
+            amount: orderAmount,
+            location: order?.location,
+            date: format(zonedTime, "yyyy-MM-dd"),
+            formattedDate: format(zonedTime, "dd-MM-yyyy"),
+            category:
+              categories?.find(
+                (category) => category._id === menuItem?.category
+              )?.name ?? "",
+            categoryId: menuItem?.category ?? 0,
+            unitPriceQuantity: [
+              {
+                unitPrice: order?.unitPrice,
+                quantity: orderQuantity,
+              },
+            ],
+            collapsible: {
+              collapsibleColumns: [
+                { key: t("Unit Price"), isSortable: true },
+                { key: t("Quantity"), isSortable: true },
+              ],
+              collapsibleRows: [],
+              collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
+            },
+            totalAmountWithDiscount: orderAmount - discountAmount,
+          });
+        }
+
+        return acc;
+      }, [] as OrderWithPaymentInfo[]);
+
+    if (allRows.length > 0) {
+      allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);
+      allRows.unshift({
+        item: 0,
+        itemName: t("Total"),
+        isSortable: false,
+        unitPrice: 0,
+        paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
+        className: "font-semibold",
+        discount: allRows.reduce((acc, item) => acc + item.discount, 0),
+        amount: allRows.reduce((acc, item) => acc + item.amount, 0),
+        totalAmountWithDiscount: allRows.reduce(
+          (acc, item) => acc + item.totalAmountWithDiscount,
+          0
+        ),
+        location: 4,
+        date: "",
+        formattedDate: "",
+        category: " ",
+        categoryId: 0,
+        unitPriceQuantity: [],
+        collapsible: {
+          collapsibleColumns: [
+            { key: t("Unit Price"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+          ],
+          collapsibleRows: [],
+          collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
+        },
+      });
+    }
+
+    return allRows;
+  }, [orders, categories, items, sellLocations, t]);
+
+  const columns = useMemo(
+    () => [
+      { key: t("Product"), isSortable: true },
+      { key: t("Quantity"), isSortable: true },
+      { key: t("Category"), isSortable: true },
+      { key: t("Unit Price"), isSortable: true },
+      { key: t("Discount"), isSortable: true },
+      { key: t("Total Amount"), isSortable: true },
+      { key: t("General Amount"), isSortable: true },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "itemName",
+        className: "min-w-fit pr-2",
+        node: (row: any) => {
+          return (
+            <p key={"itemName" + row?.item} className={`${row?.className}`}>
+              {row?.itemName}
+            </p>
+          );
+        },
+      },
+      {
+        key: "paidQuantity",
+        node: (row: any) => {
+          return (
+            <p key={"paidQuantity" + row?.item} className={`${row?.className}`}>
+              {row?.paidQuantity}
+            </p>
+          );
+        },
+      },
+      { key: "category", className: "min-w-32 pr-2" },
+      {
+        key: "unitPrice",
+        node: (row: any) => {
+          return (
+            <p className={`${row?.className}`} key={"unitPrice" + row?.item}>
+              {row?.unitPriceQuantity.length > 1 || row?.unitPrice === 0
+                ? ""
+                : TURKISHLIRA +
+                  " " +
+                  row?.unitPrice?.toFixed(2).replace(/\.?0*$/, "")}
+            </p>
+          );
+        },
+      },
+      {
+        key: "discount",
+        node: (row: any) => {
+          return (
+            <p className={`${row?.className}`} key={"discount" + row?.item}>
+              {row?.discount?.toFixed(2) > 0 &&
+                row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
+                  " " +
+                  TURKISHLIRA}
+            </p>
+          );
+        },
+      },
+      {
+        key: "amount",
+        node: (row: any) => {
+          return (
+            <p className={`${row?.className}`} key={"amount" + row?.item}>
+              {TURKISHLIRA +
+                " " +
+                row?.amount?.toFixed(2).replace(/\.?0*$/, "")}
+            </p>
+          );
+        },
+      },
+      {
+        key: "totalAmountWithDiscount",
+        node: (row: any) => {
+          return (
+            <p
+              className={`${row?.className}`}
+              key={"totalAmountWithDiscount" + row?.item}
+            >
+              {TURKISHLIRA +
+                " " +
+                row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "")}
+            </p>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: sellLocations.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Location"),
+        required: true,
+        isMultiple: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "stockLocation",
+        label: t("Stock Location"),
+        options: stockLocations.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Stock Location"),
+        required: true,
+        isMultiple: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => {
+          return {
+            value: option.value,
+            label: t(option.label),
+          };
+        }),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({
+          value,
+          label,
+        }: {
+          value: string;
+          label: string;
+        }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements({
+              ...filterPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "status",
+        label: t("Status"),
+        options: orderFilterStatusOptions.map((option) => {
+          return {
+            value: option.value,
+            label: t(option.label),
+          };
+        }),
+        placeholder: t("Status"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "item",
+        label: t("Menu Item"),
+        options: (items ?? [])
+          ?.filter((item) => item?.isDaVinciGame)
+          ?.map((item) => {
+            return {
+              value: item?._id,
+              label: item?.name,
+            };
+          }),
+        isMultiple: true,
+        placeholder: t("Menu Item"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "discount",
+        label: t("Discount"),
+        options: discounts.map((discount) => {
+          return {
+            value: discount._id,
+            label: discount.name,
+          };
+        }),
+        isMultiple: true,
+        placeholder: t("Discount"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "createdBy",
+        label: t("Created By"),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+        placeholder: t("Created By"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "preparedBy",
+        label: t("Prepared By"),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+        placeholder: t("Prepared By"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "deliveredBy",
+        label: t("Delivered By"),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+        placeholder: t("Delivered By"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "cancelledBy",
+        label: t("Cancelled By"),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+        placeholder: t("Cancelled By"),
+        required: true,
+      },
+    ],
+    [
+      sellLocations,
+      stockLocations,
+      t,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+      items,
+      discounts,
+      users,
+    ]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showOrderDataFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters: () => setShowOrderDataFilters(false),
+      additionalFilterCleanFunction: () => {
+        setFilterPanelFormElements(initialFilterPanelFormElements);
+      },
+    }),
+    [
+      showOrderDataFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+      setShowOrderDataFilters,
+      initialFilterPanelFormElements,
+    ]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
+        isUpperSide: false,
+        node: (
+          <ButtonFilter
+            buttonName={t("Refresh Data")}
+            onclick={() => {
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/query`],
+              });
+              queryClient.invalidateQueries({
+                queryKey: [`${Paths.Order}/collection/query`],
+              });
+            }}
+          />
+        ),
+        isDisabled: isActionDisabled(
+          daVinciGameSalesPageDisabledCondition,
+          ActionEnum.REFRESH,
+          user
+        ),
+      },
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showOrderDataFilters}
+            onChange={() => {
+              setShowOrderDataFilters(!showOrderDataFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [
+      t,
+      queryClient,
+      daVinciGameSalesPageDisabledCondition,
+      user,
+      showOrderDataFilters,
+      setShowOrderDataFilters,
+      filterPanelFormElements,
+      initialFilterPanelFormElements,
+      setFilterPanelFormElements,
+    ]
+  );
+
+  return (
+    <>
+      <div className="w-[95%] mx-auto ">
+        <GenericTable
+          rowKeys={rowKeys}
+          columns={columns}
+          rows={rows}
+          filters={filters}
+          filterPanel={filterPanel}
+          title={t("Product Sales (Da Vinci)")}
+          isActionsActive={false}
+          isCollapsible={true}
+        />
+      </div>
+    </>
+  );
+};
+
+export default DaVinciGameSalesReport;

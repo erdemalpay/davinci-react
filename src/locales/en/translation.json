@@ -522,6 +522,7 @@
   "Table {{tableName}} closed": "Table {{tableName}} closed",
   "Table is being closed. Are you sure?": "Table is being closed. Are you sure?",
   "Product Sales": "Product Based Sales(Grouped)",
+  "Product Sales (Da Vinci)": "Product Sales (Da Vinci)",
   "Product Based Sales": "Product Based Sales",
   "Category Based Sales": "Category Based Sales",
   "Total Amount": "Total Amount",

@@ -1,5 +1,6 @@
 import { BiCategory } from "react-icons/bi";
 import { BsClipboard2Data } from "react-icons/bs";
+import { GiVitruvianMan } from "react-icons/gi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { SiFampay } from "react-icons/si";
 import {
@@ -13,6 +14,7 @@ import { Header } from "../components/header/Header";
 import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSalesReport";
 import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
+import DaVinciGameSalesReport from "../components/orderDatas/DaVinciGameSalesReport";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import HepsiburadaOrders from "../components/orderDatas/HepsiburadaOrders";
@@ -52,6 +54,13 @@ export const OrderDataTabs = [
     label: "Product Based Sales",
     icon: <TbReportSearch className="text-lg font-thin" />,
     content: <SingleProductSalesReport />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.DAVINCIGAMESALESREPORT,
+    label: "Product Sales (Da Vinci)",
+    icon: <GiVitruvianMan className="text-lg font-thin" />,
+    content: <DaVinciGameSalesReport />,
     isDisabled: false,
   },
   {
