@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RiGameLine } from "react-icons/ri";
+import { RiListCheck3, RiUserAddLine } from "react-icons/ri";
 import AssignGame from "../components/games/AssignGame";
 import GameAssignments from "../components/games/GameAssignments";
 import { Header } from "../components/header/Header";
@@ -12,14 +12,14 @@ export const GameAssignmentsPageTabs = [
   {
     number: GamesPageTabEnum.ASSIGNGAME,
     label: "Assign Game",
-    icon: <RiGameLine className="text-lg font-thin" />,
+    icon: <RiUserAddLine className="text-lg font-thin" />,
     content: <AssignGame />,
     isDisabled: false,
   },
   {
     number: GamesPageTabEnum.ASSIGNMENTS,
     label: "Game Assignments",
-    icon: <RiGameLine className="text-lg font-thin" />,
+    icon: <RiListCheck3 className="text-lg font-thin" />,
     content: <GameAssignments />,
     isDisabled: false,
   },
