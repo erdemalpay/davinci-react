@@ -37,10 +37,10 @@ const ORDER_NUMBER_KEY: Record<ItemPlatformKey, keyof ItemPlatformOrder> = {
 type PlatformOrderRow = {
   _id: string;
   dateDisplay: string;
+  hourDisplay: string;
   orderNumberDisplay: string;
   quantityDisplay: number | string;
   unitPriceDisplay: string;
-  statusDisplay: string;
   isLoadMore?: boolean;
 };
 
@@ -211,24 +211,27 @@ export default function ItemPlatformSalesTable({ item }: Props) {
     () =>
       availablePlatforms.map((platform) => {
         const orders = ordersByPlatform[platform.key];
-        const collapsibleRows: PlatformOrderRow[] = orders.map((order) => ({
-          _id: String(order._id),
-          dateDisplay: format(toIstDate(order.createdAt), "dd/MM/yyyy HH:mm"),
-          orderNumberDisplay:
-            (order[ORDER_NUMBER_KEY[platform.key]] as string) || "-",
-          quantityDisplay: order.quantity,
-          unitPriceDisplay: `${formatCurrency(order.unitPrice)} ${TURKISHLIRA}`,
-          statusDisplay: order.status,
-        }));
+        const collapsibleRows: PlatformOrderRow[] = orders.map((order) => {
+          const zonedDate = toIstDate(order.createdAt);
+          return {
+            _id: String(order._id),
+            dateDisplay: format(zonedDate, "dd/MM/yyyy"),
+            hourDisplay: format(zonedDate, "HH:mm"),
+            orderNumberDisplay:
+              (order[ORDER_NUMBER_KEY[platform.key]] as string) || "-",
+            quantityDisplay: order.quantity,
+            unitPriceDisplay: `${formatCurrency(order.unitPrice)} ${TURKISHLIRA}`,
+          };
+        });
 
         if (hasMoreByPlatform[platform.key]) {
           collapsibleRows.push({
             _id: `${platform.key}-load-more`,
             dateDisplay: "",
+            hourDisplay: "",
             orderNumberDisplay: "",
             quantityDisplay: "",
             unitPriceDisplay: "",
-            statusDisplay: "",
             isLoadMore: true,
           });
         }
@@ -259,9 +262,9 @@ export default function ItemPlatformSalesTable({ item }: Props) {
           collapsible: {
             collapsibleColumns: [
               { key: t("Date"), isSortable: false },
+              { key: t("Hour"), isSortable: false },
               { key: t("Order Number"), isSortable: false },
               { key: t("Quantity"), isSortable: false },
-              { key: t("Status"), isSortable: false },
             ],
             collapsibleRows,
             collapsibleRowKeys: [
@@ -270,9 +273,9 @@ export default function ItemPlatformSalesTable({ item }: Props) {
                 node: dateOrLoadMoreNode,
                 className: "min-w-32",
               },
+              { key: "hourDisplay", className: "min-w-20" },
               { key: "orderNumberDisplay", className: "min-w-32" },
               { key: "quantityDisplay", className: "min-w-20" },
-              { key: "statusDisplay", className: "min-w-24" },
             ],
           },
         };
