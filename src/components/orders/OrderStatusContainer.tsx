@@ -6,6 +6,7 @@ import { useUserContext } from "../../context/User.context";
 import useIsSmallScreen from "../../hooks/useIsSmallScreen";
 import { Kitchen, Order, OrderStatus, Table } from "../../types";
 import { useUpdateMultipleOrderMutation } from "../../utils/api/order/order";
+import { MinimalUser } from "../../utils/api/user";
 import { printTableReceipt } from "../../utils/printReceipt";
 import SingleOrderCard from "./SingleOrderCard";
 
@@ -15,6 +16,7 @@ type Props = {
   icon: React.ReactNode;
   iconBackgroundColor: string;
   kitchen: Kitchen;
+  actionUser: MinimalUser;
   defaultCollapsed?: boolean;
 };
 
@@ -24,6 +26,7 @@ const OrderStatusContainer = ({
   icon,
   iconBackgroundColor,
   kitchen,
+  actionUser,
   defaultCollapsed = false,
 }: Props) => {
   const { t } = useTranslation();
@@ -135,15 +138,27 @@ const OrderStatusContainer = ({
     return earliestB.getTime() - earliestA.getTime();
   });
   useEffect(() => {
-    for (const [tableId, tableOrders] of sortedGroupedOrders) {
-      const isTableOpen = !(tableOrders[0]?.table as Table)?.finishHour;
-      if (isTableOpen) {
-        setExpandedTables((prev) => ({
-          ...prev,
-          [tableId]: status !== "Served",
-        }));
+    const currentTableIds = new Set(
+      sortedGroupedOrders.map(([tableId]) => tableId)
+    );
+    setExpandedTables((prev) => {
+      const next = { ...prev };
+      let hasChanges = false;
+      for (const tableId of Object.keys(next)) {
+        if (!currentTableIds.has(tableId)) {
+          delete next[tableId];
+          hasChanges = true;
+        }
       }
-    }
+      for (const [tableId, tableOrders] of sortedGroupedOrders) {
+        const isTableOpen = !(tableOrders[0]?.table as Table)?.finishHour;
+        if (isTableOpen && !(tableId in next)) {
+          next[tableId] = status !== "Served";
+          hasChanges = true;
+        }
+      }
+      return hasChanges ? next : prev;
+    });
   }, [orders]);
 
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
@@ -226,7 +241,7 @@ const OrderStatusContainer = ({
                         updates: {
                           status: OrderStatus.READYTOSERVE,
                           preparedAt: new Date(),
-                          preparedBy: user._id,
+                          preparedBy: actionUser._id,
                         },
                       });
                     }}
@@ -245,7 +260,7 @@ const OrderStatusContainer = ({
                         updates: {
                           status: OrderStatus.SERVED,
                           deliveredAt: new Date(),
-                          deliveredBy: user._id,
+                          deliveredBy: actionUser._id,
                         },
                       });
                     }}
@@ -263,6 +278,7 @@ const OrderStatusContainer = ({
                       key={order._id}
                       order={order}
                       user={user}
+                      actionUser={actionUser}
                     />
                   ))}
                 </div>
