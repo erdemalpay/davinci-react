@@ -10,6 +10,7 @@ import SingleOrdersPage from "../components/orders/SingleOrdersPage";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useDataContext } from "../context/Data.context";
 import { useGeneralContext } from "../context/General.context";
+import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import {
@@ -20,6 +21,7 @@ import { useKitchenMutations } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { MinimalUser } from "../utils/api/user";
 import { formatDate, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
@@ -42,15 +44,30 @@ function Orders() {
   const { t } = useTranslation();
   const currentPageId = "orders";
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const { kitchens } = useDataContext();
+  const { kitchens, users = [], visits = [] } = useDataContext();
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
+  const { selectedLocationId } = useLocationContext();
   const { mutate: updateKitchenCategory } = useUpdateKitchenCategoryMutation();
   const { updateKitchen } = useKitchenMutations();
   const categories = useGetAllCategories();
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
   const disabledConditions = useGetDisabledConditions();
+  const [selectedActionUser, setSelectedActionUser] =
+    useState<MinimalUser | null>(null);
+  const currentActionUser = selectedActionUser || user;
+  const actionUserOptions = useMemo(() => {
+    const activeVisitUsers = (visits ?? [])
+      .filter(
+        (visit) => !visit?.finishHour && visit.location === selectedLocationId
+      )
+      .map((visit) => getItem(visit.user, users))
+      .filter((u): u is MinimalUser => u !== undefined);
+    return user
+      ? [user, ...activeVisitUsers.filter((u) => u._id !== user._id)]
+      : activeVisitUsers;
+  }, [visits, users, selectedLocationId, user]);
   const ordersOrdersDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.ORDERS_ORDERS, disabledConditions);
   }, [disabledConditions]);
@@ -76,7 +93,10 @@ function Orders() {
       ...(kitchens?.map((kitchen, index) => ({
         number: index,
         label: kitchen.name,
-        content: <SingleOrdersPage kitchen={kitchen} orders={orders} />,
+        content: (
+          <SingleOrdersPage
+            kitchen={kitchen} orders={orders} actionUser={currentActionUser ?? user} />
+        ),
         isDisabled: false,
         kitchen: kitchen,
       })) ?? []),
@@ -106,8 +126,10 @@ function Orders() {
         number: index,
       }));
     setTabs(filteredTabs ?? []);
+  }, [orders, kitchens, pages, user, todaysOrderDate, currentActionUser]);
+  useEffect(() => {
     setTabPanelKey((prev) => prev + 1);
-  }, [orders, kitchens, pages, user, todaysOrderDate]);
+  }, [kitchens, pages, user, todaysOrderDate]);
   const allowedLocations = useMemo(() => {
     return (
       tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen?.locations ||
@@ -193,6 +215,23 @@ function Orders() {
   return (
     <>
       <Header showLocationSelector={true} allowedLocations={allowedLocations} />
+      {actionUserOptions.length > 0 && (
+        <div className="flex flex-row flex-wrap gap-2 px-4 py-2">
+          {actionUserOptions.map((activeUser) => (
+            <a
+              key={activeUser._id}
+              onClick={() => setSelectedActionUser(activeUser)}
+              className={`px-4 py-2 rounded-lg focus:outline-none cursor-pointer font-medium border border-gray-300 ${
+                activeUser._id === currentActionUser?._id
+                  ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
+                  : "bg-white hover:bg-gray-200 text-gray-600 hover:text-red-500"
+              }`}
+            >
+              {activeUser.name}
+            </a>
+          ))}
+        </div>
+      )}
       <UnifiedTabPanel
         key={tabPanelKey}
         tabs={tabs ?? []}

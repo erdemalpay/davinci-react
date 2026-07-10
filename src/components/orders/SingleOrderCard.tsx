@@ -8,6 +8,7 @@ import {
   useCreateOrderForDivideMutation,
   useOrderMutations,
 } from "../../utils/api/order/order";
+import { MinimalUser } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { GenericButton } from "../common/GenericButton";
 import CommonSelectInput from "../common/SelectInput";
@@ -16,9 +17,10 @@ import Timer from "../common/Timer";
 type Props = {
   order: Order;
   user: User;
+  actionUser: MinimalUser;
 };
 
-const SingleOrderCard = ({ order, user }: Props) => {
+const SingleOrderCard = ({ order, user, actionUser }: Props) => {
   const { updateOrder } = useOrderMutations();
   const { mutate: cancelOrder } = useCancelOrderMutation();
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
@@ -169,7 +171,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   updates: {
                     status: OrderStatus.CANCELLED,
                     cancelledAt: new Date(),
-                    cancelledBy: user._id,
+                    cancelledBy: actionUser._id,
                   },
                   tableId,
                 });
@@ -190,7 +192,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   updates: {
                     status: OrderStatus.PENDING,
                     confirmedAt: new Date(),
-                    confirmedBy: user._id,
+                    confirmedBy: actionUser._id,
                   },
                 });
               }}
@@ -242,7 +244,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   updates: {
                     status: OrderStatus.READYTOSERVE,
                     preparedAt: new Date(),
-                    preparedBy: user._id,
+                    preparedBy: actionUser._id,
                   },
                 });
               }}
@@ -262,7 +264,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     updates: {
                       status: OrderStatus.SERVED,
                       deliveredAt: new Date(),
-                      deliveredBy: user._id,
+                      deliveredBy: actionUser._id,
                     },
                   });
                 }}
@@ -274,26 +276,25 @@ const SingleOrderCard = ({ order, user }: Props) => {
               </GenericButton>
             </div>
           )}
-          {order?.status === OrderStatus.SERVED &&
-            user._id === order?.deliveredBy && (
-              <div className="flex flex-row ">
-                <GenericButton
-                  onClick={() => {
-                    updateOrder({
-                      id: order?._id,
-                      updates: {
-                        status: OrderStatus.READYTOSERVE,
-                      },
-                    });
-                  }}
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-600 hover:text-black border border-gray-300"
-                >
-                  {t("Back")}
-                </GenericButton>
-              </div>
-            )}
+          {order?.status === OrderStatus.SERVED && (
+            <div className="flex flex-row ">
+              <GenericButton
+                onClick={() => {
+                  updateOrder({
+                    id: order?._id,
+                    updates: {
+                      status: OrderStatus.READYTOSERVE,
+                    },
+                  });
+                }}
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-black border border-gray-300"
+              >
+                {t("Back")}
+              </GenericButton>
+            </div>
+          )}
         </div>
       </div>
     </div>

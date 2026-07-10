@@ -6,14 +6,16 @@ import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import { Kitchen, Order, OrderStatus, RoleEnum } from "../../types";
 import { useGetAllCategories } from "../../utils/api/menu/category";
+import { MinimalUser } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import OrderStatusContainer from "../orders/OrderStatusContainer";
 
 type Props = {
   kitchen: Kitchen;
   orders: Order[];
+  actionUser: MinimalUser;
 };
-const SingleOrdersPage = ({ kitchen, orders }: Props) => {
+const SingleOrdersPage = ({ kitchen, orders, actionUser }: Props) => {
   const { selectedLocationId } = useLocationContext();
   const categories = useGetAllCategories();
   const { menuItems: items } = useDataContext();
@@ -85,6 +87,7 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
                   icon={orderStatus.icon}
                   iconBackgroundColor={orderStatus.iconBackgroundColor}
                   kitchen={kitchen}
+                  actionUser={actionUser}
                   defaultCollapsed={
                     orderStatus.smallScreenOpenForRoles
                       ? !orderStatus.smallScreenOpenForRoles.includes(
