@@ -452,7 +452,7 @@ const ShopifyDiscounts = () => {
 
   const columns = useMemo(
     () => [
-      { key: t("Code"), isSortable: false },
+      { key: t("Discount Code"), isSortable: false },
       { key: t("Title"), isSortable: false },
       { key: t("Discount Type"), isSortable: false },
       { key: t("Value"), isSortable: false },
@@ -470,7 +470,7 @@ const ShopifyDiscounts = () => {
       {
         key: "code",
         node: (row: DiscountRow) => (
-          <span className="font-mono font-semibold text-blue-700">{row.code}</span>
+          <span className="font-mono font-semibold">{row.code}</span>
         ),
       },
       { key: "title" },

@@ -87,7 +87,7 @@ const ShopifyCustomers = () => {
       {
         key: "amountSpent",
         node: (row: ShopifyAdminCustomer) =>
-          `${parseFloat(row.amountSpent?.amount ?? "0").toFixed(2)} ${row.amountSpent?.currencyCode ?? ""}`,
+          `₺${parseFloat(row.amountSpent?.amount ?? "0").toFixed(2)}`,
       },
     ],
     []
