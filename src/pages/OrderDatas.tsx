@@ -5,6 +5,7 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import { SiFampay } from "react-icons/si";
 import {
   TbCategoryPlus,
+  TbDeviceGamepad2,
   TbDiscount,
   TbReportAnalytics,
   TbReportMoney,
@@ -16,6 +17,7 @@ import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
 import DaVinciGameSalesReport from "../components/orderDatas/DaVinciGameSalesReport";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
+import GameSalesByChannel from "../components/orderDatas/GameSalesByChannel";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import HepsiburadaOrders from "../components/orderDatas/HepsiburadaOrders";
 import IkasOrders from "../components/orderDatas/IkasOrders";
@@ -82,6 +84,13 @@ export const OrderDataTabs = [
     label: "Discount Based Sales",
     icon: <TbDiscount className="text-lg font-thin" />,
     content: <DiscountBasedSales />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.GAMESALESBYCHANNEL,
+    label: "Game Sales by Channel",
+    icon: <TbDeviceGamepad2 className="text-lg font-thin" />,
+    content: <GameSalesByChannel />,
     isDisabled: false,
   },
   {

@@ -3,6 +3,7 @@ import { differenceInMinutes, format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
@@ -152,6 +153,7 @@ const ShopifyOrders = () => {
           note: order?.note ?? "",
           status: t(order?.status),
           paymentMethod: order?.paymentMethod,
+          isShopifyPickUp: order?.isShopifyPickUp ?? false,
           statusLabel: orderFilterStatusOptions.find(
             (status) => status.value === order?.status
           )?.label,
@@ -222,6 +224,7 @@ const ShopifyOrders = () => {
       },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Retailer"), isSortable: true, correspondingKey: "retailer" },
+      { key: t("Pick Up"), isSortable: true, correspondingKey: "isShopifyPickUp" },
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
       { key: t("Actions"), isSortable: false },
     ],
@@ -272,6 +275,27 @@ const ShopifyOrders = () => {
       { key: "cancelledBy" },
       { key: "location" },
       { key: "retailer" },
+      {
+        key: "isShopifyPickUp",
+        node: (row: any) => {
+          if (row?._id === "total") return null;
+          return (
+            <div className="flex justify-center min-w-20">
+              {row?.isShopifyPickUp ? (
+                <IoCheckmark
+                  key={row._id + "shopify-pickup-column-icon"}
+                  className="text-blue-500 text-2xl"
+                />
+              ) : (
+                <IoCloseOutline
+                  key={row._id + "shopify-pickup-column-icon"}
+                  className="text-red-800 text-2xl"
+                />
+              )}
+            </div>
+          );
+        },
+      },
       { key: "statusLabel", className: "min-w-32 pr-2" },
     ],
     []
