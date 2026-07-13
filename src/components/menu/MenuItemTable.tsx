@@ -797,7 +797,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             ? `${description.slice(0, DESCRIPTION_PREVIEW_LENGTH).trimEnd()}...`
             : description;
           return (
-            <p className="max-w-64 whitespace-pre-wrap">
+            <div className="max-w-64 whitespace-pre-wrap">
               {isOpen ? description : previewText}
               {isTruncatable && (
                 <button
@@ -809,7 +809,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                   {isOpen ? <IoChevronUp /> : <IoChevronDown />}
                 </button>
               )}
-            </p>
+            </div>
           );
         },
       },
