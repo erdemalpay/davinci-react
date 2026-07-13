@@ -45,22 +45,17 @@ const AllGameplayTime = () => {
 
   const calculateDuration = (startHour?: string, finishHour?: string) => {
     if (!startHour) return { minutes: 0, formatted: t("N/A") };
-
-    const startTime = new Date();
-    const [startH, startM] = startHour.split(":").map(Number);
-    startTime.setHours(startH, startM, 0, 0);
-
-    const endTime = new Date();
-    if (finishHour) {
-      const [endH, endM] = finishHour.split(":").map(Number);
-      endTime.setHours(endH, endM, 0, 0);
-    }
-
     if (!finishHour) return { minutes: 0, formatted: t("Active") };
 
-    let diffMs = endTime.getTime() - startTime.getTime();
-    if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const [startH, startM] = startHour.split(":").map(Number);
+    const [endH, endM] = finishHour.split(":").map(Number);
+
+    const startMinutes = startH * 60 + startM;
+    const endMinutes = endH * 60 + endM;
+
+    let diffMinutes = endMinutes - startMinutes;
+    if (diffMinutes < 0) diffMinutes += 24 * 60;
+
     const hours = Math.floor(diffMinutes / 60);
     const minutes = diffMinutes % 60;
 
