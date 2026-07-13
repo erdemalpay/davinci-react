@@ -794,24 +794,22 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           const isTruncatable = description.length > DESCRIPTION_PREVIEW_LENGTH;
           const isOpen = openDescriptionId === item._id;
           const previewText = isTruncatable
-            ? `${description.slice(0, DESCRIPTION_PREVIEW_LENGTH)}...`
+            ? `${description.slice(0, DESCRIPTION_PREVIEW_LENGTH).trimEnd()}...`
             : description;
           return (
-            <div className="flex flex-col gap-1">
-              <p className="max-w-64 whitespace-pre-wrap">
-                {isOpen ? description : previewText}
-              </p>
+            <p className="max-w-64 whitespace-pre-wrap">
+              {isOpen ? description : previewText}
               {isTruncatable && (
                 <button
                   onClick={() =>
                     setOpenDescriptionId(isOpen ? null : item._id)
                   }
-                  className="flex items-center text-xl text-gray-700 hover:text-gray-900"
+                  className="inline-flex items-center align-text-bottom text-xl text-gray-700 hover:text-blue-500"
                 >
                   {isOpen ? <IoChevronUp /> : <IoChevronDown />}
                 </button>
               )}
-            </div>
+            </p>
           );
         },
       },
