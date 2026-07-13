@@ -76,6 +76,8 @@ export const getMenuIcon = (menuName: string): IconType => {
     Oyunlar: MdSportsEsports,
     Gameplays: MdExtension,
     Analytics: MdBarChart,
+    "Gameplay Analytics": MdExtension,
+    "Accounting Analytics": MdBarChart,
     "Button Calls": MdNotifications,
     "Buton Çağrıları": MdNotifications,
     Notifications: MdNotifications,

@@ -2,8 +2,13 @@ import ExpenseTypeRoles from "../components/accounting/ExpenseTypeRoles";
 import { Tab } from "../components/panelComponents/shared/types";
 import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
+import AccountingAnalyticsPage, {
+  AccountingAnalyticsTabs,
+} from "../pages/AccountingAnalyticsPage";
 import Activities, { ActivitiesPageTabs } from "../pages/Activities";
-import Analytics from "../pages/Analytics";
+import GameplayAnalyticsPage, {
+  GameplayAnalyticsTabs,
+} from "../pages/GameplayAnalyticsPage";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
 import ButtonCalls from "../pages/ButtonCalls";
@@ -112,7 +117,8 @@ export enum Routes {
   User = "/user/:userId",
   Orders = "/orders",
   Users = "/users",
-  Analytics = "/analytics",
+  GameplayAnalytics = "/gameplay-analytics",
+  AccountingAnalytics = "/accounting-analytics",
   Gameplays = "/gameplays",
   Profile = "/profile",
   Accounting = "/accounting",
@@ -361,12 +367,6 @@ export const allRoutes: {
         isOnSidebar: true,
       },
       {
-        name: "Analytics",
-        path: Routes.Analytics,
-        element: Analytics,
-        isOnSidebar: true,
-      },
-      {
         name: "Requested Games",
         path: Routes.RequestedGames,
         element: RequestedGames,
@@ -378,6 +378,42 @@ export const allRoutes: {
         element: GameAssignments,
         isOnSidebar: true,
         tabs: GameAssignmentsPageTabs,
+      },
+    ],
+  },
+  {
+    name: "Gameplay Analytics",
+    path: Routes.GameplayAnalytics,
+    element: GameplayAnalyticsPage,
+    isOnSidebar: false,
+    tabs: GameplayAnalyticsTabs,
+  },
+  {
+    name: "Accounting Analytics",
+    path: Routes.AccountingAnalytics,
+    element: AccountingAnalyticsPage,
+    isOnSidebar: false,
+    tabs: AccountingAnalyticsTabs,
+  },
+  {
+    name: "Analytics",
+    path: Routes.GameplayAnalytics,
+    element: GameplayAnalyticsPage,
+    isOnSidebar: true,
+    children: [
+      {
+        name: "Gameplay Analytics",
+        path: Routes.GameplayAnalytics,
+        element: GameplayAnalyticsPage,
+        isOnSidebar: true,
+        tabs: GameplayAnalyticsTabs,
+      },
+      {
+        name: "Accounting Analytics",
+        path: Routes.AccountingAnalytics,
+        element: AccountingAnalyticsPage,
+        isOnSidebar: true,
+        tabs: AccountingAnalyticsTabs,
       },
     ],
   },
@@ -405,12 +441,6 @@ export const allRoutes: {
     name: "Gameplays",
     path: Routes.Gameplays,
     element: Gameplays,
-    isOnSidebar: false,
-  },
-  {
-    name: "Analytics",
-    path: Routes.Analytics,
-    element: Analytics,
     isOnSidebar: false,
   },
   {
