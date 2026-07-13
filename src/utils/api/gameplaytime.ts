@@ -36,7 +36,6 @@ export const useGetGameplayTimes = (
     filters?.user && `user=${filters.user}`,
     filters?.location && `location=${filters.location}`,
     filters?.gameplay && `gameplay=${filters.gameplay}`,
-    filters?.date && `date=${filters.date}`,
     filters?.after && `after=${filters.after}`,
     filters?.before && `before=${filters.before}`,
     filters?.sort && `sort=${filters.sort}`,

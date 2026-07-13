@@ -58,7 +58,8 @@ const AllGameplayTime = () => {
 
     if (!finishHour) return { minutes: 0, formatted: t("Active") };
 
-    const diffMs = endTime.getTime() - startTime.getTime();
+    let diffMs = endTime.getTime() - startTime.getTime();
+    if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
     const hours = Math.floor(diffMinutes / 60);
     const minutes = diffMinutes % 60;
