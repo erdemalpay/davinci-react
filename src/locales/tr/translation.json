@@ -1733,5 +1733,14 @@
   "Game Sales by Channel": "Kanal Bazında Oyun Satışları",
   "Add Selected To Retailer": "Seçili Kaydı Perakendeciye Ekle",
   "Used in Game Sales by Channel Report": "Kanal Bazlı Oyun Satışlarına dahil et",
-  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir."
+  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir.",
+  "Shopify Pre Orders": "Shopify Ön Siparişler",
+  "Pre Order": "Ön Siparişte",
+  "Show Unshipped Only": "Gönderilmemiş Ürün İçerenleri Göster",
+  "Shipped": "Kargolandı",
+  "Checking unshipped pre-order status for selected item": "Seçili ön sipariş ürünü için gönderim durumu kontrol ediliyor.",
+  "Selected item has unshipped pre-orders": "Seçili öğe, henüz gönderilmemiş ön siparişler içeriyor.",
+  "Order marked as shipped": "Sipariş gönderildi olarak işaretlendi",
+  "Order marked as unshipped": "Sipariş gönderilmedi olarak işaretlendi",
+  "Item updated successfully": "Ürün başarıyla güncellendi"
 }

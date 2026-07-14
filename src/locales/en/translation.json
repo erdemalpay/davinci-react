@@ -1724,7 +1724,16 @@
   "Game Sales by Channel": "Game Sales by Channel",
   "Add Selected To Retailer": "Add Selected To Retailer",
   "Used in Game Sales by Channel Report": "Used in Game Sales by Channel Report",
-  "GameSalesByChannel Info Text": "Cancelled/returned orders and quiz tickets are not included in the records in this table."
+  "GameSalesByChannel Info Text": "Cancelled/returned orders and quiz tickets are not included in the records in this table.",
+  "Shopify Pre Orders": "Shopify Pre Orders",
+  "Pre Order": "Pre Order",
+  "Show Unshipped Only": "Show Unshipped Only",
+  "Shipped": "Shipped",
+  "Checking unshipped pre-order status for selected item": "Checking unshipped pre-order status for selected item",
+  "Selected item has unshipped pre-orders": "Selected item has unshipped pre-orders",
+  "Order marked as shipped": "Order marked as shipped",
+  "Order marked as unshipped": "Order marked as unshipped",
+  "Item updated successfully": "Item updated successfully"
 
 
 }
