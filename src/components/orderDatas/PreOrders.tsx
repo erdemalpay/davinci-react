@@ -72,6 +72,15 @@ const PreOrders = () => {
 
         if (showUnshippedOnly && allShipped) return null;
 
+        const selectedItemIds = preOrderFilterPanelFormElements.item;
+        if (
+          Array.isArray(selectedItemIds) &&
+          selectedItemIds.length > 0 &&
+          !groupOrders.some((o) => selectedItemIds.includes(o.item))
+        ) {
+          return null;
+        }
+
         return {
           _id: first._id,
           orderIds: groupOrders.map((o) => o._id),
@@ -154,7 +163,16 @@ const PreOrders = () => {
       .sort((a: any, b: any) =>
         a.isFullyShipped === b.isFullyShipped ? 0 : a.isFullyShipped ? 1 : -1
       );
-  }, [orders, showUnshippedOnly, users, items, locations, t, updateSimpleOrder]);
+  }, [
+    orders,
+    showUnshippedOnly,
+    preOrderFilterPanelFormElements.item,
+    users,
+    items,
+    locations,
+    t,
+    updateSimpleOrder,
+  ]);
 
   const columns = useMemo(
     () => [
@@ -227,13 +245,13 @@ const PreOrders = () => {
     () => [
       {
         type: InputTypes.SELECT,
-        formKey: "location",
-        label: t("Location"),
-        options: locations.map((input) => ({
-          value: input._id,
-          label: input.name,
+        formKey: "item",
+        label: t("Menu Item"),
+        options: items?.map((item) => ({
+          value: item?._id,
+          label: item?.name,
         })),
-        placeholder: t("Location"),
+        placeholder: t("Menu Item"),
         required: true,
         isMultiple: true,
       },
@@ -297,7 +315,7 @@ const PreOrders = () => {
       },
     ],
     [
-      locations,
+      items,
       t,
       preOrderFilterPanelFormElements,
       setPreOrderFilterPanelFormElements,

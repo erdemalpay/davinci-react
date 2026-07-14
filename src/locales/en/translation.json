@@ -1728,7 +1728,8 @@
   "Shopify Pre Orders": "Shopify Pre Orders",
   "Pre Order": "Pre Order",
   "Show Unshipped Only": "Show Unshipped Only",
-  "Shipped": "Shipped"
+  "Shipped": "Shipped",
+  "Checking unshipped pre-order status for selected item": "Checking unshipped pre-order status for selected item"
 
 
 }
