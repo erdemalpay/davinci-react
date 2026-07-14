@@ -1737,5 +1737,6 @@
   "Shopify Pre Orders": "Shopify Ön Siparişler",
   "Pre Order": "Ön Siparişte",
   "Show Unshipped Only": "Gönderilmemiş Ürün İçerenleri Göster",
-  "Shipped": "Kargolandı"
+  "Shipped": "Kargolandı",
+  "Checking unshipped pre-order status for selected item": "Seçili ön sipariş ürünü için gönderim durumu kontrol ediliyor."
 }

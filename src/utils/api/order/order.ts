@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
-import { patch, post } from "../index";
+import { get, patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
 import { useOrderContext } from "./../../../context/Order.context";
@@ -989,6 +989,12 @@ export function usePreOrderMutation() {
   });
 
   return { updateSimpleOrder, isPending };
+}
+
+export function checkHasUnshippedPreOrderForItem(itemId: number) {
+  return get<boolean>({
+    path: `${Paths.Order}/item/${itemId}/has-unshipped-pre-order`,
+  });
 }
 
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {
