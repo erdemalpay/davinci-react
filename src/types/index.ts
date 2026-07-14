@@ -2848,6 +2848,8 @@ export type CustomerPopup = {
   specialDate?: string;
   cooldownHours: number;
   locations: number[];
+  isAutoClosedWhenOutOfStock?: boolean;
+  selectedMenuItems?: number[];
   isDeleted: boolean;
   createdAt?: string;
   updatedAt?: string;

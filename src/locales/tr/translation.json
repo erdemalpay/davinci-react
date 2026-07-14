@@ -1733,5 +1733,7 @@
   "Game Sales by Channel": "Kanal Bazında Oyun Satışları",
   "Add Selected To Retailer": "Seçili Kaydı Perakendeciye Ekle",
   "Used in Game Sales by Channel Report": "Kanal Bazlı Oyun Satışlarına dahil et",
-  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir."
+  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir.",
+  "Auto-close when out of stock": "Stok Bitimi Otomatik Pasifleştir",
+  "Selected Menu Items": "Seçili Menü Öğeleri"
 }

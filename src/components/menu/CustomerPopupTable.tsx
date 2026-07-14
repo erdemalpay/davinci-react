@@ -10,6 +10,7 @@ import {
   useCustomerPopupMutations,
   useGetCustomerPopups,
 } from "../../utils/api/menu/customer-popup";
+import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -34,6 +35,7 @@ const TRIGGER_TYPE_LABELS: Record<CustomerPopupTriggerType, string> = {
 const CustomerPopupTable = () => {
   const { t } = useTranslation();
   const locations = useGetStoreLocations();
+  const menuItems = useGetAllMenuItems();
   const popups = useGetCustomerPopups();
   const { createCustomerPopup, updateCustomerPopup, deleteCustomerPopup } =
     useCustomerPopupMutations();
@@ -133,6 +135,26 @@ const CustomerPopupTable = () => {
       required: true,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "selectedMenuItems",
+      label: t("Selected Menu Items"),
+      options: menuItems?.map((item) => ({
+        value: item._id,
+        label: item.name,
+      })),
+      placeholder: t("Selected Menu Items"),
+      isMultiple: true,
+      required: false,
+    },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAutoClosedWhenOutOfStock",
+      label: t("Auto-close when out of stock"),
+      placeholder: t("Auto-close when out of stock"),
+      required: false,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.CHECKBOX,
       formKey: "isActive",
       label: t("Active"),
@@ -151,6 +173,8 @@ const CustomerPopupTable = () => {
     { key: "specialDate", type: FormKeyTypeEnum.STRING },
     { key: "cooldownHours", type: FormKeyTypeEnum.NUMBER },
     { key: "locations", type: FormKeyTypeEnum.ARRAY },
+    { key: "selectedMenuItems", type: FormKeyTypeEnum.ARRAY },
+    { key: "isAutoClosedWhenOutOfStock", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isActive", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
@@ -220,7 +244,7 @@ const CustomerPopupTable = () => {
         imageUploadPath="/asset/upload/original"
         folderName="menu"
         submitItem={createCustomerPopup as any}
-        constantValues={{ isActive: true, cooldownHours: 24, periodicDays: [], triggerType: CustomerPopupTriggerType.PERIODIC }}
+        constantValues={{ isActive: true, cooldownHours: 24, periodicDays: [], triggerType: CustomerPopupTriggerType.PERIODIC, selectedMenuItems: [], isAutoClosedWhenOutOfStock: false }}
         topClassName="flex flex-col gap-2"
         generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"
         nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
