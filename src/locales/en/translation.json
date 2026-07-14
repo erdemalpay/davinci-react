@@ -1729,7 +1729,11 @@
   "Pre Order": "Pre Order",
   "Show Unshipped Only": "Show Unshipped Only",
   "Shipped": "Shipped",
-  "Checking unshipped pre-order status for selected item": "Checking unshipped pre-order status for selected item"
+  "Checking unshipped pre-order status for selected item": "Checking unshipped pre-order status for selected item",
+  "Selected item has unshipped pre-orders": "Selected item has unshipped pre-orders",
+  "Order marked as shipped": "Order marked as shipped",
+  "Order marked as unshipped": "Order marked as unshipped",
+  "Item updated successfully": "Item updated successfully"
 
 
 }
