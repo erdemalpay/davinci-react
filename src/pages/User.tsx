@@ -137,7 +137,9 @@ export default function UserView() {
       ),
       isDisabled: !(
         user?.role._id === RoleEnum.BARISTA ||
-        user?.role._id === RoleEnum.SERVICE
+        user?.role._id === RoleEnum.SERVICE ||
+        user?.role._id === RoleEnum.BARCHEF ||
+        user?.role._id === RoleEnum.OPERATIONSASISTANT
       ),
     },
     {

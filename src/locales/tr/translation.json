@@ -1733,5 +1733,14 @@
   "Game Sales by Channel": "Kanal Bazında Oyun Satışları",
   "Add Selected To Retailer": "Seçili Kaydı Perakendeciye Ekle",
   "Used in Game Sales by Channel Report": "Kanal Bazlı Oyun Satışlarına dahil et",
-  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir."
+  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir.",
+  "Late Arrivals & Early Departures": "Geç Gelmeler & Erken Çıkmalar",
+  "Planned Start": "Planlanan Giriş",
+  "Actual Start": "Gerçekleşen Giriş",
+  "Minutes Late": "Gecikme",
+  "Planned End": "Planlanan Çıkış",
+  "Actual Finish": "Gerçekleşen Çıkış",
+  "Minutes Early": "Erken Çıkma",
+  "days": "gün",
+  "No Check-out": "Çıkış yapılmadı"
 }

@@ -18,6 +18,7 @@ import InfoCard from "../common/InfoCard";
 import FilterPanel from "../panelComponents/Tables/FilterPanel";
 import { InputTypes } from "../panelComponents/shared/types";
 import AttendanceCalendar from "./AttendanceCalendar";
+import LateEarlySummary from "./LateEarlySummary";
 
 type Props = {
   userId: string;
@@ -237,6 +238,11 @@ const ServicePersonalSummary = ({ userId }: Props) => {
           ))}
         </div>
       </div>
+      <LateEarlySummary
+        visits={visits || []}
+        shifts={shifts || []}
+        userId={userId}
+      />
     </div>
   );
 };
