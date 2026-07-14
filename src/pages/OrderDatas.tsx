@@ -24,6 +24,7 @@ import IkasOrders from "../components/orderDatas/IkasOrders";
 import KitchenDataPage from "../components/orderDatas/KitchenDataPage";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
+import PreOrders from "../components/orderDatas/PreOrders";
 import ShopifyCollections from "../components/orderDatas/ShopifyCollections";
 import ShopifyOrders from "../components/orderDatas/ShopifyOrders";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
@@ -126,6 +127,13 @@ export const OrderDataTabs = [
     label: "Shopify Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <ShopifyOrders />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.SHOPIFYPREORDERS,
+    label: "Shopify Pre Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <PreOrders />,
     isDisabled: false,
   },
   {
