@@ -662,6 +662,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         placeholder: t("Da Vinci Game"),
         required: false,
       },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isPreOrder",
+        label: t("Pre Order"),
+        placeholder: t("Pre Order"),
+        required: false,
+      },
       ...(singleItemGroup?.category?.isLimitedTime
         ? [
             {
@@ -705,6 +712,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
       { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
+      { key: "isPreOrder", type: FormKeyTypeEnum.BOOLEAN },
       { key: "startDate", type: FormKeyTypeEnum.STRING },
       { key: "endDate", type: FormKeyTypeEnum.STRING },
     ],
@@ -759,6 +767,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       // { key: t("Auto Served"), isSortable: false },
       { key: t("Auto Prepared"), isSortable: false },
       { key: t("Da Vinci Game"), isSortable: false },
+      { key: t("Pre Order"), isSortable: false },
     ];
 
     const keys: RowKeyType<
@@ -988,6 +997,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                   updates: {
                     ...row,
                     isDaVinciGame: !row.isDaVinciGame,
+                  },
+                });
+              }}
+            />
+          );
+        },
+      },
+      {
+        key: "isPreOrder",
+        node: (row: MenuItem) => {
+          return (
+            <CheckSwitch
+              checked={row?.isPreOrder ?? false}
+              onChange={() => {
+                updateItem({
+                  id: row._id,
+                  updates: {
+                    ...row,
+                    isPreOrder: !row.isPreOrder,
                   },
                 });
               }}

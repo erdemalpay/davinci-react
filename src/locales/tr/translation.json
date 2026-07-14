@@ -1733,5 +1733,9 @@
   "Game Sales by Channel": "Kanal Bazında Oyun Satışları",
   "Add Selected To Retailer": "Seçili Kaydı Perakendeciye Ekle",
   "Used in Game Sales by Channel Report": "Kanal Bazlı Oyun Satışlarına dahil et",
-  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir."
+  "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir.",
+  "Shopify Pre Orders": "Shopify Ön Siparişler",
+  "Pre Order": "Ön Siparişte",
+  "Show Unshipped Only": "Gönderilmemiş Ürün İçerenleri Göster",
+  "Shipped": "Kargolandı"
 }
