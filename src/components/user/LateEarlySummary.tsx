@@ -66,15 +66,22 @@ const computeLateEarlyRows = (
     // shiftEndHour and finishHour may pass midnight; normalize against the start hours
     let plannedEnd = toMinutes(userShift.shiftEndHour);
     if (plannedEnd !== null && plannedEnd < plannedStart) plannedEnd += 1440;
-    const finishHours = dayVisits
+    const finishVisits = dayVisits
       .map((visit) => {
         let finish = toMinutes(visit.finishHour);
         const start = toMinutes(visit.startHour);
         if (finish !== null && start !== null && finish < start) finish += 1440;
-        return finish;
+        return { visit, finish };
       })
-      .filter((finish): finish is number => finish !== null);
-    const actualFinish = finishHours.length ? Math.max(...finishHours) : null;
+      .filter(
+        (item): item is { visit: Visit; finish: number } => item.finish !== null
+      );
+    const lastFinishVisit = finishVisits.length
+      ? finishVisits.reduce((max, item) =>
+          item.finish > max.finish ? item : max
+        )
+      : null;
+    const actualFinish = lastFinishVisit?.finish ?? null;
     const earlyMinutes =
       plannedEnd !== null && actualFinish !== null
         ? plannedEnd - actualFinish
@@ -88,13 +95,7 @@ const computeLateEarlyRows = (
         actualStart: firstVisit.startHour,
         lateMinutes: lateMinutes > 0 ? lateMinutes : null,
         plannedEnd: userShift.shiftEndHour ?? "-",
-        actualFinish:
-          [...dayVisits]
-            .filter((visit) => visit.finishHour)
-            .sort((a, b) =>
-              (a.finishHour as string).localeCompare(b.finishHour as string)
-            )
-            .pop()?.finishHour ?? "",
+        actualFinish: lastFinishVisit?.visit.finishHour ?? "",
         hasNoCheckout: actualFinish === null,
         earlyMinutes:
           earlyMinutes !== null && earlyMinutes > 0 ? earlyMinutes : null,
