@@ -138,10 +138,11 @@ const CustomerPopupTable = () => {
       type: InputTypes.SELECT,
       formKey: "selectedMenuItems",
       label: t("Selected Menu Items"),
-      options: menuItems?.map((item) => ({
-        value: item._id,
-        label: item.name,
-      })),
+      options:
+        menuItems?.map((item) => ({
+          value: item._id,
+          label: item.name,
+        })) ?? [],
       placeholder: t("Selected Menu Items"),
       isMultiple: true,
       required: false,
