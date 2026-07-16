@@ -15,6 +15,7 @@ import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollec
 import { useGetUserShifts } from "../../utils/api/shift";
 import { useGetFilteredVisits } from "../../utils/api/visit";
 import InfoCard from "../common/InfoCard";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import FilterPanel from "../panelComponents/Tables/FilterPanel";
 import { InputTypes } from "../panelComponents/shared/types";
 import AttendanceCalendar from "./AttendanceCalendar";
@@ -213,6 +214,21 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   };
   return (
     <div className="w-full flex flex-col gap-6">
+      <div className="w-full flex justify-end">
+        <QuickDateRangeFilter
+          startDate={filterPanelFormElements.after}
+          endDate={filterPanelFormElements.before}
+          onChange={(start: string, end: string) => {
+            const isReset = !start && !end;
+            setFilterPanelFormElements({
+              ...filterPanelFormElements,
+              date: "",
+              after: isReset ? initialFilterPanelFormElements.after : start,
+              before: isReset ? "" : end,
+            });
+          }}
+        />
+      </div>
       <AttendanceCalendar
         visits={visits || []}
         shifts={shifts || []}

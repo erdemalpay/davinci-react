@@ -30,6 +30,7 @@ import { useGetFilteredVisits } from "../../utils/api/visit";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import InfoCard from "../common/InfoCard";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -380,6 +381,21 @@ const GameMasterSummary = ({ userId }: Props) => {
   ]);
   return (
     <div className="w-full flex flex-col gap-4">
+      <div className="w-full flex justify-end">
+        <QuickDateRangeFilter
+          startDate={filterPanelFormElements.after}
+          endDate={filterPanelFormElements.before}
+          onChange={(start: string, end: string) => {
+            const isReset = !start && !end;
+            setFilterPanelFormElements({
+              ...filterPanelFormElements,
+              date: "",
+              after: isReset ? initialFilterPanelFormElements.after : start,
+              before: isReset ? "" : end,
+            });
+          }}
+        />
+      </div>
       <AttendanceCalendar
         visits={visits || []}
         shifts={shifts || []}
