@@ -445,7 +445,7 @@ const DailySummary = () => {
           isToday(filterDailySummaryPanelFormElements.date) ? (
             <ActiveVisitList
               name="employees"
-              label={t("Who's at cafe?")}
+              label={t("I checked in")}
               visits={visits}
               tables={tables}
             />
