@@ -843,6 +843,7 @@ export type MenuItem = {
   isAutoServed?: boolean;
   isAutoPrepared?: boolean;
   isDaVinciGame?: boolean;
+  isPreOrder?: boolean;
   itemProduction?: {
     product: string;
     quantity: number;
@@ -1058,6 +1059,7 @@ export type Order = {
   isShopifyCustomerPicked?: boolean;
   isShopifyPickUpOrderBrought?: boolean;
   isShopifyPickUp?: boolean;
+  isShipped?: boolean;
   shopifyOrderNumber?: string;
 };
 
@@ -1758,6 +1760,7 @@ export enum OrderDataTabEnum {
   ORDERS,
   IKASORDERS,
   SHOPIFYORDERS,
+  SHOPIFYPREORDERS,
   TRENDYOLORDERS,
   HEPSIBURADAORDERS,
   PERSONALORDERDATAS,

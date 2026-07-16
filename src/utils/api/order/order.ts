@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
-import { patch, post } from "../index";
+import { get, patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
 import { useOrderContext } from "./../../../context/Order.context";
@@ -890,6 +890,111 @@ export function useGetShopifyPickUpOrders(category?: number[]) {
     ],
     true
   );
+}
+
+export function useGetPreOrders() {
+  const { preOrderFilterPanelFormElements } = useOrderContext();
+  let url = `${baseUrl}/query?after=${preOrderFilterPanelFormElements.after}&isPreOrder=true`;
+  const parameters = [
+    "before",
+    "discount",
+    "createdBy",
+    "preparedBy",
+    "deliveredBy",
+    "cancelledBy",
+    "status",
+    "location",
+  ];
+  parameters.forEach((param) => {
+    if (preOrderFilterPanelFormElements[param]) {
+      url = url.concat(
+        `&${param}=${encodeURIComponent(
+          preOrderFilterPanelFormElements[param]
+        )}`
+      );
+    }
+  });
+  return useGetList<Order>(
+    url,
+    [
+      `${Paths.Order}/pre-order/query`,
+      `${Paths.Order}`,
+
+      preOrderFilterPanelFormElements.after,
+      preOrderFilterPanelFormElements.before,
+      preOrderFilterPanelFormElements.discount,
+      preOrderFilterPanelFormElements.createdBy,
+      preOrderFilterPanelFormElements.preparedBy,
+      preOrderFilterPanelFormElements.deliveredBy,
+      preOrderFilterPanelFormElements.cancelledBy,
+      preOrderFilterPanelFormElements.status,
+      preOrderFilterPanelFormElements.location,
+    ],
+    true
+  );
+}
+
+export function usePreOrderMutation() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const queryKeyPrefix = [`${Paths.Order}/pre-order/query`];
+
+  const { mutate: updateSimpleOrder, isPending } = useMutation({
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<Order> }) =>
+      patch<Partial<Order>, Order>({
+        path: `${Paths.Order}/simple/${id}`,
+        payload: updates,
+      }),
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeyPrefix });
+
+      const snapshots = queryClient
+        .getQueriesData<Order[]>({ queryKey: queryKeyPrefix })
+        .map(([key, data]) => ({ key, data }));
+
+      queryClient.setQueriesData<Order[]>({ queryKey: queryKeyPrefix }, (old) =>
+        old?.map((order) =>
+          order._id === id ? { ...order, ...updates } : order
+        ) ?? []
+      );
+
+      return { snapshots };
+    },
+    onSuccess: (_data, variables) => {
+      if (variables.updates.isShipped === true) {
+        toast.success(t("Order marked as shipped"));
+      } else if (variables.updates.isShipped === false) {
+        toast.success(t("Order marked as unshipped"));
+      } else {
+        toast.success(t("Order updated successfully"));
+      }
+    },
+    onError: (_err, _variables, context) => {
+      context?.snapshots?.forEach(({ key, data }) => {
+        queryClient.setQueryData(key, data);
+      });
+      const message =
+        (_err as any)?.response?.data?.message ?? t("An unexpected error occurred");
+      toast.error(message);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/query`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`${Paths.Order}/collection/query`],
+      });
+    },
+  });
+
+  return { updateSimpleOrder, isPending };
+}
+
+export function checkHasUnshippedPreOrderForItem(itemId: number) {
+  return get<boolean>({
+    path: `${Paths.Order}/item/${itemId}/has-unshipped-pre-order`,
+  });
 }
 
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {

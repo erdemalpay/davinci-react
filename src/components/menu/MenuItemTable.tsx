@@ -6,6 +6,7 @@ import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline, IoChevronDown, IoChevronUp } from "react-icons/io5";
+import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -39,6 +40,7 @@ import {
   useUpdateItemsSlugsMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
+import { checkHasUnshippedPreOrderForItem } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
@@ -46,6 +48,7 @@ import { getItem } from "../../utils/getItem";
 import { itemBelongsToMenuCategory } from "../../utils/menuItemCategories";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -96,6 +99,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
   const { mutate: updateItemsSlugs } = useUpdateItemsSlugsMutation();
   const [isEditSelectionCompeted, setIsEditSelectionCompeted] = useState(false);
+  const [isCheckingPreOrderShipment, setIsCheckingPreOrderShipment] =
+    useState(false);
   // const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -662,6 +667,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         placeholder: t("Da Vinci Game"),
         required: false,
       },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isPreOrder",
+        label: t("Pre Order"),
+        placeholder: t("Pre Order"),
+        required: false,
+      },
       ...(singleItemGroup?.category?.isLimitedTime
         ? [
             {
@@ -705,6 +717,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
       { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
+      { key: "isPreOrder", type: FormKeyTypeEnum.BOOLEAN },
       { key: "startDate", type: FormKeyTypeEnum.STRING },
       { key: "endDate", type: FormKeyTypeEnum.STRING },
     ],
@@ -759,6 +772,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       // { key: t("Auto Served"), isSortable: false },
       { key: t("Auto Prepared"), isSortable: false },
       { key: t("Da Vinci Game"), isSortable: false },
+      { key: t("Pre Order"), isSortable: false },
     ];
 
     const keys: RowKeyType<
@@ -990,6 +1004,46 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                     isDaVinciGame: !row.isDaVinciGame,
                   },
                 });
+              }}
+            />
+          );
+        },
+      },
+      {
+        key: "isPreOrder",
+        node: (row: MenuItem) => {
+          return (
+            <CheckSwitch
+              checked={row?.isPreOrder ?? false}
+              onChange={async () => {
+                if (!row.isPreOrder) {
+                  updateItem({
+                    id: row._id,
+                    updates: { ...row, isPreOrder: true },
+                  });
+                  return;
+                }
+                setIsCheckingPreOrderShipment(true);
+                try {
+                  const hasUnshippedOrder = await checkHasUnshippedPreOrderForItem(
+                    row._id
+                  );
+                  if (hasUnshippedOrder) {
+                    toast.error(
+                      t("Selected item has unshipped pre-orders")
+                    );
+                  } else {
+                    updateItem({
+                      id: row._id,
+                      updates: { ...row, isPreOrder: false },
+                    });
+                    toast.success(t("Item updated successfully"));
+                  }
+                } catch {
+                  toast.error(t("An unexpected error occurred"));
+                } finally {
+                  setIsCheckingPreOrderShipment(false);
+                }
               }}
             />
           );
@@ -1694,6 +1748,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
 
   return (
     <div className="w-[95%] mx-auto">
+      {isCheckingPreOrderShipment && (
+        <Loading
+          message={t(
+            "Checking unshipped pre-order status for selected item"
+          )}
+        />
+      )}
       <GenericTable
         rowKeys={rowKeys}
         actions={actions}

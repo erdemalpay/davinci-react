@@ -1733,5 +1733,16 @@
   "Actual Finish": "Actual Finish",
   "Minutes Early": "Minutes Early",
   "days": "days",
-  "No Check-out": "No check-out"
+  "No Check-out": "No check-out",
+  "Shopify Pre Orders": "Shopify Pre Orders",
+  "Pre Order": "Pre Order",
+  "Show Unshipped Only": "Show Unshipped Only",
+  "Shipped": "Shipped",
+  "Checking unshipped pre-order status for selected item": "Checking unshipped pre-order status for selected item",
+  "Selected item has unshipped pre-orders": "Selected item has unshipped pre-orders",
+  "Order marked as shipped": "Order marked as shipped",
+  "Order marked as unshipped": "Order marked as unshipped",
+  "Item updated successfully": "Item updated successfully"
+
+
 }

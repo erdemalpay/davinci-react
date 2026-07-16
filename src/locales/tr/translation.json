@@ -1742,5 +1742,14 @@
   "Actual Finish": "Gerçekleşen Çıkış",
   "Minutes Early": "Erken Çıkma",
   "days": "gün",
-  "No Check-out": "Çıkış yapılmadı"
+  "No Check-out": "Çıkış yapılmadı",
+  "Shopify Pre Orders": "Shopify Ön Siparişler",
+  "Pre Order": "Ön Siparişte",
+  "Show Unshipped Only": "Gönderilmemiş Ürün İçerenleri Göster",
+  "Shipped": "Kargolandı",
+  "Checking unshipped pre-order status for selected item": "Seçili ön sipariş ürünü için gönderim durumu kontrol ediliyor.",
+  "Selected item has unshipped pre-orders": "Seçili öğe, henüz gönderilmemiş ön siparişler içeriyor.",
+  "Order marked as shipped": "Sipariş gönderildi olarak işaretlendi",
+  "Order marked as unshipped": "Sipariş gönderilmedi olarak işaretlendi",
+  "Item updated successfully": "Ürün başarıyla güncellendi"
 }
