@@ -319,14 +319,13 @@ export function useWebSocket(shouldConnect = false) {
         categories
       );
       const foundKitchen = getItem(order.kitchen as string, kitchens ?? []);
-      const hasActiveVisit = (visits ?? []).some(
-        (visit) => visit.user === user?._id && !visit.finishHour
-      );
       if (
         user?.role &&
-        hasActiveVisit &&
         !foundCategory?.isAutoServed &&
-        foundKitchen?.soundRoles?.includes(user.role._id)
+        foundKitchen?.soundRoles?.includes(user.role._id) &&
+        (visits ?? []).some(
+          (visit) => visit.user === user._id && !visit.finishHour
+        )
       ) {
         if (
           (order.kitchen as any)?.selectedRoles?.length > 0 &&
@@ -727,6 +726,7 @@ export function useWebSocket(shouldConnect = false) {
         }
 
         if (creatingUser._id === user._id) return;
+        if (locationId !== selectedLocationId) return;
         const hasActiveVisit = (visits ?? []).some(
           (visit) => visit.user === user._id && !visit.finishHour
         );
