@@ -62,7 +62,8 @@ export function ActiveVisitList({
     selectedLocationId
   ) as unknown as Shift[] | undefined;
   const { updateMiddleman } = useMiddlemanMutations();
-  const { mutate: managerCheckInOut } = useManagerCheckInOutMutation();
+  const { mutate: managerCheckInOut, isPending: isCheckingInOut } =
+    useManagerCheckInOutMutation();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
 
@@ -79,7 +80,7 @@ export function ActiveVisitList({
     user?.role?._id === RoleEnum.MANAGER || user?.role?._id === RoleEnum.COUNTER;
 
   function toggleVisitAsManager() {
-    if (!selectedLocationId) return;
+    if (!selectedLocationId || isCheckingInOut) return;
     managerCheckInOut(selectedLocationId, {
       onSuccess: (data) => {
         toast.success(
