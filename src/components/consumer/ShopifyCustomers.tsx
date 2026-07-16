@@ -72,7 +72,9 @@ const ShopifyCustomers = () => {
               setCurrentPage(1);
               setSearchQuery("");
               setSortConfigKey(null);
-              navigate(`/shopify-customer/${row.id.split("/").pop()}`, { state: { customer: row } });
+              navigate(`/shopify-customer/${row.id.split("/").pop()}`, {
+                state: { customer: row },
+              });
             }}
           >
             {[row.firstName, row.lastName].filter(Boolean).join(" ") || "-"}
@@ -82,12 +84,13 @@ const ShopifyCustomers = () => {
       {
         key: "numberOfOrders",
         node: (row: ShopifyAdminCustomer) =>
-          new Set(row.orders.map((o) => o.shopifyOrderNumber).filter(Boolean)).size,
+          new Set(row.orders.map((o) => o.shopifyOrderNumber).filter(Boolean))
+            .size,
       },
       {
         key: "amountSpent",
         node: (row: ShopifyAdminCustomer) =>
-          `₺${parseFloat(row.amountSpent?.amount ?? "0").toFixed(2)}`,
+          `${parseFloat(row.amountSpent?.amount ?? "0").toFixed(2)} ₺`,
       },
     ],
     []
