@@ -1736,6 +1736,8 @@
   "Add Selected To Retailer": "Seçili Kaydı Perakendeciye Ekle",
   "Used in Game Sales by Channel Report": "Kanal Bazlı Oyun Satışlarına dahil et",
   "GameSalesByChannel Info Text": "Bu tablodaki kayıtlara iptal/iade edilen siparişler ile quiz biletleri dahil edilmemektedir.",
+  "Auto-close when out of stock": "Stok Bitimi Otomatik Pasifleştir",
+  "Selected Menu Items": "Seçili Menü Öğeleri",
   "Late Arrivals & Early Departures": "Geç Gelmeler & Erken Çıkmalar",
   "Planned Start": "Planlanan Giriş",
   "Actual Start": "Gerçekleşen Giriş",

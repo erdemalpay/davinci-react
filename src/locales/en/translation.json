@@ -1727,6 +1727,8 @@
   "Add Selected To Retailer": "Add Selected To Retailer",
   "Used in Game Sales by Channel Report": "Used in Game Sales by Channel Report",
   "GameSalesByChannel Info Text": "Cancelled/returned orders and quiz tickets are not included in the records in this table.",
+  "Auto-close when out of stock": "Auto-close when out of stock",
+  "Selected Menu Items": "Selected Menu Items",
   "Late Arrivals & Early Departures": "Late Arrivals & Early Departures",
   "Planned Start": "Planned Start",
   "Actual Start": "Actual Start",
