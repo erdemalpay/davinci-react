@@ -155,14 +155,14 @@ const DailySummary = () => {
       }, 0) || 0);
   const waitingReservations = reservations?.filter(
     (reservation) => reservation.status === ReservationStatusEnum.WAITING
-  )?.length;
+  )?.length ?? 0;
   const comingReservations = reservations?.filter(
     (reservation) => reservation.status === ReservationStatusEnum.COMING
-  )?.length;
-  const emptyTableCount =
+  )?.length ?? 0;
+  const emptyTableCount = Math.max(0,
     (locations
       ? getItem(selectedLocationId, locations)?.tableCount ?? 0
-      : 0) - activeTableCount;
+      : 0) - activeTableCount);
   const totalTableCount =
     tables?.filter(
       (table) =>
