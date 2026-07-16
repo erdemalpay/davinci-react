@@ -394,6 +394,8 @@ export type AccountVendor = {
 export type AccountRetailer = {
   _id: number;
   name: string;
+  tenantSlug?: string;
+  projectSlug?: string;
 };
 
 export type AccountPaymentMethod = {
