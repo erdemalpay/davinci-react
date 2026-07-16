@@ -74,6 +74,9 @@ type OrderContextType = {
   initialShopifyPickUpFilterPanelFormElements: FormElementsState;
   shopifyPickUpFilterPanelFormElements: FormElementsState;
   setShopifyPickUpFilterPanelFormElements: (state: FormElementsState) => void;
+  initialPreOrderFilterPanelFormElements: FormElementsState;
+  preOrderFilterPanelFormElements: FormElementsState;
+  setPreOrderFilterPanelFormElements: (state: FormElementsState) => void;
   setFilterPanelFormElements: (state: FormElementsState) => void;
   filterSummaryFormElements: FormElementsState;
   setFilterSummaryFormElements: (state: FormElementsState) => void;
@@ -82,6 +85,8 @@ type OrderContextType = {
   resetOrderContext: () => void;
   showPickedOrders: boolean;
   setShowPickedOrders: (showPickedOrders: boolean) => void;
+  showUnshippedOnly: boolean;
+  setShowUnshippedOnly: (showUnshippedOnly: boolean) => void;
   selectedNewOrders: number[];
   setSelectedNewOrders: (selectedNewOrders: number[]) => void;
   isExtraModalOpen: boolean;
@@ -202,6 +207,27 @@ const OrderContext = createContext<OrderContextType>({
     eliminatedDiscounts: [],
     cancelHour: "",
   },
+  initialPreOrderFilterPanelFormElements: {
+    location: "",
+    user: "",
+    status: "",
+    collectionStatus: "",
+    before: "",
+    after: `${format(new Date(), "yyyy")}-01-01`,
+    date: "",
+    category: "",
+    discount: "",
+    item: "",
+    paymentMethod: "",
+    createdBy: "",
+    hour: "",
+    cancelledBy: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+    eliminatedDiscounts: [],
+    cancelHour: "",
+  },
   filterPanelFormElements: {
     location: "",
     user: "",
@@ -268,6 +294,28 @@ const OrderContext = createContext<OrderContextType>({
     cancelHour: "",
   },
   setShopifyPickUpFilterPanelFormElements: () => {},
+  preOrderFilterPanelFormElements: {
+    location: "",
+    user: "",
+    status: "",
+    collectionStatus: "",
+    before: "",
+    after: `${format(new Date(), "yyyy")}-01-01`,
+    date: "",
+    category: "",
+    discount: "",
+    hour: "",
+    item: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+    eliminatedDiscounts: [],
+    cancelHour: "",
+  },
+  setPreOrderFilterPanelFormElements: () => {},
   setFilterPanelFormElements: () => {},
   isTransferProductOpen: false,
   setIsTransferProductOpen: () => {},
@@ -277,6 +325,8 @@ const OrderContext = createContext<OrderContextType>({
   setOrderCreateBulk: () => {},
   showPickedOrders: false,
   setShowPickedOrders: () => {},
+  showUnshippedOnly: true,
+  setShowUnshippedOnly: () => {},
   selectedNewOrders: [],
   setSelectedNewOrders: () => {},
   isExtraModalOpen: false,
@@ -300,6 +350,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
   const [showPickedOrders, setShowPickedOrders] = useState(false);
+  const [showUnshippedOnly, setShowUnshippedOnly] = useState(true);
   const [
     vendorOrderFilterPanelFormElements,
     setVendorOrderFilterPanelFormElements,
@@ -385,6 +436,31 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     shopifyPickUpFilterPanelFormElements,
     setShopifyPickUpFilterPanelFormElements,
   ] = useState<FormElementsState>(initialShopifyPickUpFilterPanelFormElements);
+  const initialPreOrderFilterPanelFormElements = {
+    location: "",
+    user: "",
+    status: "",
+    collectionStatus: "",
+    before: "",
+    after: `${format(new Date(), "yyyy")}-01-01`,
+    date: "",
+    category: "",
+    discount: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    hour: "",
+    item: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+    eliminatedDiscounts: [],
+    cancelHour: "",
+  };
+  const [
+    preOrderFilterPanelFormElements,
+    setPreOrderFilterPanelFormElements,
+  ] = useState<FormElementsState>(initialPreOrderFilterPanelFormElements);
   const [todaysOrderDate, setTodaysOrderDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
@@ -480,14 +556,19 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setOrderCreateBulk,
         showPickedOrders,
         setShowPickedOrders,
+        showUnshippedOnly,
+        setShowUnshippedOnly,
         ikasPickUpFilterPanelFormElements,
         setIkasPickUpFilterPanelFormElements,
         shopifyPickUpFilterPanelFormElements,
         setShopifyPickUpFilterPanelFormElements,
+        preOrderFilterPanelFormElements,
+        setPreOrderFilterPanelFormElements,
         selectedNewOrders,
         setSelectedNewOrders,
         initialIkasPickUpFilterPanelFormElements,
         initialShopifyPickUpFilterPanelFormElements,
+        initialPreOrderFilterPanelFormElements,
         isExtraModalOpen,
         setIsExtraModalOpen,
       }}

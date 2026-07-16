@@ -1,3 +1,4 @@
+import { Tooltip } from "@material-tailwind/react";
 import {
   addDays,
   format,
@@ -19,7 +20,9 @@ import { InputTypes } from "../components/panelComponents/shared/types";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useFilterContext } from "../context/Filter.context";
-import { OptionType } from "../types";
+import { useLocationContext } from "../context/Location.context";
+import { OptionType, ReservationStatusEnum, Table, TableTypes } from "../types";
+import { useGetReservations } from "../utils/api/reservations";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetTables } from "../utils/api/table";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -44,6 +47,8 @@ const DailySummary = () => {
   const users = useGetUsers();
   const tables = useGetTables();
   const usersMinimal = useGetUsersMinimal();
+  const reservations = useGetReservations();
+  const { selectedLocationId } = useLocationContext();
   const [componentKey, setComponentKey] = useState(0);
   const [hoveredSegmentText, setHoveredSegmentText] = useState<string | null>(
     null
@@ -134,6 +139,108 @@ const DailySummary = () => {
   const summary = useGetDailySummary(
     filterDailySummaryPanelFormElements.date,
     filterDailySummaryPanelFormElements.location
+  );
+
+  const activeTables = tables?.filter((table) => !table?.finishHour);
+  const activeTableCount =
+    (tables?.filter(
+      (table) => !table?.finishHour && table.type === TableTypes.NORMAL
+    ).length || 0) +
+    (tables
+      ?.filter(
+        (table) => !table?.finishHour && table.type === TableTypes.ACTIVITY
+      )
+      .reduce((prev, curr) => {
+        return Number(prev) + Number(curr.tables?.length || 0);
+      }, 0) || 0);
+  const waitingReservations = reservations?.filter(
+    (reservation) => reservation.status === ReservationStatusEnum.WAITING
+  )?.length ?? 0;
+  const comingReservations = reservations?.filter(
+    (reservation) => reservation.status === ReservationStatusEnum.COMING
+  )?.length ?? 0;
+  const emptyTableCount = Math.max(0,
+    (locations
+      ? getItem(selectedLocationId, locations)?.tableCount ?? 0
+      : 0) - activeTableCount);
+  const totalTableCount =
+    tables?.filter(
+      (table) =>
+        ![TableTypes.TAKEOUT, TableTypes.ONLINE]?.includes(
+          table.type as TableTypes
+        )
+    )?.length ?? 0;
+  const activeCustomerCount =
+    activeTables?.reduce((prev: number, curr: Table) => {
+      return Number(prev) + Number(curr.playerCount || 0);
+    }, 0) || 0;
+  const totalCustomerCount =
+    tables?.reduce((prev: number, curr: Table) => {
+      return Number(prev) + Number(curr.playerCount || 0);
+    }, 0) || 0;
+
+  const cafeInfos: {
+    title: string;
+    value: any;
+    tooltip?: string;
+  }[] = [
+    {
+      title: "Total Table",
+      value: totalTableCount,
+    },
+    {
+      title: "Total Customer",
+      value: totalCustomerCount,
+    },
+    {
+      title: "Empty Table",
+      value: emptyTableCount,
+    },
+    {
+      title: "Active Table",
+      value: activeTableCount,
+    },
+    {
+      title: "Active Customer",
+      value: activeCustomerCount,
+    },
+    {
+      title: "Reservations",
+      value: `${waitingReservations} / ${comingReservations}`,
+      tooltip: t("Waiting / Coming"),
+    },
+  ];
+
+  const renderCafeInfos = (className: string, keyPrefix: string) => (
+    <div
+      className={`border w-fit min-w-fit border-gray-400 rounded-md ${className}`}
+    >
+      <div className="grid grid-cols-3 grid-rows-2 divide-x divide-y divide-gray-200">
+        {cafeInfos.map((info, index) =>
+          info?.tooltip ? (
+            <Tooltip
+              key={`${keyPrefix}-${index}`}
+              content={info.tooltip}
+              placement="top"
+              className="!z-[999999999999999999999]"
+            >
+              <div className="flex flex-col items-center justify-center p-2 min-w-fit">
+                <h4 className="text-center text-[14px]">{t(info.title)}</h4>
+                <p className="font-thin">{info.value}</p>
+              </div>
+            </Tooltip>
+          ) : (
+            <div
+              key={`${keyPrefix}-${index}`}
+              className="flex flex-col items-center justify-center p-2 min-w-fit"
+            >
+              <h4 className="text-center text-[14px]">{t(info.title)}</h4>
+              <p className="font-thin">{info.value}</p>
+            </div>
+          )
+        )}
+      </div>
+    </div>
   );
 
   const metricCards = [
@@ -338,7 +445,7 @@ const DailySummary = () => {
           isToday(filterDailySummaryPanelFormElements.date) ? (
             <ActiveVisitList
               name="employees"
-              label={t("Who's at cafe?")}
+              label={t("I checked in")}
               visits={visits}
               tables={tables}
             />
@@ -352,7 +459,7 @@ const DailySummary = () => {
                 return (
                   <div
                     key={input.formKey}
-                    className="w-full flex items-center gap-2"
+                    className="w-full flex items-center justify-center sm:justify-start gap-2"
                   >
                     {/* left arrow */}
                     <button
@@ -433,6 +540,8 @@ const DailySummary = () => {
               }
               return null;
             })}
+            {/* Cafe info card - mobile only, hidden on desktop */}
+            {renderCafeInfos("md:hidden mx-auto", "cafeinfo-mobile")}
           </div>
         </div>
 

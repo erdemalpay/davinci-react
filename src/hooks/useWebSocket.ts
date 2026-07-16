@@ -37,7 +37,7 @@ export function useWebSocket(shouldConnect = false) {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
-  const { kitchens, menuItems = [] } = useDataContext();
+  const { kitchens, menuItems = [], visits } = useDataContext();
   const {
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
@@ -66,6 +66,7 @@ export function useWebSocket(shouldConnect = false) {
     kitchens,
     menuItems,
     categories,
+    visits,
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
     setTakeawayTableId,
@@ -84,6 +85,7 @@ export function useWebSocket(shouldConnect = false) {
       kitchens,
       menuItems,
       categories,
+      visits,
       setIsTakeAwayPaymentModalOpen,
       setOrderCreateBulk,
       setTakeawayTableId,
@@ -99,6 +101,7 @@ export function useWebSocket(shouldConnect = false) {
     kitchens,
     menuItems,
     categories,
+    visits,
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
     setTakeawayTableId,
@@ -239,6 +242,7 @@ export function useWebSocket(shouldConnect = false) {
         selectedLocationId,
         categories,
         kitchens,
+        visits,
         audioReadyRef,
         audioRef,
       } = latestValuesRef.current;
@@ -318,7 +322,10 @@ export function useWebSocket(shouldConnect = false) {
       if (
         user?.role &&
         !foundCategory?.isAutoServed &&
-        foundKitchen?.soundRoles?.includes(user.role._id)
+        foundKitchen?.soundRoles?.includes(user.role._id) &&
+        (visits ?? []).some(
+          (visit) => visit.user === user._id && !visit.finishHour
+        )
       ) {
         if (
           (order.kitchen as any)?.selectedRoles?.length > 0 &&
@@ -638,6 +645,7 @@ export function useWebSocket(shouldConnect = false) {
           user,
           selectedLocationId,
           kitchens,
+          visits,
           setIsTakeAwayPaymentModalOpen,
           setTakeawayTableId,
           setOrderCreateBulk,
@@ -718,6 +726,11 @@ export function useWebSocket(shouldConnect = false) {
         }
 
         if (creatingUser._id === user._id) return;
+        if (locationId !== selectedLocationId) return;
+        const hasActiveVisit = (visits ?? []).some(
+          (visit) => visit.user === user._id && !visit.finishHour
+        );
+        if (!hasActiveVisit) return;
         const foundKitchens = kitchenIds.map((kitchenId) =>
           getItem(kitchenId, kitchens ?? [])
         );
