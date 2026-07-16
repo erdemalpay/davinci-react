@@ -1457,6 +1457,7 @@ export enum RoleEnum {
   KITCHEN2,
   KITCHEN3,
   BARCHEF,
+  COUNTER
 }
 
 export enum RoleNameEnum {
