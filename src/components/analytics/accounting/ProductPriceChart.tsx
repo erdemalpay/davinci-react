@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccountProduct } from "../../../types";
 import { useGetAccountProductExpenses } from "../../../utils/api/account/expense";
@@ -15,176 +15,105 @@ export default function ProductPriceChart() {
     products[0]
   );
   const invoices = useGetAccountProductExpenses(selectedProduct?._id);
-  const [chartKey, setChartKey] = useState(0);
   const productOptions = products?.map((product) => {
     return {
       value: product._id,
       label: product.name,
     };
   });
-  const [chartConfig, setChartConfig] = useState<any>({
-    height: 240,
-    series: [
-      {
-        name: "Price",
-        data: [],
-      },
-    ],
-    options: {
-      chart: {
-        toolbar: {
-          show: false,
-        },
-      },
-      title: {
-        show: false,
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      colors: ["#020617"],
-      plotOptions: {
-        bar: {
-          columnWidth: "40%",
-          borderRadius: 2,
-        },
-      },
-      xaxis: {
-        axisTicks: {
-          show: false,
-        },
-        axisBorder: {
-          show: false,
-        },
-        labels: {
-          style: {
-            colors: "#616161",
-            fontSize: "12px",
-            fontFamily: "inherit",
-            fontWeight: 400,
-          },
-        },
-        categories: [],
-      },
-      yaxis: {
-        labels: {
-          style: {
-            colors: "#616161",
-            fontSize: "12px",
-            fontFamily: "inherit",
-            fontWeight: 400,
-          },
-        },
-      },
-      grid: {
-        show: true,
-        borderColor: "#dddddd",
-        strokeDashArray: 5,
-        xaxis: {
-          lines: {
-            show: true,
-          },
-        },
-        padding: {
-          top: 5,
-          right: 20,
-        },
-      },
-      fill: {
-        opacity: 0.8,
-      },
-      tooltip: {
-        theme: "dark",
-      },
-    },
-  });
-
-  useEffect(() => {
-    const prices = invoices?.map((invoice) =>
+  const chartConfig = useMemo(() => {
+    const sorted = [...(invoices ?? [])].sort((a, b) =>
+      (a?.date ?? "").localeCompare(b?.date ?? "")
+    );
+    const prices = sorted.map((invoice) =>
       parseFloat((invoice?.totalExpense / invoice?.quantity).toFixed(4))
     );
-    const dates = invoices?.map((invoice) => invoice?.date);
-    if (invoices?.length > 1) {
-      setChartConfig({
-        ...chartConfig,
-        type: invoices?.length > 1 ? "line" : "bar",
-        series: [
-          {
-            name: "Price",
-            data: prices,
-          },
-        ],
-        options: {
-          chart: {
-            toolbar: {
-              show: false,
-            },
-          },
-          title: {
+    const dates = sorted.map((invoice) => invoice?.date);
+    const step = Math.max(1, Math.ceil(dates.length / 20));
+    const tickValues = dates
+      .filter((_, i) => i % step === 0 || i === dates.length - 1)
+      .map((d) => (d ? formatAsLocalDate(d) : ""));
+    return {
+      height: 240,
+      type: sorted.length > 1 ? "line" : "bar",
+      tickValues,
+      series: [
+        {
+          name: "Price",
+          data: prices,
+        },
+      ],
+      options: {
+        chart: {
+          toolbar: {
             show: false,
           },
-          dataLabels: {
-            enabled: false,
-          },
-          colors: ["#020617"],
-          plotOptions: {
-            bar: {
-              columnWidth: "40%",
-              borderRadius: 2,
-            },
-          },
-          xaxis: {
-            axisTicks: {
-              show: false,
-            },
-            axisBorder: {
-              show: false,
-            },
-            labels: {
-              style: {
-                colors: "#616161",
-                fontSize: "12px",
-                fontFamily: "inherit",
-                fontWeight: 400,
-              },
-            },
-            categories: dates.map((date) => formatAsLocalDate(date)),
-          },
-          yaxis: {
-            labels: {
-              style: {
-                colors: "#616161",
-                fontSize: "12px",
-                fontFamily: "inherit",
-                fontWeight: 400,
-              },
-            },
-          },
-          grid: {
-            show: true,
-            borderColor: "#dddddd",
-            strokeDashArray: 5,
-            xaxis: {
-              lines: {
-                show: true,
-              },
-            },
-            padding: {
-              top: 5,
-              right: 20,
-            },
-          },
-          fill: {
-            opacity: 0.8,
-          },
-          tooltip: {
-            theme: "dark",
+        },
+        title: {
+          show: false,
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        colors: ["#020617"],
+        plotOptions: {
+          bar: {
+            columnWidth: "40%",
+            borderRadius: 2,
           },
         },
-      });
-    }
-    setChartKey((prevKey) => prevKey + 1);
-  }, [invoices, products]);
+        xaxis: {
+          axisTicks: {
+            show: false,
+          },
+          axisBorder: {
+            show: false,
+          },
+          labels: {
+            style: {
+              colors: "#616161",
+              fontSize: "12px",
+              fontFamily: "inherit",
+              fontWeight: 400,
+            },
+          },
+          categories: dates.map((date) =>
+            date ? formatAsLocalDate(date) : ""
+          ),
+        },
+        yaxis: {
+          labels: {
+            style: {
+              colors: "#616161",
+              fontSize: "12px",
+              fontFamily: "inherit",
+              fontWeight: 400,
+            },
+          },
+        },
+        grid: {
+          show: true,
+          borderColor: "#dddddd",
+          strokeDashArray: 5,
+          xaxis: {
+            lines: {
+              show: true,
+            },
+          },
+          padding: {
+            top: 5,
+            right: 20,
+          },
+        },
+        fill: {
+          opacity: 0.8,
+        },
+        tooltip: {
+          theme: "dark",
+        },
+      },
+    };
+  }, [invoices]);
 
   return (
     <div className="flex flex-col gap-4  mx-auto">
@@ -214,7 +143,7 @@ export default function ProductPriceChart() {
       </div>
       {selectedProduct && (
         <PriceChart
-          key={chartKey}
+          key={selectedProduct._id}
           chartConfig={chartConfig}
           selectedProduct={selectedProduct}
         />
