@@ -177,6 +177,33 @@ export function useQrCheckInOutMutation() {
   });
 }
 
+function managerCheckInOut(location: number): Promise<QrCheckInResult> {
+  return post<{ location: number }, QrCheckInResult>({
+    path: `${Paths.Visits}/manager-toggle`,
+    payload: { location },
+  });
+}
+
+export function useManagerCheckInOutMutation() {
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: managerCheckInOut,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [Paths.Visits, selectedLocationId, selectedDate],
+      });
+    },
+    onError: (_err: { response?: { data?: { message?: string } } }) => {
+      const errorMessage =
+        _err?.response?.data?.message || t("An unexpected error occurred");
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useGetQrCode(location: number, enabled: boolean) {
   return useQuery({
     queryKey: [`${Paths.Visits}/qr/code`, location],

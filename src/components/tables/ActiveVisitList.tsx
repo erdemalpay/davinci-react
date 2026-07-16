@@ -24,6 +24,7 @@ import {
   useMiddlemanMutations,
 } from "../../utils/api/middleman";
 import { useGetShifts } from "../../utils/api/shift";
+import { useManagerCheckInOutMutation } from "../../utils/api/visit";
 import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
@@ -61,6 +62,8 @@ export function ActiveVisitList({
     selectedLocationId
   ) as unknown as Shift[] | undefined;
   const { updateMiddleman } = useMiddlemanMutations();
+  const { mutate: managerCheckInOut, isPending: isCheckingInOut } =
+    useManagerCheckInOutMutation();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
 
@@ -72,8 +75,29 @@ export function ActiveVisitList({
     );
   }, [user]);
 
+  // Manager ve Kasa QR okutmadan direkt giriş/çıkış yapabilir
+  const isManagerOrKasa =
+    user?.role?._id === RoleEnum.MANAGER || user?.role?._id === RoleEnum.COUNTER;
+
+  function toggleVisitAsManager() {
+    if (!selectedLocationId || isCheckingInOut) return;
+    managerCheckInOut(selectedLocationId, {
+      onSuccess: (data) => {
+        toast.success(
+          data.action === "entry"
+            ? t("Check-in successful")
+            : t("Check-out successful")
+        );
+      },
+    });
+  }
+
   function handleChipClose(userId: string) {
     if (!isUserActive(userId)) {
+      return;
+    }
+    if (isManagerOrKasa) {
+      toggleVisitAsManager();
       return;
     }
     setIsScannerOpen(true);
@@ -81,6 +105,10 @@ export function ActiveVisitList({
 
   function handleCheckboxChange() {
     if (isDisabledCondition) {
+      return;
+    }
+    if (isManagerOrKasa) {
+      toggleVisitAsManager();
       return;
     }
     setIsScannerOpen(true);
