@@ -1756,7 +1756,5 @@
   "Order marked as shipped": "Sipariş gönderildi olarak işaretlendi",
   "Order marked as unshipped": "Sipariş gönderilmedi olarak işaretlendi",
   "Item updated successfully": "Ürün başarıyla güncellendi",
-  "Wrong Entry": "Hatalı Giriş",
-  "Full Time": "Tam Zamanlı",
-  "Part Time": "Yarı Zamanlı"
+  "Wrong Entry": "Hatalı Giriş"
 }
