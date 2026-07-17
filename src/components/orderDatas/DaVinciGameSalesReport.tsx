@@ -229,7 +229,7 @@ const DaVinciGameSalesReport = () => {
       { key: t("Product"), isSortable: true },
       { key: t("Quantity"), isSortable: true },
       { key: t("Category"), isSortable: true },
-      { key: t("Unit Price"), isSortable: true },
+      { key: t("Avg. Unit Price"), isSortable: true },
       { key: t("Discount"), isSortable: true },
       { key: t("Total Amount"), isSortable: true },
       { key: t("General Amount"), isSortable: true },
@@ -246,7 +246,7 @@ const DaVinciGameSalesReport = () => {
           row?.item === 0 ? null : (
             <img
               src={row?.imageUrl || NO_IMAGE_URL}
-              alt="img"
+              alt={row?.itemName || "Product"}
               className="w-12 h-12 rounded-full min-w-12"
             />
           ),
@@ -276,13 +276,15 @@ const DaVinciGameSalesReport = () => {
       {
         key: "unitPrice",
         node: (row: OrderWithPaymentInfo) => {
+          const avgUnitPrice =
+            row?.paidQuantity > 0 ? row.amount / row.paidQuantity : 0;
           return (
             <p className={`${row?.className}`} key={"unitPrice" + row?.item}>
-              {row?.unitPriceQuantity.length > 1 || row?.unitPrice === 0
+              {row?.item === 0 || avgUnitPrice === 0
                 ? ""
                 : TURKISHLIRA +
                   " " +
-                  row?.unitPrice?.toFixed(2).replace(/\.?0*$/, "")}
+                  avgUnitPrice.toFixed(2).replace(/\.?0*$/, "")}
             </p>
           );
         },
