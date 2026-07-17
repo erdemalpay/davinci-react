@@ -214,7 +214,7 @@ const TabInputScreen = ({
                     <img
                       src={opt.imageUrl}
                       alt={opt.label}
-                      className="w-16 h-16 object-cover rounded-md hidden sm:block"
+                      className="w-16 h-16 object-contain rounded-md border border-gray-300 hidden sm:block"
                     />
                   )}
                   <span className="text-gray-800 text-center">{opt.label}</span>

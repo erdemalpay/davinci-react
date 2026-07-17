@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
+import { NO_IMAGE_URL } from "../../navigation/constants";
 import {
   ActionEnum,
   DateRangeKey,
@@ -52,6 +53,7 @@ type Collapsible = {
 type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
+  imageUrl?: string;
   unitPrice: number;
   paidQuantity: number;
   discount: number;
@@ -152,6 +154,7 @@ const DaVinciGameSalesReport = () => {
           acc.push({
             item: order?.item,
             itemName: menuItem?.name ?? "",
+            imageUrl: menuItem?.imageUrl,
             unitPrice: order?.unitPrice,
             paidQuantity: orderQuantity,
             discount: discountAmount,
@@ -222,6 +225,7 @@ const DaVinciGameSalesReport = () => {
 
   const columns = useMemo(
     () => [
+      { key: "", isSortable: false },
       { key: t("Product"), isSortable: true },
       { key: t("Quantity"), isSortable: true },
       { key: t("Category"), isSortable: true },
@@ -235,6 +239,18 @@ const DaVinciGameSalesReport = () => {
 
   const rowKeys = useMemo(
     () => [
+      {
+        key: "imageUrl",
+        isImage: true,
+        node: (row: OrderWithPaymentInfo) =>
+          row?.item === 0 ? null : (
+            <img
+              src={row?.imageUrl || NO_IMAGE_URL}
+              alt="img"
+              className="w-12 h-12 rounded-full min-w-12"
+            />
+          ),
+      },
       {
         key: "itemName",
         className: "min-w-fit pr-2",
@@ -583,6 +599,7 @@ const DaVinciGameSalesReport = () => {
           title={t("Product Sales (Da Vinci)")}
           isActionsActive={false}
           isCollapsible={true}
+          imageHolder={NO_IMAGE_URL}
         />
       </div>
     </>
