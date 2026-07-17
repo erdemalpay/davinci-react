@@ -13,7 +13,7 @@ import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Retailer = () => {
   const { t } = useTranslation();
@@ -39,6 +39,8 @@ const Retailer = () => {
   const columns = useMemo(
     () => [
       { key: t("Name"), isSortable: true },
+      { key: t("Tenant Slug"), isSortable: true },
+      { key: t("Project Slug"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
@@ -63,12 +65,47 @@ const Retailer = () => {
           </p>
         ),
       },
+      {
+        key: "tenantSlug",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "projectSlug",
+        className: "min-w-32 pr-1",
+      },
     ],
     [navigate, setCurrentPage, setSearchQuery, setSortConfigKey]
   );
 
-  const inputs = [NameInput({ t })];
-  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const inputs = useMemo(
+    () => [
+      NameInput({ t }),
+      {
+        type: InputTypes.TEXT,
+        formKey: "tenantSlug",
+        label: t("Tenant Slug"),
+        placeholder: t("Tenant Slug"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "projectSlug",
+        label: t("Project Slug"),
+        placeholder: t("Project Slug"),
+        required: false,
+      },
+    ],
+    [t]
+  );
+
+  const formKeys = useMemo(
+    () => [
+      { key: "name", type: FormKeyTypeEnum.STRING },
+      { key: "tenantSlug", type: FormKeyTypeEnum.STRING },
+      { key: "projectSlug", type: FormKeyTypeEnum.STRING },
+    ],
+    []
+  );
 
   const addButton = useMemo(
     () => ({
@@ -90,7 +127,7 @@ const Retailer = () => {
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, createAccountRetailer]
+    [t, isAddModalOpen, createAccountRetailer, inputs, formKeys]
   );
 
   const actions = useMemo(
@@ -147,6 +184,8 @@ const Retailer = () => {
       isEditModalOpen,
       deleteAccountRetailer,
       updateAccountRetailer,
+      inputs,
+      formKeys,
     ]
   );
 
