@@ -1755,5 +1755,8 @@
   "Selected item has unshipped pre-orders": "Seçili öğe, henüz gönderilmemiş ön siparişler içeriyor.",
   "Order marked as shipped": "Sipariş gönderildi olarak işaretlendi",
   "Order marked as unshipped": "Sipariş gönderilmedi olarak işaretlendi",
-  "Item updated successfully": "Ürün başarıyla güncellendi"
+  "Item updated successfully": "Ürün başarıyla güncellendi",
+  "Wrong Entry": "Hatalı Giriş",
+  "Full Time": "Tam Zamanlı",
+  "Part Time": "Yarı Zamanlı"
 }
