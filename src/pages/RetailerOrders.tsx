@@ -1,12 +1,17 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineChecklist, MdOutlineStorefront } from "react-icons/md";
+import {
+  MdOutlineChecklist,
+  MdOutlineReceiptLong,
+  MdOutlineStorefront,
+} from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import RetailerItemSummaryTab from "../components/retailer/RetailerItemSummary";
+import RetailerOrderRequestsTab from "../components/retailer/RetailerOrderRequests";
 import RetailerOrdersTab from "../components/retailer/RetailerOrders";
 import { useGeneralContext } from "../context/General.context";
 import { Routes } from "../navigation/constants";
@@ -26,6 +31,13 @@ export const RetailerOrdersPageTabs = [
     label: "Item Summary",
     icon: <MdOutlineChecklist className="text-lg font-thin" />,
     content: <RetailerItemSummaryTab />,
+    isDisabled: false,
+  },
+  {
+    number: 2,
+    label: "Order Requests",
+    icon: <MdOutlineReceiptLong className="text-lg font-thin" />,
+    content: <RetailerOrderRequestsTab />,
     isDisabled: false,
   },
 ];
@@ -77,6 +89,8 @@ export default function RetailerOrders() {
             ? t("Orders")
             : tab.label === "Item Summary"
             ? t("Item Summary")
+            : tab.label === "Order Requests"
+            ? t("Order Requests")
             : tab.label,
       })),
     [t]
