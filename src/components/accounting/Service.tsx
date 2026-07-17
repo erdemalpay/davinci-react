@@ -16,6 +16,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -173,11 +174,10 @@ const Service = () => {
         key: "name",
         className: "min-w-32 pr-1",
         node: (row: any) => {
-          const isClickable = !servicesDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.CLICKABLE_ROWS &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isClickable = !isActionDisabled(
+            servicesDisabledCondition,
+            ActionEnum.CLICKABLE_ROWS,
+            user
           );
           return isClickable ? (
             <p
@@ -275,11 +275,10 @@ const Service = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: servicesDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        servicesDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
@@ -319,11 +318,10 @@ const Service = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: servicesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          servicesDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -359,11 +357,10 @@ const Service = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: servicesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          servicesDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],

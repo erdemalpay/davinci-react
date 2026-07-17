@@ -24,6 +24,7 @@ import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
 import { BackgroundColorInput, NameInput } from "../../utils/panelInputs";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -196,11 +197,10 @@ const ExpenseType = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: expenseTypeDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+      isDisabled: isActionDisabled(
+        expenseTypeDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
     }),
     [
@@ -238,11 +238,10 @@ const ExpenseType = () => {
           isModalOpen: isCloseAllConfirmationDialogOpen,
           setIsModal: setIsCloseAllConfirmationDialogOpen,
           isPath: false,
-          isDisabled: expenseTypeDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.DELETE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
+          isDisabled: isActionDisabled(
+            expenseTypeDisabledCondition,
+            ActionEnum.DELETE,
+            user
           ),
         },
         {
@@ -266,11 +265,10 @@ const ExpenseType = () => {
           isModalOpen: isEditModalOpen,
           setIsModal: setIsEditModalOpen,
           isPath: false,
-          isDisabled: expenseTypeDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
+          isDisabled: isActionDisabled(
+            expenseTypeDisabledCondition,
+            ActionEnum.UPDATE,
+            user
           ),
         },
         {
@@ -310,11 +308,10 @@ const ExpenseType = () => {
           isModalOpen: isAddProductModalOpen,
           setIsModal: setIsAddProductModalOpen,
           isPath: false,
-          isDisabled: expenseTypeDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.ADD_TO_ELEMENT &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
+          isDisabled: isActionDisabled(
+            expenseTypeDisabledCondition,
+            ActionEnum.ADD_TO_ELEMENT,
+            user
           ),
         },
       ] as const,

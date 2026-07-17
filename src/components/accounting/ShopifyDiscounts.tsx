@@ -38,9 +38,19 @@ import {
   useUpdateShopifyDiscountMutation,
   useRefreshShopifyDiscountsMutation,
 } from "../../utils/api/shopify";
-import { FormElementsState, RowPerPageEnum, ShopifyDiscountNode } from "../../types";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  FormElementsState,
+  RowPerPageEnum,
+  ShopifyDiscountNode,
+} from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import Loading from "../common/Loading";
@@ -304,6 +314,15 @@ function nodeToRow(n: ShopifyDiscountNode, t: (key: string) => string): Discount
 
 const ShopifyDiscounts = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+
+  const shopifyDiscountsDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_SHOPIFYDISCOUNTS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const discountTypeOptions = useMemo(() => [
     { value: "ORDER_DISCOUNT", label: t("Order Amount Discount") },
@@ -1407,20 +1426,33 @@ const ShopifyDiscounts = () => {
       {
         isUpperSide: false,
         node: (
-          <div className="flex flex-row gap-2">
-            <GenericButton
-              variant="black"
-              size="sm"
-              className="bg-blue-500 hover:text-blue-500 hover:border-blue-500 text-sm"
-              onClick={() => setIsAddModalOpen(true)}
-            >
-              <H5 className="text-xs sm:text-sm whitespace-nowrap">{t("Add Shopify Discount")}</H5>
-            </GenericButton>
-            <ButtonFilter
-              buttonName={isRefreshing ? t("Refreshing...") : t("Refresh Data")}
-              onclick={() => refreshDiscounts()}
-            />
-          </div>
+          <GenericButton
+            variant="black"
+            size="sm"
+            className="bg-blue-500 hover:text-blue-500 hover:border-blue-500 text-sm"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <H5 className="text-xs sm:text-sm whitespace-nowrap">{t("Add Shopify Discount")}</H5>
+          </GenericButton>
+        ),
+        isDisabled: isActionDisabled(
+          shopifyDiscountsDisabledCondition,
+          ActionEnum.ADD,
+          user
+        ),
+      },
+      {
+        isUpperSide: false,
+        node: (
+          <ButtonFilter
+            buttonName={isRefreshing ? t("Refreshing...") : t("Refresh Data")}
+            onclick={() => refreshDiscounts()}
+          />
+        ),
+        isDisabled: isActionDisabled(
+          shopifyDiscountsDisabledCondition,
+          ActionEnum.REFRESH,
+          user
         ),
       },
       {
@@ -1434,7 +1466,15 @@ const ShopifyDiscounts = () => {
         ),
       },
     ],
-    [t, isFilterPanelOpen, isRefreshing, refreshDiscounts, setIsAddModalOpen]
+    [
+      t,
+      isFilterPanelOpen,
+      isRefreshing,
+      refreshDiscounts,
+      setIsAddModalOpen,
+      shopifyDiscountsDisabledCondition,
+      user,
+    ]
   );
 
   const addModal = (
@@ -1879,6 +1919,11 @@ const ShopifyDiscounts = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
+        isDisabled: isActionDisabled(
+          shopifyDiscountsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
+        ),
       },
       {
         name: t("Delete"),
@@ -1901,9 +1946,36 @@ const ShopifyDiscounts = () => {
         isModalOpen: isDeleteModalOpen,
         setIsModal: setIsDeleteModalOpen,
         isPath: false,
+        isDisabled: isActionDisabled(
+          shopifyDiscountsDisabledCondition,
+          ActionEnum.DELETE,
+          user
+        ),
       },
     ],
-    [t, rowToAction, isEditModalOpen, isDeleteModalOpen, editInputs, freeShippingEditInputs, freeShippingAutomaticEditInputs, productDiscountEditInputs, productDiscountAutomaticEditInputs, bxgyEditInputs, formKeys, updateDiscount, updateFreeShippingDiscount, updateProductDiscount, updateAutomaticProductDiscount, updateBxgyDiscount, updateAutomaticBxgyDiscount, updateAutomaticOrderDiscount, deleteDiscount]
+    [
+      t,
+      rowToAction,
+      isEditModalOpen,
+      isDeleteModalOpen,
+      editInputs,
+      freeShippingEditInputs,
+      freeShippingAutomaticEditInputs,
+      productDiscountEditInputs,
+      productDiscountAutomaticEditInputs,
+      bxgyEditInputs,
+      formKeys,
+      updateDiscount,
+      updateFreeShippingDiscount,
+      updateProductDiscount,
+      updateAutomaticProductDiscount,
+      updateBxgyDiscount,
+      updateAutomaticBxgyDiscount,
+      updateAutomaticOrderDiscount,
+      deleteDiscount,
+      shopifyDiscountsDisabledCondition,
+      user,
+    ]
   );
 
   return (

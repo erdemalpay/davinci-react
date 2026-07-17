@@ -15,6 +15,7 @@ import {
 } from "../../utils/api/account/paymentMethod";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -52,11 +53,10 @@ const PaymentMethods = () => {
     () => (row?: AccountPaymentMethod) => {
       return (
         !!row?.isConstant ||
-        paymentMethodsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isActionDisabled(
+          paymentMethodsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         )
       );
     },
@@ -265,11 +265,10 @@ const PaymentMethods = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: paymentMethodsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        paymentMethodsDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
@@ -307,11 +306,10 @@ const PaymentMethods = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: paymentMethodsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          paymentMethodsDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -335,11 +333,10 @@ const PaymentMethods = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: paymentMethodsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          paymentMethodsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],
@@ -361,10 +358,10 @@ const PaymentMethods = () => {
     () => [
       {
         label: t("Edit"),
-        isDisabled: paymentMethodsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            (!user?.role?._id || !ac.permissionsRoles.includes(user.role._id))
+        isDisabled: isActionDisabled(
+          paymentMethodsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
         isUpperSide: true,
         node: (
