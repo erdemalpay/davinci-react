@@ -29,6 +29,8 @@ const ACTION_COLORS: Record<string, string> = {
   LOGOUT: "bg-slate-100 text-slate-700",
   START: "bg-teal-100 text-teal-700",
   FINISH: "bg-orange-100 text-orange-700",
+  COMPLETE: "bg-emerald-100 text-emerald-700",
+  CLOSE: "bg-slate-100 text-slate-700",
   APPROVED: "bg-green-100 text-green-700",
   REJECTED: "bg-red-100 text-red-700",
 };

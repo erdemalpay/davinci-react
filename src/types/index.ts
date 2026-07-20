@@ -2065,6 +2065,10 @@ export enum ActivityType {
   ASSIGN_MIDDLEMAN = "ASSIGN_MIDDLEMAN",
   TRANSFER_TABLE = "TRANSFER_TABLE",
   COMBINE_TABLE = "COMBINE_TABLE",
+  COMPLETE_COUNT = "COMPLETE_COUNT",
+  CLOSE_BUTTONCALL = "CLOSE_BUTTONCALL",
+  CREATE_CHECK = "CREATE_CHECK",
+  COMPLETE_CHECK = "COMPLETE_CHECK",
 }
 export const activityTypeDetails = [
   {
@@ -2420,6 +2424,26 @@ export const activityTypeDetails = [
   {
     value: ActivityType.COMBINE_TABLE,
     label: "Combine Table",
+    bgColor: "bg-indigo-500",
+  },
+  {
+    value: ActivityType.COMPLETE_COUNT,
+    label: "Count Completed",
+    bgColor: "bg-teal-500",
+  },
+  {
+    value: ActivityType.CLOSE_BUTTONCALL,
+    label: "Button Call Closed",
+    bgColor: "bg-orange-500",
+  },
+  {
+    value: ActivityType.CREATE_CHECK,
+    label: "Check Created",
+    bgColor: "bg-blue-500",
+  },
+  {
+    value: ActivityType.COMPLETE_CHECK,
+    label: "Check Completed",
     bgColor: "bg-indigo-500",
   },
 ];
