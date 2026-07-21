@@ -13,13 +13,12 @@ import {
   MdWarning,
 } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useGeneralContext } from "../../context/General.context";
-import { ProfileTabEnum } from "../../pages/Profile";
 import {
   Notification,
   NotificationColors,
   NotificationEventColors,
   NotificationType,
+  OptionType,
 } from "../../types";
 import {
   useGetUserNewNotifications,
@@ -27,22 +26,52 @@ import {
 } from "../../utils/api/notification";
 import { useGetUser } from "../../utils/api/user";
 import { getNotificationLanguageMessage } from "../../utils/notification";
+import SelectInput from "../panelComponents/FormElements/SelectInput";
+
+const OTHER_EVENT_KEY = "OTHER";
 
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useGetUser();
   const notifications = useGetUserNewNotifications();
-  const { setProfileActiveTab } = useGeneralContext();
   const { mutate: markAsRead } = useMarkAsReadMutation();
   const modalRef = useRef<HTMLDivElement | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [eventFilters, setEventFilters] = useState<string[]>([]);
 
   useEffect(() => {
     if ((notifications?.length ?? 0) === 0) {
       setSelectedIds([]);
     }
   }, [notifications?.length]);
+
+  const handleEventFiltersChange = (values: string[]) => {
+    setEventFilters(values);
+    setSelectedIds([]);
+  };
+
+  const eventSelectOptions: OptionType[] = useMemo(() => {
+    const counts = new Map<string, number>();
+    notifications?.forEach((notification) => {
+      const key = notification.event ?? OTHER_EVENT_KEY;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+
+    return Array.from(counts.entries())
+      .sort(([, a], [, b]) => b - a)
+      .map(([event, count]) => ({
+        value: event,
+        label: `${event === OTHER_EVENT_KEY ? t("Other") : t(event)} (${count})`,
+      }));
+  }, [notifications, t]);
+
+  const filteredNotifications = useMemo(() => {
+    if (eventFilters.length === 0) return notifications ?? [];
+    return (notifications ?? []).filter((n) =>
+      eventFilters.includes(n.event ?? OTHER_EVENT_KEY)
+    );
+  }, [notifications, eventFilters]);
 
   const handleMarkSelectedAsRead = () => {
     if (selectedIds.length === 0) return;
@@ -54,14 +83,18 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   };
 
   const handleSelectAll = () => {
-    if ((notifications?.length ?? 0) === 0) return;
-    setSelectedIds([-1]);
+    if (filteredNotifications.length === 0) return;
+    if (eventFilters.length === 0) {
+      setSelectedIds([-1]);
+    } else {
+      setSelectedIds(filteredNotifications.map((n) => n._id));
+    }
   };
 
   const toggleSelection = (notificationId: number) => {
     setSelectedIds((prev) => {
       if (prev.includes(-1)) {
-        const allIds = notifications?.map((n) => n._id) ?? [];
+        const allIds = filteredNotifications.map((n) => n._id);
         return allIds.filter((id) => id !== notificationId);
       }
 
@@ -94,7 +127,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
     const yesterday: Notification[] = [];
     const older: Notification[] = [];
 
-    notifications?.forEach((notification) => {
+    filteredNotifications.forEach((notification) => {
       const date = new Date(notification.createdAt);
       if (isToday(date)) {
         today.push(notification);
@@ -106,13 +139,13 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
     });
 
     return { today, yesterday, older };
-  }, [notifications]);
+  }, [filteredNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
+        !event.composedPath().includes(modalRef.current)
       ) {
         onClose();
       }
@@ -250,7 +283,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
           <span className="truncate">{t("Notifications")}</span>
           {(notifications?.length ?? 0) > 0 && (
             <span className="text-xs sm:text-sm font-semibold text-gray-600 flex-shrink-0">
-              ({notifications?.length ?? 0})
+              ({filteredNotifications.length})
             </span>
           )}
         </h3>
@@ -260,8 +293,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
               <>
                 <button
                   onClick={() => {
-                    setProfileActiveTab(ProfileTabEnum.NOTIFICATIONS);
-                    navigate("/profile");
+                    navigate("/notifications?tab=all-notifications");
                     onClose();
                   }}
                   className="text-[10px] sm:text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-all whitespace-nowrap"
@@ -299,12 +331,35 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
         )}
       </div>
 
+      {eventSelectOptions.length > 1 && (
+        <div className="px-1">
+          <SelectInput
+            isMultiple
+            options={eventSelectOptions}
+            value={eventSelectOptions.filter((option) =>
+              eventFilters.includes(option.value)
+            )}
+            placeholder={t("All")}
+            onChange={(selected) => {
+              const values = (selected as OptionType[]).map(
+                (option) => option.value
+              );
+              handleEventFiltersChange(values);
+            }}
+            isSortDisabled
+            isAutoFill={false}
+          />
+        </div>
+      )}
+
       <div className="flex flex-col gap-3 overflow-y-auto no-scrollbar pr-1">
-        {(notifications?.length ?? 0) === 0 ? (
+        {filteredNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
             <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">🔔</div>
             <p className="text-sm sm:text-base font-semibold text-gray-700 mb-1">
-              {t("No new notifications")}
+              {(notifications?.length ?? 0) === 0
+                ? t("No new notifications")
+                : t("No notifications in this category")}
             </p>
             <p className="text-xs sm:text-sm text-gray-500">
               {t("You're all caught up!")}
