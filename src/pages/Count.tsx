@@ -304,7 +304,6 @@ const Count = () => {
                   productDeleteRequest: row?.productDeleteRequest
                     ? ""
                     : user._id,
-                  currentProducts: currentCount.products || [],
                 });
               }}
             >
@@ -395,7 +394,6 @@ const Count = () => {
                     productId: rowProduct._id,
                     countQuantity: Number(value),
                     stockQuantity: productStock?.quantity || 0,
-                    currentProducts: currentCount.products || [],
                   });
                 }}
                 isDebounce={true}
