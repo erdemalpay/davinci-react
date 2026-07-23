@@ -63,8 +63,8 @@ const FilterPanel = <T,>({
 
   return (
     <div
-      className={`flex flex-col gap-3 __className_a182b8 bg-white min-w-full ${
-        isFilterPanelCoverTable ? "" : "sm:min-w-[20rem]"
+      className={`flex flex-col gap-3 __className_a182b8 bg-white w-full min-w-full max-w-full ${
+        isFilterPanelCoverTable ? "" : "sm:w-[20rem] sm:min-w-[20rem] sm:max-w-[20rem]"
       } border h-fit pb-8 border-gray-200 rounded-md py-2 px-3 focus:outline-none `}
     >
       <div className="flex flex-row justify-between">
