@@ -16,12 +16,12 @@ import VerticalTabPanel from "./VerticalTabPanel";
 const TAB_QUERY_PARAM = "tab";
 
 const resolveTabIndex = (tabValue: number, tabs: Tab[]) => {
-  const byAdjustedIndex = tabs.findIndex((_, index) => index === tabValue);
-  if (byAdjustedIndex !== -1) {
-    return byAdjustedIndex;
+  const byTabNumber = tabs.findIndex((tab) => tab.number === tabValue);
+  if (byTabNumber !== -1) {
+    return byTabNumber;
   }
 
-  return tabs.findIndex((tab) => tab.number === tabValue);
+  return tabs.findIndex((_, index) => index === tabValue);
 };
 
 // TabPanel için local context
@@ -79,10 +79,10 @@ const UnifiedTabPanel: React.FC<Props> = ({
     [props.tabs]
   );
 
-  const currentTabIndex = React.useMemo(
-    () => resolveTabIndex(activeTab, visibleTabs),
-    [activeTab, visibleTabs]
-  );
+  const currentTabIndex = React.useMemo(() => {
+    const resolved = resolveTabIndex(activeTab, visibleTabs);
+    return resolved === -1 ? 0 : resolved;
+  }, [activeTab, visibleTabs]);
 
   // Mobile'da her zaman horizontal
   const actualOrientation = !isLargeScreen ? "horizontal" : tabOrientation;
@@ -143,12 +143,12 @@ const UnifiedTabPanel: React.FC<Props> = ({
   ]);
 
   const handleSetActiveTab = (tab: number) => {
-    setActiveTab(tab);
-
     const nextTab = visibleTabs[tab] ?? visibleTabs[0];
     if (!nextTab) {
       return;
     }
+
+    setActiveTab(nextTab.number ?? tab);
 
     const searchParams = new URLSearchParams(location.search);
     searchParams.set(TAB_QUERY_PARAM, getTabSlug(nextTab.label));
@@ -189,7 +189,7 @@ const UnifiedTabPanel: React.FC<Props> = ({
     <TabPanelProvider allowOrientationToggle={allowOrientationToggle}>
       <TabComponent
         {...props}
-        activeTab={activeTab}
+        activeTab={currentTabIndex}
         setActiveTab={handleSetActiveTab}
         filters={enhancedFilters}
         isLanguageChange={
