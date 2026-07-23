@@ -40,6 +40,18 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
+const formatShopifyAddress = (address?: {
+  address1?: string;
+  address2?: string;
+  city?: string;
+  zip?: string;
+}) => {
+  if (!address) return "";
+  return [address.address1, address.address2, address.city, address.zip]
+    .filter(Boolean)
+    .join(", ");
+};
+
 const ShopifyOrders = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
@@ -51,6 +63,8 @@ const ShopifyOrders = () => {
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelShopifyOrder } = useCancelShopifyOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
+  const [showShopifyExtraColumns, setShowShopifyExtraColumns] =
+    useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
@@ -154,6 +168,9 @@ const ShopifyOrders = () => {
           status: t(order?.status),
           paymentMethod: order?.paymentMethod,
           isShopifyPickUp: order?.isShopifyPickUp ?? false,
+          taxNumberCompanyName: order?.taxNumberCompanyName || "-",
+          shopifyShippingAddress: order?.shopifyShippingAddress,
+          shopifyBillingAddress: order?.shopifyBillingAddress,
           statusLabel: orderFilterStatusOptions.find(
             (status) => status.value === order?.status
           )?.label,
@@ -225,10 +242,27 @@ const ShopifyOrders = () => {
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Retailer"), isSortable: true, correspondingKey: "retailer" },
       { key: t("Pick Up"), isSortable: true, correspondingKey: "isShopifyPickUp" },
+      ...(showShopifyExtraColumns
+        ? [
+            {
+              key: t("Tax Number / Company Name"),
+              isSortable: false,
+              correspondingKey: "taxNumberCompanyName",
+            },
+            {
+              key: t("Shipping Address"),
+              isSortable: false,
+            },
+            {
+              key: t("Billing Address"),
+              isSortable: false,
+            },
+          ]
+        : []),
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
       { key: t("Actions"), isSortable: false },
     ],
-    [t]
+    [t, showShopifyExtraColumns]
   );
 
   const rowKeys = useMemo(
@@ -296,9 +330,42 @@ const ShopifyOrders = () => {
           );
         },
       },
+      ...(showShopifyExtraColumns
+        ? [
+            { key: "taxNumberCompanyName", className: "min-w-40 pr-2" },
+            {
+              key: "shippingAddress",
+              node: (row: any) => {
+                if (row?._id === "total") return null;
+                if (!row?.shopifyShippingAddress) {
+                  return <p className="min-w-40 pr-2">-</p>;
+                }
+                return (
+                  <p className="min-w-40 pr-2">
+                    {formatShopifyAddress(row?.shopifyShippingAddress)}
+                  </p>
+                );
+              },
+            },
+            {
+              key: "billingAddress",
+              node: (row: any) => {
+                if (row?._id === "total") return null;
+                if (!row?.shopifyBillingAddress) {
+                  return <p className="min-w-40 pr-2">-</p>;
+                }
+                return (
+                  <p className="min-w-40 pr-2">
+                    {formatShopifyAddress(row?.shopifyBillingAddress)}
+                  </p>
+                );
+              },
+            },
+          ]
+        : []),
       { key: "statusLabel", className: "min-w-32 pr-2" },
     ],
-    []
+    [showShopifyExtraColumns]
   );
 
   const cancelInputs = useMemo(
@@ -489,6 +556,17 @@ const ShopifyOrders = () => {
         placeholder: t("Cancelled By"),
         required: true,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "hasTaxNumberCompanyName",
+        label: t("Corporate Invoice"),
+        options: [
+          { value: "true", label: t("Yes") },
+          { value: "false", label: t("No") },
+        ],
+        placeholder: t("Corporate Invoice"),
+        required: true,
+      },
     ],
     [
       sellLocations,
@@ -576,11 +654,24 @@ const ShopifyOrders = () => {
           />
         ),
       },
+      {
+        label: t("Show Invoice/Address"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showShopifyExtraColumns}
+            onChange={() => {
+              setShowShopifyExtraColumns(!showShopifyExtraColumns);
+            }}
+          />
+        ),
+      },
     ],
     [
       t,
       queryClient,
       shopifyOrdersPageDisabledCondition,
+      showShopifyExtraColumns,
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
@@ -666,6 +757,9 @@ const ShopifyOrders = () => {
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {
               return "bg-red-200";
+            }
+            if (row?.taxNumberCompanyName && row?.taxNumberCompanyName !== "-") {
+              return "bg-yellow-100";
             }
             return "";
           }}

@@ -762,6 +762,7 @@ export function useGetOrders(category?: (number | string)[] | string, enabled = 
     "location",
     "stockLocation",
     "item",
+    "hasTaxNumberCompanyName",
   ];
   if (category || filterPanelFormElements.category !== "") {
     url = url.concat(
@@ -791,6 +792,7 @@ export function useGetOrders(category?: (number | string)[] | string, enabled = 
       filterPanelFormElements.location,
       filterPanelFormElements.stockLocation,
       filterPanelFormElements.item,
+      filterPanelFormElements.hasTaxNumberCompanyName,
       category,
     ],
     true,
