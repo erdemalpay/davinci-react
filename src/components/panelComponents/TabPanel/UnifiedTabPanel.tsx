@@ -143,12 +143,12 @@ const UnifiedTabPanel: React.FC<Props> = ({
   ]);
 
   const handleSetActiveTab = (tab: number) => {
-    setActiveTab(tab);
-
     const nextTab = visibleTabs[tab] ?? visibleTabs[0];
     if (!nextTab) {
       return;
     }
+
+    setActiveTab(nextTab.number ?? tab);
 
     const searchParams = new URLSearchParams(location.search);
     searchParams.set(TAB_QUERY_PARAM, getTabSlug(nextTab.label));

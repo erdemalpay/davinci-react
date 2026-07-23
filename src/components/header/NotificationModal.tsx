@@ -341,9 +341,9 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
             )}
             placeholder={t("All")}
             onChange={(selected) => {
-              const values = (selected as OptionType[]).map(
-                (option) => option.value
-              );
+              const values = Array.isArray(selected)
+                ? selected.map((option) => option.value)
+                : [];
               handleEventFiltersChange(values);
             }}
             isSortDisabled
