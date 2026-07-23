@@ -16,6 +16,7 @@ import {
 } from "../../utils/api/menu/upperCategory";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -245,11 +246,10 @@ const UpperCategories = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: upperCategoriesDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        upperCategoriesDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
     }),
     [
@@ -286,11 +286,10 @@ const UpperCategories = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: upperCategoriesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          upperCategoriesDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -314,11 +313,10 @@ const UpperCategories = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: upperCategoriesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          upperCategoriesDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],
@@ -342,13 +340,11 @@ const UpperCategories = () => {
         name: t("Delete"),
         icon: <HiOutlineTrash />,
         node: (row: any) => {
-          const isDeleteDisabled =
-            upperCategoriesDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.DELETE &&
-                user?.role?._id &&
-                !ac.permissionsRoles.includes(user.role._id)
-            );
+          const isDeleteDisabled = isActionDisabled(
+            upperCategoriesDisabledCondition,
+            ActionEnum.DELETE,
+            user
+          );
           if (isDeleteDisabled) {
             return null;
           }
@@ -416,11 +412,10 @@ const UpperCategories = () => {
         isModalOpen: isCategoryEditModalOpen,
         setIsModal: setIsCategoryEditModalOpen,
         isPath: false,
-        isDisabled: upperCategoriesDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          upperCategoriesDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],
@@ -451,11 +446,10 @@ const UpperCategories = () => {
           isCollapsibleCheckActive={false}
           isCollapsible={true}
           addCollapsible={
-            upperCategoriesDisabledCondition?.actions?.some(
-              (ac) =>
-                ac.action === ActionEnum.ADD &&
-                user?.role?._id &&
-                !ac.permissionsRoles.includes(user.role._id)
+            isActionDisabled(
+              upperCategoriesDisabledCondition,
+              ActionEnum.ADD,
+              user
             )
               ? undefined
               : addCollapsible

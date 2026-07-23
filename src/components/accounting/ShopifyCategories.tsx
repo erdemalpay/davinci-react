@@ -14,6 +14,7 @@ import {
 } from "../../utils/api/account/productCategories";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -41,7 +42,7 @@ const ShopifyCategoriesPage = () => {
 
   const shopifyCategoriesPageDisabledCondition = useMemo(() => {
     return getItem(
-      DisabledConditionEnum.ACCOUNTING_PRODUCTCATEGORIES,
+      DisabledConditionEnum.ACCOUNTING_SHOPIFYCATEGORIES,
       disabledConditions
     );
   }, [disabledConditions]);
@@ -111,11 +112,10 @@ const ShopifyCategoriesPage = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: shopifyCategoriesPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+      isDisabled: isActionDisabled(
+        shopifyCategoriesPageDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
     }),
     [
@@ -152,11 +152,10 @@ const ShopifyCategoriesPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: shopifyCategoriesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          shopifyCategoriesPageDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
       {
@@ -180,11 +179,10 @@ const ShopifyCategoriesPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: shopifyCategoriesPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          shopifyCategoriesPageDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
     ],

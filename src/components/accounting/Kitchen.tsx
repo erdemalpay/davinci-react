@@ -15,6 +15,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -78,21 +79,19 @@ const KitchenPage = () => {
   }
   const canUpdateLocation = useMemo(
     () =>
-      !kitchensDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.UPDATE_LOCATION &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      !isActionDisabled(
+        kitchensDisabledCondition,
+        ActionEnum.UPDATE_LOCATION,
+        user
       ),
     [kitchensDisabledCondition, user]
   );
   const canUpdateRoleAudio = useMemo(
     () =>
-      !kitchensDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ROLE_AUDIO_UPDATE &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      !isActionDisabled(
+        kitchensDisabledCondition,
+        ActionEnum.ROLE_AUDIO_UPDATE,
+        user
       ),
     [kitchensDisabledCondition, user]
   );
@@ -272,11 +271,10 @@ const KitchenPage = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: kitchensDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        kitchensDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
@@ -316,12 +314,8 @@ const KitchenPage = () => {
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
         isDisabled:
-          kitchensDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.DELETE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
-          ) || isLocationEdit,
+          isActionDisabled(kitchensDisabledCondition, ActionEnum.DELETE, user) ||
+          isLocationEdit,
       },
       {
         name: t("Edit"),
@@ -345,12 +339,8 @@ const KitchenPage = () => {
         setIsModal: setIsEditModalOpen,
         isPath: false,
         isDisabled:
-          kitchensDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
-          ) || isLocationEdit,
+          isActionDisabled(kitchensDisabledCondition, ActionEnum.UPDATE, user) ||
+          isLocationEdit,
       },
     ],
     [
@@ -379,11 +369,10 @@ const KitchenPage = () => {
         isDisabled:
           !canUpdateLocation ||
           isEnableSoundRole ||
-          kitchensDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE_LOCATION &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          isActionDisabled(
+            kitchensDisabledCondition,
+            ActionEnum.UPDATE_LOCATION,
+            user
           ),
       },
       {
@@ -398,11 +387,10 @@ const KitchenPage = () => {
         isDisabled:
           !canUpdateRoleAudio ||
           isLocationEdit ||
-          kitchensDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.ROLE_AUDIO_UPDATE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          isActionDisabled(
+            kitchensDisabledCondition,
+            ActionEnum.ROLE_AUDIO_UPDATE,
+            user
           ),
       },
     ],

@@ -26,6 +26,7 @@ import {
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -371,11 +372,10 @@ const Product = () => {
     []
   );
 
-  const isUnitPriceHidden = productDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.SHOW_UNIT_PRICES &&
-      user?.role?._id &&
-      !ac.permissionsRoles.includes(user.role._id)
+  const isUnitPriceHidden = isActionDisabled(
+    productDisabledCondition,
+    ActionEnum.SHOW_UNIT_PRICES,
+    user
   );
 
   const columns = useMemo(() => {
@@ -410,11 +410,10 @@ const Product = () => {
         key: "name",
         className: "min-w-32 pr-1",
         node: (row: AccountProduct) => {
-          const isClickable = !productDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.CLICKABLE_ROWS &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isClickable = !isActionDisabled(
+            productDisabledCondition,
+            ActionEnum.CLICKABLE_ROWS,
+            user
           );
           return isClickable ? (
             <p
@@ -574,11 +573,10 @@ const Product = () => {
       setIsModal: setIsAddModalOpen,
       isPath: false,
       icon: null,
-      isDisabled: productDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        productDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
@@ -617,11 +615,10 @@ const Product = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: productDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          productDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -648,11 +645,10 @@ const Product = () => {
         isPath: false,
         icon: <CiCirclePlus />,
         className: "text-2xl mt-1 cursor-pointer",
-        isDisabled: productDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ADD_TO_ELEMENT &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          productDisabledCondition,
+          ActionEnum.ADD_TO_ELEMENT,
+          user
         ),
       },
       {
@@ -694,11 +690,10 @@ const Product = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: productDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          productDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
       {
@@ -757,11 +752,10 @@ const Product = () => {
       {
         label: t("Show Inactive Products"),
         isUpperSide: false,
-        isDisabled: productDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          productDisabledCondition,
+          ActionEnum.SHOW_INACTIVE_ELEMENTS,
+          user
         ),
         node: (
           <SwitchButton
@@ -772,11 +766,10 @@ const Product = () => {
       },
       {
         isUpperSide: false,
-        isDisabled: productDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.COMBINE_ELEMENTS &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          productDisabledCondition,
+          ActionEnum.COMBINE_ELEMENTS,
+          user
         ),
         node: (
           <ButtonFilter
@@ -826,12 +819,7 @@ const Product = () => {
         filterPanel={filterPanel}
         isExcel={
           user &&
-          !productDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.EXCEL &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
-          )
+          !isActionDisabled(productDisabledCondition, ActionEnum.EXCEL, user)
         }
         isActionsActive={true}
       />
