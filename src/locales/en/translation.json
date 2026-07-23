@@ -1756,7 +1756,8 @@
   "Selected item has unshipped pre-orders": "Selected item has unshipped pre-orders",
   "Order marked as shipped": "Order marked as shipped",
   "Order marked as unshipped": "Order marked as unshipped",
-  "Item updated successfully": "Item updated successfully"
+  "Item updated successfully": "Item updated successfully",
+  "Wrong Entry": "Wrong Entry"
 
 
 }

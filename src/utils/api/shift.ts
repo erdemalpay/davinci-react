@@ -74,8 +74,8 @@ export function useGetUserShifts(
   if (before) {
     url = url.concat(`&before=${before}`);
   }
-  if (location) {
-    url = url.concat(`&location=${location}`);
+  if (user) {
+    url = url.concat(`&user=${user}`);
   }
   return useGetList<Shift>(url, [`${Paths.Shift}`, after, before, user], true);
 }
