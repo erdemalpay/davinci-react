@@ -16,13 +16,6 @@ interface UpdateCountQuantityPayload {
   countQuantity: number;
   stockQuantity: number;
   productDeleteRequest?: string;
-  currentProducts: {
-    product: string;
-    stockQuantity: number;
-    countQuantity: number;
-    isStockEqualized?: boolean;
-    productDeleteRequest?: string;
-  }[];
 }
 export interface CountsPayload {
   data: AccountCount[];
@@ -179,25 +172,15 @@ export const updateCountQuantity = (payload: UpdateCountQuantityPayload) => {
     countQuantity,
     stockQuantity,
     productDeleteRequest,
-    currentProducts,
   } = payload;
 
-  // Build the new products array just like the old version
-  const newProducts = [
-    ...(currentProducts?.filter((p) => p.product !== productId) || []),
-    {
+  return patch({
+    path: `${Paths.Accounting}/counts/${countId}/product`,
+    payload: {
       product: productId,
       countQuantity,
       stockQuantity,
       productDeleteRequest,
-    },
-  ];
-
-  return patch({
-    path: `${Paths.Accounting}/counts/${countId}`,
-    payload: {
-      products: newProducts,
-      isCompleted: false,
     },
   });
 };
