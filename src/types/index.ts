@@ -1013,6 +1013,17 @@ export type ShopifyCustomer = {
   phone: string;
   location: number;
 };
+export type ShopifyAddress = {
+  name?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  province?: string;
+  zip?: string;
+  country?: string;
+  phone?: string;
+  company?: string;
+};
 export type Order = {
   _id: number;
   location: number;
@@ -1061,6 +1072,9 @@ export type Order = {
   isShopifyPickUp?: boolean;
   isShipped?: boolean;
   shopifyOrderNumber?: string;
+  taxNumberCompanyName?: string;
+  shopifyShippingAddress?: ShopifyAddress;
+  shopifyBillingAddress?: ShopifyAddress;
 };
 
 export type OrderCollection = {
