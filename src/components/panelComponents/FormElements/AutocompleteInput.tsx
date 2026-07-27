@@ -41,7 +41,7 @@ const getOptionLabel = (option: string | { value: string; label?: string }) =>
   typeof option === "string" ? option : option.label ?? option.value;
 
 export type AutocompleteInputHandle = {
-  focus: () => void;
+  focus: (options?: FocusOptions) => void;
 };
 
 const AutocompleteInput = forwardRef<AutocompleteInputHandle, AutocompleteInputProps>(({
@@ -70,7 +70,7 @@ const AutocompleteInput = forwardRef<AutocompleteInputHandle, AutocompleteInputP
   const inputRef = useRef<HTMLInputElement>(null);
 
   useImperativeHandle(ref, () => ({
-    focus: () => inputRef.current?.focus(),
+    focus: (options?: FocusOptions) => inputRef.current?.focus(options),
   }));
 
   const containerRef = useRef<HTMLDivElement>(null);
