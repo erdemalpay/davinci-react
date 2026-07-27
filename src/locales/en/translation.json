@@ -1762,7 +1762,6 @@
   "Order marked as shipped": "Order marked as shipped",
   "Order marked as unshipped": "Order marked as unshipped",
   "Item updated successfully": "Item updated successfully",
-  "Wrong Entry": "Wrong Entry"
-
-
+  "Wrong Entry": "Wrong Entry",
+  "items": "items"
 }
