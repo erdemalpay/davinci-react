@@ -1,12 +1,15 @@
 import { format } from "date-fns";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { TbTruckDelivery } from "react-icons/tb";
 import { useParams } from "react-router-dom";
 import type { MenuItem } from "../../types";
 import {
   RetailerOrderRequest,
+  canMarkRetailerOrderRequestInDelivery,
   useGetAccountRetailers,
   useGetRetailerOrderRequests,
+  useUpdateRetailerOrderRequestStatus,
 } from "../../utils/api/account/retailer";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { toIstDate } from "../../utils/format";
@@ -21,9 +24,12 @@ type RetailerOrderRequestProductRow = {
 
 type RetailerOrderRequestTableRow = {
   _id: number | string;
+  retailerId: number | string;
   date: string;
   dateDisplay: string;
+  orderId: string;
   orderIdDisplay: string;
+  status: string;
   statusDisplay: string;
   productCount: number;
   createdAt: string;
@@ -76,9 +82,12 @@ function getRetailerOrderRequestRows(
 
     return {
       _id: orderRequest._id,
+      retailerId: orderRequest.retailerId,
       date: orderRequest.date ? String(orderRequest.date) : "",
       dateDisplay: formatDate(orderRequest.date),
+      orderId: orderRequest.orderId || "",
       orderIdDisplay: orderRequest.orderId || "-",
+      status: orderRequest.status || "",
       statusDisplay: orderRequest.status || "-",
       productCount: collapsibleRows.length,
       createdAt: orderRequest.createdAt ? String(orderRequest.createdAt) : "",
@@ -114,10 +123,18 @@ const RetailerOrderRequests = () => {
     (retailer) => String(retailer._id) === retailerId
   );
 
-  const orderRequests = useGetRetailerOrderRequests({
+  const orderRequestsQuery = {
     tenantSlug: currentRetailer?.tenantSlug,
     projectSlug: currentRetailer?.projectSlug,
-  });
+  };
+  const orderRequests = useGetRetailerOrderRequests(orderRequestsQuery);
+  const {
+    mutate: updateRetailerOrderRequestStatus,
+    isPending: isUpdateStatusPending,
+  } = useUpdateRetailerOrderRequestStatus(
+    orderRequestsQuery,
+    t("Retailer order request marked as in delivery")
+  );
 
   const rows = useMemo(
     () => getRetailerOrderRequestRows(orderRequests, menuItems, t),
@@ -146,6 +163,10 @@ const RetailerOrderRequests = () => {
         key: t("Created At"),
         isSortable: true,
         correspondingKey: "createdAt",
+      },
+      {
+        key: t("Actions"),
+        isSortable: false,
       },
     ],
     [t]
@@ -177,6 +198,29 @@ const RetailerOrderRequests = () => {
     []
   );
 
+  const actions = useMemo(
+    () => [
+      {
+        name: t("In Delivery"),
+        icon: <TbTruckDelivery />,
+        className: "text-blue-500 cursor-pointer text-xl",
+        isDisabled: (row: RetailerOrderRequestTableRow) =>
+          isUpdateStatusPending ||
+          !row.orderId ||
+          !row.retailerId ||
+          !canMarkRetailerOrderRequestInDelivery(row.status),
+        onClick: (row: RetailerOrderRequestTableRow) => {
+          updateRetailerOrderRequestStatus({
+            orderId: row.orderId,
+            retailerId: row.retailerId,
+            status: "indelivery",
+          });
+        },
+      },
+    ],
+    [t, isUpdateStatusPending, updateRetailerOrderRequestStatus]
+  );
+
   return (
     <div className="w-[95%] mx-auto my-6">
       <GenericTable<RetailerOrderRequestTableRow>
@@ -184,7 +228,8 @@ const RetailerOrderRequests = () => {
         rows={rows}
         columns={columns}
         rowKeys={rowKeys}
-        isActionsActive={false}
+        actions={actions}
+        isActionsActive={true}
         isCollapsible={true}
         isPagination={false}
       />

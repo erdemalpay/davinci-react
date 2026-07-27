@@ -1771,5 +1771,8 @@
   "Order marked as unshipped": "Sipariş gönderilmedi olarak işaretlendi",
   "Item updated successfully": "Ürün başarıyla güncellendi",
   "Wrong Entry": "Hatalı Giriş",
-  "items": "kalem"
+  "items": "kalem",
+  "In Delivery": "Teslimatta",
+  "Retailer order request marked as in delivery": "Perakendeci sipariş talebi teslimatta olarak işaretlendi",
+  "Request Token": "İstek Anahtarı"
 }
