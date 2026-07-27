@@ -6,6 +6,7 @@ import { useUserContext } from "../../context/User.context";
 import { Action, ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 
 import {
   useActionMutations,
@@ -81,11 +82,10 @@ const Actions = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: accountingActionsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        accountingActionsDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
@@ -124,11 +124,10 @@ const Actions = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: accountingActionsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          accountingActionsDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -152,11 +151,10 @@ const Actions = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: accountingActionsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          accountingActionsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],

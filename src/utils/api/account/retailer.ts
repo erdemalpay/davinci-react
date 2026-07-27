@@ -77,6 +77,29 @@ export type RetailerBulkAddOrdersResponse = RetailerBulkAddCollectionsResponse;
 export type RetailerBulkRemoveOrdersResponse =
   RetailerBulkRemoveCollectionsResponse;
 
+export type RetailerOrderRequestProduct = {
+  productId: string;
+  productDavinciId: number;
+  quantity: number;
+};
+
+export type RetailerOrderRequest = {
+  _id: number | string;
+  retailerId: number | string;
+  orderId: string;
+  date: string;
+  status: string;
+  products: RetailerOrderRequestProduct[];
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+};
+
+export type RetailerOrderRequestsQuery = {
+  tenantSlug?: string;
+  projectSlug?: string;
+};
+
 export function useAccountRetailerMutations() {
   const {
     deleteItem: deleteAccountRetailer,
@@ -157,6 +180,35 @@ export function useGetRetailerCollectionItemSummary(
     true,
     {
       enabled: Boolean(retailerId),
+    }
+  );
+}
+
+export function useGetRetailerOrderRequests(
+  query: RetailerOrderRequestsQuery = {}
+) {
+  const params = new URLSearchParams();
+
+  if (query.tenantSlug) params.set("tenantSlug", query.tenantSlug);
+  if (query.projectSlug) params.set("projectSlug", query.projectSlug);
+
+  const queryString = params.toString();
+  const path =
+    query.tenantSlug && query.projectSlug
+      ? `${Paths.Order}/retailer-order-request?${queryString}`
+      : "";
+
+  return useGet<RetailerOrderRequest[]>(
+    path,
+    [
+      Paths.Order,
+      "retailer-order-request",
+      query.tenantSlug ?? null,
+      query.projectSlug ?? null,
+    ],
+    true,
+    {
+      enabled: Boolean(query.tenantSlug && query.projectSlug),
     }
   );
 }

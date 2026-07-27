@@ -180,7 +180,7 @@ const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
                 <img
                   src={file.preview}
                   alt={file.name}
-                  className="rounded-md border border-gray-200 w-60 h-72 relative"
+                  className="rounded-md border border-gray-200 w-60 h-72 object-contain relative"
                 />
                 <button
                   onClick={() => removeFile(file.name)}

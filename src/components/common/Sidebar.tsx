@@ -62,7 +62,7 @@ export const Sidebar = () => {
     if (!isSidebarOpen) {
       setIsSidebarOpen(true);
     } else {
-      searchInputRef.current?.focus();
+      searchInputRef.current?.focus({ preventScroll: true });
     }
   });
 
@@ -161,7 +161,7 @@ export const Sidebar = () => {
     }
 
     if (isSidebarOpen) {
-      searchInputRef.current?.focus();
+      searchInputRef.current?.focus({ preventScroll: true });
     } else {
       setOpenGroups({});
     }

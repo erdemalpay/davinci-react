@@ -6,6 +6,7 @@ import {
   MdOutlineCheckBox,
   MdOutlineCheckBoxOutlineBlank,
 } from "react-icons/md";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -348,6 +349,26 @@ const PreOrders = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={preOrderFilterPanelFormElements.after}
+            endDate={preOrderFilterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setPreOrderFilterPanelFormElements({
+                ...preOrderFilterPanelFormElements,
+                after: isReset
+                  ? initialPreOrderFilterPanelFormElements.after
+                  : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         isUpperSide: false,
         node: (
           <ButtonFilter
@@ -392,6 +413,9 @@ const PreOrders = () => {
       setShowUnshippedOnly,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      preOrderFilterPanelFormElements,
+      setPreOrderFilterPanelFormElements,
+      initialPreOrderFilterPanelFormElements,
     ]
   );
 

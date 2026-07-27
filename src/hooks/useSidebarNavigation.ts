@@ -40,6 +40,7 @@ type MenuOptionEntry = {
   path: string;
   link?: string;
   tabSlug?: string;
+  groupLabel?: string;
 };
 
 export function useSidebarNavigation(onClose: () => void) {
@@ -224,11 +225,12 @@ export function useSidebarNavigation(onClose: () => void) {
     routes.forEach((route) => {
       const filteredChildren = getFilteredChildren(route);
 
-      const pushWithTabs = (item: SidebarRouteItem) => {
+      const pushWithTabs = (item: SidebarRouteItem, groupName?: string) => {
         list.push({
           label: t(item.name),
           path: item.path || "",
           link: item.link,
+          groupLabel: groupName ? t(groupName) : undefined,
         });
 
         getAllowedTabs(item).forEach((tab) => {
@@ -236,21 +238,33 @@ export function useSidebarNavigation(onClose: () => void) {
             label: `${t(item.name)} / ${t(tab.label)}`,
             path: item.path || "",
             tabSlug: getTabSlug(tab.label),
+            groupLabel: groupName ? t(groupName) : undefined,
           });
         });
       };
 
       if (filteredChildren && filteredChildren.length > 1) {
-        filteredChildren.filter((c) => c.isOnSidebar).forEach(pushWithTabs);
+        filteredChildren
+          .filter((c) => c.isOnSidebar)
+          .forEach((child) => pushWithTabs(child, route.name));
       } else if (filteredChildren && filteredChildren.length === 1) {
         const child = filteredChildren[0];
-        if (child.isOnSidebar) pushWithTabs(child);
+        if (child.isOnSidebar) pushWithTabs(child, route.name);
       } else if (route.isOnSidebar) {
         pushWithTabs(route);
       }
     });
 
-    return list;
+    const labelCounts = new Map<string, number>();
+    list.forEach((item) => {
+      labelCounts.set(item.label, (labelCounts.get(item.label) ?? 0) + 1);
+    });
+
+    return list.map((item) =>
+      (labelCounts.get(item.label) ?? 0) > 1 && item.groupLabel
+        ? { ...item, label: `${item.groupLabel} / ${item.label}` }
+        : item
+    );
   }, [routes, getFilteredChildren, getAllowedTabs, t]);
 
   const menuOptions = useMemo<MenuOption[]>(() => {

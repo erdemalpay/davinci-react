@@ -14,6 +14,7 @@ import {
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -265,11 +266,10 @@ const LocationPage = () => {
       {
         key: "isShelfInfoRequired",
         node: (row: any) => {
-          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isUpdateDisabled = isActionDisabled(
+            locationsDisabledCondition,
+            ActionEnum.UPDATE,
+            user
           );
           return (
             <div
@@ -296,11 +296,10 @@ const LocationPage = () => {
       {
         key: "isVisibleInBaseQuantity",
         node: (row: any) => {
-          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isUpdateDisabled = isActionDisabled(
+            locationsDisabledCondition,
+            ActionEnum.UPDATE,
+            user
           );
           return (
             <div
@@ -327,11 +326,10 @@ const LocationPage = () => {
       {
         key: "seenInOrdersSummaryPage",
         node: (row: any) => {
-          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isUpdateDisabled = isActionDisabled(
+            locationsDisabledCondition,
+            ActionEnum.UPDATE,
+            user
           );
           return (
             <div
@@ -358,11 +356,10 @@ const LocationPage = () => {
       {
         key: "active",
         node: (row: any) => {
-          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isUpdateDisabled = isActionDisabled(
+            locationsDisabledCondition,
+            ActionEnum.UPDATE,
+            user
           );
           return (
             <div
@@ -630,11 +627,10 @@ const LocationPage = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: locationsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        locationsDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
     }),
     [
@@ -673,11 +669,10 @@ const LocationPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: locationsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          locationsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
     ],

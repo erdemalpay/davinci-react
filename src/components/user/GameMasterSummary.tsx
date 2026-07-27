@@ -30,10 +30,12 @@ import { useGetFilteredVisits } from "../../utils/api/visit";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import InfoCard from "../common/InfoCard";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 import AttendanceCalendar from "./AttendanceCalendar";
+import LateEarlySummary from "./LateEarlySummary";
 
 type Props = {
   userId: string;
@@ -379,6 +381,21 @@ const GameMasterSummary = ({ userId }: Props) => {
   ]);
   return (
     <div className="w-full flex flex-col gap-4">
+      <div className="w-full flex justify-end">
+        <QuickDateRangeFilter
+          startDate={filterPanelFormElements.after}
+          endDate={filterPanelFormElements.before}
+          onChange={(start: string, end: string) => {
+            const isReset = !start && !end;
+            setFilterPanelFormElements({
+              ...filterPanelFormElements,
+              date: "",
+              after: isReset ? initialFilterPanelFormElements.after : start,
+              before: isReset ? "" : end,
+            });
+          }}
+        />
+      </div>
       <AttendanceCalendar
         visits={visits || []}
         shifts={shifts || []}
@@ -418,6 +435,11 @@ const GameMasterSummary = ({ userId }: Props) => {
           ))}
         </div>
       </div>
+      <LateEarlySummary
+        visits={visits || []}
+        shifts={shifts || []}
+        userId={userId}
+      />
       {gameplayCountsByDate?.data && gameplayCountsByDate?.data?.length > 0 && (
         <div className="border p-3 rounded-lg border-gray-200 bg-white w-full">
           <h3 className="text-base sm:text-lg font-semibold mb-2">

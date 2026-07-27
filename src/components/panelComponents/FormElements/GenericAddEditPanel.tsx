@@ -515,7 +515,7 @@ const GenericAddEditPanel = <T,>({
                         <img
                           src={formElements[input.formKey]}
                           alt="image"
-                          className="block h-full w-full object-cover"
+                          className="block h-full w-full object-contain"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
                           <div className="flex flex-col items-center gap-1 text-white">

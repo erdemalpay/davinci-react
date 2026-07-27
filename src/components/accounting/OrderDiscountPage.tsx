@@ -16,6 +16,7 @@ import {
 } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -226,11 +227,10 @@ const OrderDiscountPage = () => {
   }, [t]);
 
   const rowKeys = useMemo(() => {
-    const isUpdateDisabled = discountsDisabledCondition?.actions?.some(
-      (ac) =>
-        ac.action === ActionEnum.UPDATE &&
-        user?.role?._id &&
-        !ac.permissionsRoles.includes(user.role._id)
+    const isUpdateDisabled = isActionDisabled(
+      discountsDisabledCondition,
+      ActionEnum.UPDATE,
+      user
     );
     return [
       { key: "name", className: "min-w-32 pr-1" },
@@ -374,11 +374,10 @@ const OrderDiscountPage = () => {
       setIsModal: setIsAddModalOpen,
       isPath: false,
       icon: null,
-      isDisabled: discountsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac.permissionsRoles.includes(user.role._id)
+      isDisabled: isActionDisabled(
+        discountsDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
@@ -419,11 +418,10 @@ const OrderDiscountPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: discountsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          discountsDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -458,11 +456,10 @@ const OrderDiscountPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: discountsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          discountsDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
       {
@@ -472,11 +469,10 @@ const OrderDiscountPage = () => {
         isPath: false,
         icon: null,
         node: (row: any) => {
-          const isUpdateDisabled = discountsDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.UPDATE &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isUpdateDisabled = isActionDisabled(
+            discountsDisabledCondition,
+            ActionEnum.UPDATE,
+            user
           );
           return (
             <div
@@ -526,11 +522,10 @@ const OrderDiscountPage = () => {
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
-        isDisabled: discountsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          discountsDisabledCondition,
+          ActionEnum.ENABLEEDIT,
+          user
         ),
       },
       {
@@ -542,11 +537,10 @@ const OrderDiscountPage = () => {
             onChange={setShowInactiveDiscounts}
           />
         ),
-        isDisabled: discountsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
-            user?.role?._id &&
-            !ac.permissionsRoles.includes(user.role._id)
+        isDisabled: isActionDisabled(
+          discountsDisabledCondition,
+          ActionEnum.SHOW_INACTIVE_ELEMENTS,
+          user
         ),
       },
     ],

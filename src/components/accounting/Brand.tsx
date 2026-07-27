@@ -27,6 +27,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -92,11 +93,10 @@ const Brand = () => {
         key: "name",
         className: "min-w-32 pr-1",
         node: (row: AccountBrand) => {
-          const isClickable = !brandDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.CLICKABLE_ROWS &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isClickable = !isActionDisabled(
+            brandDisabledCondition,
+            ActionEnum.CLICKABLE_ROWS,
+            user
           );
           return isClickable ? (
             <p
@@ -170,11 +170,10 @@ const Brand = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: brandDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+      isDisabled: isActionDisabled(
+        brandDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
     }),
     [
@@ -211,11 +210,10 @@ const Brand = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: brandDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          brandDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -239,11 +237,10 @@ const Brand = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: brandDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          brandDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
       {
@@ -284,11 +281,10 @@ const Brand = () => {
         isModalOpen: isAddProductModalOpen,
         setIsModal: setIsAddProductModalOpen,
         isPath: false,
-        isDisabled: brandDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ADD_TO_ELEMENT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          brandDisabledCondition,
+          ActionEnum.ADD_TO_ELEMENT,
+          user
         ),
       },
     ],
@@ -372,11 +368,10 @@ const Brand = () => {
           </ButtonTooltip>
         </div>
       ),
-      isDisabled: brandDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.CREATE_MULTIPLE &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+      isDisabled: isActionDisabled(
+        brandDisabledCondition,
+        ActionEnum.CREATE_MULTIPLE,
+        user
       ),
     },
   ];
@@ -391,12 +386,9 @@ const Brand = () => {
         title={t("Brands")}
         addButton={addButton}
         filters={filters}
-        isExcel={!brandDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.EXCEL &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        )}
+        isExcel={
+          !isActionDisabled(brandDisabledCondition, ActionEnum.EXCEL, user)
+        }
         isEmtpyExcel
         excelFileName={"Brand.xlsx"}
         isActionsActive={true}

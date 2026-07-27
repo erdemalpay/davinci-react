@@ -14,6 +14,7 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -45,21 +46,17 @@ const AllGameplayTime = () => {
 
   const calculateDuration = (startHour?: string, finishHour?: string) => {
     if (!startHour) return { minutes: 0, formatted: t("N/A") };
-
-    const startTime = new Date();
-    const [startH, startM] = startHour.split(":").map(Number);
-    startTime.setHours(startH, startM, 0, 0);
-
-    const endTime = new Date();
-    if (finishHour) {
-      const [endH, endM] = finishHour.split(":").map(Number);
-      endTime.setHours(endH, endM, 0, 0);
-    }
-
     if (!finishHour) return { minutes: 0, formatted: t("Active") };
 
-    const diffMs = endTime.getTime() - startTime.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const [startH, startM] = startHour.split(":").map(Number);
+    const [endH, endM] = finishHour.split(":").map(Number);
+
+    const startMinutes = startH * 60 + startM;
+    const endMinutes = endH * 60 + endM;
+
+    let diffMinutes = endMinutes - startMinutes;
+    if (diffMinutes < 0) diffMinutes += 24 * 60;
+
     const hours = Math.floor(diffMinutes / 60);
     const minutes = diffMinutes % 60;
 
@@ -296,12 +293,36 @@ const AllGameplayTime = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
       },
     ],
-    [t, showFilters]
+    [
+      t,
+      showFilters,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+      initialFilterPanelFormElements,
+    ]
   );
 
   const outsideSort = useMemo(

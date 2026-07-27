@@ -25,6 +25,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
+import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -86,11 +87,10 @@ const Vendor = () => {
         key: "name",
         className: "min-w-32 pr-1",
         node: (row: AccountVendor) => {
-          const isClickable = !vendorDisabledCondition?.actions?.some(
-            (ac) =>
-              ac.action === ActionEnum.CLICKABLE_ROWS &&
-              user?.role?._id &&
-              !ac.permissionsRoles.includes(user.role._id)
+          const isClickable = !isActionDisabled(
+            vendorDisabledCondition,
+            ActionEnum.CLICKABLE_ROWS,
+            user
           );
           return isClickable ? (
             <p
@@ -162,11 +162,10 @@ const Vendor = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: vendorDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ADD &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
+      isDisabled: isActionDisabled(
+        vendorDisabledCondition,
+        ActionEnum.ADD,
+        user
       ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
@@ -205,11 +204,10 @@ const Vendor = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: vendorDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          vendorDisabledCondition,
+          ActionEnum.DELETE,
+          user
         ),
       },
       {
@@ -233,11 +231,10 @@ const Vendor = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: vendorDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.UPDATE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          vendorDisabledCondition,
+          ActionEnum.UPDATE,
+          user
         ),
       },
       {
@@ -277,11 +274,10 @@ const Vendor = () => {
         isModalOpen: isAddProductModalOpen,
         setIsModal: setIsAddProductModalOpen,
         isPath: false,
-        isDisabled: vendorDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ADD_TO_ELEMENT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          vendorDisabledCondition,
+          ActionEnum.ADD_TO_ELEMENT,
+          user
         ),
       },
     ],

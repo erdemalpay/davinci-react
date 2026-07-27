@@ -2,9 +2,12 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { useUserContext } from "../../context/User.context";
-import { Role, RoleEnum, RolePermissionEnum } from "../../types";
+import { ActionEnum, DisabledConditionEnum, Role, RolePermissionEnum } from "../../types";
 import { UpdatePayload } from "../../utils/api";
 import { useGetRoles, useRoleMutations } from "../../utils/api/user/role";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -13,12 +16,17 @@ const Roles = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const roles = useGetRoles();
+  const disabledConditions = useGetDisabledConditions();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Role>();
 
   const { createRole, updateRole } = useRoleMutations();
+
+  const rolesDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_ROLES, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     return roles ?? [];
@@ -165,10 +173,14 @@ const Roles = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: isActionDisabled(
+        rolesDisabledCondition,
+        ActionEnum.ADD,
+        user
+      ),
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, addInputs, formKeys, createRole, user]
+    [t, isAddModalOpen, addInputs, formKeys, createRole, rolesDisabledCondition, user]
   );
 
   const actions = useMemo(
@@ -201,10 +213,23 @@ const Roles = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+        isDisabled: isActionDisabled(
+          rolesDisabledCondition,
+          ActionEnum.UPDATE,
+          user
+        ),
       },
     ],
-    [t, rowToAction, isEditModalOpen, editInputs, formKeys, updateRole, user]
+    [
+      t,
+      rowToAction,
+      isEditModalOpen,
+      editInputs,
+      formKeys,
+      updateRole,
+      rolesDisabledCondition,
+      user,
+    ]
   );
 
   return (

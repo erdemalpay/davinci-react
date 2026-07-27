@@ -67,7 +67,7 @@ function SingleFolderPage() {
                 <img
                   src={image.url}
                   alt={image.publicId}
-                  className="w-full h-32 object-cover rounded-md"
+                  className="w-full h-32 object-contain rounded-md"
                 />
                 {/* content */}
                 <div className="flex flex-col gap-2">

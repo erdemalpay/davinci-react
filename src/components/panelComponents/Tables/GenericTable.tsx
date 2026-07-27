@@ -82,6 +82,7 @@ type Props<T> = {
   isCollapsibleCheckActive?: boolean;
   isExcel?: boolean;
   excelFileName?: string;
+  excelRows?: any[];
   pagination?: PaginationProps;
   outsideSortProps?: OutsideSortProps;
   outsideSearchProps?: OutsideSearchProps;
@@ -129,6 +130,7 @@ const GenericTable = <T,>({
   tooltipLimit = 40,
   rowClassNameFunction,
   excelFileName,
+  excelRows,
   rowsPerPageOptions = [
     RowPerPageEnum.FIRST,
     RowPerPageEnum.SECOND,
@@ -418,8 +420,8 @@ const GenericTable = <T,>({
   const generateExcel = () => {
     const workbook = XLSX.utils.book_new();
 
-    if (isCollapsible) {
-      const excelRows: any[] = [];
+    if (isCollapsible && !excelRows) {
+      const collapsibleExcelRows: any[] = [];
 
       sortedRows.forEach((row) => {
         const collapsibleHeader = row?.collapsible?.collapsibleHeader;
@@ -428,11 +430,13 @@ const GenericTable = <T,>({
         const collapsibleRows = row?.collapsible?.collapsibleRows ?? [];
 
         if (collapsibleHeader) {
-          excelRows.push([collapsibleHeader]);
+          collapsibleExcelRows.push([collapsibleHeader]);
         }
 
         if (collapsibleColumns.length > 0) {
-          excelRows.push(collapsibleColumns.map((column: any) => column.key));
+          collapsibleExcelRows.push(
+            collapsibleColumns.map((column: any) => column.key)
+          );
         }
 
         if (collapsibleRows.length > 0) {
@@ -444,27 +448,44 @@ const GenericTable = <T,>({
               if (typeof value === "boolean") return value ? "true" : "false";
               return String(value);
             });
-            excelRows.push(rowData);
+            collapsibleExcelRows.push(rowData);
           });
         }
 
-        excelRows.push([]);
+        collapsibleExcelRows.push([]);
       });
 
-      const worksheet = XLSX.utils.aoa_to_sheet(excelRows);
+      const worksheet = XLSX.utils.aoa_to_sheet(collapsibleExcelRows);
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
       XLSX.writeFile(workbook, excelFileName ?? "ExportedData.xlsx");
       return;
     }
 
-    const excelRows: any[] = [];
+    const flatExcelRows: any[] = [];
     const headers = usedColumns
       .filter((column) => column.correspondingKey)
       .map((column) => column.key);
 
-    excelRows.push(headers);
+    flatExcelRows.push(headers);
 
-    const excelAllRows = !isEmtpyExcel ? sortedRows : [];
+    const excelQuery = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
+    const searchedExcelRows =
+      excelRows && isSearch && excelQuery
+        ? excelRows.filter((row) =>
+            (searchRowKeys ?? usedRowKeys).some((rowKey) => {
+              const value = row[rowKey.key as keyof typeof row];
+              if (typeof value === "string")
+                return value.toLocaleLowerCase("tr-TR").includes(excelQuery);
+              if (typeof value === "number")
+                return value.toString().includes(excelQuery);
+              if (typeof value === "boolean")
+                return (value ? "true" : "false").includes(excelQuery);
+              return false;
+            })
+          )
+        : excelRows;
+
+    const excelAllRows = !isEmtpyExcel ? searchedExcelRows ?? sortedRows : [];
     excelAllRows.forEach((row) => {
       const rowData = usedColumns
         .filter((column) => column.correspondingKey)
@@ -474,10 +495,10 @@ const GenericTable = <T,>({
           if (typeof value === "number") return value;
           return String(value);
         });
-      excelRows.push(rowData);
+      flatExcelRows.push(rowData);
     });
 
-    const worksheet = XLSX.utils.aoa_to_sheet(excelRows);
+    const worksheet = XLSX.utils.aoa_to_sheet(flatExcelRows);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
     XLSX.writeFile(workbook, excelFileName ?? "ExportedData.xlsx");
   };

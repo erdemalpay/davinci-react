@@ -394,6 +394,8 @@ export type AccountVendor = {
 export type AccountRetailer = {
   _id: number;
   name: string;
+  tenantSlug?: string;
+  projectSlug?: string;
 };
 
 export type AccountPaymentMethod = {
@@ -655,6 +657,9 @@ export enum DisabledConditionEnum {
   ACCOUNTING_BRAND = "brand",
   ACCOUNTING_PRODUCT = "product",
   ACCOUNTING_PRODUCTCATEGORIES = "productcategories",
+  ACCOUNTING_SHOPIFYCATEGORIES = "shopifycategories",
+  ACCOUNTING_SHOPIFYDISCOUNTS = "shopifydiscounts",
+  ACCOUNTING_ROLES = "roles",
   ACCOUNTING_SERVICES = "services",
   ACCOUNTING_DISCOUNTS = "discounts",
   ACCOUNTING_PAYMENTMETHODS = "paymentmethods",
@@ -1471,6 +1476,7 @@ export enum RoleEnum {
   KITCHEN2,
   KITCHEN3,
   BARCHEF,
+  COUNTER
 }
 
 export enum RoleNameEnum {
@@ -2038,6 +2044,7 @@ export enum ActivityType {
   CREATE_ORDER = "CREATE_ORDER",
   ADD_ORDER = "ADD_ORDER",
   CANCEL_ORDER = "CANCEL_ORDER",
+  RETURN_ORDER = "RETURN_ORDER",
   PREPARE_ORDER = "PREPARE_ORDER",
   DELIVER_ORDER = "DELIVER_ORDER",
   TAKE_PAYMENT = "TAKE_PAYMENT",
@@ -2076,6 +2083,10 @@ export enum ActivityType {
   ASSIGN_MIDDLEMAN = "ASSIGN_MIDDLEMAN",
   TRANSFER_TABLE = "TRANSFER_TABLE",
   COMBINE_TABLE = "COMBINE_TABLE",
+  COMPLETE_COUNT = "COMPLETE_COUNT",
+  CLOSE_BUTTONCALL = "CLOSE_BUTTONCALL",
+  CREATE_CHECK = "CREATE_CHECK",
+  COMPLETE_CHECK = "COMPLETE_CHECK",
 }
 export const activityTypeDetails = [
   {
@@ -2252,6 +2263,11 @@ export const activityTypeDetails = [
     value: ActivityType.CANCEL_ORDER,
     label: "Cancel Order",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.RETURN_ORDER,
+    label: "Return Order",
+    bgColor: "bg-rose-500",
   },
   {
     value: ActivityType.PREPARE_ORDER,
@@ -2431,6 +2447,26 @@ export const activityTypeDetails = [
   {
     value: ActivityType.COMBINE_TABLE,
     label: "Combine Table",
+    bgColor: "bg-indigo-500",
+  },
+  {
+    value: ActivityType.COMPLETE_COUNT,
+    label: "Count Completed",
+    bgColor: "bg-teal-500",
+  },
+  {
+    value: ActivityType.CLOSE_BUTTONCALL,
+    label: "Button Call Closed",
+    bgColor: "bg-orange-500",
+  },
+  {
+    value: ActivityType.CREATE_CHECK,
+    label: "Check Created",
+    bgColor: "bg-blue-500",
+  },
+  {
+    value: ActivityType.COMPLETE_CHECK,
+    label: "Check Completed",
     bgColor: "bg-indigo-500",
   },
 ];
@@ -2865,6 +2901,8 @@ export type CustomerPopup = {
   specialDate?: string;
   cooldownHours: number;
   locations: number[];
+  isAutoClosedWhenOutOfStock?: boolean;
+  selectedMenuItems?: number[];
   isDeleted: boolean;
   createdAt?: string;
   updatedAt?: string;

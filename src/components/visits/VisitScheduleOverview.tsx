@@ -165,8 +165,8 @@ const VisitScheduleOverview = () => {
   const columns = useMemo(
     () => [
       { key: t("User"), isSortable: true, correspondingKey: "userName" },
-      { key: "Part Time", isSortable: true, correspondingKey: "partTime" },
-      { key: "Full Time", isSortable: true, correspondingKey: "fullTime" },
+      { key: t("parttime"), isSortable: true, correspondingKey: "partTime" },
+      { key: t("fulltime"), isSortable: true, correspondingKey: "fullTime" },
       {
         key: t("Wrong Entry"),
         isSortable: true,
