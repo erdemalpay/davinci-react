@@ -41,7 +41,7 @@ const Retailer = () => {
       { key: t("Name"), isSortable: true },
       { key: t("Tenant Slug"), isSortable: true },
       { key: t("Project Slug"), isSortable: true },
-      { key: t("Request Token"), isSortable: true },
+      { key: t("Panel Link"), isSortable: false },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
@@ -75,11 +75,31 @@ const Retailer = () => {
         className: "min-w-32 pr-1",
       },
       {
-        key: "requestToken",
+        key: "panelLink",
         className: "min-w-32 pr-1",
+        node: (row: AccountRetailer) => {
+          if (!row.tenantSlug || !row.projectSlug) {
+            return <span>-</span>;
+          }
+
+          const panelUrl = `https://panel.autoapi.org/t/${encodeURIComponent(
+            row.tenantSlug
+          )}/p/${encodeURIComponent(row.projectSlug)}/login`;
+
+          return (
+            <a
+              href={panelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-700 hover:text-blue-500 underline"
+            >
+              {t("Open Panel")}
+            </a>
+          );
+        },
       },
     ],
-    [navigate, setCurrentPage, setSearchQuery, setSortConfigKey]
+    [navigate, setCurrentPage, setSearchQuery, setSortConfigKey, t]
   );
 
   const inputs = useMemo(
@@ -99,13 +119,6 @@ const Retailer = () => {
         placeholder: t("Project Slug"),
         required: false,
       },
-      {
-        type: InputTypes.TEXT,
-        formKey: "requestToken",
-        label: t("Request Token"),
-        placeholder: t("Request Token"),
-        required: false,
-      },
     ],
     [t]
   );
@@ -115,7 +128,6 @@ const Retailer = () => {
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "tenantSlug", type: FormKeyTypeEnum.STRING },
       { key: "projectSlug", type: FormKeyTypeEnum.STRING },
-      { key: "requestToken", type: FormKeyTypeEnum.STRING },
     ],
     []
   );

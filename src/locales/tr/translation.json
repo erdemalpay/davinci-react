@@ -1774,5 +1774,7 @@
   "items": "kalem",
   "In Delivery": "Teslimatta",
   "Retailer order request marked as in delivery": "Perakendeci sipariş talebi teslimatta olarak işaretlendi",
-  "Request Token": "İstek Anahtarı"
+  "Request Token": "İstek Anahtarı",
+  "Panel Link": "Panel Bağlantısı",
+  "Open Panel": "Paneli Aç"
 }
