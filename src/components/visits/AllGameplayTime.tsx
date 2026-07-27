@@ -14,6 +14,7 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -292,12 +293,36 @@ const AllGameplayTime = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
       },
     ],
-    [t, showFilters]
+    [
+      t,
+      showFilters,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+      initialFilterPanelFormElements,
+    ]
   );
 
   const outsideSort = useMemo(
