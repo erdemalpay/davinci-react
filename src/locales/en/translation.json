@@ -1766,5 +1766,7 @@
   "items": "items",
   "In Delivery": "In Delivery",
   "Retailer order request marked as in delivery": "Retailer order request marked as in delivery",
-  "Request Token": "Request Token"
+  "Request Token": "Request Token",
+  "Panel Link": "Panel Link",
+  "Open Panel": "Open Panel"
 }
