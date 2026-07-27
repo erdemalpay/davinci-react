@@ -396,6 +396,7 @@ export type AccountRetailer = {
   name: string;
   tenantSlug?: string;
   projectSlug?: string;
+  requestToken?: string;
 };
 
 export type AccountPaymentMethod = {

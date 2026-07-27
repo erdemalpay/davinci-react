@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { AccountRetailer, OrderCollection } from "../../../types";
 import { axiosClient } from "../axiosClient";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
-import { post, remove } from "../index";
+import { patch, post, remove } from "../index";
 
 const baseUrl = `${Paths.Order}/retailer`;
 
@@ -99,6 +99,82 @@ export type RetailerOrderRequestsQuery = {
   tenantSlug?: string;
   projectSlug?: string;
 };
+
+export type RetailerOrderRequestStatusMutationPayload = {
+  orderId: string;
+  retailerId: number | string;
+  status: "indelivery";
+};
+
+export function getRetailerOrderRequestsQueryKey(
+  query: RetailerOrderRequestsQuery = {}
+) {
+  return [
+    Paths.Order,
+    "retailer-order-request",
+    query.tenantSlug ?? null,
+    query.projectSlug ?? null,
+  ];
+}
+
+export function createRetailerOrderRequestStatusUpdate({
+  orderId,
+  retailerId,
+  status,
+}: RetailerOrderRequestStatusMutationPayload) {
+  return {
+    path: `${Paths.Order}/retailer-order-request/${orderId}/status`,
+    payload: { status, retailerId },
+  };
+}
+
+export function updateRetailerOrderRequestStatus(
+  payload: RetailerOrderRequestStatusMutationPayload
+): Promise<RetailerOrderRequest> {
+  return patch<
+    { status: "indelivery"; retailerId: number | string },
+    RetailerOrderRequest
+  >(
+    createRetailerOrderRequestStatusUpdate(payload)
+  );
+}
+
+export function canMarkRetailerOrderRequestInDelivery(status?: string) {
+  return status?.toLowerCase() === "pending";
+}
+
+export function useUpdateRetailerOrderRequestStatus(
+  query: RetailerOrderRequestsQuery = {},
+  successMessage = "Retailer order request marked as in delivery"
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateRetailerOrderRequestStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getRetailerOrderRequestsQueryKey(query),
+      });
+      toast.success(successMessage);
+    },
+    onError: (err: unknown) => {
+      let errorMessage = "An unexpected error occurred";
+
+      if (typeof err === "object" && err !== null) {
+        const response = (err as Record<string, unknown>).response as
+          | Record<string, unknown>
+          | undefined;
+        const data = response?.data as Record<string, unknown> | undefined;
+        const message = data?.message;
+
+        if (typeof message === "string") errorMessage = message;
+        if (Array.isArray(message)) errorMessage = message.join(", ");
+      }
+
+      toast.error(errorMessage);
+    },
+  });
+}
 
 export function useAccountRetailerMutations() {
   const {
@@ -200,12 +276,7 @@ export function useGetRetailerOrderRequests(
 
   return useGet<RetailerOrderRequest[]>(
     path,
-    [
-      Paths.Order,
-      "retailer-order-request",
-      query.tenantSlug ?? null,
-      query.projectSlug ?? null,
-    ],
+    getRetailerOrderRequestsQueryKey(query),
     true,
     {
       enabled: Boolean(query.tenantSlug && query.projectSlug),

@@ -41,6 +41,7 @@ const Retailer = () => {
       { key: t("Name"), isSortable: true },
       { key: t("Tenant Slug"), isSortable: true },
       { key: t("Project Slug"), isSortable: true },
+      { key: t("Request Token"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
@@ -73,6 +74,10 @@ const Retailer = () => {
         key: "projectSlug",
         className: "min-w-32 pr-1",
       },
+      {
+        key: "requestToken",
+        className: "min-w-32 pr-1",
+      },
     ],
     [navigate, setCurrentPage, setSearchQuery, setSortConfigKey]
   );
@@ -94,6 +99,13 @@ const Retailer = () => {
         placeholder: t("Project Slug"),
         required: false,
       },
+      {
+        type: InputTypes.TEXT,
+        formKey: "requestToken",
+        label: t("Request Token"),
+        placeholder: t("Request Token"),
+        required: false,
+      },
     ],
     [t]
   );
@@ -103,6 +115,7 @@ const Retailer = () => {
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "tenantSlug", type: FormKeyTypeEnum.STRING },
       { key: "projectSlug", type: FormKeyTypeEnum.STRING },
+      { key: "requestToken", type: FormKeyTypeEnum.STRING },
     ],
     []
   );
