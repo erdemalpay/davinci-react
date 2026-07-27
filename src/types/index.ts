@@ -2044,6 +2044,7 @@ export enum ActivityType {
   CREATE_ORDER = "CREATE_ORDER",
   ADD_ORDER = "ADD_ORDER",
   CANCEL_ORDER = "CANCEL_ORDER",
+  RETURN_ORDER = "RETURN_ORDER",
   PREPARE_ORDER = "PREPARE_ORDER",
   DELIVER_ORDER = "DELIVER_ORDER",
   TAKE_PAYMENT = "TAKE_PAYMENT",
@@ -2258,6 +2259,11 @@ export const activityTypeDetails = [
     value: ActivityType.CANCEL_ORDER,
     label: "Cancel Order",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.RETURN_ORDER,
+    label: "Return Order",
+    bgColor: "bg-rose-500",
   },
   {
     value: ActivityType.PREPARE_ORDER,
