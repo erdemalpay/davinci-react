@@ -1765,5 +1765,6 @@
   "Order marked as shipped": "Sipariş gönderildi olarak işaretlendi",
   "Order marked as unshipped": "Sipariş gönderilmedi olarak işaretlendi",
   "Item updated successfully": "Ürün başarıyla güncellendi",
-  "Wrong Entry": "Hatalı Giriş"
+  "Wrong Entry": "Hatalı Giriş",
+  "items": "kalem"
 }

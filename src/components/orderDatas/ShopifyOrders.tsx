@@ -12,6 +12,7 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
+  Order,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -52,6 +53,49 @@ const formatShopifyAddress = (address?: {
     .join(", ");
 };
 
+type ShopifyOrderRow = Omit<
+  Order,
+  "_id" | "createdAt" | "cancelledAt" | "item" | "location" | "quantity"
+> & {
+  _id: number | string; // Override: number -> number | string (for "total" row)
+  createdAt: string; // Override: Date -> string (formatted)
+  cancelledAt: string; // Override: Date -> string (formatted)
+  item: string; // Override: number (id) -> string (name)
+  location: string; // Override: number (id) -> string (name)
+  quantity: number | string;
+  date: string;
+  formattedDate: string;
+  createdHour: string;
+  createdByUserId: string;
+  preparedByUserId: string;
+  preparationTime: string;
+  cancelledByUserId: string;
+  deliveryTime: string;
+  discountId: number | string;
+  discountName: string;
+  locationId: number | string;
+  tableId: number | string;
+  tableName: string;
+  amount: number;
+  statusLabel?: string;
+  itemNames?: string;
+  className?: string;
+  isSortable?: boolean;
+  collapsible?: {
+    collapsibleHeader: string;
+    collapsibleColumns: {
+      key: string;
+      isSortable: boolean;
+      className?: string;
+    }[];
+    collapsibleRows: ShopifyOrderRow[];
+    collapsibleRowKeys: {
+      key: string;
+      node?: (row: ShopifyOrderRow) => React.ReactNode;
+    }[];
+  };
+};
+
 const ShopifyOrders = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
@@ -63,8 +107,7 @@ const ShopifyOrders = () => {
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelShopifyOrder } = useCancelShopifyOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
-  const [showShopifyExtraColumns, setShowShopifyExtraColumns] =
-    useState(false);
+  const [showShopifyExtraColumns, setShowShopifyExtraColumns] = useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
@@ -89,7 +132,7 @@ const ShopifyOrders = () => {
     );
   }, [disabledConditions]);
 
-  const rows = useMemo(() => {
+  const flatRows = useMemo((): ShopifyOrderRow[] => {
     if (!orders || !sellLocations || !users || !discounts) {
       return [];
     }
@@ -111,7 +154,7 @@ const ShopifyOrders = () => {
           return true;
         }
       })
-      ?.map((order) => {
+      ?.map((order): ShopifyOrderRow | null => {
         if (!order || !order?.createdAt) {
           return null;
         }
@@ -176,7 +219,7 @@ const ShopifyOrders = () => {
           )?.label,
         };
       })
-      ?.filter((item) => item !== null);
+      ?.filter((item): item is ShopifyOrderRow => item !== null);
 
     const totalRow = {
       _id: "total",
@@ -212,6 +255,112 @@ const ShopifyOrders = () => {
     user,
   ]);
 
+  const rows = useMemo((): ShopifyOrderRow[] => {
+    const totalRow = flatRows?.find((row) => row?._id === "total");
+    const groups = new Map<string, ShopifyOrderRow[]>();
+    flatRows
+      ?.filter((row) => row?._id !== "total")
+      ?.forEach((row) => {
+        const key = row?.shopifyOrderId as string;
+        const group = groups.get(key);
+        if (group) {
+          group.push(row);
+        } else {
+          groups.set(key, [row]);
+        }
+      });
+
+    const summarize = (values: string[]) => {
+      const filled = values.filter(Boolean);
+      const unique = Array.from(new Set(filled));
+      if (filled.length === 0) return "";
+      if (unique.length === 1 && filled.length === values.length) {
+        return unique[0];
+      }
+      return `${filled.length}/${values.length}`;
+    };
+
+    const groupedRows: ShopifyOrderRow[] = Array.from(groups.values()).map(
+      (groupOrders) => {
+        const first = groupOrders[0];
+        const statusLabels = Array.from(
+          new Set(groupOrders.map((order) => order.statusLabel).filter(Boolean))
+        );
+        return {
+          ...first,
+          item:
+            groupOrders.length === 1
+              ? first.item
+              : `${groupOrders.length} ${t("items")}`,
+          itemNames: groupOrders.map((order) => order.item).join(", "),
+          quantity: groupOrders.reduce(
+            (acc, order) => acc + Number(order.quantity),
+            0
+          ),
+          amount: groupOrders.reduce((acc, order) => acc + order.amount, 0),
+          isReturned: groupOrders.some((order) => order.isReturned),
+          cancelledAt: summarize(groupOrders.map((order) => order.cancelledAt)),
+          cancelledBy: summarize(groupOrders.map((order) => order.cancelledBy)),
+          statusLabel: statusLabels.join(", "),
+          collapsible: {
+            collapsibleHeader: t("Products"),
+            collapsibleColumns: [
+              { key: t("Product"), isSortable: false },
+              { key: t("Quantity"), isSortable: false },
+              { key: t("Unit Price"), isSortable: false },
+              { key: t("Amount"), isSortable: false },
+              { key: t("Cancelled At"), isSortable: false },
+              { key: t("Cancelled By"), isSortable: false },
+              { key: t("Status"), isSortable: false },
+              {
+                key: t("Actions"),
+                isSortable: false,
+                className: "text-center",
+              },
+            ],
+            collapsibleRows: groupOrders,
+            collapsibleRowKeys: [
+              { key: "item" },
+              { key: "quantity" },
+              {
+                key: "unitPrice",
+                node: (row: ShopifyOrderRow) => (
+                  <p key={row._id + "unitPrice"}>
+                    {row.unitPrice.toFixed(2).replace(/\.?0*$/, "")} ₺
+                  </p>
+                ),
+              },
+              {
+                key: "amount",
+                node: (row: ShopifyOrderRow) => (
+                  <p key={row._id + "amount"}>
+                    {row.amount.toFixed(2).replace(/\.?0*$/, "")} ₺
+                  </p>
+                ),
+              },
+              { key: "cancelledAt" },
+              { key: "cancelledBy" },
+              { key: "statusLabel" },
+            ],
+          },
+        };
+      }
+    );
+
+    if (totalRow) {
+      groupedRows.unshift({
+        ...totalRow,
+        collapsible: {
+          collapsibleHeader: "",
+          collapsibleColumns: [],
+          collapsibleRows: [],
+          collapsibleRowKeys: [],
+        },
+      });
+    }
+    return groupedRows;
+  }, [flatRows, t]);
+
   const columns = useMemo(
     () => [
       { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
@@ -241,7 +390,11 @@ const ShopifyOrders = () => {
       },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Retailer"), isSortable: true, correspondingKey: "retailer" },
-      { key: t("Pick Up"), isSortable: true, correspondingKey: "isShopifyPickUp" },
+      {
+        key: t("Pick Up"),
+        isSortable: true,
+        correspondingKey: "isShopifyPickUp",
+      },
       ...(showShopifyExtraColumns
         ? [
             {
@@ -260,7 +413,6 @@ const ShopifyOrders = () => {
           ]
         : []),
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
-      { key: t("Actions"), isSortable: false },
     ],
     [t, showShopifyExtraColumns]
   );
@@ -366,6 +518,11 @@ const ShopifyOrders = () => {
       { key: "statusLabel", className: "min-w-32 pr-2" },
     ],
     [showShopifyExtraColumns]
+  );
+
+  const searchRowKeys = useMemo(
+    () => [...rowKeys, { key: "itemNames" }],
+    [rowKeys]
   );
 
   const cancelInputs = useMemo(
@@ -680,7 +837,7 @@ const ShopifyOrders = () => {
     ]
   );
 
-  const actions = useMemo(
+  const collapsibleActions = useMemo(
     () => [
       {
         name: t("Cancel"),
@@ -747,18 +904,28 @@ const ShopifyOrders = () => {
           rowKeys={rowKeys}
           rows={rows}
           isActionsActive={true}
-          actions={actions}
+          collapsibleActions={collapsibleActions}
+          isCollapsible={true}
+          searchRowKeys={searchRowKeys}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
-            !isActionDisabled(shopifyOrdersPageDisabledCondition, ActionEnum.EXCEL, user)
+            !isActionDisabled(
+              shopifyOrdersPageDisabledCondition,
+              ActionEnum.EXCEL,
+              user
+            )
           }
           excelFileName={t("ShopifyOrders.xlsx")}
+          excelRows={flatRows}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {
               return "bg-red-200";
             }
-            if (row?.taxNumberCompanyName && row?.taxNumberCompanyName !== "-") {
+            if (
+              row?.taxNumberCompanyName &&
+              row?.taxNumberCompanyName !== "-"
+            ) {
               return "bg-yellow-100";
             }
             return "";
