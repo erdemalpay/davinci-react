@@ -18,6 +18,7 @@ import { useGetFilteredVisits, useVisitMutation } from "../../utils/api/visit";
 import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -152,6 +153,24 @@ const AllVisits = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterAllVisitsPanelFormElements.after}
+            endDate={filterAllVisitsPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterAllVisitsPanelFormElements({
+                ...filterAllVisitsPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: (
@@ -164,7 +183,14 @@ const AllVisits = () => {
         ),
       },
     ],
-    [t, showAllVisitsFilters, setShowAllVisitsFilters]
+    [
+      t,
+      showAllVisitsFilters,
+      setShowAllVisitsFilters,
+      filterAllVisitsPanelFormElements,
+      setFilterAllVisitsPanelFormElements,
+      initialFilterPanelFormElements,
+    ]
   );
 
   const actions = useMemo(
