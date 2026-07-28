@@ -70,7 +70,7 @@ const HepsiburadaOrders = () => {
     );
   }, [disabledConditions]);
 
-  const rows = useMemo(() => {
+  const flatRows = useMemo(() => {
     if (!orders || !sellLocations || !users || !discounts) {
       return [];
     }
@@ -189,6 +189,110 @@ const HepsiburadaOrders = () => {
     user,
   ]);
 
+  const rows = useMemo(() => {
+    const totalRow = flatRows?.find((row: any) => row?._id === "total");
+    const groups = new Map<string, any[]>();
+    flatRows
+      ?.filter((row: any) => row?._id !== "total")
+      ?.forEach((row: any) => {
+        const key = row?.hepsiburadaOrderNumber as string;
+        const group = groups.get(key);
+        if (group) {
+          group.push(row);
+        } else {
+          groups.set(key, [row]);
+        }
+      });
+
+    const summarize = (values: string[]) => {
+      const filled = values.filter(Boolean);
+      const unique = Array.from(new Set(filled));
+      if (filled.length === 0) return "";
+      if (unique.length === 1 && filled.length === values.length) {
+        return unique[0];
+      }
+      return `${filled.length}/${values.length}`;
+    };
+
+    const groupedRows = Array.from(groups.values()).map((groupOrders) => {
+      const first = groupOrders[0];
+      const statusLabels = Array.from(
+        new Set(groupOrders.map((order) => order.statusLabel).filter(Boolean))
+      );
+      return {
+        ...first,
+        item:
+          groupOrders.length === 1
+            ? first.item
+            : `${groupOrders.length} ${t("items")}`,
+        itemNames: groupOrders.map((order) => order.item).join(", "),
+        quantity: groupOrders.reduce(
+          (acc, order) => acc + Number(order.quantity),
+          0
+        ),
+        amount: groupOrders.reduce((acc, order) => acc + order.amount, 0),
+        isReturned: groupOrders.some((order) => order.isReturned),
+        cancelledAt: summarize(groupOrders.map((order) => order.cancelledAt)),
+        cancelledBy: summarize(groupOrders.map((order) => order.cancelledBy)),
+        statusLabel: statusLabels.join(", "),
+        collapsible: {
+          collapsibleHeader: t("Products"),
+          collapsibleColumns: [
+            { key: t("Product"), isSortable: false },
+            { key: t("Quantity"), isSortable: false },
+            { key: t("Unit Price"), isSortable: false },
+            { key: t("Amount"), isSortable: false },
+            { key: t("Cancelled At"), isSortable: false },
+            { key: t("Cancelled By"), isSortable: false },
+            { key: t("Status"), isSortable: false },
+            {
+              key: t("Actions"),
+              isSortable: false,
+              className: "text-center",
+            },
+          ],
+          collapsibleRows: groupOrders,
+          collapsibleRowKeys: [
+            { key: "item" },
+            { key: "quantity" },
+            {
+              key: "unitPrice",
+              node: (row: any) => (
+                <p key={row._id + "unitPrice"}>
+                  {row.unitPrice.toFixed(2).replace(/\.?0*$/, "")} ₺
+                </p>
+              ),
+            },
+            {
+              key: "amount",
+              node: (row: any) => (
+                <p key={row._id + "amount"}>
+                  {row.amount.toFixed(2).replace(/\.?0*$/, "")} ₺
+                </p>
+              ),
+            },
+            { key: "cancelledAt" },
+            { key: "cancelledBy" },
+            { key: "statusLabel" },
+          ],
+        },
+      };
+    });
+
+    if (totalRow) {
+      groupedRows.unshift({
+        ...totalRow,
+        collapsible: {
+          collapsibleHeader: "",
+          collapsibleColumns: [],
+          collapsibleRows: [],
+          collapsibleRowKeys: [],
+        },
+      });
+    }
+    return groupedRows;
+  }, [flatRows, t]);
+
   const columns = useMemo(
     () => [
       { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
@@ -218,7 +322,6 @@ const HepsiburadaOrders = () => {
       },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
-      { key: t("Actions"), isSortable: false },
     ],
     [t]
   );
@@ -271,6 +374,11 @@ const HepsiburadaOrders = () => {
     []
   );
 
+  const searchRowKeys = useMemo(
+    () => [...rowKeys, { key: "itemNames" }],
+    [rowKeys]
+  );
+
   const cancelInputs = useMemo(
     () => [
       {
@@ -292,7 +400,7 @@ const HepsiburadaOrders = () => {
     []
   );
 
-  const actions = useMemo(
+  const collapsibleActions = useMemo(
     () => [
       {
         name: t("Cancel"),
@@ -644,13 +752,16 @@ const HepsiburadaOrders = () => {
           rowKeys={rowKeys}
           rows={rows}
           isActionsActive={true}
-          actions={actions}
+          collapsibleActions={collapsibleActions}
+          isCollapsible={true}
+          searchRowKeys={searchRowKeys}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
             !isActionDisabled(hepsiburadaOrdersPageDisabledCondition, ActionEnum.EXCEL, user)
           }
           excelFileName={t("HepsiburadaOrders.xlsx")}
+          excelRows={flatRows}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {
               return "bg-red-200";
