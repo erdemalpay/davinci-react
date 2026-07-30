@@ -386,6 +386,8 @@
   "Add Payment Method": "Add Payment Method",
   "Delete Payment Method": "Delete Payment Method",
   "Payment Method": "Payment Method",
+  "Payment Amount": "Payment Amount",
+  "Paid After Count": "Paid After Count",
   "Not Paid": "Not Paid",
   "Logged in successfully": "Logged in successfully",
   "Checkout Control": "Checkout Control",
