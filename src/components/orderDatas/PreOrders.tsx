@@ -6,11 +6,6 @@ import {
   MdOutlineCheckBox,
   MdOutlineCheckBoxOutlineBlank,
 } from "react-icons/md";
-import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
-import GenericTable from "../panelComponents/Tables/GenericTable";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
-import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
 import { useOrderContext } from "../../context/Order.context";
 import {
   DateRangeKey,
@@ -20,12 +15,20 @@ import {
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { Paths } from "../../utils/api/factory";
 import { useGetAllLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { Paths } from "../../utils/api/factory";
-import { useGetPreOrders, usePreOrderMutation } from "../../utils/api/order/order";
+import {
+  useGetPreOrders,
+  usePreOrderMutation,
+} from "../../utils/api/order/order";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { InputTypes } from "../panelComponents/shared/types";
 
 const PreOrders = () => {
   const { t } = useTranslation();
@@ -114,7 +117,11 @@ const PreOrders = () => {
               { key: t("Product"), isSortable: false },
               { key: t("Quantity"), isSortable: false },
               { key: t("Amount"), isSortable: false },
-              { key: t("Shipped"), isSortable: false, className: "text-center" },
+              {
+                key: t("Shipped"),
+                isSortable: false,
+                className: "text-center",
+              },
             ],
             collapsibleRows: groupOrders.map((order) => ({
               _id: order._id,
@@ -167,21 +174,22 @@ const PreOrders = () => {
         a.isFullyShipped === b.isFullyShipped ? 0 : a.isFullyShipped ? 1 : -1
       );
 
-    const { totalAmount, totalShippedCount, totalItemCount } = filteredRows.reduce(
-      (totals, row: any) => {
-        totals.totalAmount += row?.amount ?? 0;
-        totals.totalShippedCount += row?.shippedCount ?? 0;
-        totals.totalItemCount += row?.itemCount ?? 0;
-        return totals;
-      },
-      { totalAmount: 0, totalShippedCount: 0, totalItemCount: 0 }
-    );
+    const { totalAmount, totalShippedCount, totalItemCount } =
+      filteredRows.reduce(
+        (totals, row: any) => {
+          totals.totalAmount += row?.amount ?? 0;
+          totals.totalShippedCount += row?.shippedCount ?? 0;
+          totals.totalItemCount += row?.itemCount ?? 0;
+          return totals;
+        },
+        { totalAmount: 0, totalShippedCount: 0, totalItemCount: 0 }
+      );
 
     const totalRow = {
       _id: "total",
       className: "font-semibold",
       isSortable: false,
-      formattedDate: "Total",
+      formattedDate: t("Total"),
       amount: totalAmount,
       shippedSummary: `${totalShippedCount}/${totalItemCount}`,
       collapsible: {
@@ -254,7 +262,10 @@ const PreOrders = () => {
       {
         key: "amount",
         node: (row: any) => (
-          <p className={`min-w-32 pr-2 ${row.className}`} key={row._id + "amount"}>
+          <p
+            className={`min-w-32 pr-2 ${row.className}`}
+            key={row._id + "amount"}
+          >
             {row.amount.toFixed(2).replace(/\.?0*$/, "")} ₺
           </p>
         ),
@@ -298,12 +309,7 @@ const PreOrders = () => {
         }),
         placeholder: t("Date"),
         required: true,
-        additionalOnChange: ({
-          value,
-        }: {
-          value: string;
-          label: string;
-        }) => {
+        additionalOnChange: ({ value }: { value: string; label: string }) => {
           const dateRange = dateRanges[value as DateRangeKey];
           if (dateRange) {
             setPreOrderFilterPanelFormElements({
