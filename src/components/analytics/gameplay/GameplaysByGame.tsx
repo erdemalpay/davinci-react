@@ -322,7 +322,7 @@ export default function GameplaysByGames() {
         rowKeys={rowKeys}
         columns={columns}
         rows={gameplayGroupRows}
-        title={t("Gameplays by Games")}
+        title={t("Gameplays By Games")}
         filters={filters}
         filterPanel={filterPanel}
         isActionsActive={false}
