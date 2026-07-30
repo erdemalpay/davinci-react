@@ -61,7 +61,9 @@ export function MentorAnalyticChart({
     itemLimit,
     startDate,
     location,
-    endDate
+    endDate,
+    undefined,
+    unique ? "uniqueCount" : "playCount"
   );
   const users = useGetUsers();
   const [mentorData, setMentorData] = useState<GameCount[]>([]);
@@ -258,6 +260,11 @@ export function MentorAnalyticChart({
             </div>
           </div>
         </div>
+        <p className="text-sm text-gray-500">
+          {unique
+            ? t("Unique Gameplay By Game Mentors Info Text")
+            : t("Gameplay By Game Mentors Info Text")}
+        </p>
 
         {mentorData?.length > 0 ? (
           <ResponsiveContainer width="100%" height={500}>
