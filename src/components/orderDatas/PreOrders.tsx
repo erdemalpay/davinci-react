@@ -65,7 +65,7 @@ const PreOrders = () => {
       groups.get(key)!.push(order);
     });
 
-    return Array.from(groups.entries())
+    const filteredRows = Array.from(groups.entries())
       .map(([, groupOrders]) => {
         const first = groupOrders[0];
         const shippedCount = groupOrders.filter((o) => o.isShipped).length;
@@ -105,6 +105,8 @@ const PreOrders = () => {
           customerEmail: first?.shopifyCustomer?.email ?? "",
           customerPhone: first?.shopifyCustomer?.phone ?? "",
           shippedSummary: `${shippedCount}/${groupOrders.length}`,
+          shippedCount,
+          itemCount: groupOrders.length,
           isFullyShipped: allShipped,
           collapsible: {
             collapsibleHeader: t("Products"),
@@ -164,6 +166,33 @@ const PreOrders = () => {
       .sort((a: any, b: any) =>
         a.isFullyShipped === b.isFullyShipped ? 0 : a.isFullyShipped ? 1 : -1
       );
+
+    const { totalAmount, totalShippedCount, totalItemCount } = filteredRows.reduce(
+      (totals, row: any) => {
+        totals.totalAmount += row?.amount ?? 0;
+        totals.totalShippedCount += row?.shippedCount ?? 0;
+        totals.totalItemCount += row?.itemCount ?? 0;
+        return totals;
+      },
+      { totalAmount: 0, totalShippedCount: 0, totalItemCount: 0 }
+    );
+
+    const totalRow = {
+      _id: "total",
+      className: "font-semibold",
+      isSortable: false,
+      formattedDate: "Total",
+      amount: totalAmount,
+      shippedSummary: `${totalShippedCount}/${totalItemCount}`,
+      collapsible: {
+        collapsibleHeader: "",
+        collapsibleColumns: [],
+        collapsibleRows: [],
+        collapsibleRowKeys: [],
+      },
+    };
+    filteredRows.unshift(totalRow as any);
+    return filteredRows;
   }, [
     orders,
     showUnshippedOnly,
@@ -234,7 +263,9 @@ const PreOrders = () => {
       {
         key: "shippedSummary",
         node: (row: any) => (
-          <p className="text-center">{row.shippedSummary}</p>
+          <p className={`text-center ${row?.className ?? ""}`}>
+            {row.shippedSummary}
+          </p>
         ),
       },
     ],
@@ -431,6 +462,9 @@ const PreOrders = () => {
         filters={filters}
         isCollapsible={true}
         rowClassNameFunction={(row: any) => {
+          if (row?._id === "total") {
+            return "";
+          }
           if (row?.isReturned) {
             return "bg-red-200";
           }
