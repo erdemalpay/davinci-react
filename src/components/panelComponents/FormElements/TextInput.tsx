@@ -1,3 +1,4 @@
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 import { SketchPicker } from "react-color";
 import "react-day-picker/dist/style.css";
@@ -56,6 +57,8 @@ const TextInput = ({
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
+  const [showPassword, setShowPassword] = useState(false);
+  const isPasswordInput = type === "password";
   const inputRef = useRef<HTMLInputElement>(null);
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
     null
@@ -151,7 +154,9 @@ const TextInput = ({
       : ""
   } 
 
-  ${type === "number" ? "inputHideNumberArrows" : ""} text-base`;
+  ${type === "number" ? "inputHideNumberArrows" : ""} ${
+    isPasswordInput ? "pr-10" : ""
+  } text-base`;
 
   const handleWheel = () => {
     if (document.activeElement instanceof HTMLElement) {
@@ -277,21 +282,55 @@ const TextInput = ({
             <FiMinusCircle className="w-5 h-5" />
           </button>
         )}
-        <input
-          id={"number-input"}
-          ref={inputRef}
-          type={type}
-          style={{
-            fontSize: "16px",
-          }}
-          placeholder={placeholder}
-          disabled={disabled || isReadOnly}
-          value={localValue}
-          onChange={handleChange}
-          className={inputClassName}
-          {...(isMinNumber && (type === "number" ? { min: minNumber } : {}))}
-          onWheel={type === "number" ? handleWheel : undefined}
-        />
+        {isPasswordInput ? (
+          <div className="relative w-full">
+            <input
+              id={"number-input"}
+              ref={inputRef}
+              type={showPassword ? "text" : "password"}
+              style={{
+                fontSize: "16px",
+              }}
+              placeholder={placeholder}
+              disabled={disabled || isReadOnly}
+              value={localValue}
+              onChange={handleChange}
+              className={inputClassName}
+            />
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPassword((prev) => !prev);
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 focus:outline-none transition-all duration-200 hover:scale-110 active:scale-95"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="w-6 h-6" />
+              ) : (
+                <EyeIcon className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        ) : (
+          <input
+            id={"number-input"}
+            ref={inputRef}
+            type={type}
+            style={{
+              fontSize: "16px",
+            }}
+            placeholder={placeholder}
+            disabled={disabled || isReadOnly}
+            value={localValue}
+            onChange={handleChange}
+            className={inputClassName}
+            {...(isMinNumber && (type === "number" ? { min: minNumber } : {}))}
+            onWheel={type === "number" ? handleWheel : undefined}
+          />
+        )}
 
         {isNumberButtonsActive && !isCompactStyle && (
           <>
