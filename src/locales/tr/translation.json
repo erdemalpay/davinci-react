@@ -386,6 +386,8 @@
   "Add Payment Method": "Ödeme Yöntemi Ekle",
   "Delete Payment Method": "Ödeme Yöntemi Sil",
   "Payment Method": "Ödeme Yöntemi",
+  "Payment Amount": "Ödeme Tutarı",
+  "Paid After Count": "Sayım Sonrası Ödendi",
   "Logged in successfully": "Başarıyla giriş yapıldı",
   "Checkout Control": "Kasa Kontrolü",
   "Add Checkout Control": "Kasa Kontrolü Ekle",
