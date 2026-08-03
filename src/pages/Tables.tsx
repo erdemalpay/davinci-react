@@ -528,7 +528,10 @@ const Tables = () => {
 
         return menuItems
           .filter((menuItem) => {
-            if (menuItem.category !== value) {
+            if (
+              !menuItem.additionalCategories?.includes(value) &&
+              menuItem.category !== value
+            ) {
               return false;
             }
 
