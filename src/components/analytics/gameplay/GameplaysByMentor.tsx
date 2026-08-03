@@ -295,6 +295,9 @@ export default function GameplaysByMentor() {
 
   return (
     <div className="w-[95%] mx-auto">
+      <p className="mb-2 text-sm text-gray-500">
+        {t("Gameplays By Mentors Details Info Text")}
+      </p>
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}

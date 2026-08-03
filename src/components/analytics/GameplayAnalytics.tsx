@@ -66,7 +66,7 @@ export const GameplayAnalyticsTabs: Tab[] = [
 
 export default function GameplayAnalytics() {
   const [activeTab, setActiveTab] = useState<number>(0);
-  const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
+  const [dateFilter, setDateFilter] = useState(DateFilter.THIS_MONTH);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string | undefined>("");
   const [location, setLocation] = useState<string>("1,2");
