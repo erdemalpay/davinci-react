@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaBookReader } from "react-icons/fa";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
+import { MdFreeBreakfast, MdOutlineSchedule } from "react-icons/md";
 import { PiGooglePlayLogo } from "react-icons/pi";
 import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
@@ -12,6 +13,8 @@ import { GameplayAnalyticsTabEnum } from "../../types";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { DateFilter } from "../../utils/dateUtil";
 import { Tab } from "../panelComponents/shared/types";
+import AllBreaks from "./gameplay/AllBreaks";
+import AllGameplayTime from "./gameplay/AllGameplayTime";
 import GameplaysByGames from "./gameplay/GameplaysByGame";
 import GameplaysByMentor from "./gameplay/GameplaysByMentor";
 import KnownGamesCount from "./gameplay/KnownGamesCount";
@@ -59,6 +62,18 @@ export const GameplayAnalyticsTabs: Tab[] = [
   {
     number: GameplayAnalyticsTabEnum.LEARNEDGAMES,
     label: "Learned Games",
+    content: null,
+    isDisabled: false,
+  },
+  {
+    number: GameplayAnalyticsTabEnum.ALLBREAKS,
+    label: "All Breaks",
+    content: null,
+    isDisabled: false,
+  },
+  {
+    number: GameplayAnalyticsTabEnum.ALLGAMEPLAYTIME,
+    label: "All Gameplay Time",
     content: null,
     isDisabled: false,
   },
@@ -122,6 +137,14 @@ export default function GameplayAnalytics() {
     [GameplayAnalyticsTabEnum.LEARNEDGAMES]: {
       icon: <FaBookReader className="text-lg font-thin" />,
       content: <LearnedGames />,
+    },
+    [GameplayAnalyticsTabEnum.ALLBREAKS]: {
+      icon: <MdFreeBreakfast className="text-lg font-thin" />,
+      content: <AllBreaks />,
+    },
+    [GameplayAnalyticsTabEnum.ALLGAMEPLAYTIME]: {
+      icon: <MdOutlineSchedule className="text-lg font-thin" />,
+      content: <AllGameplayTime />,
     },
   };
   const tabs = GameplayAnalyticsTabs.map((tab) => {
