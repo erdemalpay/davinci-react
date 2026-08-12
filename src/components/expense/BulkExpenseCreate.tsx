@@ -1,16 +1,79 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaFileUpload } from "react-icons/fa";
+import { FaCheck, FaFileUpload } from "react-icons/fa";
+import { IoMdClose } from "react-icons/io";
+import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useCreateMultipleExpenseMutation } from "../../utils/api/account/expense";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
+// Excel'den okunan bir satırın hangi alanları taşıyabileceği; boş satır ayıklamada kullanılır
+const rowFieldKeys = [
+  "date",
+  "product",
+  "expenseType",
+  "location",
+  "brand",
+  "vendor",
+  "paymentMethod",
+  "quantity",
+  "price",
+  "vat",
+  "discount",
+  "isStockIncrement",
+  "isAfterCount",
+  "note",
+];
+
+// Tabloda yıldızlı gösterilen alanlar; eksikse satır sunucuya hiç gönderilmez
+const requiredKeys = [
+  "date",
+  "product",
+  "expenseType",
+  "location",
+  "vendor",
+  "paymentMethod",
+  "quantity",
+  "price",
+  "isStockIncrement",
+  "isAfterCount",
+];
+
+const hasValue = (value: any) => String(value ?? "").trim() !== "";
+const getMissingRequiredKeys = (item: any) =>
+  requiredKeys.filter((key) => !hasValue(item?.[key]));
+// Excel sonundaki biçimlendirmeden kalan satırlar eksik veri değil, hiç satır değildir
+const isEmptyRow = (item: any) =>
+  !rowFieldKeys.some((key) => hasValue(item?.[key]));
+// Eski excel dosyalarında başlıklarda yıldız olmayabilir, eşleştirmede yok sayılır
+const normalizeHeader = (header: any) =>
+  String(header ?? "")
+    .replace(/\*+$/, "")
+    .trim();
+// Excel hücresi metin gelebilir ("47,50"); geçersiz değer toplamı bozmasın diye 0 sayılır
+const toNumber = (value: any) => {
+  const parsed = Number(String(value ?? "").replace(",", ".").trim());
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+// Backend ile birebir aynı: önce indirim düşülür, KDV indirimli tutar üzerinden eklenir
+// davinci-be/src/modules/accounting/accounting.service.ts:1364
+const getRowAmounts = (row: any) => {
+  const price = toNumber(row?.price);
+  const discount = toNumber(row?.discount);
+  const vat = toNumber(row?.vat);
+  const discountedPrice = price - (discount * price) / 100;
+  const vatAmount = (discountedPrice * vat) / 100;
+  return { discountedPrice, vatAmount, total: discountedPrice + vatAmount };
+};
 
 const BulkExpenseCreate = () => {
   const { t } = useTranslation();
@@ -29,8 +92,33 @@ const BulkExpenseCreate = () => {
     );
   }, [disabledConditions]);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Seçilen dosya onaylanana kadar burada bekler, önizleme ekrandayken sunucuya istek gitmez
+  const [previewRows, setPreviewRows] = useState<any[] | null>(null);
+  const fieldLabels: Record<string, string> = useMemo(
+    () => ({
+      date: t("Date"),
+      product: t("Product"),
+      expenseType: t("Expense Type"),
+      location: t("Location"),
+      vendor: t("Vendor"),
+      paymentMethod: t("Payment Method"),
+      quantity: t("Quantity"),
+      price: t("Price"),
+      isStockIncrement: t("Stock Increment"),
+      isAfterCount: t("Is After Count"),
+    }),
+    [t]
+  );
+  const invalidPreviewRowCount = useMemo(
+    () => previewRows?.filter((row) => row?.errorNote)?.length ?? 0,
+    [previewRows]
+  );
+  const isErrorColumnShown =
+    invalidPreviewRowCount > 0 ||
+    (!previewRows && errorDataForCreateMultipleExpense?.length > 0);
   const rows =
-    errorDataForCreateMultipleExpense?.length > 0
+    previewRows ??
+    (errorDataForCreateMultipleExpense?.length > 0
       ? errorDataForCreateMultipleExpense
       : [
           {
@@ -66,7 +154,7 @@ const BulkExpenseCreate = () => {
             isAfterCount: true,
             note: " ",
           },
-        ];
+        ]);
   const columns = [
     {
       key: `${t("Date")} *`,
@@ -140,7 +228,7 @@ const BulkExpenseCreate = () => {
       correspondingKey: "note",
     },
 
-    ...(errorDataForCreateMultipleExpense?.length > 0
+    ...(isErrorColumnShown
       ? [
           {
             key: t("Error"),
@@ -165,31 +253,58 @@ const BulkExpenseCreate = () => {
     { key: "isStockIncrement" },
     { key: "isAfterCount" },
     { key: "note" },
-    ...(errorDataForCreateMultipleExpense?.length > 0
+    ...(isErrorColumnShown
       ? [{ key: "errorNote" }]
       : []),
   ];
   const processExcelData = (data: any[]) => {
     const headers = data[0];
-    const columnKeys = columns.map((column) => column.key);
+    const columnKeys = columns.map((column) => normalizeHeader(column.key));
     const keys = rowKeys.map((rowKey) => rowKey.key);
-    const items = data.slice(1).reduce((accum: any[], row) => {
-      const item: any = {};
-      row.forEach((cell: any, index: number) => {
-        const translatedIndex = columnKeys.indexOf(headers[index]);
-        if (translatedIndex !== -1) {
-          const key = keys[translatedIndex];
-          item[key] = cell;
+    const items = data
+      .slice(1)
+      .reduce((accum: any[], row) => {
+        const item: any = {};
+        row.forEach((cell: any, index: number) => {
+          const translatedIndex = columnKeys.indexOf(
+            normalizeHeader(headers[index])
+          );
+          if (translatedIndex !== -1) {
+            const key = keys[translatedIndex];
+            item[key] = cell;
+          }
+        });
+        if (Object.keys(item).length > 0) {
+          accum.push(item);
         }
-      });
-      if (Object.keys(item).length > 0) {
-        accum.push(item);
-      }
-      return accum;
-    }, []);
+        return accum;
+      }, [])
+      .filter((item: any) => !isEmptyRow(item));
 
+    if (items.length === 0) {
+      toast.error(t("No rows found in the selected file"));
+      return;
+    }
     setErrorDataForCreateMultipleExpense([]);
-    createMultipleExpense(items);
+    setPreviewRows(
+      items.map((item: any) => {
+        const missingKeys = getMissingRequiredKeys(item);
+        return missingKeys.length > 0
+          ? {
+              ...item,
+              errorNote: `${t("Missing fields")}: ${missingKeys
+                .map((key) => fieldLabels[key])
+                .join(", ")}`,
+            }
+          : item;
+      })
+    );
+  };
+
+  const handlePreviewUpload = () => {
+    if (!previewRows || invalidPreviewRowCount > 0) return;
+    createMultipleExpense(previewRows);
+    setPreviewRows(null);
   };
 
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,6 +320,8 @@ const BulkExpenseCreate = () => {
         const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
         processExcelData(data);
       }
+      // Bu olmadan aynı dosya art arda ikinci kez seçilemiyor
+      if (inputRef.current) inputRef.current.value = "";
     };
     reader.readAsArrayBuffer(file);
   };
@@ -214,7 +331,7 @@ const BulkExpenseCreate = () => {
     }
   };
 
-  const filters = [
+  const uploadFilters = [
     {
       isUpperSide: false,
       isDisabled: isActionDisabled(bulkExpenseCreateDisabledCondition, ActionEnum.UPLOAD, user),
@@ -237,12 +354,106 @@ const BulkExpenseCreate = () => {
       ),
     },
   ];
+  const previewFilters = [
+    {
+      isUpperSide: false,
+      node: (
+        <div
+          className="my-auto items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
+          onClick={() => setPreviewRows(null)}
+        >
+          <ButtonTooltip content={t("Cancel")}>
+            <IoMdClose />
+          </ButtonTooltip>
+        </div>
+      ),
+    },
+    {
+      isUpperSide: false,
+      isDisabled: isActionDisabled(
+        bulkExpenseCreateDisabledCondition,
+        ActionEnum.UPLOAD,
+        user
+      ),
+      node: (
+        <div
+          className={`my-auto items-center text-xl border px-2 py-1 rounded-md bg-opacity-50 ${
+            invalidPreviewRowCount > 0
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer text-green-600 hover:bg-blue-50 hover:scale-105"
+          }`}
+          onClick={handlePreviewUpload}
+        >
+          <ButtonTooltip
+            content={
+              invalidPreviewRowCount > 0
+                ? t("Please fill all required fields")
+                : t("Upload")
+            }
+          >
+            <FaCheck />
+          </ButtonTooltip>
+        </div>
+      ),
+    },
+  ];
+  // Sabit örnek satırlarda toplam göstermek yanıltıcı olur; sadece gerçek veride gösterilir
+  const isTotalShown =
+    !!previewRows || errorDataForCreateMultipleExpense?.length > 0;
+  const totals = useMemo(
+    () =>
+      (rows as any[]).reduce(
+        (accum, row) => {
+          const { discountedPrice, vatAmount, total } = getRowAmounts(row);
+          return {
+            subtotal: accum.subtotal + discountedPrice,
+            vat: accum.vat + vatAmount,
+            total: accum.total + total,
+          };
+        },
+        { subtotal: 0, vat: 0, total: 0 }
+      ),
+    [rows]
+  );
+  const totalFilters = isTotalShown
+    ? [
+        {
+          label: t("Subtotal (excluding VAT)") + " :",
+          isUpperSide: false,
+          node: <p>{formatCurrency(totals.subtotal)} ₺</p>,
+        },
+        {
+          label: t("Vat") + " :",
+          isUpperSide: false,
+          node: <p>{formatCurrency(totals.vat)} ₺</p>,
+        },
+        {
+          label: t("Grand Total") + " :",
+          isUpperSide: false,
+          node: <p>{formatCurrency(totals.total)} ₺</p>,
+        },
+      ]
+    : [];
+  const filters = [
+    ...totalFilters,
+    ...(previewRows ? previewFilters : uploadFilters),
+  ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [errorDataForCreateMultipleExpense]);
+  }, [errorDataForCreateMultipleExpense, previewRows]);
   return (
     <>
       <div className="w-[95%] mx-auto my-10 flex flex-col gap-6 min-h-screen">
+        {isTotalShown && (
+          <p className="text-base text-gray-500 italic mb-2">
+            * {t("Bulk Expense Total Info Text")}
+          </p>
+        )}
+        {previewRows && invalidPreviewRowCount === 0 && (
+          <p className="mb-2 text-sm text-gray-500">
+            {t("Expenses will be uploaded after your confirmation")}
+          </p>
+        )}
         <GenericTable
           key={tableKey}
           rows={rows}
@@ -254,14 +465,17 @@ const BulkExpenseCreate = () => {
             !isActionDisabled(bulkExpenseCreateDisabledCondition, ActionEnum.EXCEL, user)
           }
           title={t("Bulk Stock Expense Create")}
-          isSearch={errorDataForCreateMultipleExpense?.length > 0}
-          isColumnFilter={errorDataForCreateMultipleExpense?.length > 0}
-          isPagination={errorDataForCreateMultipleExpense?.length > 0}
-          isRowsPerPage={errorDataForCreateMultipleExpense?.length > 0}
+          isSearch={isTotalShown}
+          isColumnFilter={isTotalShown}
+          isPagination={isTotalShown}
+          isRowsPerPage={isTotalShown}
+          rowClassNameFunction={(row: any) =>
+            row?.errorNote ? "bg-red-200" : ""
+          }
           filters={filters}
           excelFileName="BulkExpenseCreate.xlsx"
         />
-        {errorDataForCreateMultipleExpense?.length === 0 && (
+        {!previewRows && errorDataForCreateMultipleExpense?.length === 0 && (
           <p className="indent-2 text-sm">
             {t("Fields marked with an asterisk (*) are mandatory.")}
           </p>
