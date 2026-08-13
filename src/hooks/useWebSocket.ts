@@ -322,6 +322,9 @@ export function useWebSocket(shouldConnect = false) {
       if (
         user?.role &&
         !foundCategory?.isAutoServed &&
+        ![OrderStatus.SERVED, OrderStatus.AUTOSERVED].includes(
+          order.status as OrderStatus
+        ) &&
         foundKitchen?.soundRoles?.includes(user.role._id) &&
         (visits ?? []).some(
           (visit) => visit.user === user._id && !visit.finishHour
@@ -673,7 +676,7 @@ export function useWebSocket(shouldConnect = false) {
             .map((o) => o._id)
         );
 
-        queryClient
+        const newOrdersPromise = queryClient
           .refetchQueries({ queryKey: [`${Paths.Order}/today`, selectedDate] })
           .then(() => {
             const todayOrders = queryClient.getQueryData<Order[]>([
@@ -708,6 +711,7 @@ export function useWebSocket(shouldConnect = false) {
                 if (data) printerService.print(data);
               });
             }
+            return newOrders;
           });
 
         if (!user) {
@@ -734,26 +738,41 @@ export function useWebSocket(shouldConnect = false) {
         const foundKitchens = kitchenIds.map((kitchenId) =>
           getItem(kitchenId, kitchens ?? [])
         );
-        foundKitchens.forEach((foundKitchen) => {
-          const { soundRoles, selectedUsers } = foundKitchen ?? {};
+        newOrdersPromise.then((newOrders) => {
+          // servis edildi olarak oluşturulan siparişler için ses çalınmaz
           if (
-            soundRoles?.includes(user.role?._id) &&
-            locationId === selectedLocationId
+            !newOrders?.some(
+              (order) =>
+                ![OrderStatus.SERVED, OrderStatus.AUTOSERVED].includes(
+                  order.status as OrderStatus
+                )
+            )
           ) {
-            if (
-              selectedUsers &&
-              selectedUsers.length > 0 &&
-              !selectedUsers?.includes(user._id)
-            ) {
-              return;
-            }
-            if (audioReadyRef.current && audioRef.current) {
-              audioRef.current
-                .play()
-                .catch((error) => console.error("Error playing sound:", error));
-              return;
-            }
+            return;
           }
+          foundKitchens.forEach((foundKitchen) => {
+            const { soundRoles, selectedUsers } = foundKitchen ?? {};
+            if (
+              soundRoles?.includes(user.role?._id) &&
+              locationId === selectedLocationId
+            ) {
+              if (
+                selectedUsers &&
+                selectedUsers.length > 0 &&
+                !selectedUsers?.includes(user._id)
+              ) {
+                return;
+              }
+              if (audioReadyRef.current && audioRef.current) {
+                audioRef.current
+                  .play()
+                  .catch((error) =>
+                    console.error("Error playing sound:", error)
+                  );
+                return;
+              }
+            }
+          });
         });
       }
     );
