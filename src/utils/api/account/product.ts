@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
 import { AccountProduct } from "../../../types";
@@ -107,6 +108,7 @@ export function updateMultipleProduct(
 export function useCreateBulkProductAndMenuItemMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const { setErrorDataForProductBulkCreation } = useGeneralContext();
   return useMutation({
     mutationFn: createBulkProductAndMenuItem,
@@ -115,8 +117,14 @@ export function useCreateBulkProductAndMenuItemMutation() {
     },
     onSettled: (response) => {
       if (response) {
-        setErrorDataForProductBulkCreation(
-          response as CreateBulkProductAndMenuItem[]
+        const errorRows = response as CreateBulkProductAndMenuItem[];
+        setErrorDataForProductBulkCreation(errorRows);
+        setTimeout(
+          () =>
+            errorRows.length > 0
+              ? toast.error(t("Some rows could not be uploaded"))
+              : toast.success(t("Products uploaded successfully")),
+          200
         );
       }
     },
