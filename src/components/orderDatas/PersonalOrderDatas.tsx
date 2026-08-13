@@ -118,30 +118,74 @@ const PersonalOrderDatas = () => {
   ]);
 
   const rows = useMemo(() => {
-    return allRows?.filter((row) => {
-      return (
-        filterPanelFormElements?.role?.length === 0 ||
-        filterPanelFormElements?.role?.includes(row?.userInfo?.role?._id)
-      );
-    });
-  }, [allRows, filterPanelFormElements]);
+    return allRows
+      ?.filter((row) => {
+        return (
+          filterPanelFormElements?.role?.length === 0 ||
+          filterPanelFormElements?.role?.includes(row?.userInfo?.role?._id)
+        );
+      })
+      ?.map((row) => ({
+        ...row,
+        collapsible: {
+          collapsibleColumns: [
+            { key: t("Activity Type"), isSortable: false },
+            { key: t("Activity Count"), isSortable: false },
+            { key: t("Tables Involved"), isSortable: false },
+          ],
+          collapsibleRowKeys: [
+            { key: "action" },
+            { key: "orderCount" },
+            { key: "tableCount" },
+          ],
+          collapsibleRows: [
+            {
+              action: t("Activity Took Order"),
+              orderCount: row?.createdByCount ?? 0,
+              tableCount: row?.createdByTableCount ?? 0,
+            },
+            {
+              action: t("Activity Prepared"),
+              orderCount: row?.preparedByCount ?? 0,
+              tableCount: row?.preparedByTableCount ?? 0,
+            },
+            {
+              action: t("Activity Served"),
+              orderCount: row?.deliveredByCount ?? 0,
+              tableCount: row?.deliveredByTableCount ?? 0,
+            },
+            {
+              action: t("Activity Cancelled"),
+              orderCount: row?.cancelledByCount ?? 0,
+              tableCount: row?.cancelledByTableCount ?? 0,
+            },
+            {
+              action: t("Activity Took Payment"),
+              orderCount: row?.collectionCount ?? 0,
+              tableCount: "-",
+            },
+            {
+              action: t("Activity Recorded Gameplay"),
+              orderCount: row?.gameplayCount ?? 0,
+              tableCount: "-",
+            },
+            {
+              action: t("Activity Mentored Gameplay"),
+              orderCount: row?.mentoredGameplayCount ?? 0,
+              tableCount: "-",
+            },
+          ],
+        },
+      }));
+  }, [allRows, filterPanelFormElements, t]);
 
   const columns = useMemo(
     () => [
-      { key: t("User"), isSortable: true },
-      { key: t("Created By Count"), isSortable: true },
-      { key: t("Table Count"), isSortable: true },
-      { key: t("Prepared By Count"), isSortable: true },
-      { key: t("Table Count"), isSortable: true },
-      { key: t("Delivered By Count"), isSortable: true },
-      { key: t("Table Count"), isSortable: true },
-      { key: t("Cancelled By Count"), isSortable: true },
-      { key: t("Table Count"), isSortable: true },
-      { key: t("Created Table Count"), isSortable: true },
-      { key: t("Collection Count"), isSortable: true },
-      { key: t("Created Gameplay Count"), isSortable: true },
-      { key: t("Mentored Gameplay Count"), isSortable: true },
-      { key: t("Mentored Games Total Points"), isSortable: true },
+      { key: t("Staff"), isSortable: true },
+      { key: t("Orders Taken"), isSortable: true },
+      { key: t("Orders Served"), isSortable: true },
+      { key: t("Tables Opened"), isSortable: true },
+      { key: t("Mentoring Points"), isSortable: true },
     ],
     [t]
   );
@@ -155,17 +199,8 @@ const PersonalOrderDatas = () => {
         },
       },
       { key: "createdByCount" },
-      { key: "createdByTableCount" },
-      { key: "preparedByCount" },
-      { key: "preparedByTableCount" },
       { key: "deliveredByCount" },
-      { key: "deliveredByTableCount" },
-      { key: "cancelledByCount" },
-      { key: "cancelledByTableCount" },
       { key: "tableCount" },
-      { key: "collectionCount" },
-      { key: "gameplayCount" },
-      { key: "mentoredGameplayCount" },
       { key: "mentoredGamesTotalPoints" },
     ],
     []
@@ -203,7 +238,7 @@ const PersonalOrderDatas = () => {
       {
         type: InputTypes.SELECT,
         formKey: "eliminatedDiscounts",
-        label: t("Eliminated Discounts"),
+        label: t("Eliminated Discounts (order columns only)"),
         options: discounts?.map((discount) => {
           return {
             value: discount._id,
@@ -211,7 +246,7 @@ const PersonalOrderDatas = () => {
           };
         }),
         isMultiple: true,
-        placeholder: t("Eliminated Discounts"),
+        placeholder: t("Eliminated Discounts (order columns only)"),
         required: true,
       },
       {
@@ -320,11 +355,14 @@ const PersonalOrderDatas = () => {
           <ButtonFilter
             buttonName={t("Refresh Data")}
             onclick={() => {
-              queryClient.invalidateQueries({
-                queryKey: [`${Paths.Order}/query`],
-              });
-              queryClient.invalidateQueries({
-                queryKey: [`${Paths.Order}/collection/query`],
+              [
+                `${Paths.Order}/personal`,
+                `${Paths.Order}/personal_collection`,
+                `${Paths.Tables}/create_count`,
+                `${Paths.Gameplays}/create_count`,
+                `${Paths.Gameplays}/mentored_count`,
+              ].forEach((queryKey) => {
+                queryClient.invalidateQueries({ queryKey: [queryKey] });
               });
             }}
           />
@@ -369,6 +407,7 @@ const PersonalOrderDatas = () => {
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
+          isCollapsible={true}
           isActionsActive={false}
           filterPanel={filterPanel}
           filters={filters}
