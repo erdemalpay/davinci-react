@@ -118,7 +118,8 @@ const UnifiedTabPanel: React.FC<Props> = ({
     );
 
     if (nextTabIndex !== -1 && nextTabIndex !== currentTabIndex) {
-      setActiveTab(nextTabIndex);
+      const nextTab = visibleTabs[nextTabIndex];
+      setActiveTab(nextTab.number ?? nextTabIndex);
       return;
     }
 

@@ -168,6 +168,9 @@ const LearnedGames = () => {
 
   return (
     <div className="w-[95%] mx-auto ">
+      <p className="mb-2 text-sm text-gray-500">
+        {t("Learned Games Info Text")}
+      </p>
       <GenericTable
         columns={columns}
         filterPanel={filterPanel}

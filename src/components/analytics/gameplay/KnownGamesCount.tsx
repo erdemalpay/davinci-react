@@ -91,6 +91,9 @@ const KnownGamesCount = () => {
   return (
     <>
       <div className="w-[95%] mx-auto ">
+        <p className="mb-2 text-sm text-gray-500">
+          {t("Known Games Count Info Text")}
+        </p>
         <GenericTable
           rowKeys={rowKeys}
           columns={columns}

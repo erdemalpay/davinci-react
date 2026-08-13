@@ -8,6 +8,7 @@ import { useDataContext } from "../../../context/Data.context";
 import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
+import { usePrinter } from "../../../hooks/usePrinter";
 import {
   MenuItem,
   OptionType,
@@ -47,7 +48,6 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../../../utils/getItem";
-import { usePrinter } from "../../../hooks/usePrinter";
 import { printTableReceipt } from "../../../utils/printReceipt";
 import { buildReceiptData } from "../../../utils/printReceiptESCPOS";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -377,7 +377,9 @@ const OrderPaymentModal = ({
     if (isAutoPrintEnabled) {
       if (!isConnected) {
         console.warn("🖨️ [handlePrint] yazıcı bağlı değil");
-        toast.error(t("Printer not connected, Please connect the printer first."));
+        toast.error(
+          t("Printer not connected, Please connect the printer first.")
+        );
         return;
       }
       console.log("🖨️ [handlePrint] USB printer'a basılıyor...");
@@ -608,7 +610,10 @@ const OrderPaymentModal = ({
 
         return items
           .filter((menuItem) => {
-            if (menuItem.category !== value) {
+            if (
+              !menuItem.additionalCategories?.includes(value) &&
+              menuItem.category !== value
+            ) {
               return false;
             }
 

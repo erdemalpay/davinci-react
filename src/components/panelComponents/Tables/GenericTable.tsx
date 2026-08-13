@@ -79,6 +79,8 @@ type Props<T> = {
   isSearch?: boolean;
   isPagination?: boolean;
   isActionsAtFront?: boolean;
+  isActionsSticky?: boolean;
+  isFirstColumnSticky?: boolean;
   isCollapsibleCheckActive?: boolean;
   isExcel?: boolean;
   excelFileName?: string;
@@ -123,6 +125,8 @@ const GenericTable = <T,>({
   isPagination = true,
   isRowsPerPage = true,
   isActionsAtFront = false,
+  isActionsSticky = false,
+  isFirstColumnSticky = false,
   isCollapsibleCheckActive = true,
   isEmtpyExcel = false,
   isAllRowPerPageOption = true,
@@ -162,6 +166,29 @@ const GenericTable = <T,>({
     setTabOrientation,
   } = useGeneralContext();
   const { allowOrientationToggle } = useTabPanelContext();
+  const isStickyActionsColumn =
+    isActionsSticky && isActionsAtFront && isActionsActive && !!actions;
+  const stickyShadowClassName = "shadow-[2px_0_4px_rgba(0,0,0,0.06)]";
+  const stickyActionsClassName = isStickyActionsColumn
+    ? `sticky left-0 ${isFirstColumnSticky ? "" : stickyShadowClassName}`
+    : "";
+  // İlk sütunun soldan uzaklığı, İşlemler sütununun genişliği kadar olmalı.
+  // Sabit piksel yazmak yerine ölçüyoruz ki eylem sayısı değişince kaymasın.
+  const stickyActionsHeaderRef = useRef<HTMLTableCellElement | null>(null);
+  const [stickyActionsWidth, setStickyActionsWidth] = useState(0);
+  const stickyFirstColumnOffset = isStickyActionsColumn ? stickyActionsWidth : 0;
+  useEffect(() => {
+    const headerCell = stickyActionsHeaderRef.current;
+    if (!isStickyActionsColumn || !isFirstColumnSticky || !headerCell) {
+      return;
+    }
+    const updateWidth = () =>
+      setStickyActionsWidth(headerCell.getBoundingClientRect().width);
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(headerCell);
+    return () => observer.disconnect();
+  }, [isStickyActionsColumn, isFirstColumnSticky]);
   const navigate = useNavigate();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
@@ -597,17 +624,33 @@ const GenericTable = <T,>({
               <td className="w-6 h-6 mx-auto p-1 "></td>
             )}
           {actions && isActionsAtFront && isActionsActive && (
-            <td>{renderActionButtons(row, actions)}</td>
+            <td
+              className={
+                isStickyActionsColumn ? `bg-white ${stickyActionsClassName}` : ""
+              }
+            >
+              {renderActionButtons(row, actions)}
+            </td>
           )}
           {usedRowKeys?.map((rowKey, keyIndex) => {
             const columnIndex = isActionsAtFront ? keyIndex + 1 : keyIndex;
             const column = usedColumns?.[columnIndex];
             const columnClassName = column?.columnClassName ?? "";
+            const isStickyCell = isFirstColumnSticky && keyIndex === 0;
+            const stickyCellClassName = isStickyCell
+              ? `sticky bg-white ${stickyShadowClassName}`
+              : "";
+            const stickyCellStyle = isStickyCell
+              ? { left: stickyFirstColumnOffset }
+              : undefined;
             if (rowKey.node) {
               return (
                 <td
                   key={keyIndex}
-                  className={`${keyIndex === 0 ? "pl-3" : ""} py-3 min-w-20 ${
+                  style={stickyCellStyle}
+                  className={`${
+                    keyIndex === 0 ? "pl-3" : ""
+                  } py-3 min-w-20 ${stickyCellClassName} ${
                     rowKey?.className
                   } ${columnClassName}`}
                 >
@@ -624,7 +667,10 @@ const GenericTable = <T,>({
               return (
                 <td
                   key={keyIndex}
-                  className={`${keyIndex === 0 ? "pl-3" : ""} py-3 min-w-20 ${
+                  style={stickyCellStyle}
+                  className={`${
+                    keyIndex === 0 ? "pl-3" : ""
+                  } py-3 min-w-20 ${stickyCellClassName} ${
                     rowKey?.className
                   } ${columnClassName}`}
                 >
@@ -641,7 +687,10 @@ const GenericTable = <T,>({
               return (
                 <td
                   key={keyIndex}
-                  className={`${keyIndex === 0 ? "pl-3" : ""} py-3 min-w-20 ${
+                  style={stickyCellStyle}
+                  className={`${
+                    keyIndex === 0 ? "pl-3" : ""
+                  } py-3 min-w-20 ${stickyCellClassName} ${
                     rowKey?.className
                   } ${columnClassName}`}
                 >
@@ -667,7 +716,10 @@ const GenericTable = <T,>({
               return (
                 <td
                   key={keyIndex}
-                  className={`${keyIndex === 0 ? "pl-3" : ""}  py-3  ${
+                  style={stickyCellStyle}
+                  className={`${
+                    keyIndex === 0 ? "pl-3" : ""
+                  }  py-3  ${stickyCellClassName} ${
                     rowKey?.className
                   } ${columnClassName} min-w-32 md:min-w-0 `}
                 >
@@ -685,9 +737,10 @@ const GenericTable = <T,>({
             return (
               <td
                 key={keyIndex}
-                className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
-                  rowKey?.className
-                } ${columnClassName} ${
+                style={stickyCellStyle}
+                className={`${
+                  keyIndex === 0 ? "pl-3" : ""
+                } py-3 ${stickyCellClassName} ${rowKey?.className} ${columnClassName} ${
                   cellValue.length > tooltipLimit && clickableCell
                     ? "max-w-xs"
                     : "min-w-20 md:min-w-0"
@@ -1138,10 +1191,35 @@ const GenericTable = <T,>({
                       {usedColumns?.map((column, index) => {
                         if (column.node)
                           return column.node(column.columnClassName ?? "");
+                        const isStickyActionsHeader =
+                          isStickyActionsColumn && index === 0;
+                        const isStickyFirstColumnHeader =
+                          isFirstColumnSticky &&
+                          index === (isActionsAtFront ? 1 : 0);
                         return (
                           <th
                             key={index}
-                            className={`sticky top-0 z-10 bg-gray-100 shadow-sm ${
+                            ref={
+                              isStickyActionsHeader
+                                ? stickyActionsHeaderRef
+                                : undefined
+                            }
+                            style={
+                              isStickyFirstColumnHeader
+                                ? { left: stickyFirstColumnOffset }
+                                : undefined
+                            }
+                            className={`sticky top-0 bg-gray-100 shadow-sm ${
+                              isStickyActionsHeader
+                                ? `left-0 z-20 ${
+                                    isFirstColumnSticky
+                                      ? ""
+                                      : stickyShadowClassName
+                                  }`
+                                : isStickyFirstColumnHeader
+                                ? `z-20 ${stickyShadowClassName}`
+                                : "z-10"
+                            } ${
                               index === 0 &&
                               !isCollapsible &&
                               !isSelectionActive

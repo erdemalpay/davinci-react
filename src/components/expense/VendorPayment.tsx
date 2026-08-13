@@ -117,8 +117,8 @@ const VendorPayment = () => {
         className: "min-w-32 ",
         isSortable: true,
       },
-      { key: t("Amount"), isSortable: true },
-      { key: t("Is After Count"), isSortable: false },
+      { key: t("Payment Amount"), isSortable: true },
+      { key: t("Paid After Count"), isSortable: false },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
@@ -135,6 +135,7 @@ const VendorPayment = () => {
       { key: "vendorName" },
       { key: "lctn" },
       { key: "pymntMthd" },
+      { key: "amount" },
       {
         key: "isAfterCount",
         node: (row: any) => {
@@ -153,7 +154,6 @@ const VendorPayment = () => {
           );
         },
       },
-      { key: "amount" },
     ],
     [updateAccountPayment]
   );

@@ -133,7 +133,8 @@ export function useGetGameplayAnalytics(
   startDate: string,
   location: string,
   endDate?: string,
-  mentor?: string
+  mentor?: string,
+  sort?: string
 ) {
   let query = `${BASE_URL_GAMEPLAYS}/group?location=${location}&startDate=${startDate}&field=${field}&limit=${limit}`;
   if (endDate) {
@@ -141,6 +142,9 @@ export function useGetGameplayAnalytics(
   }
   if (mentor) {
     query += `&mentor=${mentor}`;
+  }
+  if (sort) {
+    query += `&sort=${sort}`;
   }
 
   const queryKey = [
@@ -152,6 +156,7 @@ export function useGetGameplayAnalytics(
     limit,
     endDate,
     mentor,
+    sort,
   ];
   const { isLoading, error, data, isFetching } = useQuery({
     queryKey,

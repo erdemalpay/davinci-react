@@ -43,7 +43,8 @@ export function GameAnalyticChart() {
     startDate,
     location,
     endDate,
-    mentor
+    mentor,
+    "playCount"
   );
 
   const [gameData, setGameData] = useState<GameCount[]>([]);

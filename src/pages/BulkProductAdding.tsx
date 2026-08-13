@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaFileUpload } from "react-icons/fa";
-import { IoIosCreate } from "react-icons/io";
+import { FaCheck, FaFileUpload } from "react-icons/fa";
+import { IoIosCreate, IoMdClose } from "react-icons/io";
+import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { Header } from "../components/header/Header";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
@@ -16,6 +17,57 @@ import {
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
+
+// Ürün ve menü alanları bağımsız iki gruptur, bir grubun zorunlu alanları sadece o grup kullanılıyorsa aranır
+const productGroupKeys = [
+  "expenseType",
+  "brand",
+  "vendor",
+  "countList",
+  "locations",
+];
+const menuGroupKeys = [
+  "category",
+  "itemProduction",
+  "price",
+  "onlinePrice",
+  "sku",
+  "barcode",
+  "description",
+  "image",
+];
+const productRequiredKeys = ["expenseType"];
+const menuRequiredKeys = ["category", "price"];
+
+const hasValue = (value: any) => String(value ?? "").trim() !== "";
+// Eski excel dosyalarında başlıklarda yıldız olmayabilir, eşleştirmede yok sayılır
+const normalizeHeader = (header: any) =>
+  String(header ?? "")
+    .replace(/\*+$/, "")
+    .trim();
+// Excel sonundaki biçimlendirmeden kalan satırlar eksik veri değil, hiç satır değildir
+const isEmptyRow = (item: any) =>
+  !["name", ...productGroupKeys, ...menuGroupKeys].some((key) =>
+    hasValue(item?.[key])
+  );
+
+const getMissingRequiredKeys = (item: any) => {
+  const missingKeys: string[] = [];
+  if (!hasValue(item?.name)) {
+    missingKeys.push("name");
+  }
+  if (productGroupKeys.some((key) => hasValue(item?.[key]))) {
+    for (const key of productRequiredKeys) {
+      if (!hasValue(item?.[key])) missingKeys.push(key);
+    }
+  }
+  if (menuGroupKeys.some((key) => hasValue(item?.[key]))) {
+    for (const key of menuRequiredKeys) {
+      if (!hasValue(item?.[key])) missingKeys.push(key);
+    }
+  }
+  return missingKeys;
+};
 
 const BulkProductAdding = () => {
   const { t } = useTranslation();
@@ -34,6 +86,21 @@ const BulkProductAdding = () => {
   }, [disabledConditions]);
   const createRef = useRef<HTMLInputElement>(null);
   const updateRef = useRef<HTMLInputElement>(null);
+  // Seçilen dosya onaylanana kadar burada bekler, önizleme ekrandayken sunucuya istek gitmez
+  const [previewRows, setPreviewRows] = useState<any[] | null>(null);
+  const fieldLabels: Record<string, string> = useMemo(
+    () => ({
+      name: t("Name"),
+      expenseType: t("Expense Type"),
+      category: t("Menu Category"),
+      price: t("Price"),
+    }),
+    [t]
+  );
+  const invalidPreviewRowCount = useMemo(
+    () => previewRows?.filter((row) => row?.errorNote)?.length ?? 0,
+    [previewRows]
+  );
   const processExcelData = (data: any[], actionType: string) => {
     const isCreate = actionType === "create";
     const headers = data[0];
@@ -54,48 +121,65 @@ const BulkProductAdding = () => {
       "description",
     ];
     const translatedHeaders = [
-      `${t("Name")} **`,
-      `${t("Expense Type")} *`,
+      t("Name"),
+      t("Expense Type"),
       t("Brand"),
       t("Vendor"),
       t("Count List"),
       t("Locations"),
       t("Image"),
-      `${t("Menu Category")} *`,
+      t("Menu Category"),
       t("Ingredients"),
-      `${t("Price")} *`,
+      t("Price"),
       t("Online Price"),
       "SKU",
       t("Barcode"),
       t("Description"),
     ];
 
-    const items = data.slice(1).map((row) => {
-      const item: any = {};
-      row.forEach((cell: any, index: number) => {
-        console.log(
-          "Processing cell:",
-          cell,
-          "at index:",
-          index,
-          "with header:",
-          headers[index]
-        );
-        const translatedIndex = translatedHeaders.indexOf(headers[index]);
-        if (translatedIndex !== -1) {
-          const key = keys[translatedIndex];
-          item[key] = cell;
-        }
-      });
-      return item;
-    });
-    console.log(items);
-    setErrorDataForProductBulkCreation([]);
-    if (isCreate) {
-      createBulkProductAndMenuItem(items);
-    } else {
-      updateMultipleProduct(items);
+    const items = data
+      .slice(1)
+      .map((row) => {
+        const item: any = {};
+        row.forEach((cell: any, index: number) => {
+          const translatedIndex = translatedHeaders.indexOf(
+            normalizeHeader(headers[index])
+          );
+          if (translatedIndex !== -1) {
+            const key = keys[translatedIndex];
+            item[key] = cell;
+          }
+        });
+        return item;
+      })
+      .filter((item) => !isEmptyRow(item));
+    if (items.length === 0) {
+      toast.error(t("No rows found in the selected file"));
+      return;
     }
+    setErrorDataForProductBulkCreation([]);
+    if (!isCreate) {
+      updateMultipleProduct(items);
+      return;
+    }
+    setPreviewRows(
+      items.map((item) => {
+        const missingKeys = getMissingRequiredKeys(item);
+        return missingKeys.length > 0
+          ? {
+              ...item,
+              errorNote: `${t("Missing fields")}: ${missingKeys
+                .map((key) => fieldLabels[key])
+                .join(", ")}`,
+            }
+          : item;
+      })
+    );
+  };
+  const handlePreviewUpload = () => {
+    if (!previewRows || invalidPreviewRowCount > 0) return;
+    createBulkProductAndMenuItem(previewRows);
+    setPreviewRows(null);
   };
   const uploadExcelFile = (
     ref: React.RefObject<HTMLInputElement>,
@@ -113,6 +197,8 @@ const BulkProductAdding = () => {
         const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
         processExcelData(data, actionType);
       }
+      // Bu olmadan aynı dosya art arda ikinci kez seçilemiyor
+      if (ref.current) ref.current.value = "";
     };
     reader.readAsArrayBuffer(file);
   };
@@ -124,7 +210,8 @@ const BulkProductAdding = () => {
     }
   };
   const rows =
-    errorDataForProductBulkCreation?.length > 0
+    previewRows ??
+    (errorDataForProductBulkCreation?.length > 0
       ? errorDataForProductBulkCreation
       : [
           {
@@ -175,7 +262,10 @@ const BulkProductAdding = () => {
             description: "Domates sos, Mozerella peyniri, Fesleğen",
             image: "menu/Margharita.png",
           },
-        ];
+        ]);
+  const isErrorColumnShown =
+    invalidPreviewRowCount > 0 ||
+    (!previewRows && errorDataForProductBulkCreation?.length > 0);
   const columns = [
     {
       key: `${t("Name")} **`,
@@ -263,7 +353,7 @@ const BulkProductAdding = () => {
       correspondingKey: "description",
       className: "text-orange-500",
     },
-    ...(errorDataForProductBulkCreation?.length > 0
+    ...(isErrorColumnShown
       ? [
           {
             key: t("Error"),
@@ -288,11 +378,48 @@ const BulkProductAdding = () => {
     { key: "sku" },
     { key: "barcode" },
     { key: "description" },
-    ...(errorDataForProductBulkCreation?.length > 0
-      ? [{ key: "errorNote" }]
-      : []),
+    ...(isErrorColumnShown ? [{ key: "errorNote" }] : []),
   ];
-  const filters = [
+  const previewFilters = [
+    {
+      isUpperSide: false,
+      node: (
+        <div
+          className="my-auto items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
+          onClick={() => setPreviewRows(null)}
+        >
+          <ButtonTooltip content={t("Cancel")}>
+            <IoMdClose />
+          </ButtonTooltip>
+        </div>
+      ),
+    },
+    {
+      isUpperSide: false,
+      isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.ADD, user),
+      node: (
+        <div
+          className={`my-auto items-center text-xl border px-2 py-1 rounded-md bg-opacity-50 ${
+            invalidPreviewRowCount > 0
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer text-green-600 hover:bg-blue-50 hover:scale-105"
+          }`}
+          onClick={handlePreviewUpload}
+        >
+          <ButtonTooltip
+            content={
+              invalidPreviewRowCount > 0
+                ? t("Please fill all required fields")
+                : t("Upload")
+            }
+          >
+            <FaCheck />
+          </ButtonTooltip>
+        </div>
+      ),
+    },
+  ];
+  const uploadFilters = [
     {
       isUpperSide: false,
       isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.UPDATE, user),
@@ -336,13 +463,21 @@ const BulkProductAdding = () => {
       ),
     },
   ];
+  const filters = previewRows ? previewFilters : uploadFilters;
+  const isTableToolsActive =
+    !!previewRows || errorDataForProductBulkCreation?.length > 0;
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [errorDataForProductBulkCreation]);
+  }, [errorDataForProductBulkCreation, previewRows]);
   return (
     <>
       <Header showLocationSelector={false} />
       <div className="w-[95%] mx-auto my-10 flex flex-col gap-6 ">
+        {previewRows && invalidPreviewRowCount === 0 && (
+          <p className="mb-2 text-sm text-gray-500">
+            {t("Products will be uploaded after your confirmation")}
+          </p>
+        )}
         <GenericTable
           key={tableKey}
           rows={rows}
@@ -354,14 +489,17 @@ const BulkProductAdding = () => {
             !isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.EXCEL, user)
           }
           title={t("Bulk Product Adding")}
-          isSearch={errorDataForProductBulkCreation?.length > 0}
-          isColumnFilter={errorDataForProductBulkCreation?.length > 0}
-          isPagination={errorDataForProductBulkCreation?.length > 0}
-          isRowsPerPage={errorDataForProductBulkCreation?.length > 0}
+          isSearch={isTableToolsActive}
+          isColumnFilter={isTableToolsActive}
+          isPagination={isTableToolsActive}
+          isRowsPerPage={isTableToolsActive}
+          rowClassNameFunction={(row: any) =>
+            row?.errorNote ? "bg-red-200" : ""
+          }
           filters={filters}
           excelFileName="BulkProductAdding.xlsx"
         />
-        {errorDataForProductBulkCreation?.length === 0 && (
+        {!previewRows && errorDataForProductBulkCreation?.length === 0 && (
           <p className="indent-2 text-sm">
             {t(
               "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas."
