@@ -1508,8 +1508,6 @@ export enum VisitPageTabEnum {
   SHIFTCHANGE,
   CHANGEREQUESTMANAGEMENT,
   USERCHANGEREQUESTTAB,
-  ALLBREAKS,
-  ALLGAMEPLAYTIME,
   SHIFTSCALENDAR,
 }
 export enum NotificationPageTabEnum {
@@ -1740,6 +1738,8 @@ export enum GameplayAnalyticsTabEnum {
   GAMEPLAYSBYGAMES,
   KNOWNGAMESCOUNT,
   LEARNEDGAMES,
+  ALLBREAKS,
+  ALLGAMEPLAYTIME,
 }
 export enum AccountingAnalyticsTabEnum {
   PRODUCTPRICECHART,
