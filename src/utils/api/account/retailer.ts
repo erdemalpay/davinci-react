@@ -123,7 +123,7 @@ export function createRetailerOrderRequestStatusUpdate({
   status,
 }: RetailerOrderRequestStatusMutationPayload) {
   return {
-    path: `${Paths.Order}/retailer-order-request/${orderId}/status`,
+    path: `${Paths.Order}/davinci/retailer-order-request/${orderId}/status`,
     payload: { status, retailerId },
   };
 }
@@ -134,9 +134,7 @@ export function updateRetailerOrderRequestStatus(
   return patch<
     { status: "indelivery"; retailerId: number | string },
     RetailerOrderRequest
-  >(
-    createRetailerOrderRequestStatusUpdate(payload)
-  );
+  >(createRetailerOrderRequestStatusUpdate(payload));
 }
 
 export function canMarkRetailerOrderRequestInDelivery(status?: string) {
