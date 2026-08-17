@@ -123,7 +123,10 @@ export interface GenericInputType {
     label: string;
     imageUrl?: string;
   }[];
-  additionalOnChange?: (value: any) => void;
+  additionalOnChange?: (
+    value: any,
+    setFormElements?: Dispatch<SetStateAction<FormElementsState>>
+  ) => void;
   onChangeTrigger?: (value: any) => void;
   isReadOnly?: boolean;
   helperText?: string;

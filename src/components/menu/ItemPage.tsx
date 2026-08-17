@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowForward } from "react-icons/io";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { TURKISHLIRA } from "../../types";
+import { FormElementsState, TURKISHLIRA } from "../../types";
 // import {
 //   updateIkasProductImage,
 //   useUpdateIkasProductImageMutation,
@@ -25,26 +25,6 @@ import { H5 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ItemPlatformSalesTable from "./ItemPlatformSalesTable";
 import MenuItemPriceHistoryChart from "./MenuItemPriceHistoryChart";
-
-function DiscountedPriceSync({
-  basePrice,
-  discountPercentage,
-  setFormElements,
-}: {
-  basePrice: number;
-  discountPercentage: number;
-  setFormElements?: (updater: (prev: any) => any) => void;
-}) {
-  useEffect(() => {
-    const isDiscountApplied =
-      discountPercentage > 0 && discountPercentage <= 100;
-    const price = isDiscountApplied
-      ? Math.round(basePrice * (1 - discountPercentage / 100))
-      : basePrice;
-    setFormElements?.((prev: any) => ({ ...prev, price }));
-  }, [basePrice, discountPercentage]);
-  return null;
-}
 
 const ItemPage = () => {
   const { t } = useTranslation();
@@ -123,12 +103,20 @@ const ItemPage = () => {
       label: t("Discount") + "%",
       placeholder: t("Discount") + "%",
       required: false,
-      helperNode: (
-        <DiscountedPriceSync
-          basePrice={selectedMenuItem.price}
-          discountPercentage={Number(form?.discountPercentage ?? 0)}
-        />
-      ),
+      // X butonu handleInputClear'a gider ve additionalOnChange'i tetiklemez;
+      // yüzde silinip fiyat indirimli kalırdı. Alanı silmek zaten sıfırlıyor.
+      isOnClearActive: false,
+      additionalOnChange: (
+        value: any,
+        setFormElements?: Dispatch<SetStateAction<FormElementsState>>
+      ) => {
+        const discount = Number(value);
+        const price =
+          discount > 0 && discount <= 100
+            ? Math.round(selectedMenuItem.price * (1 - discount / 100))
+            : selectedMenuItem.price;
+        setFormElements?.((prev) => ({ ...prev, price }));
+      },
     },
     {
       type: InputTypes.NUMBER,
