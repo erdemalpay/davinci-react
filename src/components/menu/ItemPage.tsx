@@ -26,6 +26,26 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ItemPlatformSalesTable from "./ItemPlatformSalesTable";
 import MenuItemPriceHistoryChart from "./MenuItemPriceHistoryChart";
 
+function DiscountedPriceSync({
+  basePrice,
+  discountPercentage,
+  setFormElements,
+}: {
+  basePrice: number;
+  discountPercentage: number;
+  setFormElements?: (updater: (prev: any) => any) => void;
+}) {
+  useEffect(() => {
+    const isDiscountApplied =
+      discountPercentage > 0 && discountPercentage <= 100;
+    const price = isDiscountApplied
+      ? Math.round(basePrice * (1 - discountPercentage / 100))
+      : basePrice;
+    setFormElements?.((prev: any) => ({ ...prev, price }));
+  }, [basePrice, discountPercentage]);
+  return null;
+}
+
 const ItemPage = () => {
   const { t } = useTranslation();
   const categories = useGetCategories();
@@ -44,6 +64,7 @@ const ItemPage = () => {
     oldStockLocation: 0,
     newStockLocation: 0,
     stockQuantity: 0,
+    discountPercentage: 0,
     price: 0,
     category: 0,
     itemId: selectedMenuItem?._id,
@@ -98,6 +119,19 @@ const ItemPage = () => {
     },
     {
       type: InputTypes.NUMBER,
+      formKey: "discountPercentage",
+      label: t("Discount") + "%",
+      placeholder: t("Discount") + "%",
+      required: false,
+      helperNode: (
+        <DiscountedPriceSync
+          basePrice={selectedMenuItem.price}
+          discountPercentage={Number(form?.discountPercentage ?? 0)}
+        />
+      ),
+    },
+    {
+      type: InputTypes.NUMBER,
       formKey: "price",
       label: t("Price"),
       placeholder: t("Price"),
@@ -122,6 +156,7 @@ const ItemPage = () => {
     { key: "oldStockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "newStockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "stockQuantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "discountPercentage", type: FormKeyTypeEnum.NUMBER },
     { key: "price", type: FormKeyTypeEnum.NUMBER },
     { key: "category", type: FormKeyTypeEnum.NUMBER },
   ];
@@ -267,7 +302,10 @@ const ItemPage = () => {
               return;
             }
             createDamagedItem({
-              ...form,
+              name: form.name,
+              oldStockLocation: form.oldStockLocation,
+              newStockLocation: form.newStockLocation,
+              category: form.category,
               price: Number(form.price),
               stockQuantity: Number(form.stockQuantity),
               itemId: selectedMenuItem._id,
