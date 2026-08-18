@@ -562,8 +562,7 @@ const BaseQuantityByLocation = () => {
           addButton={addButton}
           isActionsActive={true}
           isActionsAtFront={true}
-          isActionsSticky={true}
-          isFirstColumnSticky={true}
+          stickyColumnCount={1}
           isExcel={
             user &&
             !baseQuantityPageDisabledCondition?.actions?.some(

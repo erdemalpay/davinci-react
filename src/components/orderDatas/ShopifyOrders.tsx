@@ -904,6 +904,7 @@ const ShopifyOrders = () => {
           rowKeys={rowKeys}
           rows={rows}
           isActionsActive={true}
+          stickyColumnCount={3}
           collapsibleActions={collapsibleActions}
           isCollapsible={true}
           searchRowKeys={searchRowKeys}
