@@ -59,14 +59,13 @@ const normalizeHeader = (header: any) =>
     .replace(/\*+$/, "")
     .trim();
 
-const formatExcelDate = (value: any) =>
-  typeof value === "number"
-    ? convertDateFormat(
-        new Date(Date.UTC(1899, 11, 30) + value * 86400000)
-          .toISOString()
-          .slice(0, 10)
-      )
-    : value;
+const formatExcelDate = (value: any) => {
+  if (typeof value !== "number") return value;
+  const date = new Date(Date.UTC(1899, 11, 30) + value * 86400000);
+  return Number.isNaN(date.getTime())
+    ? value
+    : convertDateFormat(date.toISOString().slice(0, 10));
+};
 // Excel hücresi metin gelebilir ("47,50"); geçersiz değer toplamı bozmasın diye 0 sayılır
 const toNumber = (value: any) => {
   const parsed = Number(
