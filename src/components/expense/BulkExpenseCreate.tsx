@@ -9,7 +9,7 @@ import { useUserContext } from "../../context/User.context";
 import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useCreateMultipleExpenseMutation } from "../../utils/api/account/expense";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { formatCurrency } from "../../utils/format";
+import { convertDateFormat, formatCurrency } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -58,9 +58,21 @@ const normalizeHeader = (header: any) =>
   String(header ?? "")
     .replace(/\*+$/, "")
     .trim();
+
+const formatExcelDate = (value: any) => {
+  if (typeof value !== "number") return value;
+  const date = new Date(Date.UTC(1899, 11, 30) + value * 86400000);
+  return Number.isNaN(date.getTime())
+    ? value
+    : convertDateFormat(date.toISOString().slice(0, 10));
+};
 // Excel hücresi metin gelebilir ("47,50"); geçersiz değer toplamı bozmasın diye 0 sayılır
 const toNumber = (value: any) => {
-  const parsed = Number(String(value ?? "").replace(",", ".").trim());
+  const parsed = Number(
+    String(value ?? "")
+      .replace(",", ".")
+      .trim()
+  );
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
@@ -253,9 +265,7 @@ const BulkExpenseCreate = () => {
     { key: "isStockIncrement" },
     { key: "isAfterCount" },
     { key: "note" },
-    ...(isErrorColumnShown
-      ? [{ key: "errorNote" }]
-      : []),
+    ...(isErrorColumnShown ? [{ key: "errorNote" }] : []),
   ];
   const processExcelData = (data: any[]) => {
     const headers = data[0];
@@ -271,7 +281,7 @@ const BulkExpenseCreate = () => {
           );
           if (translatedIndex !== -1) {
             const key = keys[translatedIndex];
-            item[key] = cell;
+            item[key] = key === "date" ? formatExcelDate(cell) : cell;
           }
         });
         if (Object.keys(item).length > 0) {
@@ -334,7 +344,11 @@ const BulkExpenseCreate = () => {
   const uploadFilters = [
     {
       isUpperSide: false,
-      isDisabled: isActionDisabled(bulkExpenseCreateDisabledCondition, ActionEnum.UPLOAD, user),
+      isDisabled: isActionDisabled(
+        bulkExpenseCreateDisabledCondition,
+        ActionEnum.UPLOAD,
+        user
+      ),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -462,7 +476,11 @@ const BulkExpenseCreate = () => {
           columns={columns}
           isExcel={
             user &&
-            !isActionDisabled(bulkExpenseCreateDisabledCondition, ActionEnum.EXCEL, user)
+            !isActionDisabled(
+              bulkExpenseCreateDisabledCondition,
+              ActionEnum.EXCEL,
+              user
+            )
           }
           title={t("Bulk Stock Expense Create")}
           isSearch={isTotalShown}
