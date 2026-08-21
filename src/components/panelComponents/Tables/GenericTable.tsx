@@ -18,6 +18,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
+import useIsSmallScreen from "../../../hooks/useIsSmallScreen";
+import { useStickyColumns } from "../../../hooks/useStickyColumns";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
 import {
   OutsideSearchProps,
@@ -79,8 +81,7 @@ type Props<T> = {
   isSearch?: boolean;
   isPagination?: boolean;
   isActionsAtFront?: boolean;
-  isActionsSticky?: boolean;
-  isFirstColumnSticky?: boolean;
+  stickyColumnCount?: number;
   isCollapsibleCheckActive?: boolean;
   isExcel?: boolean;
   excelFileName?: string;
@@ -126,8 +127,7 @@ const GenericTable = <T,>({
   isPagination = true,
   isRowsPerPage = true,
   isActionsAtFront = false,
-  isActionsSticky = false,
-  isFirstColumnSticky = false,
+  stickyColumnCount = 0,
   isCollapsibleCheckActive = true,
   isEmtpyExcel = false,
   isAllRowPerPageOption = true,
@@ -168,29 +168,6 @@ const GenericTable = <T,>({
     setTabOrientation,
   } = useGeneralContext();
   const { allowOrientationToggle } = useTabPanelContext();
-  const isStickyActionsColumn =
-    isActionsSticky && isActionsAtFront && isActionsActive && !!actions;
-  const stickyShadowClassName = "shadow-[2px_0_4px_rgba(0,0,0,0.06)]";
-  const stickyActionsClassName = isStickyActionsColumn
-    ? `sticky left-0 ${isFirstColumnSticky ? "" : stickyShadowClassName}`
-    : "";
-  // İlk sütunun soldan uzaklığı, İşlemler sütununun genişliği kadar olmalı.
-  // Sabit piksel yazmak yerine ölçüyoruz ki eylem sayısı değişince kaymasın.
-  const stickyActionsHeaderRef = useRef<HTMLTableCellElement | null>(null);
-  const [stickyActionsWidth, setStickyActionsWidth] = useState(0);
-  const stickyFirstColumnOffset = isStickyActionsColumn ? stickyActionsWidth : 0;
-  useEffect(() => {
-    const headerCell = stickyActionsHeaderRef.current;
-    if (!isStickyActionsColumn || !isFirstColumnSticky || !headerCell) {
-      return;
-    }
-    const updateWidth = () =>
-      setStickyActionsWidth(headerCell.getBoundingClientRect().width);
-    updateWidth();
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(headerCell);
-    return () => observer.disconnect();
-  }, [isStickyActionsColumn, isFirstColumnSticky]);
   const navigate = useNavigate();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
@@ -270,6 +247,94 @@ const GenericTable = <T,>({
           tableColumns[title]?.[isActionsAtFront ? index + 1 : index]?.isActive
       )
     : rowKeys;
+
+  const isSmallScreen = useIsSmallScreen();
+
+  // `node` sütununun <th>'ine ref bağlanamaz, genişliği ölçülemez; blok orada durur.
+  const stickyDataColumnCount = useMemo(() => {
+    if (isSmallScreen || stickyColumnCount <= 0) return 0;
+    if (isActionsAtFront && usedColumns?.[0]?.node) return 0;
+    const dataColumns = isActionsAtFront
+      ? (usedColumns ?? []).slice(1)
+      : usedColumns ?? [];
+    let count = 0;
+    for (const column of dataColumns) {
+      if (count >= stickyColumnCount || column?.node) break;
+      count++;
+    }
+    return count;
+  }, [usedColumns, isActionsAtFront, stickyColumnCount, isSmallScreen]);
+
+  const stickySlots = useMemo(() => {
+    let slot = 0;
+    return {
+      selection: selectionActions && isSelectionActive ? slot++ : -1,
+      collapsible: isCollapsible ? slot++ : -1,
+      frontActions:
+        actions && isActionsAtFront && isActionsActive ? slot++ : -1,
+      firstDataColumn: slot,
+    };
+  }, [
+    selectionActions,
+    isSelectionActive,
+    isCollapsible,
+    actions,
+    isActionsAtFront,
+    isActionsActive,
+  ]);
+
+  const getColumnStickySlot = (columnIndex: number) =>
+    isActionsAtFront
+      ? columnIndex === 0
+        ? stickySlots.frontActions
+        : stickySlots.firstDataColumn + columnIndex - 1
+      : stickySlots.firstDataColumn + columnIndex;
+
+  const stickyCellCount =
+    stickyDataColumnCount > 0
+      ? stickySlots.firstDataColumn + stickyDataColumnCount
+      : 0;
+
+  const stickyMeasureToken = `${stickySlots.firstDataColumn}|${(
+    usedColumns ?? []
+  )
+    .map((column) => column.key)
+    .join("|")}`;
+
+  const { registerHeaderCell, getStickyCellProps } = useStickyColumns({
+    stickyCellCount,
+    measureToken: stickyMeasureToken,
+  });
+
+  const stickyShadowClassName = "shadow-[2px_0_4px_rgba(0,0,0,0.06)]";
+
+  const getStickyThProps = (slot: number) => {
+    const sticky = getStickyCellProps(slot);
+    if (!sticky) return { ref: undefined, style: undefined, className: "z-10" };
+    return {
+      ref: registerHeaderCell(slot),
+      style: { left: sticky.left },
+      className: `sticky z-20 ${
+        sticky.isLastSticky ? stickyShadowClassName : ""
+      }`,
+    };
+  };
+
+  // Tek bg-* sınıfı yazılır: Tailwind'de önceliği className sırası değil
+  // üretilen CSS sırası belirler.
+  const getStickyTdProps = (rowClassName: string, slot: number) => {
+    const sticky = getStickyCellProps(slot);
+    if (!sticky) return { style: undefined, className: "" };
+    return {
+      style: { left: sticky.left },
+      className: `sticky ${
+        /(^|\s)bg-/.test(rowClassName) ? rowClassName : "bg-white"
+      } ${sticky.isLastSticky ? stickyShadowClassName : ""}`,
+    };
+  };
+
+  const selectionStickyTh = getStickyThProps(stickySlots.selection);
+  const collapsibleStickyTh = getStickyThProps(stickySlots.collapsible);
 
   const baseRows = rows ?? [];
 
@@ -572,6 +637,19 @@ const GenericTable = <T,>({
   const currentRowsContent = currentRows.map((row, rowIndex) => {
     const rowId = `row-${rowIndex}`;
     const isRowExpanded = expandedRows[rowId];
+    const rowClassName = rowClassNameFunction?.(row) ?? "";
+    const selectionStickyTd = getStickyTdProps(
+      rowClassName,
+      stickySlots.selection
+    );
+    const collapsibleStickyTd = getStickyTdProps(
+      rowClassName,
+      stickySlots.collapsible
+    );
+    const actionsStickyTd = getStickyTdProps(
+      rowClassName,
+      stickySlots.frontActions
+    );
     return (
       <Fragment key={rowId}>
         <tr
@@ -588,10 +666,13 @@ const GenericTable = <T,>({
             rowIndex !== currentRows.length - 1 && !isRowExpanded
               ? "border-b "
               : ""
-          }  ${rowClassNameFunction?.(row) ?? ""}`}
+          }  ${rowClassName}`}
         >
           {selectionActions && isSelectionActive && (
-            <td className="w-6 h-6 mx-auto p-1 ">
+            <td
+              style={selectionStickyTd.style}
+              className={`w-6 h-6 mx-auto p-1 ${selectionStickyTd.className}`}
+            >
               {selectedRows.includes(row) ? (
                 <MdOutlineCheckBox
                   className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
@@ -611,10 +692,15 @@ const GenericTable = <T,>({
               )}
             </td>
           )}
+          {/* TODO: Bu iki koşul başlıktaki tek <th> ile birebir örtüşmüyor; bir satır hiç hücre üretmezse (isCollapsible=true ama row.collapsible tanımsız) veya fazladan üretirse (isCollapsible=false ama collapsibleRows=[]) o satırın sabit sütunları bir slot kayar. */}
           {(!isCollapsibleCheckActive ||
             (isCollapsible &&
               row?.collapsible?.collapsibleRows?.length > 0)) && (
-            <td onClick={() => toggleRowExpansion(rowId)}>
+            <td
+              onClick={() => toggleRowExpansion(rowId)}
+              style={collapsibleStickyTd.style}
+              className={collapsibleStickyTd.className}
+            >
               {isRowExpanded ? (
                 <FaChevronUp className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full   " />
               ) : (
@@ -624,13 +710,15 @@ const GenericTable = <T,>({
           )}
           {isCollapsibleCheckActive &&
             row?.collapsible?.collapsibleRows?.length === 0 && (
-              <td className="w-6 h-6 mx-auto p-1 "></td>
+              <td
+                style={collapsibleStickyTd.style}
+                className={`w-6 h-6 mx-auto p-1 ${collapsibleStickyTd.className}`}
+              ></td>
             )}
           {actions && isActionsAtFront && isActionsActive && (
             <td
-              className={
-                isStickyActionsColumn ? `bg-white ${stickyActionsClassName}` : ""
-              }
+              style={actionsStickyTd.style}
+              className={actionsStickyTd.className}
             >
               {renderActionButtons(row, actions)}
             </td>
@@ -639,13 +727,12 @@ const GenericTable = <T,>({
             const columnIndex = isActionsAtFront ? keyIndex + 1 : keyIndex;
             const column = usedColumns?.[columnIndex];
             const columnClassName = column?.columnClassName ?? "";
-            const isStickyCell = isFirstColumnSticky && keyIndex === 0;
-            const stickyCellClassName = isStickyCell
-              ? `sticky bg-white ${stickyShadowClassName}`
-              : "";
-            const stickyCellStyle = isStickyCell
-              ? { left: stickyFirstColumnOffset }
-              : undefined;
+            const stickyTd = getStickyTdProps(
+              rowClassName,
+              getColumnStickySlot(columnIndex)
+            );
+            const stickyCellClassName = stickyTd.className;
+            const stickyCellStyle = stickyTd.style;
             if (rowKey.node) {
               return (
                 <td
@@ -1166,7 +1253,11 @@ const GenericTable = <T,>({
                   <thead className="border-b bg-gray-100">
                     <tr>
                       {selectionActions && isSelectionActive && (
-                        <th className="sticky top-0 z-10 bg-gray-100 shadow-sm">
+                        <th
+                          ref={selectionStickyTh.ref}
+                          style={selectionStickyTh.style}
+                          className={`sticky top-0 bg-gray-100 shadow-sm ${selectionStickyTh.className}`}
+                        >
                           {selectionActions && isSelectionActive && (
                             <Tooltip content={t("Select All")} placement="top">
                               <div
@@ -1189,39 +1280,25 @@ const GenericTable = <T,>({
                         </th>
                       )}
                       {isCollapsible && (
-                        <th className="sticky top-0 z-10 bg-gray-100"></th>
+                        <th
+                          ref={collapsibleStickyTh.ref}
+                          style={collapsibleStickyTh.style}
+                          className={`sticky top-0 bg-gray-100 ${collapsibleStickyTh.className}`}
+                        ></th>
                       )}
                       {usedColumns?.map((column, index) => {
                         if (column.node)
                           return column.node(column.columnClassName ?? "");
-                        const isStickyActionsHeader =
-                          isStickyActionsColumn && index === 0;
-                        const isStickyFirstColumnHeader =
-                          isFirstColumnSticky &&
-                          index === (isActionsAtFront ? 1 : 0);
+                        const stickyTh = getStickyThProps(
+                          getColumnStickySlot(index)
+                        );
                         return (
                           <th
                             key={index}
-                            ref={
-                              isStickyActionsHeader
-                                ? stickyActionsHeaderRef
-                                : undefined
-                            }
-                            style={
-                              isStickyFirstColumnHeader
-                                ? { left: stickyFirstColumnOffset }
-                                : undefined
-                            }
+                            ref={stickyTh.ref}
+                            style={stickyTh.style}
                             className={`sticky top-0 bg-gray-100 shadow-sm ${
-                              isStickyActionsHeader
-                                ? `left-0 z-20 ${
-                                    isFirstColumnSticky
-                                      ? ""
-                                      : stickyShadowClassName
-                                  }`
-                                : isStickyFirstColumnHeader
-                                ? `z-20 ${stickyShadowClassName}`
-                                : "z-10"
+                              stickyTh.className
                             } ${
                               index === 0 &&
                               !isCollapsible &&
