@@ -29,7 +29,8 @@ const ACTION_COLORS: Record<string, string> = {
   LOGOUT: "bg-slate-100 text-slate-700",
   START: "bg-teal-100 text-teal-700",
   FINISH: "bg-orange-100 text-orange-700",
-  COMPLETE: "bg-emerald-100 text-emerald-700",
+  COMPLETE: "bg-teal-100 text-teal-700",
+  UNCOMPLETE: "bg-orange-100 text-orange-700",
   CLOSE: "bg-slate-100 text-slate-700",
   APPROVED: "bg-green-100 text-green-700",
   REJECTED: "bg-red-100 text-red-700",
@@ -154,6 +155,33 @@ const buildDetailFields = (obj: Record<string, unknown>): DetailField[] => {
     .map(([key, value]) => ({
       label: keyToLabel(key),
       value: toDisplayValue(key, value),
+    }));
+};
+
+const DIFF_IGNORED_KEYS = new Set(["_id", "createdAt", "updatedAt"]);
+
+// {currentX, newX} payload'ında aynı kaydın iki halini karşılaştırıp sadece
+// değişen alanları "eski → yeni" olarak gösterir
+const buildDiffFields = (obj: Record<string, unknown>): DetailField[] | null => {
+  const entries = Object.entries(obj);
+  if (entries.length !== 2) return null;
+
+  const before = entries.find(([key]) => key.startsWith("current"))?.[1];
+  const after = entries.find(([key]) => key.startsWith("new"))?.[1];
+  if (!isObject(before) || !isObject(after)) return null;
+
+  return Array.from(new Set([...Object.keys(before), ...Object.keys(after)]))
+    .filter((key) => !DIFF_IGNORED_KEYS.has(key))
+    .map((key) => ({
+      label: keyToLabel(key),
+      before: toDisplayValue(key, before[key]),
+      after: toDisplayValue(key, after[key]),
+    }))
+    .filter((field) => field.before !== field.after)
+    .slice(0, MAX_FIELD_COUNT)
+    .map(({ label, before: oldValue, after: newValue }) => ({
+      label,
+      value: `${oldValue} → ${newValue}`,
     }));
 };
 
@@ -440,7 +468,10 @@ const ActivityPayloadRenderer = ({
         };
       }
 
-      const details = buildDetailFields(parsed);
+      const details =
+        (resolvedType === "UPDATE_GAME_ASSIGNMENT"
+          ? buildDiffFields(parsed)
+          : null) ?? buildDetailFields(parsed);
       return {
         action: parsedType.action,
         entity: parsedType.entity,

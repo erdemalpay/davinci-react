@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowForward } from "react-icons/io";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { TURKISHLIRA } from "../../types";
+import { FormElementsState, TURKISHLIRA } from "../../types";
 // import {
 //   updateIkasProductImage,
 //   useUpdateIkasProductImageMutation,
@@ -44,6 +44,7 @@ const ItemPage = () => {
     oldStockLocation: 0,
     newStockLocation: 0,
     stockQuantity: 0,
+    discountPercentage: 0,
     price: 0,
     category: 0,
     itemId: selectedMenuItem?._id,
@@ -98,6 +99,27 @@ const ItemPage = () => {
     },
     {
       type: InputTypes.NUMBER,
+      formKey: "discountPercentage",
+      label: t("Discount") + "%",
+      placeholder: t("Discount") + "%",
+      required: false,
+      // X butonu handleInputClear'a gider ve additionalOnChange'i tetiklemez;
+      // yüzde silinip fiyat indirimli kalırdı. Alanı silmek zaten sıfırlıyor.
+      isOnClearActive: false,
+      additionalOnChange: (
+        value: any,
+        setFormElements?: Dispatch<SetStateAction<FormElementsState>>
+      ) => {
+        const discount = Number(value);
+        const price =
+          discount > 0 && discount <= 100
+            ? Math.round(selectedMenuItem.price * (1 - discount / 100))
+            : selectedMenuItem.price;
+        setFormElements?.((prev) => ({ ...prev, price }));
+      },
+    },
+    {
+      type: InputTypes.NUMBER,
       formKey: "price",
       label: t("Price"),
       placeholder: t("Price"),
@@ -122,6 +144,7 @@ const ItemPage = () => {
     { key: "oldStockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "newStockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "stockQuantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "discountPercentage", type: FormKeyTypeEnum.NUMBER },
     { key: "price", type: FormKeyTypeEnum.NUMBER },
     { key: "category", type: FormKeyTypeEnum.NUMBER },
   ];
@@ -267,7 +290,10 @@ const ItemPage = () => {
               return;
             }
             createDamagedItem({
-              ...form,
+              name: form.name,
+              oldStockLocation: form.oldStockLocation,
+              newStockLocation: form.newStockLocation,
+              category: form.category,
               price: Number(form.price),
               stockQuantity: Number(form.stockQuantity),
               itemId: selectedMenuItem._id,

@@ -571,6 +571,7 @@ const GenericAddEditPanel = <T,>({
                       }));
                     });
                   }
+                  changedInput?.additionalOnChange?.(value, setFormElements);
                 };
                 const handleChangeForDailyHours =
                   (key: string) => (value: any) => {
