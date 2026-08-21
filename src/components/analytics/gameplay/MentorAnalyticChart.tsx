@@ -154,6 +154,8 @@ export function MentorAnalyticChart({
 
   const customDateOptions = [
     { value: "singleDay", label: t("Single Day") },
+    { value: "today", label: t("Today") },
+    { value: "yesterday", label: t("Yesterday") },
     { value: "thisWeek", label: t("This Week") },
     { value: "lastWeek", label: t("Last Week") },
     { value: "thisMonth", label: t("This Month") },
