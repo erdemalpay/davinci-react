@@ -85,6 +85,7 @@ type Props<T> = {
   isExcel?: boolean;
   excelFileName?: string;
   excelRows?: any[];
+  excelColumns?: { key: string; correspondingKey: string }[];
   pagination?: PaginationProps;
   outsideSortProps?: OutsideSortProps;
   outsideSearchProps?: OutsideSearchProps;
@@ -135,6 +136,7 @@ const GenericTable = <T,>({
   rowClassNameFunction,
   excelFileName,
   excelRows,
+  excelColumns,
   rowsPerPageOptions = [
     RowPerPageEnum.FIRST,
     RowPerPageEnum.SECOND,
@@ -489,7 +491,8 @@ const GenericTable = <T,>({
     }
 
     const flatExcelRows: any[] = [];
-    const headers = usedColumns
+    const excelUsedColumns = excelColumns ?? usedColumns;
+    const headers = excelUsedColumns
       .filter((column) => column.correspondingKey)
       .map((column) => column.key);
 
@@ -514,7 +517,7 @@ const GenericTable = <T,>({
 
     const excelAllRows = !isEmtpyExcel ? searchedExcelRows ?? sortedRows : [];
     excelAllRows.forEach((row) => {
-      const rowData = usedColumns
+      const rowData = excelUsedColumns
         .filter((column) => column.correspondingKey)
         .map((column) => {
           const value = row[column.correspondingKey as keyof T];

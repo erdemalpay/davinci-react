@@ -6,6 +6,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
+import { useStockLocationExcel } from "../../hooks/useStockLocationExcel";
 import { useStockTableMode } from "../../hooks/useStockTableMode";
 import {
   ActionEnum,
@@ -240,6 +241,7 @@ const Stock = () => {
   const {
     rows,
     columns: tableColumns,
+    isLocationFilterActive,
     generalTotalExpense,
     getTableModeProps,
   } = useStockTableMode({
@@ -291,6 +293,9 @@ const Stock = () => {
     }
     return keys;
   }, [stockPageDisabledCondition, user, showStockPrices]);
+
+  const { excelRows: stockExcelRows, excelColumns: stockExcelColumns } =
+    useStockLocationExcel({ rows, locations, isLocationFilterActive });
 
   const addButton = useMemo(
     () => ({
@@ -732,6 +737,8 @@ const Stock = () => {
           filterPanel={filterPanel}
           isSearch={true}
           isToolTipEnabled={false}
+          excelRows={stockExcelRows}
+          excelColumns={stockExcelColumns}
           isExcel={
             user &&
             !stockPageDisabledCondition?.actions?.some(
