@@ -14,6 +14,7 @@ import {
   useUpdateShopifyProductPriceMutation,
 } from "../../utils/api/shopify";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
@@ -137,11 +138,10 @@ const ShopifyPriceComparision = () => {
     () => [
       {
         isUpperSide: false,
-        isDisabled: shopifyPriceComparisionPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SYNC &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
+        isDisabled: isActionDisabled(
+          shopifyPriceComparisionPageDisabledCondition,
+          ActionEnum.SYNC,
+          user
         ),
         node: (
           <ButtonFilter
