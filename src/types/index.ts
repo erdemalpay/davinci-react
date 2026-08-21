@@ -2088,6 +2088,11 @@ export enum ActivityType {
   CLOSE_BUTTONCALL = "CLOSE_BUTTONCALL",
   CREATE_CHECK = "CREATE_CHECK",
   COMPLETE_CHECK = "COMPLETE_CHECK",
+  CREATE_GAME_ASSIGNMENT = "CREATE_GAME_ASSIGNMENT",
+  UPDATE_GAME_ASSIGNMENT = "UPDATE_GAME_ASSIGNMENT",
+  DELETE_GAME_ASSIGNMENT = "DELETE_GAME_ASSIGNMENT",
+  COMPLETE_GAME_ASSIGNMENT = "COMPLETE_GAME_ASSIGNMENT",
+  UNCOMPLETE_GAME_ASSIGNMENT = "UNCOMPLETE_GAME_ASSIGNMENT",
 }
 export const activityTypeDetails = [
   {
@@ -2469,6 +2474,31 @@ export const activityTypeDetails = [
     value: ActivityType.COMPLETE_CHECK,
     label: "Check Completed",
     bgColor: "bg-indigo-500",
+  },
+  {
+    value: ActivityType.CREATE_GAME_ASSIGNMENT,
+    label: "Game Assignment Created",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.UPDATE_GAME_ASSIGNMENT,
+    label: "Game Assignment Updated",
+    bgColor: "bg-amber-500",
+  },
+  {
+    value: ActivityType.DELETE_GAME_ASSIGNMENT,
+    label: "Game Assignment Deleted",
+    bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.COMPLETE_GAME_ASSIGNMENT,
+    label: "Game Assignment Completed",
+    bgColor: "bg-teal-500",
+  },
+  {
+    value: ActivityType.UNCOMPLETE_GAME_ASSIGNMENT,
+    label: "Game Assignment Uncompleted",
+    bgColor: "bg-orange-500",
   },
 ];
 
