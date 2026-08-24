@@ -96,6 +96,12 @@ const ShopifyPickUp = () => {
       .map(([, groupOrders]) => {
         const first = groupOrders[0];
         const allPicked = groupOrders.every((o) => o.isShopifyCustomerPicked);
+        const allBrought = groupOrders.every(
+          (o) => o.isShopifyPickUpOrderBrought
+        );
+        const someBrought = groupOrders.some(
+          (o) => o.isShopifyPickUpOrderBrought
+        );
 
         if (!showPickedOrders && allPicked) return null;
 
@@ -120,9 +126,15 @@ const ShopifyPickUp = () => {
           deliveredByUserId: pickedOrder?.deliveredBy ?? "",
           deliveredAt:
             deliveryHour !== createHour ? deliveryHour : "",
-          location:
-            getItem(first?.shopifyCustomer?.location, locations)?.name ?? "",
-          locationId: first?.shopifyCustomer?.location ?? "",
+          isBrought: allBrought,
+          isPartiallyBrought: !allBrought && someBrought,
+          broughtLabel: t(
+            allBrought
+              ? "Brought to Pick-Up Point"
+              : someBrought
+              ? "Partially Brought"
+              : "To Be Brought from Depot"
+          ),
           tableId: (first?.table as Table)?._id ?? "",
           tableName: (first?.table as Table)?.name ?? "",
           amount: groupOrders.reduce(
@@ -233,7 +245,11 @@ const ShopifyPickUp = () => {
       { key: "Email", isSortable: true, correspondingKey: "customerEmail" },
       { key: t("Phone"), isSortable: true, correspondingKey: "customerPhone" },
       { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
-      { key: t("Location"), isSortable: true, correspondingKey: "location" },
+      {
+        key: t("Location"),
+        isSortable: true,
+        correspondingKey: "broughtLabel",
+      },
       {
         key: t("Delivered By"),
         isSortable: true,
@@ -273,7 +289,7 @@ const ShopifyPickUp = () => {
           </p>
         ),
       },
-      { key: "location" },
+      { key: "broughtLabel", className: "min-w-32 pr-2" },
       { key: "deliveredBy" },
       { key: "deliveredAt" },
       {
@@ -544,7 +560,10 @@ const ShopifyPickUp = () => {
               if (row?.isReturned) {
                 return "bg-red-200";
               }
-              return "";
+              if (row?.isBrought) {
+                return "bg-green-100";
+              }
+              return row?.isPartiallyBrought ? "bg-blue-100" : "bg-red-100";
             }}
           />
         </div>

@@ -1538,6 +1538,8 @@
   "Quick Order": "Hızlı Sipariş",
   "Today's Campaigns": "Bugünün Kampanyaları",
   "Brought to Pick-Up Point": "Depodan Getirildi",
+  "To Be Brought from Depot": "Depodan Getirilecek",
+  "Partially Brought": "Kısmen Getirildi",
   "Order updated successfully": "Sipariş durumu başarıyla güncellendi",
   "Order marked as delivered": "Sipariş teslim edildi olarak işaretlendi",
   "Order marked as undelivered": "Sipariş teslim edilmedi olarak işaretlendi",
@@ -1846,5 +1848,6 @@
   "Yerli Oyunlar": "Yerli Oyunlar",
   "İthal Oyunlar": "İthal Oyunlar",
   "Aksesuarlar": "Aksesuarlar",
-  "TCG": "TCG"
+  "TCG": "TCG",
+  "Refunded Amount": "İade Tutarı"
 }
