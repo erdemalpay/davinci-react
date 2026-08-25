@@ -1058,6 +1058,8 @@ export type Order = {
   isOnlinePrice?: boolean;
   isOnlineSale?: boolean;
   discountNote?: string | string[];
+  refundAmount?: number;
+  refundNote?: string;
   stockLocation?: number;
   [key: string]: any;
   kitchen?: string;
