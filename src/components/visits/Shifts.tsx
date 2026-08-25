@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaCircle, FaRegCircle, FaRegStar, FaStar } from "react-icons/fa";
+import {
+  FaCircle,
+  FaRegCircle,
+  FaRegSquare,
+  FaRegStar,
+  FaSquare,
+  FaStar,
+} from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { LuCopyPlus } from "react-icons/lu";
@@ -41,20 +48,25 @@ function getUserBadgeClasses(
   isFiltered: boolean,
   isChef: boolean,
   isMiddleman: boolean,
+  isOutsideOperation: boolean,
   withTransparentFallback = false
 ): string {
   const filterClass = isFiltered ? "font-bold underline" : "";
   let borderClass = "";
-  if (isChef && isMiddleman) {
-    borderClass = "border-2 border-yellow-600 ring-2 ring-purple-500";
-  } else if (isChef) {
+  let ringClass = "";
+  if (isChef) {
     borderClass = "border-2 border-yellow-600";
   } else if (isMiddleman) {
     borderClass = "border-2 border-purple-500";
   } else if (withTransparentFallback) {
     borderClass = "border border-transparent";
   }
-  return [filterClass, borderClass].filter(Boolean).join(" ");
+  if (isOutsideOperation) {
+    ringClass = "ring-2 ring-red-600";
+  } else if (isChef && isMiddleman) {
+    ringClass = "ring-2 ring-purple-500";
+  }
+  return [filterClass, borderClass, ringClass].filter(Boolean).join(" ");
 }
 
 const Shifts = () => {
@@ -136,7 +148,9 @@ const Shifts = () => {
     isChefAssignOpen,
     setIsChefAssignOpen,
     isMiddlemanAssignOpen,
-    setIsMiddlemanAssignOpen
+    setIsMiddlemanAssignOpen,
+    isOutsideOperationAssignOpen,
+    setIsOutsideOperationAssignOpen,
   } = useFilterContext();
   const foundLocation = getItem(selectedLocationId, locations);
 
@@ -201,6 +215,7 @@ const Shifts = () => {
                 users: string[];
                 chefUser?: string;
                 middlemanUser?: string;
+                outsideOperationUsers?: string[];
                 _id: string;
               }>
             > = {};
@@ -241,6 +256,7 @@ const Shifts = () => {
                       }) || [],
                     chefUser: s.chefUser,
                     middlemanUser: s.middlemanUser,
+                    outsideOperationUsers: s.outsideOperationUsers ?? [],
                     _id: shiftRecord._id,
                   });
                 }
@@ -298,6 +314,7 @@ const Shifts = () => {
                 users: string[];
                 chefUser?: string;
                 middlemanUser?: string;
+                outsideOperationUsers?: string[];
                 _id: string;
               }>
             > = {};
@@ -345,6 +362,7 @@ const Shifts = () => {
                       }) || [],
                     chefUser: s.chefUser,
                     middlemanUser: s.middlemanUser,
+                    outsideOperationUsers: s.outsideOperationUsers ?? [],
                     _id: shiftRecord._id,
                   });
                 }
@@ -565,6 +583,8 @@ const Shifts = () => {
                     const location = getItem(shiftLocation.location, locations);
                     const foundChefUser = shiftLocation.chefUser;
                     const foundMiddlemanUser = shiftLocation.middlemanUser;
+                    const foundOutsideOperationUsers =
+                      shiftLocation.outsideOperationUsers ?? [];
 
                     if (
                       !shiftLocation.users ||
@@ -592,7 +612,10 @@ const Shifts = () => {
                                   className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white ${getUserBadgeClasses(
                                     filterPanelFormElements.user === foundUser?._id,
                                     foundChefUser === foundUser?._id,
-                                    foundMiddlemanUser === foundUser?._id
+                                    foundMiddlemanUser === foundUser?._id,
+                                    foundOutsideOperationUsers.includes(
+                                      foundUser?._id ?? ""
+                                    )
                                   )}`}
                                   style={{
                                     backgroundColor: foundUser?.role?.color,
@@ -694,6 +717,74 @@ const Shifts = () => {
                                       <FaRegCircle />
                                     ) : null}
                                   </span>
+                                  <span
+                                    className={`text-red-600 ${
+                                      isOutsideOperationAssignOpen
+                                        ? "cursor-pointer"
+                                        : "cursor-default"
+                                    }`}
+                                    onClick={() => {
+                                      if (!isOutsideOperationAssignOpen) return;
+
+                                      const outsideOperationUserId =
+                                        foundUser?._id;
+                                      if (!outsideOperationUserId) return;
+
+                                      const locationShiftRecord = shifts?.find(
+                                        (s) =>
+                                          s.day === row.day &&
+                                          s.location === shiftLocation.location
+                                      );
+
+                                      if (!locationShiftRecord) return;
+
+                                      const updatedShifts =
+                                        locationShiftRecord.shifts?.map(
+                                          (s: ShiftValue) => {
+                                            if (
+                                              s.shift === shift.shift &&
+                                              s.shiftEndHour ===
+                                                shift.shiftEndHour
+                                            ) {
+                                              const outsideOperationUsers =
+                                                s.outsideOperationUsers ?? [];
+                                              return {
+                                                ...s,
+                                                outsideOperationUsers:
+                                                  outsideOperationUsers.includes(
+                                                    outsideOperationUserId
+                                                  )
+                                                    ? outsideOperationUsers.filter(
+                                                        (id) =>
+                                                          id !==
+                                                          outsideOperationUserId
+                                                      )
+                                                    : [
+                                                        ...outsideOperationUsers,
+                                                        outsideOperationUserId,
+                                                      ],
+                                              };
+                                            }
+                                            return s;
+                                          }
+                                        );
+
+                                      updateShift({
+                                        id: shiftLocation._id,
+                                        updates: {
+                                          shifts: updatedShifts,
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    {foundOutsideOperationUsers.includes(
+                                      foundUser?._id ?? ""
+                                    ) ? (
+                                      <FaSquare />
+                                    ) : isOutsideOperationAssignOpen ? (
+                                      <FaRegSquare />
+                                    ) : null}
+                                  </span>
                                 </div>
                               );
                             }
@@ -716,6 +807,10 @@ const Shifts = () => {
               const foundMiddlemanUser = currentShifts?.find(
                 (shift) => shift?.middlemanUser
               )?.middlemanUser;
+              const foundOutsideOperationUsers =
+                currentShifts?.find(
+                  (shift) => (shift?.outsideOperationUsers?.length ?? 0) > 0
+                )?.outsideOperationUsers ?? [];
               if (Array.isArray(shiftValue) && shiftValue.length > 0) {
                 return (
                   <div
@@ -730,6 +825,9 @@ const Shifts = () => {
                             filterPanelFormElements.user === foundUser?._id,
                             foundChefUser === foundUser?._id,
                             foundMiddlemanUser === foundUser?._id,
+                            foundOutsideOperationUsers.includes(
+                              foundUser?._id ?? ""
+                            ),
                             true
                           )}`}
                           style={{ backgroundColor: foundUser?.role?.color }}
@@ -803,6 +901,60 @@ const Shifts = () => {
                               <FaCircle />
                             ) : isMiddlemanAssignOpen ? (
                               <FaRegCircle />
+                            ) : null}
+                          </span>
+                          <span
+                            className={`text-red-600 ${
+                              isOutsideOperationAssignOpen
+                                ? "cursor-pointer"
+                                : "cursor-default"
+                            }`}
+                            onClick={() => {
+                              if (!isOutsideOperationAssignOpen) return;
+                              const outsideOperationUserId = foundUser?._id;
+                              if (!outsideOperationUserId) return;
+
+                              const currentShifts = shifts
+                                ?.find((s) => s.day === row.day)
+                                ?.shifts?.map((shiftObj) => {
+                                  if (shiftObj.shift !== shift.shift) {
+                                    return shiftObj;
+                                  }
+                                  const outsideOperationUsers =
+                                    shiftObj.outsideOperationUsers ?? [];
+                                  return {
+                                    ...shiftObj,
+                                    outsideOperationUsers:
+                                      outsideOperationUsers.includes(
+                                        outsideOperationUserId
+                                      )
+                                        ? outsideOperationUsers.filter(
+                                            (id) =>
+                                              id !== outsideOperationUserId
+                                          )
+                                        : [
+                                            ...outsideOperationUsers,
+                                            outsideOperationUserId,
+                                          ],
+                                  };
+                                });
+
+                              if (row?._id) {
+                                updateShift({
+                                  id: row._id,
+                                  updates: {
+                                    shifts: currentShifts,
+                                  },
+                                });
+                              }
+                            }}
+                          >
+                            {foundOutsideOperationUsers.includes(
+                              foundUser?._id ?? ""
+                            ) ? (
+                              <FaSquare />
+                            ) : isOutsideOperationAssignOpen ? (
+                              <FaRegSquare />
                             ) : null}
                           </span>
                         </div>
@@ -907,6 +1059,9 @@ const Shifts = () => {
                                   return {
                                     ...s,
                                     user: newValue,
+                                    outsideOperationUsers: (
+                                      s.outsideOperationUsers ?? []
+                                    ).filter((id) => newValue.includes(id)),
                                   };
                                 }
                                 return s;
@@ -1036,6 +1191,8 @@ const Shifts = () => {
                         ?.shifts?.find((s) => s.shift === foundShift.shift);
                       const prevChef = shiftData?.chefUser ?? "";
                       const prevMiddleman = shiftData?.middlemanUser ?? "";
+                      const previousOutsideOperationUsers =
+                        shiftData?.outsideOperationUsers ?? [];
                       return {
                         shift: foundShift.shift,
                         ...(foundShift.shiftEndHour && {
@@ -1046,6 +1203,10 @@ const Shifts = () => {
                         middlemanUser: user.includes(prevMiddleman)
                           ? prevMiddleman
                           : "",
+                        outsideOperationUsers:
+                          previousOutsideOperationUsers.filter((id) =>
+                            user.includes(id)
+                          ),
                       };
                     });
                     if (!row?._id && foundLocation) {
@@ -1162,6 +1323,9 @@ const Shifts = () => {
                     )
                       ? (existing?.middlemanUser ?? "")
                       : "",
+                    outsideOperationUsers: (
+                      existing?.outsideOperationUsers ?? []
+                    ).filter((id) => (form?.[shift.shift] ?? []).includes(id)),
                   };
                 });
                 updateShift({
@@ -1395,6 +1559,24 @@ const Shifts = () => {
         ),
       },
       {
+        label: t("Assign Outside Operation"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={isOutsideOperationAssignOpen}
+            onChange={() => {
+              setIsOutsideOperationAssignOpen(!isOutsideOperationAssignOpen);
+            }}
+          />
+        ),
+        isDisabled: shiftsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ASSIGN_OUTSIDE_OPERATION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
         label: t("Enable Edit"),
         isUpperSide: true,
         node: (
@@ -1423,6 +1605,8 @@ const Shifts = () => {
       setIsChefAssignOpen,
       isMiddlemanAssignOpen,
       setIsMiddlemanAssignOpen,
+      isOutsideOperationAssignOpen,
+      setIsOutsideOperationAssignOpen,
       shiftsDisabledCondition,
       user,
       isShiftsEnableEdit,

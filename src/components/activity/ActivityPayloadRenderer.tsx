@@ -210,6 +210,7 @@ const SHIFT_ACTIVITY_TYPES = new Set([
   "DELETE_SHIFT",
   "ASSIGN_CHEF",
   "ASSIGN_MIDDLEMAN",
+  "ASSIGN_OUTSIDE_OPERATION",
 ]);
 
 const ShiftActivityRenderer = ({
@@ -403,6 +404,48 @@ const ShiftActivityRenderer = ({
                 <strong>{resolveUserName(newId)}</strong>
               </span>
             </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (activityType === "ASSIGN_OUTSIDE_OPERATION") {
+    const previousIds = payload.previousOutsideOperationUserIds ?? [];
+    const newIds = payload.outsideOperationUserIds ?? [];
+    const label = `■ ${t("Outside Operation")}`;
+
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2 text-sm">
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Date")}: <strong>{formattedDay}</strong>
+          </span>
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Location")}: <strong>{locationName}</strong>
+          </span>
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-600">
+            {t("Shift")}:{" "}
+            <strong className="font-mono">{payload.shift ?? "-"}</strong>
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-xs font-semibold text-gray-500">{label}:</span>
+          {previousIds.length > 0 && (
+            <span className="rounded bg-red-100 px-2 py-0.5 text-red-600">
+              - {previousIds.map(resolveUserName).join(", ")}
+            </span>
+          )}
+          {previousIds.length > 0 && newIds.length > 0 && (
+            <span className="text-gray-400">→</span>
+          )}
+          {newIds.length > 0 && (
+            <span className="rounded bg-green-100 px-2 py-0.5 text-green-700">
+              + {newIds.map(resolveUserName).join(", ")}
+            </span>
+          )}
+          {previousIds.length === 0 && newIds.length === 0 && (
+            <span className="text-gray-400">-</span>
           )}
         </div>
       </div>

@@ -11,7 +11,14 @@ import {
 import { enUS, tr } from "date-fns/locale";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaCircle, FaRegCircle, FaRegStar, FaStar } from "react-icons/fa";
+import {
+  FaCircle,
+  FaRegCircle,
+  FaRegSquare,
+  FaRegStar,
+  FaSquare,
+  FaStar,
+} from "react-icons/fa";
 import { GoPlusCircle } from "react-icons/go";
 import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -59,6 +66,8 @@ export default function ShiftsCalendar() {
     setIsChefAssignOpen,
     isMiddlemanAssignOpen,
     setIsMiddlemanAssignOpen,
+    isOutsideOperationAssignOpen,
+    setIsOutsideOperationAssignOpen,
     isShiftsEnableEdit,
     setIsShiftsEnableEdit,
   } = useFilterContext();
@@ -71,6 +80,12 @@ export default function ShiftsCalendar() {
   const canAssignMiddleman = !shiftsDisabledCondition?.actions?.some(
     (ac) =>
       ac.action === ActionEnum.ASSIGN_MIDDLEMAN &&
+      user?.role?._id &&
+      !ac?.permissionsRoles?.includes(user?.role?._id)
+  );
+  const canAssignOutsideOperation = !shiftsDisabledCondition?.actions?.some(
+    (ac) =>
+      ac.action === ActionEnum.ASSIGN_OUTSIDE_OPERATION &&
       user?.role?._id &&
       !ac?.permissionsRoles?.includes(user?.role?._id)
   );
@@ -211,6 +226,16 @@ export default function ShiftsCalendar() {
           />
         </div>
         <div className="flex items-center gap-2">
+          <span className="text-sm">{t("Assign Outside Operation")}</span>
+          <SwitchButton
+            checked={isOutsideOperationAssignOpen}
+            onChange={() =>
+              canAssignOutsideOperation &&
+              setIsOutsideOperationAssignOpen(!isOutsideOperationAssignOpen)
+            }
+          />
+        </div>
+        <div className="flex items-center gap-2">
           <span className="text-sm">{t("Enable Edit")}</span>
           <SwitchButton
             checked={isShiftsEnableEdit}
@@ -268,6 +293,7 @@ export default function ShiftsCalendar() {
                 shiftEndHour?: string;
                 chefUser?: string;
                 middlemanUser?: string;
+                outsideOperationUsers?: string[];
               };
               type SlotEntry = {
                 label: string;
@@ -293,6 +319,37 @@ export default function ShiftsCalendar() {
                     return {
                       ...s,
                       [field]: s[field] === userId ? "" : userId,
+                    };
+                  }
+                  return s;
+                });
+                updateShift({
+                  id: record._id,
+                  updates: { shifts: updatedShifts },
+                });
+              };
+
+              const toggleOutsideOperationAssignment = (
+                entry: LocationEntry,
+                userId: string
+              ) => {
+                const record = shifts?.find(
+                  (s) => s._id === entry.shiftRecordId
+                );
+                if (!record) return;
+                const updatedShifts = record.shifts?.map((s: ShiftValue) => {
+                  if (
+                    s.shift === entry.shiftLabel &&
+                    (s.shiftEndHour || "") === (entry.shiftEndHour || "")
+                  ) {
+                    const outsideOperationUsers = s.outsideOperationUsers ?? [];
+                    return {
+                      ...s,
+                      outsideOperationUsers: outsideOperationUsers.includes(
+                        userId
+                      )
+                        ? outsideOperationUsers.filter((id) => id !== userId)
+                        : [...outsideOperationUsers, userId],
                     };
                   }
                   return s;
@@ -347,6 +404,7 @@ export default function ShiftsCalendar() {
                     shiftEndHour: definedShift.shiftEndHour,
                     chefUser: sv?.chefUser,
                     middlemanUser: sv?.middlemanUser,
+                    outsideOperationUsers: sv?.outsideOperationUsers ?? [],
                   });
                 });
               });
@@ -417,6 +475,10 @@ export default function ShiftsCalendar() {
                                   const isChef = entry.chefUser === userId;
                                   const isMiddleman =
                                     entry.middlemanUser === userId;
+                                  const isOutsideOperation =
+                                    entry.outsideOperationUsers?.includes(
+                                      userId
+                                    ) ?? false;
                                   return (
                                     <span
                                       key={`${userId}-${idx}`}
@@ -473,6 +535,31 @@ export default function ShiftsCalendar() {
                                           <FaCircle />
                                         ) : isMiddlemanAssignOpen ? (
                                           <FaRegCircle />
+                                        ) : null}
+                                      </span>
+                                      <span
+                                        className={`text-red-600 ${
+                                          isOutsideOperationAssignOpen &&
+                                          canAssignOutsideOperation
+                                            ? "cursor-pointer"
+                                            : "cursor-default"
+                                        }`}
+                                        onClick={() => {
+                                          if (
+                                            !isOutsideOperationAssignOpen ||
+                                            !canAssignOutsideOperation
+                                          )
+                                            return;
+                                          toggleOutsideOperationAssignment(
+                                            entry,
+                                            userId
+                                          );
+                                        }}
+                                      >
+                                        {isOutsideOperation ? (
+                                          <FaSquare />
+                                        ) : isOutsideOperationAssignOpen ? (
+                                          <FaRegSquare />
                                         ) : null}
                                       </span>
                                     </span>
@@ -538,7 +625,13 @@ export default function ShiftsCalendar() {
                   s.shift === activeEntry.shiftLabel &&
                   (s.shiftEndHour || "") === (activeEntry.shiftEndHour || "")
                 ) {
-                  return { ...s, user: newUsers };
+                  return {
+                    ...s,
+                    user: newUsers,
+                    outsideOperationUsers: (
+                      s.outsideOperationUsers ?? []
+                    ).filter((id) => newUsers.includes(id)),
+                  };
                 }
                 return s;
               });
