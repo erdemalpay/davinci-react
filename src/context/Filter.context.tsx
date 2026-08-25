@@ -127,6 +127,8 @@ type FilterContextType = {
   setIsChefAssignOpen: (state: boolean) => void;
   isMiddlemanAssignOpen: boolean;
   setIsMiddlemanAssignOpen: (state: boolean) => void;
+  isOutsideOperationAssignOpen: boolean;
+  setIsOutsideOperationAssignOpen: (state: boolean) => void;
   showShiftsFilters: boolean;
   setShowShiftsFilters: (state: boolean) => void;
   isShiftsEnableEdit: boolean;
@@ -529,6 +531,8 @@ const FilterContext = createContext<FilterContextType>({
   setIsChefAssignOpen: () => {},
   isMiddlemanAssignOpen: false,
   setIsMiddlemanAssignOpen: () => {},
+  isOutsideOperationAssignOpen: false,
+  setIsOutsideOperationAssignOpen: () => {},
   showShiftsFilters: false,
   setShowShiftsFilters: () => {},
   isShiftsEnableEdit: false,
@@ -685,6 +689,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [isMiddlemanAssignOpen, setIsMiddlemanAssignOpen] = useState(false);
+  const [isOutsideOperationAssignOpen, setIsOutsideOperationAssignOpen] =
+    useState(false);
   const [showDeletedItems, setShowDeletedItems] = useState(false);
   const [showFeedbackFilters, setShowFeedbackFilters] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
@@ -1178,6 +1184,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setIsChefAssignOpen: setIsChefAssignOpen,
         isMiddlemanAssignOpen: isMiddlemanAssignOpen,
         setIsMiddlemanAssignOpen: setIsMiddlemanAssignOpen,
+        isOutsideOperationAssignOpen: isOutsideOperationAssignOpen,
+        setIsOutsideOperationAssignOpen: setIsOutsideOperationAssignOpen,
         showShiftsFilters: showShiftsFilters,
         setShowShiftsFilters: setShowShiftsFilters,
         isShiftsEnableEdit: isShiftsEnableEdit,

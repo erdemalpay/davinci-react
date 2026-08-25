@@ -198,6 +198,8 @@ const ShopifyOrders = () => {
                 ).toFixed(2)
               ),
 
+          refundAmount: order?.refundAmount ?? 0,
+
           discountName:
             discounts?.find((discount) => discount?._id === order?.discount)
               ?.name ?? "",
@@ -230,6 +232,10 @@ const ShopifyOrders = () => {
       amount: allRows?.reduce((acc, row: any) => acc + row.amount, 0),
       discountAmount: allRows?.reduce(
         (acc, row: any) => acc + row.discountAmount,
+        0
+      ),
+      refundAmount: allRows?.reduce(
+        (acc, row: any) => acc + (row.refundAmount ?? 0),
         0
       ),
       formattedDate: "Total",
@@ -299,6 +305,10 @@ const ShopifyOrders = () => {
             0
           ),
           amount: groupOrders.reduce((acc, order) => acc + order.amount, 0),
+          refundAmount: groupOrders.reduce(
+            (acc, order) => acc + (order.refundAmount ?? 0),
+            0
+          ),
           isReturned: groupOrders.some((order) => order.isReturned),
           cancelledAt: summarize(groupOrders.map((order) => order.cancelledAt)),
           cancelledBy: summarize(groupOrders.map((order) => order.cancelledBy)),
@@ -310,6 +320,7 @@ const ShopifyOrders = () => {
               { key: t("Quantity"), isSortable: false },
               { key: t("Unit Price"), isSortable: false },
               { key: t("Amount"), isSortable: false },
+              { key: t("Refunded Amount"), isSortable: false },
               { key: t("Cancelled At"), isSortable: false },
               { key: t("Cancelled By"), isSortable: false },
               { key: t("Status"), isSortable: false },
@@ -336,6 +347,18 @@ const ShopifyOrders = () => {
                 node: (row: ShopifyOrderRow) => (
                   <p key={row._id + "amount"}>
                     {row.amount.toFixed(2).replace(/\.?0*$/, "")} ₺
+                  </p>
+                ),
+              },
+              {
+                key: "refundAmount",
+                node: (row: ShopifyOrderRow) => (
+                  <p key={row._id + "refundAmount"}>
+                    {row.refundAmount
+                      ? `${(row.refundAmount as number)
+                          .toFixed(2)
+                          .replace(/\.?0*$/, "")} ₺`
+                      : "-"}
                   </p>
                 ),
               },
@@ -379,6 +402,11 @@ const ShopifyOrders = () => {
       { key: t("Product"), isSortable: true, correspondingKey: "item" },
       { key: t("Quantity"), isSortable: true, correspondingKey: "quantity" },
       { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
+      {
+        key: t("Refunded Amount"),
+        isSortable: true,
+        correspondingKey: "refundAmount",
+      },
       {
         key: t("Cancelled At"),
         isSortable: true,
@@ -455,6 +483,21 @@ const ShopifyOrders = () => {
             key={row._id + "amount"}
           >
             {row.amount.toFixed(2).replace(/\.?0*$/, "")} ₺
+          </p>
+        ),
+      },
+      {
+        key: "refundAmount",
+        node: (row: any) => (
+          <p
+            className={`min-w-32 pr-2 ${row.className}`}
+            key={row._id + "refundAmount"}
+          >
+            {row.refundAmount
+              ? `${(row.refundAmount as number)
+                  .toFixed(2)
+                  .replace(/\.?0*$/, "")} ₺`
+              : "-"}
           </p>
         ),
       },

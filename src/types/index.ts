@@ -757,6 +757,7 @@ export enum ActionEnum {
   SHOW_UNIT_PRICES = "show_unit_prices",
   CLICKABLE_ROWS = "clickable_rows",
   ASSIGN_MIDDLEMAN = "assign_middleman",
+  ASSIGN_OUTSIDE_OPERATION = "assign_outside_operation",
   ADJUST_ROLES = "adjust_roles",
   SHOW_INNER_DATAS = "show_inner_datas",
   EQUAL = "equal",
@@ -884,6 +885,7 @@ export type ShiftValue = {
   user: string[];
   chefUser?: string;
   middlemanUser?: string;
+  outsideOperationUsers?: string[];
   notInAverage?: boolean;
 };
 
@@ -905,6 +907,8 @@ export type ShiftActivityPayload = {
   chefUserId?: string;
   previousMiddlemanUserId?: string;
   middlemanUserId?: string;
+  previousOutsideOperationUserIds?: string[];
+  outsideOperationUserIds?: string[];
 };
 
 export type CheckoutIncome = {
@@ -1058,6 +1062,8 @@ export type Order = {
   isOnlinePrice?: boolean;
   isOnlineSale?: boolean;
   discountNote?: string | string[];
+  refundAmount?: number;
+  refundNote?: string;
   stockLocation?: number;
   [key: string]: any;
   kitchen?: string;
@@ -2082,6 +2088,7 @@ export enum ActivityType {
   DELETE_SHIFT = "DELETE_SHIFT",
   ASSIGN_CHEF = "ASSIGN_CHEF",
   ASSIGN_MIDDLEMAN = "ASSIGN_MIDDLEMAN",
+  ASSIGN_OUTSIDE_OPERATION = "ASSIGN_OUTSIDE_OPERATION",
   TRANSFER_TABLE = "TRANSFER_TABLE",
   COMBINE_TABLE = "COMBINE_TABLE",
   COMPLETE_COUNT = "COMPLETE_COUNT",
@@ -2444,6 +2451,11 @@ export const activityTypeDetails = [
     value: ActivityType.ASSIGN_MIDDLEMAN,
     label: "Assign Middleman",
     bgColor: "bg-purple-500",
+  },
+  {
+    value: ActivityType.ASSIGN_OUTSIDE_OPERATION,
+    label: "Assign Outside Operation",
+    bgColor: "bg-red-600",
   },
   {
     value: ActivityType.TRANSFER_TABLE,
