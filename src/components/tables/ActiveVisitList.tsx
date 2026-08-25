@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
-import { FaConciergeBell } from "react-icons/fa";
+import { FaConciergeBell, FaUserSlash } from "react-icons/fa";
 import { GiPerspectiveDiceSixFacesRandom, GiRoundTable } from "react-icons/gi";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
@@ -154,6 +154,13 @@ export function ActiveVisitList({
     );
   };
 
+  const isUserOutsideOperation = (userId: string): boolean => {
+    if (!todayShifts || todayShifts.length === 0) return false;
+    return todayShifts.some((day) =>
+      day?.shifts?.some((s) => s.outsideOperationUsers?.includes(userId))
+    );
+  };
+
   const isUserMiddleman = (userId: string): Middleman | null => {
     if (!activeMiddlemen || activeMiddlemen.length === 0) return null;
     return (
@@ -183,18 +190,25 @@ export function ActiveVisitList({
     const userBreak = isUserOnBreak(visit.user);
     const userInGameplayTime = isUserInGameplayTime(visit.user);
     const userMiddleman = isUserMiddleman(visit.user);
+    const userOutsideOperation = isUserOutsideOperation(visit.user);
     const userChef = isUserChef(visit.user);
     const userActive = isUserActive(visit.user);
 
     if (userActive) {
-      if (!userBreak && !userInGameplayTime && !userMiddleman) {
+      if (
+        !userBreak &&
+        !userInGameplayTime &&
+        !userMiddleman &&
+        !userOutsideOperation
+      ) {
         return userChef ? 1 : 2;
       }
       if (userInGameplayTime) return 3;
       if (userBreak) return 4;
       if (userMiddleman) return 5;
+      if (userOutsideOperation) return 6;
     }
-    return 6;
+    return 7;
   };
 
   const sortedVisits = useMemo(() => {
@@ -264,6 +278,7 @@ export function ActiveVisitList({
           const userBreak = isUserOnBreak(visit.user);
           const userGameplayTime = isUserInGameplayTime(visit.user);
           const userMiddleman = isUserMiddleman(visit.user);
+          const userOutsideOperation = isUserOutsideOperation(visit.user);
           const userChef = isUserChef(visit.user);
           const userName = userOnVisit.name ?? "";
           const userRole = userOnVisit.role?.name ?? "";
@@ -276,6 +291,8 @@ export function ActiveVisitList({
             tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
           } else if (userMiddleman) {
             tooltipContent = `${userRole}  •  ${t("Middleman")}`;
+          } else if (userOutsideOperation) {
+            tooltipContent = `${userRole}  •  ${t("Outside Operation")}`;
           } else if (userChef) {
             tooltipContent = `${userRole}  •  ${t("Service Staff")}`;
           }
@@ -309,6 +326,14 @@ export function ActiveVisitList({
                 </span>
               );
             }
+            if (userOutsideOperation) {
+              return (
+                <span className="flex items-center gap-1">
+                  <FaUserSlash className="text-sm" />
+                  {userName}
+                </span>
+              );
+            }
             if (userChef) {
               return (
                 <span className="flex items-center gap-1">
@@ -327,6 +352,8 @@ export function ActiveVisitList({
               return "#255691";
             } else if (userMiddleman) {
               return "#0D9488";
+            } else if (userOutsideOperation) {
+              return "#DC2626";
             } else if (userChef) {
               return "#9333EA";
             } else return "#288809";
