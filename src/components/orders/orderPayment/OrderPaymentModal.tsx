@@ -247,15 +247,10 @@ const OrderPaymentModal = ({
           order?.activityPlayer === selectedActivityUser &&
           order?.status !== OrderStatus.CANCELLED
       );
-      const isAllUserOrdersPaid = !userOrders?.some(
-        (order: Order) => order?.paidQuantity !== order?.quantity
-      );
-      if (isAllUserOrdersPaid) {
-        const userOrdersTotal = userOrders?.reduce((acc, order) => {
-          return acc + order?.unitPrice * order?.quantity;
-        }, 0);
-        return Number(userOrdersTotal);
-      }
+      const userOrdersTotal = userOrders?.reduce((acc, order) => {
+        return acc + order?.unitPrice * order?.paidQuantity;
+      }, 0);
+      return Number(userOrdersTotal);
     }
     return Number(
       collections
