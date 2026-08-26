@@ -1534,6 +1534,7 @@
   "Partially Brought": "Partially Brought",
   "Order updated successfully": "Order updated successfully",
   "Order marked as delivered": "Order marked as delivered",
+  "Saved, but Shopify could not be set to ready for pickup": "Saved, but Shopify could not be set to ready for pickup",
   "Order marked as undelivered": "Order marked as undelivered",
   "An unexpected error occurred": "An unexpected error occurred",
   "Delivered": "Delivered",

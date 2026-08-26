@@ -1087,6 +1087,7 @@ export type Order = {
   taxNumberCompanyName?: string;
   shopifyShippingAddress?: ShopifyAddress;
   shopifyBillingAddress?: ShopifyAddress;
+  shopifyWarning?: string;
 };
 
 export type OrderCollection = {

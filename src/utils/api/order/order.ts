@@ -194,6 +194,9 @@ export function useShopifyPickUpOrderMutation() {
       } else {
         toast.success(t("Order updated successfully"));
       }
+      if (_data?.shopifyWarning === "SHOPIFY_READY_FOR_PICKUP_FAILED") {
+        toast.warning(t("Saved, but Shopify could not be set to ready for pickup"));
+      }
     },
     onError: (_err, _variables, context) => {
       context?.snapshots?.forEach(({ key, data }) => {
