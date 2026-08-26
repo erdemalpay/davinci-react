@@ -1544,6 +1544,7 @@
   "Partially Brought": "Kısmen Getirildi",
   "Order updated successfully": "Sipariş durumu başarıyla güncellendi",
   "Order marked as delivered": "Sipariş teslim edildi olarak işaretlendi",
+  "Saved, but Shopify could not be set to ready for pickup": "Kaydedildi, ancak Shopify'da teslime hazır durumuna çekilemedi",
   "Order marked as undelivered": "Sipariş teslim edilmedi olarak işaretlendi",
   "An unexpected error occurred": "Beklenmedik bir hata oluştu",
   "Delivered": "Teslim Edildi",
