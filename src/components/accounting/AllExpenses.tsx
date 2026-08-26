@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
@@ -48,19 +48,36 @@ const AllExpenses = () => {
     setAllExpenseForm,
   } = useGeneralContext();
   const {
-    filterAllExpensesPanelFormElements,
-    setFilterAllExpensesPanelFormElements,
-    showAllExpensesFilters,
-    setShowAllExpensesFilters,
-    initialFilterPanelAllExpensesFormElements,
+    filterExpensesPanelFormElements,
+    setFilterExpensesPanelFormElements,
+    showExpensesFilters,
+    setShowExpensesFilters,
+    initialFilterExpensesPanelFormElements,
   } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterAllExpensesPanelFormElements,
+    filterExpensesPanelFormElements,
     true
   );
   const invoices = invoicesPayload?.data;
+  // the product/service filter inputs are only enabled for the matching expense
+  // category, so drop values coming from another expenses tab that cannot be
+  // edited here
+  useEffect(() => {
+    const type = filterExpensesPanelFormElements?.type;
+    setFilterExpensesPanelFormElements({
+      ...filterExpensesPanelFormElements,
+      product:
+        type === ExpenseTypes.STOCKABLE
+          ? filterExpensesPanelFormElements.product
+          : initialFilterExpensesPanelFormElements.product,
+      service:
+        type === ExpenseTypes.NONSTOCKABLE
+          ? filterExpensesPanelFormElements.service
+          : initialFilterExpensesPanelFormElements.service,
+    });
+  }, []);
   const locations = useGetStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -136,7 +153,7 @@ const AllExpenses = () => {
         placeholder: t("Product"),
         required: true,
         isDisabled:
-          filterAllExpensesPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
+          filterExpensesPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
       },
       {
         type: InputTypes.SELECT,
@@ -149,8 +166,7 @@ const AllExpenses = () => {
         placeholder: t("Service"),
         required: true,
         isDisabled:
-          filterAllExpensesPanelFormElements?.type !==
-          ExpenseTypes.NONSTOCKABLE,
+          filterExpensesPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
       },
       {
         type: InputTypes.SELECT,
@@ -232,8 +248,8 @@ const AllExpenses = () => {
         }) => {
           const dateRange = dateRanges[value as DateRangeKey];
           if (dateRange) {
-            setFilterAllExpensesPanelFormElements({
-              ...filterAllExpensesPanelFormElements,
+            setFilterExpensesPanelFormElements({
+              ...filterExpensesPanelFormElements,
               ...dateRange(),
             });
           }
@@ -269,8 +285,8 @@ const AllExpenses = () => {
       expenseTypes,
       paymentMethods,
       locations,
-      filterAllExpensesPanelFormElements,
-      setFilterAllExpensesPanelFormElements,
+      filterExpensesPanelFormElements,
+      setFilterExpensesPanelFormElements,
     ]
   );
 
@@ -864,14 +880,14 @@ const AllExpenses = () => {
         isUpperSide: true,
         node: (
           <QuickDateRangeFilter
-            startDate={filterAllExpensesPanelFormElements.after}
-            endDate={filterAllExpensesPanelFormElements.before}
+            startDate={filterExpensesPanelFormElements.after}
+            endDate={filterExpensesPanelFormElements.before}
             onChange={(start: string, end: string) => {
               const isReset = !start && !end;
-              setFilterAllExpensesPanelFormElements({
-                ...filterAllExpensesPanelFormElements,
+              setFilterExpensesPanelFormElements({
+                ...filterExpensesPanelFormElements,
                 after: isReset
-                  ? initialFilterPanelAllExpensesFormElements.after
+                  ? initialFilterExpensesPanelFormElements.after
                   : start,
                 before: isReset ? "" : end,
                 date: "",
@@ -906,9 +922,9 @@ const AllExpenses = () => {
         isUpperSide: true,
         node: (
           <SwitchButton
-            checked={showAllExpensesFilters}
+            checked={showExpensesFilters}
             onChange={() => {
-              setShowAllExpensesFilters(!showAllExpensesFilters);
+              setShowExpensesFilters(!showExpensesFilters);
             }}
           />
         ),
@@ -917,8 +933,8 @@ const AllExpenses = () => {
     [
       t,
       invoicesPayload,
-      showAllExpensesFilters,
-      setShowAllExpensesFilters,
+      showExpensesFilters,
+      setShowExpensesFilters,
       allExpensesPageDisabledCondition,
       user,
     ]
@@ -926,24 +942,24 @@ const AllExpenses = () => {
 
   const filterPanel = useMemo(
     () => ({
-      isFilterPanelActive: showAllExpensesFilters,
+      isFilterPanelActive: showExpensesFilters,
       inputs: filterPanelInputs,
-      formElements: filterAllExpensesPanelFormElements,
-      setFormElements: setFilterAllExpensesPanelFormElements,
-      closeFilters: () => setShowAllExpensesFilters(false),
+      formElements: filterExpensesPanelFormElements,
+      setFormElements: setFilterExpensesPanelFormElements,
+      closeFilters: () => setShowExpensesFilters(false),
       additionalFilterCleanFunction: () => {
-        setFilterAllExpensesPanelFormElements(
-          initialFilterPanelAllExpensesFormElements
+        setFilterExpensesPanelFormElements(
+          initialFilterExpensesPanelFormElements
         );
       },
     }),
     [
-      showAllExpensesFilters,
+      showExpensesFilters,
       filterPanelInputs,
-      filterAllExpensesPanelFormElements,
-      setFilterAllExpensesPanelFormElements,
-      setShowAllExpensesFilters,
-      initialFilterPanelAllExpensesFormElements,
+      filterExpensesPanelFormElements,
+      setFilterExpensesPanelFormElements,
+      setShowExpensesFilters,
+      initialFilterExpensesPanelFormElements,
     ]
   );
 
@@ -958,27 +974,23 @@ const AllExpenses = () => {
 
   const outsideSort = useMemo(
     () => ({
-      filterPanelFormElements: filterAllExpensesPanelFormElements,
-      setFilterPanelFormElements: setFilterAllExpensesPanelFormElements,
+      filterPanelFormElements: filterExpensesPanelFormElements,
+      setFilterPanelFormElements: setFilterExpensesPanelFormElements,
     }),
-    [filterAllExpensesPanelFormElements, setFilterAllExpensesPanelFormElements]
+    [filterExpensesPanelFormElements, setFilterExpensesPanelFormElements]
   );
 
   const outsideSearchProps = useMemo(() => {
     return {
       t,
-      filterPanelFormElements: filterAllExpensesPanelFormElements,
-      setFilterPanelFormElements: setFilterAllExpensesPanelFormElements,
+      filterPanelFormElements: filterExpensesPanelFormElements,
+      setFilterPanelFormElements: setFilterExpensesPanelFormElements,
     };
-  }, [
-    t,
-    filterAllExpensesPanelFormElements,
-    setFilterAllExpensesPanelFormElements,
-  ]);
+  }, [t, filterExpensesPanelFormElements, setFilterExpensesPanelFormElements]);
   // Effect to reset current page when filters change
   useMemo(() => {
     setCurrentPage(1);
-  }, [filterAllExpensesPanelFormElements, setCurrentPage]);
+  }, [filterExpensesPanelFormElements, setCurrentPage]);
 
   return (
     <>
