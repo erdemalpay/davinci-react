@@ -2,7 +2,13 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
-import { Game, UserGameUpdateType } from "../../types";
+import { Game, RowPerPageEnum, UserGameUpdateType } from "../../types";
+import {
+  Assignment,
+  AssignmentStatusEnum,
+  AssignmentTypeEnum,
+  useGetAssignments,
+} from "../../utils/api/assignment";
 import { useGetGamesMinimal } from "../../utils/api/game";
 
 import {
@@ -34,6 +40,45 @@ const GamesIKnow = ({ userId }: Props) => {
   const { updateUserGame } = updateUserGamesMutation();
   const user = useGetUserWithId(userId);
   const games = useGetGamesMinimal();
+  const isOwnProfile = user?._id === panelUser?._id;
+
+  const assignmentFilters = useMemo(
+    () => ({
+      assignmentType: AssignmentTypeEnum.GAME_LEARNING,
+      assignedTo: userId,
+    }),
+    [userId]
+  );
+
+  const assignmentsPayload = useGetAssignments(
+    1,
+    RowPerPageEnum.ALL,
+    assignmentFilters,
+    { enabled: isOwnProfile && isEnableEdit }
+  );
+
+  const assignmentStatusByGameId = useMemo(() => {
+    const latestByGameId = new Map<number, Assignment>();
+    (assignmentsPayload?.data ?? []).forEach((assignment) => {
+      const gameId = Number(assignment.subject?.entityId);
+      if (Number.isNaN(gameId)) return;
+      if (assignment.status === AssignmentStatusEnum.CANCELLED) return;
+      const latestAssignment = latestByGameId.get(gameId);
+      if (
+        !latestAssignment ||
+        new Date(assignment.createdAt ?? 0).getTime() >
+          new Date(latestAssignment.createdAt ?? 0).getTime()
+      ) {
+        latestByGameId.set(gameId, assignment);
+      }
+    });
+
+    const statusMap = new Map<number, AssignmentStatusEnum>();
+    latestByGameId.forEach((assignment, gameId) => {
+      statusMap.set(gameId, assignment.status);
+    });
+    return statusMap;
+  }, [assignmentsPayload]);
 
   const inputs = useMemo(
     () => [
@@ -105,6 +150,14 @@ const GamesIKnow = ({ userId }: Props) => {
             (userGame) => userGame.game === row._id
           );
 
+          if (
+            !userGame &&
+            assignmentStatusByGameId.get(row._id) ===
+              AssignmentStatusEnum.IN_PROGRESS
+          ) {
+            return <p className="text-blue-600">{t("in_progress")}</p>;
+          }
+
           return (
             <p>
               {userGame?.learnDate
@@ -115,7 +168,7 @@ const GamesIKnow = ({ userId }: Props) => {
         },
       },
     ],
-    [user]
+    [user, t, assignmentStatusByGameId]
   );
 
   function handleUpdateUserGame({
@@ -157,23 +210,41 @@ const GamesIKnow = ({ userId }: Props) => {
         isPath: false,
         icon: null,
         isDisabled: user?._id !== panelUser?._id || !isEnableEdit,
-        node: (row: Game) => (
-          <CheckSwitch
-            checked={userGamesGameArray?.includes(row._id) ?? false}
-            onChange={() => {
-              if (userGamesGameArray?.includes(row._id)) {
-                setRowToAction(row);
-                setIsCloseAllConfirmationDialogOpen(true);
-              } else {
-                setLearnDateModal(true);
-                setRowToAction(row);
-              }
-            }}
-          ></CheckSwitch>
-        ),
+        node: (row: Game) => {
+          const assignmentStatus = assignmentStatusByGameId.get(row._id);
+          const isKnown = userGamesGameArray?.includes(row._id) ?? false;
+          const isPendingVerification =
+            assignmentStatus === AssignmentStatusEnum.IN_PROGRESS;
+          const isVerified =
+            assignmentStatus === AssignmentStatusEnum.COMPLETED;
+
+          return (
+            <CheckSwitch
+              checked={isKnown || isPendingVerification}
+              disabled={isVerified}
+              onChange={() => {
+                if (isVerified) return;
+                if (isKnown || isPendingVerification) {
+                  setRowToAction(row);
+                  setIsCloseAllConfirmationDialogOpen(true);
+                } else {
+                  setLearnDateModal(true);
+                  setRowToAction(row);
+                }
+              }}
+            ></CheckSwitch>
+          );
+        },
       },
     ],
-    [t, user, panelUser, isEnableEdit, userGamesGameArray]
+    [
+      t,
+      user,
+      panelUser,
+      isEnableEdit,
+      userGamesGameArray,
+      assignmentStatusByGameId,
+    ]
   );
 
   const filteredRows = useMemo(() => {

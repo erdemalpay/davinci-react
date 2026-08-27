@@ -51,6 +51,9 @@ export interface Assignment {
   updatedAt?: Date | string;
   completedAt?: Date | string;
   cancelledAt?: Date | string;
+  learnedAt?: Date | string | null;
+  verifiedAt?: Date | string | null;
+  verifiedBy?: string | null;
 }
 
 export interface CreateAssignmentDto {
@@ -132,12 +135,18 @@ function buildQueryString(filters: AssignmentQueryDto = {}) {
 export function useGetAssignments(
   page: number,
   limit: number,
-  filters: AssignmentQueryDto = {}
+  filters: AssignmentQueryDto = {},
+  options?: { enabled?: boolean }
 ) {
   const queryString = buildQueryString({ ...filters, page, limit });
   const url = queryString ? `${baseUrl}?${queryString}` : baseUrl;
 
-  return useGet<AssignmentsPayload>(url, [baseUrl, page, limit, filters], true);
+  return useGet<AssignmentsPayload>(
+    url,
+    [baseUrl, page, limit, filters],
+    true,
+    options
+  );
 }
 
 export function useGetAssignment(id?: string | number) {

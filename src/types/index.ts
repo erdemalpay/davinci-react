@@ -2101,6 +2101,7 @@ export enum ActivityType {
   DELETE_GAME_ASSIGNMENT = "DELETE_GAME_ASSIGNMENT",
   COMPLETE_GAME_ASSIGNMENT = "COMPLETE_GAME_ASSIGNMENT",
   UNCOMPLETE_GAME_ASSIGNMENT = "UNCOMPLETE_GAME_ASSIGNMENT",
+  VERIFY_GAME_ASSIGNMENT = "VERIFY_GAME_ASSIGNMENT",
 }
 export const activityTypeDetails = [
   {
@@ -2512,6 +2513,11 @@ export const activityTypeDetails = [
     value: ActivityType.UNCOMPLETE_GAME_ASSIGNMENT,
     label: "Game Assignment Uncompleted",
     bgColor: "bg-orange-500",
+  },
+  {
+    value: ActivityType.VERIFY_GAME_ASSIGNMENT,
+    label: "Game Assignment Verified",
+    bgColor: "bg-indigo-500",
   },
 ];
 
