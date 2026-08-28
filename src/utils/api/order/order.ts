@@ -157,6 +157,16 @@ export function useOrderMutations() {
 
   return { updateOrder, createOrder };
 }
+const shopifyWarningMessages: Record<string, string> = {
+  SHOPIFY_READY_FOR_PICKUP_FAILED:
+    "Saved, but Shopify could not be set to ready for pickup",
+  SHOPIFY_READY_FOR_PICKUP_SKIPPED:
+    "Saved, but no Shopify package was marked ready for pickup",
+  SHOPIFY_FULFILLMENT_FAILED: "Saved, but the Shopify order could not be closed",
+  SHOPIFY_FULFILLMENT_SKIPPED:
+    "Saved, but no Shopify package matched the delivered products",
+};
+
 /** @deprecated IkasPickUp temizliği yapılınca kaldırılacak (bu hooku sadece ikas kullanıyordu) */
 export const useSimpleOrderMutations = () => useShopifyPickUpOrderMutation();
 
@@ -194,8 +204,9 @@ export function useShopifyPickUpOrderMutation() {
       } else {
         toast.success(t("Order updated successfully"));
       }
-      if (_data?.shopifyWarning === "SHOPIFY_READY_FOR_PICKUP_FAILED") {
-        toast.warning(t("Saved, but Shopify could not be set to ready for pickup"));
+      const warning = shopifyWarningMessages[_data?.shopifyWarning ?? ""];
+      if (warning) {
+        toast.warning(t(warning));
       }
     },
     onError: (_err, _variables, context) => {
@@ -242,6 +253,13 @@ export function useShopifyPickUpOrderMutation() {
         toast.success(t("Order marked as undelivered"));
       } else {
         toast.success(t("Order updated successfully"));
+      }
+      const warning =
+        shopifyWarningMessages[
+          _data?.find((order) => order.shopifyWarning)?.shopifyWarning ?? ""
+        ];
+      if (warning) {
+        toast.warning(t(warning));
       }
     },
     onError: (_err, _variables, context) => {
