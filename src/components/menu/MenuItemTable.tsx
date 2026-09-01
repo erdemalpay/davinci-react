@@ -40,7 +40,6 @@ import {
   useUpdateItemsSlugsMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
-import { checkHasUnshippedPreOrderForItem } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
@@ -48,7 +47,6 @@ import { getItem } from "../../utils/getItem";
 import { itemBelongsToMenuCategory } from "../../utils/menuItemCategories";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -99,8 +97,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
   const { mutate: updateItemsSlugs } = useUpdateItemsSlugsMutation();
   const [isEditSelectionCompeted, setIsEditSelectionCompeted] = useState(false);
-  const [isCheckingPreOrderShipment, setIsCheckingPreOrderShipment] =
-    useState(false);
   // const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -1013,35 +1009,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           return (
             <CheckSwitch
               checked={row?.isPreOrder ?? false}
-              onChange={async () => {
-                if (!row.isPreOrder) {
-                  updateItem({
-                    id: row._id,
-                    updates: { ...row, isPreOrder: true },
-                  });
-                  return;
-                }
-                setIsCheckingPreOrderShipment(true);
-                try {
-                  const hasUnshippedOrder = await checkHasUnshippedPreOrderForItem(
-                    row._id
-                  );
-                  if (hasUnshippedOrder) {
-                    toast.error(
-                      t("Selected item has unshipped pre-orders")
-                    );
-                  } else {
-                    updateItem({
-                      id: row._id,
-                      updates: { ...row, isPreOrder: false },
-                    });
-                    toast.success(t("Item updated successfully"));
-                  }
-                } catch {
-                  toast.error(t("An unexpected error occurred"));
-                } finally {
-                  setIsCheckingPreOrderShipment(false);
-                }
+              onChange={() => {
+                updateItem({
+                  id: row._id,
+                  updates: {
+                    ...row,
+                    isPreOrder: !row.isPreOrder,
+                  },
+                });
               }}
             />
           );
@@ -1746,13 +1721,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
 
   return (
     <div className="w-[95%] mx-auto">
-      {isCheckingPreOrderShipment && (
-        <Loading
-          message={t(
-            "Checking unshipped pre-order status for selected item"
-          )}
-        />
-      )}
       <GenericTable
         rowKeys={rowKeys}
         actions={actions}
