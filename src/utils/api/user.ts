@@ -12,6 +12,12 @@ export type MinimalUser = Pick<User, "_id" | "name" | "role">;
 export interface CompleteGameLearningTaskDto {
   assignmentId: number;
   learnDate?: string;
+  isLearned?: boolean;
+}
+
+export interface VerifyGameLearningTaskDto {
+  assignmentId: number;
+  isVerified?: boolean;
 }
 
 export function getUserWithToken(): Promise<User> {
@@ -119,6 +125,7 @@ function updateUserGames({
 function completeGameLearningTaskRequest({
   assignmentId,
   learnDate,
+  isLearned,
 }: CompleteGameLearningTaskDto): Promise<{
   assignment: Assignment;
   user: User;
@@ -128,17 +135,40 @@ function completeGameLearningTaskRequest({
     { assignment: Assignment; user: User }
   >({
     path: `${Paths.Users}/games/complete-learning-task`,
-    payload: { assignmentId, learnDate },
+    payload: { assignmentId, learnDate, isLearned },
+  });
+}
+
+function verifyGameLearningTaskRequest({
+  assignmentId,
+  isVerified,
+}: VerifyGameLearningTaskDto): Promise<{
+  assignment: Assignment;
+  user: User;
+}> {
+  return post<
+    VerifyGameLearningTaskDto,
+    { assignment: Assignment; user: User }
+  >({
+    path: `${Paths.Users}/games/verify-learning-task`,
+    payload: { assignmentId, isVerified },
   });
 }
 
 export function updateUserGamesMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { mutate: updateUserGame } = useMutation({
     mutationFn: updateUserGames,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [Paths.Users] });
+      queryClient.invalidateQueries({ queryKey: [Paths.Assignments] });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(t(errorMessage)), 200);
     },
   });
 
@@ -170,6 +200,34 @@ export function useCompleteGameLearningTaskMutation() {
     completeGameLearningTask,
     completeGameLearningTaskAsync,
     isCompletingGameLearningTask,
+  };
+}
+
+export function useVerifyGameLearningTaskMutation() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  const {
+    mutate: verifyGameLearningTask,
+    mutateAsync: verifyGameLearningTaskAsync,
+    isPending: isVerifyingGameLearningTask,
+  } = useMutation({
+    mutationFn: verifyGameLearningTaskRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [Paths.Assignments] });
+      queryClient.invalidateQueries({ queryKey: [Paths.Users] });
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(t(errorMessage)), 200);
+    },
+  });
+
+  return {
+    verifyGameLearningTask,
+    verifyGameLearningTaskAsync,
+    isVerifyingGameLearningTask,
   };
 }
 
