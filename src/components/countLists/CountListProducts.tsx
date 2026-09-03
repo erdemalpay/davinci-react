@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountCountList,
   ActionEnum,
@@ -14,13 +15,12 @@ import {
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes, RowKeyType } from "../panelComponents/shared/types";
-import { useUserContext } from "../../context/User.context";
-import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { getItem } from "../../utils/getItem";
 
 type FormElementsState = {
   [key: string]: any;
@@ -72,25 +72,12 @@ const CountListProducts = () => {
   }, [countLists]);
 
   const rows = useMemo(() => {
-    return products
-      .filter((product) => {
-        return (
-          filterPanelFormElements.expenseType === "" ||
-          product.expenseType?.includes(filterPanelFormElements.expenseType)
-        );
-      })
-      .sort((a, b) => {
-        const aInList = checkProductIsInCountLists(a._id);
-        const bInList = checkProductIsInCountLists(b._id);
-
-        // Atanmayanlar önce (false < true)
-        if (aInList !== bInList) {
-          return aInList ? 1 : -1;
-        }
-
-        // Aynı durumda olanları alfabetik sırala
-        return a.name.localeCompare(b.name);
-      });
+    return products.filter((product) => {
+      return (
+        filterPanelFormElements.expenseType === "" ||
+        product.expenseType?.includes(filterPanelFormElements.expenseType)
+      );
+    });
   }, [products, filterPanelFormElements, checkProductIsInCountLists]);
 
   function handleCountListUpdate(row: any, countList: AccountCountList) {
