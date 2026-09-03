@@ -71,7 +71,7 @@ function getUserBadgeClasses(
 
 const Shifts = () => {
   const { t } = useTranslation();
-  // const [tableKey, setTableKey] = useState(0); NOT: Daha önce burada tableKey state'i vardı
+  const [tableKey, setTableKey] = useState(0);
   const users = useGetUsersMinimal();
   const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
@@ -610,7 +610,8 @@ const Shifts = () => {
                                 <div
                                   key={userIdx}
                                   className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white ${getUserBadgeClasses(
-                                    filterPanelFormElements.user === foundUser?._id,
+                                    filterPanelFormElements.user ===
+                                      foundUser?._id,
                                     foundChefUser === foundUser?._id,
                                     foundMiddlemanUser === foundUser?._id,
                                     foundOutsideOperationUsers.includes(
@@ -623,7 +624,11 @@ const Shifts = () => {
                                 >
                                   {foundUser?.name}
                                   <span
-                                    className={`text-yellow-600 ${isChefAssignOpen ? "cursor-pointer" : "cursor-default"}`}
+                                    className={`text-yellow-600 ${
+                                      isChefAssignOpen
+                                        ? "cursor-pointer"
+                                        : "cursor-default"
+                                    }`}
                                     onClick={() => {
                                       if (!isChefAssignOpen) return;
 
@@ -670,7 +675,11 @@ const Shifts = () => {
                                     ) : null}
                                   </span>
                                   <span
-                                    className={`text-purple-500 ${isMiddlemanAssignOpen ? "cursor-pointer" : "cursor-default"}`}
+                                    className={`text-purple-500 ${
+                                      isMiddlemanAssignOpen
+                                        ? "cursor-pointer"
+                                        : "cursor-default"
+                                    }`}
                                     onClick={() => {
                                       if (!isMiddlemanAssignOpen) return;
 
@@ -835,7 +844,11 @@ const Shifts = () => {
                           {foundUser?.name}
 
                           <span
-                            className={`text-yellow-600 ${isChefAssignOpen ? "cursor-pointer" : "cursor-default"}`}
+                            className={`text-yellow-600 ${
+                              isChefAssignOpen
+                                ? "cursor-pointer"
+                                : "cursor-default"
+                            }`}
                             onClick={() => {
                               if (!isChefAssignOpen) return;
                               const currentShifts = shifts
@@ -869,7 +882,11 @@ const Shifts = () => {
                             ) : null}
                           </span>
                           <span
-                            className={`text-purple-500 ${isMiddlemanAssignOpen ? "cursor-pointer" : "cursor-default"}`}
+                            className={`text-purple-500 ${
+                              isMiddlemanAssignOpen
+                                ? "cursor-pointer"
+                                : "cursor-default"
+                            }`}
                             onClick={() => {
                               if (!isMiddlemanAssignOpen) return;
                               const currentShifts = shifts
@@ -1316,12 +1333,12 @@ const Shifts = () => {
                     chefUser: (form?.[shift.shift] ?? []).includes(
                       existing?.chefUser ?? ""
                     )
-                      ? (existing?.chefUser ?? "")
+                      ? existing?.chefUser ?? ""
                       : "",
                     middlemanUser: (form?.[shift.shift] ?? []).includes(
                       existing?.middlemanUser ?? ""
                     )
-                      ? (existing?.middlemanUser ?? "")
+                      ? existing?.middlemanUser ?? ""
                       : "",
                     outsideOperationUsers: (
                       existing?.outsideOperationUsers ?? []
@@ -1703,9 +1720,8 @@ const Shifts = () => {
   };
 
   useEffect(() => {
+    setTableKey((prevKey) => prevKey + 1);
     setRows(allRows);
-    // NOT: Daha önce burada setTableKey((prev) => prev + 1) vardı.
-    // Kaldırıldı çünkü her veri güncellemesinde GenericTable'ı remount ettiriyordu ve scroll sıfırlanıyordu.
   }, [
     shifts,
     users,
@@ -1716,8 +1732,8 @@ const Shifts = () => {
   ]);
   return (
     <div className="w-[95%] my-5 mx-auto overflow-x-auto">
-      {/* NOT: Daha önce burada key={tableKey} prop'u vardı. Scroll sıfırlanma sorunu nedeniyle kaldırıldı. */}
       <GenericTable
+        key={tableKey}
         rowKeys={rowKeys}
         columns={columns}
         addButton={copyShiftIntervalButton}

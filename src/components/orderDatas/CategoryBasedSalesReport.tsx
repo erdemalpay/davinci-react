@@ -221,7 +221,11 @@ const CategoryBasedSalesReport = () => {
         collapsibleColumns: [
           { key: t("Product"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
-          { key: t("Ratio to Total"), isSortable: true },
+          {
+            key: t("Ratio to Total"),
+            isSortable: true,
+            isDisabledInExcel: true,
+          },
         ],
         collapsibleRows: row.itemQuantity
           .map((itemQuantityIteration) => ({
@@ -277,7 +281,11 @@ const CategoryBasedSalesReport = () => {
           collapsibleColumns: [
             { key: t("Product"), isSortable: false },
             { key: t("Quantity"), isSortable: false },
-            { key: t("Ratio to Total"), isSortable: false },
+            {
+              key: t("Ratio to Total"),
+              isSortable: false,
+              isDisabledInExcel: true,
+            },
           ],
           collapsibleRows: [],
           collapsibleRowKeys: [
@@ -299,7 +307,7 @@ const CategoryBasedSalesReport = () => {
       { key: t("Discount"), isSortable: true },
       { key: t("Total Amount"), isSortable: true },
       { key: t("General Amount"), isSortable: true },
-      { key: t("Ratio to Total"), isSortable: true },
+      { key: t("Ratio to Total"), isSortable: true, isDisabledInExcel: true },
     ],
     [t]
   );

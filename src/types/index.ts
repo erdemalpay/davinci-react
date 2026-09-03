@@ -291,6 +291,7 @@ export type AccountProduct = {
     location: number;
     shelf: string;
   }[];
+  createdAt?: Date;
 };
 export type AccountService = {
   _id: string;
@@ -1484,7 +1485,7 @@ export enum RoleEnum {
   KITCHEN2,
   KITCHEN3,
   BARCHEF,
-  COUNTER
+  COUNTER,
 }
 
 export enum RoleNameEnum {
@@ -1714,13 +1715,16 @@ export interface ShopifyDiscountNode {
       items?: DiscountItems;
     };
     customerBuys?: {
-      value?:
-        | { quantity: { quantity: string } }
-        | { amount: string };
+      value?: { quantity: { quantity: string } } | { amount: string };
       items?: DiscountItems;
     };
     minimumRequirement?:
-      | { greaterThanOrEqualToSubtotal: { amount: string; currencyCode: string } }
+      | {
+          greaterThanOrEqualToSubtotal: {
+            amount: string;
+            currencyCode: string;
+          };
+        }
       | { greaterThanOrEqualToQuantity: number };
     combinesWith?: {
       productDiscounts: boolean;
