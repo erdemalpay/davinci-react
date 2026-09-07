@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -27,6 +27,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import { P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 export interface TaskTrackRow extends TaskTrack {
@@ -122,7 +123,30 @@ const TaskTrackPage = () => {
     () => [
       { key: "createdAt", node: (row: TaskTrackRow) => row.formattedDate },
       { key: "userNames" },
-      { key: "task" },
+      {
+        key: "task",
+        node: (row: TaskTrackRow) => (
+          <P1 className="whitespace-pre-wrap">
+            {row.task?.split(/(https?:\/\/[^\s]+)/g).map((part, index) => {
+              if (!part.startsWith("http")) return part;
+              const url = part.replace(/[.,;:!?)\]}]+$/, "");
+              return (
+                <Fragment key={index}>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-700 hover:text-blue-500 underline break-all"
+                  >
+                    {url}
+                  </a>
+                  {part.slice(url.length)}
+                </Fragment>
+              );
+            })}
+          </P1>
+        ),
+      },
       {
         key: "typeNames",
         node: (row: TaskTrackRow) => (
