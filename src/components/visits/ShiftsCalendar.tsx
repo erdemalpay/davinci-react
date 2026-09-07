@@ -30,6 +30,7 @@ import { useGetShifts, useShiftMutations } from "../../utils/api/shift";
 import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { isActionDisabled } from "../../utils/permissions";
 import { MonthlyBody, MonthlyDay } from "../calendar/MonthlyBody";
 import { MonthlyCalendar, MonthlyNav } from "../calendar/MonthlyCalendar";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -71,29 +72,25 @@ export default function ShiftsCalendar() {
     isShiftsEnableEdit,
     setIsShiftsEnableEdit,
   } = useFilterContext();
-  const canAssignChef = !shiftsDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.ASSIGN_CHEF &&
-      user?.role?._id &&
-      !ac?.permissionsRoles?.includes(user?.role?._id)
+  const canAssignChef = !isActionDisabled(
+    shiftsDisabledCondition,
+    ActionEnum.ASSIGN_CHEF,
+    user
   );
-  const canAssignMiddleman = !shiftsDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.ASSIGN_MIDDLEMAN &&
-      user?.role?._id &&
-      !ac?.permissionsRoles?.includes(user?.role?._id)
+  const canAssignMiddleman = !isActionDisabled(
+    shiftsDisabledCondition,
+    ActionEnum.ASSIGN_MIDDLEMAN,
+    user
   );
-  const canAssignOutsideOperation = !shiftsDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.ASSIGN_OUTSIDE_OPERATION &&
-      user?.role?._id &&
-      !ac?.permissionsRoles?.includes(user?.role?._id)
+  const canAssignOutsideOperation = !isActionDisabled(
+    shiftsDisabledCondition,
+    ActionEnum.ASSIGN_OUTSIDE_OPERATION,
+    user
   );
-  const canEnableEdit = !shiftsDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.ENABLEEDIT &&
-      user?.role?._id &&
-      !ac?.permissionsRoles?.includes(user?.role?._id)
+  const canEnableEdit = !isActionDisabled(
+    shiftsDisabledCondition,
+    ActionEnum.ENABLEEDIT,
+    user
   );
 
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -206,44 +203,44 @@ export default function ShiftsCalendar() {
         </div>
       </div>
       <div className="my-4 flex justify-end gap-6 flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{t("Chef Assign")}</span>
-          <SwitchButton
-            checked={isChefAssignOpen}
-            onChange={() =>
-              canAssignChef && setIsChefAssignOpen(!isChefAssignOpen)
-            }
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{t("Assign Middleman")}</span>
-          <SwitchButton
-            checked={isMiddlemanAssignOpen}
-            onChange={() =>
-              canAssignMiddleman &&
-              setIsMiddlemanAssignOpen(!isMiddlemanAssignOpen)
-            }
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{t("Assign Outside Operation")}</span>
-          <SwitchButton
-            checked={isOutsideOperationAssignOpen}
-            onChange={() =>
-              canAssignOutsideOperation &&
-              setIsOutsideOperationAssignOpen(!isOutsideOperationAssignOpen)
-            }
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{t("Enable Edit")}</span>
-          <SwitchButton
-            checked={isShiftsEnableEdit}
-            onChange={() =>
-              canEnableEdit && setIsShiftsEnableEdit(!isShiftsEnableEdit)
-            }
-          />
-        </div>
+        {canAssignChef && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{t("Chef Assign")}</span>
+            <SwitchButton
+              checked={isChefAssignOpen}
+              onChange={() => setIsChefAssignOpen(!isChefAssignOpen)}
+            />
+          </div>
+        )}
+        {canAssignMiddleman && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{t("Assign Middleman")}</span>
+            <SwitchButton
+              checked={isMiddlemanAssignOpen}
+              onChange={() => setIsMiddlemanAssignOpen(!isMiddlemanAssignOpen)}
+            />
+          </div>
+        )}
+        {canAssignOutsideOperation && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{t("Assign Outside Operation")}</span>
+            <SwitchButton
+              checked={isOutsideOperationAssignOpen}
+              onChange={() =>
+                setIsOutsideOperationAssignOpen(!isOutsideOperationAssignOpen)
+              }
+            />
+          </div>
+        )}
+        {canEnableEdit && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{t("Enable Edit")}</span>
+            <SwitchButton
+              checked={isShiftsEnableEdit}
+              onChange={() => setIsShiftsEnableEdit(!isShiftsEnableEdit)}
+            />
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <span className="text-sm">{t("Show Filters")}</span>
           <SwitchButton

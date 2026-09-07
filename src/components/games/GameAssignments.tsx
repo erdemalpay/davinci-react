@@ -24,6 +24,7 @@ import { useGetGamesMinimal } from "../../utils/api/game";
 import {
   useCompleteGameLearningTaskMutation,
   useGetUsers,
+  useVerifyGameLearningTaskMutation,
 } from "../../utils/api/user";
 import { formatAsLocalDate, formatDateInTurkey } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -42,18 +43,22 @@ type AssignmentRow = Assignment & {
   formattedDueDate?: string;
   formattedCreatedAt?: string;
   formattedCompletedDate?: string;
+  verifiedByName?: string;
+  formattedLearnedAt?: string;
 };
 
 function getAssignmentStatusSortPriority(status: AssignmentStatusEnum) {
   switch (status) {
     case AssignmentStatusEnum.OVERDUE:
       return 0;
-    case AssignmentStatusEnum.ASSIGNED:
+    case AssignmentStatusEnum.IN_PROGRESS:
       return 1;
-    case AssignmentStatusEnum.COMPLETED:
+    case AssignmentStatusEnum.ASSIGNED:
       return 2;
-    default:
+    case AssignmentStatusEnum.COMPLETED:
       return 3;
+    default:
+      return 4;
   }
 }
 
@@ -79,6 +84,8 @@ const GameAssignments = () => {
     useAssignmentMutations();
   const { completeGameLearningTask, isCompletingGameLearningTask } =
     useCompleteGameLearningTaskMutation();
+  const { verifyGameLearningTask, isVerifyingGameLearningTask } =
+    useVerifyGameLearningTaskMutation();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilters);
@@ -168,6 +175,25 @@ const GameAssignments = () => {
                     : String(assignment.completedAt)
                 )
               : "",
+            verifiedByName: assignment.verifiedBy
+              ? users?.find(
+                  (userItem) => userItem._id === assignment.verifiedBy
+                )?.name ?? String(assignment.verifiedBy)
+              : "",
+            formattedLearnedAt: assignment.learnedAt
+              ? formatAsLocalDate(
+                  assignment.learnedAt instanceof Date
+                    ? assignment.learnedAt.toISOString()
+                    : String(assignment.learnedAt)
+                )
+              : assignment.status === AssignmentStatusEnum.COMPLETED &&
+                assignment.completedAt
+              ? formatAsLocalDate(
+                  assignment.completedAt instanceof Date
+                    ? assignment.completedAt.toISOString()
+                    : String(assignment.completedAt)
+                )
+              : "",
           };
         })
         ?.filter(
@@ -220,6 +246,16 @@ const GameAssignments = () => {
         correspondingKey: "formattedCompletedDate",
       },
       {
+        key: t("Learned Date"),
+        isSortable: true,
+        correspondingKey: "formattedLearnedAt",
+      },
+      {
+        key: t("Verified By"),
+        isSortable: true,
+        correspondingKey: "verifiedByName",
+      },
+      {
         key: t("Actions"),
         isSortable: false,
       },
@@ -245,6 +281,8 @@ const GameAssignments = () => {
       { key: "formattedCreatedAt", className: "min-w-28 pr-2" },
       { key: "formattedDueDate", className: "min-w-28 pr-2" },
       { key: "formattedCompletedDate", className: "min-w-28 pr-2" },
+      { key: "formattedLearnedAt", className: "min-w-28 pr-2" },
+      { key: "verifiedByName", className: "min-w-32 pr-2" },
     ],
     [games, t]
   );
@@ -316,24 +354,38 @@ const GameAssignments = () => {
   const actions = useMemo(
     () => [
       {
-        name: t("Completed"),
+        name: t("Learned"),
         node: (row: AssignmentRow) => (
-          <ButtonTooltip content={t("Completed")}>
+          <ButtonTooltip content={t("Learned")}>
             <input
               type="checkbox"
-              className="w-4 h-4 cursor-pointer"
-              checked={row.status === AssignmentStatusEnum.COMPLETED}
+              className="w-4 h-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+              checked={!!row.learnedAt}
+              disabled={!!row.verifiedAt}
               onChange={(event) => {
-                if (event.target.checked) {
-                  completeGameLearningTask({ assignmentId: row._id });
-                } else {
-                  updateAssignment({
-                    id: row._id,
-                    updates: {
-                      status: AssignmentStatusEnum.ASSIGNED,
-                    },
-                  });
-                }
+                completeGameLearningTask({
+                  assignmentId: row._id,
+                  isLearned: event.target.checked,
+                });
+              }}
+            />
+          </ButtonTooltip>
+        ),
+      },
+      {
+        name: t("Verified"),
+        node: (row: AssignmentRow) => (
+          <ButtonTooltip content={t("Verified")}>
+            <input
+              type="checkbox"
+              className="w-4 h-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+              checked={!!row.verifiedAt}
+              disabled={!row.learnedAt}
+              onChange={(event) => {
+                verifyGameLearningTask({
+                  assignmentId: row._id,
+                  isVerified: event.target.checked,
+                });
               }}
             />
           </ButtonTooltip>
@@ -409,6 +461,7 @@ const GameAssignments = () => {
       editFormKeys,
       updateAssignment,
       completeGameLearningTask,
+      verifyGameLearningTask,
       isDeleteModalOpen,
       deleteAssignment,
     ]
@@ -579,6 +632,10 @@ const GameAssignments = () => {
       return "bg-red-100";
     }
 
+    if (row.status === AssignmentStatusEnum.IN_PROGRESS) {
+      return "bg-blue-50";
+    }
+
     if (row.status === AssignmentStatusEnum.ASSIGNED) {
       return "bg-yellow-50";
     }
@@ -610,7 +667,9 @@ const GameAssignments = () => {
         filterPanel={filterPanel}
         filters={filters}
       />
-      {(isUpdatingAssignment || isCompletingGameLearningTask) && <Loading />}
+      {(isUpdatingAssignment ||
+        isCompletingGameLearningTask ||
+        isVerifyingGameLearningTask) && <Loading />}
     </div>
   );
 };

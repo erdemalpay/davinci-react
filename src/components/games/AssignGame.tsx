@@ -27,6 +27,12 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 
+const openAssignmentStatuses = [
+  AssignmentStatusEnum.ASSIGNED,
+  AssignmentStatusEnum.IN_PROGRESS,
+  AssignmentStatusEnum.OVERDUE,
+];
+
 const AssignGame = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -58,7 +64,7 @@ const AssignGame = () => {
   const existingGameAssignments = useGetAssignments(1, RowPerPageEnum.ALL, {
     subjectId: rowToAction?._id,
     assignmentType: AssignmentTypeEnum.GAME_LEARNING,
-    status: AssignmentStatusEnum.ASSIGNED,
+    status: openAssignmentStatuses,
   })?.data;
 
   const alreadyAssignedUserIds = useMemo(() => {
@@ -78,7 +84,7 @@ const AssignGame = () => {
   const allGameAssignments = useGetAssignments(1, RowPerPageEnum.ALL, {
     subjectId: gameIds,
     assignmentType: AssignmentTypeEnum.GAME_LEARNING,
-    status: AssignmentStatusEnum.ASSIGNED,
+    status: openAssignmentStatuses,
   })?.data;
 
   const assignedUserCountByGameId = useMemo(() => {

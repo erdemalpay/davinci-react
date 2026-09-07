@@ -13,6 +13,7 @@ import { ActionEnum, DisabledConditionEnum } from "../types";
 import {
   useCreateBulkProductAndMenuItemMutation,
   useUpdateMultipleProductMutations,
+  validateBulkProductAndMenuItem,
 } from "../utils/api/account/product";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
@@ -36,37 +37,28 @@ const menuGroupKeys = [
   "description",
   "image",
 ];
-const productRequiredKeys = ["expenseType"];
-const menuRequiredKeys = ["category", "price"];
-
 const hasValue = (value: any) => String(value ?? "").trim() !== "";
 // Eski excel dosyalarında başlıklarda yıldız olmayabilir, eşleştirmede yok sayılır
 const normalizeHeader = (header: any) =>
   String(header ?? "")
     .replace(/\*+$/, "")
     .trim();
-// Excel sonundaki biçimlendirmeden kalan satırlar eksik veri değil, hiç satır değildir
 const isEmptyRow = (item: any) =>
   !["name", ...productGroupKeys, ...menuGroupKeys].some((key) =>
     hasValue(item?.[key])
   );
 
-const getMissingRequiredKeys = (item: any) => {
-  const missingKeys: string[] = [];
-  if (!hasValue(item?.name)) {
-    missingKeys.push("name");
-  }
-  if (productGroupKeys.some((key) => hasValue(item?.[key]))) {
-    for (const key of productRequiredKeys) {
-      if (!hasValue(item?.[key])) missingKeys.push(key);
-    }
-  }
-  if (menuGroupKeys.some((key) => hasValue(item?.[key]))) {
-    for (const key of menuRequiredKeys) {
-      if (!hasValue(item?.[key])) missingKeys.push(key);
-    }
-  }
-  return missingKeys;
+const translateErrorNote = (errorNote: string, t: (key: string) => string) => {
+  const separatorIndex = errorNote.indexOf(": ");
+  if (separatorIndex === -1) return t(errorNote);
+  const prefix = errorNote.slice(0, separatorIndex);
+  const detail = errorNote.slice(separatorIndex + 2);
+  return prefix === "Missing fields"
+    ? `${t(prefix)}: ${detail
+        .split(", ")
+        .map((field) => t(field))
+        .join(", ")}`
+    : `${t(prefix)}: ${detail}`;
 };
 
 const BulkProductAdding = () => {
@@ -88,20 +80,12 @@ const BulkProductAdding = () => {
   const updateRef = useRef<HTMLInputElement>(null);
   // Seçilen dosya onaylanana kadar burada bekler, önizleme ekrandayken sunucuya istek gitmez
   const [previewRows, setPreviewRows] = useState<any[] | null>(null);
-  const fieldLabels: Record<string, string> = useMemo(
-    () => ({
-      name: t("Name"),
-      expenseType: t("Expense Type"),
-      category: t("Menu Category"),
-      price: t("Price"),
-    }),
-    [t]
-  );
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const invalidPreviewRowCount = useMemo(
     () => previewRows?.filter((row) => row?.errorNote)?.length ?? 0,
     [previewRows]
   );
-  const processExcelData = (data: any[], actionType: string) => {
+  const processExcelData = async (data: any[], actionType: string) => {
     const isCreate = actionType === "create";
     const headers = data[0];
     const keys = [
@@ -157,24 +141,27 @@ const BulkProductAdding = () => {
       toast.error(t("No rows found in the selected file"));
       return;
     }
-    setErrorDataForProductBulkCreation([]);
     if (!isCreate) {
+      setErrorDataForProductBulkCreation([]);
       updateMultipleProduct(items);
       return;
     }
-    setPreviewRows(
-      items.map((item) => {
-        const missingKeys = getMissingRequiredKeys(item);
-        return missingKeys.length > 0
-          ? {
-              ...item,
-              errorNote: `${t("Missing fields")}: ${missingKeys
-                .map((key) => fieldLabels[key])
-                .join(", ")}`,
-            }
-          : item;
-      })
-    );
+    setIsPreviewLoading(true);
+    try {
+      const errorNotes = await validateBulkProductAndMenuItem(items);
+      setErrorDataForProductBulkCreation([]);
+      setPreviewRows(
+        items.map((item, index) =>
+          errorNotes?.[index] ? { ...item, errorNote: errorNotes[index] } : item
+        )
+      );
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || t("An unexpected error occurred");
+      toast.error(errorMessage);
+    } finally {
+      setIsPreviewLoading(false);
+    }
   };
   const handlePreviewUpload = () => {
     if (!previewRows || invalidPreviewRowCount > 0) return;
@@ -188,14 +175,14 @@ const BulkProductAdding = () => {
     const file = ref.current?.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
+    reader.onload = async (e: ProgressEvent<FileReader>) => {
       const buffer = e.target?.result;
       if (buffer) {
         const wb = XLSX.read(buffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
         const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        processExcelData(data, actionType);
+        await processExcelData(data, actionType);
       }
       // Bu olmadan aynı dosya art arda ikinci kez seçilemiyor
       if (ref.current) ref.current.value = "";
@@ -204,15 +191,22 @@ const BulkProductAdding = () => {
   };
 
   const handleFileButtonClick = (actionType: string) => {
+    if (isPreviewLoading) return;
     const ref = actionType === "create" ? createRef : updateRef;
     if (ref.current) {
       ref.current.click();
     }
   };
+  const translateRowErrors = (list: any[]) =>
+    list.map((row) =>
+      row?.errorNote
+        ? { ...row, errorNote: translateErrorNote(row.errorNote, t) }
+        : row
+    );
   const rows =
-    previewRows ??
+    (previewRows && translateRowErrors(previewRows)) ??
     (errorDataForProductBulkCreation?.length > 0
-      ? errorDataForProductBulkCreation
+      ? translateRowErrors(errorDataForProductBulkCreation)
       : [
           {
             name: "7 Wonders Duel",
@@ -422,7 +416,9 @@ const BulkProductAdding = () => {
   const uploadFilters = [
     {
       isUpperSide: false,
-      isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.UPDATE, user),
+      isDisabled:
+        isPreviewLoading ||
+        isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.UPDATE, user),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -443,7 +439,9 @@ const BulkProductAdding = () => {
     },
     {
       isUpperSide: false,
-      isDisabled: isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.ADD, user),
+      isDisabled:
+        isPreviewLoading ||
+        isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.ADD, user),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -473,6 +471,11 @@ const BulkProductAdding = () => {
     <>
       <Header showLocationSelector={false} />
       <div className="w-[95%] mx-auto my-10 flex flex-col gap-6 ">
+        {isPreviewLoading && (
+          <p className="mb-2 text-sm text-gray-500">
+            {t("Rows are being checked")}
+          </p>
+        )}
         {previewRows && invalidPreviewRowCount === 0 && (
           <p className="mb-2 text-sm text-gray-500">
             {t("Products will be uploaded after your confirmation")}

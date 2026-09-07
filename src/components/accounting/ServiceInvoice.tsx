@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -66,21 +66,31 @@ const ServiceInvoice = () => {
   }, [disabledConditions]);
   const locations = useGetStockLocations();
   const {
-    filterServiceInvoicePanelFormElements,
-    setFilterServiceInvoicePanelFormElements,
-    showServiceInvoiceFilters,
-    setShowServiceInvoiceFilters,
+    filterExpensesPanelFormElements,
+    setFilterExpensesPanelFormElements,
+    showExpensesFilters,
+    setShowExpensesFilters,
     isServiceInvoiceEnableEdit,
     setIsServiceInvoiceEnableEdit,
-    initialFilterPanelServiceInvoiceFormElements,
+    initialFilterExpensesPanelFormElements,
   } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterServiceInvoicePanelFormElements,
-    true
+    filterExpensesPanelFormElements,
+    true,
+    ExpenseTypes.NONSTOCKABLE
   );
   const invoices = invoicesPayload?.data;
+  // this tab has no product/brand filter inputs, so filters left over from
+  // another expenses tab would be applied without being visible here
+  useEffect(() => {
+    setFilterExpensesPanelFormElements({
+      ...filterExpensesPanelFormElements,
+      product: initialFilterExpensesPanelFormElements.product,
+      brand: initialFilterExpensesPanelFormElements.brand,
+    });
+  }, []);
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
@@ -220,8 +230,8 @@ const ServiceInvoice = () => {
         }) => {
           const dateRange = dateRanges[value as DateRangeKey];
           if (dateRange) {
-            setFilterServiceInvoicePanelFormElements({
-              ...filterServiceInvoicePanelFormElements,
+            setFilterExpensesPanelFormElements({
+              ...filterExpensesPanelFormElements,
               ...dateRange(),
             });
           }
@@ -255,8 +265,8 @@ const ServiceInvoice = () => {
       expenseTypes,
       paymentMethods,
       locations,
-      filterServiceInvoicePanelFormElements,
-      setFilterServiceInvoicePanelFormElements,
+      filterExpensesPanelFormElements,
+      setFilterExpensesPanelFormElements,
     ]
   );
 
@@ -963,14 +973,14 @@ const ServiceInvoice = () => {
         isUpperSide: true,
         node: (
           <QuickDateRangeFilter
-            startDate={filterServiceInvoicePanelFormElements.after}
-            endDate={filterServiceInvoicePanelFormElements.before}
+            startDate={filterExpensesPanelFormElements.after}
+            endDate={filterExpensesPanelFormElements.before}
             onChange={(start: string, end: string) => {
               const isReset = !start && !end;
-              setFilterServiceInvoicePanelFormElements({
-                ...filterServiceInvoicePanelFormElements,
+              setFilterExpensesPanelFormElements({
+                ...filterExpensesPanelFormElements,
                 after: isReset
-                  ? initialFilterPanelServiceInvoiceFormElements.after
+                  ? initialFilterExpensesPanelFormElements.after
                   : start,
                 before: isReset ? "" : end,
                 date: "",
@@ -1022,9 +1032,9 @@ const ServiceInvoice = () => {
         isUpperSide: true,
         node: (
           <SwitchButton
-            checked={showServiceInvoiceFilters}
+            checked={showExpensesFilters}
             onChange={() => {
-              setShowServiceInvoiceFilters(!showServiceInvoiceFilters);
+              setShowExpensesFilters(!showExpensesFilters);
             }}
           />
         ),
@@ -1035,32 +1045,32 @@ const ServiceInvoice = () => {
       invoicesPayload,
       isServiceInvoiceEnableEdit,
       setIsServiceInvoiceEnableEdit,
-      showServiceInvoiceFilters,
-      setShowServiceInvoiceFilters,
+      showExpensesFilters,
+      setShowExpensesFilters,
       serviceInvoicePageDisabledCondition,
       user,
     ]
   );
   const filterPanel = useMemo(
     () => ({
-      isFilterPanelActive: showServiceInvoiceFilters,
+      isFilterPanelActive: showExpensesFilters,
       inputs: filterPanelInputs,
-      formElements: filterServiceInvoicePanelFormElements,
-      setFormElements: setFilterServiceInvoicePanelFormElements,
-      closeFilters: () => setShowServiceInvoiceFilters(false),
+      formElements: filterExpensesPanelFormElements,
+      setFormElements: setFilterExpensesPanelFormElements,
+      closeFilters: () => setShowExpensesFilters(false),
       additionalFilterCleanFunction: () => {
-        setFilterServiceInvoicePanelFormElements(
-          initialFilterPanelServiceInvoiceFormElements
+        setFilterExpensesPanelFormElements(
+          initialFilterExpensesPanelFormElements
         );
       },
     }),
     [
-      showServiceInvoiceFilters,
+      showExpensesFilters,
       filterPanelInputs,
-      filterServiceInvoicePanelFormElements,
-      setFilterServiceInvoicePanelFormElements,
-      setShowServiceInvoiceFilters,
-      initialFilterPanelServiceInvoiceFormElements,
+      filterExpensesPanelFormElements,
+      setFilterExpensesPanelFormElements,
+      setShowExpensesFilters,
+      initialFilterExpensesPanelFormElements,
     ]
   );
   const pagination = useMemo(() => {
@@ -1073,28 +1083,21 @@ const ServiceInvoice = () => {
   }, [invoicesPayload]);
   const outsideSort = useMemo(
     () => ({
-      filterPanelFormElements: filterServiceInvoicePanelFormElements,
-      setFilterPanelFormElements: setFilterServiceInvoicePanelFormElements,
+      filterPanelFormElements: filterExpensesPanelFormElements,
+      setFilterPanelFormElements: setFilterExpensesPanelFormElements,
     }),
-    [
-      filterServiceInvoicePanelFormElements,
-      setFilterServiceInvoicePanelFormElements,
-    ]
+    [filterExpensesPanelFormElements, setFilterExpensesPanelFormElements]
   );
   const outsideSearchProps = useMemo(() => {
     return {
       t,
-      filterPanelFormElements: filterServiceInvoicePanelFormElements,
-      setFilterPanelFormElements: setFilterServiceInvoicePanelFormElements,
+      filterPanelFormElements: filterExpensesPanelFormElements,
+      setFilterPanelFormElements: setFilterExpensesPanelFormElements,
     };
-  }, [
-    t,
-    filterServiceInvoicePanelFormElements,
-    setFilterServiceInvoicePanelFormElements,
-  ]);
+  }, [t, filterExpensesPanelFormElements, setFilterExpensesPanelFormElements]);
   useMemo(() => {
     setCurrentPage(1);
-  }, [filterServiceInvoicePanelFormElements, setCurrentPage]);
+  }, [filterExpensesPanelFormElements, setCurrentPage]);
 
   return (
     <>

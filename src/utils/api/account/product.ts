@@ -17,6 +17,8 @@ export interface CreateBulkProductAndMenuItem {
   itemProduction?: string;
   price?: number;
   onlinePrice?: number;
+  sku?: string;
+  barcode?: string;
   description?: string;
   image?: string;
   errorNote?: string;
@@ -60,6 +62,15 @@ export function createBulkProductAndMenuItem(
 ) {
   return post({
     path: `${Paths.Accounting}/products/bulk`,
+    payload: createBulkPayload,
+  });
+}
+
+export function validateBulkProductAndMenuItem(
+  createBulkPayload: CreateBulkProductAndMenuItem[]
+) {
+  return post<CreateBulkProductAndMenuItem[], (string | null)[]>({
+    path: `${Paths.Accounting}/products/bulk/validate`,
     payload: createBulkPayload,
   });
 }

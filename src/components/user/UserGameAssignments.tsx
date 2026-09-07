@@ -5,6 +5,7 @@ import { useUserContext } from "../../context/User.context";
 import {
   DateRangeKey,
   FormElementsState,
+  RoleEnum,
   commonDateOptions,
 } from "../../types";
 import {
@@ -17,8 +18,14 @@ import {
 } from "../../utils/api/assignment";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGamesMinimal } from "../../utils/api/game";
-import { useGetUsers } from "../../utils/api/user";
+import {
+  useCompleteGameLearningTaskMutation,
+  useGetUsers,
+  useVerifyGameLearningTaskMutation,
+} from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import Loading from "../common/Loading";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -34,10 +41,20 @@ type AssignmentRow = Assignment & {
   formattedDueDate?: string;
   formattedCreatedAt?: string;
   formattedCompletedDate?: string;
+  verifiedByName?: string;
+  formattedLearnedAt?: string;
 };
 
 function getAssignmentStatusSortPriority(status: AssignmentStatusEnum) {
-  return status === AssignmentStatusEnum.COMPLETED ? 1 : 0;
+  if (status === AssignmentStatusEnum.COMPLETED) return 2;
+  if (status === AssignmentStatusEnum.IN_PROGRESS) return 1;
+  return 0;
+}
+
+function getAssignedToId(row: AssignmentRow) {
+  return typeof row.assignedTo === "object" && row.assignedTo
+    ? (row.assignedTo as unknown as { _id: string })._id
+    : row.assignedTo;
 }
 
 function buildInitialFilters(userId: string): FormElementsState {
@@ -59,6 +76,14 @@ const UserGameAssignments = ({ userId }: Props) => {
   const games = useGetGamesMinimal();
   const { currentPage, rowsPerPage, setCurrentPage, searchQuery } =
     useGeneralContext();
+  const { completeGameLearningTask, isCompletingGameLearningTask } =
+    useCompleteGameLearningTaskMutation();
+  const { verifyGameLearningTask, isVerifyingGameLearningTask } =
+    useVerifyGameLearningTaskMutation();
+
+  const canVerify = [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(
+    user?.role?._id as RoleEnum
+  );
 
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -147,6 +172,25 @@ const UserGameAssignments = ({ userId }: Props) => {
                       : String(assignment.completedAt)
                   )
                 : "",
+            verifiedByName: assignment.verifiedBy
+              ? users?.find(
+                  (userItem) => userItem._id === assignment.verifiedBy
+                )?.name ?? String(assignment.verifiedBy)
+              : "",
+            formattedLearnedAt: assignment.learnedAt
+              ? formatAsLocalDate(
+                  assignment.learnedAt instanceof Date
+                    ? assignment.learnedAt.toISOString()
+                    : String(assignment.learnedAt)
+                )
+              : assignment.status === AssignmentStatusEnum.COMPLETED &&
+                assignment.completedAt
+              ? formatAsLocalDate(
+                  assignment.completedAt instanceof Date
+                    ? assignment.completedAt.toISOString()
+                    : String(assignment.completedAt)
+                )
+              : "",
           };
         })
         ?.sort(
@@ -187,6 +231,17 @@ const UserGameAssignments = ({ userId }: Props) => {
         isSortable: true,
         correspondingKey: "formattedCompletedDate",
       },
+      {
+        key: t("Learned Date"),
+        isSortable: true,
+        correspondingKey: "formattedLearnedAt",
+      },
+      {
+        key: t("Verified By"),
+        isSortable: true,
+        correspondingKey: "verifiedByName",
+      },
+      { key: t("Actions"), isSortable: false },
     ],
     [t]
   );
@@ -194,8 +249,16 @@ const UserGameAssignments = ({ userId }: Props) => {
   const rowKeys = useMemo(
     () => [
       { key: "title", className: "min-w-40 pr-2" },
-      { key: "status", className: "min-w-28 pr-2" },
-      { key: "priority", className: "min-w-24 pr-2" },
+      {
+        key: "status",
+        className: "min-w-28 pr-2",
+        node: (row: AssignmentRow) => t(row.status),
+      },
+      {
+        key: "priority",
+        className: "min-w-24 pr-2",
+        node: (row: AssignmentRow) => t(row.priority),
+      },
       { key: "assignedByName", className: "min-w-32 pr-2" },
       {
         key: "subjectEntityId",
@@ -211,8 +274,10 @@ const UserGameAssignments = ({ userId }: Props) => {
       { key: "formattedCreatedAt", className: "min-w-28 pr-2" },
       { key: "formattedDueDate", className: "min-w-28 pr-2" },
       { key: "formattedCompletedDate", className: "min-w-28 pr-2" },
+      { key: "formattedLearnedAt", className: "min-w-28 pr-2" },
+      { key: "verifiedByName", className: "min-w-32 pr-2" },
     ],
-    [games]
+    [games, t]
   );
 
   const pagination = useMemo(
@@ -224,6 +289,50 @@ const UserGameAssignments = ({ userId }: Props) => {
           }
         : null,
     [assignmentsPayload]
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Learned"),
+        node: (row: AssignmentRow) => (
+          <ButtonTooltip content={t("Learned")}>
+            <input
+              type="checkbox"
+              className="w-4 h-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+              checked={!!row.learnedAt}
+              disabled={getAssignedToId(row) !== user?._id || !!row.verifiedAt}
+              onChange={(event) => {
+                completeGameLearningTask({
+                  assignmentId: row._id,
+                  isLearned: event.target.checked,
+                });
+              }}
+            />
+          </ButtonTooltip>
+        ),
+      },
+      {
+        name: t("Verified"),
+        node: (row: AssignmentRow) => (
+          <ButtonTooltip content={t("Verified")}>
+            <input
+              type="checkbox"
+              className="w-4 h-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+              checked={!!row.verifiedAt}
+              disabled={!canVerify || !row.learnedAt}
+              onChange={(event) => {
+                verifyGameLearningTask({
+                  assignmentId: row._id,
+                  isVerified: event.target.checked,
+                });
+              }}
+            />
+          </ButtonTooltip>
+        ),
+      },
+    ],
+    [t, user?._id, canVerify, completeGameLearningTask, verifyGameLearningTask]
   );
 
   const filterPanelInputs = useMemo(
@@ -359,6 +468,10 @@ const UserGameAssignments = ({ userId }: Props) => {
       return "bg-green-100";
     }
 
+    if (row.status === AssignmentStatusEnum.IN_PROGRESS) {
+      return "bg-blue-50";
+    }
+
     if (row.status === AssignmentStatusEnum.ASSIGNED) {
       return "bg-red-100";
     }
@@ -375,7 +488,8 @@ const UserGameAssignments = ({ userId }: Props) => {
         rows={rows}
         columns={columns}
         rowKeys={rowKeys}
-        isActionsActive={false}
+        actions={actions}
+        isActionsActive={true}
         isSearch={true}
         isColumnFilter={false}
         isPagination={true}
@@ -385,6 +499,9 @@ const UserGameAssignments = ({ userId }: Props) => {
         filterPanel={filterPanel}
         filters={filters}
       />
+      {(isCompletingGameLearningTask || isVerifyingGameLearningTask) && (
+        <Loading />
+      )}
     </div>
   );
 };

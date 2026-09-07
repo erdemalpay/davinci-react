@@ -1,5 +1,7 @@
 import { endOfMonth, format, startOfMonth } from "date-fns";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaCircle, FaSquare, FaStar } from "react-icons/fa";
 import { useGetStoreLocations } from "../../../utils/api/location";
 import { useGetUserShifts } from "../../../utils/api/shift";
 import { useGetUser } from "../../../utils/api/user";
@@ -11,21 +13,47 @@ type ShiftEvent = {
   locationName: string;
   shiftStart: string;
   shiftEnd?: string;
+  isChef: boolean;
+  isMiddleman: boolean;
+  isOutsideOperation: boolean;
 };
 
-const ShiftEventItem = ({ event }: { event: ShiftEvent }) => (
-  <li className="py-1">
-    <div className="flex text-sm flex-1 justify-between gap-1">
-      <span className="font-medium bg-blue-300 px-2 py-[1.4px] text-white rounded-lg truncate">
-        {event.locationName}
-      </span>
-      <span className="text-gray-500 shrink-0">
-        {event.shiftStart}
-        {event.shiftEnd ? ` - ${event.shiftEnd}` : ""}
-      </span>
-    </div>
-  </li>
-);
+const ShiftEventItem = ({ event }: { event: ShiftEvent }) => {
+  const { t } = useTranslation();
+  return (
+    <li className="py-1">
+      <div className="flex text-sm flex-1 justify-between gap-1">
+        <span className="flex items-center gap-1 min-w-0">
+          <span className="font-medium bg-blue-300 px-2 py-[1.4px] text-white rounded-lg truncate">
+            {event.locationName}
+          </span>
+          {event.isChef && (
+            <FaStar
+              className="text-yellow-600 shrink-0"
+              title={t("Service Staff")}
+            />
+          )}
+          {event.isMiddleman && (
+            <FaCircle
+              className="text-purple-500 shrink-0"
+              title={t("Middleman")}
+            />
+          )}
+          {event.isOutsideOperation && (
+            <FaSquare
+              className="text-red-600 shrink-0"
+              title={t("Outside Operation")}
+            />
+          )}
+        </span>
+        <span className="text-gray-500 shrink-0">
+          {event.shiftStart}
+          {event.shiftEnd ? ` - ${event.shiftEnd}` : ""}
+        </span>
+      </div>
+    </li>
+  );
+};
 
 const UserShifts = () => {
   const [currentMonth, setCurrentMonth] = useState<Date>(
@@ -49,6 +77,10 @@ const UserShifts = () => {
           locations?.find((l) => l._id === shift.location)?.name ?? "",
         shiftStart: sv.shift,
         shiftEnd: sv.shiftEndHour,
+        isChef: sv.chefUser === user?._id,
+        isMiddleman: sv.middlemanUser === user?._id,
+        isOutsideOperation:
+          sv.outsideOperationUsers?.includes(user?._id ?? "") ?? false,
       }))
   );
 

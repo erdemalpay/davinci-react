@@ -291,6 +291,7 @@ export type AccountProduct = {
     location: number;
     shelf: string;
   }[];
+  createdAt?: Date;
 };
 export type AccountService = {
   _id: string;
@@ -1087,6 +1088,7 @@ export type Order = {
   taxNumberCompanyName?: string;
   shopifyShippingAddress?: ShopifyAddress;
   shopifyBillingAddress?: ShopifyAddress;
+  shopifyWarning?: string;
 };
 
 export type OrderCollection = {
@@ -1483,7 +1485,7 @@ export enum RoleEnum {
   KITCHEN2,
   KITCHEN3,
   BARCHEF,
-  COUNTER
+  COUNTER,
 }
 
 export enum RoleNameEnum {
@@ -1713,13 +1715,16 @@ export interface ShopifyDiscountNode {
       items?: DiscountItems;
     };
     customerBuys?: {
-      value?:
-        | { quantity: { quantity: string } }
-        | { amount: string };
+      value?: { quantity: { quantity: string } } | { amount: string };
       items?: DiscountItems;
     };
     minimumRequirement?:
-      | { greaterThanOrEqualToSubtotal: { amount: string; currencyCode: string } }
+      | {
+          greaterThanOrEqualToSubtotal: {
+            amount: string;
+            currencyCode: string;
+          };
+        }
       | { greaterThanOrEqualToQuantity: number };
     combinesWith?: {
       productDiscounts: boolean;
@@ -2100,6 +2105,7 @@ export enum ActivityType {
   DELETE_GAME_ASSIGNMENT = "DELETE_GAME_ASSIGNMENT",
   COMPLETE_GAME_ASSIGNMENT = "COMPLETE_GAME_ASSIGNMENT",
   UNCOMPLETE_GAME_ASSIGNMENT = "UNCOMPLETE_GAME_ASSIGNMENT",
+  VERIFY_GAME_ASSIGNMENT = "VERIFY_GAME_ASSIGNMENT",
 }
 export const activityTypeDetails = [
   {
@@ -2511,6 +2517,11 @@ export const activityTypeDetails = [
     value: ActivityType.UNCOMPLETE_GAME_ASSIGNMENT,
     label: "Game Assignment Uncompleted",
     bgColor: "bg-orange-500",
+  },
+  {
+    value: ActivityType.VERIFY_GAME_ASSIGNMENT,
+    label: "Game Assignment Verified",
+    bgColor: "bg-indigo-500",
   },
 ];
 
