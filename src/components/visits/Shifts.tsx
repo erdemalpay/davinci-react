@@ -51,7 +51,9 @@ function getUserBadgeClasses(
   isOutsideOperation: boolean,
   withTransparentFallback = false
 ): string {
-  const filterClass = isFiltered ? "font-bold underline" : "";
+  const filterClass = isFiltered
+    ? "font-bold !bg-amber-400 !text-gray-900"
+    : "";
   let borderClass = "";
   let ringClass = "";
   if (isChef) {
