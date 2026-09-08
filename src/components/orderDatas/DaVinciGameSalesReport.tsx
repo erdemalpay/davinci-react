@@ -488,6 +488,17 @@ const DaVinciGameSalesReport = () => {
         placeholder: t("Cancelled By"),
         required: true,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "salesChannel",
+        label: t("Sales Type"),
+        options: [
+          { value: "wholesale", label: t("Wholesale Only") },
+          { value: "retail", label: t("Retail Only") },
+        ],
+        placeholder: t("Sales Type"),
+        required: true,
+      },
     ],
     [
       sellLocations,
