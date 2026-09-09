@@ -77,6 +77,8 @@ const GameStockLocation = () => {
   }, [stocks, products, filtershowGameStockLocationFiltersPanelFormElements]);
 
   const rows = useMemo(() => {
+    const daVinciGameFilter =
+      filtershowGameStockLocationFiltersPanelFormElements?.isDaVinciGame;
     const processedRows = filteredStocks?.reduce((acc: any, stock) => {
       const foundProduct = getItem(stock?.product, products);
       const matchedItem = items?.find(
@@ -85,6 +87,12 @@ const GameStockLocation = () => {
       const productName = foundProduct?.name;
       const quantity = stock?.quantity;
       if (!productName) {
+        return acc;
+      }
+      if (
+        daVinciGameFilter !== "" &&
+        (matchedItem?.isDaVinciGame ?? false) !== (daVinciGameFilter === "true")
+      ) {
         return acc;
       }
 
@@ -148,6 +156,17 @@ const GameStockLocation = () => {
         placeholder: t("Product"),
         required: true,
         isMultiple: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "isDaVinciGame",
+        label: t("Da Vinci Games"),
+        options: [
+          { value: "true", label: t("Yes") },
+          { value: "false", label: t("No") },
+        ],
+        placeholder: t("Da Vinci Games"),
+        required: true,
       },
       {
         type: InputTypes.NUMBER,
