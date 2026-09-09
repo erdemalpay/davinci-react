@@ -1,8 +1,10 @@
 import { AiOutlineFileText } from "react-icons/ai";
 import { LuGitCompare } from "react-icons/lu";
 import { TbArrowsRightLeft } from "react-icons/tb";
+import { TbApi } from "react-icons/tb";
 import { Header } from "../components/header/Header";
 import ConcurrencyLogs from "../components/logs/ConcurrencyLogs";
+import IntegrationRequestLogs from "../components/logs/IntegrationRequestLogs";
 import PriceCompareLogs from "../components/logs/PriceCompareLogs";
 import WebhookLogs from "../components/logs/WebhookLogs";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -31,6 +33,13 @@ export const LogsPageTabs = [
     label: "Concurrency Logs",
     icon: <TbArrowsRightLeft className="text-lg font-thin" />,
     content: <ConcurrencyLogs />,
+    isDisabled: false,
+  },
+  {
+    number: LogsPageTabEnum.INTEGRATION_REQUEST_LOGS,
+    label: "Trendyol Request Logs",
+    icon: <TbApi className="text-lg font-thin" />,
+    content: <IntegrationRequestLogs />,
     isDisabled: false,
   },
 ];
