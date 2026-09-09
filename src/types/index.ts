@@ -489,6 +489,7 @@ export enum VisitSource {
   PANEL = "panel",
   FACE_RECOGNITION = "face_recognition",
   QR = "qr",
+  AUTO = "auto",
 }
 export enum VisitStatus {
   WRONG_ENTRY = "wrong_entry",
