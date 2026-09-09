@@ -366,7 +366,7 @@ const ShiftChange = () => {
                                 className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white border-white ${
                                   filterPanelFormElements.user ===
                                   foundUser?._id
-                                    ? "font-bold underline"
+                                    ? "font-bold !bg-amber-400 !text-gray-900"
                                     : ""
                                 }`}
                                 style={{
@@ -398,7 +398,7 @@ const ShiftChange = () => {
                         key={`${row.day}${foundUser?._id}${index}`}
                         className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
                           filterPanelFormElements.user === foundUser?._id
-                            ? "font-bold underline"
+                            ? "font-bold !bg-amber-400 !text-gray-900"
                             : ""
                         }`}
                         style={{ backgroundColor: foundUser?.role?.color }}
