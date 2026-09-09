@@ -1620,6 +1620,7 @@ export enum LogsPageTabEnum {
   WEBHOOK_LOGS,
   PRICE_COMPARE_LOGS,
   CONCURRENCY_LOGS,
+  INTEGRATION_REQUEST_LOGS,
 }
 
 export enum ActivitiesPageTabEnum {
@@ -1639,6 +1640,20 @@ export type ConcurrencyLog = {
   endpoint: string;
   inFlightCount: number;
   requests: ConcurrentRequest[];
+  createdAt: string;
+};
+
+export type IntegrationRequestLog = {
+  _id: number;
+  source: string;
+  method: string;
+  endpoint: string;
+  requestBody?: any;
+  responseBody?: any;
+  status: string;
+  statusCode?: number;
+  errorMessage?: string;
+  durationMs: number;
   createdAt: string;
 };
 
