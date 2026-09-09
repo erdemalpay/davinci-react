@@ -248,7 +248,12 @@ const OrderPaymentModal = ({
           order?.status !== OrderStatus.CANCELLED
       );
       const userOrdersTotal = userOrders?.reduce((acc, order) => {
-        return acc + order?.unitPrice * order?.paidQuantity;
+        return (
+          acc +
+          order?.unitPrice * order?.paidQuantity -
+          (order?.discountAmount ?? 0) -
+          (order?.unitPrice * (order?.discountPercentage ?? 0)) / 100
+        );
       }, 0);
       return Number(userOrdersTotal);
     }
@@ -336,11 +341,6 @@ const OrderPaymentModal = ({
     allTableOrders?.every((order) => order?.paidQuantity === order?.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
   const unpaidAmount = useMemo(() => {
-    if (selectedActivityUser) {
-      // For specific activity user: unpaid amount is only for that user's orders
-      return Math.max(0, totalAmount - discountAmount - collectionsTotalAmount);
-    }
-    // For normal case (no specific user): minimum of filtered orders and all orders
     return Math.max(
       0,
       Math.min(
