@@ -37,6 +37,7 @@ import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -73,7 +74,6 @@ function getUserBadgeClasses(
 
 const Shifts = () => {
   const { t } = useTranslation();
-  const [tableKey, setTableKey] = useState(0);
   const users = useGetUsersMinimal();
   const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
@@ -1504,6 +1504,24 @@ const Shifts = () => {
       {
         isUpperSide: true,
         node: (
+          <QuickDateRangeFilter
+            startDate={filterPanelFormElements.after}
+            endDate={filterPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterPanelFormElements({
+                ...filterPanelFormElements,
+                after: isReset ? initialFilterPanelFormElements.after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
+        isUpperSide: true,
+        node: (
           <ButtonFilter
             buttonName={t("All")}
             onclick={() => {
@@ -1630,85 +1648,71 @@ const Shifts = () => {
       user,
       isShiftsEnableEdit,
       setIsShiftsEnableEdit,
+      filterPanelFormElements,
+      initialFilterPanelFormElements,
+      setFilterPanelFormElements,
     ]
   );
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
-      }),
-      placeholder: t("Date"),
-      required: true,
-      additionalOnChange: ({ value }: { value: string; label: string }) => {
-        const dateRange = dateRanges[value as DateRangeKey];
-        if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            ...dateRange(),
-          });
-        }
-      },
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "role",
-      label: t("Roles"),
-      options: roles?.map((role) => {
-        return {
-          value: role._id,
-          label: role.name,
-        };
-      }),
-      isMultiple: true,
-      placeholder: t("Roles"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "user",
-      label: t("User"),
-      options: users
-        ?.filter((user) => {
-          if (filterPanelFormElements?.role?.length > 0) {
-            return filterPanelFormElements?.role?.includes(user?.role?._id);
-          }
-          return true;
-        })
-        ?.map((user) => {
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => {
           return {
-            value: user._id,
-            label: user.name,
+            value: option.value,
+            label: t(option.label),
           };
         }),
-      placeholder: t("User"),
-    },
-  ];
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({ value }: { value: string; label: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements({
+              ...filterPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "role",
+        label: t("Roles"),
+        options: roles?.map((role) => {
+          return {
+            value: role._id,
+            label: role.name,
+          };
+        }),
+        isMultiple: true,
+        placeholder: t("Roles"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "user",
+        label: t("User"),
+        options: users
+          ?.filter((user) => {
+            if (filterPanelFormElements?.role?.length > 0) {
+              return filterPanelFormElements?.role?.includes(user?.role?._id);
+            }
+            return true;
+          })
+          ?.map((user) => {
+            return {
+              value: user._id,
+              label: user.name,
+            };
+          }),
+        placeholder: t("User"),
+      },
+    ],
+    [t, roles, users, filterPanelFormElements]
+  );
   const filterPanel = {
     isFilterPanelActive: showShiftsFilters,
     inputs: filterPanelInputs,
@@ -1722,7 +1726,6 @@ const Shifts = () => {
   };
 
   useEffect(() => {
-    setTableKey((prevKey) => prevKey + 1);
     setRows(allRows);
   }, [
     shifts,
@@ -1735,7 +1738,6 @@ const Shifts = () => {
   return (
     <div className="w-[95%] my-5 mx-auto overflow-x-auto">
       <GenericTable
-        key={tableKey}
         rowKeys={rowKeys}
         columns={columns}
         addButton={copyShiftIntervalButton}
