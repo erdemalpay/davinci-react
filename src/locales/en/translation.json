@@ -1881,5 +1881,7 @@
   "Response": "Response",
   "Request Detail": "Request Detail",
   "Trendyol Request Logs": "Trendyol Request Logs",
-  "Success": "Success"
+  "Success": "Success",
+  "Partially Delivered": "Partially Delivered",
+  "Mark the products as brought from the depot first": "Mark the products as brought from the depot first"
 }
