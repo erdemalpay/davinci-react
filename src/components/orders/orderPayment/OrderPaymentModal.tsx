@@ -1267,6 +1267,7 @@ const OrderPaymentModal = ({
                     allTotalMoneySpend={allTotalMoneySpend}
                     allDiscountAmount={allDiscountAmount}
                     refundAmount={refundAmount}
+                    unpaidAmount={unpaidAmount}
                   />
                 )}
               </div>

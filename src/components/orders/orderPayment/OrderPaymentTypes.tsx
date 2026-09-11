@@ -27,6 +27,7 @@ import { useOrderCollectionMutations } from "../../../utils/api/order/orderColle
 import { closeTable } from "../../../utils/api/table";
 import { MinimalUser } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
+import { advanceSplitPayment } from "../../../utils/splitPayment";
 import PointUserSelectionModal from "./PointUserSelectionModal";
 
 type Props = {
@@ -47,6 +48,7 @@ type Props = {
   allTotalMoneySpend: number;
   allDiscountAmount: number;
   refundAmount: number;
+  unpaidAmount: number;
 };
 const OrderPaymentTypes = ({
   tableOrders,
@@ -66,6 +68,7 @@ const OrderPaymentTypes = ({
   allTotalMoneySpend,
   allDiscountAmount,
   refundAmount,
+  unpaidAmount,
 }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
@@ -91,8 +94,14 @@ const OrderPaymentTypes = ({
         collection?.activityPlayer === selectedActivityUser)
   );
 
-  const { paymentAmount, temporaryOrders, resetOrderContext } =
-    useOrderContext();
+  const {
+    paymentAmount,
+    temporaryOrders,
+    resetOrderContext,
+    setPaymentAmount,
+    splitPayment,
+    setSplitPayment,
+  } = useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
     switch (paymentType) {
       case "cash":
@@ -218,6 +227,17 @@ const OrderPaymentTypes = ({
       }
     }
     resetOrderContext();
+    // ürün seçilerek tahsilat alındıysa bölüşme sonlanır
+    if (splitPayment && temporaryOrders?.length === 0) {
+      const nextSplitPayment = advanceSplitPayment(
+        splitPayment,
+        unpaidAmount - actualAmount
+      );
+      if (nextSplitPayment) {
+        setSplitPayment(nextSplitPayment.splitPayment);
+        setPaymentAmount(nextSplitPayment.amount.toFixed(2));
+      }
+    }
   };
 
   const handlePointUserConfirm = (
