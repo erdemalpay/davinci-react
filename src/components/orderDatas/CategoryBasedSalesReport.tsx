@@ -23,7 +23,12 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import { formatCurrency, formatPercentage } from "../../utils/format";
+import {
+  formatAsLocalDate,
+  formatCurrency,
+  formatPercentage,
+  toIstDate,
+} from "../../utils/format";
 import { getCategoryFilterOptions, getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
@@ -63,6 +68,17 @@ type OrderWithPaymentInfo = {
   };
   className?: string;
   isSortable?: boolean;
+};
+type DailyItemSalesExcelRow = {
+  date: string;
+  formattedDate: string;
+  category: string;
+  product: string;
+  quantity: number;
+  discount: number;
+  amount: number;
+  totalAmountWithDiscount: number;
+  ratioToTotal: number;
 };
 
 const CategoryBasedSalesReport = () => {
@@ -299,6 +315,88 @@ const CategoryBasedSalesReport = () => {
 
     return allRowsWithRatio;
   }, [orders, categories, items, t]);
+
+  const excelRows = useMemo(() => {
+    if (!orders || !categories || !items) return [];
+    const dailyRows = orders
+      .filter(
+        (order) =>
+          ![OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(
+            order.status as OrderStatus
+          ) && order?.paidQuantity > 0
+      )
+      .reduce((acc, order) => {
+        const date = format(
+          toIstDate(order.tableDate ?? order.createdAt),
+          "yyyy-MM-dd"
+        );
+        const foundItem = getItem(order.item, items);
+        const orderAmount = order.paidQuantity * order.unitPrice;
+        const orderDiscount = order.discountPercentage
+          ? order.discountPercentage * orderAmount * 0.01
+          : (order.discountAmount ?? 0) * order.paidQuantity;
+        const key = `${date}-${order.item}`;
+        const existingEntry = acc.get(key);
+        if (existingEntry) {
+          existingEntry.quantity += order.paidQuantity;
+          existingEntry.discount += orderDiscount;
+          existingEntry.amount += orderAmount;
+          existingEntry.totalAmountWithDiscount += orderAmount - orderDiscount;
+        } else {
+          acc.set(key, {
+            date,
+            formattedDate: formatAsLocalDate(date),
+            category: getItem(foundItem?.category, categories)?.name ?? "",
+            product: foundItem?.name ?? "",
+            quantity: order.paidQuantity,
+            discount: orderDiscount,
+            amount: orderAmount,
+            totalAmountWithDiscount: orderAmount - orderDiscount,
+            ratioToTotal: 0,
+          });
+        }
+        return acc;
+      }, new Map<string, DailyItemSalesExcelRow>());
+
+    const excelRowList = Array.from(dailyRows.values());
+    const grandTotal = excelRowList.reduce(
+      (acc, row) => acc + row.totalAmountWithDiscount,
+      0
+    );
+    return excelRowList
+      .map((row) => ({
+        ...row,
+        discount: Number(row.discount.toFixed(2)),
+        amount: Number(row.amount.toFixed(2)),
+        totalAmountWithDiscount: Number(row.totalAmountWithDiscount.toFixed(2)),
+        ratioToTotal:
+          grandTotal > 0
+            ? Number(
+                ((row.totalAmountWithDiscount / grandTotal) * 100).toFixed(2)
+              )
+            : 0,
+      }))
+      .sort(
+        (a, b) =>
+          a.date.localeCompare(b.date) ||
+          a.category.localeCompare(b.category, "tr") ||
+          b.quantity - a.quantity
+      );
+  }, [orders, categories, items]);
+
+  const excelColumns = useMemo(
+    () => [
+      { key: t("Date"), correspondingKey: "formattedDate" },
+      { key: t("Category"), correspondingKey: "category" },
+      { key: t("Product"), correspondingKey: "product" },
+      { key: t("Quantity"), correspondingKey: "quantity" },
+      { key: t("Discount"), correspondingKey: "discount" },
+      { key: t("Total Amount"), correspondingKey: "amount" },
+      { key: t("General Amount"), correspondingKey: "totalAmountWithDiscount" },
+      { key: `${t("Ratio to Total")} (%)`, correspondingKey: "ratioToTotal" },
+    ],
+    [t]
+  );
 
   const columns = useMemo(
     () => [
@@ -666,6 +764,9 @@ const CategoryBasedSalesReport = () => {
             )
           }
           isCollapsible={true}
+          excelRows={excelRows}
+          excelColumns={excelColumns}
+          excelFileName={`${t("Category Based Sales")}.xlsx`}
         />
       </div>
     </>
