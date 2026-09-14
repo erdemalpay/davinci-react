@@ -1889,5 +1889,7 @@
   "Response": "Cevap",
   "Request Detail": "İstek Detayı",
   "Trendyol Request Logs": "Trendyol İstek Logları",
-  "Success": "Başarılı"
+  "Success": "Başarılı",
+  "Partially Delivered": "Kısmen Teslim Edildi",
+  "Mark the products as brought from the depot first": "Önce ürünleri depodan getirildi olarak işaretleyin"
 }
