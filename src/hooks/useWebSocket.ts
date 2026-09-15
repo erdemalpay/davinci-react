@@ -179,7 +179,7 @@ export function useWebSocket(shouldConnect = false) {
       // In other cases, Socket.IO will automatically reconnect
     });
 
-    socket.on("reconnect", (attemptNumber) => {
+    const handleReconnect = (attemptNumber: number) => {
       const { queryClient, selectedDate } = latestValuesRef.current;
       const disconnectDuration = disconnectTimeRef.current
         ? Date.now() - disconnectTimeRef.current
@@ -208,13 +208,16 @@ export function useWebSocket(shouldConnect = false) {
           [`${Paths.Notification}/all`],
           [`${Paths.Accounting}/stocks`],
           [`${Paths.Accounting}/stocks/query`],
+          [`${Paths.Accounting}/count-list`],
+          [`${Paths.Accounting}/products`],
         ];
 
         criticalQueries.forEach((queryKey) => {
           queryClient.invalidateQueries({ queryKey });
         });
       }
-    });
+    };
+    socket.io.on("reconnect", handleReconnect);
 
     socket.on("reconnect_attempt", (attemptNumber) => {
       console.log(`🔄 WebSocket reconnection attempt: ${attemptNumber}`);
@@ -789,6 +792,8 @@ export function useWebSocket(shouldConnect = false) {
     // Cleanup: only close socket when component unmounts
     return () => {
       if (socketRef.current) {
+        // Aynı adres için Manager önbellekten tekrar kullanıldığından dinleyici burada kaldırılır
+        socketRef.current.io.off("reconnect", handleReconnect);
         socketRef.current.disconnect();
         socketRef.current = null;
       }
