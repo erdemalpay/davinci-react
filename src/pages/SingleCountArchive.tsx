@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { GenericButton } from "../components/common/GenericButton";
+import ReservedQuantityCell from "../components/countLists/ReservedQuantityCell";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
@@ -35,7 +36,7 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
-import { getCountStockBgColor } from "../utils/color";
+import { getCountExpectedQuantity, getCountStockBgColor } from "../utils/color";
 
 const SingleCountArchive = () => {
   const { t } = useTranslation();
@@ -150,13 +151,8 @@ const SingleCountArchive = () => {
         })
         .filter((row): row is NonNullable<typeof row> => row !== null)
         .sort((a, b) => {
-          const colorRank = (row: {
-            stockQuantity: number;
-            reservedQuantity?: number;
-            countQuantity: number;
-          }) => {
-            const s =
-              Number(row.stockQuantity) + Number(row.reservedQuantity ?? 0);
+          const colorRank = (row: { stockQuantity: number; countQuantity: number }) => {
+            const s = getCountExpectedQuantity(row);
             const c = Number(row.countQuantity);
             if (s > c) return 0; // red
             if (s < c) return 1; // green
@@ -204,27 +200,12 @@ const SingleCountArchive = () => {
         ? [
             {
               key: "reservedQuantity",
-              node: (row: any) =>
-                row.reservedQuantity == null ? (
-                  <span>?</span>
-                ) : row.reservedQuantity ? (
-                  <ButtonTooltip
-                    content={row.reservedDetails.map(
-                      (detail: any, index: number) => (
-                        <div key={index} className="capitalize">
-                          {detail.channel} {detail.orderNumber} (
-                          {detail.quantity})
-                        </div>
-                      )
-                    )}
-                  >
-                    <span className="underline decoration-dotted cursor-help">
-                      {row.reservedQuantity}
-                    </span>
-                  </ButtonTooltip>
-                ) : (
-                  <span>-</span>
-                ),
+              node: (row: any) => (
+                <ReservedQuantityCell
+                  reservedQuantity={row.reservedQuantity}
+                  reservedDetails={row.reservedDetails}
+                />
+              ),
             },
           ]
         : []),
@@ -232,10 +213,7 @@ const SingleCountArchive = () => {
       {
         key: "difference",
         node: (row: any) => {
-          const diff =
-            Number(row.countQuantity) -
-            Number(row.stockQuantity) -
-            Number(row.reservedQuantity ?? 0);
+          const diff = Number(row.countQuantity) - getCountExpectedQuantity(row);
           return <span>{diff > 0 ? `+${diff}` : diff}</span>;
         },
       },

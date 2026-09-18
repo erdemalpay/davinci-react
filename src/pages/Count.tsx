@@ -4,6 +4,7 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { GenericButton } from "../components/common/GenericButton";
+import ReservedQuantityCell from "../components/countLists/ReservedQuantityCell";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
@@ -35,7 +36,7 @@ import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
-import { getCountStockBgColor } from "../utils/color";
+import { getCountExpectedQuantity, getCountStockBgColor } from "../utils/color";
 
 const Count = () => {
   const { t, i18n } = useTranslation();
@@ -168,7 +169,7 @@ const Count = () => {
               (it) => it?.matchedProduct === countListProduct.product
             );
             const countProduct = currentCount?.products?.find(
-              (cp: any) => cp.product === countListProduct.product
+              (cp) => cp.product === countListProduct.product
             );
             // Ayrılmış kaydı varsa fark sayının girildiği andaki stoğa göre gösterilir.
             const hasReservedSnapshot = countProduct?.reservedQuantity != null;
@@ -177,10 +178,10 @@ const Count = () => {
               productId: countListProduct.product,
               product: foundProduct?.name || "",
               countQuantity: currentCount?.products?.find(
-                (cp: any) => cp.product === countListProduct.product
+                (cp) => cp.product === countListProduct.product
               )?.countQuantity ?? 0,
               productDeleteRequest: currentCount?.products?.find(
-                (cp: any) => cp.product === countListProduct.product
+                (cp) => cp.product === countListProduct.product
               )?.productDeleteRequest,
               shelfInfo:
                 foundProduct?.shelfInfo?.find(
@@ -218,13 +219,8 @@ const Count = () => {
     if (!showStockAndColors) {
       return [...rows].sort((a, b) => a.product.localeCompare(b.product));
     }
-    const colorRank = (row: {
-      stockQuantity?: number;
-      reservedQuantity?: number;
-      countQuantity: number;
-    }) => {
-      const s =
-        Number(row.stockQuantity ?? 0) + Number(row.reservedQuantity ?? 0);
+    const colorRank = (row: { stockQuantity?: number; countQuantity: number }) => {
+      const s = getCountExpectedQuantity(row);
       const c = Number(row.countQuantity);
       if (s > c) return 0; // red
       if (s < c) return 1; // green
@@ -378,37 +374,19 @@ const Count = () => {
               ? [
                   {
                     key: "reservedQuantity",
-                    node: (row: any) =>
-                      row.reservedQuantity == null ? (
-                        <span>?</span>
-                      ) : row.reservedQuantity ? (
-                        <ButtonTooltip
-                          content={row.reservedDetails.map(
-                            (detail: any, index: number) => (
-                              <div key={index} className="capitalize">
-                                {detail.channel} {detail.orderNumber} (
-                                {detail.quantity})
-                              </div>
-                            )
-                          )}
-                        >
-                          <span className="underline decoration-dotted cursor-help">
-                            {row.reservedQuantity}
-                          </span>
-                        </ButtonTooltip>
-                      ) : (
-                        <span>-</span>
-                      ),
+                    node: (row: any) => (
+                      <ReservedQuantityCell
+                        reservedQuantity={row.reservedQuantity}
+                        reservedDetails={row.reservedDetails}
+                      />
+                    ),
                   },
                 ]
               : []),
             {
               key: "difference",
               node: (row: any) => {
-                const diff =
-                  Number(row.countQuantity) -
-                  Number(row.stockQuantity) -
-                  Number(row.reservedQuantity ?? 0);
+                const diff = Number(row.countQuantity) - getCountExpectedQuantity(row);
                 return <span>{diff > 0 ? `+${diff}` : diff}</span>;
               },
             },
