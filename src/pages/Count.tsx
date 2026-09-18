@@ -123,6 +123,14 @@ const Count = () => {
     [countArchiveOpenCountDisabledCondition, user]
   );
 
+  // Ayrılmış kaydı yalnızca pazaryeri siparişlerinin düştüğü depo sayımında oluşur.
+  const showReserved = useMemo(
+    () =>
+      showStockAndColors &&
+      !!currentCount?.products?.some((cp) => cp.reservedQuantity != null),
+    [showStockAndColors, currentCount?.products]
+  );
+
   const columns = useMemo(() => {
     const base = [
       { key: t("Product"), isSortable: true },
@@ -130,6 +138,7 @@ const Count = () => {
       ...(showStockAndColors
         ? [
             { key: t("Stock Quantity"), isSortable: true },
+            ...(showReserved ? [{ key: t("Reserved"), isSortable: true }] : []),
             { key: t("Difference"), isSortable: false },
           ]
         : []),
@@ -137,7 +146,7 @@ const Count = () => {
     ];
     if (isEnableEdit) base.push({ key: t("Actions"), isSortable: false });
     return base;
-  }, [t, isEnableEdit, showStockAndColors]);
+  }, [t, isEnableEdit, showStockAndColors, showReserved]);
 
   const rows = useMemo(() => {
     const listProducts = currentCountList?.products ?? [];
@@ -158,6 +167,11 @@ const Count = () => {
             const foundMenuItem = items?.find(
               (it) => it?.matchedProduct === countListProduct.product
             );
+            const countProduct = currentCount?.products?.find(
+              (cp: any) => cp.product === countListProduct.product
+            );
+            // Ayrılmış kaydı varsa fark sayının girildiği andaki stoğa göre gösterilir.
+            const hasReservedSnapshot = countProduct?.reservedQuantity != null;
             return {
               products: currentCount?.products,
               productId: countListProduct.product,
@@ -174,12 +188,16 @@ const Count = () => {
                 )?.shelf || "",
               sku: foundMenuItem?.sku || "",
               barcode: foundMenuItem?.barcode || "",
-              stockQuantity:
-                stocks?.find(
-                  (s) =>
-                    s?.product === countListProduct.product &&
-                    s?.location === numericLocation
-                )?.quantity || 0,
+              stockQuantity: hasReservedSnapshot
+                ? countProduct.stockQuantity
+                : stocks?.find(
+                    (s) =>
+                      s?.product === countListProduct.product &&
+                      s?.location === numericLocation
+                  )?.quantity || 0,
+              // Sayılmış ama ayrılmış kaydı henüz yoksa bilinmiyor olarak gösterilir.
+              reservedQuantity: countProduct ? countProduct.reservedQuantity : 0,
+              reservedDetails: countProduct?.reservedDetails ?? [],
             };
           }
           return { product: "", countQuantity: 0 };
@@ -200,8 +218,13 @@ const Count = () => {
     if (!showStockAndColors) {
       return [...rows].sort((a, b) => a.product.localeCompare(b.product));
     }
-    const colorRank = (row: { stockQuantity?: number; countQuantity: number }) => {
-      const s = Number(row.stockQuantity ?? 0);
+    const colorRank = (row: {
+      stockQuantity?: number;
+      reservedQuantity?: number;
+      countQuantity: number;
+    }) => {
+      const s =
+        Number(row.stockQuantity ?? 0) + Number(row.reservedQuantity ?? 0);
       const c = Number(row.countQuantity);
       if (s > c) return 0; // red
       if (s < c) return 1; // green
@@ -351,10 +374,41 @@ const Count = () => {
       ...(showStockAndColors
         ? [
             { key: "stockQuantity" },
+            ...(showReserved
+              ? [
+                  {
+                    key: "reservedQuantity",
+                    node: (row: any) =>
+                      row.reservedQuantity == null ? (
+                        <span>?</span>
+                      ) : row.reservedQuantity ? (
+                        <ButtonTooltip
+                          content={row.reservedDetails.map(
+                            (detail: any, index: number) => (
+                              <div key={index} className="capitalize">
+                                {detail.channel} {detail.orderNumber} (
+                                {detail.quantity})
+                              </div>
+                            )
+                          )}
+                        >
+                          <span className="underline decoration-dotted cursor-help">
+                            {row.reservedQuantity}
+                          </span>
+                        </ButtonTooltip>
+                      ) : (
+                        <span>-</span>
+                      ),
+                  },
+                ]
+              : []),
             {
               key: "difference",
               node: (row: any) => {
-                const diff = Number(row.countQuantity) - Number(row.stockQuantity);
+                const diff =
+                  Number(row.countQuantity) -
+                  Number(row.stockQuantity) -
+                  Number(row.reservedQuantity ?? 0);
                 return <span>{diff > 0 ? `+${diff}` : diff}</span>;
               },
             },
@@ -410,7 +464,7 @@ const Count = () => {
         },
       },
     ],
-    [products, currentCount, stocks, numericLocation, updateCountQuantity, showStockAndColors]
+    [products, currentCount, stocks, numericLocation, updateCountQuantity, showStockAndColors, showReserved]
   );
 
   const filters = useMemo(

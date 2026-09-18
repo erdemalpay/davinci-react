@@ -139,6 +139,8 @@ const SingleCountArchive = () => {
             startHour,
             endHour,
             stockQuantity: option.stockQuantity,
+            reservedQuantity: option.reservedQuantity,
+            reservedDetails: option.reservedDetails ?? [],
             countQuantity: option.countQuantity,
             productDeleteRequest: option.productDeleteRequest
               ? getItem(option.productDeleteRequest, users)?.name
@@ -148,8 +150,13 @@ const SingleCountArchive = () => {
         })
         .filter((row): row is NonNullable<typeof row> => row !== null)
         .sort((a, b) => {
-          const colorRank = (row: { stockQuantity: number; countQuantity: number }) => {
-            const s = Number(row.stockQuantity);
+          const colorRank = (row: {
+            stockQuantity: number;
+            reservedQuantity?: number;
+            countQuantity: number;
+          }) => {
+            const s =
+              Number(row.stockQuantity) + Number(row.reservedQuantity ?? 0);
             const c = Number(row.countQuantity);
             if (s > c) return 0; // red
             if (s < c) return 1; // green
@@ -164,6 +171,10 @@ const SingleCountArchive = () => {
 
   const { columns, rowKeys } = useMemo(() => {
     const showInnerDatas = !isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user);
+    // Ayrılmış kaydı yalnızca pazaryeri siparişlerinin düştüğü depo sayımında oluşur.
+    const showReserved = !!currentCount?.products?.some(
+      (option) => option.reservedQuantity != null
+    );
 
     const cols = [
       { key: t("Date"), isSortable: true },
@@ -171,6 +182,7 @@ const SingleCountArchive = () => {
       { key: t("Product"), isSortable: true },
       { key: t("SKU"), isSortable: false },
       { key: t("Stock Quantity"), isSortable: true },
+      ...(showReserved ? [{ key: t("Reserved"), isSortable: true }] : []),
       { key: t("Count Quantity"), isSortable: true },
       { key: t("Difference"), isSortable: true },
       { key: t("Delete Request"), isSortable: true },
@@ -188,11 +200,42 @@ const SingleCountArchive = () => {
       { key: "product" },
       { key: "sku" },
       { key: "stockQuantity" },
+      ...(showReserved
+        ? [
+            {
+              key: "reservedQuantity",
+              node: (row: any) =>
+                row.reservedQuantity == null ? (
+                  <span>?</span>
+                ) : row.reservedQuantity ? (
+                  <ButtonTooltip
+                    content={row.reservedDetails.map(
+                      (detail: any, index: number) => (
+                        <div key={index} className="capitalize">
+                          {detail.channel} {detail.orderNumber} (
+                          {detail.quantity})
+                        </div>
+                      )
+                    )}
+                  >
+                    <span className="underline decoration-dotted cursor-help">
+                      {row.reservedQuantity}
+                    </span>
+                  </ButtonTooltip>
+                ) : (
+                  <span>-</span>
+                ),
+            },
+          ]
+        : []),
       { key: "countQuantity" },
       {
         key: "difference",
         node: (row: any) => {
-          const diff = Number(row.countQuantity) - Number(row.stockQuantity);
+          const diff =
+            Number(row.countQuantity) -
+            Number(row.stockQuantity) -
+            Number(row.reservedQuantity ?? 0);
           return <span>{diff > 0 ? `+${diff}` : diff}</span>;
         },
       },
@@ -214,7 +257,12 @@ const SingleCountArchive = () => {
     ];
 
     return { columns: cols, rowKeys: keys };
-  }, [t, countArchiveCompletedCountDisabledCondition, user]);
+  }, [
+    t,
+    countArchiveCompletedCountDisabledCondition,
+    user,
+    currentCount?.products,
+  ]);
 
   const displayRows = useMemo(() => {
     if (isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user)) return [];

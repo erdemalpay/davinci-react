@@ -329,6 +329,12 @@ export type AccountCountProduct = {
   countQuantity: number;
   isStockEqualized?: boolean;
   productDeleteRequest?: string;
+  reservedQuantity?: number;
+  reservedDetails?: {
+    channel: "shopify" | "trendyol" | "hepsiburada";
+    orderNumber: string;
+    quantity: number;
+  }[];
 };
 export type AccountCount = {
   _id: string;
