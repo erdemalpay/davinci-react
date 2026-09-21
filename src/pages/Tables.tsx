@@ -37,6 +37,7 @@ import {
   OrderDiscountStatus,
   OrderStatus,
   ReservationStatusEnum,
+  RoleEnum,
   StockHistoryStatusEnum,
   TURKISHLIRA,
   Table,
@@ -783,7 +784,28 @@ const Tables = () => {
     return false;
   };
 
+  // Ortak kasa hesabında takeaway'i kimin açtığı seçilir (ActiveVisitList'teki aktif kişiler)
+  const isCounterUser = user?.role?._id === RoleEnum.COUNTER;
+  const takeawayCreatorOptions = (users ?? [])
+    .filter(
+      (u) =>
+        u.role?._id !== RoleEnum.COUNTER &&
+        visits.some((visit) => visit.user === u._id && !visit.finishHour)
+    )
+    .map((u) => ({ value: u._id, label: u.name }));
   const orderInputsForTakeAway = [
+    ...(isCounterUser
+      ? [
+          {
+            type: InputTypes.SELECT,
+            formKey: "createdBy",
+            label: t("Who are you?"),
+            options: takeawayCreatorOptions,
+            placeholder: t("Who are you?"),
+            required: true,
+          },
+        ]
+      : []),
     {
       type: InputTypes.TAB,
       formKey: "category",
@@ -1056,6 +1078,9 @@ const Tables = () => {
     },
   ];
   const orderFormKeysForTakeAway = [
+    ...(isCounterUser
+      ? [{ key: "createdBy", type: FormKeyTypeEnum.STRING }]
+      : []),
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
@@ -2478,6 +2503,7 @@ const Tables = () => {
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          allowOptionalSubmitForActivityTable={isCounterUser}
           constantValues={{
             quantity: 1,
             stockLocation: selectedLocationId,
@@ -2510,6 +2536,7 @@ const Tables = () => {
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
+              preservedKeys: ["createdBy"],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
