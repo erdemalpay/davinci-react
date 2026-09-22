@@ -8,6 +8,7 @@ import { useDataContext } from "../../../context/Data.context";
 import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
+import { useOrderTaker } from "../../../hooks/useOrderTaker";
 import { usePrinter } from "../../../hooks/usePrinter";
 import {
   MenuItem,
@@ -101,6 +102,8 @@ const OrderPaymentModal = ({
   const members = useGetMemberships();
   const { setIsTabInputScreenOpen } = useGeneralContext();
   const stocks = useGetAccountStocks();
+  const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
+    useOrderTaker();
   useEffect(() => {
     lockBodyScroll();
     return () => {
@@ -191,7 +194,9 @@ const OrderPaymentModal = ({
   const inactiveCategoriesIds = useMemo(() => {
     return inactiveCategories.map((c) => c?._id);
   }, [inactiveCategories]);
-  const [orderForm, setOrderForm] = useState(initialOrderForm);
+  const [orderForm, setOrderForm] = useState<
+    typeof initialOrderForm & { createdBy?: string }
+  >(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
@@ -873,6 +878,8 @@ const OrderPaymentModal = ({
     { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
+  // Kasa hesabında formda seçilen "Siparişi Alan" öncelikli
+  const orderCreatedBy = orderForm?.createdBy || currentUser?._id;
   const handleOrderObject = () => {
     const selectedMenuItem = getItem(orderForm?.item, items);
     const selectedMenuItemCategory = getItem(
@@ -892,7 +899,7 @@ const OrderPaymentModal = ({
     ) {
       return {
         ...orderForm,
-        createdBy: currentUser?._id,
+        createdBy: orderCreatedBy,
         createdAt: new Date(),
         location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
@@ -930,7 +937,7 @@ const OrderPaymentModal = ({
       return {
         ...orderForm,
         createdAt: new Date(),
-        createdBy: currentUser?._id,
+        createdBy: orderCreatedBy,
         location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
         status: isOrderConfirmationRequired
@@ -957,7 +964,7 @@ const OrderPaymentModal = ({
           setIsTabInputScreenOpen(false);
           setSelectedNewOrders([]);
         }}
-        inputs={orderInputs}
+        inputs={[...orderTakerInputs, ...orderInputs]}
         {...(inactiveCategoriesWithKitchens?.length > 0
           ? {
               upperMessage: inactiveCategoriesWithKitchens.map((category) =>
@@ -967,7 +974,7 @@ const OrderPaymentModal = ({
               ),
             }
           : {})}
-        formKeys={orderFormKeys}
+        formKeys={[...orderTakerFormKeys, ...orderFormKeys]}
         onOpenTriggerTabInputFormKey={
           user?.settings?.orderCategoryOn ? "category" : "item"
         }
@@ -976,7 +983,9 @@ const OrderPaymentModal = ({
         setForm={setOrderForm}
         isCreateCloseActive={false}
         optionalCreateButtonActive={orderCreateBulk?.length > 0}
-        allowOptionalSubmitForActivityTable={table.type === TableTypes.ACTIVITY}
+        allowOptionalSubmitForActivityTable={
+          table.type === TableTypes.ACTIVITY || isCounterUser
+        }
         constantValues={{
           quantity: 1,
           stockLocation: selectedLocationId,
@@ -1006,7 +1015,7 @@ const OrderPaymentModal = ({
             label: "Add",
             isInputRequirementCheck: true,
             isInputNeedToBeReset: true,
-            preservedKeys: ["activityTableName", "activityPlayer"],
+            preservedKeys: ["activityTableName", "activityPlayer", "createdBy"],
             onClick: () => {
               const orderObject = handleOrderObject();
               if (orderObject) {
@@ -1037,7 +1046,7 @@ const OrderPaymentModal = ({
                       return {
                         ...orderCreateBulkItem,
                         tableDate: table ? new Date(table?.date) : new Date(),
-                        createdBy: currentUser?._id,
+                        createdBy: orderCreatedBy,
                       };
                     }),
                     orderObject,
@@ -1057,7 +1066,7 @@ const OrderPaymentModal = ({
                   return {
                     ...orderCreateBulkItem,
                     tableDate: table ? new Date(table?.date) : new Date(),
-                    createdBy: currentUser?._id,
+                    createdBy: orderCreatedBy,
                   };
                 }),
               ],

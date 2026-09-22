@@ -30,6 +30,7 @@ import { useDateContext } from "../context/Date.context";
 import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
+import { useOrderTaker } from "../hooks/useOrderTaker";
 import { Routes } from "../navigation/constants";
 import {
   MenuItem,
@@ -37,7 +38,6 @@ import {
   OrderDiscountStatus,
   OrderStatus,
   ReservationStatusEnum,
-  RoleEnum,
   StockHistoryStatusEnum,
   TURKISHLIRA,
   Table,
@@ -123,6 +123,8 @@ const Tables = () => {
     () => localStorage.getItem("davinci_auto_print") !== "false"
   );
   const { selectedLocationId } = useLocationContext();
+  const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
+    useOrderTaker();
   const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
 
@@ -784,28 +786,8 @@ const Tables = () => {
     return false;
   };
 
-  // Ortak kasa hesabında takeaway'i kimin açtığı seçilir (ActiveVisitList'teki aktif kişiler)
-  const isCounterUser = user?.role?._id === RoleEnum.COUNTER;
-  const takeawayCreatorOptions = (users ?? [])
-    .filter(
-      (u) =>
-        u.role?._id !== RoleEnum.COUNTER &&
-        visits.some((visit) => visit.user === u._id && !visit.finishHour)
-    )
-    .map((u) => ({ value: u._id, label: u.name }));
   const orderInputsForTakeAway = [
-    ...(isCounterUser
-      ? [
-          {
-            type: InputTypes.SELECT,
-            formKey: "createdBy",
-            label: t("Who are you?"),
-            options: takeawayCreatorOptions,
-            placeholder: t("Who are you?"),
-            required: true,
-          },
-        ]
-      : []),
+    ...orderTakerInputs,
     {
       type: InputTypes.TAB,
       formKey: "category",
@@ -1078,9 +1060,7 @@ const Tables = () => {
     },
   ];
   const orderFormKeysForTakeAway = [
-    ...(isCounterUser
-      ? [{ key: "createdBy", type: FormKeyTypeEnum.STRING }]
-      : []),
+    ...orderTakerFormKeys,
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
@@ -2285,8 +2265,8 @@ const Tables = () => {
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
-          inputs={orderInputs}
-          formKeys={orderFormKeys}
+          inputs={[...orderTakerInputs, ...orderInputs]}
+          formKeys={[...orderTakerFormKeys, ...orderFormKeys]}
           {...(inactiveCategoriesWithKitchens?.length > 0
             ? {
                 upperMessage: inactiveCategoriesWithKitchens.map((category) =>
@@ -2317,7 +2297,7 @@ const Tables = () => {
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
           allowOptionalSubmitForActivityTable={
-            selectedTable?.type === TableTypes.ACTIVITY
+            selectedTable?.type === TableTypes.ACTIVITY || isCounterUser
           }
           constantValues={{
             quantity: 1,
@@ -2337,7 +2317,11 @@ const Tables = () => {
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
-              preservedKeys: ["activityTableName", "activityPlayer"],
+              preservedKeys: [
+                "activityTableName",
+                "activityPlayer",
+                "createdBy",
+              ],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
