@@ -1971,5 +1971,8 @@
   "Your registration has been received!": "Kaydınız alındı!",
   "TournamentRegisteredDescription": "{{name}} için başvurunuz alındı. Turnuvadan önce katılımınızı teyit etmek için sizinle iletişime geçeceğiz.",
   "TournamentRegisterContactNote": "Turnuvadan birkaç gün önce katılımınızı teyit etmek için telefon (WhatsApp) veya e-posta ile size ulaşacağız.",
-  "Enter a valid phone number": "Geçerli bir telefon numarası girin"
+  "Enter a valid phone number": "Geçerli bir telefon numarası girin",
+  "Button Text": "Buton Yazısı",
+  "Button Link": "Buton Linki",
+  "PopupButtonHelp": "İsteğe bağlı. Doldurulursa popup'ta bu yazıyla, aşağıdaki linke giden bir buton çıkar (ör. \"Turnuvaya Katıl\" + turnuvanın QR kayıt linki). Boş bırakılırsa sadece \"Tamam\" butonu görünür."
 }

@@ -1963,5 +1963,8 @@
   "Your registration has been received!": "Your registration has been received!",
   "TournamentRegisteredDescription": "Your registration for {{name}} has been received. We will contact you before the tournament to confirm your attendance.",
   "TournamentRegisterContactNote": "A few days before the tournament we will contact you by phone (WhatsApp) or email to confirm your attendance.",
-  "Enter a valid phone number": "Enter a valid phone number"
+  "Enter a valid phone number": "Enter a valid phone number",
+  "Button Text": "Button Text",
+  "Button Link": "Button Link",
+  "PopupButtonHelp": "Optional. If filled, the popup shows a button with this text linking to the URL below (e.g. \"Join Tournament\" + the tournament's QR registration link). If empty, only the \"OK\" button is shown."
 }
