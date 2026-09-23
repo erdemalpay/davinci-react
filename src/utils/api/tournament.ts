@@ -171,7 +171,7 @@ export function registerTournament(
   payload: {
     fullName: string;
     phone: string;
-    email?: string;
+    email: string;
     source?: RegistrationSource;
   }
 ) {

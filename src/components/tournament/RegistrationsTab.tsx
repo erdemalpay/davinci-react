@@ -1,7 +1,5 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaWhatsapp } from "react-icons/fa";
-import { MdOutlineEmail } from "react-icons/md";
 import {
   ConfirmationStatus,
   RegistrationSource,
@@ -15,13 +13,6 @@ import {
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
-// "0555 123 45 67" → "905551234567" (wa.me ülke koduyla ister)
-const toWhatsappNumber = (phone: string) => {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("90")) return digits;
-  return `90${digits.replace(/^0/, "")}`;
-};
 
 export const useRegistrationLabels = () => {
   const { t } = useTranslation();
@@ -71,7 +62,6 @@ const RegistrationsTab = ({ tournament }: Props) => {
     { key: t("Email"), isSortable: false },
     { key: t("Source"), isSortable: true },
     { key: t("Confirmation"), isSortable: true },
-    { key: t("Contact"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -101,31 +91,6 @@ const RegistrationsTab = ({ tournament }: Props) => {
             </option>
           ))}
         </select>
-      ),
-    },
-    {
-      key: "contact",
-      node: (row: TournamentRegistration) => (
-        <div className="flex items-center gap-3 text-xl">
-          <a
-            href={`https://wa.me/${toWhatsappNumber(row.phone)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-green-600 hover:text-green-800"
-            title="WhatsApp"
-          >
-            <FaWhatsapp />
-          </a>
-          {row.email && (
-            <a
-              href={`mailto:${row.email}`}
-              className="text-blue-500 hover:text-blue-700"
-              title={t("Email")}
-            >
-              <MdOutlineEmail />
-            </a>
-          )}
-        </div>
       ),
     },
   ];

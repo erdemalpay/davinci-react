@@ -41,7 +41,7 @@ const TournamentRegister = () => {
       await registerTournament(slug, {
         fullName: fullName.trim(),
         phone,
-        email: email.trim() || undefined,
+        email: email.trim(),
         source: parseSource(searchParams.get("source")),
       });
       setIsRegistered(true);
@@ -147,14 +147,12 @@ const TournamentRegister = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("Email")}{" "}
-              <span className="text-gray-400 font-normal">
-                ({t("Optional")})
-              </span>
+              {t("Email")} <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
               autoComplete="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("example@email.com")}
