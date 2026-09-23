@@ -66,6 +66,7 @@ export const Paths = {
   IntegrationRequestLog: "/integration-request-log",
   CustomerPopup: "/menu/customer-popup",
   EventSurvey: "/event-survey",
+  Tournaments: "/tournaments",
 };
 
 interface Props<T> {
