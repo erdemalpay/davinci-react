@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import StatusScreen from "../components/common/StatusScreen";
 import {
   EventStatus,
   QuestionType,
@@ -456,35 +457,5 @@ const CampaignForm = () => {
     </div>
   );
 };
-
-const StatusScreen = ({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div className="text-center">
-      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg
-          className="w-8 h-8 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      </div>
-      <h2 className="text-lg font-semibold text-gray-700">{title}</h2>
-      <p className="text-sm text-gray-400 mt-1">{description}</p>
-    </div>
-  </div>
-);
 
 export default CampaignForm;

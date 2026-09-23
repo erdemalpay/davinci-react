@@ -99,6 +99,7 @@ export enum PublicRoutes {
   NotFound = "*",
   Login = "/login",
   CampaignForm = "/campaign/:eventSlug",
+  TournamentRegister = "/tournament/:slug",
 }
 
 export enum Routes {

@@ -100,3 +100,10 @@ export interface TournamentStanding {
   byeCount: number;
   avgOpponentPoints: number;
 }
+
+export interface PublicTournament {
+  _id: number;
+  name: string;
+  date: string;
+  isRegistrationOpen: boolean;
+}

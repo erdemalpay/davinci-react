@@ -1955,5 +1955,13 @@
   "Standings": "Standings",
   "Rank": "Rank",
   "Matches Played": "Matches Played",
-  "Avg. Opponent Points": "Avg. Opponent Points"
+  "Avg. Opponent Points": "Avg. Opponent Points",
+  "Join Tournament": "Join Tournament",
+  "Registration is closed": "Registration is closed",
+  "Registration for this tournament has closed.": "Registration for this tournament has closed.",
+  "This link does not belong to a valid tournament.": "This link does not belong to a valid tournament.",
+  "Your registration has been received!": "Your registration has been received!",
+  "TournamentRegisteredDescription": "Your registration for {{name}} has been received. We will contact you before the tournament to confirm your attendance.",
+  "TournamentRegisterContactNote": "A few days before the tournament we will contact you by phone (WhatsApp) or email to confirm your attendance.",
+  "Enter a valid phone number": "Enter a valid phone number"
 }

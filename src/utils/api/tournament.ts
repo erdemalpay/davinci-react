@@ -1,9 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { patch, post, remove } from ".";
+import { get, patch, post, remove } from ".";
 import {
   ConfirmationStatus,
+  PublicTournament,
+  RegistrationSource,
   Tournament,
   TournamentMatch,
   TournamentParticipant,
@@ -150,4 +152,28 @@ export function useTournamentActions() {
     isGeneratingRound: generateNextRound.isPending,
     submitScores: submitScores.mutate,
   };
+}
+
+// ─── Public kayıt sayfası (JWT gerektirmez) ──────────────────────────────
+
+export function useGetPublicTournament(slug: string | undefined) {
+  const path = slug ? `${baseUrl}/public/${slug}` : "";
+  return useQuery<PublicTournament>({
+    queryKey: [path],
+    queryFn: () => get({ path }),
+    enabled: !!slug,
+    staleTime: 0,
+  });
+}
+
+export function registerTournament(
+  slug: string,
+  payload: {
+    fullName: string;
+    phone: string;
+    email?: string;
+    source?: RegistrationSource;
+  }
+) {
+  return post({ path: `${baseUrl}/public/${slug}/register`, payload });
 }

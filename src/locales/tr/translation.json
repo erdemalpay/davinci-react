@@ -1963,5 +1963,13 @@
   "Standings": "Puan Tablosu",
   "Rank": "Sıra",
   "Matches Played": "Oynanan Maç",
-  "Avg. Opponent Points": "Rakip Ort. Puan"
+  "Avg. Opponent Points": "Rakip Ort. Puan",
+  "Join Tournament": "Turnuvaya Katıl",
+  "Registration is closed": "Kayıtlar kapandı",
+  "Registration for this tournament has closed.": "Bu turnuvanın kayıtları kapandı.",
+  "This link does not belong to a valid tournament.": "Bu link geçerli bir turnuvaya ait değil.",
+  "Your registration has been received!": "Kaydınız alındı!",
+  "TournamentRegisteredDescription": "{{name}} için başvurunuz alındı. Turnuvadan önce katılımınızı teyit etmek için sizinle iletişime geçeceğiz.",
+  "TournamentRegisterContactNote": "Turnuvadan birkaç gün önce katılımınızı teyit etmek için telefon (WhatsApp) veya e-posta ile size ulaşacağız.",
+  "Enter a valid phone number": "Geçerli bir telefon numarası girin"
 }
