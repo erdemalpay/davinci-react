@@ -30,6 +30,7 @@ import { useDateContext } from "../context/Date.context";
 import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
+import { useOrderTaker } from "../hooks/useOrderTaker";
 import { Routes } from "../navigation/constants";
 import {
   MenuItem,
@@ -122,6 +123,8 @@ const Tables = () => {
     () => localStorage.getItem("davinci_auto_print") !== "false"
   );
   const { selectedLocationId } = useLocationContext();
+  const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
+    useOrderTaker();
   const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
 
@@ -788,6 +791,7 @@ const Tables = () => {
   };
 
   const orderInputsForTakeAway = [
+    ...orderTakerInputs,
     {
       type: InputTypes.TAB,
       formKey: "category",
@@ -1060,6 +1064,7 @@ const Tables = () => {
     },
   ];
   const orderFormKeysForTakeAway = [
+    ...orderTakerFormKeys,
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
@@ -2264,8 +2269,8 @@ const Tables = () => {
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
-          inputs={orderInputs}
-          formKeys={orderFormKeys}
+          inputs={[...orderTakerInputs, ...orderInputs]}
+          formKeys={[...orderTakerFormKeys, ...orderFormKeys]}
           {...(inactiveCategoriesWithKitchens?.length > 0
             ? {
                 upperMessage: inactiveCategoriesWithKitchens.map((category) =>
@@ -2296,7 +2301,7 @@ const Tables = () => {
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
           allowOptionalSubmitForActivityTable={
-            selectedTable?.type === TableTypes.ACTIVITY
+            selectedTable?.type === TableTypes.ACTIVITY || isCounterUser
           }
           constantValues={{
             quantity: 1,
@@ -2316,7 +2321,11 @@ const Tables = () => {
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
-              preservedKeys: ["activityTableName", "activityPlayer"],
+              preservedKeys: [
+                "activityTableName",
+                "activityPlayer",
+                "createdBy",
+              ],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
@@ -2482,6 +2491,7 @@ const Tables = () => {
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          allowOptionalSubmitForActivityTable={isCounterUser}
           constantValues={{
             quantity: 1,
             stockLocation: selectedLocationId,
@@ -2514,6 +2524,7 @@ const Tables = () => {
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
+              preservedKeys: ["createdBy"],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
