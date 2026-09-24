@@ -13,11 +13,14 @@ import {
   eliminationTables,
   useEliminationRoundName,
 } from "./useTournamentForm";
+import { TieBreakPicker, useScoreEntry } from "./useScoreEntry";
+import { GenericButton } from "../common/GenericButton";
 
 interface Props {
   tournament: Tournament;
   matches: TournamentMatch[];
   names: Map<number, string>;
+  editableRound?: number; // skoru girilebilen (son) eleme turu
 }
 
 type BracketTable = {
@@ -29,7 +32,7 @@ type BracketTable = {
 type Column = { round: number; tables: BracketTable[] };
 
 // Oynanan eleme turlarına, henüz kurulmamış turları boş kutu olarak ekler (Challonge gibi)
-export const buildColumns = (
+const buildColumns = (
   tournament: Tournament,
   elimination: TournamentMatch[]
 ): Column[] => {
@@ -101,8 +104,145 @@ const targetsOf = (
   return Array.from(targets);
 };
 
-const EliminationBracket = ({ tournament, matches, names }: Props) => {
+interface BracketBoxProps {
+  table: BracketTable;
+  names: Map<number, string>;
+  isEditable: boolean;
+  isChampionTable: boolean;
+  isAdvancer: (participantId: number) => boolean | undefined;
+  boxRef: (el: HTMLDivElement | null) => void;
+}
+
+// Ağaçtaki tek masa kutusu; son turda skorlar doğrudan isimlerin yanına girilir
+const BracketBox = ({
+  table,
+  names,
+  isEditable,
+  isChampionTable,
+  isAdvancer,
+  boxRef,
+}: BracketBoxProps) => {
   const { t } = useTranslation();
+  const { match } = table;
+  const players = match?.isCompleted
+    ? [...match.players].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    : match?.players ?? [];
+
+  return (
+    <div
+      ref={boxRef}
+      className={`relative z-10 rounded-md border bg-white text-sm shadow-sm ${
+        match ? "border-gray-300" : "border-dashed border-gray-300"
+      }`}
+    >
+      <p className="px-2 py-1 text-xs text-gray-400 border-b">
+        {match?.isBye ? t("Bye") : `${t("Table")} ${table.tableNo}`}
+      </p>
+      {!match && (
+        <p className="px-2 py-3 text-xs text-gray-400 italic">
+          {t("Waiting for winners")}
+        </p>
+      )}
+      {match && isEditable ? (
+        <BracketScoreEditor match={match} players={players} names={names} />
+      ) : (
+        players.map((player) => {
+          const tied =
+            match?.isCompleted &&
+            players.filter((p) => p.score === player.score).length > 1;
+          const isChampion = isChampionTable && player.rank === 1;
+          const advanced = isAdvancer(player.participantId) || isChampion;
+          return (
+            <div
+              key={player.participantId}
+              className={`flex items-center gap-2 px-2 py-1 border-b last:border-b-0 ${
+                advanced ? "bg-green-50 font-medium" : ""
+              } ${match?.isCompleted && !advanced ? "text-gray-400" : ""}`}
+            >
+              <span className="w-4 text-xs text-gray-400">
+                {match?.isCompleted ? player.rank : ""}
+              </span>
+              <span className="flex-1 truncate">
+                {names.get(player.participantId)}
+              </span>
+              {isChampion && <FaCrown className="text-amber-500" />}
+              {tied && (
+                <span className="text-[10px] rounded bg-amber-100 text-amber-700 px-1">
+                  {t("Tie")}
+                </span>
+              )}
+              <span className="w-8 text-right text-gray-500">
+                {player.score ?? "-"}
+              </span>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+};
+
+interface BracketScoreEditorProps {
+  match: TournamentMatch;
+  players: TournamentMatch["players"];
+  names: Map<number, string>;
+}
+
+const BracketScoreEditor = ({
+  match,
+  players,
+  names,
+}: BracketScoreEditorProps) => {
+  const { t } = useTranslation();
+  const { scores, setScore, isFilled, save } = useScoreEntry(match);
+  return (
+    <div className="flex flex-col">
+      {players.map((player) => (
+        <div
+          key={player.participantId}
+          className="flex items-center gap-2 px-2 py-1 border-b"
+        >
+          <span className="w-4 text-xs text-gray-400">
+            {match.isCompleted ? player.rank : ""}
+          </span>
+          <span className="flex-1 truncate">
+            {names.get(player.participantId)}
+            {player.wonTieBreak && (
+              <span className="ml-1 text-[10px] rounded bg-amber-100 text-amber-700 px-1">
+                {t("Chosen in tie")}
+              </span>
+            )}
+          </span>
+          <input
+            type="number"
+            className="w-14 border rounded px-1 py-0.5 text-right"
+            placeholder={t("Score")}
+            value={scores[player.participantId]}
+            onChange={(e) => setScore(player.participantId, e.target.value)}
+          />
+        </div>
+      ))}
+      <div className="p-2 flex flex-col gap-2">
+        <GenericButton
+          size="sm"
+          variant="primary"
+          disabled={!isFilled}
+          onClick={save}
+        >
+          {match.isCompleted ? t("Update Scores") : t("Save Scores")}
+        </GenericButton>
+        <TieBreakPicker match={match} names={names} />
+      </div>
+    </div>
+  );
+};
+
+const EliminationBracket = ({
+  tournament,
+  matches,
+  names,
+  editableRound,
+}: Props) => {
   const roundName = useEliminationRoundName();
   const containerRef = useRef<HTMLDivElement>(null);
   const boxRefs = useRef(new Map<string, HTMLDivElement>());
@@ -164,83 +304,29 @@ const EliminationBracket = ({ tournament, matches, names }: Props) => {
           ))}
         </svg>
         {columns.map((column, c) => (
-          <div key={column.round} className="flex flex-col w-56">
+          <div key={column.round} className="flex flex-col w-60">
             <p className="text-xs font-semibold uppercase text-gray-500 mb-3 text-center">
               {roundName(column.round, columns.length)}
             </p>
             <div className="flex flex-col justify-around flex-1 gap-4">
-              {column.tables.map((table) => {
-                const { match } = table;
-                const players = match?.isCompleted
-                  ? [...match.players].sort(
-                      (a, b) => (a.rank ?? 0) - (b.rank ?? 0)
-                    )
-                  : match?.players ?? [];
-                const isFinal = c === columns.length - 1 && !!match;
-                return (
-                  <div
-                    key={table.key}
-                    ref={(el) => {
-                      if (el) boxRefs.current.set(table.key, el);
-                      else boxRefs.current.delete(table.key);
-                    }}
-                    className={`relative z-10 rounded-md border bg-white text-sm shadow-sm ${
-                      match
-                        ? "border-gray-300"
-                        : "border-dashed border-gray-300"
-                    }`}
-                  >
-                    <p className="px-2 py-1 text-xs text-gray-400 border-b">
-                      {match?.isBye
-                        ? t("Bye")
-                        : `${t("Table")} ${table.tableNo}`}
-                    </p>
-                    {!match && (
-                      <p className="px-2 py-3 text-xs text-gray-400 italic">
-                        {t("Waiting for winners")}
-                      </p>
-                    )}
-                    {players.map((player) => {
-                      const tied =
-                        match?.isCompleted &&
-                        players.filter((p) => p.score === player.score).length >
-                          1;
-                      const isChampion =
-                        isFinal && isFinished && player.rank === 1;
-                      const advanced =
-                        isAdvancer(player.participantId, c) || isChampion;
-                      return (
-                        <div
-                          key={player.participantId}
-                          className={`flex items-center gap-2 px-2 py-1 border-b last:border-b-0 ${
-                            advanced ? "bg-green-50 font-medium" : ""
-                          } ${
-                            match?.isCompleted && !advanced
-                              ? "text-gray-400"
-                              : ""
-                          }`}
-                        >
-                          <span className="w-4 text-xs text-gray-400">
-                            {match?.isCompleted ? player.rank : ""}
-                          </span>
-                          <span className="flex-1 truncate">
-                            {names.get(player.participantId)}
-                          </span>
-                          {isChampion && <FaCrown className="text-amber-500" />}
-                          {tied && (
-                            <span className="text-[10px] rounded bg-amber-100 text-amber-700 px-1">
-                              {t("Tie")}
-                            </span>
-                          )}
-                          <span className="w-8 text-right text-gray-500">
-                            {player.score ?? "-"}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+              {column.tables.map((table) => (
+                <BracketBox
+                  key={table.key}
+                  table={table}
+                  names={names}
+                  isEditable={
+                    column.round === editableRound && !table.match?.isBye
+                  }
+                  isChampionTable={
+                    c === columns.length - 1 && !!table.match && isFinished
+                  }
+                  isAdvancer={(participantId) => isAdvancer(participantId, c)}
+                  boxRef={(el) => {
+                    if (el) boxRefs.current.set(table.key, el);
+                    else boxRefs.current.delete(table.key);
+                  }}
+                />
+              ))}
             </div>
           </div>
         ))}

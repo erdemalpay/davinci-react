@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MatchStage, TournamentMatch } from "../../types/tournament";
-import { useTournamentActions } from "../../utils/api/tournament";
 import { GenericButton } from "../common/GenericButton";
+import { TieBreakPicker, useScoreEntry } from "./useScoreEntry";
 
 interface Props {
   match: TournamentMatch;
@@ -13,26 +12,8 @@ interface Props {
 
 const MatchCard = ({ match, names, totals, isEditable }: Props) => {
   const { t } = useTranslation();
-  const { submitScores, resolveTie } = useTournamentActions();
-  const [tieWinners, setTieWinners] = useState<number[]>([]);
-  const [scores, setScores] = useState<Record<number, string>>(() =>
-    Object.fromEntries(
-      match.players.map((p) => [p.participantId, p.score?.toString() ?? ""])
-    )
-  );
-
-  const { pendingTie } = match;
-  const isFilled = match.players.every((p) => scores[p.participantId] !== "");
+  const { scores, setScore, isFilled, save } = useScoreEntry(match);
   const canEdit = isEditable && !match.isBye;
-
-  const save = () =>
-    submitScores({
-      matchId: match._id,
-      scores: match.players.map((p) => ({
-        participantId: p.participantId,
-        score: Number(scores[p.participantId]),
-      })),
-    });
 
   if (match.isBye) {
     const [player] = match.players;
@@ -88,9 +69,7 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
               className="w-20 border rounded px-2 py-1"
               placeholder={t("Score")}
               value={scores[player.participantId]}
-              onChange={(e) =>
-                setScores({ ...scores, [player.participantId]: e.target.value })
-              }
+              onChange={(e) => setScore(player.participantId, e.target.value)}
             />
           ) : (
             <span className="w-20 text-right">{player.score ?? "-"}</span>
@@ -112,39 +91,7 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
           {match.isCompleted ? t("Update Scores") : t("Save Scores")}
         </GenericButton>
       )}
-      {canEdit && pendingTie && (
-        <div className="border border-amber-300 bg-amber-50 rounded p-2 flex flex-col gap-2 text-sm">
-          <p className="font-medium text-amber-800">
-            {t("TieBreakQuestion", { count: pendingTie.slots })}
-          </p>
-          {pendingTie.participantIds.map((participantId) => (
-            <label key={participantId} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={tieWinners.includes(participantId)}
-                onChange={() =>
-                  setTieWinners((prev) =>
-                    prev.includes(participantId)
-                      ? prev.filter((id) => id !== participantId)
-                      : [...prev, participantId]
-                  )
-                }
-              />
-              {names.get(participantId)}
-            </label>
-          ))}
-          <GenericButton
-            size="sm"
-            variant="primary"
-            disabled={tieWinners.length !== pendingTie.slots}
-            onClick={() =>
-              resolveTie({ matchId: match._id, winnerIds: tieWinners })
-            }
-          >
-            {t("Save Decision")}
-          </GenericButton>
-        </div>
-      )}
+      {canEdit && <TieBreakPicker match={match} names={names} />}
     </div>
   );
 };

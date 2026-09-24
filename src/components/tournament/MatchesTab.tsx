@@ -11,9 +11,8 @@ import {
   useTournamentActions,
 } from "../../utils/api/tournament";
 import { GenericButton } from "../common/GenericButton";
-import EliminationBracket, { buildColumns } from "./EliminationBracket";
+import EliminationBracket from "./EliminationBracket";
 import MatchCard from "./MatchCard";
-import { useEliminationRoundName } from "./useTournamentForm";
 
 interface Props {
   tournament: Tournament;
@@ -72,19 +71,10 @@ const MatchesTab = ({ tournament }: Props) => {
       )
     );
   const rounds = groupRounds(matches);
-  const latestKey = rounds[rounds.length - 1]?.key;
+  const latest = rounds[rounds.length - 1];
+  const latestKey = latest?.key;
   const isFinished = tournament.status === TournamentStatus.FINISHED;
   const hasPendingTie = matches.some((m) => m.pendingTie);
-
-  const roundName = useEliminationRoundName();
-  const eliminationRounds = buildColumns(
-    tournament,
-    matches.filter((m) => m.stage === MatchStage.ELIMINATION)
-  ).length;
-  const roundTitle = (group: RoundGroup) =>
-    group.stage === MatchStage.LEAGUE
-      ? t("League Round N", { round: group.round })
-      : roundName(group.round, eliminationRounds);
 
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-6 my-4">
@@ -118,27 +108,37 @@ const MatchesTab = ({ tournament }: Props) => {
             tournament={tournament}
             matches={matches}
             names={names}
+            editableRound={
+              latest?.stage === MatchStage.ELIMINATION
+                ? latest.round
+                : undefined
+            }
           />
         </section>
       )}
 
-      {/* En yeni tur en üstte */}
-      {[...rounds].reverse().map((group) => (
-        <section key={group.key} className="flex flex-col gap-3">
-          <h3 className="font-semibold text-lg">{roundTitle(group)}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {group.matches.map((match) => (
-              <MatchCard
-                key={match._id}
-                match={match}
-                names={names}
-                totals={totals}
-                isEditable={group.key === latestKey}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+      {/* Eleme turlarının skorları ağaçtan girildiği için burada sadece puan turları; en yenisi üstte */}
+      {[...rounds]
+        .filter((group) => group.stage === MatchStage.LEAGUE)
+        .reverse()
+        .map((group) => (
+          <section key={group.key} className="flex flex-col gap-3">
+            <h3 className="font-semibold text-lg">
+              {t("League Round N", { round: group.round })}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {group.matches.map((match) => (
+                <MatchCard
+                  key={match._id}
+                  match={match}
+                  names={names}
+                  totals={totals}
+                  isEditable={group.key === latestKey}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
     </div>
   );
 };
