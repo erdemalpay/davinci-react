@@ -1893,5 +1893,6 @@
   "Success": "Başarılı",
   "Partially Delivered": "Kısmen Teslim Edildi",
   "Mark the products as brought from the depot first": "Önce ürünleri depodan getirildi olarak işaretleyin",
-  "No price records yet": "Henüz fiyat kaydı bulunmuyor."
+  "No price records yet": "Henüz fiyat kaydı bulunmuyor.",
+  "Order Taker": "Siparişi Alan"
 }
