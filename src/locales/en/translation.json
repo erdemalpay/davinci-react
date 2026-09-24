@@ -1949,7 +1949,6 @@
   "Update Scores": "Update Scores",
   "Standings": "Standings",
   "Rank": "Rank",
-  "Matches Played": "Matches Played",
   "Avg. Opponent Points": "Avg. Opponent Points",
   "Join Tournament": "Join Tournament",
   "Registration is closed": "Registration is closed",
@@ -1998,5 +1997,7 @@
   "Scores saved, pick who advances": "Scores saved; pick who advances from the tie",
   "Saved": "Saved",
   "Players Per Table In Elimination": "Players Per Table In Elimination",
-  "EliminationTableSizeHelp": "Leave empty to use the point-round table size. It can differ: e.g. 4-player tables in point rounds, head-to-head (2-player) quarter/semi/final."
+  "EliminationTableSizeHelp": "Leave empty to use the point-round table size. It can differ: e.g. 4-player tables in point rounds, head-to-head (2-player) quarter/semi/final.",
+  "Round Short N": "Round {{round}}",
+  "No scored match this round": "No scored match this round"
 }

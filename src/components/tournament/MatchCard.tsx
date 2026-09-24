@@ -7,10 +7,11 @@ import { GenericButton } from "../common/GenericButton";
 interface Props {
   match: TournamentMatch;
   names: Map<number, string>;
+  totals: Map<number, number>;
   isEditable: boolean;
 }
 
-const MatchCard = ({ match, names, isEditable }: Props) => {
+const MatchCard = ({ match, names, totals, isEditable }: Props) => {
   const { t } = useTranslation();
   const { submitScores, resolveTie } = useTournamentActions();
   const [tieWinners, setTieWinners] = useState<number[]>([]);
@@ -44,9 +45,16 @@ const MatchCard = ({ match, names, isEditable }: Props) => {
     );
   }
 
-  // Skor girildiyse sıraya göre, girilmediyse oturma sırasıyla göster
+  // Skor girildiyse masadaki sıraya göre; girilmediyse puan turlarında o anki toplama
+  // göre (elemede masalar zaten sıralamaya göre kurulduğu için oturma sırası)
   const players = match.isCompleted
     ? [...match.players].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    : match.stage === MatchStage.LEAGUE
+    ? [...match.players].sort(
+        (a, b) =>
+          (totals.get(b.participantId) ?? 0) -
+          (totals.get(a.participantId) ?? 0)
+      )
     : match.players;
 
   return (

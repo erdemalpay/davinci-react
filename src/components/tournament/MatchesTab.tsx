@@ -59,6 +59,18 @@ const MatchesTab = ({ tournament }: Props) => {
   const { generateNextRound, isGeneratingRound } = useTournamentActions();
 
   const names = new Map(participants.map((p) => [p._id, p.name]));
+  // Puan turlarında skoru girilmemiş kartlar oyuncuların o anki toplamına göre dizilir
+  const totals = new Map<number, number>();
+  matches
+    .filter((m) => m.stage === MatchStage.LEAGUE && m.isCompleted)
+    .forEach((m) =>
+      m.players.forEach((p) =>
+        totals.set(
+          p.participantId,
+          (totals.get(p.participantId) ?? 0) + (p.points ?? 0)
+        )
+      )
+    );
   const rounds = groupRounds(matches);
   const latestKey = rounds[rounds.length - 1]?.key;
   const isFinished = tournament.status === TournamentStatus.FINISHED;
@@ -120,6 +132,7 @@ const MatchesTab = ({ tournament }: Props) => {
                 key={match._id}
                 match={match}
                 names={names}
+                totals={totals}
                 isEditable={group.key === latestKey}
               />
             ))}

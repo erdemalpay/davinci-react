@@ -105,6 +105,8 @@ export interface TournamentStanding {
   matchesPlayed: number;
   byeCount: number;
   avgOpponentPoints: number;
+  // Puan turlarında tur tur alınan puan (bay geçtiyse isBye)
+  rounds?: { round: number; points: number; isBye: boolean }[];
   // Elemeye çıktıysa ulaştığı son tur ve o masadaki sırası
   elimination?: { round: number; isFinal: boolean; tableRank?: number };
 }

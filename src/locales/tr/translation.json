@@ -1957,7 +1957,6 @@
   "Update Scores": "Skorları Güncelle",
   "Standings": "Puan Tablosu",
   "Rank": "Sıra",
-  "Matches Played": "Oynanan Maç",
   "Avg. Opponent Points": "Rakip Ort. Puan",
   "Join Tournament": "Turnuvaya Katıl",
   "Registration is closed": "Kayıtlar kapandı",
@@ -2006,5 +2005,7 @@
   "Scores saved, pick who advances": "Skorlar kaydedildi; berabere kalanlardan kimin çıkacağını seçin",
   "Saved": "Kaydedildi",
   "Players Per Table In Elimination": "Elemede Masa Başına Oyuncu",
-  "EliminationTableSizeHelp": "Boş bırakırsan puan turlarındaki masa büyüklüğü kullanılır. Farklı olabilir: ör. puan turları 4'lük, çeyrek/yarı/final 2 kişilik (birebir) oynanır."
+  "EliminationTableSizeHelp": "Boş bırakırsan puan turlarındaki masa büyüklüğü kullanılır. Farklı olabilir: ör. puan turları 4'lük, çeyrek/yarı/final 2 kişilik (birebir) oynanır.",
+  "Round Short N": "{{round}}. Tur",
+  "No scored match this round": "Bu turda skoru girilmiş maçı yok"
 }
