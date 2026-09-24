@@ -9,6 +9,7 @@ import {
 } from "../../types/tournament";
 import {
   autoRules,
+  eliminationSize,
   eliminationTables,
   useEliminationRoundName,
 } from "./useTournamentForm";
@@ -53,15 +54,15 @@ export const buildColumns = (
 
   const last = columns[columns.length - 1];
   if (!last || last.tables.length === 1) return columns;
+  const tableSize = eliminationSize(tournament);
   const perTable =
-    tournament.advancePerTable ??
-    autoRules(tournament.tableSize).advancePerTable;
-  // Bay geçen doğrudan çıkar, masalardan ilk `perTable` kişi çıkar
-  const advancing = last.tables.reduce(
-    (sum, table) => sum + (table.match?.isBye ? 1 : perTable),
-    0
-  );
-  const upcoming = eliminationTables(advancing, tournament.tableSize, perTable);
+    tournament.advancePerTable ?? autoRules(tableSize).advancePerTable;
+  // Bay geçen doğrudan çıkar, masadan ilk `perTable` kişi çıkar (en az biri elenir)
+  const advancing = last.tables.reduce((sum, table) => {
+    const seated = table.match?.players.length ?? 0;
+    return sum + (seated === 1 ? 1 : Math.min(perTable, seated - 1));
+  }, 0);
+  const upcoming = eliminationTables(advancing, tableSize, perTable);
   upcoming.forEach((count, i) => {
     const round = last.round + i + 1;
     columns.push({

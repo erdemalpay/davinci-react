@@ -46,6 +46,7 @@ export interface Tournament {
   format: TournamentFormat;
   pairingMode: PairingMode;
   tableSize: number;
+  eliminationTableSize?: number; // boşsa tableSize
   // Formata bağlı ayarlar: kullanılmayanlar boş olabilir
   minTableSize?: number;
   leagueRounds: number;

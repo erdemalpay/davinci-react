@@ -70,6 +70,10 @@ export function useTournamentActions() {
       );
     },
   };
+  const withSuccess = (message: string) => ({
+    ...options,
+    onSuccess: () => toast.success(t(message)),
+  });
 
   const updateConfirmation = useMutation({
     mutationFn: ({
@@ -83,7 +87,7 @@ export function useTournamentActions() {
         path: `${baseUrl}/registrations/${registrationId}`,
         payload: { confirmationStatus },
       }),
-    ...options,
+    ...withSuccess("Confirmation updated"),
   });
 
   const promoteRegistrations = useMutation({
@@ -98,7 +102,7 @@ export function useTournamentActions() {
         path: `${baseUrl}/${tournamentId}/registrations/promote`,
         payload: { registrationIds },
       }),
-    ...options,
+    ...withSuccess("Participants added"),
   });
 
   const addParticipant = useMutation({
@@ -113,19 +117,27 @@ export function useTournamentActions() {
         path: `${baseUrl}/${tournamentId}/participants`,
         payload: { name },
       }),
-    ...options,
+    ...withSuccess("Participant added"),
   });
 
   const removeParticipant = useMutation({
     mutationFn: (participantId: number) =>
       remove({ path: `${baseUrl}/participants/${participantId}` }),
-    ...options,
+    ...withSuccess("Participant removed"),
   });
 
   const generateNextRound = useMutation({
     mutationFn: (tournamentId: number) =>
-      post({ path: `${baseUrl}/${tournamentId}/rounds`, payload: {} }),
+      post<object, TournamentMatch[]>({
+        path: `${baseUrl}/${tournamentId}/rounds`,
+        payload: {},
+      }),
     ...options,
+    // Oluşturulacak tur kalmadıysa backend turnuvayı bitirip boş liste döner
+    onSuccess: (created: TournamentMatch[]) =>
+      toast.success(
+        t(created?.length ? "Round created" : "Tournament finished")
+      ),
   });
 
   // Sunucunun döndürdüğü maçı listeye hemen yazar; skor ve beraberlik seçimi
@@ -136,6 +148,9 @@ export function useTournamentActions() {
       queryClient.setQueryData<TournamentMatch[]>(
         tournamentKey(match.tournamentId, "matches"),
         (matches) => matches?.map((m) => (m._id === match._id ? match : m))
+      );
+      toast.success(
+        t(match.pendingTie ? "Scores saved, pick who advances" : "Saved")
       );
     },
   };

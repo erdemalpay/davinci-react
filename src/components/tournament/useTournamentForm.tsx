@@ -24,6 +24,12 @@ export const autoRules = (tableSize: number) => {
 
 type FormValues = Record<string, unknown>;
 
+// Eleme aşamasının masa büyüklüğü; ayrıca girilmediyse puan turlarındakiyle aynı
+export const eliminationSize = (rules: {
+  tableSize?: unknown;
+  eliminationTableSize?: unknown;
+}) => Number(rules.eliminationTableSize) || Number(rules.tableSize) || 0;
+
 const hasRounds = (format: TournamentFormat) =>
   format !== TournamentFormat.ELIMINATION;
 
@@ -31,6 +37,7 @@ const hasRounds = (format: TournamentFormat) =>
 export const RULE_KEYS = [
   "format",
   "tableSize",
+  "eliminationTableSize",
   "pairingMode",
   "minTableSize",
   "leagueRounds",
@@ -65,7 +72,10 @@ export const toFormValues = (tournament: Tournament) => {
     pointsText(tournament.placementPoints) !==
       pointsText(auto.placementPoints) ||
     (tournament.byePoints ?? auto.byePoints) !== auto.byePoints ||
-    (tournament.minTableSize ?? auto.minTableSize) !== auto.minTableSize;
+    (tournament.minTableSize ?? auto.minTableSize) !== auto.minTableSize ||
+    (tournament.format === TournamentFormat.LEAGUE_THEN_ELIMINATION &&
+      tournament.advancePerTable !==
+        autoRules(eliminationSize(tournament)).advancePerTable);
   return {
     ...tournament,
     placementPoints: pointsText(tournament.placementPoints),
@@ -109,7 +119,14 @@ export const toPayload = (item: object, emptyValue?: null) => {
     payload.advancePerTable = values.advancePerTable;
   if (format === TournamentFormat.LEAGUE_THEN_ELIMINATION) {
     payload.advanceCount = values.advanceCount;
-    payload.advancePerTable = pick("advancePerTable");
+    // Masadan çıkan sayısı eleme masasının büyüklüğünden türetilir
+    payload.advancePerTable =
+      values.customizeRules && !isEmpty(values.advancePerTable)
+        ? values.advancePerTable
+        : autoRules(eliminationSize(values)).advancePerTable;
+    if (!isEmpty(values.eliminationTableSize))
+      payload.eliminationTableSize = Number(values.eliminationTableSize);
+    else if (emptyValue === null) payload.eliminationTableSize = null;
   }
   return payload;
 };
@@ -122,6 +139,7 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "registrationDeadline", type: FormKeyTypeEnum.DATE },
   { key: "format", type: FormKeyTypeEnum.STRING },
   { key: "tableSize", type: FormKeyTypeEnum.NUMBER },
+  { key: "eliminationTableSize", type: FormKeyTypeEnum.NUMBER },
   { key: "leagueRounds", type: FormKeyTypeEnum.NUMBER },
   { key: "advanceCount", type: FormKeyTypeEnum.NUMBER },
   { key: "advancePerTable", type: FormKeyTypeEnum.NUMBER },
@@ -134,7 +152,9 @@ export const TOURNAMENT_FORM_KEYS = [
 
 const MIN_EXAMPLE_PLAYER_COUNT = 16;
 
-// Eleme turlarında kaç masa oynanacağını backend'deki akışla aynı şekilde tahmin eder
+// Eleme turlarında kaç masa oynanacağını backend'deki akışla aynı şekilde tahmin eder:
+// masalar eşit dağıtılır (sığmayan bay geçer), bir masadan en fazla "masa - 1" kişi çıkar.
+// Her turda en az bir kişi elendiği için döngü her zaman biter.
 export const eliminationTables = (
   players: number,
   tableSize: number,
@@ -142,10 +162,20 @@ export const eliminationTables = (
 ) => {
   const tables: number[] = [];
   let remaining = players;
-  while (remaining > tableSize && perTable > 0 && perTable < tableSize) {
+  while (remaining > tableSize && tableSize >= 2 && perTable > 0) {
     const count = Math.ceil(remaining / tableSize);
-    tables.push(count);
-    remaining = count * perTable;
+    const base = Math.floor(remaining / count);
+    const sizes =
+      base >= 2
+        ? Array.from(
+            { length: count },
+            (_, i) => base + (i < remaining % count ? 1 : 0)
+          )
+        : Array(Math.floor(remaining / tableSize)).fill(tableSize);
+    const byes = remaining - sizes.reduce((sum, size) => sum + size, 0);
+    tables.push(sizes.length + byes);
+    remaining =
+      byes + sizes.reduce((sum, size) => sum + Math.min(perTable, size - 1), 0);
   }
   return [...tables, 1];
 };
@@ -171,14 +201,19 @@ const PlanSummary = ({ values }: { values: FormValues }) => {
   if (!format || tableSize < 2) return null;
 
   const auto = autoRules(tableSize);
+  const finalTableSize =
+    format === TournamentFormat.ELIMINATION
+      ? tableSize
+      : eliminationSize(values);
   const points =
     values.customizeRules && values.placementPoints
       ? String(values.placementPoints)
       : pointsText(auto.placementPoints);
+  const autoPerTable = autoRules(finalTableSize).advancePerTable;
   const perTable = Number(
     format === TournamentFormat.ELIMINATION || values.customizeRules
-      ? values.advancePerTable || auto.advancePerTable
-      : auto.advancePerTable
+      ? values.advancePerTable || autoPerTable
+      : autoPerTable
   );
   const rounds = Number(values.leagueRounds) || 0;
   const advanceCount = Number(values.advanceCount) || 0;
@@ -200,11 +235,11 @@ const PlanSummary = ({ values }: { values: FormValues }) => {
       format === TournamentFormat.ELIMINATION ? exampleCount : advanceCount;
     if (format === TournamentFormat.LEAGUE_THEN_ELIMINATION)
       steps.push(
-        t(advanceCount > tableSize ? "PlanAdvance" : "PlanAdvanceFinal", {
+        t(advanceCount > finalTableSize ? "PlanAdvance" : "PlanAdvanceFinal", {
           players: advanceCount,
         })
       );
-    const tables = eliminationTables(start, tableSize, perTable);
+    const tables = eliminationTables(start, finalTableSize, perTable);
     tables.slice(0, -1).forEach((count, i) =>
       steps.push(
         t("PlanEliminationRound", {
@@ -296,6 +331,14 @@ export const useTournamentFormInputs = (
             required: true,
             helperText: t("AdvanceCountHelp"),
           },
+          {
+            type: InputTypes.NUMBER,
+            formKey: "eliminationTableSize",
+            label: t("Players Per Table In Elimination"),
+            placeholder: String(Number(values.tableSize) || 4),
+            required: false,
+            helperText: t("EliminationTableSizeHelp"),
+          },
         ]
       : []),
     ...(format === TournamentFormat.ELIMINATION
@@ -367,7 +410,9 @@ export const useTournamentFormInputs = (
                   type: InputTypes.NUMBER,
                   formKey: "advancePerTable",
                   label: t("Players Advancing Per Table"),
-                  placeholder: String(auto.advancePerTable),
+                  placeholder: String(
+                    autoRules(eliminationSize(values)).advancePerTable
+                  ),
                   required: false,
                   helperText: t("AdvancePerTableHelp"),
                 },

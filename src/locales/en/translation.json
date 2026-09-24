@@ -1989,5 +1989,14 @@
   "Chosen in tie": "Chosen in tie",
   "TieBreakQuestion": "Tie! Pick {{count}} player(s) to rank higher, following the game's tie-break rule:",
   "Save Decision": "Save Decision",
-  "Waiting for tie decision": "Pick who advances at the tied table"
+  "Waiting for tie decision": "Pick who advances at the tied table",
+  "Confirmation updated": "Confirmation updated",
+  "Participants added": "Participants added",
+  "Participant added": "Participant added",
+  "Participant removed": "Participant removed",
+  "Round created": "Round created",
+  "Scores saved, pick who advances": "Scores saved; pick who advances from the tie",
+  "Saved": "Saved",
+  "Players Per Table In Elimination": "Players Per Table In Elimination",
+  "EliminationTableSizeHelp": "Leave empty to use the point-round table size. It can differ: e.g. 4-player tables in point rounds, head-to-head (2-player) quarter/semi/final."
 }

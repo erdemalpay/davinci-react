@@ -1997,5 +1997,14 @@
   "Chosen in tie": "Beraberlikte seçildi",
   "TieBreakQuestion": "Berabere! Oyunun eşitlik kuralına göre üst sıraya geçecek {{count}} kişiyi seç:",
   "Save Decision": "Kararı Kaydet",
-  "Waiting for tie decision": "Berabere kalan masada kimin çıkacağı seçilmeli"
+  "Waiting for tie decision": "Berabere kalan masada kimin çıkacağı seçilmeli",
+  "Confirmation updated": "Teyit durumu güncellendi",
+  "Participants added": "Katılımcılar eklendi",
+  "Participant added": "Katılımcı eklendi",
+  "Participant removed": "Katılımcı çıkarıldı",
+  "Round created": "Tur oluşturuldu",
+  "Scores saved, pick who advances": "Skorlar kaydedildi; berabere kalanlardan kimin çıkacağını seçin",
+  "Saved": "Kaydedildi",
+  "Players Per Table In Elimination": "Elemede Masa Başına Oyuncu",
+  "EliminationTableSizeHelp": "Boş bırakırsan puan turlarındaki masa büyüklüğü kullanılır. Farklı olabilir: ör. puan turları 4'lük, çeyrek/yarı/final 2 kişilik (birebir) oynanır."
 }
