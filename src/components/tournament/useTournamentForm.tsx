@@ -172,7 +172,7 @@ export const eliminationTables = (
             { length: count },
             (_, i) => base + (i < remaining % count ? 1 : 0)
           )
-        : Array(Math.floor(remaining / tableSize)).fill(tableSize);
+        : new Array(Math.floor(remaining / tableSize)).fill(tableSize);
     const byes = remaining - sizes.reduce((sum, size) => sum + size, 0);
     tables.push(sizes.length + byes);
     remaining =
