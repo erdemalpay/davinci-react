@@ -1,0 +1,251 @@
+import { useLayoutEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaCrown } from "react-icons/fa";
+import {
+  MatchStage,
+  Tournament,
+  TournamentMatch,
+  TournamentStatus,
+} from "../../types/tournament";
+import {
+  autoRules,
+  eliminationTables,
+  useEliminationRoundName,
+} from "./useTournamentForm";
+
+interface Props {
+  tournament: Tournament;
+  matches: TournamentMatch[];
+  names: Map<number, string>;
+}
+
+type BracketTable = {
+  key: string;
+  tableNo: number;
+  match?: TournamentMatch; // henüz oynanmayan turlarda boş kutu
+};
+
+type Column = { round: number; tables: BracketTable[] };
+
+// Oynanan eleme turlarına, henüz kurulmamış turları boş kutu olarak ekler (Challonge gibi)
+export const buildColumns = (
+  tournament: Tournament,
+  elimination: TournamentMatch[]
+): Column[] => {
+  const byRound = new Map<number, TournamentMatch[]>();
+  elimination.forEach((match) =>
+    byRound.set(match.round, [...(byRound.get(match.round) ?? []), match])
+  );
+  const columns: Column[] = Array.from(byRound.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([round, roundMatches]) => ({
+      round,
+      tables: roundMatches
+        .sort((a, b) => a.tableNo - b.tableNo)
+        .map((match) => ({
+          key: match.isBye
+            ? `${round}-bye-${match.players[0]?.participantId}`
+            : `${round}-${match.tableNo}`,
+          tableNo: match.tableNo,
+          match,
+        })),
+    }));
+
+  const last = columns[columns.length - 1];
+  if (!last || last.tables.length === 1) return columns;
+  const perTable =
+    tournament.advancePerTable ??
+    autoRules(tournament.tableSize).advancePerTable;
+  // Bay geçen doğrudan çıkar, masalardan ilk `perTable` kişi çıkar
+  const advancing = last.tables.reduce(
+    (sum, table) => sum + (table.match?.isBye ? 1 : perTable),
+    0
+  );
+  const upcoming = eliminationTables(advancing, tournament.tableSize, perTable);
+  upcoming.forEach((count, i) => {
+    const round = last.round + i + 1;
+    columns.push({
+      round,
+      tables: Array.from({ length: count }, (_, n) => ({
+        key: `${round}-${n + 1}`,
+        tableNo: n + 1,
+      })),
+    });
+  });
+  return columns;
+};
+
+// Bir masadan çıkanların bir sonraki turda oturduğu masalar; tur kurulmadıysa sıraya göre dağıtılır
+const targetsOf = (
+  table: BracketTable,
+  index: number,
+  current: Column,
+  next: Column
+) => {
+  const nextIds = new Map<number, string>();
+  next.tables.forEach((t) =>
+    t.match?.players.forEach((p) => nextIds.set(p.participantId, t.key))
+  );
+  const targets = new Set<string>();
+  table.match?.players.forEach((p) => {
+    const key = nextIds.get(p.participantId);
+    if (key) targets.add(key);
+  });
+  if (!targets.size) {
+    const slot = Math.floor(
+      (index * next.tables.length) / current.tables.length
+    );
+    targets.add(next.tables[slot].key);
+  }
+  return Array.from(targets);
+};
+
+const EliminationBracket = ({ tournament, matches, names }: Props) => {
+  const { t } = useTranslation();
+  const roundName = useEliminationRoundName();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const boxRefs = useRef(new Map<string, HTMLDivElement>());
+  const [paths, setPaths] = useState<string[]>([]);
+
+  const elimination = matches.filter((m) => m.stage === MatchStage.ELIMINATION);
+  const columns = buildColumns(tournament, elimination);
+  const isFinished = tournament.status === TournamentStatus.FINISHED;
+
+  // Kutular çizildikten sonra konumlarını ölçüp aralarına çizgi çeker
+  useLayoutEffect(() => {
+    const draw = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      const origin = container.getBoundingClientRect();
+      const next: string[] = [];
+      columns.slice(0, -1).forEach((column, c) => {
+        column.tables.forEach((table, i) => {
+          const from = boxRefs.current.get(table.key)?.getBoundingClientRect();
+          if (!from) return;
+          targetsOf(table, i, column, columns[c + 1]).forEach((key) => {
+            const to = boxRefs.current.get(key)?.getBoundingClientRect();
+            if (!to) return;
+            const x1 = from.right - origin.left;
+            const y1 = from.top + from.height / 2 - origin.top;
+            const x2 = to.left - origin.left;
+            const y2 = to.top + to.height / 2 - origin.top;
+            const midX = (x1 + x2) / 2;
+            next.push(`M${x1},${y1} H${midX} V${y2} H${x2}`);
+          });
+        });
+      });
+      setPaths(next);
+    };
+    draw();
+    window.addEventListener("resize", draw);
+    return () => window.removeEventListener("resize", draw);
+  }, [matches, tournament]);
+
+  if (!columns.length) return null;
+
+  const isAdvancer = (participantId: number, c: number) =>
+    columns[c + 1]?.tables.some((next) =>
+      next.match?.players.some((p) => p.participantId === participantId)
+    );
+
+  return (
+    <div className="overflow-x-auto">
+      <div ref={containerRef} className="relative inline-flex gap-16 p-2">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none">
+          {paths.map((d) => (
+            <path
+              key={d}
+              d={d}
+              fill="none"
+              className="stroke-gray-300"
+              strokeWidth={2}
+            />
+          ))}
+        </svg>
+        {columns.map((column, c) => (
+          <div key={column.round} className="flex flex-col w-56">
+            <p className="text-xs font-semibold uppercase text-gray-500 mb-3 text-center">
+              {roundName(column.round, columns.length)}
+            </p>
+            <div className="flex flex-col justify-around flex-1 gap-4">
+              {column.tables.map((table) => {
+                const { match } = table;
+                const players = match?.isCompleted
+                  ? [...match.players].sort(
+                      (a, b) => (a.rank ?? 0) - (b.rank ?? 0)
+                    )
+                  : match?.players ?? [];
+                const isFinal = c === columns.length - 1 && !!match;
+                return (
+                  <div
+                    key={table.key}
+                    ref={(el) => {
+                      if (el) boxRefs.current.set(table.key, el);
+                      else boxRefs.current.delete(table.key);
+                    }}
+                    className={`relative z-10 rounded-md border bg-white text-sm shadow-sm ${
+                      match
+                        ? "border-gray-300"
+                        : "border-dashed border-gray-300"
+                    }`}
+                  >
+                    <p className="px-2 py-1 text-xs text-gray-400 border-b">
+                      {match?.isBye
+                        ? t("Bye")
+                        : `${t("Table")} ${table.tableNo}`}
+                    </p>
+                    {!match && (
+                      <p className="px-2 py-3 text-xs text-gray-400 italic">
+                        {t("Waiting for winners")}
+                      </p>
+                    )}
+                    {players.map((player) => {
+                      const tied =
+                        match?.isCompleted &&
+                        players.filter((p) => p.score === player.score).length >
+                          1;
+                      const isChampion =
+                        isFinal && isFinished && player.rank === 1;
+                      const advanced =
+                        isAdvancer(player.participantId, c) || isChampion;
+                      return (
+                        <div
+                          key={player.participantId}
+                          className={`flex items-center gap-2 px-2 py-1 border-b last:border-b-0 ${
+                            advanced ? "bg-green-50 font-medium" : ""
+                          } ${
+                            match?.isCompleted && !advanced
+                              ? "text-gray-400"
+                              : ""
+                          }`}
+                        >
+                          <span className="w-4 text-xs text-gray-400">
+                            {match?.isCompleted ? player.rank : ""}
+                          </span>
+                          <span className="flex-1 truncate">
+                            {names.get(player.participantId)}
+                          </span>
+                          {isChampion && <FaCrown className="text-amber-500" />}
+                          {tied && (
+                            <span className="text-[10px] rounded bg-amber-100 text-amber-700 px-1">
+                              {t("Tie")}
+                            </span>
+                          )}
+                          <span className="w-8 text-right text-gray-500">
+                            {player.score ?? "-"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default EliminationBracket;

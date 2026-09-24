@@ -11,7 +11,9 @@ import {
   useTournamentActions,
 } from "../../utils/api/tournament";
 import { GenericButton } from "../common/GenericButton";
+import EliminationBracket, { buildColumns } from "./EliminationBracket";
 import MatchCard from "./MatchCard";
+import { useEliminationRoundName } from "./useTournamentForm";
 
 interface Props {
   tournament: Tournament;
@@ -60,22 +62,24 @@ const MatchesTab = ({ tournament }: Props) => {
   const rounds = groupRounds(matches);
   const latestKey = rounds[rounds.length - 1]?.key;
   const isFinished = tournament.status === TournamentStatus.FINISHED;
+  const hasPendingTie = matches.some((m) => m.pendingTie);
 
-  const roundTitle = (group: RoundGroup) => {
-    if (group.stage === MatchStage.LEAGUE)
-      return t("League Round N", { round: group.round });
-    const tableCount = group.matches.filter((m) => !m.isBye).length;
-    return tableCount === 1
-      ? t("Final")
-      : t("Elimination Round N", { round: group.round });
-  };
+  const roundName = useEliminationRoundName();
+  const eliminationRounds = buildColumns(
+    tournament,
+    matches.filter((m) => m.stage === MatchStage.ELIMINATION)
+  ).length;
+  const roundTitle = (group: RoundGroup) =>
+    group.stage === MatchStage.LEAGUE
+      ? t("League Round N", { round: group.round })
+      : roundName(group.round, eliminationRounds);
 
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-6 my-4">
       <div className="flex items-center gap-3">
         <GenericButton
           variant="primary"
-          disabled={isFinished}
+          disabled={isFinished || hasPendingTie}
           isLoading={isGeneratingRound}
           onClick={() => generateNextRound(tournament._id)}
         >
@@ -83,12 +87,28 @@ const MatchesTab = ({ tournament }: Props) => {
             ? t("Start Tournament")
             : t("Generate Next Round")}
         </GenericButton>
+        {hasPendingTie && (
+          <span className="text-sm text-amber-700 font-medium">
+            {t("Waiting for tie decision")}
+          </span>
+        )}
         {isFinished && (
           <span className="text-sm text-green-700 font-medium">
             {t("Tournament finished")}
           </span>
         )}
       </div>
+
+      {matches.some((m) => m.stage === MatchStage.ELIMINATION) && (
+        <section className="flex flex-col gap-3">
+          <h3 className="font-semibold text-lg">{t("Elimination Bracket")}</h3>
+          <EliminationBracket
+            tournament={tournament}
+            matches={matches}
+            names={names}
+          />
+        </section>
+      )}
 
       {/* En yeni tur en üstte */}
       {[...rounds].reverse().map((group) => (

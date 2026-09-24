@@ -5,8 +5,9 @@ export enum TournamentStatus {
 }
 
 export enum TournamentFormat {
-  LEAGUE_THEN_ELIMINATION = "league_then_elimination",
-  ELIMINATION = "elimination",
+  LEAGUE = "league", // tek aşama: sadece Swiss/lig
+  ELIMINATION = "elimination", // tek aşama: masadan kazananlar üst tura
+  LEAGUE_THEN_ELIMINATION = "league_then_elimination", // iki aşama
 }
 
 export enum PairingMode {
@@ -45,12 +46,13 @@ export interface Tournament {
   format: TournamentFormat;
   pairingMode: PairingMode;
   tableSize: number;
-  minTableSize: number;
+  // Formata bağlı ayarlar: kullanılmayanlar boş olabilir
+  minTableSize?: number;
   leagueRounds: number;
   placementPoints: number[];
-  byePoints: number;
-  advanceCount: number;
-  advancePerTable: number;
+  byePoints?: number;
+  advanceCount?: number;
+  advancePerTable?: number;
 }
 
 export interface TournamentRegistration {
@@ -78,6 +80,7 @@ export interface TournamentMatchPlayer {
   score?: number;
   rank?: number;
   points?: number;
+  wonTieBreak?: boolean; // eşit skorda organizatörün öne aldığı oyuncu
 }
 
 export interface TournamentMatch {
@@ -89,6 +92,8 @@ export interface TournamentMatch {
   isBye: boolean;
   isCompleted: boolean;
   players: TournamentMatchPlayer[];
+  // Eleme masasında çıkış sınırında eşitlik: organizatör `slots` kişi seçene kadar dolu
+  pendingTie?: { participantIds: number[]; slots: number } | null;
 }
 
 export interface TournamentStanding {
@@ -99,6 +104,8 @@ export interface TournamentStanding {
   matchesPlayed: number;
   byeCount: number;
   avgOpponentPoints: number;
+  // Elemeye çıktıysa ulaştığı son tur ve o masadaki sırası
+  elimination?: { round: number; isFinal: boolean; tableRank?: number };
 }
 
 export interface PublicTournament {

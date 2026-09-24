@@ -7,14 +7,12 @@ import { MdContentCopy, MdPrint } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
 import {
-  PairingMode,
   RegistrationSource,
   Tournament,
   TournamentFormat,
   TournamentStatus,
 } from "../../types/tournament";
 import { UpdatePayload } from "../../utils/api";
-import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useGetTournaments,
   useTournamentMutations,
@@ -24,42 +22,17 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
-// Turnuva başladıktan sonra backend bu alanların değişmesine izin vermez
-const RULE_KEYS = [
-  "format",
-  "pairingMode",
-  "tableSize",
-  "minTableSize",
-  "leagueRounds",
-  "placementPoints",
-  "byePoints",
-  "advanceCount",
-  "advancePerTable",
-];
+import {
+  DEFAULT_FORM_VALUES,
+  RULE_KEYS,
+  toFormValues,
+  toPayload,
+  TOURNAMENT_FORM_KEYS,
+  useTournamentFormInputs,
+} from "./useTournamentForm";
 
 const registrationUrl = (slug: string, source: RegistrationSource) =>
   `${window.location.origin}/tournament/${slug}?source=${source}`;
-
-// Formdaki boş alanları ayıklar (düzenlemede null gönderilir ki alan temizlensin)
-// ve "4,2,1,0" olarak girilen puanları diziye çevirir.
-const toPayload = (
-  item: object,
-  emptyValue?: null
-): Record<string, unknown> => {
-  const payload: Record<string, unknown> = {};
-  Object.entries(item).forEach(([key, value]) => {
-    const isEmpty = value === "" || value === null || value === undefined;
-    if (!isEmpty) payload[key] = value;
-    else if (emptyValue === null) payload[key] = null;
-  });
-  payload.placementPoints = String(payload.placementPoints ?? "")
-    .split(",")
-    .map((p) => Number(p.trim()))
-    .filter((p) => !Number.isNaN(p));
-  return payload;
-};
 
 interface Props {
   onSelectTournament: (tournament: Tournament) => void;
@@ -69,7 +42,6 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
   const { t } = useTranslation();
   const tournaments = useGetTournaments();
   const { games } = useDataContext();
-  const locations = useGetStoreLocations();
   const { createTournament, updateTournament, deleteTournament } =
     useTournamentMutations();
 
@@ -77,17 +49,16 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [addForm, setAddForm] = useState<object>(DEFAULT_FORM_VALUES);
+  const [editForm, setEditForm] = useState<object>();
 
   const isRuleLocked =
     isEditModalOpen && rowToAction?.status !== TournamentStatus.NOT_STARTED;
 
   const formatLabels: Record<TournamentFormat, string> = {
-    [TournamentFormat.LEAGUE_THEN_ELIMINATION]: t("League + Elimination"),
-    [TournamentFormat.ELIMINATION]: t("Direct Elimination"),
-  };
-  const pairingLabels: Record<PairingMode, string> = {
-    [PairingMode.SWISS]: t("Swiss"),
-    [PairingMode.RANDOM]: t("Random"),
+    [TournamentFormat.LEAGUE_THEN_ELIMINATION]: t("Point Rounds + Final"),
+    [TournamentFormat.ELIMINATION]: t("Elimination"),
+    [TournamentFormat.LEAGUE]: t("Point Rounds"),
   };
   const statusLabels: Record<TournamentStatus, string> = {
     [TournamentStatus.NOT_STARTED]: t("Not Started"),
@@ -95,153 +66,11 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
     [TournamentStatus.FINISHED]: t("Finished"),
   };
 
-  const ruleInput = <T extends object>(input: T) => ({
-    ...input,
-    isDisabled: isRuleLocked,
-  });
-
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Tournament Name"),
-      placeholder: "Catan Turnuvası",
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "game",
-      label: t("Game"),
-      options: games?.map((game) => ({ value: game._id, label: game.name })),
-      placeholder: t("Game"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations?.map((location) => ({
-        value: location._id,
-        label: location.name,
-      })),
-      placeholder: t("Location"),
-      required: false,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "date",
-      label: t("Tournament Date"),
-      placeholder: t("Tournament Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "registrationDeadline",
-      label: t("Registration Deadline"),
-      placeholder: t("Registration Deadline"),
-      required: false,
-      isDatePicker: true,
-      helperText: t("RegistrationDeadlineHelp"),
-    },
-    ruleInput({
-      type: InputTypes.SELECT,
-      formKey: "format",
-      label: t("Format"),
-      options: Object.entries(formatLabels).map(([value, label]) => ({
-        value,
-        label,
-      })),
-      placeholder: t("Format"),
-      required: true,
-      helperText: t("TournamentFormatHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.SELECT,
-      formKey: "pairingMode",
-      label: t("Pairing"),
-      options: Object.entries(pairingLabels).map(([value, label]) => ({
-        value,
-        label,
-      })),
-      placeholder: t("Pairing"),
-      required: true,
-      helperText: t("PairingModeHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.NUMBER,
-      formKey: "tableSize",
-      label: t("Players Per Table"),
-      placeholder: "4",
-      required: true,
-      helperText: t("TableSizeHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.NUMBER,
-      formKey: "minTableSize",
-      label: t("Minimum Table Size"),
-      placeholder: "3",
-      required: true,
-      helperText: t("MinTableSizeHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.NUMBER,
-      formKey: "leagueRounds",
-      label: t("League Rounds"),
-      placeholder: "3",
-      required: true,
-      helperText: t("LeagueRoundsHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.TEXT,
-      formKey: "placementPoints",
-      label: t("Placement Points"),
-      placeholder: "4,2,1,0",
-      required: true,
-      helperText: t("PlacementPointsHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.NUMBER,
-      formKey: "byePoints",
-      label: t("Bye Points"),
-      placeholder: "4",
-      required: true,
-      helperText: t("ByePointsHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.NUMBER,
-      formKey: "advanceCount",
-      label: t("Players Advancing To Elimination"),
-      placeholder: "4",
-      required: true,
-      helperText: t("AdvanceCountHelp"),
-    }),
-    ruleInput({
-      type: InputTypes.NUMBER,
-      formKey: "advancePerTable",
-      label: t("Players Advancing Per Table"),
-      placeholder: "2",
-      required: true,
-      helperText: t("AdvancePerTableHelp"),
-    }),
-  ];
-
-  const formKeys = [
-    { key: "name", type: FormKeyTypeEnum.STRING },
-    { key: "game", type: FormKeyTypeEnum.NUMBER },
-    { key: "location", type: FormKeyTypeEnum.NUMBER },
-    { key: "date", type: FormKeyTypeEnum.DATE },
-    { key: "registrationDeadline", type: FormKeyTypeEnum.DATE },
-    { key: "format", type: FormKeyTypeEnum.STRING },
-    { key: "pairingMode", type: FormKeyTypeEnum.STRING },
-    { key: "tableSize", type: FormKeyTypeEnum.NUMBER },
-    { key: "minTableSize", type: FormKeyTypeEnum.NUMBER },
-    { key: "leagueRounds", type: FormKeyTypeEnum.NUMBER },
-    { key: "placementPoints", type: FormKeyTypeEnum.STRING },
-    { key: "byePoints", type: FormKeyTypeEnum.NUMBER },
-    { key: "advanceCount", type: FormKeyTypeEnum.NUMBER },
-    { key: "advancePerTable", type: FormKeyTypeEnum.NUMBER },
-  ];
+  const addInputs = useTournamentFormInputs(addForm, false);
+  const editInputs = useTournamentFormInputs(
+    editForm ?? (rowToAction ? toFormValues(rowToAction) : DEFAULT_FORM_VALUES),
+    isRuleLocked
+  );
 
   const copyLink = (slug: string, source: RegistrationSource) => {
     navigator.clipboard
@@ -253,6 +82,7 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
     { key: t("Tournament Name"), isSortable: true },
     { key: t("Tournament Date"), isSortable: true },
     { key: t("Game"), isSortable: false },
+    { key: t("Format"), isSortable: false },
     { key: t("Status"), isSortable: false },
     { key: t("Registration Open"), isSortable: false },
     { key: t("Registration Links"), isSortable: false },
@@ -279,6 +109,10 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
       key: "game",
       node: (row: Tournament) =>
         games?.find((game) => game._id === row.game)?.name ?? "-",
+    },
+    {
+      key: "format",
+      node: (row: Tournament) => formatLabels[row.format],
     },
     {
       key: "status",
@@ -339,23 +173,17 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
-        close={() => setIsAddModalOpen(false)}
-        inputs={inputs}
-        formKeys={formKeys}
+        close={() => {
+          setIsAddModalOpen(false);
+          setAddForm(DEFAULT_FORM_VALUES);
+        }}
+        setForm={setAddForm}
+        inputs={addInputs}
+        formKeys={TOURNAMENT_FORM_KEYS}
         submitItem={(item: Tournament | UpdatePayload<Tournament>) =>
           createTournament(toPayload(item) as Partial<Tournament>)
         }
-        constantValues={{
-          format: TournamentFormat.LEAGUE_THEN_ELIMINATION,
-          pairingMode: PairingMode.SWISS,
-          tableSize: 4,
-          minTableSize: 3,
-          leagueRounds: 3,
-          placementPoints: "4,2,1,0",
-          byePoints: 4,
-          advanceCount: 4,
-          advancePerTable: 2,
-        }}
+        constantValues={DEFAULT_FORM_VALUES}
         topClassName="flex flex-col gap-2"
         generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"
         nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -407,17 +235,18 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
       modal: rowToAction ? (
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
+          close={() => {
+            setIsEditModalOpen(false);
+            setEditForm(undefined);
+          }}
+          setForm={setEditForm}
+          inputs={editInputs}
+          formKeys={TOURNAMENT_FORM_KEYS}
           submitItem={handleUpdate}
           isEditMode={true}
           itemToEdit={{
             id: rowToAction._id,
-            updates: {
-              ...rowToAction,
-              placementPoints: rowToAction.placementPoints.join(","),
-            } as unknown as Tournament,
+            updates: toFormValues(rowToAction) as unknown as Tournament,
           }}
           topClassName="flex flex-col gap-2"
           generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"

@@ -58,8 +58,8 @@ export function useTournamentActions() {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
+  // Diğer sorguları backend'in tournamentChanged websocket olayı tazeler
   const options = {
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [baseUrl] }),
     onError: (error: unknown) => {
       setTimeout(
         () =>
@@ -128,6 +128,18 @@ export function useTournamentActions() {
     ...options,
   });
 
+  // Sunucunun döndürdüğü maçı listeye hemen yazar; skor ve beraberlik seçimi
+  // tüm tur listesinin yeniden yüklenmesini beklemeden görünür.
+  const matchOptions = {
+    ...options,
+    onSuccess: (match: TournamentMatch) => {
+      queryClient.setQueryData<TournamentMatch[]>(
+        tournamentKey(match.tournamentId, "matches"),
+        (matches) => matches?.map((m) => (m._id === match._id ? match : m))
+      );
+    },
+  };
+
   const submitScores = useMutation({
     mutationFn: ({
       matchId,
@@ -136,11 +148,26 @@ export function useTournamentActions() {
       matchId: number;
       scores: { participantId: number; score: number }[];
     }) =>
-      patch({
+      patch<unknown, TournamentMatch>({
         path: `${baseUrl}/matches/${matchId}/scores`,
         payload: { scores },
       }),
-    ...options,
+    ...matchOptions,
+  });
+
+  const resolveTie = useMutation({
+    mutationFn: ({
+      matchId,
+      winnerIds,
+    }: {
+      matchId: number;
+      winnerIds: number[];
+    }) =>
+      patch<unknown, TournamentMatch>({
+        path: `${baseUrl}/matches/${matchId}/tiebreak`,
+        payload: { winnerIds },
+      }),
+    ...matchOptions,
   });
 
   return {
@@ -151,6 +178,7 @@ export function useTournamentActions() {
     generateNextRound: generateNextRound.mutate,
     isGeneratingRound: generateNextRound.isPending,
     submitScores: submitScores.mutate,
+    resolveTie: resolveTie.mutate,
   };
 }
 
