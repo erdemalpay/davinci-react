@@ -61,6 +61,7 @@ export const DEFAULT_FORM_VALUES = {
   advanceCount: 4,
   advancePerTable: 2,
   customizeRules: false,
+  pairingMode: PairingMode.SWISS,
 };
 
 const pointsText = (points?: number[]) => points?.join(",") ?? "";
