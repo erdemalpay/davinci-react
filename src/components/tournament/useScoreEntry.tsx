@@ -4,17 +4,20 @@ import { TournamentMatch } from "../../types/tournament";
 import { useTournamentActions } from "../../utils/api/tournament";
 import { GenericButton } from "../common/GenericButton";
 
-// Maç kartı ve eleme ağacı kutusu aynı skor girişini kullanır
+// Maç kartı ve eleme ağacı kutusu aynı skor girişini kullanır. Sadece elle değiştirilen
+// değerler tutulur; gerisi maçtan okunur ki başka ekrandan girilen skor da görünsün.
 export const useScoreEntry = (match: TournamentMatch) => {
   const { submitScores } = useTournamentActions();
-  const [scores, setScores] = useState<Record<number, string>>(() =>
-    Object.fromEntries(
-      match.players.map((p) => [p.participantId, p.score?.toString() ?? ""])
-    )
+  const [edits, setEdits] = useState<Record<number, string>>({});
+  const scores: Record<number, string> = Object.fromEntries(
+    match.players.map((p) => [
+      p.participantId,
+      edits[p.participantId] ?? p.score?.toString() ?? "",
+    ])
   );
 
   const setScore = (participantId: number, value: string) =>
-    setScores((prev) => ({ ...prev, [participantId]: value }));
+    setEdits((prev) => ({ ...prev, [participantId]: value }));
   const isFilled = match.players.every((p) => scores[p.participantId] !== "");
   const save = () =>
     submitScores({

@@ -30,6 +30,8 @@ const StandingsTab = ({ tournament }: Props) => {
     if (!elimination) return t("Point Rounds");
     const stage = elimination.isFinal
       ? t("Final")
+      : elimination.isThirdPlace
+      ? t("Third Place Match")
       : t("Elimination Round N", { round: elimination.round });
     return elimination.tableRank
       ? `${stage} – ${elimination.tableRank}.`

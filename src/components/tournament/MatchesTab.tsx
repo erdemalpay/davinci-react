@@ -109,7 +109,7 @@ const MatchesTab = ({ tournament }: Props) => {
             matches={matches}
             names={names}
             editableRound={
-              latest?.stage === MatchStage.ELIMINATION
+              latest?.stage === MatchStage.ELIMINATION && !isFinished
                 ? latest.round
                 : undefined
             }
@@ -133,7 +133,7 @@ const MatchesTab = ({ tournament }: Props) => {
                   match={match}
                   names={names}
                   totals={totals}
-                  isEditable={group.key === latestKey}
+                  isEditable={group.key === latestKey && !isFinished}
                 />
               ))}
             </div>

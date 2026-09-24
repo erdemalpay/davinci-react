@@ -33,6 +33,17 @@ export const eliminationSize = (rules: {
 const hasRounds = (format: TournamentFormat) =>
   format !== TournamentFormat.ELIMINATION;
 
+// Elemedeki masa büyüklüğü: doğrudan elemede puan turu olmadığı için masa başına oyuncu
+const eliminationStageSize = (values: FormValues) =>
+  values.format === TournamentFormat.ELIMINATION
+    ? Number(values.tableSize) || 0
+    : eliminationSize(values);
+
+// 3.'lük maçı sadece 2 kişilik elemede anlamlı; büyük masalarda 3. zaten finalde belirlenir
+const canHaveThirdPlace = (values: FormValues) =>
+  values.format !== TournamentFormat.LEAGUE &&
+  eliminationStageSize(values) === 2;
+
 // Turnuva başladıktan sonra backend bu alanların değişmesine izin vermez
 export const RULE_KEYS = [
   "format",
@@ -45,6 +56,7 @@ export const RULE_KEYS = [
   "byePoints",
   "advanceCount",
   "advancePerTable",
+  "thirdPlaceMatch",
 ];
 const ADVANCED_KEYS = [
   "pairingMode",
@@ -116,6 +128,9 @@ export const toPayload = (item: object, emptyValue?: null) => {
         .map((p) => Number(p.trim()))
         .filter((p) => !Number.isNaN(p));
   }
+  if (format !== TournamentFormat.LEAGUE)
+    payload.thirdPlaceMatch =
+      canHaveThirdPlace(values) && Boolean(values.thirdPlaceMatch);
   if (format === TournamentFormat.ELIMINATION)
     payload.advancePerTable = values.advancePerTable;
   if (format === TournamentFormat.LEAGUE_THEN_ELIMINATION) {
@@ -144,6 +159,7 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "leagueRounds", type: FormKeyTypeEnum.NUMBER },
   { key: "advanceCount", type: FormKeyTypeEnum.NUMBER },
   { key: "advancePerTable", type: FormKeyTypeEnum.NUMBER },
+  { key: "thirdPlaceMatch", type: FormKeyTypeEnum.BOOLEAN },
   { key: "customizeRules", type: FormKeyTypeEnum.BOOLEAN },
   { key: "pairingMode", type: FormKeyTypeEnum.STRING },
   { key: "minTableSize", type: FormKeyTypeEnum.NUMBER },
@@ -202,10 +218,7 @@ const PlanSummary = ({ values }: { values: FormValues }) => {
   if (!format || tableSize < 2) return null;
 
   const auto = autoRules(tableSize);
-  const finalTableSize =
-    format === TournamentFormat.ELIMINATION
-      ? tableSize
-      : eliminationSize(values);
+  const finalTableSize = eliminationStageSize(values);
   const points =
     values.customizeRules && values.placementPoints
       ? String(values.placementPoints)
@@ -251,6 +264,8 @@ const PlanSummary = ({ values }: { values: FormValues }) => {
       )
     );
     steps.push(t("PlanFinal"));
+    if (canHaveThirdPlace(values) && values.thirdPlaceMatch)
+      steps.push(t("PlanThirdPlace"));
   } else {
     steps.push(t("PlanLeagueWinner"));
   }
@@ -351,6 +366,17 @@ export const useTournamentFormInputs = (
             placeholder: String(auto.advancePerTable),
             required: true,
             helperText: t("AdvancePerTableHelp"),
+          },
+        ]
+      : []),
+    ...(canHaveThirdPlace(values)
+      ? [
+          {
+            type: InputTypes.CHECKBOX,
+            formKey: "thirdPlaceMatch",
+            label: t("Third Place Match"),
+            required: false,
+            helperText: t("ThirdPlaceMatchHelp"),
           },
         ]
       : []),

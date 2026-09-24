@@ -47,6 +47,7 @@ export interface Tournament {
   pairingMode: PairingMode;
   tableSize: number;
   eliminationTableSize?: number; // boşsa tableSize
+  thirdPlaceMatch?: boolean; // final turunda yarı finalde elenenler de bir masada oynar
   // Formata bağlı ayarlar: kullanılmayanlar boş olabilir
   minTableSize?: number;
   leagueRounds: number;
@@ -92,6 +93,7 @@ export interface TournamentMatch {
   tableNo: number;
   isBye: boolean;
   isCompleted: boolean;
+  isThirdPlace?: boolean; // final turundaki 3.'lük masası
   players: TournamentMatchPlayer[];
   // Eleme masasında çıkış sınırında eşitlik: organizatör `slots` kişi seçene kadar dolu
   pendingTie?: { participantIds: number[]; slots: number } | null;
@@ -108,7 +110,12 @@ export interface TournamentStanding {
   // Puan turlarında tur tur alınan puan (bay geçtiyse isBye)
   rounds?: { round: number; points: number; isBye: boolean }[];
   // Elemeye çıktıysa ulaştığı son tur ve o masadaki sırası
-  elimination?: { round: number; isFinal: boolean; tableRank?: number };
+  elimination?: {
+    round: number;
+    isFinal: boolean;
+    isThirdPlace?: boolean;
+    tableRank?: number;
+  };
 }
 
 export interface PublicTournament {

@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaCrown } from "react-icons/fa";
+import { FaCrown, FaMedal } from "react-icons/fa";
 import {
   MatchStage,
   Tournament,
@@ -26,6 +26,7 @@ interface Props {
 type BracketTable = {
   key: string;
   tableNo: number;
+  isThirdPlace?: boolean;
   match?: TournamentMatch; // henüz oynanmayan turlarda boş kutu
 };
 
@@ -51,12 +52,14 @@ const buildColumns = (
             ? `${round}-bye-${match.players[0]?.participantId}`
             : `${round}-${match.tableNo}`,
           tableNo: match.tableNo,
+          isThirdPlace: match.isThirdPlace,
           match,
         })),
     }));
 
   const last = columns[columns.length - 1];
-  if (!last || last.tables.length === 1) return columns;
+  if (!last || last.tables.filter((t) => !t.isThirdPlace).length === 1)
+    return columns;
   const tableSize = eliminationSize(tournament);
   const perTable =
     tournament.advancePerTable ?? autoRules(tableSize).advancePerTable;
@@ -68,26 +71,28 @@ const buildColumns = (
   const upcoming = eliminationTables(advancing, tableSize, perTable);
   upcoming.forEach((count, i) => {
     const round = last.round + i + 1;
-    columns.push({
-      round,
-      tables: Array.from({ length: count }, (_, n) => ({
-        key: `${round}-${n + 1}`,
-        tableNo: n + 1,
-      })),
-    });
+    const tables: BracketTable[] = Array.from({ length: count }, (_, n) => ({
+      key: `${round}-${n + 1}`,
+      tableNo: n + 1,
+    }));
+    if (i === upcoming.length - 1 && tournament.thirdPlaceMatch)
+      tables.push({ key: `${round}-third`, tableNo: 2, isThirdPlace: true });
+    columns.push({ round, tables });
   });
   return columns;
 };
 
-// Bir masadan çıkanların bir sonraki turda oturduğu masalar; tur kurulmadıysa sıraya göre dağıtılır
+// Bir masadan çıkanların bir sonraki turda oturduğu masalar; tur kurulmadıysa sıraya göre
+// dağıtılır. 3.'lük masasına çizgi çekilmez (Challonge'daki gibi ayrı durur).
 const targetsOf = (
   table: BracketTable,
   index: number,
   current: Column,
   next: Column
 ) => {
+  const nextTables = next.tables.filter((t) => !t.isThirdPlace);
   const nextIds = new Map<number, string>();
-  next.tables.forEach((t) =>
+  nextTables.forEach((t) =>
     t.match?.players.forEach((p) => nextIds.set(p.participantId, t.key))
   );
   const targets = new Set<string>();
@@ -97,9 +102,9 @@ const targetsOf = (
   });
   if (!targets.size) {
     const slot = Math.floor(
-      (index * next.tables.length) / current.tables.length
+      (index * nextTables.length) / current.tables.length
     );
-    targets.add(next.tables[slot].key);
+    targets.add(nextTables[slot].key);
   }
   return Array.from(targets);
 };
@@ -136,11 +141,17 @@ const BracketBox = ({
       }`}
     >
       <p className="px-2 py-1 text-xs text-gray-400 border-b">
-        {match?.isBye ? t("Bye") : `${t("Table")} ${table.tableNo}`}
+        {match?.isBye
+          ? t("Bye")
+          : table.isThirdPlace
+          ? t("Third Place Match")
+          : `${t("Table")} ${table.tableNo}`}
       </p>
       {!match && (
         <p className="px-2 py-3 text-xs text-gray-400 italic">
-          {t("Waiting for winners")}
+          {table.isThirdPlace
+            ? t("Waiting for eliminated players")
+            : t("Waiting for winners")}
         </p>
       )}
       {match && isEditable ? (
@@ -151,7 +162,10 @@ const BracketBox = ({
             match?.isCompleted &&
             players.filter((p) => p.score === player.score).length > 1;
           const isChampion = isChampionTable && player.rank === 1;
-          const advanced = isAdvancer(player.participantId) || isChampion;
+          const isThird =
+            table.isThirdPlace && match?.isCompleted && player.rank === 1;
+          const advanced =
+            isAdvancer(player.participantId) || isChampion || isThird;
           return (
             <div
               key={player.participantId}
@@ -166,6 +180,7 @@ const BracketBox = ({
                 {names.get(player.participantId)}
               </span>
               {isChampion && <FaCrown className="text-amber-500" />}
+              {isThird && <FaMedal className="text-amber-700" />}
               {tied && (
                 <span className="text-[10px] rounded bg-amber-100 text-amber-700 px-1">
                   {t("Tie")}
@@ -285,8 +300,10 @@ const EliminationBracket = ({
   if (!columns.length) return null;
 
   const isAdvancer = (participantId: number, c: number) =>
-    columns[c + 1]?.tables.some((next) =>
-      next.match?.players.some((p) => p.participantId === participantId)
+    columns[c + 1]?.tables.some(
+      (next) =>
+        !next.isThirdPlace &&
+        next.match?.players.some((p) => p.participantId === participantId)
     );
 
   return (
@@ -318,7 +335,10 @@ const EliminationBracket = ({
                     column.round === editableRound && !table.match?.isBye
                   }
                   isChampionTable={
-                    c === columns.length - 1 && !!table.match && isFinished
+                    c === columns.length - 1 &&
+                    !!table.match &&
+                    !table.isThirdPlace &&
+                    isFinished
                   }
                   isAdvancer={(participantId) => isAdvancer(participantId, c)}
                   boxRef={(el) => {
