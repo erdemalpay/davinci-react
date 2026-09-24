@@ -6,6 +6,7 @@ import {
   TournamentFormat,
 } from "../../types/tournament";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { formatDateInTurkey } from "../../utils/format";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 // Organizatöre sadece biçim + en fazla iki soru sorulur; puanlama ve masa ayarları
@@ -89,8 +90,13 @@ export const toFormValues = (tournament: Tournament) => {
     (tournament.format === TournamentFormat.LEAGUE_THEN_ELIMINATION &&
       tournament.advancePerTable !==
         autoRules(eliminationSize(tournament)).advancePerTable);
+  // Tarih alanı YYYY-MM-DD bekler, backend tam zaman damgası döner
+  const toDateInput = (date?: string) =>
+    date ? formatDateInTurkey(new Date(date)) : "";
   return {
     ...tournament,
+    date: toDateInput(tournament.date),
+    registrationDeadline: toDateInput(tournament.registrationDeadline),
     placementPoints: pointsText(tournament.placementPoints),
     customizeRules: isCustomized,
   };
@@ -447,7 +453,7 @@ export const useTournamentFormInputs = (
             : []),
         ]
       : []),
-  ].map((input) => ({ ...input, isDisabled: isRuleLocked }));
+  ].map((input) => ({ ...input, isReadOnly: isRuleLocked }));
 
   return [
     {
