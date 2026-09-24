@@ -2,6 +2,9 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
+import PublicFormCard, {
+  PublicFormLoading,
+} from "../components/common/PublicFormCard";
 import StatusScreen from "../components/common/StatusScreen";
 import { RegistrationSource } from "../types/tournament";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
@@ -58,11 +61,7 @@ const TournamentRegister = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
-      </div>
-    );
+    return <PublicFormLoading />;
   }
 
   if (isError || !tournament) {
@@ -96,90 +95,80 @@ const TournamentRegister = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-6 max-w-md w-full">
-        <div className="text-center mb-6">
-          <img
-            src="/logo.svg"
-            alt={t("Davinci Board Game Cafe")}
-            className="h-12 mx-auto mb-3"
+    <PublicFormCard
+      title={tournament.name}
+      subtitle={`${format(new Date(tournament.date), "dd/MM/yyyy")} · ${t(
+        "Davinci Board Game Cafe"
+      )}`}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("Full Name")} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            autoComplete="name"
+            required
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder={t("Enter full name")}
+            className={inputClassName}
           />
-          <h1 className="text-xl font-bold text-gray-800">{tournament.name}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {format(new Date(tournament.date), "dd/MM/yyyy")} ·{" "}
-            {t("Davinci Board Game Cafe")}
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("Full Name")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              autoComplete="name"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder={t("Enter full name")}
-              className={inputClassName}
-            />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("Phone")} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            required
+            pattern="[0-9 +()-]{10,}"
+            title={t("Enter a valid phone number")}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="05XX XXX XX XX"
+            className={inputClassName}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("Email")} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t("example@email.com")}
+            className={inputClassName}
+          />
+        </div>
+
+        <p className="text-xs text-gray-500">
+          {t("TournamentRegisterContactNote")}
+        </p>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <p className="text-sm text-red-600">{error}</p>
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("Phone")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              required
-              pattern="[0-9 +()-]{10,}"
-              title={t("Enter a valid phone number")}
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="05XX XXX XX XX"
-              className={inputClassName}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("Email")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("example@email.com")}
-              className={inputClassName}
-            />
-          </div>
-
-          <p className="text-xs text-gray-500">
-            {t("TournamentRegisterContactNote")}
-          </p>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
-          >
-            {isSubmitting ? t("processing") : t("Join Tournament")}
-          </button>
-        </form>
-      </div>
-    </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
+        >
+          {isSubmitting ? t("processing") : t("Join Tournament")}
+        </button>
+      </form>
+    </PublicFormCard>
   );
 };
 
