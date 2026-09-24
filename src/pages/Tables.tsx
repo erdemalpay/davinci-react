@@ -1,7 +1,7 @@
 import { Tooltip } from "@material-tailwind/react";
 import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { GiBowlOfRice, GiHamburger } from "react-icons/gi";
@@ -424,21 +424,22 @@ const Tables = () => {
     return tables.find((t) => t._id === selectedTableIdForOrder);
   }, [tables, selectedTableIdForOrder]);
 
+  const pressTimerRef = useRef<number | null>(null);
+  const longPressFiredRef = useRef(false);
+
   const makePressHandlers = (tableId: number, targetId: string) => {
-    let timer: number | null = null;
-    let longFired = false;
     const LONG_MS = 600;
 
     const clear = () => {
-      if (timer) window.clearTimeout(timer);
-      timer = null;
+      if (pressTimerRef.current) window.clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
     };
 
     const start = () => {
-      longFired = false;
+      longPressFiredRef.current = false;
       clear();
-      timer = window.setTimeout(() => {
-        longFired = true;
+      pressTimerRef.current = window.setTimeout(() => {
+        longPressFiredRef.current = true;
         setSelectedTableIdForOrder(tableId);
         setIsAddOrderModalOpen(true);
       }, LONG_MS);
@@ -446,7 +447,7 @@ const Tables = () => {
 
     const end = () => {
       clear();
-      if (!longFired) {
+      if (!longPressFiredRef.current) {
         // If targetId is for mobile (table-{id}) but screen is lg or larger,
         // use desktop ID (table-large-{id}) instead
         const screenWidth = window.innerWidth;
@@ -470,7 +471,10 @@ const Tables = () => {
       onMouseUp: end,
       onMouseLeave: clear,
       onTouchStart: start,
-      onTouchEnd: end,
+      onTouchEnd: (e: React.TouchEvent) => {
+        if (longPressFiredRef.current && e.cancelable) e.preventDefault();
+        end();
+      },
       onTouchCancel: clear,
     };
   };
@@ -1841,7 +1845,7 @@ const Tables = () => {
                       return (
                         <a
                           key={`${table._id}-${tableName}-tableselector-small`}
-                          className={`py-2 rounded-lg focus:outline-none ${hoverClass} text-white font-medium ${buttonColor} text-center text-sm ${
+                          className={`py-2 rounded-lg focus:outline-none select-none ${hoverClass} text-white font-medium ${buttonColor} text-center text-sm ${
                             isActivity ? "col-span-2" : ""
                           }`}
                           {...makePressHandlers(
@@ -2022,7 +2026,7 @@ const Tables = () => {
                       return (
                         <a
                           key={`${table._id}-${tableName}-tableselector-large`}
-                          className={`px-4 py-2 rounded-lg cursor-pointer focus:outline-none ${hoverClass} text-white font-medium ${buttonColor}`}
+                          className={`px-4 py-2 rounded-lg cursor-pointer focus:outline-none select-none ${hoverClass} text-white font-medium ${buttonColor}`}
                           {...makePressHandlers(
                             table._id,
                             `table-${table._id}`
