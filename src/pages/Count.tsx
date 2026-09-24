@@ -4,6 +4,7 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { GenericButton } from "../components/common/GenericButton";
+import ReservedQuantityCell from "../components/countLists/ReservedQuantityCell";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
@@ -35,7 +36,7 @@ import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
-import { getCountStockBgColor } from "../utils/color";
+import { getCountExpectedQuantity, getCountStockBgColor } from "../utils/color";
 
 const Count = () => {
   const { t, i18n } = useTranslation();
@@ -123,6 +124,14 @@ const Count = () => {
     [countArchiveOpenCountDisabledCondition, user]
   );
 
+  // Ayrılmış kaydı yalnızca pazaryeri siparişlerinin düştüğü depo sayımında oluşur.
+  const showReserved = useMemo(
+    () =>
+      showStockAndColors &&
+      !!currentCount?.products?.some((cp) => cp.reservedQuantity != null),
+    [showStockAndColors, currentCount?.products]
+  );
+
   const columns = useMemo(() => {
     const base = [
       { key: t("Product"), isSortable: true },
@@ -130,6 +139,7 @@ const Count = () => {
       ...(showStockAndColors
         ? [
             { key: t("Stock Quantity"), isSortable: true },
+            ...(showReserved ? [{ key: t("Reserved"), isSortable: true }] : []),
             { key: t("Difference"), isSortable: false },
           ]
         : []),
@@ -137,7 +147,7 @@ const Count = () => {
     ];
     if (isEnableEdit) base.push({ key: t("Actions"), isSortable: false });
     return base;
-  }, [t, isEnableEdit, showStockAndColors]);
+  }, [t, isEnableEdit, showStockAndColors, showReserved]);
 
   const rows = useMemo(() => {
     const listProducts = currentCountList?.products ?? [];
@@ -158,15 +168,20 @@ const Count = () => {
             const foundMenuItem = items?.find(
               (it) => it?.matchedProduct === countListProduct.product
             );
+            const countProduct = currentCount?.products?.find(
+              (cp) => cp.product === countListProduct.product
+            );
+            // Ayrılmış kaydı varsa fark sayının girildiği andaki stoğa göre gösterilir.
+            const hasReservedSnapshot = countProduct?.reservedQuantity != null;
             return {
               products: currentCount?.products,
               productId: countListProduct.product,
               product: foundProduct?.name || "",
               countQuantity: currentCount?.products?.find(
-                (cp: any) => cp.product === countListProduct.product
+                (cp) => cp.product === countListProduct.product
               )?.countQuantity ?? 0,
               productDeleteRequest: currentCount?.products?.find(
-                (cp: any) => cp.product === countListProduct.product
+                (cp) => cp.product === countListProduct.product
               )?.productDeleteRequest,
               shelfInfo:
                 foundProduct?.shelfInfo?.find(
@@ -174,12 +189,16 @@ const Count = () => {
                 )?.shelf || "",
               sku: foundMenuItem?.sku || "",
               barcode: foundMenuItem?.barcode || "",
-              stockQuantity:
-                stocks?.find(
-                  (s) =>
-                    s?.product === countListProduct.product &&
-                    s?.location === numericLocation
-                )?.quantity || 0,
+              stockQuantity: hasReservedSnapshot
+                ? countProduct.stockQuantity
+                : stocks?.find(
+                    (s) =>
+                      s?.product === countListProduct.product &&
+                      s?.location === numericLocation
+                  )?.quantity || 0,
+              // Sayılmış ama ayrılmış kaydı henüz yoksa bilinmiyor olarak gösterilir.
+              reservedQuantity: countProduct ? countProduct.reservedQuantity : 0,
+              reservedDetails: countProduct?.reservedDetails ?? [],
             };
           }
           return { product: "", countQuantity: 0 };
@@ -201,7 +220,7 @@ const Count = () => {
       return [...rows].sort((a, b) => a.product.localeCompare(b.product));
     }
     const colorRank = (row: { stockQuantity?: number; countQuantity: number }) => {
-      const s = Number(row.stockQuantity ?? 0);
+      const s = getCountExpectedQuantity(row);
       const c = Number(row.countQuantity);
       if (s > c) return 0; // red
       if (s < c) return 1; // green
@@ -351,10 +370,23 @@ const Count = () => {
       ...(showStockAndColors
         ? [
             { key: "stockQuantity" },
+            ...(showReserved
+              ? [
+                  {
+                    key: "reservedQuantity",
+                    node: (row: any) => (
+                      <ReservedQuantityCell
+                        reservedQuantity={row.reservedQuantity}
+                        reservedDetails={row.reservedDetails}
+                      />
+                    ),
+                  },
+                ]
+              : []),
             {
               key: "difference",
               node: (row: any) => {
-                const diff = Number(row.countQuantity) - Number(row.stockQuantity);
+                const diff = Number(row.countQuantity) - getCountExpectedQuantity(row);
                 return <span>{diff > 0 ? `+${diff}` : diff}</span>;
               },
             },
@@ -410,7 +442,7 @@ const Count = () => {
         },
       },
     ],
-    [products, currentCount, stocks, numericLocation, updateCountQuantity, showStockAndColors]
+    [products, currentCount, stocks, numericLocation, updateCountQuantity, showStockAndColors, showReserved]
   );
 
   const filters = useMemo(
