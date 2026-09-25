@@ -4,7 +4,9 @@ import { useTranslation } from "react-i18next";
 import {
   MdOutlineCheckBox,
   MdOutlineCheckBoxOutlineBlank,
+  MdOutlineIndeterminateCheckBox,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import Loading from "../components/common/Loading";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
@@ -96,6 +98,7 @@ const ShopifyPickUp = () => {
       .map(([, groupOrders]) => {
         const first = groupOrders[0];
         const allPicked = groupOrders.every((o) => o.isShopifyCustomerPicked);
+        const somePicked = groupOrders.some((o) => o.isShopifyCustomerPicked);
         const allBrought = groupOrders.every(
           (o) => o.isShopifyPickUpOrderBrought
         );
@@ -118,6 +121,11 @@ const ShopifyPickUp = () => {
         return {
           _id: first._id,
           orderIds: groupOrders.map((o) => o._id),
+          // #1322: getirilmemis urun teslim edilmis olamaz; tum gruba picked
+          // yazmak veritabanina yanlis kayit birakiyordu.
+          broughtOrderIds: groupOrders
+            .filter((o) => o.isShopifyPickUpOrderBrought)
+            .map((o) => o._id),
           isReturned: groupOrders.some((o) => o.isReturned),
           date: format(first.createdAt, "yyyy-MM-dd"),
           formattedDate: format(first.createdAt, "dd-MM-yyyy"),
@@ -151,6 +159,7 @@ const ShopifyPickUp = () => {
             (status) => status.value === first?.status
           )?.label,
           isShopifyCustomerPicked: allPicked,
+          isPartiallyPicked: !allPicked && somePicked,
           collapsible: {
             collapsibleHeader: t("Products"),
             collapsibleColumns: [
@@ -295,41 +304,69 @@ const ShopifyPickUp = () => {
       {
         key: "isShopifyCustomerPicked",
         node: (row: any) => {
-          return row?.isShopifyCustomerPicked ? (
-            <MdOutlineCheckBox
-              id="shopify-pickup-checkbox"
-              key={row._id + "shopify-pickup-checkbox"}
-              className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
-              onClick={() => {
-                setExpandedRows({});
-                updateSimpleOrdersBulk({
-                  ids: row.orderIds,
-                  updates: { isShopifyCustomerPicked: false },
-                });
-              }}
-            />
-          ) : (
+          const handleDeliver = () => {
+            setExpandedRows({});
+            if (row.broughtOrderIds.length === 0) {
+              toast.warning(
+                t("Mark the products as brought from the depot first")
+              );
+              return;
+            }
+            updateSimpleOrdersBulk({
+              ids: row.broughtOrderIds,
+              updates: {
+                isShopifyCustomerPicked: true,
+                deliveredAt: new Date(),
+                deliveredBy: user?._id,
+              },
+            });
+          };
+
+          // Geri alma her zaman TUM grubu temizler: yarim kalinti gorunmez olur.
+          const handleUndoDelivery = () => {
+            setExpandedRows({});
+            updateSimpleOrdersBulk({
+              ids: row.orderIds,
+              updates: { isShopifyCustomerPicked: false },
+            });
+          };
+
+          if (row?.isShopifyCustomerPicked) {
+            return (
+              <MdOutlineCheckBox
+                id="shopify-pickup-checkbox"
+                key={row._id + "shopify-pickup-checkbox"}
+                className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
+                onClick={handleUndoDelivery}
+              />
+            );
+          }
+
+          // Bos tik gosterilirse personel "kaydedilmedi" sanip tekrar basiyor.
+          if (row?.isPartiallyPicked) {
+            return (
+              <MdOutlineIndeterminateCheckBox
+                id="shopify-pickup-checkbox"
+                key={row._id + "shopify-pickup-checkbox"}
+                title={t("Partially Delivered")}
+                className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105 text-blue-600"
+                onClick={handleDeliver}
+              />
+            );
+          }
+
+          return (
             <MdOutlineCheckBoxOutlineBlank
               id="shopify-pickup-checkbox"
               key={row._id + "shopify-pickup-checkbox"}
               className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
-              onClick={() => {
-                setExpandedRows({});
-                updateSimpleOrdersBulk({
-                  ids: row.orderIds,
-                  updates: {
-                    isShopifyCustomerPicked: true,
-                    deliveredAt: new Date(),
-                    deliveredBy: user?._id,
-                  },
-                });
-              }}
+              onClick={handleDeliver}
             />
           );
         },
       },
     ],
-    [updateSimpleOrdersBulk, user, setExpandedRows]
+    [updateSimpleOrdersBulk, user, setExpandedRows, t]
   );
 
   const filterPanelInputs = useMemo(

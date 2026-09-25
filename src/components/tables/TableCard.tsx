@@ -24,6 +24,7 @@ import { useDataContext } from "../../context/Data.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
+import { useOrderTaker } from "../../hooks/useOrderTaker";
 import {
   Gameplay,
   MenuItem,
@@ -127,6 +128,8 @@ export function TableCard({
   const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
+  const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
+    useOrderTaker();
   const tableCollections = useMemo(() => {
     if (!todayCollections) return [];
     return todayCollections.filter(
@@ -513,7 +516,7 @@ export function TableCard({
           { key: "stockLocation", defaultValue: selectedLocationId },
         ],
         placeholder: t("Product"),
-        required: true,
+        required: orderCreateBulk.length > 0 ? false : true,
         isTopFlexRow: true,
       },
       {
@@ -1246,8 +1249,8 @@ export function TableCard({
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
-          inputs={orderInputs}
-          formKeys={orderFormKeys}
+          inputs={[...orderTakerInputs, ...orderInputs]}
+          formKeys={[...orderTakerFormKeys, ...orderFormKeys]}
           {...(inactiveCategoriesWithKitchens?.length > 0
             ? {
                 upperMessage: inactiveCategoriesWithKitchens.map((category) =>
@@ -1279,7 +1282,7 @@ export function TableCard({
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
           allowOptionalSubmitForActivityTable={
-            table.type === TableTypes.ACTIVITY
+            table.type === TableTypes.ACTIVITY || isCounterUser
           }
           constantValues={{
             quantity: 1,
@@ -1300,7 +1303,11 @@ export function TableCard({
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
-              preservedKeys: ["activityTableName", "activityPlayer"],
+              preservedKeys: [
+                "activityTableName",
+                "activityPlayer",
+                "createdBy",
+              ],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
@@ -1376,8 +1383,8 @@ export function TableCard({
         <GenericAddEditPanel
           isOpen={isQuickOrderDialogOpen}
           close={() => setIsQuickOrderDialogOpen(false)}
-          inputs={quickOrderInputs}
-          formKeys={quickOrderFormKeys}
+          inputs={[...orderTakerInputs, ...quickOrderInputs]}
+          formKeys={[...orderTakerFormKeys, ...quickOrderFormKeys]}
           submitItem={() => undefined}
           submitFunction={() => {
             const orderObject = handleQuickOrderObject();

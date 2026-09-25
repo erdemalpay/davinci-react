@@ -1,4 +1,4 @@
-import { format, startOfYear } from "date-fns";
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../../context/General.context";
@@ -24,7 +24,7 @@ const AllBreaks = () => {
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const initialFilterPanelFormElements = {
     before: "",
-    after: format(startOfYear(new Date()), "yyyy-MM-dd"),
+    after: format(new Date(), "yyyy-MM-dd"),
     user: "",
     location: "",
     sort: "",

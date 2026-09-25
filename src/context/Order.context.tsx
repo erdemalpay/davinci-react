@@ -1,6 +1,7 @@
 import { format, startOfMonth } from "date-fns";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { Order, OrderDiscount } from "../types";
+import { SplitPayment } from "../utils/splitPayment";
 type FormElementsState = {
   [key: string]: any;
 };
@@ -18,6 +19,8 @@ type OrderContextType = {
   setIsTakeAwayPaymentModalOpen: (isTakeAwayPaymentModalOpen: boolean) => void;
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
+  splitPayment: SplitPayment | null;
+  setSplitPayment: (splitPayment: SplitPayment | null) => void;
   isSelectAll: boolean;
   discountNote: string | string[];
   setDiscountNote: (discountNote: string | string[]) => void;
@@ -97,7 +100,7 @@ const OrderContext = createContext<OrderContextType>({
   /* eslint-disable @typescript-eslint/no-empty-function */
   vendorOrderFilterPanelFormElements: {
     vendor: "",
-    location: [],
+    location: [6],
   },
   setVendorOrderFilterPanelFormElements: () => {},
   showOrderDataFilters: false,
@@ -119,6 +122,8 @@ const OrderContext = createContext<OrderContextType>({
   setDiscountNote: () => {},
   setIsOrderDivisionActive: () => {},
   paymentAmount: "",
+  splitPayment: null,
+  setSplitPayment: () => {},
   setPaymentAmount: () => {},
   temporaryOrders: [],
   setTemporaryOrders: () => {},
@@ -337,6 +342,7 @@ const OrderContext = createContext<OrderContextType>({
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [paymentAmount, setPaymentAmount] = useState<string>("");
+  const [splitPayment, setSplitPayment] = useState<SplitPayment | null>(null);
   const [temporaryOrders, setTemporaryOrders] = useState<
     { order: Order; quantity: number }[]
   >([]);
@@ -358,7 +364,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setVendorOrderFilterPanelFormElements,
   ] = useState<FormElementsState>({
     vendor: "",
-    location: [],
+    location: [6],
   });
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
     useState(false);
@@ -490,6 +496,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     });
   const resetOrderContext = () => {
     setPaymentAmount("");
+    setSplitPayment(null);
     setDiscountNote("");
     setTemporaryOrders([]);
     setIsProductSelectionOpen(false);
@@ -526,6 +533,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         todaysOrderDate,
         setTodaysOrderDate,
         paymentAmount,
+        splitPayment,
+        setSplitPayment,
         setPaymentAmount,
         temporaryOrders,
         setTemporaryOrders,

@@ -1,7 +1,7 @@
 import { Tooltip } from "@material-tailwind/react";
 import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { GiBowlOfRice, GiHamburger } from "react-icons/gi";
@@ -30,6 +30,7 @@ import { useDateContext } from "../context/Date.context";
 import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
+import { useOrderTaker } from "../hooks/useOrderTaker";
 import { Routes } from "../navigation/constants";
 import {
   MenuItem,
@@ -122,6 +123,8 @@ const Tables = () => {
     () => localStorage.getItem("davinci_auto_print") !== "false"
   );
   const { selectedLocationId } = useLocationContext();
+  const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
+    useOrderTaker();
   const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
 
@@ -424,21 +427,22 @@ const Tables = () => {
     return tables.find((t) => t._id === selectedTableIdForOrder);
   }, [tables, selectedTableIdForOrder]);
 
+  const pressTimerRef = useRef<number | null>(null);
+  const longPressFiredRef = useRef(false);
+
   const makePressHandlers = (tableId: number, targetId: string) => {
-    let timer: number | null = null;
-    let longFired = false;
     const LONG_MS = 600;
 
     const clear = () => {
-      if (timer) window.clearTimeout(timer);
-      timer = null;
+      if (pressTimerRef.current) window.clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
     };
 
     const start = () => {
-      longFired = false;
+      longPressFiredRef.current = false;
       clear();
-      timer = window.setTimeout(() => {
-        longFired = true;
+      pressTimerRef.current = window.setTimeout(() => {
+        longPressFiredRef.current = true;
         setSelectedTableIdForOrder(tableId);
         setIsAddOrderModalOpen(true);
       }, LONG_MS);
@@ -446,7 +450,7 @@ const Tables = () => {
 
     const end = () => {
       clear();
-      if (!longFired) {
+      if (!longPressFiredRef.current) {
         // If targetId is for mobile (table-{id}) but screen is lg or larger,
         // use desktop ID (table-large-{id}) instead
         const screenWidth = window.innerWidth;
@@ -470,7 +474,10 @@ const Tables = () => {
       onMouseUp: end,
       onMouseLeave: clear,
       onTouchStart: start,
-      onTouchEnd: end,
+      onTouchEnd: (e: React.TouchEvent) => {
+        if (longPressFiredRef.current && e.cancelable) e.preventDefault();
+        end();
+      },
       onTouchCancel: clear,
     };
   };
@@ -591,7 +598,7 @@ const Tables = () => {
         { key: "isOnlinePrice", defaultValue: false },
       ],
       placeholder: t("Product"),
-      required: true,
+      required: orderCreateBulk.length > 0 ? false : true,
       isTopFlexRow: true,
     },
     {
@@ -784,6 +791,7 @@ const Tables = () => {
   };
 
   const orderInputsForTakeAway = [
+    ...orderTakerInputs,
     {
       type: InputTypes.TAB,
       formKey: "category",
@@ -1056,6 +1064,7 @@ const Tables = () => {
     },
   ];
   const orderFormKeysForTakeAway = [
+    ...orderTakerFormKeys,
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
@@ -1841,7 +1850,7 @@ const Tables = () => {
                       return (
                         <a
                           key={`${table._id}-${tableName}-tableselector-small`}
-                          className={`py-2 rounded-lg focus:outline-none ${hoverClass} text-white font-medium ${buttonColor} text-center text-sm ${
+                          className={`py-2 rounded-lg focus:outline-none select-none ${hoverClass} text-white font-medium ${buttonColor} text-center text-sm ${
                             isActivity ? "col-span-2" : ""
                           }`}
                           {...makePressHandlers(
@@ -2022,7 +2031,7 @@ const Tables = () => {
                       return (
                         <a
                           key={`${table._id}-${tableName}-tableselector-large`}
-                          className={`px-4 py-2 rounded-lg cursor-pointer focus:outline-none ${hoverClass} text-white font-medium ${buttonColor}`}
+                          className={`px-4 py-2 rounded-lg cursor-pointer focus:outline-none select-none ${hoverClass} text-white font-medium ${buttonColor}`}
                           {...makePressHandlers(
                             table._id,
                             `table-${table._id}`
@@ -2260,8 +2269,8 @@ const Tables = () => {
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
-          inputs={orderInputs}
-          formKeys={orderFormKeys}
+          inputs={[...orderTakerInputs, ...orderInputs]}
+          formKeys={[...orderTakerFormKeys, ...orderFormKeys]}
           {...(inactiveCategoriesWithKitchens?.length > 0
             ? {
                 upperMessage: inactiveCategoriesWithKitchens.map((category) =>
@@ -2292,7 +2301,7 @@ const Tables = () => {
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
           allowOptionalSubmitForActivityTable={
-            selectedTable?.type === TableTypes.ACTIVITY
+            selectedTable?.type === TableTypes.ACTIVITY || isCounterUser
           }
           constantValues={{
             quantity: 1,
@@ -2312,7 +2321,11 @@ const Tables = () => {
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
-              preservedKeys: ["activityTableName", "activityPlayer"],
+              preservedKeys: [
+                "activityTableName",
+                "activityPlayer",
+                "createdBy",
+              ],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
@@ -2478,6 +2491,7 @@ const Tables = () => {
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          allowOptionalSubmitForActivityTable={isCounterUser}
           constantValues={{
             quantity: 1,
             stockLocation: selectedLocationId,
@@ -2510,6 +2524,7 @@ const Tables = () => {
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
+              preservedKeys: ["createdBy"],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {

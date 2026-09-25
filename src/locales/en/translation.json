@@ -741,6 +741,7 @@
   "Checku": "Check",
   "Check Archive": "Check Archive",
   "Update Ikas Stocks": "Update Ikas Stocks",
+  "Split payment": "Split payment",
   "Stock Location": "Stock Location",
   "Stock Quantity Warning": "Stock Quantity Warning",
   "Consumption History": "Consumption History",
@@ -1881,5 +1882,10 @@
   "Response": "Response",
   "Request Detail": "Request Detail",
   "Trendyol Request Logs": "Trendyol Request Logs",
-  "Success": "Success"
+  "Success": "Success",
+  "Partially Delivered": "Partially Delivered",
+  "Mark the products as brought from the depot first": "Mark the products as brought from the depot first",
+  "No price records yet": "No price records yet.",
+  "Order Taker": "Order Taker",
+  "Select Discount": "Select Discount"
 }
