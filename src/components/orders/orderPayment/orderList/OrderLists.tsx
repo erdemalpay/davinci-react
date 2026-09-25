@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderStatus, Table } from "../../../../types";
+import { Order, OrderDiscount, OrderStatus, Table } from "../../../../types";
 import {
   useCreateOrderForDiscountMutation,
   useCreateOrderForDivideMutation,
@@ -53,6 +53,7 @@ const OrderLists = ({
     isDiscountScreenOpen,
     setTemporaryOrders,
     selectedDiscount,
+    setSelectedDiscount,
     selectedOrders,
     resetOrderContext,
     isProductDivideOpen,
@@ -75,6 +76,37 @@ const OrderLists = ({
       isDiscountScreenOpen ||
       isOrderDivisionActive
     ) && !isProductDivideOpen;
+
+  const applyDiscount = (
+    discount: OrderDiscount,
+    note: string | string[] = ""
+  ) => {
+    createOrderForDiscount({
+      orders: selectedOrders.map((selectedOrder) => ({
+        totalQuantity: selectedOrder.totalQuantity,
+        selectedQuantity: selectedOrder.selectedQuantity,
+        orderId: selectedOrder.order?._id,
+      })),
+      discount: discount._id,
+      ...(discount.percentage && {
+        discountPercentage: discount.percentage,
+      }),
+      ...(discount.amount && { discountAmount: discount.amount }),
+      ...(note && {
+        discountNote: Array.isArray(note) ? note.join(",") : note,
+      }),
+    });
+    resetOrderContext();
+  };
+
+  const handleDiscountSelect = (discount: OrderDiscount) => {
+    setSelectedDiscount(discount);
+    if (discount.isNoteRequired) {
+      setIsDiscountNoteOpen(true);
+      return;
+    }
+    applyDiscount(discount);
+  };
   const buttons: OrderListButton[] = [
     {
       label: isOrderDivisionActive ? t("Close") : t("Cancel"),
@@ -90,6 +122,17 @@ const OrderLists = ({
     {
       label: t("Back"),
       onClick: () => {
+        if (isDiscountNoteOpen) {
+          setDiscountNote("");
+          setSelectedDiscount(null);
+          setIsDiscountNoteOpen(false);
+          return;
+        }
+        if (isDiscountScreenOpen && !isProductSelectionOpen) {
+          setSelectedDiscount(null);
+          setIsProductSelectionOpen(true);
+          return;
+        }
         if (isProductDivideOpen) {
           setIsProductSelectionOpen(false);
           setSelectedOrders([]);
@@ -101,17 +144,6 @@ const OrderLists = ({
           setIsProductSelectionOpen(false);
           return;
         }
-        if (discountNote) {
-          setIsDiscountNoteOpen(true);
-        }
-        if (isDiscountNoteOpen) {
-          setDiscountNote("");
-          setIsDiscountNoteOpen(false);
-        }
-        if (setIsProductSelectionOpen && isDiscountScreenOpen) {
-          setIsProductSelectionOpen(false);
-          setSelectedOrders([]);
-        }
         if (isTableSelectOpen) {
           setIsTableSelectOpen(false);
           setSelectedTableTransfer(0);
@@ -119,7 +151,10 @@ const OrderLists = ({
         }
       },
       isActive:
-        isProductSelectionOpen || isDiscountNoteOpen || isTransferProductOpen,
+        isDiscountNoteOpen ||
+        (isDiscountScreenOpen && !isProductSelectionOpen) ||
+        isProductDivideOpen ||
+        isTransferProductOpen,
     },
     {
       label: t("Forward"),
@@ -150,14 +185,27 @@ const OrderLists = ({
       isActive: mainActiveCase,
     },
     {
-      label: t("Order Select"),
+      label: t("Select Discount"),
       onClick: () => {
-        if (!discountNote) {
+        if (selectedOrders.length === 0) {
+          toast.error(t("Please select an order"));
+          return;
+        }
+        setIsProductSelectionOpen(false);
+      },
+      isActive: isDiscountScreenOpen && isProductSelectionOpen,
+    },
+    {
+      label: t("Apply"),
+      onClick: () => {
+        const hasDiscountNote = Array.isArray(discountNote)
+          ? discountNote.length > 0
+          : discountNote.trim().length > 0;
+        if (!selectedDiscount || !hasDiscountNote) {
           toast.error(t("Please enter a discount note"));
           return;
         }
-        setIsDiscountNoteOpen(false);
-        setIsProductSelectionOpen(true);
+        applyDiscount(selectedDiscount, discountNote);
       },
       isActive: isDiscountNoteOpen,
     },
@@ -191,28 +239,6 @@ const OrderLists = ({
               };
             }),
           });
-        } else if (isProductSelectionOpen && selectedDiscount) {
-          createOrderForDiscount({
-            orders: selectedOrders.map((selectedOrder) => {
-              return {
-                totalQuantity: selectedOrder.totalQuantity,
-                selectedQuantity: selectedOrder.selectedQuantity,
-                orderId: selectedOrder.order?._id,
-              };
-            }),
-            discount: selectedDiscount?._id,
-            ...(selectedDiscount.percentage && {
-              discountPercentage: selectedDiscount.percentage,
-            }),
-            ...(selectedDiscount.amount && {
-              discountAmount: selectedDiscount.amount,
-            }),
-            ...(discountNote && {
-              discountNote: Array.isArray(discountNote)
-                ? discountNote.join(",")
-                : discountNote,
-            }),
-          });
         } else if (isTableSelectOpen) {
           if (selectedTableTransfer === 0) {
             toast.error("Please select a table");
@@ -231,10 +257,7 @@ const OrderLists = ({
         }
         resetOrderContext();
       },
-      isActive:
-        (isProductSelectionOpen && !isTransferProductOpen) ||
-        isProductDivideOpen ||
-        isTableSelectOpen,
+      isActive: isProductDivideOpen || isTableSelectOpen,
     },
   ];
 
@@ -256,7 +279,10 @@ const OrderLists = ({
         !isProductSelectionOpen &&
         !isDiscountNoteOpen &&
         (isDiscountScreenOpen ? (
-          <DiscountScreen table={table} />
+          <DiscountScreen
+            table={table}
+            onDiscountSelect={handleDiscountSelect}
+          />
         ) : (
           <UnpaidOrders
             tableOrders={tableOrders?.filter(
