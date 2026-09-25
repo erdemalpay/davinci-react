@@ -33,7 +33,7 @@ type BracketTable = {
 type Column = { round: number; tables: BracketTable[] };
 
 // Oynanan eleme turlarına, henüz kurulmamış turları boş kutu olarak ekler (Challonge gibi)
-const buildColumns = (
+export const buildColumns = (
   tournament: Tournament,
   elimination: TournamentMatch[]
 ): Column[] => {

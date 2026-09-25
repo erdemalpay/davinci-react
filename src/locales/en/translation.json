@@ -1962,7 +1962,7 @@
   "Button Link": "Button Link",
   "PopupButtonHelp": "Optional. If filled, the popup shows a button with this text linking to the URL below (e.g. \"Join Tournament\" + the tournament's QR registration link). If empty, only the \"OK\" button is shown.",
   "Elimination": "Elimination",
-  "Stage Reached": "Stage Reached",
+  "Result": "Result",
   "How Will It Be Played?": "How Will It Be Played?",
   "Point Rounds + Final": "Point Rounds + Final",
   "Point Rounds": "Point Rounds",

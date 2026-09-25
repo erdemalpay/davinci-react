@@ -1,11 +1,17 @@
 import { useTranslation } from "react-i18next";
 import {
+  MatchStage,
   Tournament,
   TournamentFormat,
   TournamentStanding,
 } from "../../types/tournament";
-import { useGetTournamentStandings } from "../../utils/api/tournament";
+import {
+  useGetTournamentMatches,
+  useGetTournamentStandings,
+} from "../../utils/api/tournament";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { buildColumns } from "./EliminationBracket";
+import { useEliminationRoundName } from "./useTournamentForm";
 
 interface Props {
   tournament: Tournament;
@@ -16,6 +22,13 @@ interface Props {
 const StandingsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const standings = useGetTournamentStandings(tournament._id);
+  const matches = useGetTournamentMatches(tournament._id);
+  const roundName = useEliminationRoundName();
+  // Tur adları (Yarı Final, Final…) ağaçtaki sütun sayısına göre verilir
+  const eliminationRounds = buildColumns(
+    tournament,
+    matches.filter((m) => m.stage === MatchStage.ELIMINATION)
+  ).length;
   const hasLeague = tournament.format !== TournamentFormat.ELIMINATION;
   // Ulaşılan aşama ancak eleme başlayınca bilgi taşır
   const hasElimination = standings.some((row) => row.elimination);
@@ -25,17 +38,18 @@ const StandingsTab = ({ tournament }: Props) => {
   );
   const roundNumbers = Array.from({ length: playedRounds }, (_, i) => i + 1);
 
-  const stageReached = (row: TournamentStanding) => {
+  // Final ya da 3.'lük masası oynandıysa derece bellidir; değilse elendiği (ya da
+  // oynamakta olduğu) tur yazılır. Elemeye kalamayanın yeri Sıra sütunundan belli.
+  const result = (row: TournamentStanding) => {
     const { elimination } = row;
-    if (!elimination) return t("Point Rounds");
-    const stage = elimination.isFinal
-      ? t("Final")
-      : elimination.isThirdPlace
-      ? t("Third Place Match")
-      : t("Elimination Round N", { round: elimination.round });
-    return elimination.tableRank
-      ? `${stage} – ${elimination.tableRank}.`
-      : stage;
+    if (!elimination) return <span className="text-gray-300">–</span>;
+    const isPlaced =
+      (elimination.isFinal || elimination.isThirdPlace) &&
+      elimination.tableRank;
+    if (isPlaced) return <span className="font-semibold">{row.rank}.</span>;
+    // 3.'lük masası final turunda kurulur; skor girilene kadar "Final" yazmasın
+    if (elimination.isThirdPlace) return t("Third Place Match");
+    return roundName(elimination.round, eliminationRounds);
   };
 
   const roundCell = (row: TournamentStanding, round: number) => {
@@ -61,7 +75,6 @@ const StandingsTab = ({ tournament }: Props) => {
   const columns = [
     { key: t("Rank"), isSortable: true },
     { key: t("Name"), isSortable: true },
-    ...(hasElimination ? [{ key: t("Stage Reached"), isSortable: false }] : []),
     ...(hasLeague
       ? [
           ...roundNumbers.map((round) => ({
@@ -72,12 +85,12 @@ const StandingsTab = ({ tournament }: Props) => {
           { key: t("Avg. Opponent Points"), isSortable: true },
         ]
       : []),
+    ...(hasElimination ? [{ key: t("Result"), isSortable: false }] : []),
   ];
 
   const rowKeys = [
     { key: "rank" },
     { key: "name" },
-    ...(hasElimination ? [{ key: "stageReached", node: stageReached }] : []),
     ...(hasLeague
       ? [
           ...roundNumbers.map((round) => ({
@@ -97,6 +110,7 @@ const StandingsTab = ({ tournament }: Props) => {
           },
         ]
       : []),
+    ...(hasElimination ? [{ key: "result", node: result }] : []),
   ];
 
   return (

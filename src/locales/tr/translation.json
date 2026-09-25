@@ -1970,7 +1970,7 @@
   "Button Link": "Buton Linki",
   "PopupButtonHelp": "İsteğe bağlı. Doldurulursa popup'ta bu yazıyla, aşağıdaki linke giden bir buton çıkar (ör. \"Turnuvaya Katıl\" + turnuvanın QR kayıt linki). Boş bırakılırsa sadece \"Tamam\" butonu görünür.",
   "Elimination": "Eleme",
-  "Stage Reached": "Ulaştığı Aşama",
+  "Result": "Sonuç",
   "How Will It Be Played?": "Nasıl Oynanacak?",
   "Point Rounds + Final": "Puan Turları + Final",
   "Point Rounds": "Puan Turları",
