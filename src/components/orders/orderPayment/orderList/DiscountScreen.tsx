@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useDataContext } from "../../../../context/Data.context";
 import { useOrderContext } from "../../../../context/Order.context";
 import {
+  MenuItem,
   OrderDiscount,
   OrderDiscountStatus,
   Table,
@@ -40,7 +41,9 @@ const DiscountScreen = ({ table, onDiscountSelect }: Props) => {
   const commonDiscountIds = useMemo(() => {
     const selectedCategoryDiscounts = selectedOrders.map(({ order }) => {
       const itemId =
-        typeof order.item === "object" ? order.item?._id : order.item;
+        typeof order.item === "object"
+          ? (order.item as MenuItem)?._id
+          : order.item;
       const menuItem = getItem(itemId, items);
       const category = categories?.find(
         (itemCategory) => itemCategory._id === menuItem?.category
