@@ -2003,5 +2003,7 @@
   "Players Per Table In Elimination": "Players Per Table In Elimination",
   "EliminationTableSizeHelp": "Leave empty to use the point-round table size. It can differ: e.g. 4-player tables in point rounds, head-to-head (2-player) quarter/semi/final.",
   "Round Short N": "Round {{round}}",
-  "No scored match this round": "No scored match this round"
+  "No scored match this round": "No scored match this round",
+  "No price records yet": "No price records yet.",
+  "Order Taker": "Order Taker"
 }

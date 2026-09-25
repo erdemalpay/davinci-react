@@ -100,7 +100,7 @@ const OrderContext = createContext<OrderContextType>({
   /* eslint-disable @typescript-eslint/no-empty-function */
   vendorOrderFilterPanelFormElements: {
     vendor: "",
-    location: [],
+    location: [6],
   },
   setVendorOrderFilterPanelFormElements: () => {},
   showOrderDataFilters: false,
@@ -364,7 +364,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setVendorOrderFilterPanelFormElements,
   ] = useState<FormElementsState>({
     vendor: "",
-    location: [],
+    location: [6],
   });
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
     useState(false);
