@@ -598,7 +598,7 @@ const Tables = () => {
         { key: "isOnlinePrice", defaultValue: false },
       ],
       placeholder: t("Product"),
-      required: true,
+      required: orderCreateBulk.length > 0 ? false : true,
       isTopFlexRow: true,
     },
     {
