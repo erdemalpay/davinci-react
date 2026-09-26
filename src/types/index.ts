@@ -2966,6 +2966,8 @@ export type CustomerPopup = {
   title: string;
   content: string;
   imageUrl?: string;
+  buttonText?: string;
+  buttonUrl?: string;
   isActive: boolean;
   triggerType: CustomerPopupTriggerType;
   periodicDays: number[];
