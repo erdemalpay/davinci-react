@@ -251,6 +251,7 @@ export type User = {
   workType: WorkType;
   rowsPerPage?: number;
   language?: string;
+  isVisitDisabled?: boolean;
   userGames: [
     {
       game: number;

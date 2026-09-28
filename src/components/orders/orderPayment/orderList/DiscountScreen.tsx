@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useDataContext } from "../../../../context/Data.context";
 import { useOrderContext } from "../../../../context/Order.context";
 import {
+  MenuItem,
   OrderDiscount,
   OrderDiscountStatus,
   Table,
   TURKISHLIRA,
 } from "../../../../types";
+import { useGetAllCategories } from "../../../../utils/api/menu/category";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
+import { getItem } from "../../../../utils/getItem";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
   table: Table;
+  onDiscountSelect: (discount: OrderDiscount) => void;
 };
 
 const normalizeText = (text: string) =>
@@ -24,26 +29,47 @@ const normalizeText = (text: string) =>
     .replace(/ö/g, "o")
     .replace(/ç/g, "c");
 
-const DiscountScreen = ({ table }: Props) => {
+const DiscountScreen = ({ table, onDiscountSelect }: Props) => {
+  const categories = useGetAllCategories();
+  const { menuItems: items = [] } = useDataContext();
+  const { selectedOrders } = useOrderContext();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const {
-    setIsProductSelectionOpen,
-    setSelectedDiscount,
-    setIsDiscountNoteOpen,
-  } = useOrderContext();
-  const handleDiscountClick = (discount: OrderDiscount) => {
-    setSelectedDiscount(discount);
-    if (discount?.isNoteRequired) {
-      setIsDiscountNoteOpen(true);
-      return;
-    }
-    setIsProductSelectionOpen(true);
-  };
-  const filteredDiscounts = discounts?.filter((discount) =>
-    table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
+
+  const commonDiscountIds = useMemo(() => {
+    const selectedCategoryDiscounts = selectedOrders.map(({ order }) => {
+      const itemId =
+        typeof order.item === "object"
+          ? (order.item as MenuItem)?._id
+          : order.item;
+      const menuItem = getItem(itemId, items);
+      const category = categories?.find(
+        (itemCategory) => itemCategory._id === menuItem?.category
+      );
+
+      return category?.discounts ?? [];
+    });
+
+    if (selectedCategoryDiscounts.length === 0) return new Set<number>();
+
+    const [firstCategoryDiscounts, ...remainingCategoryDiscounts] =
+      selectedCategoryDiscounts;
+
+    return new Set(
+      firstCategoryDiscounts.filter((discountId) =>
+        remainingCategoryDiscounts.every((categoryDiscounts) =>
+          categoryDiscounts.includes(discountId)
+        )
+      )
+    );
+  }, [categories, items, selectedOrders]);
+
+  const filteredDiscounts = discounts?.filter(
+    (discount) =>
+      commonDiscountIds.has(discount._id) &&
+      (table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder)
   );
 
   const searchFilteredDiscounts = filteredDiscounts?.filter((discount) => {
@@ -87,7 +113,7 @@ const DiscountScreen = ({ table }: Props) => {
                   key={discount?._id}
                   className="flex flex-col justify-start items-center px-2 py-1  pb-2 border rounded-md border-gray-200 hover:bg-gray-100 cursor-pointer h-24 overflow-hidden"
                   onClick={() => {
-                    handleDiscountClick(discount);
+                    onDiscountSelect(discount);
                   }}
                 >
                   <p className="text-red-600 p-2 items-center justify-center  font-medium">

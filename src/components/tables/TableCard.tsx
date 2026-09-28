@@ -516,7 +516,7 @@ export function TableCard({
           { key: "stockLocation", defaultValue: selectedLocationId },
         ],
         placeholder: t("Product"),
-        required: true,
+        required: orderCreateBulk.length > 0 ? false : true,
         isTopFlexRow: true,
       },
       {

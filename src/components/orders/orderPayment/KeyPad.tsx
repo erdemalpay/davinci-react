@@ -25,6 +25,7 @@ const Keypad = ({
     paymentAmount,
     setTemporaryOrders,
     setIsDiscountScreenOpen,
+    setIsProductSelectionOpen,
     splitPayment,
     setSplitPayment,
   } = useOrderContext();
@@ -123,6 +124,7 @@ const Keypad = ({
           setSplitPayment(null);
           setTemporaryOrders([]);
           setIsDiscountScreenOpen(true);
+          setIsProductSelectionOpen(true);
         },
       },
     ],
