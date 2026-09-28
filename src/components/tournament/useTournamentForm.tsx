@@ -139,6 +139,23 @@ export const toPayload = (item: object, emptyValue?: null) => {
       canHaveThirdPlace(values) && Boolean(values.thirdPlaceMatch);
   if (format === TournamentFormat.ELIMINATION)
     payload.advancePerTable = values.advancePerTable;
+  // Biçim sonradan değiştirildiyse eski biçimden kalan ayarlar temizlenir
+  if (emptyValue === null) {
+    if (!hasRounds(format))
+      Object.assign(payload, {
+        leagueRounds: 0,
+        minTableSize: null,
+        placementPoints: [],
+        byePoints: null,
+      });
+    if (format !== TournamentFormat.LEAGUE_THEN_ELIMINATION)
+      Object.assign(payload, {
+        advanceCount: null,
+        eliminationTableSize: null,
+      });
+    if (format === TournamentFormat.LEAGUE)
+      Object.assign(payload, { advancePerTable: null, thirdPlaceMatch: false });
+  }
   if (format === TournamentFormat.LEAGUE_THEN_ELIMINATION) {
     payload.advanceCount = values.advanceCount;
     // Masadan çıkan sayısı eleme masasının büyüklüğünden türetilir
@@ -175,8 +192,29 @@ export const TOURNAMENT_FORM_KEYS = [
 
 const MIN_EXAMPLE_PLAYER_COUNT = 16;
 
-// Eleme turlarında kaç masa oynanacağını backend'deki akışla aynı şekilde tahmin eder:
-// masalar eşit dağıtılır (sığmayan bay geçer), bir masadan en fazla "masa - 1" kişi çıkar.
+// Bir eleme turundaki masa büyüklükleri (backend'deki planTableSizes): masalar eşit
+// dağıtılır, sığmayan bay geçer; bir masadan en fazla "masa - 1" kişi çıkar
+export const eliminationRound = (
+  players: number,
+  tableSize: number,
+  perTable: number
+) => {
+  const count = Math.ceil(players / tableSize);
+  const base = Math.floor(players / count);
+  const sizes: number[] =
+    base >= 2
+      ? Array.from(
+          { length: count },
+          (_, i) => base + (i < players % count ? 1 : 0)
+        )
+      : new Array(Math.floor(players / tableSize)).fill(tableSize);
+  const byes = players - sizes.reduce((sum, size) => sum + size, 0);
+  const advancing =
+    byes + sizes.reduce((sum, size) => sum + Math.min(perTable, size - 1), 0);
+  return { sizes, byes, advancing };
+};
+
+// Eleme turlarında kaç masa oynanacağını backend'deki akışla aynı şekilde tahmin eder.
 // Her turda en az bir kişi elendiği için döngü her zaman biter.
 export const eliminationTables = (
   players: number,
@@ -186,19 +224,13 @@ export const eliminationTables = (
   const tables: number[] = [];
   let remaining = players;
   while (remaining > tableSize && tableSize >= 2 && perTable > 0) {
-    const count = Math.ceil(remaining / tableSize);
-    const base = Math.floor(remaining / count);
-    const sizes =
-      base >= 2
-        ? Array.from(
-            { length: count },
-            (_, i) => base + (i < remaining % count ? 1 : 0)
-          )
-        : new Array(Math.floor(remaining / tableSize)).fill(tableSize);
-    const byes = remaining - sizes.reduce((sum, size) => sum + size, 0);
+    const { sizes, byes, advancing } = eliminationRound(
+      remaining,
+      tableSize,
+      perTable
+    );
     tables.push(sizes.length + byes);
-    remaining =
-      byes + sizes.reduce((sum, size) => sum + Math.min(perTable, size - 1), 0);
+    remaining = advancing;
   }
   return [...tables, 1];
 };

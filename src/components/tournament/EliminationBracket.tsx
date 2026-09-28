@@ -10,6 +10,7 @@ import {
 import {
   autoRules,
   eliminationSize,
+  eliminationRound,
   eliminationTables,
   useEliminationRoundName,
 } from "./useTournamentForm";
@@ -27,7 +28,10 @@ type BracketTable = {
   key: string;
   tableNo: number;
   isThirdPlace?: boolean;
+  isBye?: boolean;
   match?: TournamentMatch; // henüz oynanmayan turlarda boş kutu
+  seats?: (number | undefined)[]; // kurulmamış masaya skoru girilen masalardan gelenler
+  sources?: string[]; // kurulmamış masaya oyuncu gönderen masalar
 };
 
 type Column = { round: number; tables: BracketTable[] };
@@ -63,34 +67,151 @@ export const buildColumns = (
   const tableSize = eliminationSize(tournament);
   const perTable =
     tournament.advancePerTable ?? autoRules(tableSize).advancePerTable;
-  // Bay geçen doğrudan çıkar, masadan ilk `perTable` kişi çıkar (en az biri elenir)
-  const advancing = last.tables.reduce((sum, table) => {
-    const seated = table.match?.players.length ?? 0;
-    return sum + (seated === 1 ? 1 : Math.min(perTable, seated - 1));
-  }, 0);
-  const upcoming = eliminationTables(advancing, tableSize, perTable);
-  upcoming.forEach((count, i) => {
-    const round = last.round + i + 1;
-    const tables: BracketTable[] = Array.from({ length: count }, (_, n) => ({
-      key: `${round}-${n + 1}`,
+  // Backend'deki nextEliminationRound'un aynısı: bay geçen doğrudan çıkar, masadan ilk
+  // `perTable` kişi çıkar (en az biri elenir); sıra önce tüm birinciler, sonra ikinciler.
+  // Skoru girilen (beraberlik kararı beklemeyen) masada kimin çıktığı bellidir.
+  const results = last.tables.map((table) => {
+    const players = table.match?.players ?? [];
+    const count =
+      players.length === 1 ? 1 : Math.min(perTable, players.length - 1);
+    const ids = [...players]
+      .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+      .map((p) =>
+        table.match?.isCompleted && !table.match.pendingTie
+          ? p.participantId
+          : undefined
+      );
+    return {
+      key: table.key,
+      players: players.map((p) => p.participantId),
+      advancers: ids.slice(0, count),
+      rest: ids.slice(count),
+    };
+  });
+  const slots = Array.from({ length: perTable }, (_, place) =>
+    results.flatMap(({ key, players, advancers }) =>
+      place < advancers.length
+        ? [{ key, players, participantId: advancers[place] }]
+        : []
+    )
+  ).flat();
+  type Slot = (typeof slots)[number];
+  const seat = (group: Slot[]) => ({
+    seats: group.map((slot) => slot.participantId),
+    sources: Array.from(new Set(group.map((slot) => slot.key))),
+  });
+
+  // Artanlar bay geçer: önce daha önce bay geçmemiş olanlar, üst sıradan başlayarak.
+  // Masası oynanmamış biri bu seçimi değiştirebiliyorsa yerleşim henüz belli değildir.
+  const { sizes, byes: byeCount } = eliminationRound(
+    slots.length,
+    tableSize,
+    perTable
+  );
+  const byeIds = new Set(
+    elimination
+      .filter((m) => m.isBye)
+      .flatMap((m) => m.players.map((p) => p.participantId))
+  );
+  const hadBye = ({ participantId, players }: Slot) =>
+    participantId !== undefined
+      ? byeIds.has(participantId)
+      : players.every((id) => byeIds.has(id))
+      ? true
+      : players.some((id) => byeIds.has(id))
+      ? undefined
+      : false;
+  const isKnown =
+    !byeCount || slots.every((slot) => hadBye(slot) !== undefined);
+  const byeSlots = [
+    ...slots.filter((slot) => !hadBye(slot)),
+    ...slots.filter((slot) => hadBye(slot)),
+  ].slice(0, byeCount);
+  const seated = slots.filter((slot) => !byeSlots.includes(slot));
+
+  // Kalanlar masalara yılan sırasıyla dağılır (1-4 / 2-3)
+  const groups: Slot[][] = sizes.map(() => []);
+  const snake: number[] = [];
+  while (snake.length < seated.length * 2) {
+    sizes.forEach((_, i) => snake.push(i));
+    sizes.forEach((_, i) => snake.push(sizes.length - 1 - i));
+  }
+  let cursor = 0;
+  seated.forEach((slot) => {
+    while (groups[snake[cursor]].length >= sizes[snake[cursor]]) cursor++;
+    groups[snake[cursor++]].push(slot);
+  });
+  const nextRound = last.round + 1;
+  const nextTables: BracketTable[] = [
+    ...byeSlots.map((slot, n) => ({
+      key: `${nextRound}-bye-${n}`,
+      tableNo: 0,
+      isBye: true,
+      ...(isKnown && seat([slot])),
+    })),
+    ...groups.map((group, n) => ({
+      key: `${nextRound}-${n + 1}`,
       tableNo: n + 1,
-    }));
-    if (i === upcoming.length - 1 && tournament.thirdPlaceMatch)
-      tables.push({ key: `${round}-third`, tableNo: 2, isThirdPlace: true });
+      ...(isKnown && seat(group)),
+    })),
+  ];
+
+  const upcoming = eliminationTables(slots.length, tableSize, perTable);
+  const eliminatedNow = results.flatMap(({ rest }) => rest);
+  let players = slots.length;
+  let eliminated = eliminatedNow.length;
+  upcoming.forEach((_, i) => {
+    const round = last.round + i + 1;
+    // Daha ileriki turlarda kimin oturacağı belli değil; sadece masa ve bay kutuları
+    const { sizes, byes, advancing } = eliminationRound(
+      players,
+      tableSize,
+      perTable
+    );
+    const tables: BracketTable[] =
+      i === 0
+        ? nextTables
+        : [
+            ...Array.from({ length: byes }, (_, n) => ({
+              key: `${round}-bye-${n}`,
+              tableNo: 0,
+              isBye: true,
+            })),
+            ...sizes.map((_, n) => ({
+              key: `${round}-${n + 1}`,
+              tableNo: n + 1,
+            })),
+          ];
+    // Backend 3.'lük masasını ancak finalden önceki turda en az iki kişi elendiyse kurar
+    // (ör. 1 masa + bay oynandıysa elenen tek kişidir)
+    if (
+      i === upcoming.length - 1 &&
+      tournament.thirdPlaceMatch &&
+      eliminated >= 2
+    )
+      tables.push({
+        key: `${round}-third`,
+        tableNo: 2,
+        isThirdPlace: true,
+        // Final hemen sonraki turdaysa 3.'lük masasına bu turda elenenler oturur
+        ...(i === 0 && {
+          seats: eliminatedNow.slice(0, tableSize),
+        }),
+      });
     columns.push({ round, tables });
+    eliminated = players - advancing;
+    players = advancing;
   });
   return columns;
 };
 
-// Bir masadan çıkanların bir sonraki turda oturduğu masalar; tur kurulmadıysa sıraya göre
-// dağıtılır. 3.'lük masasına çizgi çekilmez (Challonge'daki gibi ayrı durur).
-const targetsOf = (
-  table: BracketTable,
-  index: number,
-  current: Column,
-  next: Column
-) => {
+// Bir masadan çıkanların bir sonraki turda oturduğu masalar; oyuncuları henüz belli
+// olmayan turda backend gibi yılan sırasıyla (1-4 / 2-3) dağıtılır.
+// 3.'lük masasına çizgi çekilmez (Challonge'daki gibi ayrı durur).
+const targetsOf = (table: BracketTable, index: number, next: Column) => {
   const nextTables = next.tables.filter((t) => !t.isThirdPlace);
+  const fed = nextTables.filter((t) => t.sources?.includes(table.key));
+  if (fed.length) return fed.map((t) => t.key);
   const nextIds = new Map<number, string>();
   nextTables.forEach((t) =>
     t.match?.players.forEach((p) => nextIds.set(p.participantId, t.key))
@@ -101,12 +222,42 @@ const targetsOf = (
     if (key) targets.add(key);
   });
   if (!targets.size) {
-    const slot = Math.floor(
-      (index * nextTables.length) / current.tables.length
-    );
+    const lap = index % (nextTables.length * 2);
+    const slot =
+      lap < nextTables.length ? lap : nextTables.length * 2 - 1 - lap;
     targets.add(nextTables[slot].key);
   }
   return Array.from(targets);
+};
+
+// Kutuları Challonge'daki gibi dizer: aynı masaya oyuncu gönderen masalar alt alta
+// durur, çizgiler kesişmez. Son sütundan geriye doğru her masa gittiği kutunun sırasını alır.
+const arrangeColumns = (columns: Column[]) => {
+  const targets = new Map<string, string[]>();
+  columns
+    .slice(0, -1)
+    .forEach((column, c) =>
+      column.tables.forEach((table, i) =>
+        targets.set(table.key, targetsOf(table, i, columns[c + 1]))
+      )
+    );
+  const arranged = [...columns];
+  for (let c = columns.length - 2; c >= 0; c--) {
+    const position = new Map(
+      arranged[c + 1].tables.map((table, i) => [table.key, i])
+    );
+    const order = (table: BracketTable) =>
+      Math.min(
+        ...(targets.get(table.key) ?? []).map(
+          (key) => position.get(key) ?? Infinity
+        )
+      );
+    arranged[c] = {
+      ...columns[c],
+      tables: [...columns[c].tables].sort((a, b) => order(a) - order(b)),
+    };
+  }
+  return { columns: arranged, targets };
 };
 
 interface BracketBoxProps {
@@ -141,13 +292,25 @@ const BracketBox = ({
       }`}
     >
       <p className="px-2 py-1 text-xs text-gray-400 border-b">
-        {match?.isBye
+        {match?.isBye || table.isBye
           ? t("Bye")
           : table.isThirdPlace
           ? t("Third Place Match")
           : `${t("Table")} ${table.tableNo}`}
       </p>
-      {!match && (
+      {!match &&
+        table.seats?.map(
+          (participantId) =>
+            participantId !== undefined && (
+              <div
+                key={participantId}
+                className="px-2 py-1 border-b last:border-b-0"
+              >
+                {names.get(participantId)}
+              </div>
+            )
+        )}
+      {!match && !table.seats?.every((id) => id !== undefined) && (
         <p className="px-2 py-3 text-xs text-gray-400 italic">
           {table.isThirdPlace
             ? t("Waiting for eliminated players")
@@ -264,7 +427,9 @@ const EliminationBracket = ({
   const [paths, setPaths] = useState<string[]>([]);
 
   const elimination = matches.filter((m) => m.stage === MatchStage.ELIMINATION);
-  const columns = buildColumns(tournament, elimination);
+  const { columns, targets } = arrangeColumns(
+    buildColumns(tournament, elimination)
+  );
   const isFinished = tournament.status === TournamentStatus.FINISHED;
 
   // Kutular çizildikten sonra konumlarını ölçüp aralarına çizgi çeker
@@ -274,11 +439,11 @@ const EliminationBracket = ({
       if (!container) return;
       const origin = container.getBoundingClientRect();
       const next: string[] = [];
-      columns.slice(0, -1).forEach((column, c) => {
-        column.tables.forEach((table, i) => {
+      columns.slice(0, -1).forEach((column) => {
+        column.tables.forEach((table) => {
           const from = boxRefs.current.get(table.key)?.getBoundingClientRect();
           if (!from) return;
-          targetsOf(table, i, column, columns[c + 1]).forEach((key) => {
+          targets.get(table.key)?.forEach((key) => {
             const to = boxRefs.current.get(key)?.getBoundingClientRect();
             if (!to) return;
             const x1 = from.right - origin.left;
@@ -303,7 +468,8 @@ const EliminationBracket = ({
     columns[c + 1]?.tables.some(
       (next) =>
         !next.isThirdPlace &&
-        next.match?.players.some((p) => p.participantId === participantId)
+        (next.match?.players.some((p) => p.participantId === participantId) ||
+          next.seats?.includes(participantId))
     );
 
   return (
