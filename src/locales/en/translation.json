@@ -1922,7 +1922,6 @@
   "AdvancePerTableHelp": "How many players from each table advance to the next elimination round (e.g. top 2 of a 4-player table).",
   "RegistrationDeadlineHelp": "The form stops accepting registrations after this date. If empty, registration stays open until switched off or the first round is generated.",
   "Registrations": "Registrations",
-  "Registration": "Registration",
   "Confirmation": "Confirmation",
   "Confirmed": "Confirmed",
   "Not Coming": "Not coming",

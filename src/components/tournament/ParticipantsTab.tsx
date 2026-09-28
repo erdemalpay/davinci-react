@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
@@ -16,8 +16,13 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import PromoteRegistrationsModal from "./PromoteRegistrationsModal";
+import { useRegistrationLabels } from "./RegistrationsTab";
+
+// Başvurudan gelmeyen katılımcılar kaynak filtresinde bu değerle seçilir
+const MANUAL_SOURCE = "manual";
 
 interface Props {
   tournament: Tournament;
@@ -28,15 +33,44 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const participants = useGetTournamentParticipants(tournament._id);
   const registrations = useGetTournamentRegistrations(tournament._id);
   const { addParticipant, removeParticipant } = useTournamentActions();
+  const { sourceLabels } = useRegistrationLabels();
 
   const [rowToAction, setRowToAction] = useState<TournamentParticipant>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterFormElements, setFilterFormElements] = useState<
+    Record<string, string>
+  >({ source: "", isActive: "" });
 
   const isFinished = tournament.status === TournamentStatus.FINISHED;
   const promotedIds = new Set(participants.map((p) => p.registrationId));
   const promotable = registrations.filter((r) => !promotedIds.has(r._id));
+
+  const sourceOptions: Record<string, string> = {
+    ...sourceLabels,
+    [MANUAL_SOURCE]: t("Added Manually"),
+  };
+  const statusOptions: Record<string, string> = {
+    true: t("Active"),
+    false: t("Withdrawn"),
+  };
+  const sourceOf = (participant: TournamentParticipant) =>
+    registrations.find((r) => r._id === participant.registrationId)?.source ??
+    MANUAL_SOURCE;
+
+  const rows = useMemo(
+    () =>
+      participants.filter(
+        (p) =>
+          (!filterFormElements.source ||
+            sourceOf(p) === filterFormElements.source) &&
+          (!filterFormElements.isActive ||
+            String(p.isActive) === filterFormElements.isActive)
+      ),
+    [participants, registrations, filterFormElements]
+  );
 
   const columns = [
     { key: t("Name"), isSortable: true },
@@ -49,8 +83,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
     { key: "name" },
     {
       key: "registrationId",
-      node: (row: TournamentParticipant) =>
-        row.registrationId ? t("Registration") : t("Added Manually"),
+      node: (row: TournamentParticipant) => sourceOptions[sourceOf(row)],
     },
     {
       key: "isActive",
@@ -93,7 +126,48 @@ const ParticipantsTab = ({ tournament }: Props) => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
 
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: [
+      {
+        type: InputTypes.SELECT,
+        formKey: "source",
+        label: t("Added From"),
+        options: Object.entries(sourceOptions).map(([value, label]) => ({
+          value,
+          label,
+        })),
+        placeholder: t("Added From"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "isActive",
+        label: t("Status"),
+        options: Object.entries(statusOptions).map(([value, label]) => ({
+          value,
+          label,
+        })),
+        placeholder: t("Status"),
+        required: false,
+      },
+    ],
+    formElements: filterFormElements,
+    setFormElements: setFilterFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
+
   const filters = [
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={showFilters}
+          onChange={() => setShowFilters(!showFilters)}
+        />
+      ),
+    },
     {
       isUpperSide: true,
       isDisabled: isFinished,
@@ -141,13 +215,14 @@ const ParticipantsTab = ({ tournament }: Props) => {
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}
-        rows={participants}
+        rows={rows}
         actions={actions}
         isActionsActive={true}
         title={`${t("Participants")} (${
           participants.filter((p) => p.isActive).length
         })`}
         addButton={addButton}
+        filterPanel={filterPanel}
         filters={filters}
       />
       {isPromoteModalOpen && (
