@@ -2972,6 +2972,7 @@ export type CustomerPopup = {
   triggerType: CustomerPopupTriggerType;
   periodicDays: number[];
   specialDate?: string;
+  endDate?: string;
   cooldownHours: number;
   locations: number[];
   isAutoClosedWhenOutOfStock?: boolean;

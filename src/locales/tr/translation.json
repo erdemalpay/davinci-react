@@ -1968,6 +1968,7 @@
   "Button Text": "Buton Yazısı",
   "Button Link": "Buton Linki",
   "PopupButtonHelp": "İsteğe bağlı. Doldurulursa popup'ta bu yazıyla, aşağıdaki linke giden bir buton çıkar (ör. \"Turnuvaya Katıl\" + turnuvanın QR kayıt linki). Boş bırakılırsa sadece \"Tamam\" butonu görünür.",
+  "PopupEndDateHelp": "İsteğe bağlı. Popup bu gün dahil gösterilir, ertesi gün kendiliğinden kalkar. Boş bırakılırsa süresiz gösterilir.",
   "Elimination": "Eleme",
   "Result": "Sonuç",
   "How Will It Be Played?": "Nasıl Oynanacak?",

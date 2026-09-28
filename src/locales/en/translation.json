@@ -1960,6 +1960,7 @@
   "Button Text": "Button Text",
   "Button Link": "Button Link",
   "PopupButtonHelp": "Optional. If filled, the popup shows a button with this text linking to the URL below (e.g. \"Join Tournament\" + the tournament's QR registration link). If empty, only the \"OK\" button is shown.",
+  "PopupEndDateHelp": "Optional. The popup is shown through this day and disappears automatically the next day. If empty, it is shown indefinitely.",
   "Elimination": "Elimination",
   "Result": "Result",
   "How Will It Be Played?": "How Will It Be Played?",

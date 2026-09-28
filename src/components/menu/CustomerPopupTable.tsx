@@ -11,6 +11,7 @@ import {
   useGetCustomerPopups,
 } from "../../utils/api/menu/customer-popup";
 import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
+import { convertDateFormat } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -131,6 +132,15 @@ const CustomerPopupTable = () => {
       isDisabled: hideSpecialDate(triggerType),
     },
     {
+      type: InputTypes.DATE,
+      formKey: "endDate",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: false,
+      isDatePicker: true,
+      helperText: t("PopupEndDateHelp"),
+    },
+    {
       type: InputTypes.NUMBER,
       formKey: "cooldownHours",
       label: t("Cooldown Hours"),
@@ -189,6 +199,7 @@ const CustomerPopupTable = () => {
     { key: "triggerType", type: FormKeyTypeEnum.STRING },
     { key: "periodicDays", type: FormKeyTypeEnum.ARRAY },
     { key: "specialDate", type: FormKeyTypeEnum.STRING },
+    { key: "endDate", type: FormKeyTypeEnum.DATE },
     { key: "cooldownHours", type: FormKeyTypeEnum.NUMBER },
     { key: "locations", type: FormKeyTypeEnum.ARRAY },
     { key: "selectedMenuItems", type: FormKeyTypeEnum.ARRAY },
@@ -201,6 +212,7 @@ const CustomerPopupTable = () => {
     { key: t("Trigger Type"), isSortable: false },
     { key: t("Periodic Days"), isSortable: false },
     { key: t("Special Date"), isSortable: false },
+    { key: t("End Date"), isSortable: true },
     { key: t("Cooldown (h)"), isSortable: false },
     { key: t("Active"), isSortable: false },
     { key: t("Action"), isSortable: false },
@@ -233,6 +245,14 @@ const CustomerPopupTable = () => {
       key: "specialDate",
       node: (row: CustomerPopup) => (
         <span className="text-sm">{row.specialDate ?? "-"}</span>
+      ),
+    },
+    {
+      key: "endDate",
+      node: (row: CustomerPopup) => (
+        <span className="text-sm">
+          {row.endDate ? convertDateFormat(row.endDate) : "-"}
+        </span>
       ),
     },
     { key: "cooldownHours" },
