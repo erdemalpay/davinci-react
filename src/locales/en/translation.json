@@ -519,6 +519,7 @@
   "Cashier": "Cashier",
   "Back": "Back",
   "Discounts": "Discounts",
+  "Custom Discount": "Custom Discount",
   "Add Discount": "Add Discount",
   "Delete Discount": "Delete Discount",
   "Percentage": "Percentage",
@@ -1887,5 +1888,15 @@
   "Mark the products as brought from the depot first": "Mark the products as brought from the depot first",
   "No price records yet": "No price records yet.",
   "Order Taker": "Order Taker",
-  "Select Discount": "Select Discount"
+  "Select Discount": "Select Discount",
+  "Apply Custom Discount": "Apply Custom Discount",
+  "Total Discount Amount": "Total Discount Amount",
+  "Affected Quantity": "Affected Quantity",
+  "Remaining quantity": "Remaining quantity",
+  "Enter a valid total discount amount": "Enter a valid total discount amount",
+  "Total discount amount must be greater than zero": "Total discount amount must be greater than zero",
+  "Total discount amount cannot exceed selected items total": "Total discount amount cannot exceed selected items total",
+  "Affected quantity must be a whole number": "Affected quantity must be a whole number",
+  "Affected quantity must be at least one": "Affected quantity must be at least one",
+  "Affected quantity cannot exceed remaining quantity": "Affected quantity cannot exceed remaining quantity"
 }

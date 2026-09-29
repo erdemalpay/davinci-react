@@ -12,6 +12,7 @@ import { useGetAllCategories } from "../../../../utils/api/menu/category";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
 import OrderScreenHeader from "./OrderScreenHeader";
+import { isPresetDiscount } from "./customDiscount";
 
 type Props = {
   table: Table;
@@ -68,6 +69,7 @@ const DiscountScreen = ({ table, onDiscountSelect }: Props) => {
 
   const filteredDiscounts = discounts?.filter(
     (discount) =>
+      isPresetDiscount(discount) &&
       commonDiscountIds.has(discount._id) &&
       (table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder)
   );
