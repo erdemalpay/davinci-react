@@ -31,6 +31,40 @@ export const useScoreEntry = (match: TournamentMatch) => {
   return { scores, setScore, isFilled, save };
 };
 
+interface SaveScoresButtonProps {
+  match: TournamentMatch;
+  isFilled: boolean;
+  save: () => void;
+}
+
+export const SaveScoresButton = ({
+  match,
+  isFilled,
+  save,
+}: SaveScoresButtonProps) => {
+  const { t } = useTranslation();
+  return (
+    <GenericButton
+      size="sm"
+      variant="primary"
+      disabled={!isFilled}
+      onClick={save}
+    >
+      {match.isCompleted ? t("Update Scores") : t("Save Scores")}
+    </GenericButton>
+  );
+};
+
+// Eşit skorda organizatörün öne aldığı oyuncunun adının yanındaki etiket
+export const ChosenInTieBadge = () => {
+  const { t } = useTranslation();
+  return (
+    <span className="ml-1 text-[10px] rounded bg-amber-100 text-amber-700 px-1">
+      {t("Chosen in tie")}
+    </span>
+  );
+};
+
 interface TieBreakPickerProps {
   match: TournamentMatch;
   names: Map<number, string>;

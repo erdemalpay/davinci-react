@@ -118,8 +118,8 @@ export const toPayload = (item: object, emptyValue?: null) => {
     else if (emptyValue === null) payload[key] = null;
   });
 
-  const pick = (key: keyof typeof auto) =>
-    values.customizeRules && !isEmpty(values[key]) ? values[key] : auto[key];
+  const pick = (key: keyof typeof auto, fallback: unknown = auto[key]) =>
+    values.customizeRules && !isEmpty(values[key]) ? values[key] : fallback;
 
   payload.format = format;
   payload.tableSize = Number(values.tableSize);
@@ -159,10 +159,10 @@ export const toPayload = (item: object, emptyValue?: null) => {
   if (format === TournamentFormat.LEAGUE_THEN_ELIMINATION) {
     payload.advanceCount = values.advanceCount;
     // Masadan çıkan sayısı eleme masasının büyüklüğünden türetilir
-    payload.advancePerTable =
-      values.customizeRules && !isEmpty(values.advancePerTable)
-        ? values.advancePerTable
-        : autoRules(eliminationSize(values)).advancePerTable;
+    payload.advancePerTable = pick(
+      "advancePerTable",
+      autoRules(eliminationSize(values)).advancePerTable
+    );
     if (!isEmpty(values.eliminationTableSize))
       payload.eliminationTableSize = Number(values.eliminationTableSize);
     else if (emptyValue === null) payload.eliminationTableSize = null;

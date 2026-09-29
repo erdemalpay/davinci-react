@@ -5,6 +5,7 @@ import {
   MatchStage,
   Tournament,
   TournamentMatch,
+  TournamentParticipant,
   TournamentStatus,
 } from "../../types/tournament";
 import {
@@ -14,12 +15,17 @@ import {
   eliminationTables,
   useEliminationRoundName,
 } from "./useTournamentForm";
-import { TieBreakPicker, useScoreEntry } from "./useScoreEntry";
-import { GenericButton } from "../common/GenericButton";
+import {
+  ChosenInTieBadge,
+  SaveScoresButton,
+  TieBreakPicker,
+  useScoreEntry,
+} from "./useScoreEntry";
 
 interface Props {
   tournament: Tournament;
   matches: TournamentMatch[];
+  participants: TournamentParticipant[];
   names: Map<number, string>;
   editableRound?: number; // skoru girilebilen (son) eleme turu
 }
@@ -39,7 +45,8 @@ type Column = { round: number; tables: BracketTable[] };
 // Oynanan eleme turlarına, henüz kurulmamış turları boş kutu olarak ekler (Challonge gibi)
 export const buildColumns = (
   tournament: Tournament,
-  elimination: TournamentMatch[]
+  elimination: TournamentMatch[],
+  participants: TournamentParticipant[]
 ): Column[] => {
   const byRound = new Map<number, TournamentMatch[]>();
   elimination.forEach((match) =>
@@ -70,6 +77,11 @@ export const buildColumns = (
   // Backend'deki nextEliminationRound'un aynısı: bay geçen doğrudan çıkar, masadan ilk
   // `perTable` kişi çıkar (en az biri elenir); sıra önce tüm birinciler, sonra ikinciler.
   // Skoru girilen (beraberlik kararı beklemeyen) masada kimin çıktığı bellidir.
+  // Turnuvadan çıkarılan (pasif) oyuncu backend'deki gibi sonraki tura alınmaz.
+  const withdrawn = new Set(
+    participants.filter((p) => !p.isActive).map((p) => p._id)
+  );
+  const isPlaying = (id?: number) => id === undefined || !withdrawn.has(id);
   const results = last.tables.map((table) => {
     const players = table.match?.players ?? [];
     const count =
@@ -84,8 +96,8 @@ export const buildColumns = (
     return {
       key: table.key,
       players: players.map((p) => p.participantId),
-      advancers: ids.slice(0, count),
-      rest: ids.slice(count),
+      advancers: ids.slice(0, count).filter(isPlaying),
+      rest: ids.slice(count).filter(isPlaying),
     };
   });
   const slots = Array.from({ length: perTable }, (_, place) =>
@@ -385,11 +397,7 @@ const BracketScoreEditor = ({
           </span>
           <span className="flex-1 truncate">
             {names.get(player.participantId)}
-            {player.wonTieBreak && (
-              <span className="ml-1 text-[10px] rounded bg-amber-100 text-amber-700 px-1">
-                {t("Chosen in tie")}
-              </span>
-            )}
+            {player.wonTieBreak && <ChosenInTieBadge />}
           </span>
           <input
             type="number"
@@ -401,14 +409,7 @@ const BracketScoreEditor = ({
         </div>
       ))}
       <div className="p-2 flex flex-col gap-2">
-        <GenericButton
-          size="sm"
-          variant="primary"
-          disabled={!isFilled}
-          onClick={save}
-        >
-          {match.isCompleted ? t("Update Scores") : t("Save Scores")}
-        </GenericButton>
+        <SaveScoresButton match={match} isFilled={isFilled} save={save} />
         <TieBreakPicker match={match} names={names} />
       </div>
     </div>
@@ -418,6 +419,7 @@ const BracketScoreEditor = ({
 const EliminationBracket = ({
   tournament,
   matches,
+  participants,
   names,
   editableRound,
 }: Props) => {
@@ -428,7 +430,7 @@ const EliminationBracket = ({
 
   const elimination = matches.filter((m) => m.stage === MatchStage.ELIMINATION);
   const { columns, targets } = arrangeColumns(
-    buildColumns(tournament, elimination)
+    buildColumns(tournament, elimination, participants)
   );
   const isFinished = tournament.status === TournamentStatus.FINISHED;
 

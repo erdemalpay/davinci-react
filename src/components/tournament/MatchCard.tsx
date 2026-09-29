@@ -1,7 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { MatchStage, TournamentMatch } from "../../types/tournament";
-import { GenericButton } from "../common/GenericButton";
-import { TieBreakPicker, useScoreEntry } from "./useScoreEntry";
+import {
+  ChosenInTieBadge,
+  SaveScoresButton,
+  TieBreakPicker,
+  useScoreEntry,
+} from "./useScoreEntry";
 
 interface Props {
   match: TournamentMatch;
@@ -57,11 +61,7 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
           )}
           <span className="flex-1">
             {names.get(player.participantId)}
-            {player.wonTieBreak && (
-              <span className="ml-2 text-[10px] rounded bg-amber-100 text-amber-700 px-1">
-                {t("Chosen in tie")}
-              </span>
-            )}
+            {player.wonTieBreak && <ChosenInTieBadge />}
           </span>
           {canEdit ? (
             <input
@@ -82,14 +82,7 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
         </div>
       ))}
       {canEdit && (
-        <GenericButton
-          size="sm"
-          variant="primary"
-          disabled={!isFilled}
-          onClick={save}
-        >
-          {match.isCompleted ? t("Update Scores") : t("Save Scores")}
-        </GenericButton>
+        <SaveScoresButton match={match} isFilled={isFilled} save={save} />
       )}
       {canEdit && <TieBreakPicker match={match} names={names} />}
     </div>

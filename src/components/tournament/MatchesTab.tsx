@@ -107,6 +107,7 @@ const MatchesTab = ({ tournament }: Props) => {
           <EliminationBracket
             tournament={tournament}
             matches={matches}
+            participants={participants}
             names={names}
             editableRound={
               latest?.stage === MatchStage.ELIMINATION && !isFinished

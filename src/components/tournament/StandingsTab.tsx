@@ -7,6 +7,7 @@ import {
 } from "../../types/tournament";
 import {
   useGetTournamentMatches,
+  useGetTournamentParticipants,
   useGetTournamentStandings,
 } from "../../utils/api/tournament";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -23,11 +24,13 @@ const StandingsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const standings = useGetTournamentStandings(tournament._id);
   const matches = useGetTournamentMatches(tournament._id);
+  const participants = useGetTournamentParticipants(tournament._id);
   const roundName = useEliminationRoundName();
   // Tur adları (Yarı Final, Final…) ağaçtaki sütun sayısına göre verilir
   const eliminationRounds = buildColumns(
     tournament,
-    matches.filter((m) => m.stage === MatchStage.ELIMINATION)
+    matches.filter((m) => m.stage === MatchStage.ELIMINATION),
+    participants
   ).length;
   const hasLeague = tournament.format !== TournamentFormat.ELIMINATION;
   // Ulaşılan aşama ancak eleme başlayınca bilgi taşır
@@ -103,11 +106,7 @@ const StandingsTab = ({ tournament }: Props) => {
               <span className="font-semibold">{row.points}</span>
             ),
           },
-          {
-            key: "avgOpponentPoints",
-            node: (row: TournamentStanding) =>
-              Number(row.avgOpponentPoints.toFixed(2)),
-          },
+          { key: "avgOpponentPoints" },
         ]
       : []),
     ...(hasElimination ? [{ key: "result", node: result }] : []),
