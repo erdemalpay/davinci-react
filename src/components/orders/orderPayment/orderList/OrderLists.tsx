@@ -285,6 +285,7 @@ const OrderLists = ({
           />
         ) : (
           <UnpaidOrders
+            table={table}
             tableOrders={tableOrders?.filter(
               (order) => order?.status !== OrderStatus.RETURNED
             )}
