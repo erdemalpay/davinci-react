@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import {
   FaPhoenixFramework,
   FaRegListAlt,
@@ -143,7 +142,6 @@ export const ProfilePageTabs = [
 ];
 
 export default function Profile() {
-  const { t } = useTranslation();
   const updatedUser = useGetUser();
   const { user } = useUserContext();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
@@ -209,7 +207,6 @@ export default function Profile() {
         ),
       }),
       ...(tab.number === ProfileTabEnum.USERGAMEASSIGNMENTS && {
-        label: t("User Game Assignments"),
         content: user && <UserGameAssignments />,
       }),
     };
