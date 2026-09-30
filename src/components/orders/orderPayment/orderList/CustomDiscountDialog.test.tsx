@@ -47,6 +47,15 @@ describe("CustomDiscountDialog", () => {
     expect(screen.getByLabelText("Affected Quantity")).toHaveValue(1);
   });
 
+  it("shows the current unit price next to the product name", () => {
+    renderDialog();
+
+    const itemName = screen.getByText("Espresso");
+    const currentPrice = screen.getByText("Current Unit Price: 10.00₺");
+
+    expect(itemName.parentElement).toBe(currentPrice.parentElement);
+  });
+
   it("does not submit invalid values", async () => {
     const user = userEvent.setup();
     const { submit } = renderDialog();
@@ -55,7 +64,7 @@ describe("CustomDiscountDialog", () => {
 
     expect(submit).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "Enter a valid total discount amount"
+      "Enter a valid new unit price"
     );
   });
 
@@ -63,7 +72,7 @@ describe("CustomDiscountDialog", () => {
     const user = userEvent.setup();
     const { submit } = renderDialog();
 
-    await user.type(screen.getByLabelText("Total Discount Amount"), "12.5");
+    await user.type(screen.getByLabelText("New Unit Price"), "8");
     fireEvent.change(screen.getByLabelText("Affected Quantity"), {
       target: { value: "2" },
     });
@@ -72,7 +81,7 @@ describe("CustomDiscountDialog", () => {
 
     expect(submit).toHaveBeenCalledTimes(1);
     expect(submit).toHaveBeenCalledWith({
-      totalDiscountAmount: 12.5,
+      newUnitPrice: 8,
       affectedQuantity: 2,
       note: "Customer care",
     });
@@ -83,6 +92,20 @@ describe("CustomDiscountDialog", () => {
     renderDialog({ isPending: true });
 
     expect(screen.getByRole("button", { name: "Apply" })).toBeDisabled();
+  });
+
+  it("groups Cancel immediately to the left of Apply", () => {
+    renderDialog();
+
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    const apply = screen.getByRole("button", { name: "Apply" });
+    const buttonGroup = cancel.parentElement;
+
+    expect(buttonGroup).toBe(apply.parentElement);
+    expect(buttonGroup).toHaveClass("justify-end", "gap-2");
+    expect(
+      cancel.compareDocumentPosition(apply) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
   it("only asks for a note when the custom discount requires one", () => {
