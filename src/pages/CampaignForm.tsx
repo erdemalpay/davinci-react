@@ -2,6 +2,10 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import PublicFormCard, {
+  PublicFormLoading,
+} from "../components/common/PublicFormCard";
+import StatusScreen from "../components/common/StatusScreen";
 import {
   EventStatus,
   QuestionType,
@@ -127,11 +131,7 @@ const CampaignForm = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
-      </div>
-    );
+    return <PublicFormLoading />;
   }
 
   if (isError || !data) {
@@ -264,227 +264,180 @@ const CampaignForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-6 max-w-md w-full">
-        <div className="text-center mb-6">
-          <img
-            src="/logo.svg"
-            alt={t("Davinci Board Game Cafe")}
-            className="h-12 mx-auto mb-3"
+    <PublicFormCard
+      title={t("Davinci Board Game Cafe")}
+      subtitle={t("Fill out the form, get your surprise reward!")}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("Full Name")}{" "}
+            <span className="text-gray-400 font-normal">({t("Optional")})</span>
+          </label>
+          <input
+            type="text"
+            name="fullName"
+            autoComplete="name"
+            inputMode="text"
+            value={fullName}
+            onChange={(e) => setFullName(sanitizeFullNameInput(e.target.value))}
+            placeholder={t("Enter full name")}
+            title={t("Full name input hint")}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
           />
-          <h1 className="text-xl font-bold text-gray-800">
-            {t("Davinci Board Game Cafe")}
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {t("Fill out the form, get your surprise reward!")}
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("Full Name")}{" "}
-              <span className="text-gray-400 font-normal">
-                ({t("Optional")})
-              </span>
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              autoComplete="name"
-              inputMode="text"
-              value={fullName}
-              onChange={(e) =>
-                setFullName(sanitizeFullNameInput(e.target.value))
-              }
-              placeholder={t("Enter full name")}
-              title={t("Full name input hint")}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("Email")} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder={t("example@email.com")}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("Email")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder={t("example@email.com")}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            />
-          </div>
+        {(data.questions as SurveyQuestion[]).map((question) => (
+          <div key={question._id}>
+            {question.type !== QuestionType.CONSENT && (
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {question.label}
+                {question.required && (
+                  <span className="text-red-500 ml-1">*</span>
+                )}
+              </label>
+            )}
 
-          {(data.questions as SurveyQuestion[]).map((question) => (
-            <div key={question._id}>
-              {question.type !== QuestionType.CONSENT && (
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            {question.type === QuestionType.SINGLE_CHOICE && (
+              <div className="space-y-2">
+                {toOptionsArray(question.options).map((opt) => (
+                  <label
+                    key={opt}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name={`q_${question._id}`}
+                      value={opt}
+                      required={question.required}
+                      onChange={(e) =>
+                        handleAnswerChange(question, e.target.value)
+                      }
+                      className="accent-indigo-500"
+                    />
+                    <span className="text-sm text-gray-700">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {question.type === QuestionType.MULTI_CHOICE && (
+              <div className="relative space-y-2">
+                {question.required && (
+                  <input
+                    type="text"
+                    name={`q_multi_required_${question._id}`}
+                    required
+                    value={
+                      Array.isArray(answers[question._id]) &&
+                      (answers[question._id] as string[]).length > 0
+                        ? "."
+                        : ""
+                    }
+                    onChange={() => undefined}
+                    tabIndex={-1}
+                    aria-hidden={true}
+                    className="absolute opacity-0 w-px h-px overflow-hidden pointer-events-none"
+                  />
+                )}
+                {toOptionsArray(question.options).map((opt) => (
+                  <label
+                    key={opt}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      value={opt}
+                      onChange={(e) =>
+                        handleAnswerChange(question, opt, e.target.checked)
+                      }
+                      className="accent-indigo-500"
+                    />
+                    <span className="text-sm text-gray-700">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {question.type === QuestionType.TEXT && (
+              <input
+                type="text"
+                required={question.required}
+                onChange={(e) => handleAnswerChange(question, e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              />
+            )}
+
+            {question.type === QuestionType.CONSENT && (
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required={question.required}
+                  onChange={(e) =>
+                    handleAnswerChange(
+                      question,
+                      e.target.checked ? "evet" : "hayır"
+                    )
+                  }
+                  className="accent-indigo-500 mt-0.5"
+                />
+                <span className="text-sm text-gray-600">
                   {question.label}
                   {question.required && (
                     <span className="text-red-500 ml-1">*</span>
                   )}
-                </label>
-              )}
-
-              {question.type === QuestionType.SINGLE_CHOICE && (
-                <div className="space-y-2">
-                  {toOptionsArray(question.options).map((opt) => (
-                    <label
-                      key={opt}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        name={`q_${question._id}`}
-                        value={opt}
-                        required={question.required}
-                        onChange={(e) =>
-                          handleAnswerChange(question, e.target.value)
-                        }
-                        className="accent-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">{opt}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {question.type === QuestionType.MULTI_CHOICE && (
-                <div className="relative space-y-2">
-                  {question.required && (
-                    <input
-                      type="text"
-                      name={`q_multi_required_${question._id}`}
-                      required
-                      value={
-                        Array.isArray(answers[question._id]) &&
-                        (answers[question._id] as string[]).length > 0
-                          ? "."
-                          : ""
-                      }
-                      onChange={() => undefined}
-                      tabIndex={-1}
-                      aria-hidden={true}
-                      className="absolute opacity-0 w-px h-px overflow-hidden pointer-events-none"
-                    />
-                  )}
-                  {toOptionsArray(question.options).map((opt) => (
-                    <label
-                      key={opt}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        value={opt}
-                        onChange={(e) =>
-                          handleAnswerChange(question, opt, e.target.checked)
-                        }
-                        className="accent-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">{opt}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {question.type === QuestionType.TEXT && (
-                <input
-                  type="text"
-                  required={question.required}
-                  onChange={(e) => handleAnswerChange(question, e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                />
-              )}
-
-              {question.type === QuestionType.CONSENT && (
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    required={question.required}
-                    onChange={(e) =>
-                      handleAnswerChange(
-                        question,
-                        e.target.checked ? "evet" : "hayır"
-                      )
-                    }
-                    className="accent-indigo-500 mt-0.5"
-                  />
-                  <span className="text-sm text-gray-600">
-                    {question.label}
-                    {question.required && (
-                      <span className="text-red-500 ml-1">*</span>
-                    )}
-                  </span>
-                </label>
-              )}
-            </div>
-          ))}
-
-          <div className="pt-2">
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={emailMarketingConsent}
-                onChange={(e) => setEmailMarketingConsent(e.target.checked)}
-                className="accent-indigo-500 mt-0.5"
-              />
-              <span className="text-xs text-gray-500">
-                {t(
-                  "I approve the use of my email for marketing and campaign purposes."
-                )}
-              </span>
-            </label>
+                </span>
+              </label>
+            )}
           </div>
+        ))}
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
+        <div className="pt-2">
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={emailMarketingConsent}
+              onChange={(e) => setEmailMarketingConsent(e.target.checked)}
+              className="accent-indigo-500 mt-0.5"
+            />
+            <span className="text-xs text-gray-500">
+              {t(
+                "I approve the use of my email for marketing and campaign purposes."
+              )}
+            </span>
+          </label>
+        </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting || !isValidEmail(email)}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
-          >
-            {isSubmitting ? t("processing") : t("submit_form_get_code")}
-          </button>
-        </form>
-      </div>
-    </div>
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={isSubmitting || !isValidEmail(email)}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
+        >
+          {isSubmitting ? t("processing") : t("submit_form_get_code")}
+        </button>
+      </form>
+    </PublicFormCard>
   );
 };
-
-const StatusScreen = ({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div className="text-center">
-      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg
-          className="w-8 h-8 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      </div>
-      <h2 className="text-lg font-semibold text-gray-700">{title}</h2>
-      <p className="text-sm text-gray-400 mt-1">{description}</p>
-    </div>
-  </div>
-);
 
 export default CampaignForm;

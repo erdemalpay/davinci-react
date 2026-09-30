@@ -2967,10 +2967,13 @@ export type CustomerPopup = {
   title: string;
   content: string;
   imageUrl?: string;
+  buttonText?: string;
+  buttonUrl?: string;
   isActive: boolean;
   triggerType: CustomerPopupTriggerType;
   periodicDays: number[];
   specialDate?: string;
+  endDate?: string;
   cooldownHours: number;
   locations: number[];
   isAutoClosedWhenOutOfStock?: boolean;

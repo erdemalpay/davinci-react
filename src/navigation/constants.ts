@@ -79,6 +79,8 @@ import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
 import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
+import TournamentDetail from "./../pages/TournamentDetail";
+import Tournaments from "./../pages/Tournaments";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Logs, { LogsPageTabs } from "./../pages/Logs";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
@@ -97,6 +99,7 @@ export enum PublicRoutes {
   NotFound = "*",
   Login = "/login",
   CampaignForm = "/campaign/:eventSlug",
+  TournamentRegister = "/tournament/:slug",
 }
 
 export enum Routes {
@@ -174,6 +177,8 @@ export enum Routes {
   EventSurveyQuestions = "/event-survey-builder/:eventId",
   SurveyRedeem = "/survey-redeem",
   SurveyAnalytics = "/survey-analytics",
+  Tournaments = "/tournaments",
+  TournamentDetail = "/tournaments/:tournamentId",
 }
 
 export const allRoutes: {
@@ -977,6 +982,20 @@ export const allRoutes: {
     name: "Activities",
     link: "https://docs.google.com/spreadsheets/d/13C_TCrb2gkFifWkYkCDyggyAA4RNDmk_aVrCXnZ2P6Q/edit",
     isOnSidebar: false,
+  },
+  {
+    name: "Tournaments",
+    path: Routes.Tournaments,
+    element: Tournaments,
+    isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Tournament Detail",
+    path: Routes.TournamentDetail,
+    element: TournamentDetail,
+    isOnSidebar: false,
+    exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
     name: "Campaign & Survey",

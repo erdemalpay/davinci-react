@@ -46,6 +46,10 @@ vi.mock("../../../../context/Order.context", () => ({
   }),
 }));
 
+vi.mock("../../../../context/User.context", () => ({
+  useUserContext: () => ({ user: { role: { _id: 1 } } }),
+}));
+
 vi.mock("../../../../utils/api/order/order", () => ({
   useCancelOrderForDiscountMutation: () => ({
     mutate: mocks.cancelOrderForDiscount,
@@ -154,7 +158,7 @@ describe("UnpaidOrders custom discount action", () => {
     expect(dialog).toBeInTheDocument();
     expect(within(dialog).getByText("Espresso")).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("Total Discount Amount"), "12.5");
+    await user.type(screen.getByLabelText("New Unit Price"), "8");
     fireEvent.change(screen.getByLabelText("Affected Quantity"), {
       target: { value: "2" },
     });
@@ -167,7 +171,7 @@ describe("UnpaidOrders custom discount action", () => {
         { totalQuantity: 3, selectedQuantity: 2, orderId: 42 },
       ],
       discount: 9,
-      customDiscountAmount: 12.5,
+      customDiscountAmount: 4,
       discountNote: "Customer care",
     });
     expect(screen.getByRole("dialog")).toBeInTheDocument();
