@@ -1158,6 +1158,7 @@ export type OrderDiscount = {
   status?: string;
   note?: string;
   isMemberDiscount?: boolean;
+  isCustom?: boolean;
 };
 export enum OrderDiscountStatus {
   DELETED = "deleted",

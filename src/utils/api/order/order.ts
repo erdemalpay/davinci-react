@@ -18,7 +18,7 @@ import {
   Table,
 } from "./../../../types/index";
 
-interface CreateOrderForDiscount {
+export interface CreateOrderForDiscountPayload {
   orders: {
     totalQuantity: number;
     selectedQuantity: number;
@@ -27,6 +27,7 @@ interface CreateOrderForDiscount {
   discount: number;
   discountPercentage?: number;
   discountAmount?: number;
+  customDiscountAmount?: number;
   discountNote?: string | string[];
 }
 interface CreateOrderForDivide {
@@ -1016,8 +1017,8 @@ export function usePreOrderMutation() {
   return { updateSimpleOrder, isPending };
 }
 
-export function createOrderForDiscount(payload: CreateOrderForDiscount) {
-  return post<CreateOrderForDiscount, Order>({
+export function createOrderForDiscount(payload: CreateOrderForDiscountPayload) {
+  return post<CreateOrderForDiscountPayload, Order>({
     path: `${Paths.Order}/create_order_for_discount`,
     payload,
   });
