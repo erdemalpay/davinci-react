@@ -28,7 +28,7 @@ const CustomDiscountDialog = ({
   submit,
 }: Props) => {
   const { t } = useTranslation();
-  const [amount, setAmount] = useState("");
+  const [newUnitPrice, setNewUnitPrice] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ const CustomDiscountDialog = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    setAmount("");
+    setNewUnitPrice("");
     setQuantity("1");
     setNote("");
     setError(null);
@@ -45,7 +45,8 @@ const CustomDiscountDialog = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const values: CustomDiscountValues = {
-      totalDiscountAmount: amount.trim() === "" ? NaN : Number(amount),
+      newUnitPrice:
+        newUnitPrice.trim() === "" ? NaN : Number(newUnitPrice),
       affectedQuantity: quantity.trim() === "" ? NaN : Number(quantity),
       note,
     };
@@ -89,22 +90,28 @@ const CustomDiscountDialog = ({
                 </Dialog.Title>
                 <form className="p-6" onSubmit={handleSubmit}>
                   <div className="mb-5">
-                    <p className="font-medium">{itemName}</p>
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="font-medium">{itemName}</p>
+                      <p className="whitespace-nowrap text-sm font-medium text-gray-700">
+                        {t("Current Unit Price")}: {order.unitPrice.toFixed(2)}₺
+                      </p>
+                    </div>
                     <p className="text-sm text-gray-600">
                       {t("Remaining quantity")}: {maxQuantity}
                     </p>
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    <label className="flex flex-col gap-1" htmlFor="custom-discount-amount">
-                      <span>{t("Total Discount Amount")}</span>
+                    <label className="flex flex-col gap-1" htmlFor="custom-discount-new-unit-price">
+                      <span>{t("New Unit Price")}</span>
                       <input
-                        id="custom-discount-amount"
+                        id="custom-discount-new-unit-price"
                         type="number"
                         min="0"
-                        step="any"
-                        value={amount}
-                        onChange={(event) => setAmount(event.target.value)}
+                        max={order.unitPrice}
+                        step="0.01"
+                        value={newUnitPrice}
+                        onChange={(event) => setNewUnitPrice(event.target.value)}
                         className="rounded-md border border-gray-300 px-3 py-2"
                       />
                     </label>
@@ -142,7 +149,7 @@ const CustomDiscountDialog = ({
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between mt-6">
+                  <div className="flex items-center justify-end gap-2 mt-6">
                     <GenericButton onClick={close} variant="danger" size="sm">
                       {t("Cancel")}
                     </GenericButton>

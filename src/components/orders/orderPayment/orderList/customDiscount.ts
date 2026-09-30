@@ -2,7 +2,7 @@ import { Order, OrderDiscount, OrderDiscountStatus } from "../../../../types";
 import type { CreateOrderForDiscountPayload } from "../../../../utils/api/order/order";
 
 export type CustomDiscountValues = {
-  totalDiscountAmount: number;
+  newUnitPrice: number;
   affectedQuantity: number;
   note: string;
 };
@@ -17,14 +17,17 @@ export const validateCustomDiscountValues = (
   values: CustomDiscountValues,
   options: CustomDiscountValidationOptions
 ): string | null => {
-  const { totalDiscountAmount, affectedQuantity, note } = values;
+  const { newUnitPrice, affectedQuantity, note } = values;
   const { maxQuantity, unitPrice, noteRequired } = options;
 
-  if (!Number.isFinite(totalDiscountAmount)) {
-    return "Enter a valid total discount amount";
+  if (!Number.isFinite(newUnitPrice)) {
+    return "Enter a valid new unit price";
   }
-  if (totalDiscountAmount <= 0) {
-    return "Total discount amount must be greater than zero";
+  if (newUnitPrice < 0) {
+    return "New unit price cannot be negative";
+  }
+  if (newUnitPrice >= unitPrice) {
+    return "New unit price must be less than current unit price";
   }
   if (!Number.isFinite(affectedQuantity) || !Number.isInteger(affectedQuantity)) {
     return "Affected quantity must be a whole number";
@@ -34,9 +37,6 @@ export const validateCustomDiscountValues = (
   }
   if (affectedQuantity > maxQuantity) {
     return "Affected quantity cannot exceed remaining quantity";
-  }
-  if (totalDiscountAmount > unitPrice * affectedQuantity) {
-    return "Total discount amount cannot exceed selected items total";
   }
   if (noteRequired && note.trim().length === 0) {
     return "Please enter a discount note";
@@ -83,7 +83,8 @@ export const buildCustomDiscountPayload = (
       },
     ],
     discount: discount._id,
-    customDiscountAmount: values.totalDiscountAmount,
+    customDiscountAmount:
+      (order.unitPrice - values.newUnitPrice) * values.affectedQuantity,
     ...(note && { discountNote: note }),
   };
 };

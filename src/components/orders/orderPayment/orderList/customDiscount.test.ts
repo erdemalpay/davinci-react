@@ -15,44 +15,44 @@ const options = {
 
 describe("validateCustomDiscountValues", () => {
   it.each([NaN, Infinity, -Infinity])(
-    "rejects a non-finite total discount amount (%s)",
-    (totalDiscountAmount) => {
+    "rejects a non-finite new unit price (%s)",
+    (newUnitPrice) => {
       expect(
         validateCustomDiscountValues(
-          { totalDiscountAmount, affectedQuantity: 1, note: "" },
+          { newUnitPrice, affectedQuantity: 1, note: "" },
           options
         )
-      ).toBe("Enter a valid total discount amount");
+      ).toBe("Enter a valid new unit price");
     }
   );
 
-  it.each([0, -1])(
-    "rejects a non-positive total discount amount (%s)",
-    (totalDiscountAmount) => {
-      expect(
-        validateCustomDiscountValues(
-          { totalDiscountAmount, affectedQuantity: 1, note: "" },
-          options
-        )
-      ).toBe("Total discount amount must be greater than zero");
-    }
-  );
-
-  it("rejects a total above the selected items total", () => {
+  it("rejects a negative new unit price", () => {
     expect(
       validateCustomDiscountValues(
-        { totalDiscountAmount: 21, affectedQuantity: 2, note: "" },
+        { newUnitPrice: -1, affectedQuantity: 1, note: "" },
         options
       )
-    ).toBe("Total discount amount cannot exceed selected items total");
+    ).toBe("New unit price cannot be negative");
   });
+
+  it.each([10, 11])(
+    "rejects a new unit price that is not lower than the current price (%s)",
+    (newUnitPrice) => {
+      expect(
+        validateCustomDiscountValues(
+          { newUnitPrice, affectedQuantity: 1, note: "" },
+          options
+        )
+      ).toBe("New unit price must be less than current unit price");
+    }
+  );
 
   it.each([0, -1])(
     "rejects an affected quantity below one (%s)",
     (affectedQuantity) => {
       expect(
         validateCustomDiscountValues(
-          { totalDiscountAmount: 1, affectedQuantity, note: "" },
+          { newUnitPrice: 8, affectedQuantity, note: "" },
           options
         )
       ).toBe("Affected quantity must be at least one");
@@ -64,7 +64,7 @@ describe("validateCustomDiscountValues", () => {
     (affectedQuantity) => {
       expect(
         validateCustomDiscountValues(
-          { totalDiscountAmount: 1, affectedQuantity, note: "" },
+          { newUnitPrice: 8, affectedQuantity, note: "" },
           options
         )
       ).toBe("Affected quantity must be a whole number");
@@ -74,7 +74,7 @@ describe("validateCustomDiscountValues", () => {
   it("rejects an affected quantity above the remaining quantity", () => {
     expect(
       validateCustomDiscountValues(
-        { totalDiscountAmount: 1, affectedQuantity: 4, note: "" },
+        { newUnitPrice: 8, affectedQuantity: 4, note: "" },
         options
       )
     ).toBe("Affected quantity cannot exceed remaining quantity");
@@ -83,16 +83,16 @@ describe("validateCustomDiscountValues", () => {
   it("requires a non-blank note when the discount requires one", () => {
     expect(
       validateCustomDiscountValues(
-        { totalDiscountAmount: 1, affectedQuantity: 1, note: "   " },
+        { newUnitPrice: 8, affectedQuantity: 1, note: "   " },
         { ...options, noteRequired: true }
       )
     ).toBe("Please enter a discount note");
   });
 
-  it("accepts a total equal to the selected items total", () => {
+  it("accepts a zero new unit price", () => {
     expect(
       validateCustomDiscountValues(
-        { totalDiscountAmount: 20, affectedQuantity: 2, note: "" },
+        { newUnitPrice: 0, affectedQuantity: 2, note: "" },
         options
       )
     ).toBeNull();
@@ -157,16 +157,17 @@ describe("isPresetDiscount", () => {
 });
 
 describe("buildCustomDiscountPayload", () => {
-  it("builds a one-order payload with total amount and trimmed note", () => {
+  it("calculates the total discount from new unit price and quantity", () => {
     const order = {
       _id: 42,
       quantity: 4,
+      unitPrice: 10,
     } as Order;
     const discount = { _id: 9, isCustom: true } as OrderDiscount;
 
     expect(
       buildCustomDiscountPayload(order, discount, {
-        totalDiscountAmount: 12.5,
+        newUnitPrice: 7.5,
         affectedQuantity: 2,
         note: "  Customer care  ",
       })
@@ -175,16 +176,16 @@ describe("buildCustomDiscountPayload", () => {
         { totalQuantity: 4, selectedQuantity: 2, orderId: 42 },
       ],
       discount: 9,
-      customDiscountAmount: 12.5,
+      customDiscountAmount: 5,
       discountNote: "Customer care",
     });
   });
 
   it("omits a blank note and never sends the fixed-discount amount field", () => {
     const payload = buildCustomDiscountPayload(
-      { _id: 42, quantity: 4 } as Order,
+      { _id: 42, quantity: 4, unitPrice: 10 } as Order,
       { _id: 9, isCustom: true } as OrderDiscount,
-      { totalDiscountAmount: 5, affectedQuantity: 1, note: "   " }
+      { newUnitPrice: 5, affectedQuantity: 1, note: "   " }
     );
 
     expect(payload).not.toHaveProperty("discountNote");
