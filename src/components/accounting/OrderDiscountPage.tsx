@@ -85,12 +85,12 @@ const OrderDiscountPage = () => {
     });
   }
 
-  function handleCustomDiscountChange(row: OrderDiscount) {
-    updateOrderDiscount({
-      id: row._id,
-      updates: { isCustom: !row.isCustom },
-    });
-  }
+  // function handleCustomDiscountChange(row: OrderDiscount) {
+  //   updateOrderDiscount({
+  //     id: row._id,
+  //     updates: { isCustom: !row.isCustom },
+  //   });
+  // }
 
   function handleVisibleOnPaymentScreenChange(row: OrderDiscount) {
     updateOrderDiscount({
@@ -110,7 +110,7 @@ const OrderDiscountPage = () => {
     isNoteRequired: false,
     isVisibleOnPaymentScreen: false,
     isMemberDiscount: false,
-    isCustom: false,
+    // isCustom: false,
   });
 
   const discountValueFieldState = getDiscountValueFieldState(form);
@@ -124,19 +124,19 @@ const OrderDiscountPage = () => {
         placeholder: t("Name"),
         required: true,
       },
-      {
-        type: InputTypes.CHECKBOX,
-        formKey: "isCustom",
-        label: t("Custom Discount"),
-        placeholder: t("Custom Discount"),
-        required: false,
-        isTopFlexRow: true,
-        invalidateKeys: [
-          { key: "type", defaultValue: "" },
-          { key: "percentage", defaultValue: "" },
-          { key: "amount", defaultValue: "" },
-        ],
-      },
+      // {
+      //   type: InputTypes.CHECKBOX,
+      //   formKey: "isCustom",
+      //   label: t("Custom Discount"),
+      //   placeholder: t("Custom Discount"),
+      //   required: false,
+      //   isTopFlexRow: true,
+      //   invalidateKeys: [
+      //     { key: "type", defaultValue: "" },
+      //     { key: "percentage", defaultValue: "" },
+      //     { key: "amount", defaultValue: "" },
+      //   ],
+      // },
       {
         type: InputTypes.SELECT,
         formKey: "type",
@@ -232,7 +232,7 @@ const OrderDiscountPage = () => {
       { key: "isMemberDiscount", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isNoteRequired", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isVisibleOnPaymentScreen", type: FormKeyTypeEnum.BOOLEAN },
-      { key: "isCustom", type: FormKeyTypeEnum.BOOLEAN },
+      // { key: "isCustom", type: FormKeyTypeEnum.BOOLEAN },
     ],
     []
   );
@@ -242,7 +242,7 @@ const OrderDiscountPage = () => {
       { key: t("Name"), isSortable: true },
       { key: t("Percentage"), isSortable: true },
       { key: t("Amount"), isSortable: true },
-      { key: t("Custom Discount"), isSortable: false },
+      // { key: t("Custom Discount"), isSortable: false },
       { key: t("Online Order"), isSortable: false },
       { key: t("Member Discount"), isSortable: false },
       { key: t("Store Order"), isSortable: false },
@@ -263,29 +263,29 @@ const OrderDiscountPage = () => {
       { key: "name", className: "min-w-32 pr-1" },
       { key: "percentage", className: "min-w-32 pr-1" },
       { key: "amount", className: "min-w-32 pr-1" },
-      {
-        key: "isCustom",
-        node: (row: any) =>
-          isEnableEdit ? (
-            <div
-              className={
-                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
-              }
-            >
-              <CheckSwitch
-                checked={row?.isCustom}
-                onChange={() => {
-                  if (isUpdateDisabled) return;
-                  handleCustomDiscountChange(row);
-                }}
-              />
-            </div>
-          ) : row?.isCustom ? (
-            <IoCheckmark className="text-blue-500 text-2xl " />
-          ) : (
-            <IoCloseOutline className="text-red-800 text-2xl " />
-          ),
-      },
+      // {
+      //   key: "isCustom",
+      //   node: (row: any) =>
+      //     isEnableEdit ? (
+      //       <div
+      //         className={
+      //           isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+      //         }
+      //       >
+      //         <CheckSwitch
+      //           checked={row?.isCustom}
+      //           onChange={() => {
+      //             if (isUpdateDisabled) return;
+      //             handleCustomDiscountChange(row);
+      //           }}
+      //         />
+      //       </div>
+      //     ) : row?.isCustom ? (
+      //       <IoCheckmark className="text-blue-500 text-2xl " />
+      //     ) : (
+      //       <IoCloseOutline className="text-red-800 text-2xl " />
+      //     ),
+      // },
       {
         key: "isOnlineOrder",
         node: (row: any) =>
@@ -604,7 +604,7 @@ const OrderDiscountPage = () => {
       showInactiveDiscounts
         ? orderDiscounts
         : orderDiscounts.filter(
-            (od) => od.status !== OrderDiscountStatus.DELETED
+            (od) => od.status !== OrderDiscountStatus.DELETED && !od?.isCustom
           ),
     [orderDiscounts, showInactiveDiscounts]
   );
