@@ -1048,7 +1048,7 @@ const GenericAddEditPanel = <T,>({
                       const preservedValues = button.preservedKeys?.reduce<
                         Partial<typeof formElements>
                       >((acc, key) => {
-                        acc[key] = formElements[key];
+                        if (key in formElements) acc[key] = formElements[key];
                         return acc;
                       }, {});
 
