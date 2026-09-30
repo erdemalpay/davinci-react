@@ -10,10 +10,12 @@ import {
 import { toast } from "react-toastify";
 import { useDataContext } from "../../../../context/Data.context";
 import { useOrderContext } from "../../../../context/Order.context";
+import { useUserContext } from "../../../../context/User.context";
 import {
   Order,
   OrderDiscountStatus,
   OrderStatus,
+  RoleEnum,
   Table,
 } from "../../../../types";
 import {
@@ -25,30 +27,33 @@ import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount"
 import { getItem } from "../../../../utils/getItem";
 import CommonSelectInput from "../../../common/SelectInput";
 import { orderBgColor } from "../../../tables/OrderCard";
-import CustomDiscountDialog from "./CustomDiscountDialog";
 import {
   buildCustomDiscountPayload,
   CustomDiscountValues,
   findApplicableCustomDiscount,
 } from "./customDiscount";
+import CustomDiscountDialog from "./CustomDiscountDialog";
 import OrderScreenHeader from "./OrderScreenHeader";
-
 type Props = {
   table: Table;
   tableOrders: Order[];
   collectionsTotalAmount: number;
 };
 
-const UnpaidOrders = ({ table, tableOrders, collectionsTotalAmount }: Props) => {
+const UnpaidOrders = ({
+  table,
+  tableOrders,
+  collectionsTotalAmount,
+}: Props) => {
   const { t } = useTranslation();
-  const [customDiscountOrder, setCustomDiscountOrder] =
-    useState<Order | null>(null);
+  const [customDiscountOrder, setCustomDiscountOrder] = useState<Order | null>(
+    null
+  );
+  const { user } = useUserContext();
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
-  const {
-    mutate: createOrderForDiscount,
-    isPending: isCustomDiscountPending,
-  } = useCreateOrderForDiscountMutation();
+  const { mutate: createOrderForDiscount, isPending: isCustomDiscountPending } =
+    useCreateOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
   const { menuItems: items = [] } = useDataContext();
   const discounts = useGetOrderDiscounts()?.filter(
@@ -387,23 +392,6 @@ const UnpaidOrders = ({ table, tableOrders, collectionsTotalAmount }: Props) => 
                 </div>
                 {/* buttons */}
                 <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-                  {customDiscount && !order.discount && (
-                    <button
-                      type="button"
-                      aria-label={t("Apply Custom Discount")}
-                      title={t("Apply Custom Discount")}
-                      className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setCustomDiscountOrder(order);
-                      }}
-                    >
-                      <MdOutlineDiscount
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                      />
-                    </button>
-                  )}
                   {order?.discount && (
                     <div className="flex flex-col ml-auto justify-center items-center">
                       <p className="text-xs line-through">
@@ -438,6 +426,25 @@ const UnpaidOrders = ({ table, tableOrders, collectionsTotalAmount }: Props) => 
                       ₺
                     </p>
                   )}
+                  {customDiscount &&
+                    !order.discount &&
+                    user?.role?._id === RoleEnum.MANAGER && (
+                      <button
+                        type="button"
+                        aria-label={t("Apply Custom Discount")}
+                        title={t("Apply Custom Discount")}
+                        className="inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center bg-transparent p-0 text-black hover:text-gray-600"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setCustomDiscountOrder(order);
+                        }}
+                      >
+                        <MdOutlineDiscount
+                          className="h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    )}
                   <MdOutlineTouchApp
                     className="cursor-pointer hover:text-red-600 text-lg"
                     onClick={(e) => {

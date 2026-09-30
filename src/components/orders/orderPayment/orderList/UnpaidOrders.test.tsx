@@ -125,6 +125,24 @@ describe("UnpaidOrders custom discount action", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows a black transparent action immediately after the price", () => {
+    renderUnpaidOrders();
+
+    const price = screen
+      .getAllByText((_, element) => element?.textContent === "20.00₺")
+      .find((element) => element.tagName === "P");
+    const action = screen.getByRole("button", {
+      name: "Apply Custom Discount",
+    });
+
+    expect(
+      price?.compareDocumentPosition(action) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(action).toHaveClass("bg-transparent", "text-black");
+    expect(action).not.toHaveClass("bg-red-50", "text-red-600");
+  });
+
   it("opens the clicked order and closes only after mutation success", async () => {
     const user = userEvent.setup();
     renderUnpaidOrders();
