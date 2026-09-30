@@ -4,13 +4,14 @@ import { useUserContext } from "../../../context/User.context";
 import {
   ActionEnum,
   DisabledConditionEnum,
+  OptionType,
 } from "../../../types";
 import { useGetGamesMinimal } from "../../../utils/api/game";
 import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
 import { useGetAllUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
 import { isActionDisabled } from "../../../utils/permissions";
-import { Autocomplete } from "../../common/Autocomplete";
+import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 
@@ -23,6 +24,11 @@ const WhoKnows = () => {
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
+
+  const gameOptions = useMemo(
+    () => games.map((game) => ({ value: game._id, label: game.name })),
+    [games]
+  );
 
   const whoKnowsDisabledCondition = useMemo(() => {
     return getItem(
@@ -87,13 +93,19 @@ const WhoKnows = () => {
     <>
       <div className="w-[95%] mx-auto ">
         <div className="w-80 ">
-          <Autocomplete
-            name="game"
+          <SelectInput
             label={t("Game")}
-            suggestions={games}
-            handleSelection={(game) => setSearch(game._id)}
-            showSelected
-            handleReset={() => setSearch(0)}
+            options={gameOptions}
+            value={
+              gameOptions.find((option) => option.value === search) ?? null
+            }
+            onChange={(selectedOption) =>
+              setSearch((selectedOption as OptionType | null)?.value ?? 0)
+            }
+            onClear={() => setSearch(0)}
+            isAutoFill={false}
+            menuPortalTarget={document.body}
+            menuZIndex={9999}
           />
         </div>
         <GenericTable
