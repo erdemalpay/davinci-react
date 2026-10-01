@@ -2026,5 +2026,8 @@
   "New unit price must be less than current unit price": "Yeni birim fiyat mevcut birim fiyattan düşük olmalıdır",
   "Affected quantity must be a whole number": "Etkilenecek adet tam sayı olmalıdır",
   "Affected quantity must be at least one": "Etkilenecek adet en az bir olmalıdır",
-  "Affected quantity cannot exceed remaining quantity": "Etkilenecek adet kalan adedi aşamaz"
+  "Affected quantity cannot exceed remaining quantity": "Etkilenecek adet kalan adedi aşamaz",
+  "Order Ready Call": "Sipariş Hazır Çağrısı",
+  "Order Ready": "Sipariş Hazır",
+  "Order Received": "Alındı"
 }
