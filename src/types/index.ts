@@ -559,6 +559,7 @@ export enum ButtonCallTypeEnum {
   TABLECALL = "TABLECALL",
   GAMEMASTERCALL = "GAMEMASTERCALL",
   ORDERCALL = "ORDERCALL",
+  ORDERREADYCALL = "ORDERREADYCALL",
 }
 export const buttonCallTypes = [
   {
@@ -575,6 +576,11 @@ export const buttonCallTypes = [
     value: ButtonCallTypeEnum.ORDERCALL,
     label: "Order Call",
     backgroundColor: "bg-orange-500",
+  },
+  {
+    value: ButtonCallTypeEnum.ORDERREADYCALL,
+    label: "Order Ready Call",
+    backgroundColor: "bg-purple-500",
   },
 ];
 
@@ -771,6 +777,7 @@ export enum ActionEnum {
   PROCESS = "process",
   AUTO_PRINT = "auto_print",
   ADVANCED_VIEW = "advanced_view",
+  ORDER_READY_CALL = "order_ready_call",
 }
 
 export type Membership = {
