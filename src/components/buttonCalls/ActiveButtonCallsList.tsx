@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaDice } from "react-icons/fa";
 import { HiBellAlert } from "react-icons/hi2";
-import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { MdOutlineRestaurantMenu, MdOutlineRoomService } from "react-icons/md";
 import { useLocationContext } from "../../context/Location.context";
 import { ButtonCallType, ButtonCallTypeEnum } from "../../types";
 import {
@@ -36,6 +36,9 @@ export function ActiveButtonCallsList() {
     order: activeButtonCalls.filter(
       (call) => call.type === ButtonCallTypeEnum.ORDERCALL
     ),
+    orderReady: activeButtonCalls.filter(
+      (call) => call.type === ButtonCallTypeEnum.ORDERREADYCALL
+    ),
   };
 
   function getBackgroundColor(type: ButtonCallTypeEnum) {
@@ -46,6 +49,8 @@ export function ActiveButtonCallsList() {
         return "bg-blue-500 hover:bg-blue-600";
       case ButtonCallTypeEnum.ORDERCALL:
         return "bg-orange-500 hover:bg-orange-600";
+      case ButtonCallTypeEnum.ORDERREADYCALL:
+        return "bg-purple-500 hover:bg-purple-600";
       default:
         return "bg-green-500 hover:bg-green-600";
     }
@@ -59,6 +64,8 @@ export function ActiveButtonCallsList() {
         return <FaDice className="text-lg sm:text-xl" />;
       case ButtonCallTypeEnum.ORDERCALL:
         return <MdOutlineRestaurantMenu className="text-lg sm:text-xl" />;
+      case ButtonCallTypeEnum.ORDERREADYCALL:
+        return <MdOutlineRoomService className="text-lg sm:text-xl" />;
       default:
         return <HiBellAlert className="text-lg sm:text-xl" />;
     }
@@ -153,16 +160,18 @@ export function ActiveButtonCallsList() {
                   {timeAgo[uniqueKey] || "00:00"}
                 </span>
 
-                {/* Kapat Butonu - Her zaman görünür */}
-                <button
-                  onClick={() =>
-                    handleChipClose(buttonCall.tableName, buttonCall.type)
-                  }
-                  className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
-                  aria-label="Çağrıyı kapat"
-                >
-                  ✕
-                </button>
+                {/* Kapat Butonu - Sipariş hazır çağrısı sadece Siparişler sayfasından kapatılır */}
+                {buttonCall.type !== ButtonCallTypeEnum.ORDERREADYCALL && (
+                  <button
+                    onClick={() =>
+                      handleChipClose(buttonCall.tableName, buttonCall.type)
+                    }
+                    className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
+                    aria-label="Çağrıyı kapat"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             );
           })}
@@ -187,6 +196,12 @@ export function ActiveButtonCallsList() {
 
         {groupedCalls?.order?.length > 0 &&
           renderCallGroup(groupedCalls?.order, ButtonCallTypeEnum.ORDERCALL)}
+
+        {groupedCalls?.orderReady?.length > 0 &&
+          renderCallGroup(
+            groupedCalls?.orderReady,
+            ButtonCallTypeEnum.ORDERREADYCALL
+          )}
       </div>
     </div>
   );
