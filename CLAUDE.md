@@ -1,41 +1,41 @@
 # davinci-react
 
-Vite + React 18 + TypeScript admin panel for the Da Vinci board game cafe (orders/tables, menu, stock and accounting, shifts, online sales). It talks to the NestJS API in `../davinci-api`, and most features touch both repos.
+Da Vinci kutu oyunu kafesi için Vite + React 18 + TypeScript yönetim paneli (siparişler/masalar, menü, stok ve muhasebe, vardiyalar, online satış). `../davinci-api` reposundaki NestJS API ile konuşur; özelliklerin çoğu iki repoya da dokunur.
 
-## Commands
+## Komutlar
 
 ```bash
-yarn start            # vite dev server (port 3001)
-yarn build            # tsc && vite build; tsc is the real typecheck
+yarn start            # vite dev sunucusu (port 3001)
+yarn build            # tsc && vite build; asıl tip kontrolü buradaki tsc
 yarn test             # vitest run (src/**/*.test.ts[x])
 npx vitest run src/components/orders/orderPayment/orderList/customDiscount.test.ts
 yarn lint             # eslint
 ```
 
-- The API URL comes from `VITE_API_URL` in `.env`.
-- Deployed on Vercel (SPA rewrite in `vercel.json`).
-- CI only runs an AI review, so run `yarn build` and `yarn test` before pushing.
+- API adresi `.env` içindeki `VITE_API_URL`'den gelir.
+- Vercel'de yayınlanıyor (SPA yönlendirmesi `vercel.json`'da).
+- CI sadece AI review çalıştırır; push etmeden önce `yarn build` ve `yarn test` çalıştır.
 
-## Architecture and conventions
+## Mimari ve kurallar
 
-- **API layer:** `src/utils/api/`. Endpoint base paths are in the `Paths` object in `src/utils/api/factory.ts`.
-  - One file per domain (e.g. `utils/api/break.ts`) exports hooks built on the factory: `useGet` / `useGetList` for queries and `useMutationApi({ baseQuery })` for create/update/delete with optimistic updates, toasts and invalidation.
-  - Don't call `axiosClient` or `useQuery` directly in components when a factory hook fits.
-  - Query keys are the request paths, which websocket invalidation relies on.
-- **Realtime:** the API emits socket events like `orderChanged`. `src/hooks/socketConstant.ts` maps each event to the query keys to invalidate, and `src/hooks/useWebSocket.ts` wires them up. A new backend `emitXChanged()` needs an entry here.
-- **Types:** `src/types/index.ts` is a hand-maintained mirror of backend schemas/DTOs. When an API field changes, update it here too. IDs are numbers (backend uses auto-increment `_id`).
+- **API katmanı:** `src/utils/api/`. Endpoint ana path'leri `src/utils/api/factory.ts` içindeki `Paths` objesinde.
+  - Her domain için bir dosya (ör. `utils/api/break.ts`) factory üzerine kurulu hook'lar export eder: sorgular için `useGet` / `useGetList`; oluşturma/güncelleme/silme için optimistic update, toast ve invalidation içeren `useMutationApi({ baseQuery })`.
+  - Factory hook'u işini görüyorsa bileşenlerde doğrudan `axiosClient` veya `useQuery` kullanma.
+  - Query key'ler istek path'leriyle aynıdır; websocket invalidation buna dayanır.
+- **Gerçek zamanlı:** API `orderChanged` gibi socket event'leri yayınlar. `src/hooks/socketConstant.ts` her event'i invalidate edilecek query key'lerine eşler, `src/hooks/useWebSocket.ts` bunları bağlar. Backend'e eklenen her yeni `emitXChanged()` için buraya da bir kayıt gerekir.
+- **Tipler:** `src/types/index.ts` backend schema/DTO'larının elle tutulan bir kopyasıdır. API'de bir alan değişirse burayı da güncelle. ID'ler sayıdır (backend auto-increment `_id` kullanıyor).
 - **Routing:**
-  - Route paths are the `Routes` enum in `src/navigation/constants.ts`, together with the page/route definitions.
-  - `src/navigation/routes.tsx` renders them.
-  - Sidebar/page visibility comes from backend panel-control pages (`permissionRoles`, see `src/hooks/useFilteredRoutes.ts`).
-- **State:** server state belongs in React Query. Contexts in `src/context/` hold UI and session state:
-  - `Location`, `User`, `Date`, `Order`, `General`, `Filter`. `Filter.context.tsx` holds per-page filter panels.
-  - `Data.context.tsx` preloads common lists.
-  - Prefer local state or URL params for new page-specific filters instead of growing `Filter.context`.
-- **UI:** Tailwind. Reuse `src/components/panelComponents/` (`GenericTable`, `GenericAddEditPanel`, form elements) for tables and forms instead of building new ones.
-- **i18n:** react-i18next with `useTranslation()`. Keys are the English strings. Add every new key to both `src/locales/en/translation.json` and `src/locales/tr/translation.json`.
-- Several components are very large (`pages/Tables.tsx`, `components/tables/TableCard.tsx`, `GenericTable.tsx`). Read the relevant section, and extract new pieces into separate components.
+  - Route path'leri `src/navigation/constants.ts` içindeki `Routes` enum'unda, sayfa/route tanımlarıyla birlikte.
+  - `src/navigation/routes.tsx` bunları render eder.
+  - Menü/sayfa görünürlüğü backend'deki panel-control sayfalarından gelir (`permissionRoles`, bkz. `src/hooks/useFilteredRoutes.ts`).
+- **State:** sunucu verisi React Query'de durur. `src/context/` içindeki context'ler arayüz ve oturum state'ini tutar:
+  - `Location`, `User`, `Date`, `Order`, `General`, `Filter`. `Filter.context.tsx` sayfa bazlı filtre panellerini tutar.
+  - `Data.context.tsx` sık kullanılan listeleri önceden yükler.
+  - Sayfaya özel yeni filtreler için `Filter.context`'i büyütmek yerine local state veya URL parametreleri kullan.
+- **Arayüz:** Tailwind. Tablo ve formlar için yenisini yazmak yerine `src/components/panelComponents/` içindekileri (`GenericTable`, `GenericAddEditPanel`, form elemanları) kullan.
+- **i18n:** react-i18next, `useTranslation()` ile. Anahtarlar İngilizce metinlerin kendisidir. Her yeni anahtarı hem `src/locales/en/translation.json` hem `src/locales/tr/translation.json` dosyasına ekle.
+- Bazı bileşenler çok büyük (`pages/Tables.tsx`, `components/tables/TableCard.tsx`, `GenericTable.tsx`). İlgili bölümü oku; yeni parçaları ayrı bileşenlere çıkar.
 
-## Tests
+## Testler
 
-Vitest + Testing Library (`src/test/setup.ts`), tests next to the code as `*.test.ts(x)`. Coverage is small and concentrated in order payment/discount logic.
+Vitest + Testing Library (`src/test/setup.ts`); testler kodun yanında `*.test.ts(x)` olarak durur. Kapsam küçük ve sipariş ödeme/indirim mantığında yoğunlaşıyor.
