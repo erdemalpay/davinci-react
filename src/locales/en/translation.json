@@ -2018,5 +2018,8 @@
   "New unit price must be less than current unit price": "New unit price must be less than current unit price",
   "Affected quantity must be a whole number": "Affected quantity must be a whole number",
   "Affected quantity must be at least one": "Affected quantity must be at least one",
-  "Affected quantity cannot exceed remaining quantity": "Affected quantity cannot exceed remaining quantity"
+  "Affected quantity cannot exceed remaining quantity": "Affected quantity cannot exceed remaining quantity",
+  "Order Ready Call": "Order Ready Call",
+  "Order Ready": "Order Ready",
+  "Order Received": "Order Received"
 }

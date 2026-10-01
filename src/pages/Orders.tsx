@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { DateInput } from "../components/common/DateInput2";
+import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import KitchenMenuPage from "../components/menu/KitchenMenuPage";
 import SingleOrdersPage from "../components/orders/SingleOrdersPage";
@@ -17,6 +18,11 @@ import {
   useGetAllCategories,
   useUpdateKitchenCategoryMutation,
 } from "../utils/api/menu/category";
+import {
+  useFinishButtonCallMutation,
+  useGetActiveButtonCalls,
+  useStartButtonCallMutation,
+} from "../utils/api/buttonCall";
 import { useKitchenMutations } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -25,7 +31,15 @@ import { MinimalUser } from "../utils/api/user";
 import { formatDate, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
-import { ActionEnum, DisabledConditionEnum } from "../types";
+import { getTabSlug } from "../utils/slug";
+import {
+  ActionEnum,
+  ButtonCallType,
+  ButtonCallTypeEnum,
+  DisabledConditionEnum,
+} from "../types";
+
+const BAR_CALL_TABLE_NAME = "44";
 
 type OrderTabType = {
   number: number;
@@ -54,6 +68,20 @@ function Orders() {
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
   const disabledConditions = useGetDisabledConditions();
+  const { mutate: startButtonCall } = useStartButtonCallMutation();
+  const { mutate: finishButtonCall } = useFinishButtonCallMutation();
+  const activeButtonCalls = useGetActiveButtonCalls(ButtonCallType.ACTIVE);
+  const getOrderReadyCallPayload = () => ({
+    location: selectedLocationId,
+    tableName: BAR_CALL_TABLE_NAME,
+    hour: new Date().toLocaleTimeString("tr-TR", { hour12: false }),
+    type: ButtonCallTypeEnum.ORDERREADYCALL,
+  });
+  const hasActiveOrderReadyCall = activeButtonCalls?.some(
+    (buttonCall) =>
+      buttonCall.type === ButtonCallTypeEnum.ORDERREADYCALL &&
+      buttonCall.tableName === BAR_CALL_TABLE_NAME
+  );
   const [selectedActionUser, setSelectedActionUser] =
     useState<MinimalUser | null>(null);
   const currentActionUser = selectedActionUser || user;
@@ -156,6 +184,32 @@ function Orders() {
                 });
               }}
             />
+          </div>
+        )}
+      {activeKitchen &&
+        getTabSlug(activeKitchen.name) === "bar" &&
+        !isActionDisabled(
+          ordersOrdersDisabledCondition,
+          ActionEnum.ORDER_READY_CALL,
+          user
+        ) && (
+          <div className="flex flex-row items-center gap-2">
+            <GenericButton
+              variant="success"
+              size="sm"
+              onClick={() => startButtonCall(getOrderReadyCallPayload())}
+            >
+              {t("Order Ready")}
+            </GenericButton>
+            {hasActiveOrderReadyCall && (
+              <GenericButton
+                variant="outline"
+                size="sm"
+                onClick={() => finishButtonCall(getOrderReadyCallPayload())}
+              >
+                {t("Order Received")}
+              </GenericButton>
+            )}
           </div>
         )}
       {kitchens &&
