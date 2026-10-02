@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { get, patch, post, remove } from ".";
 import {
   ConfirmationStatus,
+  MatchStage,
   PublicTournament,
   RegistrationSource,
   Tournament,
@@ -149,9 +150,11 @@ export function useTournamentActions() {
         tournamentKey(match.tournamentId, "matches"),
         (matches) => matches?.map((m) => (m._id === match._id ? match : m))
       );
-      toast.success(
-        t(match.pendingTie ? "Scores saved, pick who advances" : "Saved")
-      );
+      const tieMessage =
+        match.stage === MatchStage.LEAGUE
+          ? "Scores saved, decide the tie"
+          : "Scores saved, pick who advances";
+      toast.success(t(match.pendingTie ? tieMessage : "Saved"));
     },
   };
 
@@ -174,13 +177,15 @@ export function useTournamentActions() {
     mutationFn: ({
       matchId,
       winnerIds,
+      points,
     }: {
       matchId: number;
       winnerIds: number[];
+      points?: number;
     }) =>
       patch<unknown, TournamentMatch>({
         path: `${baseUrl}/matches/${matchId}/tiebreak`,
-        payload: { winnerIds },
+        payload: { winnerIds, points },
       }),
     ...matchOptions,
   });
