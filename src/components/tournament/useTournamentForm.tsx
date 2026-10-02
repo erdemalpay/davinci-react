@@ -54,6 +54,7 @@ export const RULE_KEYS = [
   "minTableSize",
   "leagueRounds",
   "placementPoints",
+  "placementPointsBySize",
   "byePoints",
   "advanceCount",
   "advancePerTable",
@@ -79,6 +80,36 @@ export const DEFAULT_FORM_VALUES = {
 
 const pointsText = (points?: number[]) => points?.join(",") ?? "";
 
+const parsePoints = (text: unknown) =>
+  String(text)
+    .split(",")
+    .map((p) => Number(p.trim()))
+    .filter((p) => !Number.isNaN(p));
+
+// Formdaki tam masa puanları; özelleştirilmediyse otomatik
+const fullTablePoints = (values: FormValues) =>
+  values.customizeRules && values.placementPoints
+    ? parsePoints(values.placementPoints)
+    : autoRules(Number(values.tableSize)).placementPoints;
+
+// Eksik masa (ör. 4'lük turnuvada 3 kişi) varsayılanı: birincilik puanı aynı kalır,
+// diğerleri sondan alınır (4,2,1,0 → 4,1,0) ki küçük masada oynamak avantaj olmasın
+const smallTablePoints = (points: number[], size: number) => [
+  points[0],
+  ...points.slice(1).slice(-(size - 1)),
+];
+
+// Eksik masa puanları formda masa büyüklüğü başına ayrı alanda tutulur
+const SIZE_POINTS_PREFIX = "placementPoints_";
+const sizePointsKey = (size: number) => `${SIZE_POINTS_PREFIX}${size}`;
+
+// Turdaki masalar en küçük masa ile tam masa arasında kurulur
+const smallTableSizes = (tableSize: number, minTableSize: number) =>
+  Array.from(
+    { length: Math.max(0, tableSize - minTableSize) },
+    (_, i) => tableSize - 1 - i
+  );
+
 export const toFormValues = (tournament: Tournament) => {
   const auto = autoRules(tournament.tableSize);
   const isCustomized =
@@ -87,6 +118,11 @@ export const toFormValues = (tournament: Tournament) => {
       pointsText(auto.placementPoints) ||
     (tournament.byePoints ?? auto.byePoints) !== auto.byePoints ||
     (tournament.minTableSize ?? auto.minTableSize) !== auto.minTableSize ||
+    Object.entries(tournament.placementPointsBySize ?? {}).some(
+      ([size, points]) =>
+        pointsText(points) !==
+        pointsText(smallTablePoints(tournament.placementPoints, Number(size)))
+    ) ||
     (tournament.format === TournamentFormat.LEAGUE_THEN_ELIMINATION &&
       tournament.advancePerTable !==
         autoRules(eliminationSize(tournament)).advancePerTable);
@@ -98,6 +134,11 @@ export const toFormValues = (tournament: Tournament) => {
     date: toDateInput(tournament.date),
     registrationDeadline: toDateInput(tournament.registrationDeadline),
     placementPoints: pointsText(tournament.placementPoints),
+    ...Object.fromEntries(
+      Object.entries(tournament.placementPointsBySize ?? {}).map(
+        ([size, points]) => [sizePointsKey(Number(size)), pointsText(points)]
+      )
+    ),
     customizeRules: isCustomized,
   };
 };
@@ -113,12 +154,20 @@ export const toPayload = (item: object, emptyValue?: null) => {
   const auto = autoRules(Number(values.tableSize));
   const payload: FormValues = {};
   Object.entries(values).forEach(([key, value]) => {
-    if (FORM_ONLY_KEYS.includes(key) || RULE_KEYS.includes(key)) return;
+    if (
+      FORM_ONLY_KEYS.includes(key) ||
+      RULE_KEYS.includes(key) ||
+      key.startsWith(SIZE_POINTS_PREFIX)
+    )
+      return;
     if (!isEmpty(value)) payload[key] = value;
     else if (emptyValue === null) payload[key] = null;
   });
 
-  const pick = (key: keyof typeof auto, fallback: unknown = auto[key]) =>
+  const pick = (
+    key: string,
+    fallback: unknown = auto[key as keyof typeof auto]
+  ) =>
     values.customizeRules && !isEmpty(values[key]) ? values[key] : fallback;
 
   payload.format = format;
@@ -126,13 +175,22 @@ export const toPayload = (item: object, emptyValue?: null) => {
   if (hasRounds(format)) {
     payload.leagueRounds = values.leagueRounds;
     ADVANCED_KEYS.forEach((key) => {
-      payload[key] = pick(key as keyof typeof auto);
+      payload[key] = pick(key);
     });
-    if (typeof payload.placementPoints === "string")
-      payload.placementPoints = payload.placementPoints
-        .split(",")
-        .map((p) => Number(p.trim()))
-        .filter((p) => !Number.isNaN(p));
+    const points = fullTablePoints(values);
+    payload.placementPoints = points;
+    payload.placementPointsBySize = Object.fromEntries(
+      smallTableSizes(
+        Number(values.tableSize),
+        Number(payload.minTableSize)
+      ).map((size) => {
+        const custom = pick(sizePointsKey(size), null);
+        return [
+          size,
+          custom ? parsePoints(custom) : smallTablePoints(points, size),
+        ];
+      })
+    );
   }
   if (format !== TournamentFormat.LEAGUE)
     payload.thirdPlaceMatch =
@@ -146,6 +204,7 @@ export const toPayload = (item: object, emptyValue?: null) => {
         leagueRounds: 0,
         minTableSize: null,
         placementPoints: [],
+        placementPointsBySize: null,
         byePoints: null,
       });
     if (format !== TournamentFormat.LEAGUE_THEN_ELIMINATION)
@@ -255,12 +314,8 @@ const PlanSummary = ({ values }: { values: FormValues }) => {
   const tableSize = Number(values.tableSize) || 0;
   if (!format || tableSize < 2) return null;
 
-  const auto = autoRules(tableSize);
   const finalTableSize = eliminationStageSize(values);
-  const points =
-    values.customizeRules && values.placementPoints
-      ? String(values.placementPoints)
-      : pointsText(auto.placementPoints);
+  const points = pointsText(fullTablePoints(values));
   const autoPerTable = autoRules(finalTableSize).advancePerTable;
   const perTable = Number(
     format === TournamentFormat.ELIMINATION || values.customizeRules
@@ -441,6 +496,19 @@ export const useTournamentFormInputs = (
             required: false,
             helperText: t("PlacementPointsHelp"),
           },
+          ...smallTableSizes(
+            Number(values.tableSize),
+            Number(values.minTableSize) || auto.minTableSize
+          ).map((size) => ({
+            type: InputTypes.TEXT,
+            formKey: sizePointsKey(size),
+            label: t("Placement Points At Table Of N", { size }),
+            placeholder: pointsText(
+              smallTablePoints(fullTablePoints(values), size)
+            ),
+            required: false,
+            helperText: t("SmallTablePointsHelp"),
+          })),
           {
             type: InputTypes.NUMBER,
             formKey: "byePoints",

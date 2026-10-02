@@ -52,6 +52,7 @@ export interface Tournament {
   minTableSize?: number;
   leagueRounds: number;
   placementPoints: number[];
+  placementPointsBySize?: Record<number, number[]>; // eksik kurulan masaların puanları
   byePoints?: number;
   advanceCount?: number;
   advancePerTable?: number;

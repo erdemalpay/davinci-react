@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TournamentMatch } from "../../types/tournament";
+import { MatchStage, TournamentMatch } from "../../types/tournament";
 import { useTournamentActions } from "../../utils/api/tournament";
 import { GenericButton } from "../common/GenericButton";
 
@@ -70,11 +70,13 @@ interface TieBreakPickerProps {
   names: Map<number, string>;
 }
 
-// Eleme masasında çıkış sınırında eşitlik varsa kimin üst sıraya geçeceğini sordurur
+// Eleme masasında çıkış sınırında, puan turlarında her eşitlikte kimin üst sıraya
+// geçeceğini sordurur; puan turlarında beraberlik olduğu gibi de bırakılabilir
 export const TieBreakPicker = ({ match, names }: TieBreakPickerProps) => {
   const { t } = useTranslation();
   const { resolveTie } = useTournamentActions();
   const [winners, setWinners] = useState<number[]>([]);
+  const [tiePoints, setTiePoints] = useState("");
   const { pendingTie } = match;
   if (!pendingTie) return null;
 
@@ -108,6 +110,34 @@ export const TieBreakPicker = ({ match, names }: TieBreakPickerProps) => {
       >
         {t("Save Decision")}
       </GenericButton>
+      {match.stage === MatchStage.LEAGUE && (
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            className="w-20 border rounded px-2 py-1"
+            placeholder={String(
+              match.players.find(
+                (p) => p.participantId === pendingTie.participantIds[0]
+              )?.points ?? ""
+            )}
+            value={tiePoints}
+            onChange={(e) => setTiePoints(e.target.value)}
+          />
+          <GenericButton
+            size="sm"
+            variant="secondary"
+            onClick={() =>
+              resolveTie({
+                matchId: match._id,
+                winnerIds: [],
+                points: tiePoints === "" ? undefined : Number(tiePoints),
+              })
+            }
+          >
+            {t("Keep the Tie")}
+          </GenericButton>
+        </div>
+      )}
     </div>
   );
 };
