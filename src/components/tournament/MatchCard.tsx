@@ -84,7 +84,14 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
       {canEdit && (
         <SaveScoresButton match={match} isFilled={isFilled} save={save} />
       )}
-      {canEdit && <TieBreakPicker match={match} names={names} />}
+      {canEdit && (
+        // Üçlü eşitlikte ikinci soru geldiğinde önceki seçim temizlensin
+        <TieBreakPicker
+          key={match.pendingTie?.participantIds.join()}
+          match={match}
+          names={names}
+        />
+      )}
     </div>
   );
 };
