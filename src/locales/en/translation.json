@@ -2031,5 +2031,7 @@
   "You": "You",
   "I can't go": "I can't go",
   "Take over": "Take over",
-  "GameMasterCallAssignedToYou": "A game master call from table {{tableName}} was assigned to you"
+  "GameMasterCallAssignedToYou": "A game master call from table {{tableName}} was assigned to you",
+  "You have an assigned game master call. Close or decline it before starting a break.": "You have an assigned game master call. Close or decline it before starting a break.",
+  "You already have an assigned game master call. Close it before taking another one.": "You already have an assigned game master call. Close it before taking another one."
 }

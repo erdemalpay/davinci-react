@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { post } from ".";
 import { useDateContext } from "../../context/Date.context";
@@ -193,12 +194,13 @@ function useAssignmentMutation(
   mutationFn: (id: string) => Promise<ButtonCall>
 ) {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn,
     onError: (err: AxiosError<{ message?: string }>) => {
       const errorMessage =
         err?.response?.data?.message || "An unexpected error occurred";
-      setTimeout(() => toast.error(errorMessage), 200);
+      setTimeout(() => toast.error(t(errorMessage)), 200);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [Paths.ButtonCalls] });

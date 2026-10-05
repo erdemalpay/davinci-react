@@ -47,6 +47,14 @@ export function ActiveButtonCallsList() {
     { active: [] }
   ).active;
 
+  // A game master handles one call at a time, so someone with an open call
+  // can't take over another one.
+  const hasOwnOpenGmCall = activeButtonCalls.some(
+    (call) =>
+      call.type === ButtonCallTypeEnum.GAMEMASTERCALL &&
+      call.assignedTo === user?._id
+  );
+
   // Çağrıları tipine göre grupla
   const groupedCalls = {
     gameMasterAndTable: activeButtonCalls.filter(
@@ -191,7 +199,9 @@ export function ActiveButtonCallsList() {
               <div
                 key={uniqueKey}
                 className={`${getBackgroundColor(buttonCall.type)} ${
-                  isMine ? "ring-2 ring-yellow-300 animate-pulse" : ""
+                  isMine
+                    ? "ring-4 ring-red-600 ring-offset-1 animate-pulse"
+                    : ""
                 } relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
                 title={`${buttonCall.tableName} - ${
                   timeAgo[uniqueKey] || "00:00"
@@ -215,21 +225,21 @@ export function ActiveButtonCallsList() {
                 )}
 
                 {/* Gidemiyorum / Üstüme al */}
-                {isGmCall && (
+                {isGmCall && (isMine || !hasOwnOpenGmCall) && (
                   <button
                     onClick={() =>
                       isMine
                         ? declineButtonCall(buttonCall._id)
                         : claimButtonCall(buttonCall._id)
                     }
-                    className="ml-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white transition-all duration-200 touch-manipulation"
+                    className="ml-1 w-7 h-7 sm:w-8 sm:h-8 bg-white/25 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white transition-all duration-200 touch-manipulation"
                     title={isMine ? t("I can't go") : t("Take over")}
                     aria-label={isMine ? t("I can't go") : t("Take over")}
                   >
                     {isMine ? (
-                      <FaHandPaper className="text-[8px] sm:text-[9px]" />
+                      <FaHandPaper className="text-sm sm:text-base" />
                     ) : (
-                      <FaUserCheck className="text-[8px] sm:text-[9px]" />
+                      <FaUserCheck className="text-sm sm:text-base" />
                     )}
                   </button>
                 )}

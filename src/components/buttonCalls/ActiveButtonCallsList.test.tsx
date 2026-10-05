@@ -76,6 +76,17 @@ describe("ActiveButtonCallsList", () => {
     expect(mocks.claim).toHaveBeenCalledWith("6");
   });
 
+  it("hides take over while the user is handling another call", () => {
+    mocks.calls = [
+      gmCall({ _id: "5", tableName: "T1", assignedTo: "ali" }),
+      gmCall({ _id: "6", tableName: "T2", assignedTo: "ayse" }),
+    ];
+    render(<ActiveButtonCallsList />);
+
+    expect(screen.getByLabelText("I can't go")).toBeTruthy();
+    expect(screen.queryByLabelText("Take over")).toBeNull();
+  });
+
   it("shows the reason, game and assignee in the title", () => {
     mocks.calls = [
       gmCall({

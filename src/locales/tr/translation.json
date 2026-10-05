@@ -2039,5 +2039,7 @@
   "You": "Sen",
   "I can't go": "Gidemiyorum",
   "Take over": "Üstüme al",
-  "GameMasterCallAssignedToYou": "{{tableName}} masasının GM çağrısı sana atandı"
+  "GameMasterCallAssignedToYou": "{{tableName}} masasının GM çağrısı sana atandı",
+  "You have an assigned game master call. Close or decline it before starting a break.": "Sana atanmış bir GM çağrısı var. Molaya çıkmadan önce çağrıyı kapat ya da reddet.",
+  "You already have an assigned game master call. Close it before taking another one.": "Zaten sana atanmış bir GM çağrısı var. Başka bir çağrıyı üstüne almadan önce onu kapat."
 }
