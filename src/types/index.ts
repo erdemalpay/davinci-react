@@ -598,7 +598,18 @@ export type ButtonCall = {
   cancelledByName?: string;
   duration?: number;
   callCount: number;
+  gmCallReason?: GmCallReasonEnum;
+  game?: number;
+  assignedTo?: string;
+  assignedHour?: string;
+  declinedBy?: string[];
 };
+
+export enum GmCallReasonEnum {
+  RECOMMENDATION = "RECOMMENDATION",
+  EXPLANATION = "EXPLANATION",
+  QUESTION = "QUESTION",
+}
 
 export enum ButtonCallType {
   ACTIVE = "active",

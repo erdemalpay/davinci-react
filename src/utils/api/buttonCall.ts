@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { post } from ".";
 import { useDateContext } from "../../context/Date.context";
@@ -78,11 +79,16 @@ export function finishButtonCall({
   location,
   tableName,
   hour,
-  type
+  type,
 }: UpdateButtonCallPayload): Promise<ButtonCall> {
   return post<UpdateButtonCallPayload, ButtonCall>({
     path: `${Paths.ButtonCalls}/close-from-panel`,
-    payload: { location: location, tableName: tableName, hour: hour, type: type },
+    payload: {
+      location: location,
+      tableName: tableName,
+      hour: hour,
+      type: type,
+    },
   });
 }
 export function startButtonCall({
@@ -93,7 +99,12 @@ export function startButtonCall({
 }: UpdateButtonCallPayload): Promise<ButtonCall> {
   return post<UpdateButtonCallPayload, ButtonCall>({
     path: Paths.ButtonCalls,
-    payload: { location: location, tableName: tableName, hour: hour, type: type },
+    payload: {
+      location: location,
+      tableName: tableName,
+      hour: hour,
+      type: type,
+    },
   });
 }
 export function useStartButtonCallMutation() {
@@ -162,4 +173,44 @@ export function useFinishButtonCallMutation() {
       queryClient.invalidateQueries({ queryKey });
     },
   });
+}
+
+function declineButtonCall(id: string) {
+  return post<Record<string, never>, ButtonCall>({
+    path: `${Paths.ButtonCalls}/${id}/decline`,
+    payload: {},
+  });
+}
+
+function claimButtonCall(id: string) {
+  return post<Record<string, never>, ButtonCall>({
+    path: `${Paths.ButtonCalls}/${id}/claim`,
+    payload: {},
+  });
+}
+
+function useAssignmentMutation(
+  mutationFn: (id: string) => Promise<ButtonCall>
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onError: (err: AxiosError<{ message?: string }>) => {
+      const errorMessage =
+        err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [Paths.ButtonCalls] });
+    },
+  });
+}
+
+// The assigned game master can't go; the API assigns the next person.
+export function useDeclineButtonCallMutation() {
+  return useAssignmentMutation(declineButtonCall);
+}
+
+export function useClaimButtonCallMutation() {
+  return useAssignmentMutation(claimButtonCall);
 }
