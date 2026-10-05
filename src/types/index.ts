@@ -603,6 +603,7 @@ export type ButtonCall = {
   assignedTo?: string;
   assignedHour?: string;
   declinedBy?: string[];
+  explainerUnavailable?: boolean;
 };
 
 export enum GameAvailabilityStatus {

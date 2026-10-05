@@ -171,6 +171,9 @@ export function ActiveButtonCallsList() {
     parts.push(
       assigneeName ? `${t("Assigned to")}: ${assigneeName}` : t("Unassigned")
     );
+    if (buttonCall.explainerUnavailable) {
+      parts.push(t("Nobody left who knows the game"));
+    }
     return parts.join(" · ");
   };
 
