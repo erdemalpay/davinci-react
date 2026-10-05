@@ -6,7 +6,11 @@ import { post } from ".";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { ButtonCallType } from "../../types";
-import { ButtonCall, FormElementsState } from "./../../types/index";
+import {
+  ButtonCall,
+  FormElementsState,
+  UnmetExplanationRequest,
+} from "./../../types/index";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 export interface ButtonCallsPayload {
   data: ButtonCall[];
@@ -215,4 +219,17 @@ export function useDeclineButtonCallMutation() {
 
 export function useClaimButtonCallMutation() {
   return useAssignmentMutation(claimButtonCall);
+}
+
+export function useGetUnmetExplanationRequests(filters: FormElementsState) {
+  const params = new URLSearchParams();
+  if (filters.location) params.set("location", String(filters.location));
+  if (filters.after) params.set("after", filters.after);
+  if (filters.before) params.set("before", filters.before);
+  const path = `${Paths.ButtonCalls}/unmet-explanation-requests`;
+  return useGetList<UnmetExplanationRequest>(
+    `${path}?${params.toString()}`,
+    [path, filters.location, filters.after, filters.before],
+    true
+  );
 }

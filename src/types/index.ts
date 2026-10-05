@@ -605,6 +605,27 @@ export type ButtonCall = {
   declinedBy?: string[];
 };
 
+export enum GameAvailabilityStatus {
+  BUSY = "busy",
+  LATER = "later",
+  UNAVAILABLE = "unavailable",
+}
+
+export type UnmetExplanationRequest = {
+  _id: number;
+  date: string;
+  hour: string;
+  location: number;
+  tableName: string;
+  game: number;
+  status: GameAvailabilityStatus;
+  availableFrom?: string;
+  buttonCall?: number;
+  waited: boolean;
+  explainedBy?: string;
+  callFinishHour?: string;
+};
+
 export enum GmCallReasonEnum {
   RECOMMENDATION = "RECOMMENDATION",
   EXPLANATION = "EXPLANATION",

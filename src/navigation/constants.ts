@@ -12,6 +12,7 @@ import GameplayAnalyticsPage, {
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
 import ButtonCalls from "../pages/ButtonCalls";
+import UnmetExplanationRequests from "../pages/UnmetExplanationRequests";
 import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
@@ -154,6 +155,7 @@ export enum Routes {
   Checklists = "/checklists",
   Checklist = "/checklist/:checklistId",
   ButtonCalls = "/button-calls",
+  UnmetExplanationRequests = "/unmet-explanation-requests",
   Notifications = "/notifications",
   Expirations = "/expirations",
   ExpirationList = "/expiration-list/:expirationListId",
@@ -440,6 +442,12 @@ export const allRoutes: {
     name: "Button Calls",
     path: Routes.ButtonCalls,
     element: ButtonCalls,
+    isOnSidebar: true,
+  },
+  {
+    name: "Unmet Explanation Requests",
+    path: Routes.UnmetExplanationRequests,
+    element: UnmetExplanationRequests,
     isOnSidebar: true,
   },
   {

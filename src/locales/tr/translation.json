@@ -2041,5 +2041,14 @@
   "Take over": "Üstüme al",
   "GameMasterCallAssignedToYou": "{{tableName}} masasının GM çağrısı sana atandı",
   "You have an assigned game master call. Close or decline it before starting a break.": "Sana atanmış bir GM çağrısı var. Molaya çıkmadan önce çağrıyı kapat ya da reddet.",
-  "You already have an assigned game master call. Close it before taking another one.": "Zaten sana atanmış bir GM çağrısı var. Başka bir çağrıyı üstüne almadan önce onu kapat."
+  "You already have an assigned game master call. Close it before taking another one.": "Zaten sana atanmış bir GM çağrısı var. Başka bir çağrıyı üstüne almadan önce onu kapat.",
+  "Unmet Explanation Requests": "Karşılanamayan Anlatım Talepleri",
+  "Everyone who knows the game was busy": "Oyunu bilenlerin hepsi meşguldü",
+  "Someone who knows the game came later": "Oyunu bilen kişi daha sonra gelecekti",
+  "Nobody who knows the game that day": "O gün oyunu bilen kimse yoktu",
+  "Picked another game or left": "Başka oyun seçti / vazgeçti",
+  "Explained by {{name}}": "{{name}} anlattı",
+  "Call closed without assignment": "Çağrı atanmadan kapandı",
+  "Waited": "Bekledi",
+  "Outcome": "Sonuç"
 }

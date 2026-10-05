@@ -2033,5 +2033,14 @@
   "Take over": "Take over",
   "GameMasterCallAssignedToYou": "A game master call from table {{tableName}} was assigned to you",
   "You have an assigned game master call. Close or decline it before starting a break.": "You have an assigned game master call. Close or decline it before starting a break.",
-  "You already have an assigned game master call. Close it before taking another one.": "You already have an assigned game master call. Close it before taking another one."
+  "You already have an assigned game master call. Close it before taking another one.": "You already have an assigned game master call. Close it before taking another one.",
+  "Unmet Explanation Requests": "Unmet Explanation Requests",
+  "Everyone who knows the game was busy": "Everyone who knows the game was busy",
+  "Someone who knows the game came later": "Someone who knows the game came later",
+  "Nobody who knows the game that day": "Nobody who knows the game that day",
+  "Picked another game or left": "Picked another game or left",
+  "Explained by {{name}}": "Explained by {{name}}",
+  "Call closed without assignment": "Call closed without assignment",
+  "Waited": "Waited",
+  "Outcome": "Outcome"
 }
