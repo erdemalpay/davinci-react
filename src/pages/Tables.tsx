@@ -125,7 +125,9 @@ const Tables = () => {
   const { selectedLocationId } = useLocationContext();
   const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
     useOrderTaker();
-  const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
+  const todayActivePopups = useGetActiveCustomerPopups(
+    selectedLocationId
+  ).filter((popup) => !popup.buttonUrl);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
 
   const handleCalendarMonthChange = async (month: Date) => {
