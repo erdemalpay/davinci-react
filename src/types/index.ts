@@ -627,6 +627,26 @@ export type UnmetExplanationRequest = {
   callFinishHour?: string;
 };
 
+export enum AssignmentActionEnum {
+  ASSIGNED = "assigned",
+  DECLINED = "declined",
+  CLAIMED = "claimed",
+}
+
+export type AssignmentEvent = {
+  buttonCall: number;
+  date: string;
+  hour: string;
+  location: number;
+  tableName: string;
+  user: string;
+  action: AssignmentActionEnum;
+  // For a take-over: who had the call before.
+  fromUser?: string;
+  gmCallReason?: GmCallReasonEnum;
+  game?: number;
+};
+
 export enum GmCallReasonEnum {
   RECOMMENDATION = "RECOMMENDATION",
   EXPLANATION = "EXPLANATION",

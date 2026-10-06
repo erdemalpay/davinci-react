@@ -7,6 +7,7 @@ import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { ButtonCallType } from "../../types";
 import {
+  AssignmentEvent,
   ButtonCall,
   FormElementsState,
   UnmetExplanationRequest,
@@ -228,6 +229,19 @@ export function useGetUnmetExplanationRequests(filters: FormElementsState) {
   if (filters.before) params.set("before", filters.before);
   const path = `${Paths.ButtonCalls}/unmet-explanation-requests`;
   return useGetList<UnmetExplanationRequest>(
+    `${path}?${params.toString()}`,
+    [path, filters.location, filters.after, filters.before],
+    true
+  );
+}
+
+export function useGetAssignmentEvents(filters: FormElementsState) {
+  const params = new URLSearchParams();
+  if (filters.location) params.set("location", String(filters.location));
+  if (filters.after) params.set("after", filters.after);
+  if (filters.before) params.set("before", filters.before);
+  const path = `${Paths.ButtonCalls}/assignment-events`;
+  return useGetList<AssignmentEvent>(
     `${path}?${params.toString()}`,
     [path, filters.location, filters.after, filters.before],
     true

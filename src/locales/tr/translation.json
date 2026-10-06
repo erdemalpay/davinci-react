@@ -2051,5 +2051,11 @@
   "Call closed without assignment": "Çağrı atanmadan kapandı",
   "Waited": "Bekledi",
   "Outcome": "Sonuç",
-  "Nobody left who knows the game": "Oyunu bilen kalmadı, masaya başka oyun önerildi"
+  "Nobody left who knows the game": "Oyunu bilen kalmadı, masaya başka oyun önerildi",
+  "Call Assignment Log": "Çağrı Atama Geçmişi",
+  "Assigned by the system": "Sistem atadı",
+  "Declined": "Reddetti",
+  "Took over": "Üstlendi",
+  "Person": "Kişi",
+  "Taken over from": "Kimden aldı"
 }

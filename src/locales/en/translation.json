@@ -2043,5 +2043,11 @@
   "Call closed without assignment": "Call closed without assignment",
   "Waited": "Waited",
   "Outcome": "Outcome",
-  "Nobody left who knows the game": "Nobody left who knows the game"
+  "Nobody left who knows the game": "Nobody left who knows the game",
+  "Call Assignment Log": "Call Assignment Log",
+  "Assigned by the system": "Assigned by the system",
+  "Declined": "Declined",
+  "Took over": "Took over",
+  "Person": "Person",
+  "Taken over from": "Taken over from"
 }
