@@ -4,7 +4,11 @@ import { TbDiscount } from "react-icons/tb";
 import { FaKitchenSet } from "react-icons/fa6";
 import { GrActions } from "react-icons/gr";
 import { IoStorefrontSharp } from "react-icons/io5";
-import { MdEditNote, MdOutlinePayment } from "react-icons/md";
+import {
+  MdEditNote,
+  MdOutlineInventory2,
+  MdOutlinePayment,
+} from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import {
@@ -16,6 +20,7 @@ import {
 import Actions from "../components/accounting/Actions";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
+import InventoryLocations from "../components/accounting/InventoryLocations";
 import KitchenPage from "../components/accounting/Kitchen";
 import LocationPage from "../components/accounting/Location";
 import ShopifyDiscounts from "../components/accounting/ShopifyDiscounts";
@@ -146,6 +151,13 @@ export const AccountingPageTabs = [
     label: "Actions",
     icon: <GrActions className="text-lg font-thin" />,
     content: <Actions />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.INVENTORYLOCATIONS,
+    label: "Inventory Locations",
+    icon: <MdOutlineInventory2 className="text-lg font-thin" />,
+    content: <InventoryLocations />,
     isDisabled: false,
   },
 ];

@@ -22,6 +22,7 @@ import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { getStockHistoryStatusLabel } from "../../utils/stockHistoryStatusLabel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -302,7 +303,7 @@ const ProductStockHistory = () => {
             <div
               className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
             >
-              {t(status?.label)}
+              {t(getStockHistoryStatusLabel(row, status.label))}
             </div>
           );
         },

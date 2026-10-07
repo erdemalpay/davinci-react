@@ -341,4 +341,9 @@ export const socketEventListeners: SocketEventType[] = [
     event: "assignmentChanged",
     invalidateKeys: [`${Paths.Assignments}`],
   },
+  {
+    // Tüm envanter sorguları [Paths.Inventory, ...] ile başlar
+    event: "inventoryChanged",
+    invalidateKeys: [`${Paths.Inventory}`],
+  },
 ];

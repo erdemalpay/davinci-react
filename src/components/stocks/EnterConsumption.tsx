@@ -32,9 +32,10 @@ import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { formatAmount } from "../../utils/formatValue";
 import { getItem } from "../../utils/getItem";
+import { getStockHistoryStatusLabel } from "../../utils/stockHistoryStatusLabel";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { ConsumptionPanel } from "../inventory/ConsumptionPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -366,12 +367,12 @@ const EnterConsumption = () => {
       name: t("Add Consumption"),
       isModal: true,
       modal: (
-        <GenericAddEditPanel
+        <ConsumptionPanel
           isOpen={isAddModalOpen}
           close={() => setIsAddModalOpen(false)}
           inputs={consumptInputs}
           formKeys={consumptFormKeys}
-          submitItem={consumptStock as any}
+          submit={consumptStock}
           topClassName="flex flex-col gap-2 "
           buttonName={t("Submit")}
           generalClassName="overflow-visible"
@@ -461,7 +462,7 @@ const EnterConsumption = () => {
             <div
               className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
             >
-              {t(status?.label)}
+              {t(getStockHistoryStatusLabel(row, status.label))}
             </div>
           );
         },

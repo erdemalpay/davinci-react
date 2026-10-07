@@ -2025,5 +2025,22 @@
   "Affected quantity cannot exceed remaining quantity": "Affected quantity cannot exceed remaining quantity",
   "Order Ready Call": "Order Ready Call",
   "Order Ready": "Order Ready",
-  "Order Received": "Order Received"
+  "Order Received": "Order Received",
+  "Inventory Locations": "Inventory Locations",
+  "Add Inventory Location": "Add Inventory Location",
+  "Add to inventory": "Add to inventory",
+  "Inventory Location": "Inventory Location",
+  "Game short code": "Game short code",
+  "Inventory": "Inventory",
+  "Inventory History": "Inventory History",
+  "Inventory Consumption": "Inventory Consumption",
+  "Move": "Move",
+  "Remove from inventory": "Remove from inventory",
+  "Box": "Box",
+  "Boxes": "Boxes",
+  "Code": "Code",
+  "Added to inventory": "Added to inventory",
+  "Moved": "Moved",
+  "To": "To",
+  "will be removed from the inventory. Are you sure you want to continue?": "will be removed from the inventory. Are you sure you want to continue?"
 }

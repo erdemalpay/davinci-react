@@ -7,6 +7,7 @@ import {
   AccountOverallExpense,
   AccountingPageTabEnum,
   ExpensesPageTabEnum,
+  InventoryPageTabEnum,
   LogsPageTabEnum,
   MenuItem,
   RowPerPageEnum,
@@ -79,6 +80,8 @@ type GeneralContextType = {
   setExpensesActiveTab: (tab: number) => void;
   stocksActiveTab: number;
   setStocksActiveTab: (tab: number) => void;
+  inventoryActiveTab: number;
+  setInventoryActiveTab: (tab: number) => void;
   logsActiveTab: number;
   setLogsActiveTab: (tab: number) => void;
   integrationActiveTab: number;
@@ -181,6 +184,8 @@ const GeneralContext = createContext<GeneralContextType>({
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
   stocksActiveTab: StocksPageTabEnum.STOCK,
+  setInventoryActiveTab: () => {},
+  inventoryActiveTab: InventoryPageTabEnum.INVENTORY,
   setLogsActiveTab: () => {},
   logsActiveTab: LogsPageTabEnum.WEBHOOK_LOGS,
   setIntegrationActiveTab: () => {},
@@ -363,6 +368,9 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [stocksActiveTab, setStocksActiveTab] = useState<number>(
     StocksPageTabEnum.STOCK
   );
+  const [inventoryActiveTab, setInventoryActiveTab] = useState<number>(
+    InventoryPageTabEnum.INVENTORY
+  );
   const [logsActiveTab, setLogsActiveTab] = useState<number>(
     LogsPageTabEnum.WEBHOOK_LOGS
   );
@@ -507,6 +515,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         expandedRows,
         stocksActiveTab,
         setStocksActiveTab,
+        inventoryActiveTab,
+        setInventoryActiveTab,
         logsActiveTab,
         setLogsActiveTab,
         integrationActiveTab,

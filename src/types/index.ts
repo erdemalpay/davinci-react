@@ -484,6 +484,7 @@ export type AccountProductStockHistory = {
   status: string;
   user: string;
   createdAt: Date;
+  hasInventory?: boolean;
 };
 
 export enum VisitSource {
@@ -678,6 +679,8 @@ export enum DisabledConditionEnum {
   ACCOUNTING_UPPERCATEGORIES = "uppercategories",
   ACCOUNTING_ORDERNOTES = "ordernotes",
   ACCOUNTING_ACTIONS = "actions",
+  ACCOUNTING_INVENTORYLOCATIONS = "inventorylocations",
+  INVENTORY_INVENTORY = "inventory",
   MENU = "menu",
   MENU_CATEGORIES = "menu_categories",
   ITEMPAGE = "itempage",
@@ -1598,6 +1601,7 @@ export enum AccountingPageTabEnum {
   ORDERNOTES,
   ROLES,
   ACTIONS,
+  INVENTORYLOCATIONS,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,
@@ -1623,6 +1627,11 @@ export enum StocksPageTabEnum {
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
   GAMEBATCHESFIFO,
+}
+
+export enum InventoryPageTabEnum {
+  INVENTORY,
+  HISTORY,
 }
 
 export enum LogsPageTabEnum {
@@ -2988,4 +2997,43 @@ export type CustomerPopup = {
   isDeleted: boolean;
   createdAt?: string;
   updatedAt?: string;
+};
+
+export type InventoryLocation = {
+  _id: number;
+  name: string;
+  backgroundColor?: string;
+  note?: string;
+  active: boolean;
+};
+
+export type InventoryBox = {
+  _id: string;
+  game: number;
+  location: number;
+  source: "CONSUMPTION" | "MANUAL";
+  stockHistory?: number;
+  active: boolean;
+  createdAt: string;
+};
+
+export type InventoryMovementType = "CREATE" | "MOVE" | "DEACTIVATE" | "CANCEL";
+
+export type InventoryMovement = {
+  _id: number;
+  box: string;
+  game?: number;
+  type: InventoryMovementType;
+  fromLocation?: number;
+  toLocation?: number;
+  note?: string;
+  user: string;
+  createdAt: string;
+};
+
+export type InventoryLinkableGame = {
+  _id: number;
+  name: string;
+  product: string;
+  shortCode?: string;
 };

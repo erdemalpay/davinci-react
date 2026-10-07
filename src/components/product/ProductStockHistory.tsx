@@ -12,6 +12,7 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { getStockHistoryStatusLabel } from "../../utils/stockHistoryStatusLabel";
 import {
   BrandInput,
   StockLocationInput,
@@ -193,7 +194,7 @@ const ProductStockHistory = () => {
           <div
             className={`w-fit rounded-md text-sm px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
           >
-            {t(status?.label)}
+            {t(getStockHistoryStatusLabel(row, status.label))}
           </div>
         );
       },
