@@ -1,16 +1,37 @@
 import { useEffect, useState } from "react";
-import { FaDice } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import { FaDice, FaHandPaper, FaUserCheck } from "react-icons/fa";
 import { HiBellAlert } from "react-icons/hi2";
 import { MdOutlineRestaurantMenu, MdOutlineRoomService } from "react-icons/md";
+import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
-import { ButtonCallType, ButtonCallTypeEnum } from "../../types";
+import { useUserContext } from "../../context/User.context";
 import {
+  ButtonCall,
+  ButtonCallType,
+  ButtonCallTypeEnum,
+  GmCallReasonEnum,
+} from "../../types";
+import {
+  useClaimButtonCallMutation,
+  useDeclineButtonCallMutation,
   useFinishButtonCallMutation,
   useGetActiveButtonCalls,
 } from "../../utils/api/buttonCall";
 
+const gmCallReasonLabels: Record<GmCallReasonEnum, string> = {
+  [GmCallReasonEnum.RECOMMENDATION]: "Game recommendation",
+  [GmCallReasonEnum.EXPLANATION]: "Game explanation",
+  [GmCallReasonEnum.QUESTION]: "Question about the game",
+};
+
 export function ActiveButtonCallsList() {
+  const { t } = useTranslation();
   const { mutate: finishButtonCall } = useFinishButtonCallMutation();
+  const { mutate: declineButtonCall } = useDeclineButtonCallMutation();
+  const { mutate: claimButtonCall } = useClaimButtonCallMutation();
+  const { user } = useUserContext();
+  const { users, games } = useDataContext();
   const { selectedLocationId } = useLocationContext();
   const buttonCalls = useGetActiveButtonCalls(ButtonCallType.ACTIVE);
   const activeButtonCalls = buttonCalls?.reduce(
@@ -25,6 +46,14 @@ export function ActiveButtonCallsList() {
     },
     { active: [] }
   ).active;
+
+  // A game master handles one call at a time, so someone with an open call
+  // can't take over another one.
+  const hasOwnOpenGmCall = activeButtonCalls.some(
+    (call) =>
+      call.type === ButtonCallTypeEnum.GAMEMASTERCALL &&
+      call.assignedTo === user?._id
+  );
 
   // Çağrıları tipine göre grupla
   const groupedCalls = {
@@ -125,6 +154,29 @@ export function ActiveButtonCallsList() {
     ).padStart(2, "0")}`;
   };
 
+  // Title of a game master call: why the table called, which game and who
+  // is assigned.
+  const getGmCallDetails = (buttonCall: ButtonCall) => {
+    const parts = [];
+    if (buttonCall.gmCallReason) {
+      parts.push(t(gmCallReasonLabels[buttonCall.gmCallReason]));
+    }
+    if (buttonCall.game) {
+      const gameName = games?.find((g) => g._id === buttonCall.game)?.name;
+      if (gameName) parts.push(gameName);
+    }
+    const assigneeName = users?.find(
+      (u) => u._id === buttonCall.assignedTo
+    )?.name;
+    parts.push(
+      assigneeName ? `${t("Assigned to")}: ${assigneeName}` : t("Unassigned")
+    );
+    if (buttonCall.explainerUnavailable) {
+      parts.push(t("Nobody left who knows the game"));
+    }
+    return parts.join(" · ");
+  };
+
   const renderCallGroup = (
     calls: typeof activeButtonCalls,
     type: ButtonCallTypeEnum
@@ -140,6 +192,12 @@ export function ActiveButtonCallsList() {
         <div className="flex flex-wrap gap-1 sm:gap-1.5">
           {calls.map((buttonCall) => {
             const uniqueKey = `${buttonCall.tableName}-${buttonCall.type}`;
+            const isGmCall =
+              buttonCall.type === ButtonCallTypeEnum.GAMEMASTERCALL;
+            const isMine = isGmCall && buttonCall.assignedTo === user?._id;
+            const assigneeName = isGmCall
+              ? users?.find((u) => u._id === buttonCall.assignedTo)?.name
+              : undefined;
             return (
               <div
                 key={uniqueKey}
@@ -148,8 +206,16 @@ export function ActiveButtonCallsList() {
                 )} relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
                 title={`${buttonCall.tableName} - ${
                   timeAgo[uniqueKey] || "00:00"
-                }`}
+                }${isGmCall ? ` - ${getGmCallDetails(buttonCall)}` : ""}`}
               >
+                {/* Bana atanan çağrı: sadece halka yanıp söner, yazılar okunur kalır */}
+                {isMine && (
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -inset-1 rounded-full ring-4 ring-red-600 animate-pulse"
+                  />
+                )}
+
                 {/* Masa Adı */}
                 <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">
                   {buttonCall.tableName}
@@ -159,6 +225,33 @@ export function ActiveButtonCallsList() {
                 <span className="text-[9px] sm:text-[10px] font-mono opacity-90 whitespace-nowrap">
                   {timeAgo[uniqueKey] || "00:00"}
                 </span>
+
+                {/* Atanan kişi */}
+                {isGmCall && (
+                  <span className="text-[9px] sm:text-[10px] whitespace-nowrap opacity-90">
+                    {isMine ? t("You") : assigneeName ?? "—"}
+                  </span>
+                )}
+
+                {/* Gidemiyorum / Üstüme al */}
+                {isGmCall && (isMine || !hasOwnOpenGmCall) && (
+                  <button
+                    onClick={() =>
+                      isMine
+                        ? declineButtonCall(buttonCall._id)
+                        : claimButtonCall(buttonCall._id)
+                    }
+                    className="ml-1 w-7 h-7 sm:w-8 sm:h-8 bg-white/25 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white transition-all duration-200 touch-manipulation"
+                    title={isMine ? t("I can't go") : t("Take over")}
+                    aria-label={isMine ? t("I can't go") : t("Take over")}
+                  >
+                    {isMine ? (
+                      <FaHandPaper className="text-sm sm:text-base" />
+                    ) : (
+                      <FaUserCheck className="text-sm sm:text-base" />
+                    )}
+                  </button>
+                )}
 
                 {/* Kapat Butonu - Sipariş hazır çağrısı sadece Siparişler sayfasından kapatılır */}
                 {buttonCall.type !== ButtonCallTypeEnum.ORDERREADYCALL && (
