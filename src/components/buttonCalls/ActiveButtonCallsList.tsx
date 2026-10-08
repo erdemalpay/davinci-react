@@ -201,15 +201,21 @@ export function ActiveButtonCallsList() {
             return (
               <div
                 key={uniqueKey}
-                className={`${getBackgroundColor(buttonCall.type)} ${
-                  isMine
-                    ? "ring-4 ring-red-600 ring-offset-1 animate-pulse"
-                    : ""
-                } relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
+                className={`${getBackgroundColor(
+                  buttonCall.type
+                )} relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
                 title={`${buttonCall.tableName} - ${
                   timeAgo[uniqueKey] || "00:00"
                 }${isGmCall ? ` - ${getGmCallDetails(buttonCall)}` : ""}`}
               >
+                {/* Bana atanan çağrı: sadece halka yanıp söner, yazılar okunur kalır */}
+                {isMine && (
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -inset-1 rounded-full ring-4 ring-red-600 animate-pulse"
+                  />
+                )}
+
                 {/* Masa Adı */}
                 <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">
                   {buttonCall.tableName}
