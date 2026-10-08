@@ -251,6 +251,7 @@ export type User = {
   workType: WorkType;
   rowsPerPage?: number;
   language?: string;
+  isVisitDisabled?: boolean;
   userGames: [
     {
       game: number;
@@ -564,6 +565,7 @@ export enum ButtonCallTypeEnum {
   TABLECALL = "TABLECALL",
   GAMEMASTERCALL = "GAMEMASTERCALL",
   ORDERCALL = "ORDERCALL",
+  ORDERREADYCALL = "ORDERREADYCALL",
 }
 export const buttonCallTypes = [
   {
@@ -580,6 +582,11 @@ export const buttonCallTypes = [
     value: ButtonCallTypeEnum.ORDERCALL,
     label: "Order Call",
     backgroundColor: "bg-orange-500",
+  },
+  {
+    value: ButtonCallTypeEnum.ORDERREADYCALL,
+    label: "Order Ready Call",
+    backgroundColor: "bg-purple-500",
   },
 ];
 
@@ -776,6 +783,7 @@ export enum ActionEnum {
   PROCESS = "process",
   AUTO_PRINT = "auto_print",
   ADVANCED_VIEW = "advanced_view",
+  ORDER_READY_CALL = "order_ready_call",
 }
 
 export type Membership = {
@@ -1163,6 +1171,7 @@ export type OrderDiscount = {
   status?: string;
   note?: string;
   isMemberDiscount?: boolean;
+  isCustom?: boolean;
 };
 export enum OrderDiscountStatus {
   DELETED = "deleted",
@@ -2971,10 +2980,13 @@ export type CustomerPopup = {
   title: string;
   content: string;
   imageUrl?: string;
+  buttonText?: string;
+  buttonUrl?: string;
   isActive: boolean;
   triggerType: CustomerPopupTriggerType;
   periodicDays: number[];
   specialDate?: string;
+  endDate?: string;
   cooldownHours: number;
   locations: number[];
   isAutoClosedWhenOutOfStock?: boolean;

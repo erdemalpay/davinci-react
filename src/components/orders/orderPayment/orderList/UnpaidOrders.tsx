@@ -1,37 +1,67 @@
 import { Tooltip } from "@material-tailwind/react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MdOutlineCancel,
+  MdOutlineDiscount,
   MdOutlineOnlinePrediction,
   MdOutlineTouchApp,
 } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../../../context/Data.context";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderDiscountStatus, OrderStatus } from "../../../../types";
+import { useUserContext } from "../../../../context/User.context";
+import {
+  Order,
+  OrderDiscountStatus,
+  OrderStatus,
+  RoleEnum,
+  Table,
+} from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
+  useCreateOrderForDiscountMutation,
   useOrderMutations,
 } from "../../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
 import CommonSelectInput from "../../../common/SelectInput";
 import { orderBgColor } from "../../../tables/OrderCard";
+import {
+  buildCustomDiscountPayload,
+  CustomDiscountValues,
+  findApplicableCustomDiscount,
+} from "./customDiscount";
+import CustomDiscountDialog from "./CustomDiscountDialog";
 import OrderScreenHeader from "./OrderScreenHeader";
-
 type Props = {
+  table: Table;
   tableOrders: Order[];
   collectionsTotalAmount: number;
 };
 
-const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
+const UnpaidOrders = ({
+  table,
+  tableOrders,
+  collectionsTotalAmount,
+}: Props) => {
   const { t } = useTranslation();
+  const [customDiscountOrder, setCustomDiscountOrder] = useState<Order | null>(
+    null
+  );
+  const { user } = useUserContext();
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
+  const { mutate: createOrderForDiscount, isPending: isCustomDiscountPending } =
+    useCreateOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
   const { menuItems: items = [] } = useDataContext();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
+  const customDiscount = findApplicableCustomDiscount(
+    discounts ?? [],
+    Boolean(table.isOnlineSale)
   );
   const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order?.discount) {
@@ -396,6 +426,25 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       ₺
                     </p>
                   )}
+                  {customDiscount &&
+                    !order.discount &&
+                    user?.role?._id === RoleEnum.MANAGER && (
+                      <button
+                        type="button"
+                        aria-label={t("Apply Custom Discount")}
+                        title={t("Apply Custom Discount")}
+                        className="inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center bg-transparent p-0 text-black hover:text-gray-600"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setCustomDiscountOrder(order);
+                        }}
+                      >
+                        <MdOutlineDiscount
+                          className="h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    )}
                   <MdOutlineTouchApp
                     className="cursor-pointer hover:text-red-600 text-lg"
                     onClick={(e) => {
@@ -514,6 +563,26 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
             renderOrderDiv(order)
           );
         })}
+      {customDiscountOrder && customDiscount && (
+        <CustomDiscountDialog
+          isOpen={true}
+          order={customDiscountOrder}
+          itemName={getItem(customDiscountOrder.item, items)?.name ?? ""}
+          discount={customDiscount}
+          isPending={isCustomDiscountPending}
+          close={() => setCustomDiscountOrder(null)}
+          submit={(values: CustomDiscountValues) => {
+            createOrderForDiscount(
+              buildCustomDiscountPayload(
+                customDiscountOrder,
+                customDiscount,
+                values
+              ),
+              { onSuccess: () => setCustomDiscountOrder(null) }
+            );
+          }}
+        />
+      )}
     </div>
   );
 };

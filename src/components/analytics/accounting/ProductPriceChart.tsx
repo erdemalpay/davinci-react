@@ -1,26 +1,41 @@
+import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccountProduct } from "../../../types";
+import { AccountProduct, OptionType } from "../../../types";
 import { useGetAccountProductExpenses } from "../../../utils/api/account/expense";
+import { useGetAccountExpenseTypes } from "../../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../../utils/api/account/product";
 import { formatAsLocalDate } from "../../../utils/format";
-import CommonSelectInput from "../../common/SelectInput";
+import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import PriceChart from "./PriceChart";
 
 export default function ProductPriceChart() {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
-  if (!products) return <></>;
-  const [selectedProduct, setSelectedProduct] = useState<AccountProduct>(
-    products[0]
+  const expenseTypes = useGetAccountExpenseTypes();
+  const [selectedExpenseType, setSelectedExpenseType] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<
+    AccountProduct | undefined
+  >(products[0]);
+  const invoices = useGetAccountProductExpenses(selectedProduct?._id ?? "");
+  const expenseTypeOptions = expenseTypes.map((expenseType) => ({
+    value: expenseType._id,
+    label: expenseType.name,
+  }));
+  const productOptions = useMemo(
+    () =>
+      products
+        .filter(
+          (product) =>
+            !selectedExpenseType ||
+            product.expenseType?.includes(selectedExpenseType)
+        )
+        .map((product) => ({
+          value: product._id,
+          label: product.name,
+        })),
+    [products, selectedExpenseType]
   );
-  const invoices = useGetAccountProductExpenses(selectedProduct?._id);
-  const productOptions = products?.map((product) => {
-    return {
-      value: product._id,
-      label: product.name,
-    };
-  });
   const chartConfig = useMemo(() => {
     const sorted = [...(invoices ?? [])].sort((a, b) =>
       (a?.date ?? "").localeCompare(b?.date ?? "")
@@ -117,37 +132,67 @@ export default function ProductPriceChart() {
 
   return (
     <div className="flex flex-col gap-4  mx-auto">
-      <div className="sm:w-1/4 px-4">
-        <CommonSelectInput
-          label={t("Product")}
-          options={productOptions}
-          value={
-            selectedProduct
-              ? {
-                  value: selectedProduct._id,
-                  label: selectedProduct.name,
-                }
-              : null
-          }
-          onChange={(selectedOption) => {
-            if (products) {
-              setSelectedProduct(
-                products?.find(
-                  (product) => product._id === selectedOption?.value
-                ) ?? products[0]
-              );
+      <div className="flex flex-col sm:flex-row gap-4 px-4">
+        <div className="sm:w-1/4">
+          <SelectInput
+            label={t("Expense Type")}
+            options={expenseTypeOptions}
+            value={
+              expenseTypeOptions.find(
+                (option) => option.value === selectedExpenseType
+              ) ?? null
             }
-          }}
-          placeholder={t("Select a product")}
-        />
+            onChange={(selectedOption) => {
+              setSelectedExpenseType(
+                (selectedOption as OptionType)?.value ?? ""
+              );
+              setSelectedProduct(undefined);
+            }}
+            onClear={() => setSelectedExpenseType("")}
+            placeholder={t("Expense Type")}
+          />
+        </div>
+        <div className="sm:w-1/4">
+          <SelectInput
+            label={t("Product")}
+            options={productOptions}
+            value={
+              selectedProduct
+                ? {
+                    value: selectedProduct._id,
+                    label: selectedProduct.name,
+                  }
+                : null
+            }
+            onChange={(selectedOption) => {
+              setSelectedProduct(
+                products.find(
+                  (product) =>
+                    product._id === (selectedOption as OptionType)?.value
+                )
+              );
+            }}
+            isOnClearActive={false}
+            placeholder={t("Select a product")}
+          />
+        </div>
       </div>
-      {selectedProduct && (
-        <PriceChart
-          key={selectedProduct._id}
-          chartConfig={chartConfig}
-          selectedProduct={selectedProduct}
-        />
-      )}
+      {selectedProduct &&
+        (invoices.length > 0 ? (
+          <PriceChart
+            key={selectedProduct._id}
+            chartConfig={chartConfig}
+            selectedProduct={selectedProduct}
+          />
+        ) : (
+          <Card className="shadow-none">
+            <CardBody className="flex items-center justify-center h-60 text-gray-400">
+              <Typography variant="small">
+                {t("No price records yet")}
+              </Typography>
+            </CardBody>
+          </Card>
+        ))}
     </div>
   );
 }

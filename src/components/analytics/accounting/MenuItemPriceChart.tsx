@@ -9,10 +9,10 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import { useTranslation } from "react-i18next";
-import { MenuItem } from "../../../types";
+import { MenuItem, OptionType } from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { formatAsLocalDate } from "../../../utils/format";
-import CommonSelectInput from "../../common/SelectInput";
+import SelectInput from "../../panelComponents/FormElements/SelectInput";
 
 type PriceHistory = {
   date: string;
@@ -211,7 +211,7 @@ export default function MenuItemPriceChart() {
   return (
     <div className="flex flex-col gap-4  mx-auto">
       <div className="sm:w-1/4 px-4">
-        <CommonSelectInput
+        <SelectInput
           label={t("Product")}
           options={itemOptions}
           value={
@@ -225,10 +225,12 @@ export default function MenuItemPriceChart() {
           onChange={(selectedOption) => {
             setSelectedItem(
               items?.find(
-                (item) => item._id.toString() === selectedOption?.value
+                (item) =>
+                  item._id.toString() === (selectedOption as OptionType)?.value
               )
             );
           }}
+          isOnClearActive={false}
           placeholder={t("Select a product")}
         />
       </div>

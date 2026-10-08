@@ -85,6 +85,32 @@ export function finishButtonCall({
     payload: { location: location, tableName: tableName, hour: hour, type: type },
   });
 }
+export function startButtonCall({
+  location,
+  tableName,
+  hour,
+  type,
+}: UpdateButtonCallPayload): Promise<ButtonCall> {
+  return post<UpdateButtonCallPayload, ButtonCall>({
+    path: Paths.ButtonCalls,
+    payload: { location: location, tableName: tableName, hour: hour, type: type },
+  });
+}
+export function useStartButtonCallMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: startButtonCall,
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [Paths.ButtonCalls] });
+    },
+  });
+}
 export function useFinishButtonCallMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();

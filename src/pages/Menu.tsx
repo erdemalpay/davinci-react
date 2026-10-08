@@ -1,4 +1,3 @@
-import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
 import CategoryTable from "../components/menu/CategoryTable";
@@ -122,14 +121,14 @@ export default function Menu() {
         },
         {
           number: itemCategories?.length + emptyCategories?.length + 1,
-          label: t("Closed Items"),
+          label: "Closed Items",
           icon: null,
           content: <ClosedItems />,
           isDisabled: false,
         },
         {
           number: itemCategories?.length + emptyCategories?.length + 2,
-          label: t("Categories"),
+          label: "Categories",
           icon: null,
           content: (
             <CategoryTable handleCategoryChange={handleCategoryChange} />
@@ -138,14 +137,14 @@ export default function Menu() {
         },
         {
           number: itemCategories?.length + emptyCategories?.length + 3,
-          label: t("Order Categories Order"),
+          label: "Order Categories Order",
           icon: null,
           content: <OrderCategoryOrder />,
           isDisabled: false,
         },
         {
           number: itemCategories?.length + emptyCategories?.length + 4,
-          label: t("Customer Popups"),
+          label: "Customer Popups",
           icon: null,
           content: <CustomerPopupTable />,
           isDisabled: false,
@@ -174,7 +173,6 @@ export default function Menu() {
         tabs={tabs}
         activeTab={menuActiveTab}
         setActiveTab={setMenuActiveTab}
-        isLanguageChange={false}
         additionalOpenAction={() => {
           if (!isCategoryTabChanged) {
             resetGeneralContext();

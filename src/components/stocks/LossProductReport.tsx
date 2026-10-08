@@ -14,6 +14,7 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -313,6 +314,24 @@ const LossProductReport = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterLossProductPanelFormElements.after}
+            endDate={filterLossProductPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterLossProductPanelFormElements({
+                ...filterLossProductPanelFormElements,
+                after: isReset ? dateRanges.thisMonth().after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: (
@@ -325,7 +344,13 @@ const LossProductReport = () => {
         ),
       },
     ],
-    [t, showLossProductFilters, setShowLossProductFilters]
+    [
+      t,
+      showLossProductFilters,
+      setShowLossProductFilters,
+      filterLossProductPanelFormElements,
+      setFilterLossProductPanelFormElements,
+    ]
   );
 
   const pagination = useMemo(() => {

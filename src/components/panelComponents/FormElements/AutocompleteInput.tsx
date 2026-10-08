@@ -154,23 +154,35 @@ const AutocompleteInput = forwardRef<AutocompleteInputHandle, AutocompleteInputP
     setIsOpen(newValue.length >= minCharacters);
   };
 
+  const scrollOptionIntoView = (index: number) => {
+    document
+      .getElementById(`${listboxIdRef.current}-option-${index}`)
+      ?.scrollIntoView({ block: "nearest" });
+  };
+
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (filteredOptions.length === 0) return;
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((currentIndex) =>
-        currentIndex < filteredOptions.length - 1 ? currentIndex + 1 : 0
-      );
+      setActiveIndex((currentIndex) => {
+        const nextIndex =
+          currentIndex < filteredOptions.length - 1 ? currentIndex + 1 : 0;
+        scrollOptionIntoView(nextIndex);
+        return nextIndex;
+      });
     }
 
     if (event.key === "ArrowUp") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((currentIndex) =>
-        currentIndex > 0 ? currentIndex - 1 : filteredOptions.length - 1
-      );
+      setActiveIndex((currentIndex) => {
+        const nextIndex =
+          currentIndex > 0 ? currentIndex - 1 : filteredOptions.length - 1;
+        scrollOptionIntoView(nextIndex);
+        return nextIndex;
+      });
     }
 
     if (event.key === "Enter" && isOpen && activeIndex >= 0) {

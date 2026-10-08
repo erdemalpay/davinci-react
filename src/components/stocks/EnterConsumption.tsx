@@ -33,6 +33,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { formatAmount } from "../../utils/formatValue";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -472,6 +473,24 @@ const EnterConsumption = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterEnterConsumptionPanelFormElements.after}
+            endDate={filterEnterConsumptionPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterEnterConsumptionPanelFormElements({
+                ...filterEnterConsumptionPanelFormElements,
+                after: isReset ? dateRanges.thisMonth().after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: (
@@ -484,7 +503,13 @@ const EnterConsumption = () => {
         ),
       },
     ],
-    [t, showEnterConsumptionFilters, setShowEnterConsumptionFilters]
+    [
+      t,
+      showEnterConsumptionFilters,
+      setShowEnterConsumptionFilters,
+      filterEnterConsumptionPanelFormElements,
+      setFilterEnterConsumptionPanelFormElements,
+    ]
   );
 
   const pagination = useMemo(() => {

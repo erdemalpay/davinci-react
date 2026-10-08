@@ -194,17 +194,14 @@ export default function ItemPlatformSalesTable({ item }: Props) {
 
   useEffect(() => {
     applyPlatformOrders("shopify", shopifyData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shopifyData]);
 
   useEffect(() => {
     applyPlatformOrders("trendyol", trendyolData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trendyolData]);
 
   useEffect(() => {
     applyPlatformOrders("hepsiburada", hepsiburadaData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hepsiburadaData]);
 
   const rows: PlatformSummaryRow[] = useMemo(

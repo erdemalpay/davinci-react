@@ -14,6 +14,7 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -302,6 +303,24 @@ const EnterConsumptionReport = () => {
   const filters = useMemo(
     () => [
       {
+        isUpperSide: true,
+        node: (
+          <QuickDateRangeFilter
+            startDate={filterEnterConsumptionPanelFormElements.after}
+            endDate={filterEnterConsumptionPanelFormElements.before}
+            onChange={(start: string, end: string) => {
+              const isReset = !start && !end;
+              setFilterEnterConsumptionPanelFormElements({
+                ...filterEnterConsumptionPanelFormElements,
+                after: isReset ? dateRanges.thisMonth().after : start,
+                before: isReset ? "" : end,
+                date: "",
+              });
+            }}
+          />
+        ),
+      },
+      {
         label: t("Show Filters"),
         isUpperSide: true,
         node: (
@@ -314,7 +333,13 @@ const EnterConsumptionReport = () => {
         ),
       },
     ],
-    [t, showEnterConsumptionFilters, setShowEnterConsumptionFilters]
+    [
+      t,
+      showEnterConsumptionFilters,
+      setShowEnterConsumptionFilters,
+      filterEnterConsumptionPanelFormElements,
+      setFilterEnterConsumptionPanelFormElements,
+    ]
   );
 
   const pagination = useMemo(() => {
