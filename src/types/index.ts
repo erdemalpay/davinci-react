@@ -330,6 +330,12 @@ export type AccountCountProduct = {
   countQuantity: number;
   isStockEqualized?: boolean;
   productDeleteRequest?: string;
+  reservedQuantity?: number;
+  reservedDetails?: {
+    channel: "shopify" | "trendyol" | "hepsiburada";
+    orderNumber: string;
+    quantity: number;
+  }[];
 };
 export type AccountCount = {
   _id: string;
@@ -598,7 +604,77 @@ export type ButtonCall = {
   cancelledByName?: string;
   duration?: number;
   callCount: number;
+  gmCallReason?: GmCallReasonEnum;
+  game?: number;
+  assignedTo?: string;
+  assignedHour?: string;
+  declinedBy?: string[];
+  explainerUnavailable?: boolean;
 };
+
+export enum GameAvailabilityStatus {
+  BUSY = "busy",
+  LATER = "later",
+  UNAVAILABLE = "unavailable",
+}
+
+export type UnmetExplanationRequest = {
+  _id: number;
+  date: string;
+  hour: string;
+  location: number;
+  tableName: string;
+  game: number;
+  status: GameAvailabilityStatus;
+  availableFrom?: string;
+  buttonCall?: number;
+  waited: boolean;
+  explainedBy?: string;
+  callFinishHour?: string;
+};
+
+export enum AssignmentActionEnum {
+  ASSIGNED = "assigned",
+  DECLINED = "declined",
+  CLAIMED = "claimed",
+}
+
+export type AssignmentEvent = {
+  buttonCall: number;
+  date: string;
+  hour: string;
+  location: number;
+  tableName: string;
+  user: string;
+  action: AssignmentActionEnum;
+  // For a take-over: who had the call before.
+  fromUser?: string;
+  gmCallReason?: GmCallReasonEnum;
+  game?: number;
+  // For a decline: why, and a note for OTHER.
+  reason?: DeclineReasonEnum;
+  note?: string;
+};
+
+export enum DeclineReasonEnum {
+  TAKING_PAYMENT = "TAKING_PAYMENT",
+  RECOMMENDING_GAME = "RECOMMENDING_GAME",
+  PREPARING_ORDER = "PREPARING_ORDER",
+  OTHER = "OTHER",
+}
+
+export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
+  [DeclineReasonEnum.TAKING_PAYMENT]: "I'm taking a payment",
+  [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
+  [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
+  [DeclineReasonEnum.OTHER]: "Other",
+};
+
+export enum GmCallReasonEnum {
+  RECOMMENDATION = "RECOMMENDATION",
+  EXPLANATION = "EXPLANATION",
+  QUESTION = "QUESTION",
+}
 
 export enum ButtonCallType {
   ACTIVE = "active",

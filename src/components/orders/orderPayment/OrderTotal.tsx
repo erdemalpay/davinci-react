@@ -45,6 +45,34 @@ const OrderTotal = ({
       );
     }
   };
+  const outstandingOrders = tableOrders.filter(
+    (order) => order.quantity - order.paidQuantity > 1e-6
+  );
+  const areAllOutstandingOrdersSelected =
+    outstandingOrders.length > 0 &&
+    outstandingOrders.every((order) => {
+      const selectedOrder = temporaryOrders.find(
+        (temporaryOrder) => temporaryOrder.order?._id === order._id
+      );
+      return (
+        Math.abs(
+          (selectedOrder?.quantity ?? 0) - (order.quantity - order.paidQuantity)
+        ) < 1e-6
+      );
+    });
+  const selectedOrdersTotal = temporaryOrders.reduce((total, selectedOrder) => {
+    const order = selectedOrder.order;
+    const unitPrice = order.discount
+      ? order.discountPercentage
+        ? (order.unitPrice * (100 - order.discountPercentage)) / 100
+        : order.unitPrice - (order.discountAmount ?? 0)
+      : order.unitPrice;
+    return total + unitPrice * selectedOrder.quantity;
+  }, 0);
+  const showUnassignedPaymentNote =
+    areAllOutstandingOrdersSelected &&
+    selectedOrdersTotal - Number(paymentAmount) > 1e-6;
+
   return (
     <div className="flex h-full min-h-0 flex-col justify-between border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/* temp orders */}
@@ -167,6 +195,16 @@ const OrderTotal = ({
       </div>
       {/* keyPad */}
       <div className="flex flex-col gap-2 mt-2">
+        {showUnassignedPaymentNote && (
+          <p
+            role="note"
+            className="mx-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+          >
+            {t(
+              "The selected orders total differs from the amount to collect because previous payments were made without selecting orders."
+            )}
+          </p>
+        )}
         {/* money back&payment amount */}
         <div className="flex flex-row gap-2 justify-between items-center  px-4  font-medium">
           {/* money back */}

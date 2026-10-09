@@ -1,10 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { post } from ".";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { ButtonCallType } from "../../types";
-import { ButtonCall, FormElementsState } from "./../../types/index";
+import {
+  AssignmentEvent,
+  ButtonCall,
+  DeclineReasonEnum,
+  FormElementsState,
+  UnmetExplanationRequest,
+} from "./../../types/index";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 export interface ButtonCallsPayload {
   data: ButtonCall[];
@@ -78,11 +86,16 @@ export function finishButtonCall({
   location,
   tableName,
   hour,
-  type
+  type,
 }: UpdateButtonCallPayload): Promise<ButtonCall> {
   return post<UpdateButtonCallPayload, ButtonCall>({
     path: `${Paths.ButtonCalls}/close-from-panel`,
-    payload: { location: location, tableName: tableName, hour: hour, type: type },
+    payload: {
+      location: location,
+      tableName: tableName,
+      hour: hour,
+      type: type,
+    },
   });
 }
 export function startButtonCall({
@@ -93,7 +106,12 @@ export function startButtonCall({
 }: UpdateButtonCallPayload): Promise<ButtonCall> {
   return post<UpdateButtonCallPayload, ButtonCall>({
     path: Paths.ButtonCalls,
-    payload: { location: location, tableName: tableName, hour: hour, type: type },
+    payload: {
+      location: location,
+      tableName: tableName,
+      hour: hour,
+      type: type,
+    },
   });
 }
 export function useStartButtonCallMutation() {
@@ -162,4 +180,78 @@ export function useFinishButtonCallMutation() {
       queryClient.invalidateQueries({ queryKey });
     },
   });
+}
+
+export interface DeclineButtonCallPayload {
+  id: string;
+  reason: DeclineReasonEnum;
+  // Required for DeclineReasonEnum.OTHER.
+  note?: string;
+}
+
+function declineButtonCall({ id, reason, note }: DeclineButtonCallPayload) {
+  return post<{ reason: DeclineReasonEnum; note?: string }, ButtonCall>({
+    path: `${Paths.ButtonCalls}/${id}/decline`,
+    payload: { reason, ...(note && { note }) },
+  });
+}
+
+function claimButtonCall(id: string) {
+  return post<Record<string, never>, ButtonCall>({
+    path: `${Paths.ButtonCalls}/${id}/claim`,
+    payload: {},
+  });
+}
+
+function useAssignmentMutation<TVariables>(
+  mutationFn: (variables: TVariables) => Promise<ButtonCall>
+) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn,
+    onError: (err: AxiosError<{ message?: string }>) => {
+      const errorMessage =
+        err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(t(errorMessage)), 200);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [Paths.ButtonCalls] });
+    },
+  });
+}
+
+// The assigned game master can't go; the API assigns the next person.
+export function useDeclineButtonCallMutation() {
+  return useAssignmentMutation(declineButtonCall);
+}
+
+export function useClaimButtonCallMutation() {
+  return useAssignmentMutation(claimButtonCall);
+}
+
+export function useGetUnmetExplanationRequests(filters: FormElementsState) {
+  const params = new URLSearchParams();
+  if (filters.location) params.set("location", String(filters.location));
+  if (filters.after) params.set("after", filters.after);
+  if (filters.before) params.set("before", filters.before);
+  const path = `${Paths.ButtonCalls}/unmet-explanation-requests`;
+  return useGetList<UnmetExplanationRequest>(
+    `${path}?${params.toString()}`,
+    [path, filters.location, filters.after, filters.before],
+    true
+  );
+}
+
+export function useGetAssignmentEvents(filters: FormElementsState) {
+  const params = new URLSearchParams();
+  if (filters.location) params.set("location", String(filters.location));
+  if (filters.after) params.set("after", filters.after);
+  if (filters.before) params.set("before", filters.before);
+  const path = `${Paths.ButtonCalls}/assignment-events`;
+  return useGetList<AssignmentEvent>(
+    `${path}?${params.toString()}`,
+    [path, filters.location, filters.after, filters.before],
+    true
+  );
 }

@@ -11,7 +11,9 @@ import {
   TableTypes,
   User,
 } from "../types";
+import { toast } from "react-toastify";
 import { Paths } from "../utils/api/factory";
+import i18n from "../utils/i18n";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useDateContext } from "./../context/Date.context";
 import { useLocationContext } from "./../context/Location.context";
@@ -234,6 +236,28 @@ export function useWebSocket(shouldConnect = false) {
       console.error("❌ WebSocket connection error:", error.message);
     });
 
+    socket.on(
+      "buttonCallChanged",
+      ({
+        action,
+        assignedTo,
+        tableName,
+      }: {
+        action?: string;
+        assignedTo?: string;
+        tableName?: string;
+      }) => {
+        const { user, audioReadyRef, audioRef } = latestValuesRef.current;
+        if (action !== "assign" || !user || assignedTo !== user._id) return;
+        toast.info(i18n.t("GameMasterCallAssignedToYou", { tableName }));
+        if (audioReadyRef.current && audioRef.current) {
+          audioRef.current
+            .play()
+            .catch((error) => console.error("Error playing sound:", error));
+        }
+      }
+    );
+
     socket.on("orderCreated", ({ order }: { order: Order }) => {
       const {
         queryClient,
@@ -282,21 +306,34 @@ export function useWebSocket(shouldConnect = false) {
         OrderStatus.RETURNED,
       ].includes(order.status as OrderStatus);
 
-      const foundKitchenForPrint = getItem(order.kitchen as string, kitchens ?? []);
+      const foundKitchenForPrint = getItem(
+        order.kitchen as string,
+        kitchens ?? []
+      );
       const { menuItems } = latestValuesRef.current;
       console.log("🖨️ [createOrder] fiş bilgileri:", {
         tableName: (order.table as Table)?.name,
-        orders: [{
-          urun: (order.item as unknown as MenuItem)?.name ?? order.item,
-          adet: order.quantity,
-          ...(order.activityTableName ? { activityMasa: order.activityTableName } : {}),
-          ...(order.activityPlayer ? { activityOyuncu: order.activityPlayer } : {}),
-          not: order.note || "-",
-        }],
+        orders: [
+          {
+            urun: (order.item as unknown as MenuItem)?.name ?? order.item,
+            adet: order.quantity,
+            ...(order.activityTableName
+              ? { activityMasa: order.activityTableName }
+              : {}),
+            ...(order.activityPlayer
+              ? { activityOyuncu: order.activityPlayer }
+              : {}),
+            not: order.note || "-",
+          },
+        ],
         printerConnected: printerService.isConnected,
         isPrintEnabled: foundKitchenForPrint?.isPrintEnabled ?? false,
       });
-      if (isValidOrder && printerService.isConnected && foundKitchenForPrint?.isPrintEnabled) {
+      if (
+        isValidOrder &&
+        printerService.isConnected &&
+        foundKitchenForPrint?.isPrintEnabled
+      ) {
         buildReceiptData({
           orders: [order],
           items: menuItems,
@@ -400,7 +437,9 @@ export function useWebSocket(shouldConnect = false) {
               }
               return order;
             });
-            oldData = found ? updatedData : [...(oldData as any[]), normalizedOrder];
+            oldData = found
+              ? updatedData
+              : [...(oldData as any[]), normalizedOrder];
           }
           return oldData;
         }
@@ -657,10 +696,17 @@ export function useWebSocket(shouldConnect = false) {
 
         queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
 
-        const { selectedDate, menuItems, kitchens: currentKitchens } = latestValuesRef.current;
+        const {
+          selectedDate,
+          menuItems,
+          kitchens: currentKitchens,
+        } = latestValuesRef.current;
 
-        const shouldPrint = printerService.isConnected &&
-          kitchenIds.some((id) => getItem(id, currentKitchens ?? [])?.isPrintEnabled);
+        const shouldPrint =
+          printerService.isConnected &&
+          kitchenIds.some(
+            (id) => getItem(id, currentKitchens ?? [])?.isPrintEnabled
+          );
 
         const existingOrders = queryClient.getQueryData<Order[]>([
           `${Paths.Order}/today`,
@@ -696,8 +742,12 @@ export function useWebSocket(shouldConnect = false) {
               orders: newOrders?.map((o) => ({
                 urun: (o.item as unknown as MenuItem)?.name ?? o.item,
                 adet: o.quantity,
-                ...(o.activityTableName ? { activityMasa: o.activityTableName } : {}),
-                ...(o.activityPlayer ? { activityOyuncu: o.activityPlayer } : {}),
+                ...(o.activityTableName
+                  ? { activityMasa: o.activityTableName }
+                  : {}),
+                ...(o.activityPlayer
+                  ? { activityOyuncu: o.activityPlayer }
+                  : {}),
                 not: o.note || "-",
               })),
               printerConnected: printerService.isConnected,

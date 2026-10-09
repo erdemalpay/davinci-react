@@ -63,7 +63,12 @@ import {
   useTableMutations,
 } from "../utils/api/table";
 import { MinimalUser } from "../utils/api/user";
-import { formatDate, isToday, parseDate } from "../utils/dateUtil";
+import {
+  formatDate,
+  isFutureDate,
+  isToday,
+  parseDate,
+} from "../utils/dateUtil";
 import {
   getItem,
   getMenuItemSubText,
@@ -125,7 +130,9 @@ const Tables = () => {
   const { selectedLocationId } = useLocationContext();
   const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
     useOrderTaker();
-  const todayActivePopups = useGetActiveCustomerPopups(selectedLocationId);
+  const todayActivePopups = useGetActiveCustomerPopups(
+    selectedLocationId
+  ).filter((popup) => !popup.buttonUrl);
   const [openTableDates, setOpenTableDates] = useState<string[]>([]);
 
   const handleCalendarMonthChange = async (month: Date) => {
@@ -2087,6 +2094,11 @@ const Tables = () => {
                     visits={visits}
                   />
                 </div>
+              ) : selectedDate && isFutureDate(selectedDate) ? (
+                <ShiftList
+                  key={selectedDate + selectedLocationId + "future"}
+                  visits={visits}
+                />
               ) : (
                 <>
                   <PreviousVisitList visits={visits} />

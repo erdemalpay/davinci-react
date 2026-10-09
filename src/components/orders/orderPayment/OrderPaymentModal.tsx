@@ -77,6 +77,11 @@ type ButtonType = {
   onClick: () => void;
   isActive: boolean;
 };
+
+const isCollectionForTable = (collection: OrderCollection, tableId: number) =>
+  collection?.table === tableId ||
+  (collection?.table as Table)?._id === tableId;
+
 const OrderPaymentModal = ({
   close,
   tableId,
@@ -230,9 +235,7 @@ const OrderPaymentModal = ({
     () =>
       Number(
         collections
-          ?.filter(
-            (collection) => (collection?.table as Table)?._id === tableId
-          )
+          ?.filter((collection) => isCollectionForTable(collection, tableId))
           ?.reduce((acc, collection) => {
             if (
               collection?.status === OrderCollectionStatus.CANCELLED ||
@@ -253,20 +256,32 @@ const OrderPaymentModal = ({
           order?.status !== OrderStatus.CANCELLED
       );
       const userOrdersTotal = userOrders?.reduce((acc, order) => {
-        return (
-          acc +
-          order?.unitPrice * order?.paidQuantity -
-          (order?.discountAmount ?? 0) -
-          (order?.unitPrice * (order?.discountPercentage ?? 0)) / 100
-        );
+        const paidUnitPrice = order?.discount
+          ? order?.discountPercentage
+            ? (order?.unitPrice * (100 - order.discountPercentage)) / 100
+            : order?.unitPrice - (order?.discountAmount ?? 0)
+          : order?.unitPrice;
+
+        return acc + paidUnitPrice * order?.paidQuantity;
       }, 0);
-      return Number(userOrdersTotal);
+      const userOrderlessCollectionsTotal = collections
+        ?.filter(
+          (collection) =>
+            isCollectionForTable(collection, tableId) &&
+            collection?.activityPlayer === selectedActivityUser &&
+            collection?.status !== OrderCollectionStatus.CANCELLED &&
+            collection?.status !== OrderCollectionStatus.RETURNED &&
+            !collection?.orders?.length
+        )
+        ?.reduce((acc, collection) => acc + (collection?.amount ?? 0), 0);
+
+      return Number(userOrdersTotal) + Number(userOrderlessCollectionsTotal);
     }
     return Number(
       collections
         ?.filter(
           (collection) =>
-            (collection?.table as Table)?._id === tableId &&
+            isCollectionForTable(collection, tableId) &&
             (selectedActivityUser === "" ||
               collection?.activityPlayer === selectedActivityUser)
         )
@@ -337,11 +352,6 @@ const OrderPaymentModal = ({
       collectionsTotalAmount >= totalAmount - discountAmount,
     [tableOrders, collectionsTotalAmount, totalAmount, discountAmount]
   );
-  const refundAmount = Math.max(
-    totalMoneySpend - (displayedTotalAmount - discountAmount),
-    allTotalMoneySpend - (allTotalAmount - allDiscountAmount)
-  );
-
   const isAllItemsPaid =
     allTableOrders?.every((order) => order?.paidQuantity === order?.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
@@ -362,6 +372,7 @@ const OrderPaymentModal = ({
     allDiscountAmount,
     allCollectionsTotalAmount,
   ]);
+  const refundAmount = Math.max(0, Number(paymentAmount) - unpaidAmount);
 
   const handlePrint = async () => {
     const isAutoPrintEnabled =
