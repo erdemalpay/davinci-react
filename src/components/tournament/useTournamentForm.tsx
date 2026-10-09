@@ -234,6 +234,7 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "game", type: FormKeyTypeEnum.NUMBER },
   { key: "location", type: FormKeyTypeEnum.NUMBER },
   { key: "date", type: FormKeyTypeEnum.DATE },
+  { key: "startTime", type: FormKeyTypeEnum.STRING },
   { key: "registrationDeadline", type: FormKeyTypeEnum.DATE },
   { key: "format", type: FormKeyTypeEnum.STRING },
   { key: "tableSize", type: FormKeyTypeEnum.NUMBER },
@@ -589,6 +590,13 @@ export const useTournamentFormInputs = (
       placeholder: t("Tournament Date"),
       required: true,
       isDatePicker: true,
+    },
+    {
+      type: InputTypes.TIME,
+      formKey: "startTime",
+      label: t("Start Hour"),
+      placeholder: t("Start Hour"),
+      required: false,
     },
     {
       type: InputTypes.DATE,
