@@ -39,6 +39,7 @@ export interface Tournament {
   game?: number;
   location?: number;
   date: string;
+  startTime?: string;
   slug: string;
   status: TournamentStatus;
   isRegistrationOpen: boolean;
