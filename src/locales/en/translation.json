@@ -850,7 +850,7 @@
   "Negative Stock": "Negative Stock",
   "Zero Stock": "Zero Stock",
   "Stock Restored": "Stock Restored",
-  "StockRestored": "Stock of {{product}} at {{location}} has been restored. Added to menu.",
+  "StockRestored": "Stock of {{product}} at {{location}} has been restored.",
   "Ikas Takeaway": "Ikas Takeaway",
   "Late Shift Start": "Late Shift Start",
   "Night Open Table": "Night Open Table",
