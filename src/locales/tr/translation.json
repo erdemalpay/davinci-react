@@ -936,7 +936,7 @@
   "Negative Stock": "Negatif Stok",
   "Zero Stock": "Sıfır Stok",
   "Stock Restored": "Stok Yenilendi",
-  "StockRestored": "{{product}} ürününün {{location}} lokasyonundaki stoğu yenilendi.Menuye eklendi.",
+  "StockRestored": "{{product}} ürününün {{location}} lokasyonundaki stoğu yenilendi.",
   "Ikas Takeaway": "İkas Gel Al",
   "Late Shift Start": "Geç Vardiya Başlangıcı",
   "Night Open Table": "Gece Açık Masa",
