@@ -2050,5 +2050,14 @@
   "Declined": "Declined",
   "Took over": "Took over",
   "Person": "Person",
-  "Taken over from": "Taken over from"
+  "Taken over from": "Taken over from",
+  "I'm taking a payment": "I'm taking a payment",
+  "I'm recommending a game": "I'm recommending a game",
+  "I'm preparing an order": "I'm preparing an order",
+  "Why can't you go?": "Why can't you go?",
+  "Write a short explanation": "Write a short explanation",
+  "Explanation": "Explanation",
+  "Decline": "Decline",
+  "Hold to decline": "Hold to decline",
+  "Decline reason": "Decline reason"
 }

@@ -1,7 +1,15 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ButtonCall, ButtonCallTypeEnum, GmCallReasonEnum } from "../../types";
-import { ActiveButtonCallsList } from "./ActiveButtonCallsList";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  ButtonCall,
+  ButtonCallTypeEnum,
+  DeclineReasonEnum,
+  GmCallReasonEnum,
+} from "../../types";
+import {
+  ActiveButtonCallsList,
+  DECLINE_HOLD_MS,
+} from "./ActiveButtonCallsList";
 
 const mocks = vi.hoisted(() => ({
   calls: [] as ButtonCall[],
@@ -55,15 +63,93 @@ describe("ActiveButtonCallsList", () => {
     vi.clearAllMocks();
   });
 
-  it("lets the assigned game master decline the call", () => {
-    mocks.calls = [gmCall({ _id: "5", assignedTo: "ali" })];
-    render(<ActiveButtonCallsList />);
+  describe("declining my call", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      mocks.calls = [gmCall({ _id: "5", tableName: "T5", assignedTo: "ali" })];
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
-    expect(screen.getByText("You")).toBeTruthy();
-    fireEvent.click(screen.getByLabelText("I can't go"));
+    const myChip = () => screen.getByLabelText("T5 - Hold to decline");
+    const hold = (ms = DECLINE_HOLD_MS) => {
+      fireEvent.pointerDown(myChip());
+      act(() => {
+        vi.advanceTimersByTime(ms);
+      });
+    };
 
-    expect(mocks.decline).toHaveBeenCalledWith("5");
-    expect(mocks.claim).not.toHaveBeenCalled();
+    it("does nothing on a short tap", () => {
+      render(<ActiveButtonCallsList />);
+
+      hold(DECLINE_HOLD_MS - 100);
+      fireEvent.pointerUp(myChip());
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(mocks.decline).not.toHaveBeenCalled();
+    });
+
+    it("declines with a listed reason after holding the chip", () => {
+      render(<ActiveButtonCallsList />);
+      expect(screen.getByText("You")).toBeTruthy();
+
+      hold();
+      fireEvent.click(screen.getByText("I'm taking a payment"));
+
+      expect(mocks.decline).toHaveBeenCalledWith({
+        id: "5",
+        reason: DeclineReasonEnum.TAKING_PAYMENT,
+        note: undefined,
+      });
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
+
+    it("needs an explanation for other", () => {
+      render(<ActiveButtonCallsList />);
+
+      hold();
+      fireEvent.click(screen.getByText("Other"));
+      const send = screen.getByRole("button", {
+        name: "Decline",
+      }) as HTMLButtonElement;
+      expect(send.disabled).toBe(true);
+
+      fireEvent.change(screen.getByLabelText("Explanation"), {
+        target: { value: " Depoya bakıyorum " },
+      });
+      fireEvent.click(send);
+
+      expect(mocks.decline).toHaveBeenCalledWith({
+        id: "5",
+        reason: DeclineReasonEnum.OTHER,
+        note: "Depoya bakıyorum",
+      });
+    });
+
+    it("can be cancelled after an accidental hold", () => {
+      render(<ActiveButtonCallsList />);
+
+      hold();
+      fireEvent.click(screen.getByText("Cancel"));
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(mocks.decline).not.toHaveBeenCalled();
+    });
+
+    it("does not start declining when closing the call", () => {
+      render(<ActiveButtonCallsList />);
+
+      fireEvent.pointerDown(screen.getByLabelText("Çağrıyı kapat"));
+      act(() => {
+        vi.advanceTimersByTime(DECLINE_HOLD_MS * 2);
+      });
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
   });
 
   it("lets others take over a call assigned to someone else", () => {
@@ -83,7 +169,7 @@ describe("ActiveButtonCallsList", () => {
     ];
     render(<ActiveButtonCallsList />);
 
-    expect(screen.getByLabelText("I can't go")).toBeTruthy();
+    expect(screen.getByLabelText("T1 - Hold to decline")).toBeTruthy();
     expect(screen.queryByLabelText("Take over")).toBeNull();
   });
 
@@ -107,6 +193,6 @@ describe("ActiveButtonCallsList", () => {
     render(<ActiveButtonCallsList />);
 
     expect(screen.queryByLabelText("Take over")).toBeNull();
-    expect(screen.queryByLabelText("I can't go")).toBeNull();
+    expect(screen.queryByLabelText(/Hold to decline/)).toBeNull();
   });
 });

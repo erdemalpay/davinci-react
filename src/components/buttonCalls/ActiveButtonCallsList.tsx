@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaDice, FaHandPaper, FaUserCheck } from "react-icons/fa";
+import { FaDice, FaUserCheck } from "react-icons/fa";
 import { HiBellAlert } from "react-icons/hi2";
 import { MdOutlineRestaurantMenu, MdOutlineRoomService } from "react-icons/md";
 import { useDataContext } from "../../context/Data.context";
@@ -18,6 +18,11 @@ import {
   useFinishButtonCallMutation,
   useGetActiveButtonCalls,
 } from "../../utils/api/buttonCall";
+import { DeclineCallDialog } from "./DeclineCallDialog";
+
+// Holding a call assigned to me this long opens the decline reasons; a
+// short tap does nothing, so a call isn't declined by accident.
+export const DECLINE_HOLD_MS = 600;
 
 const gmCallReasonLabels: Record<GmCallReasonEnum, string> = {
   [GmCallReasonEnum.RECOMMENDATION]: "Game recommendation",
@@ -46,6 +51,19 @@ export function ActiveButtonCallsList() {
     },
     { active: [] }
   ).active;
+
+  const [callToDecline, setCallToDecline] = useState<ButtonCall | null>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const startHold = (buttonCall: ButtonCall) => {
+    clearTimeout(holdTimer.current);
+    holdTimer.current = setTimeout(
+      () => setCallToDecline(buttonCall),
+      DECLINE_HOLD_MS
+    );
+  };
+  const cancelHold = () => clearTimeout(holdTimer.current);
+  useEffect(() => cancelHold, []);
 
   // A game master handles one call at a time, so someone with an open call
   // can't take over another one.
@@ -201,12 +219,28 @@ export function ActiveButtonCallsList() {
             return (
               <div
                 key={uniqueKey}
-                className={`${getBackgroundColor(
-                  buttonCall.type
-                )} relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
+                className={`${getBackgroundColor(buttonCall.type)} ${
+                  isMine
+                    ? "select-none touch-manipulation [-webkit-touch-callout:none]"
+                    : ""
+                } relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
                 title={`${buttonCall.tableName} - ${
                   timeAgo[uniqueKey] || "00:00"
-                }${isGmCall ? ` - ${getGmCallDetails(buttonCall)}` : ""}`}
+                }${isGmCall ? ` - ${getGmCallDetails(buttonCall)}` : ""}${
+                  isMine ? ` - ${t("Hold to decline")}` : ""
+                }`}
+                {...(isMine && {
+                  role: "button",
+                  "aria-label": `${buttonCall.tableName} - ${t(
+                    "Hold to decline"
+                  )}`,
+                  onPointerDown: () => startHold(buttonCall),
+                  onPointerUp: cancelHold,
+                  onPointerLeave: cancelHold,
+                  onPointerCancel: cancelHold,
+                  // Long press on touch screens opens the browser menu.
+                  onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+                })}
               >
                 {/* Bana atanan çağrı: sadece halka yanıp söner, yazılar okunur kalır */}
                 {isMine && (
@@ -233,29 +267,23 @@ export function ActiveButtonCallsList() {
                   </span>
                 )}
 
-                {/* Gidemiyorum / Üstüme al */}
-                {isGmCall && (isMine || !hasOwnOpenGmCall) && (
+                {/* Üstüme al (kendi çağrımı reddetmek için çipi basılı tut) */}
+                {isGmCall && !isMine && !hasOwnOpenGmCall && (
                   <button
-                    onClick={() =>
-                      isMine
-                        ? declineButtonCall(buttonCall._id)
-                        : claimButtonCall(buttonCall._id)
-                    }
+                    onClick={() => claimButtonCall(buttonCall._id)}
                     className="ml-1 w-7 h-7 sm:w-8 sm:h-8 bg-white/25 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white transition-all duration-200 touch-manipulation"
-                    title={isMine ? t("I can't go") : t("Take over")}
-                    aria-label={isMine ? t("I can't go") : t("Take over")}
+                    title={t("Take over")}
+                    aria-label={t("Take over")}
                   >
-                    {isMine ? (
-                      <FaHandPaper className="text-sm sm:text-base" />
-                    ) : (
-                      <FaUserCheck className="text-sm sm:text-base" />
-                    )}
+                    <FaUserCheck className="text-sm sm:text-base" />
                   </button>
                 )}
 
                 {/* Kapat Butonu - Sipariş hazır çağrısı sadece Siparişler sayfasından kapatılır */}
                 {buttonCall.type !== ButtonCallTypeEnum.ORDERREADYCALL && (
                   <button
+                    // Closing must not start the hold-to-decline timer.
+                    onPointerDown={(e) => e.stopPropagation()}
                     onClick={() =>
                       handleChipClose(buttonCall.tableName, buttonCall.type)
                     }
@@ -296,6 +324,17 @@ export function ActiveButtonCallsList() {
             ButtonCallTypeEnum.ORDERREADYCALL
           )}
       </div>
+
+      {callToDecline && (
+        <DeclineCallDialog
+          tableName={callToDecline.tableName}
+          onCancel={() => setCallToDecline(null)}
+          onDecline={(reason, note) => {
+            declineButtonCall({ id: callToDecline._id, reason, note });
+            setCallToDecline(null);
+          }}
+        />
+      )}
     </div>
   );
 }

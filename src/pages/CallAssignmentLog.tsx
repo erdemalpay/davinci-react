@@ -9,6 +9,8 @@ import {
   AssignmentActionEnum,
   AssignmentEvent,
   commonDateOptions,
+  DeclineReasonEnum,
+  declineReasonLabels,
   FormElementsState,
   GmCallReasonEnum,
 } from "../types";
@@ -76,6 +78,11 @@ export default function CallAssignmentLog() {
           ? t(reasonLabels[event.gmCallReason])
           : "",
         gameName: event.game ? getItem(event.game, games)?.name ?? "" : "",
+        declineReasonLabel: event.reason
+          ? event.reason === DeclineReasonEnum.OTHER && event.note
+            ? `${t(declineReasonLabels[event.reason])}: ${event.note}`
+            : t(declineReasonLabels[event.reason])
+          : "",
       }));
   }, [events, filterPanelFormElements, locations, users, games, t]);
 
@@ -90,6 +97,7 @@ export default function CallAssignmentLog() {
       { key: t("Taken over from"), isSortable: true },
       { key: t("Reason"), isSortable: true },
       { key: t("Game"), isSortable: true },
+      { key: t("Decline reason"), isSortable: false },
     ],
     [t]
   );
@@ -121,6 +129,7 @@ export default function CallAssignmentLog() {
       { key: "fromUserName", className: "min-w-32" },
       { key: "reasonLabel", className: "min-w-40" },
       { key: "gameName", className: "min-w-40" },
+      { key: "declineReasonLabel", className: "min-w-48 whitespace-normal" },
     ],
     [t]
   );
