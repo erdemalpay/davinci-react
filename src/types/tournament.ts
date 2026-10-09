@@ -123,5 +123,6 @@ export interface PublicTournament {
   _id: number;
   name: string;
   date: string;
+  startTime?: string;
   isRegistrationOpen: boolean;
 }
