@@ -517,6 +517,7 @@
   "Refund": "Refund",
   "There is no order to pay": "There is no order to pay",
   "Please enter the amount or select order to pay": "Please enter the amount or select order to pay",
+  "The selected orders total differs from the amount to collect because previous payments were made without selecting orders.": "The selected orders total differs from the amount to collect because previous payments were made without selecting orders.",
   "Cashier": "Cashier",
   "Back": "Back",
   "Discounts": "Discounts",

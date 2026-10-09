@@ -527,6 +527,7 @@
   "Refund": "Para Üstü",
   "There is no order to pay": "Ödenecek sipariş yok",
   "Please enter the amount or select order to pay": "Lütfen bir miktar girin veya ödenecek siparişi seçin",
+  "The selected orders total differs from the amount to collect because previous payments were made without selecting orders.": "Daha önce sipariş seçilmeden yapılan tahsilatlar nedeniyle seçili siparişlerin toplamı ile alınacak tutar farklıdır.",
   "Cashier": "Kasiyer",
   "Back": "Geri",
   "Discounts": "İndirimler",
