@@ -36,6 +36,10 @@ export function isToday(date: string) {
   return formatDate(new Date()) === date;
 }
 
+export function isFutureDate(date: string) {
+  return date > formatDate(new Date());
+}
+
 export function getStartEndDates(filter: string) {
   const filterType = filter as DateFilter;
   let startDate = "";

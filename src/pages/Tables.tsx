@@ -63,7 +63,12 @@ import {
   useTableMutations,
 } from "../utils/api/table";
 import { MinimalUser } from "../utils/api/user";
-import { formatDate, isToday, parseDate } from "../utils/dateUtil";
+import {
+  formatDate,
+  isFutureDate,
+  isToday,
+  parseDate,
+} from "../utils/dateUtil";
 import {
   getItem,
   getMenuItemSubText,
@@ -2089,6 +2094,11 @@ const Tables = () => {
                     visits={visits}
                   />
                 </div>
+              ) : selectedDate && isFutureDate(selectedDate) ? (
+                <ShiftList
+                  key={selectedDate + selectedLocationId + "future"}
+                  visits={visits}
+                />
               ) : (
                 <>
                   <PreviousVisitList visits={visits} />
