@@ -2058,5 +2058,14 @@
   "Declined": "Reddetti",
   "Took over": "Üstlendi",
   "Person": "Kişi",
-  "Taken over from": "Kimden aldı"
+  "Taken over from": "Kimden aldı",
+  "I'm taking a payment": "Hesap alıyorum",
+  "I'm recommending a game": "Oyun tavsiye ediyorum",
+  "I'm preparing an order": "Sipariş hazırlıyorum",
+  "Why can't you go?": "Neden gidemiyorsun?",
+  "Write a short explanation": "Kısa bir açıklama yaz",
+  "Explanation": "Açıklama",
+  "Decline": "Reddet",
+  "Hold to decline": "Reddetmek için basılı tut",
+  "Decline reason": "Reddetme nedeni"
 }

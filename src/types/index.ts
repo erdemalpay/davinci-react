@@ -651,6 +651,23 @@ export type AssignmentEvent = {
   fromUser?: string;
   gmCallReason?: GmCallReasonEnum;
   game?: number;
+  // For a decline: why, and a note for OTHER.
+  reason?: DeclineReasonEnum;
+  note?: string;
+};
+
+export enum DeclineReasonEnum {
+  TAKING_PAYMENT = "TAKING_PAYMENT",
+  RECOMMENDING_GAME = "RECOMMENDING_GAME",
+  PREPARING_ORDER = "PREPARING_ORDER",
+  OTHER = "OTHER",
+}
+
+export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
+  [DeclineReasonEnum.TAKING_PAYMENT]: "I'm taking a payment",
+  [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
+  [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
+  [DeclineReasonEnum.OTHER]: "Other",
 };
 
 export enum GmCallReasonEnum {

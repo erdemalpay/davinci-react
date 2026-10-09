@@ -9,6 +9,7 @@ import { ButtonCallType } from "../../types";
 import {
   AssignmentEvent,
   ButtonCall,
+  DeclineReasonEnum,
   FormElementsState,
   UnmetExplanationRequest,
 } from "./../../types/index";
@@ -181,10 +182,17 @@ export function useFinishButtonCallMutation() {
   });
 }
 
-function declineButtonCall(id: string) {
-  return post<Record<string, never>, ButtonCall>({
+export interface DeclineButtonCallPayload {
+  id: string;
+  reason: DeclineReasonEnum;
+  // Required for DeclineReasonEnum.OTHER.
+  note?: string;
+}
+
+function declineButtonCall({ id, reason, note }: DeclineButtonCallPayload) {
+  return post<{ reason: DeclineReasonEnum; note?: string }, ButtonCall>({
     path: `${Paths.ButtonCalls}/${id}/decline`,
-    payload: {},
+    payload: { reason, ...(note && { note }) },
   });
 }
 
@@ -195,8 +203,8 @@ function claimButtonCall(id: string) {
   });
 }
 
-function useAssignmentMutation(
-  mutationFn: (id: string) => Promise<ButtonCall>
+function useAssignmentMutation<TVariables>(
+  mutationFn: (variables: TVariables) => Promise<ButtonCall>
 ) {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
