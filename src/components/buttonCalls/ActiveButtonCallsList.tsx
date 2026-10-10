@@ -24,6 +24,10 @@ import { DeclineCallDialog } from "./DeclineCallDialog";
 // short tap does nothing, so a call isn't declined by accident.
 export const DECLINE_HOLD_MS = 600;
 
+const isAssignedCallType = (type: ButtonCallTypeEnum) =>
+  type === ButtonCallTypeEnum.GAMEMASTERCALL ||
+  type === ButtonCallTypeEnum.ORDERCALL;
+
 const gmCallReasonLabels: Record<GmCallReasonEnum, string> = {
   [GmCallReasonEnum.RECOMMENDATION]: "Game recommendation",
   [GmCallReasonEnum.EXPLANATION]: "Game explanation",
@@ -65,12 +69,10 @@ export function ActiveButtonCallsList() {
   const cancelHold = () => clearTimeout(holdTimer.current);
   useEffect(() => cancelHold, []);
 
-  // A game master handles one call at a time, so someone with an open call
-  // can't take over another one.
-  const hasOwnOpenGmCall = activeButtonCalls.some(
-    (call) =>
-      call.type === ButtonCallTypeEnum.GAMEMASTERCALL &&
-      call.assignedTo === user?._id
+  // Someone handles one call at a time (game master or service call), so
+  // someone with an open call can't take over another one.
+  const hasOwnOpenCall = activeButtonCalls.some(
+    (call) => isAssignedCallType(call.type) && call.assignedTo === user?._id
   );
 
   // Çağrıları tipine göre grupla
@@ -212,8 +214,10 @@ export function ActiveButtonCallsList() {
             const uniqueKey = `${buttonCall.tableName}-${buttonCall.type}`;
             const isGmCall =
               buttonCall.type === ButtonCallTypeEnum.GAMEMASTERCALL;
-            const isMine = isGmCall && buttonCall.assignedTo === user?._id;
-            const assigneeName = isGmCall
+            // Game master and service calls are assigned to a person.
+            const isAssigned = isAssignedCallType(buttonCall.type);
+            const isMine = isAssigned && buttonCall.assignedTo === user?._id;
+            const assigneeName = isAssigned
               ? users?.find((u) => u._id === buttonCall.assignedTo)?.name
               : undefined;
             const gameName = buttonCall.game
@@ -229,7 +233,7 @@ export function ActiveButtonCallsList() {
                 } relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
                 title={`${buttonCall.tableName} - ${
                   timeAgo[uniqueKey] || "00:00"
-                }${isGmCall ? ` - ${getGmCallDetails(buttonCall)}` : ""}${
+                }${isAssigned ? ` - ${getGmCallDetails(buttonCall)}` : ""}${
                   isMine ? ` - ${t("Hold to decline")}` : ""
                 }`}
                 {...(isMine && {
@@ -271,14 +275,14 @@ export function ActiveButtonCallsList() {
                 )}
 
                 {/* Atanan kişi */}
-                {isGmCall && (
+                {isAssigned && (
                   <span className="text-[9px] sm:text-[10px] whitespace-nowrap opacity-90">
                     {isMine ? t("You") : assigneeName ?? "—"}
                   </span>
                 )}
 
                 {/* Üstüme al (kendi çağrımı reddetmek için çipi basılı tut) */}
-                {isGmCall && !isMine && !hasOwnOpenGmCall && (
+                {isAssigned && !isMine && !hasOwnOpenCall && (
                   <button
                     onClick={() => claimButtonCall(buttonCall._id)}
                     className="ml-1 w-7 h-7 sm:w-8 sm:h-8 bg-white/25 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white transition-all duration-200 touch-manipulation"
@@ -338,6 +342,9 @@ export function ActiveButtonCallsList() {
       {callToDecline && (
         <DeclineCallDialog
           tableName={callToDecline.tableName}
+          canNotKnowGame={
+            callToDecline.type === ButtonCallTypeEnum.GAMEMASTERCALL
+          }
           game={callToDecline.game}
           games={games ?? []}
           onCancel={() => setCallToDecline(null)}

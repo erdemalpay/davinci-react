@@ -8,6 +8,8 @@ type Props = {
   // The game the call is about (explanation calls); undefined otherwise.
   game?: number;
   games: MinimalGame[];
+  // "I don't know the game" only makes sense for game master calls.
+  canNotKnowGame?: boolean;
   onDecline: (reason: DeclineReasonEnum, note?: string, game?: number) => void;
   onCancel: () => void;
 };
@@ -27,6 +29,7 @@ export function DeclineCallDialog({
   tableName,
   game,
   games,
+  canNotKnowGame = true,
   onDecline,
   onCancel,
 }: Props) {
@@ -87,9 +90,11 @@ export function DeclineCallDialog({
                 {t(declineReasonLabels[reason])}
               </button>
             ))}
-            <button onClick={handleDoesntKnowGame} className={optionClass}>
-              {t(declineReasonLabels[DeclineReasonEnum.DOESNT_KNOW_GAME])}
-            </button>
+            {canNotKnowGame && (
+              <button onClick={handleDoesntKnowGame} className={optionClass}>
+                {t(declineReasonLabels[DeclineReasonEnum.DOESNT_KNOW_GAME])}
+              </button>
+            )}
             <button onClick={() => setStep("other")} className={optionClass}>
               {t(declineReasonLabels[DeclineReasonEnum.OTHER])}
             </button>

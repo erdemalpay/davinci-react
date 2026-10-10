@@ -8,6 +8,7 @@ import { useDataContext } from "../context/Data.context";
 import {
   AssignmentActionEnum,
   AssignmentEvent,
+  ButtonCallTypeEnum,
   commonDateOptions,
   DeclineReasonEnum,
   declineReasonLabels,
@@ -89,6 +90,10 @@ export default function CallAssignmentLog() {
         fromUserName: event.fromUser
           ? getItem(event.fromUser, users)?.name ?? event.fromUser
           : "",
+        callTypeLabel:
+          event.callType === ButtonCallTypeEnum.ORDERCALL
+            ? t("Service call")
+            : t("Game master call"),
         reasonLabel: event.gmCallReason
           ? t(reasonLabels[event.gmCallReason])
           : "",
@@ -103,6 +108,7 @@ export default function CallAssignmentLog() {
       { key: t("Hour"), isSortable: true },
       { key: t("Location"), isSortable: true },
       { key: t("Table Name"), isSortable: true },
+      { key: t("Call type"), isSortable: true },
       { key: t("Action"), isSortable: true },
       { key: t("Person"), isSortable: true },
       { key: t("Taken over from"), isSortable: true },
@@ -123,6 +129,7 @@ export default function CallAssignmentLog() {
       { key: "hour" },
       { key: "locationName", className: "min-w-32" },
       { key: "tableName" },
+      { key: "callTypeLabel", className: "min-w-32" },
       {
         key: "action",
         className: "min-w-32",

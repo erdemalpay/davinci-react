@@ -520,15 +520,43 @@ export type Break = {
   date: string;
   startHour: string;
   finishHour?: string;
+  // Which busy state this is; older records are breaks.
+  type?: BreakTypeEnum;
+  note?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+// "Meşgul" states: a break is one of them. All keep the person out of call
+// assignment until they end it.
+export enum BreakTypeEnum {
+  BREAK = "BREAK",
+  RECOMMENDING_GAME = "RECOMMENDING_GAME",
+  PREPARING_ORDER = "PREPARING_ORDER",
+  TAKING_PAYMENT = "TAKING_PAYMENT",
+  OTHER = "OTHER",
+}
+
+// Shown on the busy button, overlay and Tables ("I'm ...").
+export const busyStateLabels: Record<BreakTypeEnum, string> = {
+  [BreakTypeEnum.BREAK]: "On break",
+  [BreakTypeEnum.RECOMMENDING_GAME]: "Recommending a game",
+  [BreakTypeEnum.PREPARING_ORDER]: "Preparing an order",
+  [BreakTypeEnum.TAKING_PAYMENT]: "Taking a payment",
+  [BreakTypeEnum.OTHER]: "Busy",
+};
+
+export const breakTypeOf = (breakRecord?: { type?: BreakTypeEnum }) =>
+  breakRecord?.type ?? BreakTypeEnum.BREAK;
 
 export type CreateBreakDto = {
   user: string;
   location: number;
   date: string;
   startHour: string;
+  type?: BreakTypeEnum;
+  // Required for BreakTypeEnum.OTHER.
+  note?: string;
 };
 
 export type Middleman = {
@@ -645,6 +673,8 @@ export type AssignmentEvent = {
   hour: string;
   location: number;
   tableName: string;
+  // Game master or service call.
+  callType?: ButtonCallTypeEnum;
   user: string;
   action: AssignmentActionEnum;
   // For a take-over: who had the call before.

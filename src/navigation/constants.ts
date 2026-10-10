@@ -14,6 +14,7 @@ import BulkProductAdding from "../pages/BulkProductAdding";
 import ButtonCalls from "../pages/ButtonCalls";
 import UnmetExplanationRequests from "../pages/UnmetExplanationRequests";
 import CallAssignmentLog from "../pages/CallAssignmentLog";
+import StaffStateSummary from "../pages/StaffStateSummary";
 import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
@@ -158,6 +159,7 @@ export enum Routes {
   ButtonCalls = "/button-calls",
   UnmetExplanationRequests = "/unmet-explanation-requests",
   CallAssignmentLog = "/call-assignment-log",
+  StaffStateSummary = "/staff-state-summary",
   Notifications = "/notifications",
   Expirations = "/expirations",
   ExpirationList = "/expiration-list/:expirationListId",
@@ -456,6 +458,12 @@ export const allRoutes: {
     name: "Call Assignment Log",
     path: Routes.CallAssignmentLog,
     element: CallAssignmentLog,
+    isOnSidebar: true,
+  },
+  {
+    name: "Staff State Summary",
+    path: Routes.StaffStateSummary,
+    element: StaffStateSummary,
     isOnSidebar: true,
   },
   {

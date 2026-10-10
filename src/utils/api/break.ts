@@ -77,6 +77,24 @@ export const useGetBreaksByDate = (date: string, enabled?: boolean) => {
   );
 };
 
+// Minutes per person per state (busy states, explaining, middleman) on a day.
+export interface StaffStateSummary {
+  user: string;
+  // Keyed by BreakTypeEnum, plus EXPLAINING and MIDDLEMAN.
+  minutes: Record<string, number>;
+  totalMinutes: number;
+}
+
+export const useGetStaffStateSummary = (date: string, location?: number) => {
+  const query = new URLSearchParams({ date });
+  if (location) query.set("location", String(location));
+  return useGet<StaffStateSummary[]>(
+    `${breakBaseUrl}/state-summary?${query.toString()}`,
+    [breakBaseUrl, "state-summary", date, location],
+    true
+  );
+};
+
 // Break mutations
 export const useBreakMutations = () => {
   const { createItem, updateItem, deleteItem } = useMutationApi<Break>({
