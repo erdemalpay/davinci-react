@@ -2060,5 +2060,9 @@
   "Explanation": "Explanation",
   "Decline": "Decline",
   "Hold to decline": "Hold to decline",
-  "Decline reason": "Decline reason"
+  "Decline reason": "Decline reason",
+  "I don't know the game": "I don't know the game",
+  "Which game don't you know?": "Which game don't you know?",
+  "Search for a game": "Search for a game",
+  "No game found": "No game found"
 }

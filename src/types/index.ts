@@ -660,6 +660,7 @@ export enum DeclineReasonEnum {
   TAKING_PAYMENT = "TAKING_PAYMENT",
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
+  DOESNT_KNOW_GAME = "DOESNT_KNOW_GAME",
   OTHER = "OTHER",
 }
 
@@ -667,6 +668,7 @@ export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
   [DeclineReasonEnum.TAKING_PAYMENT]: "I'm taking a payment",
   [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
   [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
+  [DeclineReasonEnum.DOESNT_KNOW_GAME]: "I don't know the game",
   [DeclineReasonEnum.OTHER]: "Other",
 };
 

@@ -58,6 +58,21 @@ export default function CallAssignmentLog() {
   const [showFilters, setShowFilters] = useState(false);
   const events = useGetAssignmentEvents(filterPanelFormElements);
 
+  // "Other: <note>" and "I don't know the game: <game>"; just the reason
+  // otherwise.
+  const formatDeclineReason = (event: AssignmentEvent) => {
+    if (!event.reason) return "";
+    const label = t(declineReasonLabels[event.reason]);
+    if (event.reason === DeclineReasonEnum.OTHER && event.note) {
+      return `${label}: ${event.note}`;
+    }
+    if (event.reason === DeclineReasonEnum.DOESNT_KNOW_GAME && event.game) {
+      const gameName = getItem(event.game, games)?.name;
+      return gameName ? `${label}: ${gameName}` : label;
+    }
+    return label;
+  };
+
   const rows = useMemo(() => {
     const actions: string[] = filterPanelFormElements.action ?? [];
     const selectedUsers: string[] = filterPanelFormElements.user ?? [];
@@ -78,11 +93,7 @@ export default function CallAssignmentLog() {
           ? t(reasonLabels[event.gmCallReason])
           : "",
         gameName: event.game ? getItem(event.game, games)?.name ?? "" : "",
-        declineReasonLabel: event.reason
-          ? event.reason === DeclineReasonEnum.OTHER && event.note
-            ? `${t(declineReasonLabels[event.reason])}: ${event.note}`
-            : t(declineReasonLabels[event.reason])
-          : "",
+        declineReasonLabel: formatDeclineReason(event),
       }));
   }, [events, filterPanelFormElements, locations, users, games, t]);
 

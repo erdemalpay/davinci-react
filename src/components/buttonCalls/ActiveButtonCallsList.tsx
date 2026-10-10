@@ -216,6 +216,9 @@ export function ActiveButtonCallsList() {
             const assigneeName = isGmCall
               ? users?.find((u) => u._id === buttonCall.assignedTo)?.name
               : undefined;
+            const gameName = buttonCall.game
+              ? games?.find((g) => g._id === buttonCall.game)?.name
+              : undefined;
             return (
               <div
                 key={uniqueKey}
@@ -259,6 +262,13 @@ export function ActiveButtonCallsList() {
                 <span className="text-[9px] sm:text-[10px] font-mono opacity-90 whitespace-nowrap">
                   {timeAgo[uniqueKey] || "00:00"}
                 </span>
+
+                {/* Anlatılması istenen oyun */}
+                {isGmCall && gameName && (
+                  <span className="text-[9px] sm:text-[10px] font-semibold whitespace-nowrap max-w-[8rem] truncate">
+                    {gameName}
+                  </span>
+                )}
 
                 {/* Atanan kişi */}
                 {isGmCall && (
@@ -328,9 +338,11 @@ export function ActiveButtonCallsList() {
       {callToDecline && (
         <DeclineCallDialog
           tableName={callToDecline.tableName}
+          game={callToDecline.game}
+          games={games ?? []}
           onCancel={() => setCallToDecline(null)}
-          onDecline={(reason, note) => {
-            declineButtonCall({ id: callToDecline._id, reason, note });
+          onDecline={(reason, note, game) => {
+            declineButtonCall({ id: callToDecline._id, reason, note, game });
             setCallToDecline(null);
           }}
         />

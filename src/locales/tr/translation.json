@@ -2068,5 +2068,9 @@
   "Explanation": "Açıklama",
   "Decline": "Reddet",
   "Hold to decline": "Reddetmek için basılı tut",
-  "Decline reason": "Reddetme nedeni"
+  "Decline reason": "Reddetme nedeni",
+  "I don't know the game": "Oyunu bilmiyorum",
+  "Which game don't you know?": "Hangi oyunu bilmiyorsun?",
+  "Search for a game": "Oyun ara",
+  "No game found": "Oyun bulunamadı"
 }
