@@ -13,13 +13,16 @@ import {
   breakTypeOf,
   busyStateLabels,
   CreateBreakDto,
+  Shift,
 } from "../../types";
 import {
   useBreakMutations,
   useGetBreaksByLocation,
 } from "../../utils/api/break";
 import { useGetMiddlemanByLocation } from "../../utils/api/middleman";
+import { useGetShifts } from "../../utils/api/shift";
 import { getItem, getRefId } from "../../utils/getItem";
+import { getBreakWarning } from "./breakWarning";
 
 interface BreakButtonProps {
   onBreakStart?: () => void;
@@ -43,6 +46,23 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   // Get active middlemen for current location
   const activeMiddlemen = useGetMiddlemanByLocation(selectedLocationId || 0);
 
+  // People outside operation today don't count for the break warning.
+  const todayDate = format(new Date(), "yyyy-MM-dd");
+  const todayShifts = useGetShifts(
+    todayDate,
+    todayDate,
+    selectedLocationId
+  ) as unknown as Shift[] | undefined;
+  const outsideOperation = useMemo(
+    () =>
+      new Set(
+        (todayShifts ?? []).flatMap((day) =>
+          (day?.shifts ?? []).flatMap((s) => s.outsideOperationUsers ?? [])
+        )
+      ),
+    [todayShifts]
+  );
+
   const othersOnBreak = useMemo(() => {
     if (!activeBreaks || !user) return [];
     // Only real breaks count for the "others are on break" warning.
@@ -51,10 +71,28 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         (b) =>
           !b.finishHour &&
           getRefId(b.user) !== user?._id &&
-          breakTypeOf(b) === BreakTypeEnum.BREAK
+          breakTypeOf(b) === BreakTypeEnum.BREAK &&
+          !outsideOperation.has(getRefId(b.user) as string)
       )
       .map((b) => getItem(getRefId(b.user), users)?.name ?? t("Someone"));
-  }, [activeBreaks, user, users, t]);
+  }, [activeBreaks, user, users, t, outsideOperation]);
+
+  // Everyone checked in here (the person asking included).
+  const staffInCafeCount = useMemo(
+    () =>
+      new Set(
+        visits
+          .filter(
+            (visit) =>
+              !visit.finishHour &&
+              visit.location === selectedLocationId &&
+              !outsideOperation.has(visit.user)
+          )
+          .map((visit) => visit.user)
+      ).size,
+    [visits, selectedLocationId, outsideOperation]
+  );
+  const breakWarning = getBreakWarning(othersOnBreak.length, staffInCafeCount);
 
   // Check if current user has an active visit (is at the cafe)
   const hasActiveVisit = useMemo(() => {
@@ -114,7 +152,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     setIsStateDialogOpen(false);
     setPendingBreak({ type, note });
     // The "others are on break" warning is only about real breaks.
-    if (type === BreakTypeEnum.BREAK && othersOnBreak.length >= 2) {
+    if (type === BreakTypeEnum.BREAK && breakWarning) {
       setIsBreakWarningOpen(true);
       return;
     }
@@ -178,10 +216,17 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
           close={() => setIsBreakWarningOpen(false)}
           confirm={() => doStartBreak()}
           title={t("Break Warning")}
-          text={t(
-            "{{names}} are currently on break. Do you still want to take a break?",
-            { names: othersOnBreak.join(", ") }
-          )}
+          text={
+            breakWarning === "lowStaff"
+              ? t(
+                  "There aren't enough staff in the cafe right now ({{names}} on break). Do you still want to take a break?",
+                  { names: othersOnBreak.join(", ") }
+                )
+              : t(
+                  "{{names}} are currently on break. Do you still want to take a break?",
+                  { names: othersOnBreak.join(", ") }
+                )
+          }
         />
       )}
       {isStateDialogOpen && (

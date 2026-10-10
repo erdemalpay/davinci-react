@@ -32,6 +32,7 @@ import { useManagerCheckInOutMutation } from "../../utils/api/visit";
 import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
+import { ManagerCheckInDialog } from "./ManagerCheckInDialog";
 import { QrScannerModal } from "./QrScannerModal";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
@@ -69,6 +70,9 @@ export function ActiveVisitList({
   const { mutate: managerCheckInOut, isPending: isCheckingInOut } =
     useManagerCheckInOutMutation();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  // Managers pick whom to check in or out.
+  const [isManagerCheckInOpen, setIsManagerCheckInOpen] = useState(false);
+  const isManager = user?.role?._id === RoleEnum.MANAGER;
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
 
   const canEndOthersMiddleman = useMemo(() => {
@@ -84,17 +88,20 @@ export function ActiveVisitList({
     user?.role?._id === RoleEnum.MANAGER ||
     user?.role?._id === RoleEnum.COUNTER;
 
-  function toggleVisitAsManager() {
+  function toggleVisitAsManager(targetUser?: string) {
     if (!selectedLocationId || isCheckingInOut) return;
-    managerCheckInOut(selectedLocationId, {
-      onSuccess: (data) => {
-        toast.success(
-          data.action === "entry"
-            ? t("Check-in successful")
-            : t("Check-out successful")
-        );
-      },
-    });
+    managerCheckInOut(
+      { location: selectedLocationId, user: targetUser },
+      {
+        onSuccess: (data) => {
+          toast.success(
+            data.action === "entry"
+              ? t("Check-in successful")
+              : t("Check-out successful")
+          );
+        },
+      }
+    );
   }
 
   function handleChipClose(userId: string) {
@@ -110,6 +117,10 @@ export function ActiveVisitList({
 
   function handleCheckboxChange() {
     if (isDisabledCondition) {
+      return;
+    }
+    if (isManager) {
+      setIsManagerCheckInOpen(true);
       return;
     }
     if (isManagerOrKasa) {
@@ -435,6 +446,18 @@ export function ActiveVisitList({
         isOpen={isScannerOpen}
         close={() => setIsScannerOpen(false)}
       />
+      {isManagerCheckInOpen && user && (
+        <ManagerCheckInDialog
+          users={users}
+          currentUserId={user._id}
+          isInCafe={isUserActive}
+          onConfirm={(userId) => {
+            setIsManagerCheckInOpen(false);
+            toggleVisitAsManager(userId);
+          }}
+          onCancel={() => setIsManagerCheckInOpen(false)}
+        />
+      )}
     </div>
   );
 }

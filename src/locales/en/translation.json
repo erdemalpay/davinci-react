@@ -2086,5 +2086,10 @@
   "Call type": "Call type",
   "Which game does the table need help with?": "Which game does the table need help with?",
   "Include me in game assignments today": "Include me in game assignments today",
-  "Change game": "Change game"
+  "Change game": "Change game",
+  "There aren't enough staff in the cafe right now ({{names}} on break). Do you still want to take a break?": "There aren't enough staff in the cafe right now ({{names}} on break). Do you still want to take a break?",
+  "Who is checking in?": "Who is checking in?",
+  "Check in": "Check in",
+  "Check out": "Check out",
+  "Only show games I know": "Only show games I know"
 }

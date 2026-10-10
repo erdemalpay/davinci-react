@@ -2094,5 +2094,10 @@
   "Call type": "Çağrı türü",
   "Which game does the table need help with?": "Hangi oyun için yardım lazım?",
   "Include me in game assignments today": "Bugün beni oyun atamalarına dahil et",
-  "Change game": "Değiştir"
+  "Change game": "Değiştir",
+  "There aren't enough staff in the cafe right now ({{names}} on break). Do you still want to take a break?": "Kafede şu an yeterince personel yok ({{names}} molada). Yine de molaya çıkmak istiyor musunuz?",
+  "Who is checking in?": "Kim giriş yapıyor?",
+  "Check in": "Giriş yap",
+  "Check out": "Çıkış yap",
+  "Only show games I know": "Sadece bildiklerimi göster"
 }
