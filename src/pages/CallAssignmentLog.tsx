@@ -8,6 +8,7 @@ import { useDataContext } from "../context/Data.context";
 import {
   AssignmentActionEnum,
   AssignmentEvent,
+  ButtonCallTypeEnum,
   commonDateOptions,
   DeclineReasonEnum,
   declineReasonLabels,
@@ -58,6 +59,21 @@ export default function CallAssignmentLog() {
   const [showFilters, setShowFilters] = useState(false);
   const events = useGetAssignmentEvents(filterPanelFormElements);
 
+  // "Other: <note>" and "I don't know the game: <game>"; just the reason
+  // otherwise.
+  const formatDeclineReason = (event: AssignmentEvent) => {
+    if (!event.reason) return "";
+    const label = t(declineReasonLabels[event.reason]);
+    if (event.reason === DeclineReasonEnum.OTHER && event.note) {
+      return `${label}: ${event.note}`;
+    }
+    if (event.reason === DeclineReasonEnum.DOESNT_KNOW_GAME && event.game) {
+      const gameName = getItem(event.game, games)?.name;
+      return gameName ? `${label}: ${gameName}` : label;
+    }
+    return label;
+  };
+
   const rows = useMemo(() => {
     const actions: string[] = filterPanelFormElements.action ?? [];
     const selectedUsers: string[] = filterPanelFormElements.user ?? [];
@@ -74,15 +90,15 @@ export default function CallAssignmentLog() {
         fromUserName: event.fromUser
           ? getItem(event.fromUser, users)?.name ?? event.fromUser
           : "",
+        callTypeLabel:
+          event.callType === ButtonCallTypeEnum.ORDERCALL
+            ? t("Service call")
+            : t("Game master call"),
         reasonLabel: event.gmCallReason
           ? t(reasonLabels[event.gmCallReason])
           : "",
         gameName: event.game ? getItem(event.game, games)?.name ?? "" : "",
-        declineReasonLabel: event.reason
-          ? event.reason === DeclineReasonEnum.OTHER && event.note
-            ? `${t(declineReasonLabels[event.reason])}: ${event.note}`
-            : t(declineReasonLabels[event.reason])
-          : "",
+        declineReasonLabel: formatDeclineReason(event),
       }));
   }, [events, filterPanelFormElements, locations, users, games, t]);
 
@@ -92,6 +108,7 @@ export default function CallAssignmentLog() {
       { key: t("Hour"), isSortable: true },
       { key: t("Location"), isSortable: true },
       { key: t("Table Name"), isSortable: true },
+      { key: t("Call type"), isSortable: true },
       { key: t("Action"), isSortable: true },
       { key: t("Person"), isSortable: true },
       { key: t("Taken over from"), isSortable: true },
@@ -112,6 +129,7 @@ export default function CallAssignmentLog() {
       { key: "hour" },
       { key: "locationName", className: "min-w-32" },
       { key: "tableName" },
+      { key: "callTypeLabel", className: "min-w-32" },
       {
         key: "action",
         className: "min-w-32",

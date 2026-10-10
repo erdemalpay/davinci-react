@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DeclineReasonEnum, declineReasonLabels } from "../../types";
+import { MinimalGame } from "../../utils/api/game";
 
 type Props = {
   tableName: string;
-  onDecline: (reason: DeclineReasonEnum, note?: string) => void;
+  // The game the call is about (explanation calls); undefined otherwise.
+  game?: number;
+  games: MinimalGame[];
+  // "I don't know the game" only makes sense for game master calls.
+  canNotKnowGame?: boolean;
+  onDecline: (reason: DeclineReasonEnum, note?: string, game?: number) => void;
   onCancel: () => void;
 };
 
@@ -14,15 +20,43 @@ const listedReasons = [
   DeclineReasonEnum.PREPARING_ORDER,
 ];
 
-// Asks why the assigned game master can't go. "Other" needs a note; the
-// note is only shown to managers in the Call Assignment Log.
-export function DeclineCallDialog({ tableName, onDecline, onCancel }: Props) {
-  const { t } = useTranslation();
-  const [isOther, setIsOther] = useState(false);
+const MAX_GAME_RESULTS = 20;
+
+// Asks why the assigned game master can't go. "I don't know the game" asks
+// which game when the call doesn't name one; "Other" needs a note. Notes are
+// only shown to managers in the Call Assignment Log.
+export function DeclineCallDialog({
+  tableName,
+  game,
+  games,
+  canNotKnowGame = true,
+  onDecline,
+  onCancel,
+}: Props) {
+  const { t, i18n } = useTranslation();
+  const [step, setStep] = useState<"reasons" | "other" | "game">("reasons");
   const [note, setNote] = useState("");
+  const [search, setSearch] = useState("");
+
+  const gameResults = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase(i18n.language);
+    if (!query) return [];
+    return games
+      .filter((g) => g.name.toLocaleLowerCase(i18n.language).includes(query))
+      .slice(0, MAX_GAME_RESULTS);
+  }, [games, search, i18n.language]);
+
+  const handleDoesntKnowGame = () => {
+    if (game !== undefined) {
+      onDecline(DeclineReasonEnum.DOESNT_KNOW_GAME);
+      return;
+    }
+    setStep("game");
+  };
 
   const buttonClass =
     "w-full rounded-lg px-4 py-3 text-left font-medium transition-colors";
+  const optionClass = `${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`;
 
   return (
     <div
@@ -37,31 +71,37 @@ export function DeclineCallDialog({ tableName, onDecline, onCancel }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-lg font-semibold text-gray-800">
-          {t("Why can't you go?")}
+          {step === "game"
+            ? t("Which game don't you know?")
+            : t("Why can't you go?")}
         </h3>
         <p className="mb-4 text-sm text-gray-500">
           {t("Table")} {tableName}
         </p>
 
-        {!isOther ? (
+        {step === "reasons" && (
           <div className="flex flex-col gap-2">
             {listedReasons.map((reason) => (
               <button
                 key={reason}
                 onClick={() => onDecline(reason)}
-                className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}
+                className={optionClass}
               >
                 {t(declineReasonLabels[reason])}
               </button>
             ))}
-            <button
-              onClick={() => setIsOther(true)}
-              className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}
-            >
+            {canNotKnowGame && (
+              <button onClick={handleDoesntKnowGame} className={optionClass}>
+                {t(declineReasonLabels[DeclineReasonEnum.DOESNT_KNOW_GAME])}
+              </button>
+            )}
+            <button onClick={() => setStep("other")} className={optionClass}>
               {t(declineReasonLabels[DeclineReasonEnum.OTHER])}
             </button>
           </div>
-        ) : (
+        )}
+
+        {step === "other" && (
           <div className="flex flex-col gap-2">
             <textarea
               autoFocus
@@ -80,6 +120,42 @@ export function DeclineCallDialog({ tableName, onDecline, onCancel }: Props) {
             >
               {t("Decline")}
             </button>
+          </div>
+        )}
+
+        {step === "game" && (
+          <div className="flex flex-col gap-2">
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("Search for a game")}
+              aria-label={t("Search for a game")}
+              className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
+            />
+            <ul className="max-h-60 overflow-y-auto">
+              {gameResults.map((g) => (
+                <li key={g._id}>
+                  <button
+                    onClick={() =>
+                      onDecline(
+                        DeclineReasonEnum.DOESNT_KNOW_GAME,
+                        undefined,
+                        g._id
+                      )
+                    }
+                    className="w-full rounded-lg px-3 py-2 text-left text-gray-800 hover:bg-gray-100"
+                  >
+                    {g.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {search.trim() && gameResults.length === 0 && (
+              <p className="text-center text-sm text-gray-500">
+                {t("No game found")}
+              </p>
+            )}
           </div>
         )}
 

@@ -19,7 +19,10 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: "en" },
+  }),
 }));
 
 vi.mock("../../context/Location.context", () => ({
@@ -36,7 +39,10 @@ vi.mock("../../context/Data.context", () => ({
       { _id: "ali", name: "Ali" },
       { _id: "ayse", name: "Ayşe" },
     ],
-    games: [{ _id: 10, name: "Catan" }],
+    games: [
+      { _id: 10, name: "Catan" },
+      { _id: 30, name: "Twilight Imperium" },
+    ],
   }),
 }));
 
@@ -104,6 +110,7 @@ describe("ActiveButtonCallsList", () => {
         id: "5",
         reason: DeclineReasonEnum.TAKING_PAYMENT,
         note: undefined,
+        game: undefined,
       });
       expect(screen.queryByRole("dialog")).toBeNull();
     });
@@ -127,6 +134,50 @@ describe("ActiveButtonCallsList", () => {
         id: "5",
         reason: DeclineReasonEnum.OTHER,
         note: "Depoya bakıyorum",
+        game: undefined,
+      });
+    });
+
+    it("declines an explanation call for not knowing its game", () => {
+      mocks.calls = [
+        gmCall({
+          _id: "5",
+          tableName: "T5",
+          assignedTo: "ali",
+          gmCallReason: GmCallReasonEnum.EXPLANATION,
+          game: 10,
+        }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      hold();
+      fireEvent.click(screen.getByText("I don't know the game"));
+
+      expect(mocks.decline).toHaveBeenCalledWith({
+        id: "5",
+        reason: DeclineReasonEnum.DOESNT_KNOW_GAME,
+        note: undefined,
+        game: undefined,
+      });
+    });
+
+    it("asks which game when the call has none", () => {
+      render(<ActiveButtonCallsList />);
+
+      hold();
+      fireEvent.click(screen.getByText("I don't know the game"));
+      expect(mocks.decline).not.toHaveBeenCalled();
+
+      fireEvent.change(screen.getByLabelText("Search for a game"), {
+        target: { value: "twi" },
+      });
+      fireEvent.click(screen.getByText("Twilight Imperium"));
+
+      expect(mocks.decline).toHaveBeenCalledWith({
+        id: "5",
+        reason: DeclineReasonEnum.DOESNT_KNOW_GAME,
+        note: undefined,
+        game: 30,
       });
     });
 
@@ -173,6 +224,15 @@ describe("ActiveButtonCallsList", () => {
     expect(screen.queryByLabelText("Take over")).toBeNull();
   });
 
+  it("shows the requested game on the chip", () => {
+    mocks.calls = [
+      gmCall({ gmCallReason: GmCallReasonEnum.EXPLANATION, game: 10 }),
+    ];
+    render(<ActiveButtonCallsList />);
+
+    expect(screen.getByText("Catan")).toBeTruthy();
+  });
+
   it("shows the reason, game and assignee in the title", () => {
     mocks.calls = [
       gmCall({
@@ -188,11 +248,72 @@ describe("ActiveButtonCallsList", () => {
     ).toBeTruthy();
   });
 
-  it("does not show assignment controls on service calls", () => {
-    mocks.calls = [gmCall({ type: ButtonCallTypeEnum.ORDERCALL })];
+  it("does not show assignment controls on table calls", () => {
+    mocks.calls = [gmCall({ type: ButtonCallTypeEnum.TABLECALL })];
     render(<ActiveButtonCallsList />);
 
     expect(screen.queryByLabelText("Take over")).toBeNull();
     expect(screen.queryByLabelText(/Hold to decline/)).toBeNull();
+  });
+
+  describe("service calls", () => {
+    it("shows the assignee and lets me take one over", () => {
+      mocks.calls = [
+        gmCall({
+          _id: "8",
+          type: ButtonCallTypeEnum.ORDERCALL,
+          assignedTo: "ayse",
+        }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      expect(screen.getByText("Ayşe")).toBeTruthy();
+      fireEvent.click(screen.getByLabelText("Take over"));
+      expect(mocks.claim).toHaveBeenCalledWith("8");
+    });
+
+    it("can't be taken over while I have an open game master call", () => {
+      mocks.calls = [
+        gmCall({ _id: "5", assignedTo: "ali" }),
+        gmCall({
+          _id: "8",
+          tableName: "T8",
+          type: ButtonCallTypeEnum.ORDERCALL,
+          assignedTo: "ayse",
+        }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      expect(screen.queryByLabelText("Take over")).toBeNull();
+    });
+
+    it('can be declined without the "I don\'t know the game" option', () => {
+      vi.useFakeTimers();
+      mocks.calls = [
+        gmCall({
+          _id: "8",
+          tableName: "T8",
+          type: ButtonCallTypeEnum.ORDERCALL,
+          assignedTo: "ali",
+        }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      fireEvent.pointerDown(screen.getByLabelText("T8 - Hold to decline"));
+      act(() => {
+        vi.advanceTimersByTime(DECLINE_HOLD_MS);
+      });
+      vi.useRealTimers();
+
+      expect(screen.getByRole("dialog")).toBeTruthy();
+      expect(screen.queryByText("I don't know the game")).toBeNull();
+      fireEvent.click(screen.getByText("I'm taking a payment"));
+      expect(mocks.decline).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "8",
+          reason: DeclineReasonEnum.TAKING_PAYMENT,
+        })
+      );
+    });
   });
 });

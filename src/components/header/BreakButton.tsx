@@ -4,10 +4,16 @@ import { useTranslation } from "react-i18next";
 import { MdFreeBreakfast } from "react-icons/md";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { BusyStateDialog } from "./BusyStateDialog";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { CreateBreakDto } from "../../types";
+import {
+  BreakTypeEnum,
+  breakTypeOf,
+  busyStateLabels,
+  CreateBreakDto,
+} from "../../types";
 import {
   useBreakMutations,
   useGetBreaksByLocation,
@@ -27,7 +33,9 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { createBreak, updateBreak } = useBreakMutations();
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [currentBreakId, setCurrentBreakId] = useState<number | null>(null);
+  const [currentType, setCurrentType] = useState(BreakTypeEnum.BREAK);
   const [isBreakWarningOpen, setIsBreakWarningOpen] = useState(false);
+  const [isStateDialogOpen, setIsStateDialogOpen] = useState(false);
 
   // Get active breaks for current location
   const activeBreaks = useGetBreaksByLocation(selectedLocationId || 0);
@@ -37,8 +45,14 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
 
   const othersOnBreak = useMemo(() => {
     if (!activeBreaks || !user) return [];
+    // Only real breaks count for the "others are on break" warning.
     return activeBreaks
-      .filter((b) => !b.finishHour && getRefId(b.user) !== user?._id)
+      .filter(
+        (b) =>
+          !b.finishHour &&
+          getRefId(b.user) !== user?._id &&
+          breakTypeOf(b) === BreakTypeEnum.BREAK
+      )
       .map((b) => getItem(getRefId(b.user), users)?.name ?? t("Someone"));
   }, [activeBreaks, user, users, t]);
 
@@ -60,24 +74,51 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
 
       setIsOnBreak(!!userActiveBreak);
       setCurrentBreakId(userActiveBreak?._id || null);
+      setCurrentType(breakTypeOf(userActiveBreak));
     } else {
       setIsOnBreak(false);
       setCurrentBreakId(null);
     }
   }, [activeBreaks, user, selectedLocationId]);
 
-  const doStartBreak = () => {
+  const [pendingBreak, setPendingBreak] = useState<{
+    type: BreakTypeEnum;
+    note?: string;
+  }>({ type: BreakTypeEnum.BREAK });
+
+  const doStartBreak = (
+    type = pendingBreak.type,
+    note: string | undefined = pendingBreak.note
+  ) => {
     if (!user?._id || !selectedLocationId) return;
     const breakData: CreateBreakDto = {
       user: user._id,
       location: selectedLocationId,
       date: format(new Date(), "yyyy-MM-dd"),
       startHour: format(new Date(), "HH:mm"),
+      type,
+      ...(note && { note }),
     };
     createBreak(breakData);
-    toast.success(t("Break started"));
+    toast.success(
+      type === BreakTypeEnum.BREAK
+        ? t("Break started")
+        : t(busyStateLabels[type])
+    );
     onBreakStart?.();
     setIsBreakWarningOpen(false);
+  };
+
+  // A state was picked in the "Busy" dialog.
+  const handleSelectState = (type: BreakTypeEnum, note?: string) => {
+    setIsStateDialogOpen(false);
+    setPendingBreak({ type, note });
+    // The "others are on break" warning is only about real breaks.
+    if (type === BreakTypeEnum.BREAK && othersOnBreak.length >= 2) {
+      setIsBreakWarningOpen(true);
+      return;
+    }
+    doStartBreak(type, note);
   };
 
   const handleStartBreak = () => {
@@ -87,7 +128,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     }
 
     if (isOnBreak) {
-      toast.warning(t("You are already on a break"));
+      toast.warning(t("You are already busy"));
       return;
     }
 
@@ -101,12 +142,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       return;
     }
 
-    if (othersOnBreak.length >= 2) {
-      setIsBreakWarningOpen(true);
-      return;
-    }
-
-    doStartBreak();
+    setIsStateDialogOpen(true);
   };
 
   const handleEndBreak = () => {
@@ -122,7 +158,11 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         finishHour: format(new Date(), "HH:mm"),
       },
     });
-    toast.success(t("Break ended"));
+    toast.success(
+      currentType === BreakTypeEnum.BREAK
+        ? t("Break ended")
+        : t("You are available again")
+    );
   };
 
   // Don't show break button if user doesn't have an active visit (not at the cafe)
@@ -136,12 +176,18 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         <ConfirmationDialog
           isOpen={isBreakWarningOpen}
           close={() => setIsBreakWarningOpen(false)}
-          confirm={doStartBreak}
+          confirm={() => doStartBreak()}
           title={t("Break Warning")}
           text={t(
             "{{names}} are currently on break. Do you still want to take a break?",
             { names: othersOnBreak.join(", ") }
           )}
+        />
+      )}
+      {isStateDialogOpen && (
+        <BusyStateDialog
+          onSelect={handleSelectState}
+          onCancel={() => setIsStateDialogOpen(false)}
         />
       )}
       <div className="relative">
@@ -152,11 +198,15 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
               ? "bg-red-600 hover:bg-red-700"
               : "bg-green-600 hover:bg-green-700"
           }`}
-          title={isOnBreak ? t("End Break") : t("Start Break")}
+          title={
+            isOnBreak
+              ? `${t(busyStateLabels[currentType])} - ${t("End")}`
+              : t("Busy")
+          }
         >
           <MdFreeBreakfast className="text-lg" />
           <span className="hidden sm:inline">
-            {isOnBreak ? t("End Break") : t("Start Break")}
+            {isOnBreak ? t("End") : t("Busy")}
           </span>
         </button>
       </div>
