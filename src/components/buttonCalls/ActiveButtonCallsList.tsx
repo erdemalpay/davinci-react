@@ -10,6 +10,7 @@ import {
   ButtonCall,
   ButtonCallType,
   ButtonCallTypeEnum,
+  DeclineReasonEnum,
   GmCallReasonEnum,
 } from "../../types";
 import {
@@ -18,6 +19,8 @@ import {
   useFinishButtonCallMutation,
   useGetActiveButtonCalls,
 } from "../../utils/api/buttonCall";
+import { useBreakWarning } from "../../hooks/useBreakWarning";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { DeclineCallDialog } from "./DeclineCallDialog";
 
 // Holding a call assigned to me this long opens the decline reasons; a
@@ -57,6 +60,10 @@ export function ActiveButtonCallsList() {
   ).active;
 
   const [callToDecline, setCallToDecline] = useState<ButtonCall | null>(null);
+  // Declining a call to go on a break, waiting for the break warning.
+  const [breakDeclinePending, setBreakDeclinePending] =
+    useState<ButtonCall | null>(null);
+  const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
   // A tapped call: close it, or take it over when possible.
   const [callForActions, setCallForActions] = useState<ButtonCall | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -395,9 +402,31 @@ export function ActiveButtonCallsList() {
           games={games ?? []}
           onCancel={() => setCallToDecline(null)}
           onDecline={(reason, note, game) => {
+            // Declining to go on a break: same warning as the Busy button.
+            if (reason === DeclineReasonEnum.BREAK && breakWarning) {
+              setBreakDeclinePending(callToDecline);
+              setCallToDecline(null);
+              return;
+            }
             declineButtonCall({ id: callToDecline._id, reason, note, game });
             setCallToDecline(null);
           }}
+        />
+      )}
+
+      {breakDeclinePending && (
+        <ConfirmationDialog
+          isOpen={!!breakDeclinePending}
+          close={() => setBreakDeclinePending(null)}
+          confirm={() => {
+            declineButtonCall({
+              id: breakDeclinePending._id,
+              reason: DeclineReasonEnum.BREAK,
+            });
+            setBreakDeclinePending(null);
+          }}
+          title={t("Break Warning")}
+          text={breakWarningText}
         />
       )}
     </div>
