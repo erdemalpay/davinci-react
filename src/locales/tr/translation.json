@@ -1524,7 +1524,7 @@
   "{{names}} are currently on break. Do you still want to take a break?": "{{names}} şu an molada. Yine de molaya çıkmak istiyor musunuz?",
   "Concurrent Break Warning": "Eş Zamanlı Mola Uyarısı",
   "CONCURRENTBREAK": "Eş Zamanlı Mola Uyarısı",
-  "ConcurrentBreakWarning": "{{userName}} molaya çıktı. {{locationName}} lokasyonunda eş zamanlı en az 3 kişi molada.",
+  "ConcurrentBreakWarning": "{{userName}} molaya çıktı. {{locationName}} lokasyonunda kafedeki personel sayısına göre aynı anda çok kişi molada.",
   "You cannot be a middleman while you are on a break": "Molada olduğunuzda ortacı olamazsınız",
   "You cannot be a middleman while you are in a gameplay session": "Oyun anlatımı sırasında ortacı olamazsınız",
   "Hover over a segment to see details": "Detay için bir dilimin üzerine gelin",
@@ -2099,5 +2099,9 @@
   "Who is checking in?": "Kim giriş yapıyor?",
   "Check in": "Giriş yap",
   "Check out": "Çıkış yap",
-  "Only show games I know": "Sadece bildiklerimi göster"
+  "Only show games I know": "Sadece bildiklerimi göster",
+  "At the WC": "WC'de",
+  "WC": "WC",
+  "Take over or close": "Üstüne al veya kapat",
+  "Close call": "Çağrıyı kapat"
 }

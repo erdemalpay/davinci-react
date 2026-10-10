@@ -72,6 +72,7 @@ export function ActiveVisitList({
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   // Managers pick whom to check in or out.
   const [isManagerCheckInOpen, setIsManagerCheckInOpen] = useState(false);
+  const [openTooltipUser, setOpenTooltipUser] = useState<string | null>(null);
   const isManager = user?.role?._id === RoleEnum.MANAGER;
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
 
@@ -331,7 +332,6 @@ export function ActiveVisitList({
                 <span className="flex items-center gap-1">
                   <MdHourglassTop className="text-sm" />
                   {userName}
-                  <span className="opacity-80">· {busyLabel}</span>
                 </span>
               );
             }
@@ -406,6 +406,12 @@ export function ActiveVisitList({
           return (
             <Tooltip
               key={visit?.user}
+              // Why someone is busy shows only when their chip is tapped.
+              {...(isBusyNotBreak && {
+                open: openTooltipUser === visit.user,
+                handler: (isOpen: boolean) =>
+                  setOpenTooltipUser(isOpen ? visit.user : null),
+              })}
               content={
                 canClickToEndMiddleman
                   ? `${tooltipContent} — ${t("Click to end middleman")}`
@@ -416,10 +422,17 @@ export function ActiveVisitList({
                 onClick={
                   canClickToEndMiddleman && userMiddleman
                     ? () => setMiddlemanToEnd(userMiddleman)
+                    : isBusyNotBreak
+                    ? () =>
+                        setOpenTooltipUser((current) =>
+                          current === visit.user ? null : visit.user
+                        )
                     : undefined
                 }
                 className={
-                  canClickToEndMiddleman ? "cursor-pointer" : undefined
+                  canClickToEndMiddleman || isBusyNotBreak
+                    ? "cursor-pointer"
+                    : undefined
                 }
               >
                 <Chip

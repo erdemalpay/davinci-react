@@ -57,6 +57,8 @@ export function ActiveButtonCallsList() {
   ).active;
 
   const [callToDecline, setCallToDecline] = useState<ButtonCall | null>(null);
+  // Someone without a call of their own tapped another person's call.
+  const [callForActions, setCallForActions] = useState<ButtonCall | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const startHold = (buttonCall: ButtonCall) => {
@@ -220,6 +222,7 @@ export function ActiveButtonCallsList() {
             const assigneeName = isAssigned
               ? users?.find((u) => u._id === buttonCall.assignedTo)?.name
               : undefined;
+            const canTakeOver = isAssigned && !isMine && !hasOwnOpenCall;
             const gameName = buttonCall.game
               ? games?.find((g) => g._id === buttonCall.game)?.name
               : undefined;
@@ -236,6 +239,13 @@ export function ActiveButtonCallsList() {
                 }${isAssigned ? ` - ${getGmCallDetails(buttonCall)}` : ""}${
                   isMine ? ` - ${t("Hold to decline")}` : ""
                 }`}
+                {...(canTakeOver && {
+                  role: "button",
+                  "aria-label": `${buttonCall.tableName} - ${t(
+                    "Take over or close"
+                  )}`,
+                  onClick: () => setCallForActions(buttonCall),
+                })}
                 {...(isMine && {
                   role: "button",
                   "aria-label": `${buttonCall.tableName} - ${t(
@@ -282,9 +292,12 @@ export function ActiveButtonCallsList() {
                 )}
 
                 {/* Üstüme al (kendi çağrımı reddetmek için çipi basılı tut) */}
-                {isAssigned && !isMine && !hasOwnOpenCall && (
+                {canTakeOver && (
                   <button
-                    onClick={() => claimButtonCall(buttonCall._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      claimButtonCall(buttonCall._id);
+                    }}
                     className="ml-1 w-7 h-7 sm:w-8 sm:h-8 bg-white/25 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white transition-all duration-200 touch-manipulation"
                     title={t("Take over")}
                     aria-label={t("Take over")}
@@ -298,9 +311,10 @@ export function ActiveButtonCallsList() {
                   <button
                     // Closing must not start the hold-to-decline timer.
                     onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() =>
-                      handleChipClose(buttonCall.tableName, buttonCall.type)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChipClose(buttonCall.tableName, buttonCall.type);
+                    }}
                     className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
                     aria-label="Çağrıyı kapat"
                   >
@@ -338,6 +352,54 @@ export function ActiveButtonCallsList() {
             ButtonCallTypeEnum.ORDERREADYCALL
           )}
       </div>
+
+      {callForActions && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setCallForActions(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${t("Table")} ${callForActions.tableName}`}
+            className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-4 text-lg font-semibold text-gray-800">
+              {t("Table")} {callForActions.tableName}
+            </h3>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  claimButtonCall(callForActions._id);
+                  setCallForActions(null);
+                }}
+                className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700"
+              >
+                {t("Take over")}
+              </button>
+              <button
+                onClick={() => {
+                  handleChipClose(
+                    callForActions.tableName,
+                    callForActions.type
+                  );
+                  setCallForActions(null);
+                }}
+                className="w-full rounded-lg bg-gray-100 px-4 py-3 font-medium text-gray-800 hover:bg-gray-200"
+              >
+                {t("Close call")}
+              </button>
+              <button
+                onClick={() => setCallForActions(null)}
+                className="w-full rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+              >
+                {t("Cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {callToDecline && (
         <DeclineCallDialog

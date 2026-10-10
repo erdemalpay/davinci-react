@@ -536,6 +536,7 @@ export enum BreakTypeEnum {
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
   TAKING_PAYMENT = "TAKING_PAYMENT",
+  WC = "WC",
   OTHER = "OTHER",
 }
 
@@ -545,6 +546,7 @@ export const busyStateLabels: Record<BreakTypeEnum, string> = {
   [BreakTypeEnum.RECOMMENDING_GAME]: "Recommending a game",
   [BreakTypeEnum.PREPARING_ORDER]: "Preparing an order",
   [BreakTypeEnum.TAKING_PAYMENT]: "Taking a payment",
+  [BreakTypeEnum.WC]: "At the WC",
   [BreakTypeEnum.OTHER]: "Busy",
 };
 

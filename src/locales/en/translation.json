@@ -1514,7 +1514,7 @@
   "{{names}} are currently on break. Do you still want to take a break?": "{{names}} are currently on break. Do you still want to take a break?",
   "Concurrent Break Warning": "Concurrent Break Warning",
   "CONCURRENTBREAK": "Concurrent Break Warning",
-  "ConcurrentBreakWarning": "{{userName}} went on break. At least 3 people are now on break simultaneously at {{locationName}}.",
+  "ConcurrentBreakWarning": "{{userName}} went on break. Too many people are on break at {{locationName}} for the staff in the cafe right now.",
   "You cannot be a middleman while you are on a break": "You cannot be a middleman while you are on a break",
   "You cannot be a middleman while you are in a gameplay session": "You cannot be a middleman while you are in a gameplay session",
   "Hover over a segment to see details": "Hover over a segment to see details",
@@ -2091,5 +2091,9 @@
   "Who is checking in?": "Who is checking in?",
   "Check in": "Check in",
   "Check out": "Check out",
-  "Only show games I know": "Only show games I know"
+  "Only show games I know": "Only show games I know",
+  "At the WC": "At the WC",
+  "WC": "WC",
+  "Take over or close": "Take over or close",
+  "Close call": "Close call"
 }
