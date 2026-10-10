@@ -248,11 +248,72 @@ describe("ActiveButtonCallsList", () => {
     ).toBeTruthy();
   });
 
-  it("does not show assignment controls on service calls", () => {
-    mocks.calls = [gmCall({ type: ButtonCallTypeEnum.ORDERCALL })];
+  it("does not show assignment controls on table calls", () => {
+    mocks.calls = [gmCall({ type: ButtonCallTypeEnum.TABLECALL })];
     render(<ActiveButtonCallsList />);
 
     expect(screen.queryByLabelText("Take over")).toBeNull();
     expect(screen.queryByLabelText(/Hold to decline/)).toBeNull();
+  });
+
+  describe("service calls", () => {
+    it("shows the assignee and lets me take one over", () => {
+      mocks.calls = [
+        gmCall({
+          _id: "8",
+          type: ButtonCallTypeEnum.ORDERCALL,
+          assignedTo: "ayse",
+        }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      expect(screen.getByText("Ayşe")).toBeTruthy();
+      fireEvent.click(screen.getByLabelText("Take over"));
+      expect(mocks.claim).toHaveBeenCalledWith("8");
+    });
+
+    it("can't be taken over while I have an open game master call", () => {
+      mocks.calls = [
+        gmCall({ _id: "5", assignedTo: "ali" }),
+        gmCall({
+          _id: "8",
+          tableName: "T8",
+          type: ButtonCallTypeEnum.ORDERCALL,
+          assignedTo: "ayse",
+        }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      expect(screen.queryByLabelText("Take over")).toBeNull();
+    });
+
+    it('can be declined without the "I don\'t know the game" option', () => {
+      vi.useFakeTimers();
+      mocks.calls = [
+        gmCall({
+          _id: "8",
+          tableName: "T8",
+          type: ButtonCallTypeEnum.ORDERCALL,
+          assignedTo: "ali",
+        }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      fireEvent.pointerDown(screen.getByLabelText("T8 - Hold to decline"));
+      act(() => {
+        vi.advanceTimersByTime(DECLINE_HOLD_MS);
+      });
+      vi.useRealTimers();
+
+      expect(screen.getByRole("dialog")).toBeTruthy();
+      expect(screen.queryByText("I don't know the game")).toBeNull();
+      fireEvent.click(screen.getByText("I'm taking a payment"));
+      expect(mocks.decline).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "8",
+          reason: DeclineReasonEnum.TAKING_PAYMENT,
+        })
+      );
+    });
   });
 });
