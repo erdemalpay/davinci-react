@@ -2091,5 +2091,8 @@
   "You already have an assigned call. Close it before taking another one.": "Zaten sana atanmış bir çağrı var. Başka bir çağrıyı üstüne almadan önce onu kapat.",
   "Service call": "Servis çağrısı",
   "Game master call": "GM çağrısı",
-  "Call type": "Çağrı türü"
+  "Call type": "Çağrı türü",
+  "Which game does the table need help with?": "Hangi oyun için yardım lazım?",
+  "Include me in game assignments today": "Bugün beni oyun atamalarına dahil et",
+  "Change game": "Değiştir"
 }

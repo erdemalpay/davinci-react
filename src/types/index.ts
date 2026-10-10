@@ -260,6 +260,8 @@ export type User = {
   ];
   settings?: {
     orderCategoryOn?: boolean;
+    // Managers: the day ("yyyy-MM-dd") they asked to get game master calls.
+    includeInGameAssignmentsDate?: string;
   };
 };
 

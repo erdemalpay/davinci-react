@@ -2083,5 +2083,8 @@
   "You already have an assigned call. Close it before taking another one.": "You already have an assigned call. Close it before taking another one.",
   "Service call": "Service call",
   "Game master call": "Game master call",
-  "Call type": "Call type"
+  "Call type": "Call type",
+  "Which game does the table need help with?": "Which game does the table need help with?",
+  "Include me in game assignments today": "Include me in game assignments today",
+  "Change game": "Change game"
 }

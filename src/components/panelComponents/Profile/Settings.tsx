@@ -1,7 +1,9 @@
+import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 
 import { useGeneralContext } from "../../../context/General.context";
-import { languageOptions, RowPerPageEnum } from "../../../types";
+import { languageOptions, RoleEnum, RowPerPageEnum } from "../../../types";
+import { getRefId } from "../../../utils/getItem";
 import { useGetUser, useUserMutations } from "../../../utils/api/user";
 import CommonSelectInput from "../../common/SelectInput";
 import TextInput from "../FormElements/TextInput";
@@ -12,6 +14,11 @@ const Settings = () => {
   const { updateUser } = useUserMutations();
   const { setRowsPerPage } = useGeneralContext();
   const user = useGetUser();
+  // Managers can ask for game master calls; it holds for the day only.
+  const today = format(new Date(), "yyyy-MM-dd");
+  const isManager = !!user?.role && getRefId(user.role) === RoleEnum.MANAGER;
+  const isInGameAssignmentsToday =
+    user?.settings?.includeInGameAssignmentsDate === today;
   return (
     <div className="w-5/6 sm:w-1/2 flex flex-col gap-4 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">
       <CommonSelectInput
@@ -81,12 +88,34 @@ const Settings = () => {
             id: user._id,
             updates: {
               settings: {
+                ...user?.settings,
                 orderCategoryOn: !user?.settings?.orderCategoryOn,
               },
             },
           });
         }}
       />
+      {isManager && (
+        <TextInput
+          type={InputTypes.CHECKBOX}
+          value={isInGameAssignmentsToday}
+          label={t("Include me in game assignments today")}
+          onChange={() => {
+            if (!user?._id) return;
+            updateUser({
+              id: user._id,
+              updates: {
+                settings: {
+                  ...user?.settings,
+                  includeInGameAssignmentsDate: isInGameAssignmentsToday
+                    ? ""
+                    : today,
+                },
+              },
+            });
+          }}
+        />
+      )}
     </div>
   );
 };
