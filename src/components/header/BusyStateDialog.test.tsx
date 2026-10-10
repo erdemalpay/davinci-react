@@ -27,6 +27,14 @@ describe("BusyStateDialog", () => {
     expect(onSelect).toHaveBeenCalledWith(BreakTypeEnum.TAKING_PAYMENT);
   });
 
+  it("offers WC", () => {
+    const onSelect = vi.fn();
+    render(<BusyStateDialog onSelect={onSelect} onCancel={vi.fn()} />);
+
+    fireEvent.click(screen.getByText("WC"));
+    expect(onSelect).toHaveBeenCalledWith(BreakTypeEnum.WC);
+  });
+
   it("asks for an explanation for other", () => {
     const onSelect = vi.fn();
     render(<BusyStateDialog onSelect={onSelect} onCancel={vi.fn()} />);
