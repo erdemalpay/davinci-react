@@ -60,16 +60,13 @@ export function ActiveButtonCallsList() {
   // A tapped call: close it, or take it over when possible.
   const [callForActions, setCallForActions] = useState<ButtonCall | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>();
-  // The click that ends a hold must not also open the actions.
-  const isHoldDone = useRef(false);
 
   const startHold = (buttonCall: ButtonCall) => {
     clearTimeout(holdTimer.current);
-    isHoldDone.current = false;
-    holdTimer.current = setTimeout(() => {
-      isHoldDone.current = true;
-      setCallToDecline(buttonCall);
-    }, DECLINE_HOLD_MS);
+    holdTimer.current = setTimeout(
+      () => setCallToDecline(buttonCall),
+      DECLINE_HOLD_MS
+    );
   };
   const cancelHold = () => clearTimeout(holdTimer.current);
   useEffect(() => cancelHold, []);
@@ -248,21 +245,16 @@ export function ActiveButtonCallsList() {
                 }${isAssigned ? ` - ${getGmCallDetails(buttonCall)}` : ""}${
                   isMine ? ` - ${t("Hold to decline")}` : ""
                 }`}
-                {...(hasActions && {
-                  role: "button",
-                  "aria-label": `${buttonCall.tableName} - ${t(
-                    canTakeOver(buttonCall)
-                      ? "Take over or close"
-                      : "Close call"
-                  )}`,
-                  onClick: () => {
-                    if (isHoldDone.current) {
-                      isHoldDone.current = false;
-                      return;
-                    }
-                    setCallForActions(buttonCall);
-                  },
-                })}
+                {...(hasActions &&
+                  !isMine && {
+                    role: "button",
+                    "aria-label": `${buttonCall.tableName} - ${t(
+                      canTakeOver(buttonCall)
+                        ? "Take over or close"
+                        : "Close call"
+                    )}`,
+                    onClick: () => setCallForActions(buttonCall),
+                  })}
                 {...(isMine && {
                   role: "button",
                   "aria-label": `${buttonCall.tableName} - ${t(
@@ -392,6 +384,10 @@ export function ActiveButtonCallsList() {
       {callToDecline && (
         <DeclineCallDialog
           tableName={callToDecline.tableName}
+          onHandled={() => {
+            handleChipClose(callToDecline.tableName, callToDecline.type);
+            setCallToDecline(null);
+          }}
           canNotKnowGame={
             callToDecline.type === ButtonCallTypeEnum.GAMEMASTERCALL
           }

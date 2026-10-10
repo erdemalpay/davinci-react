@@ -691,17 +691,21 @@ export type AssignmentEvent = {
 };
 
 export enum DeclineReasonEnum {
+  BREAK = "BREAK",
   TAKING_PAYMENT = "TAKING_PAYMENT",
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
+  WC = "WC",
   DOESNT_KNOW_GAME = "DOESNT_KNOW_GAME",
   OTHER = "OTHER",
 }
 
 export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
+  [DeclineReasonEnum.BREAK]: "Break",
   [DeclineReasonEnum.TAKING_PAYMENT]: "I'm taking a payment",
   [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
   [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
+  [DeclineReasonEnum.WC]: "WC",
   [DeclineReasonEnum.DOESNT_KNOW_GAME]: "I don't know the game",
   [DeclineReasonEnum.OTHER]: "Other",
 };

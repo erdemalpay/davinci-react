@@ -10,19 +10,26 @@ type Props = {
   games: MinimalGame[];
   // "I don't know the game" only makes sense for game master calls.
   canNotKnowGame?: boolean;
+  // "The table was taken care of": closes the call.
+  onHandled: () => void;
   onDecline: (reason: DeclineReasonEnum, note?: string, game?: number) => void;
   onCancel: () => void;
 };
 
+// The same choices as the "Busy" button (each puts the person in that busy
+// state), in the same order.
 const listedReasons = [
-  DeclineReasonEnum.TAKING_PAYMENT,
+  DeclineReasonEnum.BREAK,
   DeclineReasonEnum.RECOMMENDING_GAME,
   DeclineReasonEnum.PREPARING_ORDER,
+  DeclineReasonEnum.TAKING_PAYMENT,
+  DeclineReasonEnum.WC,
 ];
 
 const MAX_GAME_RESULTS = 20;
 
-// Asks why the assigned game master can't go. "I don't know the game" asks
+// Opened by holding a call assigned to me: either the table was taken care
+// of (closes the call), or I can't take care of it, and then why. "I don't know the game" asks
 // which game the table needs help with (the call's game preselected, but it
 // can be changed); "Other" needs a note. Notes are only shown to managers in
 // the Call Assignment Log.
@@ -31,11 +38,14 @@ export function DeclineCallDialog({
   game,
   games,
   canNotKnowGame = true,
+  onHandled,
   onDecline,
   onCancel,
 }: Props) {
   const { t, i18n } = useTranslation();
-  const [step, setStep] = useState<"reasons" | "other" | "game">("reasons");
+  const [step, setStep] = useState<"choice" | "reasons" | "other" | "game">(
+    "choice"
+  );
   const [note, setNote] = useState("");
   const [search, setSearch] = useState("");
   // The game the table needs help with: the call's game to start with, which
@@ -63,18 +73,34 @@ export function DeclineCallDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={t("Why can't you go?")}
+        aria-label={`${t("Table")} ${tableName}`}
         className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-lg font-semibold text-gray-800">
-          {step === "game"
-            ? t("Which game does the table need help with?")
-            : t("Why can't you go?")}
-        </h3>
-        <p className="mb-4 text-sm text-gray-500">
           {t("Table")} {tableName}
-        </p>
+        </h3>
+        {step !== "choice" && (
+          <p className="mb-3 text-sm font-medium text-gray-600">
+            {step === "game"
+              ? t("Which game does the table need help with?")
+              : t("Why?")}
+          </p>
+        )}
+
+        {step === "choice" && (
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              onClick={onHandled}
+              className={`${buttonClass} bg-green-600 text-white hover:bg-green-700`}
+            >
+              {t("The table was taken care of")}
+            </button>
+            <button onClick={() => setStep("reasons")} className={optionClass}>
+              {t("I can't take care of the table")}
+            </button>
+          </div>
+        )}
 
         {step === "reasons" && (
           <div className="flex flex-col gap-2">
