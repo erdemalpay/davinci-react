@@ -19,7 +19,7 @@ import {
   useGetBreaksByLocation,
 } from "../../utils/api/break";
 import { useGetMiddlemanByLocation } from "../../utils/api/middleman";
-import { getItem, getRefId } from "../../utils/getItem";
+import { useBreakWarning } from "../../hooks/useBreakWarning";
 
 interface BreakButtonProps {
   onBreakStart?: () => void;
@@ -29,7 +29,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
-  const { visits = [], users = [] } = useDataContext();
+  const { visits = [] } = useDataContext();
   const { createBreak, updateBreak } = useBreakMutations();
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [currentBreakId, setCurrentBreakId] = useState<number | null>(null);
@@ -43,18 +43,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   // Get active middlemen for current location
   const activeMiddlemen = useGetMiddlemanByLocation(selectedLocationId || 0);
 
-  const othersOnBreak = useMemo(() => {
-    if (!activeBreaks || !user) return [];
-    // Only real breaks count for the "others are on break" warning.
-    return activeBreaks
-      .filter(
-        (b) =>
-          !b.finishHour &&
-          getRefId(b.user) !== user?._id &&
-          breakTypeOf(b) === BreakTypeEnum.BREAK
-      )
-      .map((b) => getItem(getRefId(b.user), users)?.name ?? t("Someone"));
-  }, [activeBreaks, user, users, t]);
+  const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
 
   // Check if current user has an active visit (is at the cafe)
   const hasActiveVisit = useMemo(() => {
@@ -114,7 +103,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     setIsStateDialogOpen(false);
     setPendingBreak({ type, note });
     // The "others are on break" warning is only about real breaks.
-    if (type === BreakTypeEnum.BREAK && othersOnBreak.length >= 2) {
+    if (type === BreakTypeEnum.BREAK && breakWarning) {
       setIsBreakWarningOpen(true);
       return;
     }
@@ -178,10 +167,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
           close={() => setIsBreakWarningOpen(false)}
           confirm={() => doStartBreak()}
           title={t("Break Warning")}
-          text={t(
-            "{{names}} are currently on break. Do you still want to take a break?",
-            { names: othersOnBreak.join(", ") }
-          )}
+          text={breakWarningText}
         />
       )}
       {isStateDialogOpen && (

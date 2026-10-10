@@ -13,6 +13,7 @@ const options: { type: BreakTypeEnum; label: string }[] = [
   { type: BreakTypeEnum.RECOMMENDING_GAME, label: "I'm recommending a game" },
   { type: BreakTypeEnum.PREPARING_ORDER, label: "I'm preparing an order" },
   { type: BreakTypeEnum.TAKING_PAYMENT, label: "I'm taking a payment" },
+  { type: BreakTypeEnum.WC, label: "WC" },
 ];
 
 // Picks the busy state (a break is one of them); "Other" needs a note.

@@ -260,6 +260,8 @@ export type User = {
   ];
   settings?: {
     orderCategoryOn?: boolean;
+    // Managers: the day ("yyyy-MM-dd") they asked to get game master calls.
+    includeInGameAssignmentsDate?: string;
   };
 };
 
@@ -534,6 +536,7 @@ export enum BreakTypeEnum {
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
   TAKING_PAYMENT = "TAKING_PAYMENT",
+  WC = "WC",
   OTHER = "OTHER",
 }
 
@@ -543,6 +546,7 @@ export const busyStateLabels: Record<BreakTypeEnum, string> = {
   [BreakTypeEnum.RECOMMENDING_GAME]: "Recommending a game",
   [BreakTypeEnum.PREPARING_ORDER]: "Preparing an order",
   [BreakTypeEnum.TAKING_PAYMENT]: "Taking a payment",
+  [BreakTypeEnum.WC]: "At the WC",
   [BreakTypeEnum.OTHER]: "Busy",
 };
 
@@ -687,17 +691,21 @@ export type AssignmentEvent = {
 };
 
 export enum DeclineReasonEnum {
+  BREAK = "BREAK",
   TAKING_PAYMENT = "TAKING_PAYMENT",
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
+  WC = "WC",
   DOESNT_KNOW_GAME = "DOESNT_KNOW_GAME",
   OTHER = "OTHER",
 }
 
 export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
+  [DeclineReasonEnum.BREAK]: "Break",
   [DeclineReasonEnum.TAKING_PAYMENT]: "I'm taking a payment",
   [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
   [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
+  [DeclineReasonEnum.WC]: "WC",
   [DeclineReasonEnum.DOESNT_KNOW_GAME]: "I don't know the game",
   [DeclineReasonEnum.OTHER]: "Other",
 };

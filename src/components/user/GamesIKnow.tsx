@@ -32,6 +32,8 @@ const GamesIKnow = ({ userId }: Props) => {
   if (!panelUser) return <></>;
   const [learnDateModal, setLearnDateModal] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  // While marking games: show only the ones already marked as known.
+  const [isOnlyKnownShown, setIsOnlyKnownShown] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -198,8 +200,23 @@ const GamesIKnow = ({ userId }: Props) => {
           </>
         ),
       },
+      ...(isEnableEdit
+        ? [
+            {
+              label: t("Only show games I know"),
+              isUpperSide: false,
+              node: (
+                <CheckSwitch
+                  checked={isOnlyKnownShown}
+                  onChange={() => setIsOnlyKnownShown((value) => !value)}
+                  checkedBg="bg-green-500"
+                />
+              ),
+            },
+          ]
+        : []),
     ],
-    [t, isEnableEdit]
+    [t, isEnableEdit, isOnlyKnownShown]
   );
 
   const actions = useMemo(
@@ -248,11 +265,24 @@ const GamesIKnow = ({ userId }: Props) => {
   );
 
   const filteredRows = useMemo(() => {
-    if (isEnableEdit) {
+    if (isEnableEdit && !isOnlyKnownShown) {
       return rows;
     }
-    return rows.filter((row) => userGamesGameArray?.includes(row._id));
-  }, [isEnableEdit, rows, userGamesGameArray]);
+    // Known, or marked and waiting for verification.
+    return rows.filter(
+      (row) =>
+        userGamesGameArray?.includes(row._id) ||
+        (isEnableEdit &&
+          assignmentStatusByGameId.get(row._id) ===
+            AssignmentStatusEnum.IN_PROGRESS)
+    );
+  }, [
+    isEnableEdit,
+    isOnlyKnownShown,
+    rows,
+    userGamesGameArray,
+    assignmentStatusByGameId,
+  ]);
 
   return (
     <div className="w-full  h-fit">

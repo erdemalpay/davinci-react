@@ -177,10 +177,14 @@ export function useQrCheckInOutMutation() {
   });
 }
 
-function managerCheckInOut(location: number): Promise<QrCheckInResult> {
-  return post<{ location: number }, QrCheckInResult>({
+// `user`: managers only, to check someone else in or out.
+function managerCheckInOut(payload: {
+  location: number;
+  user?: string;
+}): Promise<QrCheckInResult> {
+  return post<typeof payload, QrCheckInResult>({
     path: `${Paths.Visits}/manager-toggle`,
-    payload: { location },
+    payload,
   });
 }
 

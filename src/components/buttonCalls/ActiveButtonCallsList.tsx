@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaDice, FaUserCheck } from "react-icons/fa";
+import { FaDice } from "react-icons/fa";
 import { HiBellAlert } from "react-icons/hi2";
 import { MdOutlineRestaurantMenu, MdOutlineRoomService } from "react-icons/md";
 import { useDataContext } from "../../context/Data.context";
@@ -10,6 +10,7 @@ import {
   ButtonCall,
   ButtonCallType,
   ButtonCallTypeEnum,
+  DeclineReasonEnum,
   GmCallReasonEnum,
 } from "../../types";
 import {
@@ -18,6 +19,8 @@ import {
   useFinishButtonCallMutation,
   useGetActiveButtonCalls,
 } from "../../utils/api/buttonCall";
+import { useBreakWarning } from "../../hooks/useBreakWarning";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { DeclineCallDialog } from "./DeclineCallDialog";
 
 // Holding a call assigned to me this long opens the decline reasons; a
@@ -57,6 +60,12 @@ export function ActiveButtonCallsList() {
   ).active;
 
   const [callToDecline, setCallToDecline] = useState<ButtonCall | null>(null);
+  // Declining a call to go on a break, waiting for the break warning.
+  const [breakDeclinePending, setBreakDeclinePending] =
+    useState<ButtonCall | null>(null);
+  const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
+  // A tapped call: close it, or take it over when possible.
+  const [callForActions, setCallForActions] = useState<ButtonCall | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const startHold = (buttonCall: ButtonCall) => {
@@ -74,6 +83,10 @@ export function ActiveButtonCallsList() {
   const hasOwnOpenCall = activeButtonCalls.some(
     (call) => isAssignedCallType(call.type) && call.assignedTo === user?._id
   );
+  const canTakeOver = (call: ButtonCall) =>
+    isAssignedCallType(call.type) &&
+    call.assignedTo !== user?._id &&
+    !hasOwnOpenCall;
 
   // Çağrıları tipine göre grupla
   const groupedCalls = {
@@ -220,6 +233,9 @@ export function ActiveButtonCallsList() {
             const assigneeName = isAssigned
               ? users?.find((u) => u._id === buttonCall.assignedTo)?.name
               : undefined;
+            // Order ready calls are only closed from the Orders page.
+            const hasActions =
+              buttonCall.type !== ButtonCallTypeEnum.ORDERREADYCALL;
             const gameName = buttonCall.game
               ? games?.find((g) => g._id === buttonCall.game)?.name
               : undefined;
@@ -236,6 +252,16 @@ export function ActiveButtonCallsList() {
                 }${isAssigned ? ` - ${getGmCallDetails(buttonCall)}` : ""}${
                   isMine ? ` - ${t("Hold to decline")}` : ""
                 }`}
+                {...(hasActions &&
+                  !isMine && {
+                    role: "button",
+                    "aria-label": `${buttonCall.tableName} - ${t(
+                      canTakeOver(buttonCall)
+                        ? "Take over or close"
+                        : "Close call"
+                    )}`,
+                    onClick: () => setCallForActions(buttonCall),
+                  })}
                 {...(isMine && {
                   role: "button",
                   "aria-label": `${buttonCall.tableName} - ${t(
@@ -280,33 +306,6 @@ export function ActiveButtonCallsList() {
                     {isMine ? t("You") : assigneeName ?? "—"}
                   </span>
                 )}
-
-                {/* Üstüme al (kendi çağrımı reddetmek için çipi basılı tut) */}
-                {isAssigned && !isMine && !hasOwnOpenCall && (
-                  <button
-                    onClick={() => claimButtonCall(buttonCall._id)}
-                    className="ml-1 w-7 h-7 sm:w-8 sm:h-8 bg-white/25 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white transition-all duration-200 touch-manipulation"
-                    title={t("Take over")}
-                    aria-label={t("Take over")}
-                  >
-                    <FaUserCheck className="text-sm sm:text-base" />
-                  </button>
-                )}
-
-                {/* Kapat Butonu - Sipariş hazır çağrısı sadece Siparişler sayfasından kapatılır */}
-                {buttonCall.type !== ButtonCallTypeEnum.ORDERREADYCALL && (
-                  <button
-                    // Closing must not start the hold-to-decline timer.
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() =>
-                      handleChipClose(buttonCall.tableName, buttonCall.type)
-                    }
-                    className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
-                    aria-label="Çağrıyı kapat"
-                  >
-                    ✕
-                  </button>
-                )}
               </div>
             );
           })}
@@ -339,9 +338,63 @@ export function ActiveButtonCallsList() {
           )}
       </div>
 
+      {callForActions && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setCallForActions(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${t("Table")} ${callForActions.tableName}`}
+            className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-4 text-lg font-semibold text-gray-800">
+              {t("Table")} {callForActions.tableName}
+            </h3>
+            <div className="flex flex-col gap-2">
+              {canTakeOver(callForActions) && (
+                <button
+                  onClick={() => {
+                    claimButtonCall(callForActions._id);
+                    setCallForActions(null);
+                  }}
+                  className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700"
+                >
+                  {t("Take over")}
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  handleChipClose(
+                    callForActions.tableName,
+                    callForActions.type
+                  );
+                  setCallForActions(null);
+                }}
+                className="w-full rounded-lg bg-gray-100 px-4 py-3 font-medium text-gray-800 hover:bg-gray-200"
+              >
+                {t("Close call")}
+              </button>
+              <button
+                onClick={() => setCallForActions(null)}
+                className="w-full rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+              >
+                {t("Cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {callToDecline && (
         <DeclineCallDialog
           tableName={callToDecline.tableName}
+          onHandled={() => {
+            handleChipClose(callToDecline.tableName, callToDecline.type);
+            setCallToDecline(null);
+          }}
           canNotKnowGame={
             callToDecline.type === ButtonCallTypeEnum.GAMEMASTERCALL
           }
@@ -349,9 +402,31 @@ export function ActiveButtonCallsList() {
           games={games ?? []}
           onCancel={() => setCallToDecline(null)}
           onDecline={(reason, note, game) => {
+            // Declining to go on a break: same warning as the Busy button.
+            if (reason === DeclineReasonEnum.BREAK && breakWarning) {
+              setBreakDeclinePending(callToDecline);
+              setCallToDecline(null);
+              return;
+            }
             declineButtonCall({ id: callToDecline._id, reason, note, game });
             setCallToDecline(null);
           }}
+        />
+      )}
+
+      {breakDeclinePending && (
+        <ConfirmationDialog
+          isOpen={!!breakDeclinePending}
+          close={() => setBreakDeclinePending(null)}
+          confirm={() => {
+            declineButtonCall({
+              id: breakDeclinePending._id,
+              reason: DeclineReasonEnum.BREAK,
+            });
+            setBreakDeclinePending(null);
+          }}
+          title={t("Break Warning")}
+          text={breakWarningText}
         />
       )}
     </div>

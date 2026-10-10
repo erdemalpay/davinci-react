@@ -32,6 +32,7 @@ import { useManagerCheckInOutMutation } from "../../utils/api/visit";
 import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
+import { ManagerCheckInDialog } from "./ManagerCheckInDialog";
 import { QrScannerModal } from "./QrScannerModal";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
@@ -69,6 +70,10 @@ export function ActiveVisitList({
   const { mutate: managerCheckInOut, isPending: isCheckingInOut } =
     useManagerCheckInOutMutation();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  // Managers pick whom to check in or out.
+  const [isManagerCheckInOpen, setIsManagerCheckInOpen] = useState(false);
+  const [openTooltipUser, setOpenTooltipUser] = useState<string | null>(null);
+  const isManager = user?.role?._id === RoleEnum.MANAGER;
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
 
   const canEndOthersMiddleman = useMemo(() => {
@@ -84,17 +89,20 @@ export function ActiveVisitList({
     user?.role?._id === RoleEnum.MANAGER ||
     user?.role?._id === RoleEnum.COUNTER;
 
-  function toggleVisitAsManager() {
+  function toggleVisitAsManager(targetUser?: string) {
     if (!selectedLocationId || isCheckingInOut) return;
-    managerCheckInOut(selectedLocationId, {
-      onSuccess: (data) => {
-        toast.success(
-          data.action === "entry"
-            ? t("Check-in successful")
-            : t("Check-out successful")
-        );
-      },
-    });
+    managerCheckInOut(
+      { location: selectedLocationId, user: targetUser },
+      {
+        onSuccess: (data) => {
+          toast.success(
+            data.action === "entry"
+              ? t("Check-in successful")
+              : t("Check-out successful")
+          );
+        },
+      }
+    );
   }
 
   function handleChipClose(userId: string) {
@@ -110,6 +118,10 @@ export function ActiveVisitList({
 
   function handleCheckboxChange() {
     if (isDisabledCondition) {
+      return;
+    }
+    if (isManager) {
+      setIsManagerCheckInOpen(true);
       return;
     }
     if (isManagerOrKasa) {
@@ -320,7 +332,6 @@ export function ActiveVisitList({
                 <span className="flex items-center gap-1">
                   <MdHourglassTop className="text-sm" />
                   {userName}
-                  <span className="opacity-80">· {busyLabel}</span>
                 </span>
               );
             }
@@ -395,6 +406,12 @@ export function ActiveVisitList({
           return (
             <Tooltip
               key={visit?.user}
+              // Why someone is busy shows only when their chip is tapped.
+              {...(isBusyNotBreak && {
+                open: openTooltipUser === visit.user,
+                handler: (isOpen: boolean) =>
+                  setOpenTooltipUser(isOpen ? visit.user : null),
+              })}
               content={
                 canClickToEndMiddleman
                   ? `${tooltipContent} — ${t("Click to end middleman")}`
@@ -405,10 +422,17 @@ export function ActiveVisitList({
                 onClick={
                   canClickToEndMiddleman && userMiddleman
                     ? () => setMiddlemanToEnd(userMiddleman)
+                    : isBusyNotBreak
+                    ? () =>
+                        setOpenTooltipUser((current) =>
+                          current === visit.user ? null : visit.user
+                        )
                     : undefined
                 }
                 className={
-                  canClickToEndMiddleman ? "cursor-pointer" : undefined
+                  canClickToEndMiddleman || isBusyNotBreak
+                    ? "cursor-pointer"
+                    : undefined
                 }
               >
                 <Chip
@@ -435,6 +459,18 @@ export function ActiveVisitList({
         isOpen={isScannerOpen}
         close={() => setIsScannerOpen(false)}
       />
+      {isManagerCheckInOpen && user && (
+        <ManagerCheckInDialog
+          users={users}
+          currentUserId={user._id}
+          isInCafe={isUserActive}
+          onConfirm={(userId) => {
+            setIsManagerCheckInOpen(false);
+            toggleVisitAsManager(userId);
+          }}
+          onCancel={() => setIsManagerCheckInOpen(false)}
+        />
+      )}
     </div>
   );
 }
