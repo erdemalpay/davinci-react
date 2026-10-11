@@ -36,6 +36,7 @@ import {
   TableTypes,
   User,
 } from "../../types";
+import { useGetActiveButtonCalls } from "../../utils/api/buttonCall";
 import {
   useCombineTableMutation,
   useCreateMultipleOrderMutation,
@@ -63,6 +64,7 @@ import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
+import { getGameplayDefaultsFromCall } from "./gameplayDefaults";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 import OrderListForPanel from "./OrderListForPanel";
@@ -769,15 +771,22 @@ export function TableCard({
     setIsOrderPaymentModalOpen(true);
   }, []);
 
+  const activeButtonCalls = useGetActiveButtonCalls();
+  const callDefaults = useMemo(
+    () => getGameplayDefaultsFromCall(activeButtonCalls, table.name),
+    [activeButtonCalls, table.name]
+  );
+
   const gameplayTemplate = useMemo(() => {
     return {
       date: table.date,
       location: table.location as number,
       playerCount: table.playerCount,
       startHour: format(new Date(), "HH:mm"),
-      mentor: mentors[0],
+      mentor: callDefaults.mentor ?? mentors[0],
+      ...(callDefaults.game && { game: callDefaults.game }),
     };
-  }, [table.date, table.location, table.playerCount, mentors]);
+  }, [table.date, table.location, table.playerCount, mentors, callDefaults]);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 

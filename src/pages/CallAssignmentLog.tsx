@@ -8,35 +8,21 @@ import { useDataContext } from "../context/Data.context";
 import {
   AssignmentActionEnum,
   AssignmentEvent,
+  ButtonCallTypeEnum,
   commonDateOptions,
-  DeclineReasonEnum,
-  declineReasonLabels,
   FormElementsState,
-  GmCallReasonEnum,
 } from "../types";
+import {
+  assignmentActionColors,
+  assignmentActionLabels,
+  formatDeclineReason,
+  gmCallReasonLabels,
+} from "../components/buttonCalls/assignmentDisplay";
 import { useGetAssignmentEvents } from "../utils/api/buttonCall";
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
-
-const actionLabels: Record<AssignmentActionEnum, string> = {
-  [AssignmentActionEnum.ASSIGNED]: "Assigned by the system",
-  [AssignmentActionEnum.DECLINED]: "Declined",
-  [AssignmentActionEnum.CLAIMED]: "Took over",
-};
-
-const actionColors: Record<AssignmentActionEnum, string> = {
-  [AssignmentActionEnum.ASSIGNED]: "bg-gray-500",
-  [AssignmentActionEnum.DECLINED]: "bg-red-500",
-  [AssignmentActionEnum.CLAIMED]: "bg-blue-500",
-};
-
-const reasonLabels: Record<GmCallReasonEnum, string> = {
-  [GmCallReasonEnum.RECOMMENDATION]: "Game recommendation",
-  [GmCallReasonEnum.EXPLANATION]: "Game explanation",
-  [GmCallReasonEnum.QUESTION]: "Question about the game",
-};
 
 // Who declined or took over which game master call, to follow how the
 // automatic assignment works out in practice.
@@ -58,6 +44,9 @@ export default function CallAssignmentLog() {
   const [showFilters, setShowFilters] = useState(false);
   const events = useGetAssignmentEvents(filterPanelFormElements);
 
+  const formatEventDeclineReason = (event: AssignmentEvent) =>
+    formatDeclineReason(event, t, games);
+
   const rows = useMemo(() => {
     const actions: string[] = filterPanelFormElements.action ?? [];
     const selectedUsers: string[] = filterPanelFormElements.user ?? [];
@@ -74,15 +63,15 @@ export default function CallAssignmentLog() {
         fromUserName: event.fromUser
           ? getItem(event.fromUser, users)?.name ?? event.fromUser
           : "",
+        callTypeLabel:
+          event.callType === ButtonCallTypeEnum.ORDERCALL
+            ? t("Service call")
+            : t("Game master call"),
         reasonLabel: event.gmCallReason
-          ? t(reasonLabels[event.gmCallReason])
+          ? t(gmCallReasonLabels[event.gmCallReason])
           : "",
         gameName: event.game ? getItem(event.game, games)?.name ?? "" : "",
-        declineReasonLabel: event.reason
-          ? event.reason === DeclineReasonEnum.OTHER && event.note
-            ? `${t(declineReasonLabels[event.reason])}: ${event.note}`
-            : t(declineReasonLabels[event.reason])
-          : "",
+        declineReasonLabel: formatEventDeclineReason(event),
       }));
   }, [events, filterPanelFormElements, locations, users, games, t]);
 
@@ -92,6 +81,7 @@ export default function CallAssignmentLog() {
       { key: t("Hour"), isSortable: true },
       { key: t("Location"), isSortable: true },
       { key: t("Table Name"), isSortable: true },
+      { key: t("Call type"), isSortable: true },
       { key: t("Action"), isSortable: true },
       { key: t("Person"), isSortable: true },
       { key: t("Taken over from"), isSortable: true },
@@ -112,16 +102,17 @@ export default function CallAssignmentLog() {
       { key: "hour" },
       { key: "locationName", className: "min-w-32" },
       { key: "tableName" },
+      { key: "callTypeLabel", className: "min-w-32" },
       {
         key: "action",
         className: "min-w-32",
         node: (row: AssignmentEvent) => (
           <div
             className={`w-fit rounded-md text-sm px-2 py-1 font-semibold text-white ${
-              actionColors[row.action]
+              assignmentActionColors[row.action]
             }`}
           >
-            {t(actionLabels[row.action])}
+            {t(assignmentActionLabels[row.action])}
           </div>
         ),
       },
@@ -153,7 +144,7 @@ export default function CallAssignmentLog() {
         label: t("Action"),
         options: Object.values(AssignmentActionEnum).map((action) => ({
           value: action,
-          label: t(actionLabels[action]),
+          label: t(assignmentActionLabels[action]),
         })),
         placeholder: t("Action"),
         isMultiple: true,

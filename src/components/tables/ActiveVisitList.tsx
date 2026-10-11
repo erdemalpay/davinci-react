@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
 import { FaConciergeBell, FaUserSlash } from "react-icons/fa";
 import { GiPerspectiveDiceSixFacesRandom, GiRoundTable } from "react-icons/gi";
+import { MdHourglassTop } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -17,6 +18,9 @@ import {
   Shift,
   Table,
   Visit,
+  BreakTypeEnum,
+  breakTypeOf,
+  busyStateLabels,
 } from "../../types";
 import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
 import {
@@ -28,6 +32,7 @@ import { useManagerCheckInOutMutation } from "../../utils/api/visit";
 import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
+import { ManagerCheckInDialog } from "./ManagerCheckInDialog";
 import { QrScannerModal } from "./QrScannerModal";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
@@ -65,6 +70,10 @@ export function ActiveVisitList({
   const { mutate: managerCheckInOut, isPending: isCheckingInOut } =
     useManagerCheckInOutMutation();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  // Managers pick whom to check in or out.
+  const [isManagerCheckInOpen, setIsManagerCheckInOpen] = useState(false);
+  const [openTooltipUser, setOpenTooltipUser] = useState<string | null>(null);
+  const isManager = user?.role?._id === RoleEnum.MANAGER;
   const [middlemanToEnd, setMiddlemanToEnd] = useState<Middleman | null>(null);
 
   const canEndOthersMiddleman = useMemo(() => {
@@ -77,19 +86,23 @@ export function ActiveVisitList({
 
   // Manager ve Kasa QR okutmadan direkt giriş/çıkış yapabilir
   const isManagerOrKasa =
-    user?.role?._id === RoleEnum.MANAGER || user?.role?._id === RoleEnum.COUNTER;
+    user?.role?._id === RoleEnum.MANAGER ||
+    user?.role?._id === RoleEnum.COUNTER;
 
-  function toggleVisitAsManager() {
+  function toggleVisitAsManager(targetUser?: string) {
     if (!selectedLocationId || isCheckingInOut) return;
-    managerCheckInOut(selectedLocationId, {
-      onSuccess: (data) => {
-        toast.success(
-          data.action === "entry"
-            ? t("Check-in successful")
-            : t("Check-out successful")
-        );
-      },
-    });
+    managerCheckInOut(
+      { location: selectedLocationId, user: targetUser },
+      {
+        onSuccess: (data) => {
+          toast.success(
+            data.action === "entry"
+              ? t("Check-in successful")
+              : t("Check-out successful")
+          );
+        },
+      }
+    );
   }
 
   function handleChipClose(userId: string) {
@@ -105,6 +118,10 @@ export function ActiveVisitList({
 
   function handleCheckboxChange() {
     if (isDisabledCondition) {
+      return;
+    }
+    if (isManager) {
+      setIsManagerCheckInOpen(true);
       return;
     }
     if (isManagerOrKasa) {
@@ -281,12 +298,24 @@ export function ActiveVisitList({
           const userOutsideOperation = isUserOutsideOperation(visit.user);
           const userChef = isUserChef(visit.user);
           const userName = userOnVisit.name ?? "";
+          // A break or another busy state (recommending a game, ...).
+          const busyType = userBreak ? breakTypeOf(userBreak) : undefined;
+          const isBusyNotBreak =
+            busyType !== undefined && busyType !== BreakTypeEnum.BREAK;
+          const busyLabel =
+            busyType === undefined
+              ? ""
+              : busyType === BreakTypeEnum.OTHER && userBreak?.note
+              ? `${t(busyStateLabels[busyType])}: ${userBreak.note}`
+              : t(busyStateLabels[busyType]);
           const userRole = userOnVisit.role?.name ?? "";
 
           // Build tooltip content based on user status
           let tooltipContent = userRole;
           if (userBreak) {
-            tooltipContent = `${userRole}  •  ${t("On Break")}`;
+            tooltipContent = `${userRole}  •  ${
+              isBusyNotBreak ? busyLabel : t("On Break")
+            }`;
           } else if (userGameplayTime) {
             tooltipContent = `${userRole}  •  ${t("In Gameplay")}`;
           } else if (userMiddleman) {
@@ -298,6 +327,14 @@ export function ActiveVisitList({
           }
 
           const getChipValue = () => {
+            if (isBusyNotBreak) {
+              return (
+                <span className="flex items-center gap-1">
+                  <MdHourglassTop className="text-sm" />
+                  {userName}
+                </span>
+              );
+            }
             if (userBreak) {
               return (
                 <span className="flex items-center gap-1">
@@ -348,6 +385,8 @@ export function ActiveVisitList({
           const getChipBackgroundColor = () => {
             if (userGameplayTime) {
               return "#F97316";
+            } else if (isBusyNotBreak) {
+              return "#B45309";
             } else if (userBreak) {
               return "#255691";
             } else if (userMiddleman) {
@@ -367,6 +406,12 @@ export function ActiveVisitList({
           return (
             <Tooltip
               key={visit?.user}
+              // Why someone is busy shows only when their chip is tapped.
+              {...(isBusyNotBreak && {
+                open: openTooltipUser === visit.user,
+                handler: (isOpen: boolean) =>
+                  setOpenTooltipUser(isOpen ? visit.user : null),
+              })}
               content={
                 canClickToEndMiddleman
                   ? `${tooltipContent} — ${t("Click to end middleman")}`
@@ -377,10 +422,17 @@ export function ActiveVisitList({
                 onClick={
                   canClickToEndMiddleman && userMiddleman
                     ? () => setMiddlemanToEnd(userMiddleman)
+                    : isBusyNotBreak
+                    ? () =>
+                        setOpenTooltipUser((current) =>
+                          current === visit.user ? null : visit.user
+                        )
                     : undefined
                 }
                 className={
-                  canClickToEndMiddleman ? "cursor-pointer" : undefined
+                  canClickToEndMiddleman || isBusyNotBreak
+                    ? "cursor-pointer"
+                    : undefined
                 }
               >
                 <Chip
@@ -407,6 +459,18 @@ export function ActiveVisitList({
         isOpen={isScannerOpen}
         close={() => setIsScannerOpen(false)}
       />
+      {isManagerCheckInOpen && user && (
+        <ManagerCheckInDialog
+          users={users}
+          currentUserId={user._id}
+          isInCafe={isUserActive}
+          onConfirm={(userId) => {
+            setIsManagerCheckInOpen(false);
+            toggleVisitAsManager(userId);
+          }}
+          onCancel={() => setIsManagerCheckInOpen(false)}
+        />
+      )}
     </div>
   );
 }

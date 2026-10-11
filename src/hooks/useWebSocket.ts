@@ -242,14 +242,23 @@ export function useWebSocket(shouldConnect = false) {
         action,
         assignedTo,
         tableName,
+        type,
       }: {
         action?: string;
         assignedTo?: string;
         tableName?: string;
+        type?: string;
       }) => {
         const { user, audioReadyRef, audioRef } = latestValuesRef.current;
         if (action !== "assign" || !user || assignedTo !== user._id) return;
-        toast.info(i18n.t("GameMasterCallAssignedToYou", { tableName }));
+        toast.info(
+          i18n.t(
+            type === "ORDERCALL"
+              ? "ServiceCallAssignedToYou"
+              : "GameMasterCallAssignedToYou",
+            { tableName }
+          )
+        );
         if (audioReadyRef.current && audioRef.current) {
           audioRef.current
             .play()

@@ -6,6 +6,16 @@ import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
+import {
+  AssignmentStep,
+  assignmentActionColors,
+  assignmentActionLabels,
+  formatDeclineReason,
+  gmCallReasonLabels,
+  hadSeveralAssignees,
+  toAssignmentSteps,
+} from "../components/buttonCalls/assignmentDisplay";
+import { useDataContext } from "../context/Data.context";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import {
@@ -34,6 +44,7 @@ export default function ButtonCalls() {
   const { t } = useTranslation();
   const locations = useGetAllLocations();
   const users = useGetUsersMinimal();
+  const { games = [] } = useDataContext();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
 
@@ -72,21 +83,68 @@ export default function ButtonCalls() {
     );
   }, [disabledConditions]);
 
+  const userName = (id?: string) => (id ? getItem(id, users)?.name ?? id : "");
+
   const rows = useMemo(() => {
     const allRows = buttonCallsPayload?.data
       ?.map((buttonCall) => {
+        const history = buttonCall.assignmentHistory ?? [];
         return {
           ...buttonCall,
           locationName: getItem(buttonCall.location, locations)?.name ?? 0,
           cancelledByName: getItem(buttonCall.cancelledBy, users)?.name ?? "",
           type: buttonCall?.type ?? buttonCallTypes[0].value,
+          assignedToName: userName(buttonCall.assignedTo),
+          reasonLabel: buttonCall.gmCallReason
+            ? t(gmCallReasonLabels[buttonCall.gmCallReason])
+            : "",
+          gameName: buttonCall.game
+            ? getItem(buttonCall.game, games)?.name ?? ""
+            : "",
+          // Every step when the call went through more than one person.
+          collapsible: {
+            collapsibleHeader: t("Assignment steps"),
+            collapsibleColumns: [
+              { key: t("Hour"), isSortable: false },
+              { key: t("Action"), isSortable: false },
+              { key: t("Person"), isSortable: false },
+              { key: t("Taken over from"), isSortable: false },
+              { key: t("Decline reason"), isSortable: false },
+            ],
+            collapsibleRows: hadSeveralAssignees(history)
+              ? toAssignmentSteps(history).map((step) => ({
+                  ...step,
+                  userName: userName(step.user),
+                  fromUserName: userName(step.fromUser),
+                  declineReasonLabel: formatDeclineReason(step, t, games),
+                }))
+              : [],
+            collapsibleRowKeys: [
+              { key: "hour" },
+              {
+                key: "action",
+                node: (step: AssignmentStep) => (
+                  <div
+                    className={`w-fit rounded-md text-sm px-2 py-1 font-semibold text-white ${
+                      assignmentActionColors[step.action]
+                    }`}
+                  >
+                    {t(assignmentActionLabels[step.action])}
+                  </div>
+                ),
+              },
+              { key: "userName" },
+              { key: "fromUserName" },
+              { key: "declineReasonLabel", className: "whitespace-normal" },
+            ],
+          },
         };
       })
       ?.sort((a, b) => {
         return new Date(b.date).getTime() - new Date(a.date).getTime();
       });
     return allRows || [];
-  }, [buttonCallsPayload, locations, users]);
+  }, [buttonCallsPayload, locations, users, games, t]);
 
   const columns = useMemo(() => {
     const baseColumns = [
@@ -94,6 +152,9 @@ export default function ButtonCalls() {
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Type"), isSortable: true, correspondingKey: "type" },
       { key: t("Table Name"), isSortable: true, correspondingKey: "tableName" },
+      { key: t("Assigned To"), isSortable: false },
+      { key: t("Reason"), isSortable: false },
+      { key: t("Game"), isSortable: false },
       { key: t("Start Hour"), isSortable: true, correspondingKey: "startHour" },
       {
         key: t("Finish Hour"),
@@ -139,6 +200,9 @@ export default function ButtonCalls() {
         },
       },
       { key: "tableName" },
+      { key: "assignedToName", className: "min-w-32" },
+      { key: "reasonLabel", className: "min-w-40" },
+      { key: "gameName", className: "min-w-40" },
       { key: "startHour" },
       { key: "finishHour" },
       { key: "duration" },
@@ -395,6 +459,7 @@ export default function ButtonCalls() {
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
           isAllRowPerPageOption={false}
+          isCollapsible={true}
         />
       </div>
     </>

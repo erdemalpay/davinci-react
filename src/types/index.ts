@@ -260,6 +260,8 @@ export type User = {
   ];
   settings?: {
     orderCategoryOn?: boolean;
+    // Managers: the day ("yyyy-MM-dd") they asked to get game master calls.
+    includeInGameAssignmentsDate?: string;
   };
 };
 
@@ -520,15 +522,45 @@ export type Break = {
   date: string;
   startHour: string;
   finishHour?: string;
+  // Which busy state this is; older records are breaks.
+  type?: BreakTypeEnum;
+  note?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+// "Meşgul" states: a break is one of them. All keep the person out of call
+// assignment until they end it.
+export enum BreakTypeEnum {
+  BREAK = "BREAK",
+  RECOMMENDING_GAME = "RECOMMENDING_GAME",
+  PREPARING_ORDER = "PREPARING_ORDER",
+  TAKING_PAYMENT = "TAKING_PAYMENT",
+  WC = "WC",
+  OTHER = "OTHER",
+}
+
+// Shown on the busy button, overlay and Tables ("I'm ...").
+export const busyStateLabels: Record<BreakTypeEnum, string> = {
+  [BreakTypeEnum.BREAK]: "On break",
+  [BreakTypeEnum.RECOMMENDING_GAME]: "Recommending a game",
+  [BreakTypeEnum.PREPARING_ORDER]: "Preparing an order",
+  [BreakTypeEnum.TAKING_PAYMENT]: "Taking a payment",
+  [BreakTypeEnum.WC]: "At the WC",
+  [BreakTypeEnum.OTHER]: "Busy",
+};
+
+export const breakTypeOf = (breakRecord?: { type?: BreakTypeEnum }) =>
+  breakRecord?.type ?? BreakTypeEnum.BREAK;
 
 export type CreateBreakDto = {
   user: string;
   location: number;
   date: string;
   startHour: string;
+  type?: BreakTypeEnum;
+  // Required for BreakTypeEnum.OTHER.
+  note?: string;
 };
 
 export type Middleman = {
@@ -610,6 +642,17 @@ export type ButtonCall = {
   assignedHour?: string;
   declinedBy?: string[];
   explainerUnavailable?: boolean;
+  // Every assignment, decline and take-over (panel endpoints only).
+  assignmentHistory?: AssignmentHistoryItem[];
+};
+
+export type AssignmentHistoryItem = {
+  user: string;
+  action: AssignmentActionEnum;
+  hour: string;
+  reason?: DeclineReasonEnum;
+  note?: string;
+  game?: number;
 };
 
 export enum GameAvailabilityStatus {
@@ -645,6 +688,8 @@ export type AssignmentEvent = {
   hour: string;
   location: number;
   tableName: string;
+  // Game master or service call.
+  callType?: ButtonCallTypeEnum;
   user: string;
   action: AssignmentActionEnum;
   // For a take-over: who had the call before.
@@ -657,16 +702,22 @@ export type AssignmentEvent = {
 };
 
 export enum DeclineReasonEnum {
+  BREAK = "BREAK",
   TAKING_PAYMENT = "TAKING_PAYMENT",
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
+  WC = "WC",
+  DOESNT_KNOW_GAME = "DOESNT_KNOW_GAME",
   OTHER = "OTHER",
 }
 
 export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
+  [DeclineReasonEnum.BREAK]: "Break",
   [DeclineReasonEnum.TAKING_PAYMENT]: "I'm taking a payment",
   [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
   [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
+  [DeclineReasonEnum.WC]: "WC",
+  [DeclineReasonEnum.DOESNT_KNOW_GAME]: "I don't know the game",
   [DeclineReasonEnum.OTHER]: "Other",
 };
 

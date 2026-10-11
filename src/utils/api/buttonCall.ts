@@ -187,12 +187,26 @@ export interface DeclineButtonCallPayload {
   reason: DeclineReasonEnum;
   // Required for DeclineReasonEnum.OTHER.
   note?: string;
+  // The game the game master doesn't know, when the call has none.
+  game?: number;
 }
 
-function declineButtonCall({ id, reason, note }: DeclineButtonCallPayload) {
-  return post<{ reason: DeclineReasonEnum; note?: string }, ButtonCall>({
+function declineButtonCall({
+  id,
+  reason,
+  note,
+  game,
+}: DeclineButtonCallPayload) {
+  return post<
+    { reason: DeclineReasonEnum; note?: string; game?: number },
+    ButtonCall
+  >({
     path: `${Paths.ButtonCalls}/${id}/decline`,
-    payload: { reason, ...(note && { note }) },
+    payload: {
+      reason,
+      ...(note && { note }),
+      ...(game !== undefined && { game }),
+    },
   });
 }
 
