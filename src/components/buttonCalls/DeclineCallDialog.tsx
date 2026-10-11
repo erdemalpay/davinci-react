@@ -28,7 +28,7 @@ const listedReasons = [
 
 const MAX_GAME_RESULTS = 20;
 
-// Opened by holding a call assigned to me: either the table was taken care
+// Opened by tapping a call assigned to me: either the table was taken care
 // of (closes the call), or I can't take care of it, and then why. "I don't know the game" asks
 // which game the table needs help with (the call's game preselected, but it
 // can be changed); "Other" needs a note. Notes are only shown to managers in

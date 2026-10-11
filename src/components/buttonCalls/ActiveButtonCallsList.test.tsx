@@ -1,15 +1,12 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   ButtonCall,
   ButtonCallTypeEnum,
   DeclineReasonEnum,
   GmCallReasonEnum,
 } from "../../types";
-import {
-  ActiveButtonCallsList,
-  DECLINE_HOLD_MS,
-} from "./ActiveButtonCallsList";
+import { ActiveButtonCallsList } from "./ActiveButtonCallsList";
 
 const mocks = vi.hoisted(() => ({
   calls: [] as ButtonCall[],
@@ -78,48 +75,24 @@ describe("ActiveButtonCallsList", () => {
     mocks.breakWarning = null;
   });
 
-  describe("holding my call", () => {
+  describe("tapping my call", () => {
     beforeEach(() => {
-      vi.useFakeTimers();
       mocks.calls = [gmCall({ _id: "5", tableName: "T5", assignedTo: "ali" })];
     });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
 
-    const myChip = () => screen.getByLabelText("T5 - Hold to decline");
-    const hold = (ms = DECLINE_HOLD_MS) => {
-      fireEvent.pointerDown(myChip());
-      act(() => {
-        vi.advanceTimersByTime(ms);
-      });
-    };
-    // Hold, then "I can't take care of the table".
-    const holdAndCant = () => {
-      hold();
+    const tapMine = () =>
+      fireEvent.click(screen.getByLabelText("T5 - Taken care of or not"));
+    // Tap, then "I can't take care of the table".
+    const tapAndCant = () => {
+      tapMine();
       fireEvent.click(screen.getByText("I can't take care of the table"));
     };
-
-    it("does nothing on a short tap", () => {
-      render(<ActiveButtonCallsList />);
-
-      hold(DECLINE_HOLD_MS - 100);
-      fireEvent.pointerUp(myChip());
-      fireEvent.click(myChip());
-      act(() => {
-        vi.advanceTimersByTime(1000);
-      });
-
-      expect(screen.queryByRole("dialog")).toBeNull();
-      expect(mocks.decline).not.toHaveBeenCalled();
-      expect(mocks.finish).not.toHaveBeenCalled();
-    });
 
     it("closes the call when the table was taken care of", () => {
       render(<ActiveButtonCallsList />);
       expect(screen.getByText("You")).toBeTruthy();
 
-      hold();
+      tapMine();
       expect(screen.getByText("Table T5")).toBeTruthy();
       fireEvent.click(screen.getByText("The table was taken care of"));
 
@@ -133,7 +106,7 @@ describe("ActiveButtonCallsList", () => {
     it("asks why when I can't take care of the table", () => {
       render(<ActiveButtonCallsList />);
 
-      holdAndCant();
+      tapAndCant();
       expect(screen.getByText("Why?")).toBeTruthy();
       // The same choices as the Busy button.
       for (const label of [
@@ -160,7 +133,7 @@ describe("ActiveButtonCallsList", () => {
     it("needs an explanation for other", () => {
       render(<ActiveButtonCallsList />);
 
-      holdAndCant();
+      tapAndCant();
       fireEvent.click(screen.getByText("Other"));
       const send = screen.getByRole("button", {
         name: "Decline",
@@ -192,7 +165,7 @@ describe("ActiveButtonCallsList", () => {
       ];
       render(<ActiveButtonCallsList />);
 
-      holdAndCant();
+      tapAndCant();
       fireEvent.click(screen.getByText("I don't know the game"));
       expect(
         screen.getByText("Which game does the table need help with?")
@@ -220,7 +193,7 @@ describe("ActiveButtonCallsList", () => {
     it("needs a game when the call has none", () => {
       render(<ActiveButtonCallsList />);
 
-      holdAndCant();
+      tapAndCant();
       fireEvent.click(screen.getByText("I don't know the game"));
       const send = screen.getByRole("button", {
         name: "Decline",
@@ -244,7 +217,7 @@ describe("ActiveButtonCallsList", () => {
     it("declines for a break right away when the cafe has enough staff", () => {
       render(<ActiveButtonCallsList />);
 
-      holdAndCant();
+      tapAndCant();
       fireEvent.click(screen.getByText("Break"));
 
       expect(mocks.decline).toHaveBeenCalledWith(
@@ -256,17 +229,17 @@ describe("ActiveButtonCallsList", () => {
       mocks.breakWarning = "lowStaff";
       render(<ActiveButtonCallsList />);
 
-      holdAndCant();
+      tapAndCant();
       fireEvent.click(screen.getByText("Break"));
 
       expect(mocks.decline).not.toHaveBeenCalled();
       expect(screen.getByText("Not enough staff")).toBeTruthy();
     });
 
-    it("can be cancelled after an accidental hold", () => {
+    it("can be cancelled", () => {
       render(<ActiveButtonCallsList />);
 
-      hold();
+      tapMine();
       fireEvent.click(screen.getByText("Cancel"));
 
       expect(screen.queryByRole("dialog")).toBeNull();
@@ -364,7 +337,6 @@ describe("ActiveButtonCallsList", () => {
     });
 
     it('are declined without the "I don\'t know the game" option', () => {
-      vi.useFakeTimers();
       mocks.calls = [
         gmCall({
           _id: "8",
@@ -375,11 +347,7 @@ describe("ActiveButtonCallsList", () => {
       ];
       render(<ActiveButtonCallsList />);
 
-      fireEvent.pointerDown(screen.getByLabelText("T8 - Hold to decline"));
-      act(() => {
-        vi.advanceTimersByTime(DECLINE_HOLD_MS);
-      });
-      vi.useRealTimers();
+      fireEvent.click(screen.getByLabelText("T8 - Taken care of or not"));
       fireEvent.click(screen.getByText("I can't take care of the table"));
 
       expect(screen.queryByText("I don't know the game")).toBeNull();
