@@ -26,7 +26,6 @@ import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useOrderTaker } from "../../hooks/useOrderTaker";
 import {
-  ButtonCallTypeEnum,
   Gameplay,
   MenuItem,
   OnlineLocationId,
@@ -65,6 +64,7 @@ import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
+import { getGameplayDefaultsFromCall } from "./gameplayDefaults";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 import OrderListForPanel from "./OrderListForPanel";
@@ -771,14 +771,10 @@ export function TableCard({
     setIsOrderPaymentModalOpen(true);
   }, []);
 
-  // The table's open game master call: whoever it's assigned to explains,
-  // and the game it asks for is preselected.
   const activeButtonCalls = useGetActiveButtonCalls();
-  const openGmCall = activeButtonCalls.find(
-    (call) =>
-      call.tableName === table.name &&
-      call.type === ButtonCallTypeEnum.GAMEMASTERCALL &&
-      !call.finishHour
+  const callDefaults = useMemo(
+    () => getGameplayDefaultsFromCall(activeButtonCalls, table.name),
+    [activeButtonCalls, table.name]
   );
 
   const gameplayTemplate = useMemo(() => {
@@ -787,10 +783,10 @@ export function TableCard({
       location: table.location as number,
       playerCount: table.playerCount,
       startHour: format(new Date(), "HH:mm"),
-      mentor: openGmCall?.assignedTo ?? mentors[0],
-      ...(openGmCall?.game && { game: openGmCall.game }),
+      mentor: callDefaults.mentor ?? mentors[0],
+      ...(callDefaults.game && { game: callDefaults.game }),
     };
-  }, [table.date, table.location, table.playerCount, mentors, openGmCall]);
+  }, [table.date, table.location, table.playerCount, mentors, callDefaults]);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
