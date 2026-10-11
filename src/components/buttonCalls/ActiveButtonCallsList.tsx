@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaDice } from "react-icons/fa";
 import { HiBellAlert } from "react-icons/hi2";
@@ -22,10 +22,6 @@ import {
 import { useBreakWarning } from "../../hooks/useBreakWarning";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { DeclineCallDialog } from "./DeclineCallDialog";
-
-// Holding a call assigned to me this long opens the decline reasons; a
-// short tap does nothing, so a call isn't declined by accident.
-export const DECLINE_HOLD_MS = 600;
 
 const isAssignedCallType = (type: ButtonCallTypeEnum) =>
   type === ButtonCallTypeEnum.GAMEMASTERCALL ||
@@ -66,17 +62,6 @@ export function ActiveButtonCallsList() {
   const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
   // A tapped call: close it, or take it over when possible.
   const [callForActions, setCallForActions] = useState<ButtonCall | null>(null);
-  const holdTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  const startHold = (buttonCall: ButtonCall) => {
-    clearTimeout(holdTimer.current);
-    holdTimer.current = setTimeout(
-      () => setCallToDecline(buttonCall),
-      DECLINE_HOLD_MS
-    );
-  };
-  const cancelHold = () => clearTimeout(holdTimer.current);
-  useEffect(() => cancelHold, []);
 
   // Someone handles one call at a time (game master or service call), so
   // someone with an open call can't take over another one.
@@ -242,16 +227,12 @@ export function ActiveButtonCallsList() {
             return (
               <div
                 key={uniqueKey}
-                className={`${getBackgroundColor(buttonCall.type)} ${
-                  isMine
-                    ? "select-none touch-manipulation [-webkit-touch-callout:none]"
-                    : ""
-                } relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
+                className={`${getBackgroundColor(
+                  buttonCall.type
+                )} relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
                 title={`${buttonCall.tableName} - ${
                   timeAgo[uniqueKey] || "00:00"
-                }${isAssigned ? ` - ${getGmCallDetails(buttonCall)}` : ""}${
-                  isMine ? ` - ${t("Hold to decline")}` : ""
-                }`}
+                }${isAssigned ? ` - ${getGmCallDetails(buttonCall)}` : ""}`}
                 {...(hasActions &&
                   !isMine && {
                     role: "button",
@@ -265,14 +246,9 @@ export function ActiveButtonCallsList() {
                 {...(isMine && {
                   role: "button",
                   "aria-label": `${buttonCall.tableName} - ${t(
-                    "Hold to decline"
+                    "Taken care of or not"
                   )}`,
-                  onPointerDown: () => startHold(buttonCall),
-                  onPointerUp: cancelHold,
-                  onPointerLeave: cancelHold,
-                  onPointerCancel: cancelHold,
-                  // Long press on touch screens opens the browser menu.
-                  onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+                  onClick: () => setCallToDecline(buttonCall),
                 })}
               >
                 {/* Bana atanan çağrı: sadece halka yanıp söner, yazılar okunur kalır */}
