@@ -10,34 +10,19 @@ import {
   AssignmentEvent,
   ButtonCallTypeEnum,
   commonDateOptions,
-  DeclineReasonEnum,
-  declineReasonLabels,
   FormElementsState,
-  GmCallReasonEnum,
 } from "../types";
+import {
+  assignmentActionColors,
+  assignmentActionLabels,
+  formatDeclineReason,
+  gmCallReasonLabels,
+} from "../components/buttonCalls/assignmentDisplay";
 import { useGetAssignmentEvents } from "../utils/api/buttonCall";
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
-
-const actionLabels: Record<AssignmentActionEnum, string> = {
-  [AssignmentActionEnum.ASSIGNED]: "Assigned by the system",
-  [AssignmentActionEnum.DECLINED]: "Declined",
-  [AssignmentActionEnum.CLAIMED]: "Took over",
-};
-
-const actionColors: Record<AssignmentActionEnum, string> = {
-  [AssignmentActionEnum.ASSIGNED]: "bg-gray-500",
-  [AssignmentActionEnum.DECLINED]: "bg-red-500",
-  [AssignmentActionEnum.CLAIMED]: "bg-blue-500",
-};
-
-const reasonLabels: Record<GmCallReasonEnum, string> = {
-  [GmCallReasonEnum.RECOMMENDATION]: "Game recommendation",
-  [GmCallReasonEnum.EXPLANATION]: "Game explanation",
-  [GmCallReasonEnum.QUESTION]: "Question about the game",
-};
 
 // Who declined or took over which game master call, to follow how the
 // automatic assignment works out in practice.
@@ -59,20 +44,8 @@ export default function CallAssignmentLog() {
   const [showFilters, setShowFilters] = useState(false);
   const events = useGetAssignmentEvents(filterPanelFormElements);
 
-  // "Other: <note>" and "I don't know the game: <game>"; just the reason
-  // otherwise.
-  const formatDeclineReason = (event: AssignmentEvent) => {
-    if (!event.reason) return "";
-    const label = t(declineReasonLabels[event.reason]);
-    if (event.reason === DeclineReasonEnum.OTHER && event.note) {
-      return `${label}: ${event.note}`;
-    }
-    if (event.reason === DeclineReasonEnum.DOESNT_KNOW_GAME && event.game) {
-      const gameName = getItem(event.game, games)?.name;
-      return gameName ? `${label}: ${gameName}` : label;
-    }
-    return label;
-  };
+  const formatEventDeclineReason = (event: AssignmentEvent) =>
+    formatDeclineReason(event, t, games);
 
   const rows = useMemo(() => {
     const actions: string[] = filterPanelFormElements.action ?? [];
@@ -95,10 +68,10 @@ export default function CallAssignmentLog() {
             ? t("Service call")
             : t("Game master call"),
         reasonLabel: event.gmCallReason
-          ? t(reasonLabels[event.gmCallReason])
+          ? t(gmCallReasonLabels[event.gmCallReason])
           : "",
         gameName: event.game ? getItem(event.game, games)?.name ?? "" : "",
-        declineReasonLabel: formatDeclineReason(event),
+        declineReasonLabel: formatEventDeclineReason(event),
       }));
   }, [events, filterPanelFormElements, locations, users, games, t]);
 
@@ -136,10 +109,10 @@ export default function CallAssignmentLog() {
         node: (row: AssignmentEvent) => (
           <div
             className={`w-fit rounded-md text-sm px-2 py-1 font-semibold text-white ${
-              actionColors[row.action]
+              assignmentActionColors[row.action]
             }`}
           >
-            {t(actionLabels[row.action])}
+            {t(assignmentActionLabels[row.action])}
           </div>
         ),
       },
@@ -171,7 +144,7 @@ export default function CallAssignmentLog() {
         label: t("Action"),
         options: Object.values(AssignmentActionEnum).map((action) => ({
           value: action,
-          label: t(actionLabels[action]),
+          label: t(assignmentActionLabels[action]),
         })),
         placeholder: t("Action"),
         isMultiple: true,

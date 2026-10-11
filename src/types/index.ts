@@ -642,6 +642,17 @@ export type ButtonCall = {
   assignedHour?: string;
   declinedBy?: string[];
   explainerUnavailable?: boolean;
+  // Every assignment, decline and take-over (panel endpoints only).
+  assignmentHistory?: AssignmentHistoryItem[];
+};
+
+export type AssignmentHistoryItem = {
+  user: string;
+  action: AssignmentActionEnum;
+  hour: string;
+  reason?: DeclineReasonEnum;
+  note?: string;
+  game?: number;
 };
 
 export enum GameAvailabilityStatus {
