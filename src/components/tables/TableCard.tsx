@@ -26,6 +26,7 @@ import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useOrderTaker } from "../../hooks/useOrderTaker";
 import {
+  ButtonCallTypeEnum,
   Gameplay,
   MenuItem,
   OnlineLocationId,
@@ -36,6 +37,7 @@ import {
   TableTypes,
   User,
 } from "../../types";
+import { useGetActiveButtonCalls } from "../../utils/api/buttonCall";
 import {
   useCombineTableMutation,
   useCreateMultipleOrderMutation,
@@ -769,15 +771,26 @@ export function TableCard({
     setIsOrderPaymentModalOpen(true);
   }, []);
 
+  // The table's open game master call: whoever it's assigned to explains,
+  // and the game it asks for is preselected.
+  const activeButtonCalls = useGetActiveButtonCalls();
+  const openGmCall = activeButtonCalls.find(
+    (call) =>
+      call.tableName === table.name &&
+      call.type === ButtonCallTypeEnum.GAMEMASTERCALL &&
+      !call.finishHour
+  );
+
   const gameplayTemplate = useMemo(() => {
     return {
       date: table.date,
       location: table.location as number,
       playerCount: table.playerCount,
       startHour: format(new Date(), "HH:mm"),
-      mentor: mentors[0],
+      mentor: openGmCall?.assignedTo ?? mentors[0],
+      ...(openGmCall?.game && { game: openGmCall.game }),
     };
-  }, [table.date, table.location, table.playerCount, mentors]);
+  }, [table.date, table.location, table.playerCount, mentors, openGmCall]);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
