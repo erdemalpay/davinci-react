@@ -599,6 +599,12 @@ export enum ButtonCallTypeEnum {
   ORDERCALL = "ORDERCALL",
   ORDERREADYCALL = "ORDERREADYCALL",
 }
+// Calls assigned to a person: game master calls, a table calling to order
+// and the bar calling for ready orders to be taken.
+export const isAssignedCallType = (type?: string) =>
+  type === ButtonCallTypeEnum.GAMEMASTERCALL ||
+  type === ButtonCallTypeEnum.ORDERCALL ||
+  type === ButtonCallTypeEnum.ORDERREADYCALL;
 export const buttonCallTypes = [
   {
     value: ButtonCallTypeEnum.TABLECALL,
@@ -1263,6 +1269,9 @@ export type OrderNote = {
   note: string;
   categories?: number[];
   items?: number[];
+  // "Bring it with the food": a ready-right-away order with this note waits
+  // until the table's food is ready.
+  isServedWithFood?: boolean;
 };
 
 export type OrderCollectionItem = {

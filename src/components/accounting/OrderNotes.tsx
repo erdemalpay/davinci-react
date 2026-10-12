@@ -2,8 +2,9 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
-import { ActionEnum, DisabledConditionEnum } from "../../types";
+import { ActionEnum, DisabledConditionEnum, OrderNote } from "../../types";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
@@ -36,7 +37,10 @@ const OrderNotes = () => {
   const disabledConditions = useGetDisabledConditions();
 
   const orderNotesDisabledCondition = useMemo(() => {
-    return getItem(DisabledConditionEnum.ACCOUNTING_ORDERNOTES, disabledConditions);
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_ORDERNOTES,
+      disabledConditions
+    );
   }, [disabledConditions]);
 
   const rows = useMemo(() => {
@@ -73,6 +77,7 @@ const OrderNotes = () => {
         isSortable: false,
       },
       { key: t("Items"), isSortable: false },
+      { key: t("Served with food"), isSortable: false },
       {
         key: t("Actions"),
         isSortable: false,
@@ -82,7 +87,20 @@ const OrderNotes = () => {
   );
 
   const rowKeys = useMemo(
-    () => [{ key: "note" }, { key: "categoryNames" }, { key: "itemNames" }],
+    () => [
+      { key: "note" },
+      { key: "categoryNames" },
+      { key: "itemNames" },
+      {
+        key: "isServedWithFood",
+        node: (row: OrderNote) =>
+          row.isServedWithFood ? (
+            <IoCheckmark className="text-blue-500 text-2xl" />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl" />
+          ),
+      },
+    ],
     []
   );
 
@@ -121,6 +139,16 @@ const OrderNotes = () => {
           })) ?? [],
         isMultiple: true,
       },
+      // Ready-right-away orders (a can of cola) with this note wait until
+      // the table's food is ready.
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isServedWithFood",
+        label: t("Served with food"),
+        placeholder: t("Served with food"),
+        required: false,
+        isTopFlexRow: true,
+      },
     ],
     [t, categories, items]
   );
@@ -130,6 +158,7 @@ const OrderNotes = () => {
       { key: "note", type: FormKeyTypeEnum.STRING },
       { key: "categories", type: FormKeyTypeEnum.STRING },
       { key: "items", type: FormKeyTypeEnum.STRING },
+      { key: "isServedWithFood", type: FormKeyTypeEnum.BOOLEAN },
     ],
     []
   );

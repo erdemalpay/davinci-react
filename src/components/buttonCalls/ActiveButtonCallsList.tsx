@@ -12,6 +12,7 @@ import {
   ButtonCallTypeEnum,
   DeclineReasonEnum,
   GmCallReasonEnum,
+  isAssignedCallType,
 } from "../../types";
 import {
   useClaimButtonCallMutation,
@@ -22,10 +23,6 @@ import {
 import { useBreakWarning } from "../../hooks/useBreakWarning";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { DeclineCallDialog } from "./DeclineCallDialog";
-
-const isAssignedCallType = (type: ButtonCallTypeEnum) =>
-  type === ButtonCallTypeEnum.GAMEMASTERCALL ||
-  type === ButtonCallTypeEnum.ORDERCALL;
 
 const gmCallReasonLabels: Record<GmCallReasonEnum, string> = {
   [GmCallReasonEnum.RECOMMENDATION]: "Game recommendation",
@@ -218,9 +215,6 @@ export function ActiveButtonCallsList() {
             const assigneeName = isAssigned
               ? users?.find((u) => u._id === buttonCall.assignedTo)?.name
               : undefined;
-            // Order ready calls are only closed from the Orders page.
-            const hasActions =
-              buttonCall.type !== ButtonCallTypeEnum.ORDERREADYCALL;
             const gameName = buttonCall.game
               ? games?.find((g) => g._id === buttonCall.game)?.name
               : undefined;
@@ -233,16 +227,15 @@ export function ActiveButtonCallsList() {
                 title={`${buttonCall.tableName} - ${
                   timeAgo[uniqueKey] || "00:00"
                 }${isAssigned ? ` - ${getGmCallDetails(buttonCall)}` : ""}`}
-                {...(hasActions &&
-                  !isMine && {
-                    role: "button",
-                    "aria-label": `${buttonCall.tableName} - ${t(
-                      canTakeOver(buttonCall)
-                        ? "Take over or close"
-                        : "Close call"
-                    )}`,
-                    onClick: () => setCallForActions(buttonCall),
-                  })}
+                {...(!isMine && {
+                  role: "button",
+                  "aria-label": `${buttonCall.tableName} - ${t(
+                    canTakeOver(buttonCall)
+                      ? "Take over or close"
+                      : "Close call"
+                  )}`,
+                  onClick: () => setCallForActions(buttonCall),
+                })}
                 {...(isMine && {
                   role: "button",
                   "aria-label": `${buttonCall.tableName} - ${t(
