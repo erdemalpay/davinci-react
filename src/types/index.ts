@@ -668,6 +668,8 @@ export type UnmetExplanationRequest = {
   location: number;
   tableName: string;
   game: number;
+  // Explanation or a question about the game; older records are explanations.
+  gmCallReason?: GmCallReasonEnum;
   status: GameAvailabilityStatus;
   availableFrom?: string;
   buttonCall?: number;
