@@ -10,7 +10,9 @@ import {
   FormElementsState,
   GameAvailabilityStatus,
   UnmetExplanationRequest,
+  GmCallReasonEnum,
 } from "../types";
+import { gmCallReasonLabels } from "../components/buttonCalls/assignmentDisplay";
 import { useGetUnmetExplanationRequests } from "../utils/api/buttonCall";
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
@@ -57,6 +59,12 @@ export default function UnmetExplanationRequests() {
           ...request,
           locationName: getItem(request.location, locations)?.name ?? "",
           gameName: getItem(request.game, games)?.name ?? request.game,
+          // Older records are explanations.
+          requestLabel: t(
+            gmCallReasonLabels[
+              request.gmCallReason ?? GmCallReasonEnum.EXPLANATION
+            ]
+          ),
           statusLabel:
             t(statusLabels[request.status]) +
             (request.availableFrom ? ` (${request.availableFrom})` : ""),
@@ -73,6 +81,7 @@ export default function UnmetExplanationRequests() {
       { key: t("Hour"), isSortable: true },
       { key: t("Location"), isSortable: true },
       { key: t("Table Name"), isSortable: true },
+      { key: t("Request"), isSortable: true },
       { key: t("Game"), isSortable: true },
       { key: t("Reason"), isSortable: true },
       { key: t("Waited"), isSortable: true },
@@ -91,6 +100,7 @@ export default function UnmetExplanationRequests() {
       { key: "hour" },
       { key: "locationName", className: "min-w-32" },
       { key: "tableName" },
+      { key: "requestLabel", className: "min-w-40" },
       { key: "gameName", className: "min-w-40" },
       { key: "statusLabel", className: "min-w-48" },
       { key: "waitedLabel" },
