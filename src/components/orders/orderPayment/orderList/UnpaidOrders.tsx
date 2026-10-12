@@ -61,7 +61,8 @@ const UnpaidOrders = ({
   );
   const customDiscount = findApplicableCustomDiscount(
     discounts ?? [],
-    Boolean(table.isOnlineSale)
+    // A new takeaway table may not be loaded yet.
+    Boolean(table?.isOnlineSale)
   );
   const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order?.discount) {

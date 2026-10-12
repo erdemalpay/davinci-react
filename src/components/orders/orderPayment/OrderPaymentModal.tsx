@@ -995,7 +995,7 @@ const OrderPaymentModal = ({
         isCreateCloseActive={false}
         optionalCreateButtonActive={orderCreateBulk?.length > 0}
         allowOptionalSubmitForActivityTable={
-          table.type === TableTypes.ACTIVITY || isCounterUser
+          table?.type === TableTypes.ACTIVITY || isCounterUser
         }
         constantValues={{
           quantity: 1,
