@@ -436,6 +436,18 @@ const Tables = () => {
 
   const pressTimerRef = useRef<number | null>(null);
   const longPressFiredRef = useRef(false);
+  const highlightTimerRef = useRef<number | null>(null);
+  const [highlightedTableTargetId, setHighlightedTableTargetId] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current) {
+        window.clearTimeout(highlightTimerRef.current);
+      }
+    };
+  }, []);
 
   const makePressHandlers = (tableId: number, targetId: string) => {
     const LONG_MS = 600;
@@ -1404,6 +1416,15 @@ const Tables = () => {
     const element = document.getElementById(id);
     if (!element) return;
 
+    if (highlightTimerRef.current) {
+      window.clearTimeout(highlightTimerRef.current);
+    }
+    setHighlightedTableTargetId(id);
+    highlightTimerRef.current = window.setTimeout(() => {
+      setHighlightedTableTargetId(null);
+      highlightTimerRef.current = null;
+    }, 4000);
+
     const elementPosition =
       element.getBoundingClientRect().top + window.pageYOffset;
     const offsetPosition = elementPosition - offset;
@@ -2165,6 +2186,11 @@ const Tables = () => {
                   <div
                     id={`table-large-${table?._id}`}
                     key={table?._id || table?.startHour}
+                    className={`rounded-md transition-shadow duration-300 ${
+                      highlightedTableTargetId === `table-large-${table?._id}`
+                        ? "ring-4 ring-amber-400 ring-offset-2"
+                        : ""
+                    }`}
                   >
                     <TableCard
                       table={table}
@@ -2185,6 +2211,11 @@ const Tables = () => {
             <div
               id={`table-${table?._id}`}
               key={table?._id || table?.startHour}
+              className={`rounded-md transition-shadow duration-300 ${
+                highlightedTableTargetId === `table-${table?._id}`
+                  ? "ring-4 ring-amber-400 ring-offset-2"
+                  : ""
+              }`}
             >
               <TableCard
                 table={table}
