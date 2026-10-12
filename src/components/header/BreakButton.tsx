@@ -12,14 +12,30 @@ import {
   BreakTypeEnum,
   breakTypeOf,
   busyStateLabels,
+  ButtonCallTypeEnum,
   CreateBreakDto,
+  DeclineReasonEnum,
 } from "../../types";
+import {
+  useDeclineButtonCallMutation,
+  useGetActiveButtonCalls,
+} from "../../utils/api/buttonCall";
 import {
   useBreakMutations,
   useGetBreaksByLocation,
 } from "../../utils/api/break";
 import { useGetMiddlemanByLocation } from "../../utils/api/middleman";
 import { useBreakWarning } from "../../hooks/useBreakWarning";
+
+// Becoming busy while holding a call declines it with the same reason.
+const declineReasonForBusyState: Record<BreakTypeEnum, DeclineReasonEnum> = {
+  [BreakTypeEnum.BREAK]: DeclineReasonEnum.BREAK,
+  [BreakTypeEnum.RECOMMENDING_GAME]: DeclineReasonEnum.RECOMMENDING_GAME,
+  [BreakTypeEnum.PREPARING_ORDER]: DeclineReasonEnum.PREPARING_ORDER,
+  [BreakTypeEnum.TAKING_PAYMENT]: DeclineReasonEnum.TAKING_PAYMENT,
+  [BreakTypeEnum.WC]: DeclineReasonEnum.WC,
+  [BreakTypeEnum.OTHER]: DeclineReasonEnum.OTHER,
+};
 
 interface BreakButtonProps {
   onBreakStart?: () => void;
@@ -44,6 +60,18 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const activeMiddlemen = useGetMiddlemanByLocation(selectedLocationId || 0);
 
   const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
+
+  // A game master or service call assigned to me right now.
+  const activeButtonCalls = useGetActiveButtonCalls();
+  const myOpenCall = activeButtonCalls.find(
+    (call) =>
+      Number(call.location) === selectedLocationId &&
+      call.assignedTo === user?._id &&
+      !call.finishHour &&
+      (call.type === ButtonCallTypeEnum.GAMEMASTERCALL ||
+        call.type === ButtonCallTypeEnum.ORDERCALL)
+  );
+  const { mutate: declineButtonCall } = useDeclineButtonCallMutation();
 
   // Check if current user has an active visit (is at the cafe)
   const hasActiveVisit = useMemo(() => {
@@ -80,6 +108,23 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     note: string | undefined = pendingBreak.note
   ) => {
     if (!user?._id || !selectedLocationId) return;
+    // Holding a call: hand it back with this reason; the API puts me in
+    // the busy state and gives the call to someone else.
+    if (myOpenCall) {
+      declineButtonCall({
+        id: myOpenCall._id,
+        reason: declineReasonForBusyState[type],
+        ...(note && { note }),
+      });
+      toast.success(
+        type === BreakTypeEnum.BREAK
+          ? t("Break started")
+          : t(busyStateLabels[type])
+      );
+      onBreakStart?.();
+      setIsBreakWarningOpen(false);
+      return;
+    }
     const breakData: CreateBreakDto = {
       user: user._id,
       location: selectedLocationId,
