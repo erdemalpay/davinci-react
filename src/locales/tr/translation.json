@@ -2112,5 +2112,20 @@
   "Taken care of or not": "İlgilenildi mi?",
   "Assignment steps": "Atama adımları",
   "A new version of the panel is ready.": "Panelin yeni sürümü hazır.",
-  "Refresh": "Yenile"
+  "Refresh": "Yenile",
+  "Staff Performance": "Performans Takibi",
+  "Game Masters": "Oyun Ustaları",
+  "Baristas": "Baristalar",
+  "Orders Created": "Oluşturulan Sipariş",
+  "Orders Delivered": "Teslim Edilen Sipariş",
+  "Games Set Up": "Oluşturulan Oyun",
+  "Games Explained": "Anlatılan Oyun",
+  "Include middleman days": "Ortacı günlerini dahil et",
+  "Include service staff days": "Servis elemanı günlerini dahil et",
+  "Days": "Gün",
+  "No data": "Veri yok",
+  "Days missing from the shift plan": "Vardiya planında olmayan günler",
+  "unplanned": "plansız",
+  "Overall Average": "Genel Ortalama",
+  "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below).": "Günlük ortalamalar: tam gün 1, yarım gün 0,75 gün sayılır; vardiya planında olmayan günler tam gün sayılır. Renkler grubun ortalamasına göre (%15 ve %30 üstü/altı)."
 }

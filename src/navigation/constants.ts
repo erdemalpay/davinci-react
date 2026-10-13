@@ -57,6 +57,9 @@ const ButtonCalls = lazyWithReload(() => import("../pages/ButtonCalls"));
 const UnmetExplanationRequests = lazyWithReload(
   () => import("../pages/UnmetExplanationRequests")
 );
+const StaffPerformance = lazyWithReload(
+  () => import("../pages/StaffPerformance")
+);
 const CallAssignmentLog = lazyWithReload(
   () => import("../pages/CallAssignmentLog")
 );
@@ -191,6 +194,7 @@ export enum Routes {
   ButtonCalls = "/button-calls",
   UnmetExplanationRequests = "/unmet-explanation-requests",
   CallAssignmentLog = "/call-assignment-log",
+  StaffPerformance = "/staff-performance",
   StaffStateSummary = "/staff-state-summary",
   Notifications = "/notifications",
   Expirations = "/expirations",
@@ -490,6 +494,12 @@ export const allRoutes: {
     name: "Call Assignment Log",
     path: Routes.CallAssignmentLog,
     element: CallAssignmentLog,
+    isOnSidebar: true,
+  },
+  {
+    name: "Staff Performance",
+    path: Routes.StaffPerformance,
+    element: StaffPerformance,
     isOnSidebar: true,
   },
   {
