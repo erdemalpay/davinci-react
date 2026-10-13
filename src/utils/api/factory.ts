@@ -47,6 +47,7 @@ export const Paths = {
   Ikas: "/ikas",
   Shopify: "/shopify",
   Trendyol: "/trendy",
+  N11: "/n11",
   Hepsiburada: "/hepsiburada",
   Redis: "/redis",
   ButtonCalls: "/button-calls",

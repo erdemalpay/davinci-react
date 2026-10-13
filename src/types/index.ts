@@ -334,7 +334,7 @@ export type AccountCountProduct = {
   productDeleteRequest?: string;
   reservedQuantity?: number;
   reservedDetails?: {
-    channel: "shopify" | "trendyol" | "hepsiburada";
+    channel: "shopify" | "trendyol" | "hepsiburada" | "n11";
     orderNumber: string;
     quantity: number;
   }[];
@@ -770,6 +770,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
   ORDERDATAS_TRENDYOLORDERS = "trendyolorders",
   ORDERDATAS_HEPSIBURADAORDERS = "hepsiburadaorders",
+  ORDERDATAS_N11ORDERS = "n11orders",
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
   ORDERDATAS_IKASORDERS = "ikasorders", //bunu silince build hatası alıyoruz
@@ -974,6 +975,7 @@ export const DAVINCI_GAME_CATEGORY_FILTER_VALUE = "davinci-games";
 export type MenuItem = {
   trendyolBarcode: unknown;
   hepsiBuradaSku?: unknown;
+  n11StockCode?: string;
   _id: number;
   name: string;
   description: string;
@@ -1801,6 +1803,8 @@ export enum IntegrationPageTabEnum {
   HEPSIBURADAPRICECOMPARISION,
   HEPSIBURADASTOCKCOMPARISION,
   GLOBALPRICECOMPARISION,
+  N11STOCKCOMPARISION,
+  N11PRICECOMPARISION,
 }
 
 export enum MailPageTabEnum {
@@ -1949,6 +1953,7 @@ export enum OrderDataTabEnum {
   HEPSIBURADAORDERS,
   PERSONALORDERDATAS,
   DAVINCIGAMESALESREPORT,
+  N11ORDERS,
 }
 export enum StockHistoryStatusEnum {
   EXPENSEENTRY = "EXPENSEENTRY",
@@ -1981,6 +1986,8 @@ export enum StockHistoryStatusEnum {
   CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
   HEPSIBURADAORDERCREATE = "HEPSIBURADAORDERCREATE",
   HEPSIBURADAORDERCANCEL = "HEPSIBURADAORDERCANCEL",
+  N11ORDERCREATE = "N11ORDERCREATE",
+  N11ORDERCANCEL = "N11ORDERCANCEL",
 }
 
 export const stockHistoryStatuses = [
@@ -2133,6 +2140,16 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.HEPSIBURADAORDERCANCEL,
     label: "Hepsiburada Order Cancel",
     backgroundColor: "bg-orange-900",
+  },
+  {
+    value: StockHistoryStatusEnum.N11ORDERCREATE,
+    label: "n11 Order Create",
+    backgroundColor: "bg-purple-600",
+  },
+  {
+    value: StockHistoryStatusEnum.N11ORDERCANCEL,
+    label: "n11 Order Cancel",
+    backgroundColor: "bg-purple-900",
   },
 ];
 

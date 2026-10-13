@@ -22,6 +22,7 @@ import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSa
 import HepsiburadaOrders from "../components/orderDatas/HepsiburadaOrders";
 import IkasOrders from "../components/orderDatas/IkasOrders";
 import KitchenDataPage from "../components/orderDatas/KitchenDataPage";
+import N11Orders from "../components/orderDatas/N11Orders";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import PreOrders from "../components/orderDatas/PreOrders";
@@ -148,6 +149,13 @@ export const OrderDataTabs = [
     label: "Hepsiburada Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <HepsiburadaOrders />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.N11ORDERS,
+    label: "n11 Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <N11Orders />,
     isDisabled: false,
   },
   {
