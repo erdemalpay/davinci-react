@@ -23,6 +23,7 @@ export type AttendanceDay = {
   // Duties in the shift plan.
   isMiddleman: boolean;
   isServiceStaff: boolean;
+  isOutsideOperation: boolean;
   // Marked in the user summary as left out of the averages.
   isNotInAverage: boolean;
 };
@@ -81,6 +82,9 @@ export function getAttendanceDays({
       isServiceStaff: !!dayPlan?.shifts.some(
         (slot) => slot.chefUser === userId
       ),
+      isOutsideOperation: !!dayPlan?.shifts.some((slot) =>
+        slot.outsideOperationUsers?.includes(userId)
+      ),
       isNotInAverage: !!ownShift?.notInAverage,
     };
 
@@ -95,6 +99,8 @@ export function getAttendanceDays({
             isUnplanned: seen.isUnplanned && day.isUnplanned,
             isMiddleman: seen.isMiddleman || day.isMiddleman,
             isServiceStaff: seen.isServiceStaff || day.isServiceStaff,
+            isOutsideOperation:
+              seen.isOutsideOperation || day.isOutsideOperation,
             isNotInAverage: seen.isNotInAverage || day.isNotInAverage,
           }
         : day
@@ -132,9 +138,9 @@ export type StaffPerformance = {
 export function getStaffPerformance(
   days: AttendanceDay[],
   dailyCounts: StaffDailyCounts[],
-  filters: DayFilters
+  isCounted: (day: AttendanceDay) => boolean
 ): StaffPerformance {
-  const counted = days.filter((day) => isDayCounted(day, filters));
+  const counted = days.filter(isCounted);
   const countedDates = new Set(counted.map((day) => day.date));
   const dayCount = counted.reduce((sum, day) => sum + day.weight, 0);
 

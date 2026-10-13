@@ -11,6 +11,7 @@ import { useGetStaffDailyCounts } from "../utils/api/staffPerformance";
 import { useGetUsers } from "../utils/api/user";
 import { useGetFilteredVisits } from "../utils/api/visit";
 import {
+  AttendanceDay,
   DayFilters,
   PerformanceTone,
   StaffCountField,
@@ -18,6 +19,7 @@ import {
   getAttendanceDays,
   getPerformanceTone,
   getStaffPerformance,
+  isDayCounted,
   mean,
 } from "../utils/staffPerformance";
 
@@ -30,25 +32,28 @@ type Column = {
 
 type PerformanceRow = {
   user: User;
+  // Shown after the name, e.g. a game master in the service staff table.
+  note?: string;
   dayCount: number;
   unplannedDayCount: number;
   averages: Record<StaffCountField, number>;
   learnedGameCount: number;
 };
 
-type Group = {
-  title: string;
+// Who is in a group, and which of their days count there.
+type GroupMembers = {
   roles: RoleEnum[];
-  columns: Column[];
-  // Game masters' middleman and service staff days can be left out; for
-  // the others every day counts.
-  usesDayFilters: boolean;
+  isCounted: (day: AttendanceDay) => boolean;
+  note?: string;
 };
 
-const ALL_DAYS: DayFilters = {
-  includeMiddlemanDays: true,
-  includeServiceStaffDays: true,
+type Group = {
+  title: string;
+  members: GroupMembers[];
+  columns: Column[];
 };
+
+const EVERY_DAY = () => true;
 
 const toneClasses: Record<PerformanceTone, string> = {
   best: "bg-green-600 text-white",
@@ -96,8 +101,19 @@ export default function StaffPerformance() {
   const groups: Group[] = [
     {
       title: t("Game Masters"),
-      roles: [RoleEnum.GAMEMASTER, RoleEnum.GAMEMANAGER],
-      usesDayFilters: true,
+      // Middleman and service staff days can be left out; game managers'
+      // days outside operation never count.
+      members: [
+        {
+          roles: [RoleEnum.GAMEMASTER],
+          isCounted: (day) => isDayCounted(day, dayFilters),
+        },
+        {
+          roles: [RoleEnum.GAMEMANAGER],
+          isCounted: (day) =>
+            isDayCounted(day, dayFilters) && !day.isOutsideOperation,
+        },
+      ],
       columns: [
         {
           label: t("Orders Created"),
@@ -133,8 +149,16 @@ export default function StaffPerformance() {
     },
     {
       title: t("Service Staff"),
-      roles: [RoleEnum.SERVICE],
-      usesDayFilters: false,
+      // Game masters on the days they were service staff, to compare that
+      // work with the service staff's.
+      members: [
+        { roles: [RoleEnum.SERVICE], isCounted: EVERY_DAY },
+        {
+          roles: [RoleEnum.GAMEMASTER, RoleEnum.GAMEMANAGER],
+          isCounted: (day) => day.isServiceStaff && !day.isOutsideOperation,
+          note: "GM",
+        },
+      ],
       columns: [
         {
           label: t("Orders Created"),
@@ -155,8 +179,14 @@ export default function StaffPerformance() {
     },
     {
       title: t("Baristas"),
-      roles: [RoleEnum.BARISTA],
-      usesDayFilters: false,
+      // Bar chefs' days outside operation don't count.
+      members: [
+        { roles: [RoleEnum.BARISTA], isCounted: EVERY_DAY },
+        {
+          roles: [RoleEnum.BARCHEF],
+          isCounted: (day) => !day.isOutsideOperation,
+        },
+      ],
       columns: [
         {
           label: t("Orders Created"),
@@ -191,28 +221,31 @@ export default function StaffPerformance() {
   }, [dailyCounts]);
 
   const rowsFor = (group: Group): PerformanceRow[] =>
-    users
-      .filter((user) => group.roles.includes(user.role?._id))
-      .map((user) => {
-        const days = getAttendanceDays({
-          userId: user._id,
-          visits,
-          shifts,
-          locations,
-          location,
-        });
-        const performance = getStaffPerformance(
-          days,
-          countsByUser.get(user._id) ?? [],
-          group.usesDayFilters ? dayFilters : ALL_DAYS
-        );
-        const learnedGameCount = (user.userGames ?? []).filter(
-          (userGame) =>
-            userGame.learnDate >= range.after &&
-            userGame.learnDate <= range.before
-        ).length;
-        return { user, ...performance, learnedGameCount };
-      })
+    group.members
+      .flatMap(({ roles, isCounted, note }) =>
+        users
+          .filter((user) => roles.includes(user.role?._id))
+          .map((user) => {
+            const days = getAttendanceDays({
+              userId: user._id,
+              visits,
+              shifts,
+              locations,
+              location,
+            });
+            const performance = getStaffPerformance(
+              days,
+              countsByUser.get(user._id) ?? [],
+              isCounted
+            );
+            const learnedGameCount = (user.userGames ?? []).filter(
+              (userGame) =>
+                userGame.learnDate >= range.after &&
+                userGame.learnDate <= range.before
+            ).length;
+            return { user, note, ...performance, learnedGameCount };
+          })
+      )
       .filter((row) => row.dayCount > 0)
       .sort((a, b) => a.user.name.localeCompare(b.user.name, "tr"));
 
@@ -350,6 +383,11 @@ function PerformanceTable({
               <tr key={row.user._id}>
                 <td className="border border-gray-300 px-3 py-2">
                   {row.user.name}
+                  {row.note && (
+                    <span className="ml-1 text-xs text-gray-500">
+                      ({row.note})
+                    </span>
+                  )}
                 </td>
                 <td className="border border-gray-300 px-3 py-2 text-center">
                   {formatDays(row.dayCount)}
