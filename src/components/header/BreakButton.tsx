@@ -12,7 +12,7 @@ import {
   BreakTypeEnum,
   breakTypeOf,
   busyStateLabels,
-  ButtonCallTypeEnum,
+  isAssignedCallType,
   CreateBreakDto,
   DeclineReasonEnum,
 } from "../../types";
@@ -68,8 +68,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       Number(call.location) === selectedLocationId &&
       call.assignedTo === user?._id &&
       !call.finishHour &&
-      (call.type === ButtonCallTypeEnum.GAMEMASTERCALL ||
-        call.type === ButtonCallTypeEnum.ORDERCALL)
+      isAssignedCallType(call.type)
   );
   const { mutate: declineButtonCall } = useDeclineButtonCallMutation();
 

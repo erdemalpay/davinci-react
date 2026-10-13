@@ -66,6 +66,8 @@ export default function CallAssignmentLog() {
         callTypeLabel:
           event.callType === ButtonCallTypeEnum.ORDERCALL
             ? t("Service call")
+            : event.callType === ButtonCallTypeEnum.ORDERREADYCALL
+            ? t("Order Ready Call")
             : t("Game master call"),
         reasonLabel: event.gmCallReason
           ? t(gmCallReasonLabels[event.gmCallReason])
