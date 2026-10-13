@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { ButtonCall, ButtonCallTypeEnum } from "../../types";
-import { getGameplayDefaultsFromCall } from "./gameplayDefaults";
+import {
+  getActivityTableWithGmCall,
+  getGameplayDefaultsFromCall,
+} from "./gameplayDefaults";
 
 const call = (overrides: Partial<ButtonCall>): ButtonCall => ({
   _id: "1",
@@ -42,5 +45,29 @@ describe("getGameplayDefaultsFromCall", () => {
     expect(
       getGameplayDefaultsFromCall([call({ assignedTo: "ayse" })], "5")
     ).toEqual({ mentor: "ayse" });
+  });
+});
+
+describe("getActivityTableWithGmCall", () => {
+  it("picks the only activity table with an open GM call", () => {
+    expect(
+      getActivityTableWithGmCall(
+        [
+          call({ tableName: "12" }),
+          call({ tableName: "13", type: ButtonCallTypeEnum.ORDERCALL }),
+          call({ tableName: "14", finishHour: "12:05:00" }),
+        ],
+        ["12", "13", "14"]
+      )
+    ).toBe("12");
+  });
+
+  it("leaves the choice to staff when several tables are calling", () => {
+    expect(
+      getActivityTableWithGmCall(
+        [call({ tableName: "12" }), call({ tableName: "13" })],
+        ["12", "13"]
+      )
+    ).toBeUndefined();
   });
 });

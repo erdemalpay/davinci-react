@@ -4,13 +4,22 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
 import useIsSmallScreen from "../../hooks/useIsSmallScreen";
-import { Gameplay, RoleEnum, Table, User, Visit } from "../../types";
+import {
+  Gameplay,
+  RoleEnum,
+  Table,
+  TableTypes,
+  User,
+  Visit,
+} from "../../types";
+import { useGetActiveButtonCalls } from "../../utils/api/buttonCall";
 import { MinimalGame } from "../../utils/api/game";
 import {
   useCreateGameplayMutation,
   useGetPopularGamesLast30Days,
 } from "../../utils/api/gameplay";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { getGameplayDefaultsFromCall } from "./gameplayDefaults";
 import {
   FormKeyTypeEnum,
   GenericInputType,
@@ -48,6 +57,8 @@ export function CreateGameplayDialog({
   const { users } = useDataContext();
   const popularGames = useGetPopularGamesLast30Days();
   const { mutate: createGameplay } = useCreateGameplayMutation();
+  const activeButtonCalls = useGetActiveButtonCalls();
+  const isActivityTable = table.type === TableTypes.ACTIVITY;
   const gameRelatedRoles = [
     RoleEnum.GAMEMANAGER,
     RoleEnum.GAMEMASTER,
@@ -114,6 +125,38 @@ export function CreateGameplayDialog({
         isNumberButtonsActive: true,
         isTopFlexRow: true,
       },
+      // Activity tables: the table the game is for, whose GM call it answers.
+      ...(isActivityTable
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "activityTableName",
+              label: t("Table"),
+              placeholder: t("Table"),
+              options: (table.tables ?? []).map((tableName) => ({
+                value: tableName,
+                label: tableName,
+              })),
+              required: true,
+              isTopFlexRow: true,
+              additionalOnChange: (
+                tableName: string,
+                setFormElements?: (
+                  update: (prev: Record<string, unknown>) => Record<
+                    string,
+                    unknown
+                  >
+                ) => void
+              ) => {
+                const defaults = getGameplayDefaultsFromCall(
+                  activeButtonCalls,
+                  tableName
+                );
+                setFormElements?.((prev) => ({ ...prev, ...defaults }));
+              },
+            },
+          ]
+        : []),
       {
         type: InputTypes.CHECKBOX,
         formKey: "isAutoEntry",
@@ -188,6 +231,9 @@ export function CreateGameplayDialog({
       data,
       popularGames,
       isSmallScreen,
+      isActivityTable,
+      table.tables,
+      activeButtonCalls,
     ]
   );
 
@@ -198,6 +244,9 @@ export function CreateGameplayDialog({
     { key: "isGameplayTime", type: FormKeyTypeEnum.BOOLEAN },
     { key: "game", type: FormKeyTypeEnum.NUMBER },
     { key: "startHour", type: FormKeyTypeEnum.STRING },
+    ...(isActivityTable
+      ? [{ key: "activityTableName", type: FormKeyTypeEnum.STRING }]
+      : []),
   ];
 
   if (!isOpen) return null;
@@ -225,6 +274,9 @@ export function CreateGameplayDialog({
           typeof gameplay.game === "object"
             ? gameplay.game?._id
             : gameplay.game,
+        ...(gameplay.activityTableName && {
+          activityTableName: gameplay.activityTableName,
+        }),
       }}
       submitItem={handleCreate}
       submitFunction={handleCreate}
