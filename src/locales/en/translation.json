@@ -2101,5 +2101,7 @@
   "The table was taken care of": "The table was taken care of",
   "I can't take care of the table": "I can't take care of the table",
   "Taken care of or not": "Taken care of or not",
-  "Assignment steps": "Assignment steps"
+  "Assignment steps": "Assignment steps",
+  "sec": "sec",
+  "Duration must be at least 1 second": "Duration must be at least 1 second"
 }

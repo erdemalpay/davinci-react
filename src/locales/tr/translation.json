@@ -2109,5 +2109,7 @@
   "The table was taken care of": "Masayla ilgilenildi",
   "I can't take care of the table": "Masayla ilgilenemiyorum",
   "Taken care of or not": "İlgilenildi mi?",
-  "Assignment steps": "Atama adımları"
+  "Assignment steps": "Atama adımları",
+  "sec": "sn",
+  "Duration must be at least 1 second": "Süre en az 1 saniye ve tam sayı olmalı"
 }
