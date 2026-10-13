@@ -2127,5 +2127,11 @@
   "Days missing from the shift plan": "Vardiya planında olmayan günler",
   "unplanned": "plansız",
   "Overall Average": "Genel Ortalama",
-  "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below).": "Günlük ortalamalar: tam gün 1, yarım gün 0,75 gün sayılır; vardiya planında olmayan günler tam gün sayılır. Renkler grubun ortalamasına göre (%15 ve %30 üstü/altı)."
+  "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below).": "Günlük ortalamalar: tam gün 1, yarım gün 0,75 gün sayılır; vardiya planında olmayan günler tam gün sayılır. Renkler grubun ortalamasına göre (%15 ve %30 üstü/altı).",
+  "Call Summary": "Çağrı Özeti",
+  "Taken over from them": "Elinden Alınan",
+  "Decline rate": "Ret Oranı",
+  "Decline reasons": "Ret Sebepleri",
+  "Decline rate: declines out of the calls assigned or taken over. The call assignment log lists the calls one by one, with the notes of the declines.": "Ret oranı: atanan veya üstlenilen çağrılardan reddedilenlerin oranı. Çağrıların tek tek listesi ve ret notları Çağrı Atama Geçmişi sayfasında.",
+  "Assigned calls": "Atanan Çağrılar"
 }

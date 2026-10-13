@@ -2119,5 +2119,11 @@
   "Days missing from the shift plan": "Days missing from the shift plan",
   "unplanned": "unplanned",
   "Overall Average": "Overall Average",
-  "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below).": "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below)."
+  "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below).": "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below).",
+  "Call Summary": "Call Summary",
+  "Taken over from them": "Taken over from them",
+  "Decline rate": "Decline rate",
+  "Decline reasons": "Decline reasons",
+  "Decline rate: declines out of the calls assigned or taken over. The call assignment log lists the calls one by one, with the notes of the declines.": "Decline rate: declines out of the calls assigned or taken over. The call assignment log lists the calls one by one, with the notes of the declines.",
+  "Assigned calls": "Assigned calls"
 }
