@@ -66,7 +66,10 @@ import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
-import { getGameplayDefaultsFromCall } from "./gameplayDefaults";
+import {
+  getActivityTableWithGmCall,
+  getGameplayDefaultsFromCall,
+} from "./gameplayDefaults";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 import OrderListForPanel from "./OrderListForPanel";
@@ -770,9 +773,20 @@ function TableCardComponent({
   }, []);
 
   const activeButtonCalls = useGetActiveButtonCalls();
+  const activityTableName = useMemo(
+    () =>
+      table.type === TableTypes.ACTIVITY
+        ? getActivityTableWithGmCall(activeButtonCalls, table.tables ?? [])
+        : undefined,
+    [activeButtonCalls, table.type, table.tables]
+  );
   const callDefaults = useMemo(
-    () => getGameplayDefaultsFromCall(activeButtonCalls, table.name),
-    [activeButtonCalls, table.name]
+    () =>
+      getGameplayDefaultsFromCall(
+        activeButtonCalls,
+        activityTableName ?? table.name
+      ),
+    [activeButtonCalls, activityTableName, table.name]
   );
 
   const gameplayTemplate = useMemo(() => {
@@ -783,8 +797,16 @@ function TableCardComponent({
       startHour: format(new Date(), "HH:mm"),
       mentor: callDefaults.mentor ?? mentors[0],
       ...(callDefaults.game && { game: callDefaults.game }),
+      ...(activityTableName && { activityTableName }),
     };
-  }, [table.date, table.location, table.playerCount, mentors, callDefaults]);
+  }, [
+    table.date,
+    table.location,
+    table.playerCount,
+    mentors,
+    callDefaults,
+    activityTableName,
+  ]);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 

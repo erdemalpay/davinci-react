@@ -9,6 +9,7 @@ export type Gameplay = {
   location: number;
   createdBy: User;
   isGameplayTime?: boolean;
+  activityTableName?: string;
 };
 
 export type GameplayTime = {

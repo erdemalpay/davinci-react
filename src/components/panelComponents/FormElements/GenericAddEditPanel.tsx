@@ -619,7 +619,7 @@ const GenericAddEditPanel = <T,>({
                       const val = Array.isArray(selectedValue)
                         ? selectedValue.map((o) => o.value)
                         : (selectedValue as OptionType)?.value ?? "";
-                      changedInput.additionalOnChange(val);
+                      changedInput.additionalOnChange(val, setFormElements);
                     }
                   };
                 if (
