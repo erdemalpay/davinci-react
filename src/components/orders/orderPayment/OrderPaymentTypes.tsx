@@ -27,6 +27,7 @@ import { useOrderCollectionMutations } from "../../../utils/api/order/orderColle
 import { closeTable } from "../../../utils/api/table";
 import { MinimalUser } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
+import { isCollectableAmount } from "../../../utils/collectionAmount";
 import { advanceSplitPayment } from "../../../utils/splitPayment";
 import PointUserSelectionModal from "./PointUserSelectionModal";
 
@@ -198,6 +199,18 @@ const OrderPaymentTypes = ({
     const isPointsInsufficient = pointAmount && pointAmount < requiredAmount;
     const finalCollectionOrders = isPointsInsufficient ? [] : collectionOrders;
     const finalNewOrders = isPointsInsufficient ? [] : newOrders;
+
+    // A negative amount means the payments on screen are out of date.
+    if (
+      !isCollectableAmount(actualAmount, finalCollectionOrders?.length ?? 0)
+    ) {
+      toast.error(
+        t(
+          "The amount to collect must be greater than 0. Refresh the page and try again."
+        )
+      );
+      return;
+    }
 
     const createdCollection = {
       table: table?._id,

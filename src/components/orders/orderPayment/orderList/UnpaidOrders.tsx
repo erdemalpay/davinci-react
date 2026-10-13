@@ -33,6 +33,7 @@ import {
   findApplicableCustomDiscount,
 } from "./customDiscount";
 import CustomDiscountDialog from "./CustomDiscountDialog";
+import { remainingToCollect } from "../../../../utils/collectionAmount";
 import OrderScreenHeader from "./OrderScreenHeader";
 type Props = {
   table: Table;
@@ -77,6 +78,11 @@ const UnpaidOrders = ({
   const totalAmount = tableOrders.reduce((acc, order) => {
     return acc + order?.unitPrice * order?.quantity;
   }, 0);
+  const remainingToPay = remainingToCollect(
+    totalAmount,
+    discountAmount,
+    collectionsTotalAmount
+  );
   const {
     temporaryOrders,
     setPaymentAmount,
@@ -171,9 +177,7 @@ const UnpaidOrders = ({
                       String(
                         orderPrice + collectionsTotalAmount >
                           totalAmount - discountAmount
-                          ? totalAmount -
-                              discountAmount -
-                              collectionsTotalAmount
+                          ? remainingToPay
                           : orderPrice
                       )
                     );
@@ -191,9 +195,7 @@ const UnpaidOrders = ({
                             orderPrice +
                             collectionsTotalAmount >
                             totalAmount - discountAmount
-                            ? totalAmount -
-                                discountAmount -
-                                collectionsTotalAmount
+                            ? remainingToPay
                             : Number(paymentAmount) + orderPrice
                         )
                       )
@@ -205,9 +207,7 @@ const UnpaidOrders = ({
                           orderPrice +
                           collectionsTotalAmount >
                           totalAmount - discountAmount
-                          ? totalAmount -
-                              discountAmount -
-                              collectionsTotalAmount
+                          ? remainingToPay
                           : Number(paymentAmount) + orderPrice
                       )
                     );
@@ -474,9 +474,7 @@ const UnpaidOrders = ({
                         setPaymentAmount(
                           String(
                             Math.min(
-                              totalAmount -
-                                discountAmount -
-                                collectionsTotalAmount,
+                              remainingToPay,
                               (order?.discount
                                 ? orderPrice
                                 : order?.unitPrice) *
@@ -497,9 +495,7 @@ const UnpaidOrders = ({
                         setPaymentAmount(
                           String(
                             Math.min(
-                              totalAmount -
-                                discountAmount -
-                                collectionsTotalAmount,
+                              remainingToPay,
                               Number(paymentAmount) +
                                 (order?.discount
                                   ? orderPrice
@@ -522,14 +518,7 @@ const UnpaidOrders = ({
                               : 1);
                         setPaymentAmount(
                           String(
-                            Math.round(
-                              Math.min(
-                                totalAmount -
-                                  discountAmount -
-                                  collectionsTotalAmount,
-                                addedAmount
-                              )
-                            )
+                            Math.round(Math.min(remainingToPay, addedAmount))
                           )
                         );
                       }

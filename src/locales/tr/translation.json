@@ -527,6 +527,7 @@
   "Refund": "Para Üstü",
   "There is no order to pay": "Ödenecek sipariş yok",
   "Please enter the amount or select order to pay": "Lütfen bir miktar girin veya ödenecek siparişi seçin",
+  "The amount to collect must be greater than 0. Refresh the page and try again.": "Tahsil edilecek tutar 0'dan büyük olmalı. Sayfayı yenileyip tekrar deneyin.",
   "The selected orders total differs from the amount to collect because previous payments were made without selecting orders.": "Daha önce sipariş seçilmeden yapılan tahsilatlar nedeniyle seçili siparişlerin toplamı ile alınacak tutar farklıdır.",
   "Cashier": "Kasiyer",
   "Back": "Geri",
@@ -2109,5 +2110,7 @@
   "The table was taken care of": "Masayla ilgilenildi",
   "I can't take care of the table": "Masayla ilgilenemiyorum",
   "Taken care of or not": "İlgilenildi mi?",
-  "Assignment steps": "Atama adımları"
+  "Assignment steps": "Atama adımları",
+  "A new version of the panel is ready.": "Panelin yeni sürümü hazır.",
+  "Refresh": "Yenile"
 }
