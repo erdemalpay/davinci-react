@@ -1,6 +1,6 @@
 import { Checkbox, Chip, Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
 import { FaConciergeBell, FaUserSlash } from "react-icons/fa";
@@ -33,7 +33,12 @@ import { getItem, getRefId } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
 import { ManagerCheckInDialog } from "./ManagerCheckInDialog";
-import { QrScannerModal } from "./QrScannerModal";
+import { lazyWithReload } from "../../utils/lazyWithReload";
+
+// The QR scanner (zxing) loads only when it is opened.
+const QrScannerModal = lazyWithReload(() =>
+  import("./QrScannerModal").then((m) => ({ default: m.QrScannerModal }))
+);
 
 interface ActiveMentorListProps extends InputWithLabelProps {
   visits: Visit[];
@@ -455,10 +460,14 @@ export function ActiveVisitList({
           );
         })}
       </div>
-      <QrScannerModal
-        isOpen={isScannerOpen}
-        close={() => setIsScannerOpen(false)}
-      />
+      {isScannerOpen && (
+        <Suspense fallback={null}>
+          <QrScannerModal
+            isOpen={isScannerOpen}
+            close={() => setIsScannerOpen(false)}
+          />
+        </Suspense>
+      )}
       {isManagerCheckInOpen && user && (
         <ManagerCheckInDialog
           users={users}

@@ -1,3 +1,4 @@
+import { ComponentType } from "react";
 import ExpenseTypeRoles from "../components/accounting/ExpenseTypeRoles";
 import { Tab } from "../components/panelComponents/shared/types";
 import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
@@ -9,51 +10,19 @@ import Activities, { ActivitiesPageTabs } from "../pages/Activities";
 import GameplayAnalyticsPage, {
   GameplayAnalyticsTabs,
 } from "../pages/GameplayAnalyticsPage";
-import Brand from "../pages/Brand";
-import BulkProductAdding from "../pages/BulkProductAdding";
-import ButtonCalls from "../pages/ButtonCalls";
-import UnmetExplanationRequests from "../pages/UnmetExplanationRequests";
-import CallAssignmentLog from "../pages/CallAssignmentLog";
-import StaffStateSummary from "../pages/StaffStateSummary";
-import Check from "../pages/Check";
-import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
-import Checkout from "../pages/Checkout";
-import Comparision from "../pages/Comparision";
 import Consumer, { ConsumerPageTabs } from "../pages/Consumer";
-import Count from "../pages/Count";
-import CountList from "../pages/CountList";
 import CountLists, { CountListsPageTabs } from "../pages/CountLists";
-import DailySummary from "../pages/DailySummary";
-import Education from "../pages/Education";
-import Expenses from "../pages/Expenses";
 import Expirations, { ExpirationTabs } from "../pages/Expiration";
-import ExpirationCount from "../pages/ExpirationCount";
-import ExpirationList from "../pages/ExpirationList";
-import Feedback from "../pages/Feedback";
 import GameAssignments, {
   GameAssignmentsPageTabs,
 } from "../pages/GameAssignments";
-import Gameplays from "../pages/Gameplays";
 import Games, { GamesPageTabs } from "../pages/Games";
-import Images from "../pages/Images";
 import Integration, { IntegrationPageTabs } from "../pages/Integration";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Mail, { MailPageTabs } from "../pages/Mail";
-import Memberships from "../pages/Memberships";
-import Menu from "../pages/Menu";
-import MenuPrice from "../pages/MenuPrice";
-import OnlineSales from "../pages/OnlineSales";
-import OrderDatas from "../pages/OrderDatas";
-import Orders from "../pages/Orders";
-import OrdersSummary from "../pages/OrdersSummary";
-import PageDetails from "../pages/PageDetails";
 import PanelControl, { PanelControlPageTabs } from "../pages/PanelControl";
-import Points from "../pages/Points";
-import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
-import QrDisplay from "../pages/QrDisplay";
-import Reservations from "../pages/Reservations";
 import Retailer, { RetailerPageTabs } from "../pages/Retailer";
 import RetailerOrders, {
   RetailerOrdersPageTabs,
@@ -61,42 +30,105 @@ import RetailerOrders, {
 import ShopifyCustomerDetail, {
   ShopifyCustomerDetailPageTabs,
 } from "../pages/ShopifyCustomerDetail";
-import Rewards from "../pages/Rewards";
-import Service from "../pages/Service";
-import ShopifyPickUp from "../pages/ShopifyPickUp";
-import SingleCheckArchive from "../pages/SingleCheckArchive";
-import SingleCountArchive from "../pages/SingleCountArchive";
-import SingleExpirationCountArchive from "../pages/SingleExpirationCountArchive";
-import SingleFolderPage from "../pages/SingleFolderPage";
 import StockHistoriesReports, {
   StockHistoriesReportsPageTabs,
 } from "../pages/StockHistoriesReports";
-import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
-import User from "../pages/User";
-import UserActivities from "../pages/UserActivities";
-import Users from "../pages/Users";
-import Vendor from "../pages/Vendor";
-import Visits from "../pages/Visits";
 import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
-import EventSurveyBuilder from "./../pages/EventSurveyBuilder";
-import EventSurveyQuestions from "./../pages/EventSurveyQuestions";
-import TournamentDetail from "./../pages/TournamentDetail";
-import Tournaments from "./../pages/Tournaments";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Logs, { LogsPageTabs } from "./../pages/Logs";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
-import RequestedGames from "./../pages/RequestedGames";
 import { StockPageTabs } from "./../pages/Stocks";
-import SurveyAnalytics from "./../pages/SurveyAnalytics";
-import SurveyRedeem from "./../pages/SurveyRedeem";
 import { VendorPageTabs } from "./../pages/Vendor";
 import { VisitPageTabs } from "./../pages/Visits";
 import { RoleEnum } from "./../types/index";
+import { lazyWithReload } from "../utils/lazyWithReload";
+
+// Pages load when first opened, so the panel starts with less code.
+const Brand = lazyWithReload(() => import("../pages/Brand"));
+const BulkProductAdding = lazyWithReload(
+  () => import("../pages/BulkProductAdding")
+);
+const ButtonCalls = lazyWithReload(() => import("../pages/ButtonCalls"));
+const UnmetExplanationRequests = lazyWithReload(
+  () => import("../pages/UnmetExplanationRequests")
+);
+const CallAssignmentLog = lazyWithReload(
+  () => import("../pages/CallAssignmentLog")
+);
+const StaffStateSummary = lazyWithReload(
+  () => import("../pages/StaffStateSummary")
+);
+const Check = lazyWithReload(() => import("../pages/Check"));
+const Checklist = lazyWithReload(() => import("../pages/Checklist"));
+const Checkout = lazyWithReload(() => import("../pages/Checkout"));
+const Comparision = lazyWithReload(() => import("../pages/Comparision"));
+const Count = lazyWithReload(() => import("../pages/Count"));
+const CountList = lazyWithReload(() => import("../pages/CountList"));
+const DailySummary = lazyWithReload(() => import("../pages/DailySummary"));
+const Education = lazyWithReload(() => import("../pages/Education"));
+const Expenses = lazyWithReload(() => import("../pages/Expenses"));
+const ExpirationCount = lazyWithReload(
+  () => import("../pages/ExpirationCount")
+);
+const ExpirationList = lazyWithReload(() => import("../pages/ExpirationList"));
+const Feedback = lazyWithReload(() => import("../pages/Feedback"));
+const Gameplays = lazyWithReload(() => import("../pages/Gameplays"));
+const Images = lazyWithReload(() => import("../pages/Images"));
+const Memberships = lazyWithReload(() => import("../pages/Memberships"));
+const Menu = lazyWithReload(() => import("../pages/Menu"));
+const MenuPrice = lazyWithReload(() => import("../pages/MenuPrice"));
+const OnlineSales = lazyWithReload(() => import("../pages/OnlineSales"));
+const OrderDatas = lazyWithReload(() => import("../pages/OrderDatas"));
+const Orders = lazyWithReload(() => import("../pages/Orders"));
+const OrdersSummary = lazyWithReload(() => import("../pages/OrdersSummary"));
+const PageDetails = lazyWithReload(() => import("../pages/PageDetails"));
+const Points = lazyWithReload(() => import("../pages/Points"));
+const Product = lazyWithReload(() => import("../pages/Product"));
+const QrDisplay = lazyWithReload(() => import("../pages/QrDisplay"));
+const Reservations = lazyWithReload(() => import("../pages/Reservations"));
+const Rewards = lazyWithReload(() => import("../pages/Rewards"));
+const Service = lazyWithReload(() => import("../pages/Service"));
+const ShopifyPickUp = lazyWithReload(() => import("../pages/ShopifyPickUp"));
+const SingleCheckArchive = lazyWithReload(
+  () => import("../pages/SingleCheckArchive")
+);
+const SingleCountArchive = lazyWithReload(
+  () => import("../pages/SingleCountArchive")
+);
+const SingleExpirationCountArchive = lazyWithReload(
+  () => import("../pages/SingleExpirationCountArchive")
+);
+const SingleFolderPage = lazyWithReload(
+  () => import("../pages/SingleFolderPage")
+);
+const Stocks = lazyWithReload(() => import("../pages/Stocks"));
+const User = lazyWithReload(() => import("../pages/User"));
+const UserActivities = lazyWithReload(() => import("../pages/UserActivities"));
+const Users = lazyWithReload(() => import("../pages/Users"));
+const Vendor = lazyWithReload(() => import("../pages/Vendor"));
+const Visits = lazyWithReload(() => import("../pages/Visits"));
+const EventSurveyBuilder = lazyWithReload(
+  () => import("./../pages/EventSurveyBuilder")
+);
+const EventSurveyQuestions = lazyWithReload(
+  () => import("./../pages/EventSurveyQuestions")
+);
+const TournamentDetail = lazyWithReload(
+  () => import("./../pages/TournamentDetail")
+);
+const Tournaments = lazyWithReload(() => import("./../pages/Tournaments"));
+const RequestedGames = lazyWithReload(
+  () => import("./../pages/RequestedGames")
+);
+const SurveyAnalytics = lazyWithReload(
+  () => import("./../pages/SurveyAnalytics")
+);
+const SurveyRedeem = lazyWithReload(() => import("./../pages/SurveyRedeem"));
 
 export enum PublicRoutes {
   NotFound = "*",
@@ -193,7 +225,7 @@ export const allRoutes: {
   isOnSidebar: boolean;
   exceptionalRoles?: number[];
   link?: string;
-  element?: () => JSX.Element;
+  element?: ComponentType;
   tabs?: Tab[];
   children?: typeof allRoutes;
 }[] = [

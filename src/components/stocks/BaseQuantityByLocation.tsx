@@ -2,7 +2,6 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
-import * as XLSX from "xlsx";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import { ActionEnum, DisabledConditionEnum } from "../../types";
@@ -382,9 +381,11 @@ const BaseQuantityByLocation = () => {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
+    reader.onload = async (e: ProgressEvent<FileReader>) => {
       const buffer = e.target?.result;
       if (buffer) {
+        // Loaded on demand: xlsx is too big for the main bundle.
+        const XLSX = await import("xlsx");
         const wb = XLSX.read(buffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
