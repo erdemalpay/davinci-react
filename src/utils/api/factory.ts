@@ -52,6 +52,7 @@ export const Paths = {
   ButtonCalls: "/button-calls",
   Notification: "/notification",
   Shift: "/shift",
+  StaffPerformance: "/staff-performance",
   ShiftChangeRequest: "/shift-change-request",
   Expiration: "/expiration",
   Point: "/point",
