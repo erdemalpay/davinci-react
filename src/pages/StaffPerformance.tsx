@@ -12,6 +12,7 @@ import { useGetUsers } from "../utils/api/user";
 import { useGetFilteredVisits } from "../utils/api/visit";
 import {
   AttendanceDay,
+  DayBreakdown,
   DayFilters,
   PerformanceTone,
   StaffCountField,
@@ -34,26 +35,41 @@ type PerformanceRow = {
   user: User;
   // Shown after the name, e.g. a game master in the service staff table.
   note?: string;
+  days: DayBreakdown;
   dayCount: number;
-  unplannedDayCount: number;
   averages: Record<StaffCountField, number>;
   learnedGameCount: number;
 };
 
-// Who is in a group, and which of their days count there.
+// Who is in a group, and which of their days belong to it.
 type GroupMembers = {
   roles: RoleEnum[];
-  isCounted: (day: AttendanceDay) => boolean;
+  isEligible?: (day: AttendanceDay) => boolean;
+  // Middleman and service staff days count only when included.
+  usesDayFilters?: boolean;
   note?: string;
 };
 
 type Group = {
   title: string;
   members: GroupMembers[];
+  dayColumns: (keyof DayBreakdown)[];
   columns: Column[];
 };
 
 const EVERY_DAY = () => true;
+
+const dayColumnLabels: Record<keyof DayBreakdown, string> = {
+  full: "Full days",
+  partTime: "Part-time days",
+  unplanned: "Unplanned days",
+  serviceStaff: "Service staff days",
+  middleman: "Middleman days",
+  marked: "Marked days",
+};
+
+// Shown only when someone has such a day.
+const OPTIONAL_DAY_COLUMNS: (keyof DayBreakdown)[] = ["unplanned", "marked"];
 
 const toneClasses: Record<PerformanceTone, string> = {
   best: "bg-green-600 text-white",
@@ -104,15 +120,20 @@ export default function StaffPerformance() {
       // Middleman and service staff days can be left out; game managers'
       // days outside operation never count.
       members: [
-        {
-          roles: [RoleEnum.GAMEMASTER],
-          isCounted: (day) => isDayCounted(day, dayFilters),
-        },
+        { roles: [RoleEnum.GAMEMASTER], usesDayFilters: true },
         {
           roles: [RoleEnum.GAMEMANAGER],
-          isCounted: (day) =>
-            isDayCounted(day, dayFilters) && !day.isOutsideOperation,
+          isEligible: (day) => !day.isOutsideOperation,
+          usesDayFilters: true,
         },
+      ],
+      dayColumns: [
+        "full",
+        "partTime",
+        "unplanned",
+        "serviceStaff",
+        "middleman",
+        "marked",
       ],
       columns: [
         {
@@ -152,13 +173,14 @@ export default function StaffPerformance() {
       // Game masters on the days they were service staff, to compare that
       // work with the service staff's.
       members: [
-        { roles: [RoleEnum.SERVICE], isCounted: EVERY_DAY },
+        { roles: [RoleEnum.SERVICE] },
         {
           roles: [RoleEnum.GAMEMASTER, RoleEnum.GAMEMANAGER],
-          isCounted: (day) => day.isServiceStaff && !day.isOutsideOperation,
+          isEligible: (day) => day.isServiceStaff && !day.isOutsideOperation,
           note: "GM",
         },
       ],
+      dayColumns: ["full", "partTime", "unplanned", "serviceStaff"],
       columns: [
         {
           label: t("Orders Created"),
@@ -181,12 +203,13 @@ export default function StaffPerformance() {
       title: t("Baristas"),
       // Bar chefs' days outside operation don't count.
       members: [
-        { roles: [RoleEnum.BARISTA], isCounted: EVERY_DAY },
+        { roles: [RoleEnum.BARISTA] },
         {
           roles: [RoleEnum.BARCHEF],
-          isCounted: (day) => !day.isOutsideOperation,
+          isEligible: (day) => !day.isOutsideOperation,
         },
       ],
+      dayColumns: ["full", "partTime", "unplanned"],
       columns: [
         {
           label: t("Orders Created"),
@@ -222,7 +245,7 @@ export default function StaffPerformance() {
 
   const rowsFor = (group: Group): PerformanceRow[] =>
     group.members
-      .flatMap(({ roles, isCounted, note }) =>
+      .flatMap(({ roles, isEligible = EVERY_DAY, usesDayFilters, note }) =>
         users
           .filter((user) => roles.includes(user.role?._id))
           .map((user) => {
@@ -232,11 +255,13 @@ export default function StaffPerformance() {
               shifts,
               locations,
               location,
-            });
+            }).filter(isEligible);
             const performance = getStaffPerformance(
               days,
               countsByUser.get(user._id) ?? [],
-              isCounted
+              usesDayFilters
+                ? (day) => isDayCounted(day, dayFilters)
+                : EVERY_DAY
             );
             const learnedGameCount = (user.userGames ?? []).filter(
               (userGame) =>
@@ -246,7 +271,7 @@ export default function StaffPerformance() {
             return { user, note, ...performance, learnedGameCount };
           })
       )
-      .filter((row) => row.dayCount > 0)
+      .filter((row) => Object.values(row.days).some((count) => count > 0))
       .sort((a, b) => a.user.name.localeCompare(b.user.name, "tr"));
 
   return (
@@ -317,13 +342,14 @@ export default function StaffPerformance() {
           <PerformanceTable
             key={group.title}
             title={group.title}
+            dayColumns={group.dayColumns}
             columns={group.columns}
             rows={rowsFor(group)}
           />
         ))}
         <p className="text-xs text-gray-500">
           {t(
-            "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below)."
+            "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman and service staff days count only when included. Colors compare with the group's average (15% and 30% above or below)."
           )}
         </p>
       </div>
@@ -333,16 +359,25 @@ export default function StaffPerformance() {
 
 function PerformanceTable({
   title,
+  dayColumns,
   columns,
   rows,
 }: {
   title: string;
+  dayColumns: (keyof DayBreakdown)[];
   columns: Column[];
   rows: PerformanceRow[];
 }) {
   const { t } = useTranslation();
+  const shownDayColumns = dayColumns.filter(
+    (key) =>
+      !OPTIONAL_DAY_COLUMNS.includes(key) || rows.some((row) => row.days[key])
+  );
+  // Someone with no day that counts (e.g. only middleman days, left out)
+  // has no averages and stays out of the group's.
+  const ratedRows = rows.filter((row) => row.dayCount > 0);
   const columnAverages = columns.map((column) =>
-    mean(rows.map((row) => column.value(row)))
+    mean(ratedRows.map((row) => column.value(row)))
   );
 
   return (
@@ -355,8 +390,16 @@ function PerformanceTable({
               <th className="border border-gray-300 px-3 py-2 text-left">
                 {t("Person")}
               </th>
+              {shownDayColumns.map((key) => (
+                <th
+                  key={key}
+                  className="border border-gray-300 px-3 py-2 text-center"
+                >
+                  {t(dayColumnLabels[key])}
+                </th>
+              ))}
               <th className="border border-gray-300 px-3 py-2 text-center">
-                {t("Days")}
+                {t("Counted days")}
               </th>
               {columns.map((column) => (
                 <th
@@ -372,7 +415,7 @@ function PerformanceTable({
             {rows.length === 0 && (
               <tr>
                 <td
-                  colSpan={columns.length + 2}
+                  colSpan={shownDayColumns.length + columns.length + 2}
                   className="px-3 py-4 text-center text-gray-500"
                 >
                   {t("No data")}
@@ -389,28 +432,34 @@ function PerformanceTable({
                     </span>
                   )}
                 </td>
-                <td className="border border-gray-300 px-3 py-2 text-center">
+                {shownDayColumns.map((key) => (
+                  <td
+                    key={key}
+                    className="border border-gray-300 px-3 py-2 text-center"
+                  >
+                    {row.days[key]}
+                  </td>
+                ))}
+                <td className="border border-gray-300 px-3 py-2 text-center font-semibold">
                   {formatDays(row.dayCount)}
-                  {row.unplannedDayCount > 0 && (
-                    <span
-                      className="ml-1 text-xs text-orange-600"
-                      title={t("Days missing from the shift plan")}
-                    >
-                      ({row.unplannedDayCount} {t("unplanned")})
-                    </span>
-                  )}
                 </td>
                 {columns.map((column, index) => {
                   const value = column.value(row);
-                  const tone = column.isDailyAverage
-                    ? getPerformanceTone(value, columnAverages[index])
-                    : "normal";
+                  const isRated = !column.isDailyAverage || row.dayCount > 0;
+                  const tone =
+                    column.isDailyAverage && isRated
+                      ? getPerformanceTone(value, columnAverages[index])
+                      : "normal";
                   return (
                     <td
                       key={column.label}
                       className={`border border-gray-300 px-3 py-2 text-center ${toneClasses[tone]}`}
                     >
-                      {column.isDailyAverage ? formatNumber(value) : value}
+                      {!isRated
+                        ? "–"
+                        : column.isDailyAverage
+                        ? formatNumber(value)
+                        : value}
                     </td>
                   );
                 })}
@@ -421,8 +470,11 @@ function PerformanceTable({
                 <td className="border border-gray-300 px-3 py-2">
                   {t("Overall Average")}
                 </td>
+                {shownDayColumns.map((key) => (
+                  <td key={key} className="border border-gray-300" />
+                ))}
                 <td className="border border-gray-300 px-3 py-2 text-center">
-                  {formatDays(mean(rows.map((row) => row.dayCount)))}
+                  {formatDays(mean(ratedRows.map((row) => row.dayCount)))}
                 </td>
                 {columnAverages.map((value, index) => (
                   <td
