@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { FaBookReader } from "react-icons/fa";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
 import { MdFreeBreakfast, MdOutlineSchedule } from "react-icons/md";
@@ -19,8 +19,15 @@ import GameplaysByGames from "./gameplay/GameplaysByGame";
 import GameplaysByMentor from "./gameplay/GameplaysByMentor";
 import KnownGamesCount from "./gameplay/KnownGamesCount";
 import LearnedGames from "./gameplay/LearnedGames";
-import { MentorAnalyticChart } from "./gameplay/MentorAnalyticChart";
 import TablePlayerCount from "./gameplay/TablePlayerCount";
+import { lazyWithReload } from "../../utils/lazyWithReload";
+
+// Charts load on demand: recharts is a large part of the panel's code.
+const MentorAnalyticChart = lazyWithReload(() =>
+  import("./gameplay/MentorAnalyticChart").then((m) => ({
+    default: m.MentorAnalyticChart,
+  }))
+);
 
 export const GameplayAnalyticsTabs: Tab[] = [
   {
@@ -112,11 +119,19 @@ export default function GameplayAnalytics() {
   > = {
     [GameplayAnalyticsTabEnum.GAMEPLAYBYGAMEMENTORS]: {
       icon: <RiGameLine className="text-lg font-thin" />,
-      content: <MentorAnalyticChart {...mentorChartProps} />,
+      content: (
+        <Suspense fallback={null}>
+          <MentorAnalyticChart {...mentorChartProps} />
+        </Suspense>
+      ),
     },
     [GameplayAnalyticsTabEnum.UNIQUEGAMEPLAYBYGAMEMENTORS]: {
       icon: <SiWegame className="text-lg font-thin" />,
-      content: <MentorAnalyticChart {...mentorChartProps} unique />,
+      content: (
+        <Suspense fallback={null}>
+          <MentorAnalyticChart {...mentorChartProps} unique />
+        </Suspense>
+      ),
     },
     [GameplayAnalyticsTabEnum.TABLEPLAYERCOUNTS]: {
       icon: <GiAmericanFootballPlayer className="text-lg font-thin" />,

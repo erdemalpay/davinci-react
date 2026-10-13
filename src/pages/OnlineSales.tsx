@@ -20,6 +20,11 @@ import { MinimalUser } from "../utils/api/user";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { sortTable } from "../utils/sort";
+import { useIsLgScreen } from "../hooks/useMediaQuery";
+import { useStableGroups } from "../hooks/useStableGroups";
+import { useGetTodayOrders } from "../utils/api/order/order";
+import { useGetTodayCollections } from "../utils/api/order/orderCollection";
+import { NO_ITEMS, tableIdOf } from "../utils/tableGroups";
 
 const OnlineSales = () => {
   const { t } = useTranslation();
@@ -29,6 +34,11 @@ const OnlineSales = () => {
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const { visits = [], users = [] } = useDataContext();
+  const todayOrders = useGetTodayOrders();
+  const todayCollections = useGetTodayCollections();
+  const tableOrdersMap = useStableGroups(todayOrders, tableIdOf);
+  const tableCollectionsMap = useStableGroups(todayCollections, tableIdOf);
+  const isLgScreen = useIsLgScreen();
 
   const tables = useGetTables()
     .filter((table) => table?.isOnlineSale)
@@ -271,35 +281,48 @@ const OnlineSales = () => {
           </div>
         </div>
 
-        <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
-          {tableColumns.map((tableColumn, idx) => (
-            <div key={idx}>
-              {tableColumn.map((table) => (
+        {/* One grid only: the hidden one used to render every card twice. */}
+        {isLgScreen && (
+          <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
+            {tableColumns.map((tableColumn, idx) => (
+              <div key={idx}>
+                {tableColumn.map((table) => (
+                  <TableCard
+                    key={table._id || table.startHour}
+                    table={table}
+                    mentors={mentors}
+                    showAllGameplays={showAllGameplays}
+                    showAllOrders={showAllOrders}
+                    tables={tables}
+                    tableOrders={tableOrdersMap.get(table._id) ?? NO_ITEMS}
+                    tableCollections={
+                      tableCollectionsMap.get(table._id) ?? NO_ITEMS
+                    }
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+        {!isLgScreen && (
+          <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
+            {tables.map((table) => (
+              <div id={`table-${table._id}`} key={table._id || table.startHour}>
                 <TableCard
-                  key={table._id || table.startHour}
                   table={table}
                   mentors={mentors}
                   showAllGameplays={showAllGameplays}
                   showAllOrders={showAllOrders}
                   tables={tables}
+                  tableOrders={tableOrdersMap.get(table._id) ?? NO_ITEMS}
+                  tableCollections={
+                    tableCollectionsMap.get(table._id) ?? NO_ITEMS
+                  }
                 />
-              ))}
-            </div>
-          ))}
-        </div>
-        <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
-          {tables.map((table) => (
-            <div id={`table-${table._id}`} key={table._id || table.startHour}>
-              <TableCard
-                table={table}
-                mentors={mentors}
-                showAllGameplays={showAllGameplays}
-                showAllOrders={showAllOrders}
-                tables={tables}
-              />
-            </div>
-          ))}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       {isCreateTableDialogOpen && (
         <CreateTableDialog

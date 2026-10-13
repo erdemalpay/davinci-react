@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { FaCheck, FaFileUpload } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { toast } from "react-toastify";
-import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { ActionEnum, DisabledConditionEnum } from "../../types";
@@ -321,9 +320,11 @@ const BulkExpenseCreate = () => {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
+    reader.onload = async (e: ProgressEvent<FileReader>) => {
       const buffer = e.target?.result;
       if (buffer) {
+        // Loaded on demand: xlsx is too big for the main bundle.
+        const XLSX = await import("xlsx");
         const wb = XLSX.read(buffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];

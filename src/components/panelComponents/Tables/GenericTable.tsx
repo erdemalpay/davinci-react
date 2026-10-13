@@ -1,5 +1,4 @@
 import { Tooltip } from "@material-tailwind/react";
-import "pdfmake/build/pdfmake";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFilePdf } from "react-icons/bs";
@@ -16,7 +15,6 @@ import { PiFadersHorizontal } from "react-icons/pi";
 import { RiFilter3Line } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
 import useIsSmallScreen from "../../../hooks/useIsSmallScreen";
 import { useStickyColumns } from "../../../hooks/useStickyColumns";
@@ -456,7 +454,10 @@ const GenericTable = <T,>({
     }
   };
 
-  const generatePDF = () => {
+  // pdfmake and xlsx are loaded only when exporting: together they are
+  // over a fifth of the panel's code.
+  const generatePDF = async () => {
+    await import("pdfmake/build/pdfmake");
     const pdfMake = (window as any).pdfMake;
     const data: any[] = [];
     data.push(
@@ -511,7 +512,8 @@ const GenericTable = <T,>({
     pdfMake.createPdf(documentDefinition).open();
   };
 
-  const generateExcel = () => {
+  const generateExcel = async () => {
+    const XLSX = await import("xlsx");
     const workbook = XLSX.utils.book_new();
 
     if (isCollapsible && !excelRows) {

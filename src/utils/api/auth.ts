@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import Cookies from "js-cookie";
+import { setAuthToken } from "../authToken";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -48,9 +48,8 @@ export function useLogin(
     // We are updating tables query data with new item
     onSuccess: async (response, variables) => {
       const { token, user } = response;
-      Cookies.set("jwt", token);
+      setAuthToken(token);
       toast.success(t("Logged in successfully"));
-      localStorage.setItem("jwt", token);
       localStorage.setItem("loggedIn", "true");
       if (variables.password === "dv") {
         localStorage.setItem("mustChangePassword", "true");

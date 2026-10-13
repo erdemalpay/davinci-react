@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import CampaignForm from "../pages/CampaignForm";
 import Login from "../pages/Login";
@@ -8,17 +9,23 @@ import { PrivateRoutes } from "./PrivateRoutes";
 const RouterContainer = () => {
   return (
     <Routes>
-      {allRoutes.map((route) => (
-        <Route key={route.name} element={<PrivateRoutes />}>
-          {allRoutes?.map((route) => (
-            <Route
-              key={route.name}
-              path={route.path}
-              element={route.element && <route.element />}
-            />
-          ))}
-        </Route>
-      ))}
+      {/* One layout route for all private pages (it used to be repeated
+          once per page, giving the router pages × pages routes to match). */}
+      <Route element={<PrivateRoutes />}>
+        {allRoutes.map((route) => (
+          <Route
+            key={route.name}
+            path={route.path}
+            element={
+              route.element && (
+                <Suspense fallback={null}>
+                  <route.element />
+                </Suspense>
+              )
+            }
+          />
+        ))}
+      </Route>
 
       <Route path={PublicRoutes.CampaignForm} element={<CampaignForm />} />
       <Route
