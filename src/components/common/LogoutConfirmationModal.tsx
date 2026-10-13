@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import Cookies from "js-cookie";
+import { clearAuthToken } from "../../utils/authToken";
 import { useTranslation } from "react-i18next";
 import { MdClose, MdCoffee, MdSportsEsports } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,7 @@ export const LogoutConfirmationModal = () => {
     clearLocalStoragePreservingOnboarding();
     localStorage.setItem("loggedOut", "true");
     setTimeout(() => localStorage.removeItem("loggedOut"), 500);
-    Cookies.remove("jwt");
+    clearAuthToken();
     setUser(undefined);
     setIsSidebarOpen(false);
     queryClient.clear();
