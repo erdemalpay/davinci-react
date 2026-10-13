@@ -2104,5 +2104,20 @@
   "Taken care of or not": "Taken care of or not",
   "Assignment steps": "Assignment steps",
   "A new version of the panel is ready.": "A new version of the panel is ready.",
-  "Refresh": "Refresh"
+  "Refresh": "Refresh",
+  "Staff Performance": "Staff Performance",
+  "Game Masters": "Game Masters",
+  "Baristas": "Baristas",
+  "Orders Created": "Orders Created",
+  "Orders Delivered": "Orders Delivered",
+  "Games Set Up": "Games Set Up",
+  "Games Explained": "Games Explained",
+  "Include middleman days": "Include middleman days",
+  "Include service staff days": "Include service staff days",
+  "Days": "Days",
+  "No data": "No data",
+  "Days missing from the shift plan": "Days missing from the shift plan",
+  "unplanned": "unplanned",
+  "Overall Average": "Overall Average",
+  "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below).": "Daily averages: a full-time day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Colors compare with the group's average (15% and 30% above or below)."
 }
