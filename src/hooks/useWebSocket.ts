@@ -28,6 +28,7 @@ import {
   FORCE_RECONNECT_AFTER_HIDDEN_MS,
   mergeCreatedOrders,
   resyncAfterMissedEvents,
+  upsertCollection,
 } from "../utils/socketSync";
 import { socketEventListeners } from "./socketConstant";
 
@@ -546,20 +547,7 @@ export function useWebSocket(shouldConnect = false) {
               }
             }
 
-            // Update or add the collection in the cache
-            const existingIndex = oldData.findIndex(
-              (c) => c._id === collection._id
-            );
-
-            if (existingIndex !== -1) {
-              // Update existing collection
-              return oldData.map((c) =>
-                c._id === collection._id ? collection : c
-              );
-            } else {
-              // Add new collection
-              return [...oldData, collection];
-            }
+            return upsertCollection(oldData, collection);
           }
         );
       }
