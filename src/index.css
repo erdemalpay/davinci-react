@@ -477,20 +477,30 @@ body {
 }
 
 .busy-strip {
+  --busy-a: #f97316;
+  --busy-b: #facc15;
+  --busy-c: #ef4444;
   padding: 2px;
   background: linear-gradient(
     90deg,
-    #f97316,
-    #facc15,
-    #ef4444,
-    #f97316,
-    #facc15,
-    #ef4444,
-    #f97316
+    var(--busy-a),
+    var(--busy-b),
+    var(--busy-c),
+    var(--busy-a),
+    var(--busy-b),
+    var(--busy-c),
+    var(--busy-a)
   );
   background-size: 200% 100%;
   animation: busy-border-flow 4s linear infinite,
     busy-blink 2.4s ease-in-out infinite;
+}
+
+/* The middleman's strip, in its own teal. */
+.busy-strip-teal {
+  --busy-a: #14b8a6;
+  --busy-b: #99f6e4;
+  --busy-c: #0f766e;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,6 @@
 import { ResponsiveCalendar } from "@nivo/calendar";
 import { addDays, format, startOfYear } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaGamepad } from "react-icons/fa";
 import { FaMoneyBill1Wave } from "react-icons/fa6";
@@ -13,7 +13,12 @@ import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
 import useIsSmallScreen from "../../hooks/useIsSmallScreen";
-import { DateRangeKey, VisitPageTabEnum, commonDateOptions } from "../../types";
+import {
+  DateRangeKey,
+  ShiftValue,
+  VisitPageTabEnum,
+  commonDateOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -83,6 +88,28 @@ const GameMasterSummary = ({ userId }: Props) => {
   const gameplayCountsByDate = useGetGameplayCountsByDate(userId);
 
   const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.75;
+
+  // The days the shift plan made them service staff or the middleman.
+  const dutyDays = useMemo(() => {
+    const daysWhere = (isOnDuty: (slot: ShiftValue) => boolean) =>
+      [
+        ...new Set(
+          (shifts ?? [])
+            .filter((day) => day.shifts?.some(isOnDuty))
+            .map((day) => day.day)
+        ),
+      ].sort();
+    return [
+      {
+        title: t("Days assigned as service staff"),
+        dates: daysWhere((slot) => slot.chefUser === userId),
+      },
+      {
+        title: t("Days assigned as middleman"),
+        dates: daysWhere((slot) => slot.middlemanUser === userId),
+      },
+    ];
+  }, [shifts, userId, t]);
 
   // The averages take only what was done on the counted days: a day left out
   // of the averages leaves out its work too.
@@ -407,6 +434,32 @@ const GameMasterSummary = ({ userId }: Props) => {
           setCountedDates(dates);
         }}
       />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {dutyDays.map(({ title, dates }) => (
+          <div
+            key={title}
+            className="border rounded-lg border-gray-200 bg-white p-4 flex flex-col gap-2"
+          >
+            <h3 className="font-semibold">
+              {title} ({dates.length})
+            </h3>
+            {dates.length === 0 ? (
+              <span className="text-sm text-gray-500">–</span>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {dates.map((date) => (
+                  <span
+                    key={date}
+                    className="rounded bg-gray-100 px-2 py-1 text-sm"
+                  >
+                    {formatAsLocalDate(date)}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
       <div
         key={tableKey}
         className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"

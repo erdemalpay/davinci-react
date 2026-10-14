@@ -3,8 +3,11 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../../context/General.context";
 import {
+  BreakTypeEnum,
   DateRangeKey,
   FormElementsState,
+  breakTypeOf,
+  busyStateLabels,
   commonDateOptions,
 } from "../../../types";
 import { useGetBreaks } from "../../../utils/api/break";
@@ -59,14 +62,14 @@ const AllBreaks = () => {
           formattedDate: formatAsLocalDate(breakRecord.date),
           status: breakRecord.finishHour ? t("Completed") : t("Active"),
           durationFormatted: formatDuration(breakRecord.duration || 0),
+          typeLabel: t(busyStateLabels[breakTypeOf(breakRecord)]),
         };
       }) ?? [];
 
     // Group by user, location, and date to create collapsible rows
     const groupedRows = new Map<string, any[]>();
     allRows.forEach((row) => {
-      const userId =
-        typeof row.user === "object" ? row.user._id : row.user;
+      const userId = typeof row.user === "object" ? row.user._id : row.user;
       const locationId = row.location;
       const key = `${userId}-${locationId}-${row.date}`;
       if (!groupedRows.has(key)) {
@@ -79,11 +82,10 @@ const AllBreaks = () => {
     const collapsibleRows: any[] = [];
     groupedRows.forEach((groupRows) => {
       const firstRow = groupRows[0];
-      // Calculate daily duration from all breaks in the group
-      const dailyDurationMinutes = groupRows.reduce(
-        (sum, row) => sum + (row.duration || 0),
-        0
-      );
+      // Only real breaks: taking a payment, WC, ... are work.
+      const dailyDurationMinutes = groupRows
+        .filter((row) => breakTypeOf(row) === BreakTypeEnum.BREAK)
+        .reduce((sum, row) => sum + (row.duration || 0), 0);
       const dailyDurationFormatted = formatDuration(dailyDurationMinutes);
 
       collapsibleRows.push({
@@ -93,6 +95,7 @@ const AllBreaks = () => {
         collapsible: {
           collapsibleHeader: `${firstRow.userDisplayName} - ${firstRow.formattedDate}`,
           collapsibleColumns: [
+            { key: t("Type"), isSortable: false },
             { key: t("Start Time"), isSortable: false },
             { key: t("End Time"), isSortable: false },
             { key: t("Duration"), isSortable: false },
@@ -100,6 +103,7 @@ const AllBreaks = () => {
           ],
           collapsibleRows: groupRows,
           collapsibleRowKeys: [
+            { key: "typeLabel" },
             { key: "startHour" },
             {
               key: "finishHour",
@@ -133,7 +137,7 @@ const AllBreaks = () => {
       { key: t("User"), isSortable: true, correspondingKey: "user" },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Date"), isSortable: true, correspondingKey: "date" },
-      { key: t("Daily Duration"), isSortable: true },
+      { key: t("Daily Break Duration"), isSortable: true },
     ],
     [t]
   );
@@ -143,9 +147,9 @@ const AllBreaks = () => {
       { key: "userDisplayName" },
       { key: "locationDisplayName" },
       { key: "formattedDate" },
-      { 
+      {
         key: "dailyDurationMinutes",
-        node: (row: any) => row.dailyDuration
+        node: (row: any) => row.dailyDuration,
       },
     ],
     [t]
