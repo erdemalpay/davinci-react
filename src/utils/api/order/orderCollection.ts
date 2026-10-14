@@ -9,6 +9,7 @@ import {
   OrderCollectionStatus,
   Table,
 } from "../../../types";
+import { settleCreatedCollection } from "../../socketSync";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 
 const collectionBaseUrl = `${Paths.Order}/collection/table`;
@@ -350,6 +351,18 @@ export function useCreateOrderCollectionMutation(tableId: number) {
         previousTodayOrders,
         previousTodayCollections,
       };
+    },
+    // The placeholder added above has no id; swap it for the saved
+    // collection so it isn't listed twice next to the one the socket brings.
+    onSuccess: (created: OrderCollection) => {
+      if (!created?._id) return;
+      for (const queryKey of [collectionQueryKey, todayCollectionsQueryKey]) {
+        queryClient.setQueryData<OrderCollection[]>(queryKey, (collections) =>
+          collections
+            ? settleCreatedCollection(collections, created)
+            : collections
+        );
+      }
     },
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (_err: unknown, _newTable, context) => {

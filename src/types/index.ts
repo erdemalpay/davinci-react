@@ -9,6 +9,7 @@ export type Gameplay = {
   location: number;
   createdBy: User;
   isGameplayTime?: boolean;
+  activityTableName?: string;
 };
 
 export type GameplayTime = {
@@ -260,6 +261,8 @@ export type User = {
   ];
   settings?: {
     orderCategoryOn?: boolean;
+    // Managers: the day ("yyyy-MM-dd") they asked to get game master calls.
+    includeInGameAssignmentsDate?: string;
   };
 };
 
@@ -330,6 +333,12 @@ export type AccountCountProduct = {
   countQuantity: number;
   isStockEqualized?: boolean;
   productDeleteRequest?: string;
+  reservedQuantity?: number;
+  reservedDetails?: {
+    channel: "shopify" | "trendyol" | "hepsiburada";
+    orderNumber: string;
+    quantity: number;
+  }[];
 };
 export type AccountCount = {
   _id: string;
@@ -515,15 +524,45 @@ export type Break = {
   date: string;
   startHour: string;
   finishHour?: string;
+  // Which busy state this is; older records are breaks.
+  type?: BreakTypeEnum;
+  note?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+// "Meşgul" states: a break is one of them. All keep the person out of call
+// assignment until they end it.
+export enum BreakTypeEnum {
+  BREAK = "BREAK",
+  RECOMMENDING_GAME = "RECOMMENDING_GAME",
+  PREPARING_ORDER = "PREPARING_ORDER",
+  TAKING_PAYMENT = "TAKING_PAYMENT",
+  WC = "WC",
+  OTHER = "OTHER",
+}
+
+// Shown on the busy button, overlay and Tables ("I'm ...").
+export const busyStateLabels: Record<BreakTypeEnum, string> = {
+  [BreakTypeEnum.BREAK]: "On break",
+  [BreakTypeEnum.RECOMMENDING_GAME]: "Recommending a game",
+  [BreakTypeEnum.PREPARING_ORDER]: "Preparing an order",
+  [BreakTypeEnum.TAKING_PAYMENT]: "Taking a payment",
+  [BreakTypeEnum.WC]: "At the WC",
+  [BreakTypeEnum.OTHER]: "Busy",
+};
+
+export const breakTypeOf = (breakRecord?: { type?: BreakTypeEnum }) =>
+  breakRecord?.type ?? BreakTypeEnum.BREAK;
 
 export type CreateBreakDto = {
   user: string;
   location: number;
   date: string;
   startHour: string;
+  type?: BreakTypeEnum;
+  // Required for BreakTypeEnum.OTHER.
+  note?: string;
 };
 
 export type Middleman = {
@@ -562,6 +601,12 @@ export enum ButtonCallTypeEnum {
   ORDERCALL = "ORDERCALL",
   ORDERREADYCALL = "ORDERREADYCALL",
 }
+// Calls assigned to a person: game master calls, a table calling to order
+// and the bar calling for ready orders to be taken.
+export const isAssignedCallType = (type?: string) =>
+  type === ButtonCallTypeEnum.GAMEMASTERCALL ||
+  type === ButtonCallTypeEnum.ORDERCALL ||
+  type === ButtonCallTypeEnum.ORDERREADYCALL;
 export const buttonCallTypes = [
   {
     value: ButtonCallTypeEnum.TABLECALL,
@@ -599,7 +644,106 @@ export type ButtonCall = {
   cancelledByName?: string;
   duration?: number;
   callCount: number;
+  gmCallReason?: GmCallReasonEnum;
+  game?: number;
+  assignedTo?: string;
+  assignedHour?: string;
+  declinedBy?: string[];
+  explainerUnavailable?: boolean;
+  // Every assignment, decline and take-over (panel endpoints only).
+  assignmentHistory?: AssignmentHistoryItem[];
 };
+
+export type AssignmentHistoryItem = {
+  user: string;
+  action: AssignmentActionEnum;
+  hour: string;
+  reason?: DeclineReasonEnum;
+  note?: string;
+  game?: number;
+};
+
+export enum GameAvailabilityStatus {
+  BUSY = "busy",
+  LATER = "later",
+  UNAVAILABLE = "unavailable",
+}
+
+export type UnmetExplanationRequest = {
+  _id: number;
+  date: string;
+  hour: string;
+  location: number;
+  tableName: string;
+  game: number;
+  // Explanation or a question about the game; older records are explanations.
+  gmCallReason?: GmCallReasonEnum;
+  status: GameAvailabilityStatus;
+  availableFrom?: string;
+  buttonCall?: number;
+  waited: boolean;
+  explainedBy?: string;
+  callFinishHour?: string;
+  // What the table did instead of waiting.
+  followUp?: UnmetFollowUp;
+};
+
+export enum UnmetFollowUp {
+  OTHER_GAME = "OTHER_GAME",
+  RECOMMENDATION = "RECOMMENDATION",
+  LEFT = "LEFT",
+}
+
+export enum AssignmentActionEnum {
+  ASSIGNED = "assigned",
+  DECLINED = "declined",
+  CLAIMED = "claimed",
+}
+
+export type AssignmentEvent = {
+  buttonCall: number;
+  date: string;
+  hour: string;
+  location: number;
+  tableName: string;
+  // Game master or service call.
+  callType?: ButtonCallTypeEnum;
+  user: string;
+  action: AssignmentActionEnum;
+  // For a take-over: who had the call before.
+  fromUser?: string;
+  gmCallReason?: GmCallReasonEnum;
+  game?: number;
+  // For a decline: why, and a note for OTHER.
+  reason?: DeclineReasonEnum;
+  note?: string;
+};
+
+export enum DeclineReasonEnum {
+  BREAK = "BREAK",
+  TAKING_PAYMENT = "TAKING_PAYMENT",
+  RECOMMENDING_GAME = "RECOMMENDING_GAME",
+  PREPARING_ORDER = "PREPARING_ORDER",
+  WC = "WC",
+  DOESNT_KNOW_GAME = "DOESNT_KNOW_GAME",
+  OTHER = "OTHER",
+}
+
+export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
+  [DeclineReasonEnum.BREAK]: "Break",
+  [DeclineReasonEnum.TAKING_PAYMENT]: "I'm taking a payment",
+  [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
+  [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
+  [DeclineReasonEnum.WC]: "WC",
+  [DeclineReasonEnum.DOESNT_KNOW_GAME]: "I don't know the game",
+  [DeclineReasonEnum.OTHER]: "Other",
+};
+
+export enum GmCallReasonEnum {
+  RECOMMENDATION = "RECOMMENDATION",
+  EXPLANATION = "EXPLANATION",
+  QUESTION = "QUESTION",
+}
 
 export enum ButtonCallType {
   ACTIVE = "active",
@@ -1137,6 +1281,9 @@ export type OrderNote = {
   note: string;
   categories?: number[];
   items?: number[];
+  // "Bring it with the food": a ready-right-away order with this note waits
+  // until the table's food is ready.
+  isServedWithFood?: boolean;
 };
 
 export type OrderCollectionItem = {

@@ -107,7 +107,8 @@ const ShopifyOrders = () => {
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelShopifyOrder } = useCancelShopifyOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
-  const [showShopifyExtraColumns, setShowShopifyExtraColumns] = useState(false);
+  const [showShopifyExtraColumns, setShowShopifyExtraColumns] =
+    useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();

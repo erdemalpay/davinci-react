@@ -4,16 +4,38 @@ import { useTranslation } from "react-i18next";
 import { MdFreeBreakfast } from "react-icons/md";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { BusyStateDialog } from "./BusyStateDialog";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { CreateBreakDto } from "../../types";
+import {
+  BreakTypeEnum,
+  breakTypeOf,
+  busyStateLabels,
+  isAssignedCallType,
+  CreateBreakDto,
+  DeclineReasonEnum,
+} from "../../types";
+import {
+  useDeclineButtonCallMutation,
+  useGetActiveButtonCalls,
+} from "../../utils/api/buttonCall";
 import {
   useBreakMutations,
   useGetBreaksByLocation,
 } from "../../utils/api/break";
 import { useGetMiddlemanByLocation } from "../../utils/api/middleman";
-import { getItem, getRefId } from "../../utils/getItem";
+import { useBreakWarning } from "../../hooks/useBreakWarning";
+
+// Becoming busy while holding a call declines it with the same reason.
+const declineReasonForBusyState: Record<BreakTypeEnum, DeclineReasonEnum> = {
+  [BreakTypeEnum.BREAK]: DeclineReasonEnum.BREAK,
+  [BreakTypeEnum.RECOMMENDING_GAME]: DeclineReasonEnum.RECOMMENDING_GAME,
+  [BreakTypeEnum.PREPARING_ORDER]: DeclineReasonEnum.PREPARING_ORDER,
+  [BreakTypeEnum.TAKING_PAYMENT]: DeclineReasonEnum.TAKING_PAYMENT,
+  [BreakTypeEnum.WC]: DeclineReasonEnum.WC,
+  [BreakTypeEnum.OTHER]: DeclineReasonEnum.OTHER,
+};
 
 interface BreakButtonProps {
   onBreakStart?: () => void;
@@ -23,11 +45,13 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
-  const { visits = [], users = [] } = useDataContext();
+  const { visits = [] } = useDataContext();
   const { createBreak, updateBreak } = useBreakMutations();
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [currentBreakId, setCurrentBreakId] = useState<number | null>(null);
+  const [currentType, setCurrentType] = useState(BreakTypeEnum.BREAK);
   const [isBreakWarningOpen, setIsBreakWarningOpen] = useState(false);
+  const [isStateDialogOpen, setIsStateDialogOpen] = useState(false);
 
   // Get active breaks for current location
   const activeBreaks = useGetBreaksByLocation(selectedLocationId || 0);
@@ -35,12 +59,18 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   // Get active middlemen for current location
   const activeMiddlemen = useGetMiddlemanByLocation(selectedLocationId || 0);
 
-  const othersOnBreak = useMemo(() => {
-    if (!activeBreaks || !user) return [];
-    return activeBreaks
-      .filter((b) => !b.finishHour && getRefId(b.user) !== user?._id)
-      .map((b) => getItem(getRefId(b.user), users)?.name ?? t("Someone"));
-  }, [activeBreaks, user, users, t]);
+  const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
+
+  // A game master or service call assigned to me right now.
+  const activeButtonCalls = useGetActiveButtonCalls();
+  const myOpenCall = activeButtonCalls.find(
+    (call) =>
+      Number(call.location) === selectedLocationId &&
+      call.assignedTo === user?._id &&
+      !call.finishHour &&
+      isAssignedCallType(call.type)
+  );
+  const { mutate: declineButtonCall } = useDeclineButtonCallMutation();
 
   // Check if current user has an active visit (is at the cafe)
   const hasActiveVisit = useMemo(() => {
@@ -60,24 +90,68 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
 
       setIsOnBreak(!!userActiveBreak);
       setCurrentBreakId(userActiveBreak?._id || null);
+      setCurrentType(breakTypeOf(userActiveBreak));
     } else {
       setIsOnBreak(false);
       setCurrentBreakId(null);
     }
   }, [activeBreaks, user, selectedLocationId]);
 
-  const doStartBreak = () => {
+  const [pendingBreak, setPendingBreak] = useState<{
+    type: BreakTypeEnum;
+    note?: string;
+  }>({ type: BreakTypeEnum.BREAK });
+
+  const doStartBreak = (
+    type = pendingBreak.type,
+    note: string | undefined = pendingBreak.note
+  ) => {
     if (!user?._id || !selectedLocationId) return;
+    // Holding a call: hand it back with this reason; the API puts me in
+    // the busy state and gives the call to someone else.
+    if (myOpenCall) {
+      declineButtonCall({
+        id: myOpenCall._id,
+        reason: declineReasonForBusyState[type],
+        ...(note && { note }),
+      });
+      toast.success(
+        type === BreakTypeEnum.BREAK
+          ? t("Break started")
+          : t(busyStateLabels[type])
+      );
+      onBreakStart?.();
+      setIsBreakWarningOpen(false);
+      return;
+    }
     const breakData: CreateBreakDto = {
       user: user._id,
       location: selectedLocationId,
       date: format(new Date(), "yyyy-MM-dd"),
       startHour: format(new Date(), "HH:mm"),
+      type,
+      ...(note && { note }),
     };
     createBreak(breakData);
-    toast.success(t("Break started"));
+    toast.success(
+      type === BreakTypeEnum.BREAK
+        ? t("Break started")
+        : t(busyStateLabels[type])
+    );
     onBreakStart?.();
     setIsBreakWarningOpen(false);
+  };
+
+  // A state was picked in the "Busy" dialog.
+  const handleSelectState = (type: BreakTypeEnum, note?: string) => {
+    setIsStateDialogOpen(false);
+    setPendingBreak({ type, note });
+    // The "others are on break" warning is only about real breaks.
+    if (type === BreakTypeEnum.BREAK && breakWarning) {
+      setIsBreakWarningOpen(true);
+      return;
+    }
+    doStartBreak(type, note);
   };
 
   const handleStartBreak = () => {
@@ -87,7 +161,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     }
 
     if (isOnBreak) {
-      toast.warning(t("You are already on a break"));
+      toast.warning(t("You are already busy"));
       return;
     }
 
@@ -101,12 +175,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       return;
     }
 
-    if (othersOnBreak.length >= 2) {
-      setIsBreakWarningOpen(true);
-      return;
-    }
-
-    doStartBreak();
+    setIsStateDialogOpen(true);
   };
 
   const handleEndBreak = () => {
@@ -122,7 +191,11 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         finishHour: format(new Date(), "HH:mm"),
       },
     });
-    toast.success(t("Break ended"));
+    toast.success(
+      currentType === BreakTypeEnum.BREAK
+        ? t("Break ended")
+        : t("You are available again")
+    );
   };
 
   // Don't show break button if user doesn't have an active visit (not at the cafe)
@@ -136,12 +209,15 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         <ConfirmationDialog
           isOpen={isBreakWarningOpen}
           close={() => setIsBreakWarningOpen(false)}
-          confirm={doStartBreak}
+          confirm={() => doStartBreak()}
           title={t("Break Warning")}
-          text={t(
-            "{{names}} are currently on break. Do you still want to take a break?",
-            { names: othersOnBreak.join(", ") }
-          )}
+          text={breakWarningText}
+        />
+      )}
+      {isStateDialogOpen && (
+        <BusyStateDialog
+          onSelect={handleSelectState}
+          onCancel={() => setIsStateDialogOpen(false)}
         />
       )}
       <div className="relative">
@@ -152,11 +228,15 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
               ? "bg-red-600 hover:bg-red-700"
               : "bg-green-600 hover:bg-green-700"
           }`}
-          title={isOnBreak ? t("End Break") : t("Start Break")}
+          title={
+            isOnBreak
+              ? `${t(busyStateLabels[currentType])} - ${t("End")}`
+              : t("Busy")
+          }
         >
           <MdFreeBreakfast className="text-lg" />
           <span className="hidden sm:inline">
-            {isOnBreak ? t("End Break") : t("Start Break")}
+            {isOnBreak ? t("End") : t("Busy")}
           </span>
         </button>
       </div>

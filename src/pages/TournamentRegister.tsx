@@ -97,9 +97,9 @@ const TournamentRegister = () => {
   return (
     <PublicFormCard
       title={tournament.name}
-      subtitle={`${format(new Date(tournament.date), "dd/MM/yyyy")} · ${t(
-        "Davinci Board Game Cafe"
-      )}`}
+      subtitle={`${format(new Date(tournament.date), "dd/MM/yyyy")}${
+        tournament.startTime ? ` · ${tournament.startTime}` : ""
+      } · ${t("Davinci Board Game Cafe")}`}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

@@ -5,7 +5,12 @@ import { MdCoffee, MdStop, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
-import { Break } from "../../types";
+import {
+  Break,
+  BreakTypeEnum,
+  breakTypeOf,
+  busyStateLabels,
+} from "../../types";
 import { useBreakMutations, useGetBreaksByDate } from "../../utils/api/break";
 
 export const BreakOverlay = () => {
@@ -46,6 +51,16 @@ export const BreakOverlay = () => {
     }
   }, [activeBreaks, user]);
 
+  const breakType = breakTypeOf(currentBreak ?? undefined);
+  // "You're on a break" / "Recommending a game" / ... with the note for
+  // "Other".
+  const stateTitle =
+    breakType === BreakTypeEnum.BREAK
+      ? t("You're on a break")
+      : breakType === BreakTypeEnum.OTHER && currentBreak?.note
+      ? `${t(busyStateLabels[breakType])}: ${currentBreak.note}`
+      : t(busyStateLabels[breakType]);
+
   const handleEndBreak = () => {
     if (!currentBreak) return;
 
@@ -54,7 +69,11 @@ export const BreakOverlay = () => {
       id: currentBreak._id.toString(),
       updates: { finishHour },
     });
-    toast.success(t("Break ended"));
+    toast.success(
+      breakType === BreakTypeEnum.BREAK
+        ? t("Break ended")
+        : t("You are available again")
+    );
   };
 
   const getBreakDuration = () => {
@@ -84,7 +103,7 @@ export const BreakOverlay = () => {
             <div className="flex items-center justify-center gap-2">
               <MdCoffee className="text-white text-sm" />
               <span className="text-white text-sm font-medium">
-                {t("You're on a break")} - {getBreakDuration()} {t("minutes")}
+                {stateTitle} - {getBreakDuration()} {t("minutes")}
               </span>
               <span className="text-white/70 text-xs">
                 ({t("Click to open")})
@@ -104,7 +123,7 @@ export const BreakOverlay = () => {
             <MdStop className="text-4xl text-orange-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            {t("You're on a break")}
+            {stateTitle}
           </h2>
           <p className="text-gray-600">
             {t("Started at")} {currentBreak.startHour}

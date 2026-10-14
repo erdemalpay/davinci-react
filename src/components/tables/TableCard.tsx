@@ -3,6 +3,7 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import {
   FormEvent,
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -30,12 +31,14 @@ import {
   MenuItem,
   OnlineLocationId,
   Order,
+  OrderCollection,
   OrderStatus,
   TURKISHLIRA,
   Table,
   TableTypes,
   User,
 } from "../../types";
+import { useGetActiveButtonCalls } from "../../utils/api/buttonCall";
 import {
   useCombineTableMutation,
   useCreateMultipleOrderMutation,
@@ -63,9 +66,16 @@ import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
+import {
+  getActivityTableWithGmCall,
+  getGameplayDefaultsFromCall,
+} from "./gameplayDefaults";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 import OrderListForPanel from "./OrderListForPanel";
+import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useGetAccountStocks } from "../../utils/api/account/stock";
+import { useGetMemberships } from "../../utils/api/membership";
 
 export interface TableCardProps {
   table: Table;
@@ -74,32 +84,39 @@ export interface TableCardProps {
   showAllOrders?: boolean;
   showServedOrders?: boolean;
   tables: Table[];
+  // This table's orders and collections of the day.
+  tableOrders: Order[];
+  tableCollections: OrderCollection[];
 }
 
-export function TableCard({
+// Memoized: with its own orders as props, a card re-renders when something
+// of this table changes, not on every order of the cafe.
+export const TableCard = memo(TableCardComponent);
+
+function TableCardComponent({
   table,
   mentors,
   showAllGameplays = false,
   showAllOrders = false,
   showServedOrders = false,
   tables,
+  tableOrders,
+  tableCollections,
 }: TableCardProps) {
   const {
     menuItems,
-    todayOrders,
-    todayCollections,
     categories,
     games,
     kitchens,
-    products,
     stockLocations,
     storeLocations,
     orderNotes,
-    memberships,
-    stocks,
     user,
     visits = [],
   } = useDataContext();
+  const products = useGetAccountProducts();
+  const memberships = useGetMemberships();
+  const stocks = useGetAccountStocks();
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [
@@ -108,14 +125,6 @@ export function TableCard({
   ] = useState(false);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
-  const tableOrders = useMemo(() => {
-    if (!table?._id || !todayOrders) {
-      return [];
-    }
-    return todayOrders.filter(
-      (order) => (order.table as Table)?._id === table._id
-    );
-  }, [table?._id, todayOrders]);
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
@@ -130,12 +139,6 @@ export function TableCard({
   const { createOrder } = useOrderMutations();
   const { isCounterUser, orderTakerInputs, orderTakerFormKeys } =
     useOrderTaker();
-  const tableCollections = useMemo(() => {
-    if (!todayCollections) return [];
-    return todayCollections.filter(
-      (collection) => (collection?.table as Table)?._id === table._id
-    );
-  }, [todayCollections, table._id]);
   const inactiveCategories = useMemo(() => {
     return categories?.filter((category) => !category.active) || [];
   }, [categories]);
@@ -769,15 +772,41 @@ export function TableCard({
     setIsOrderPaymentModalOpen(true);
   }, []);
 
+  const activeButtonCalls = useGetActiveButtonCalls();
+  const activityTableName = useMemo(
+    () =>
+      table.type === TableTypes.ACTIVITY
+        ? getActivityTableWithGmCall(activeButtonCalls, table.tables ?? [])
+        : undefined,
+    [activeButtonCalls, table.type, table.tables]
+  );
+  const callDefaults = useMemo(
+    () =>
+      getGameplayDefaultsFromCall(
+        activeButtonCalls,
+        activityTableName ?? table.name
+      ),
+    [activeButtonCalls, activityTableName, table.name]
+  );
+
   const gameplayTemplate = useMemo(() => {
     return {
       date: table.date,
       location: table.location as number,
       playerCount: table.playerCount,
       startHour: format(new Date(), "HH:mm"),
-      mentor: mentors[0],
+      mentor: callDefaults.mentor ?? mentors[0],
+      ...(callDefaults.game && { game: callDefaults.game }),
+      ...(activityTableName && { activityTableName }),
     };
-  }, [table.date, table.location, table.playerCount, mentors]);
+  }, [
+    table.date,
+    table.location,
+    table.playerCount,
+    mentors,
+    callDefaults,
+    activityTableName,
+  ]);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 

@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { GenericButton } from "../components/common/GenericButton";
+import ReservedQuantityCell from "../components/countLists/ReservedQuantityCell";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
@@ -35,7 +36,7 @@ import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCond
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
-import { getCountStockBgColor } from "../utils/color";
+import { getCountExpectedQuantity, getCountStockBgColor } from "../utils/color";
 
 const SingleCountArchive = () => {
   const { t } = useTranslation();
@@ -139,6 +140,8 @@ const SingleCountArchive = () => {
             startHour,
             endHour,
             stockQuantity: option.stockQuantity,
+            reservedQuantity: option.reservedQuantity,
+            reservedDetails: option.reservedDetails ?? [],
             countQuantity: option.countQuantity,
             productDeleteRequest: option.productDeleteRequest
               ? getItem(option.productDeleteRequest, users)?.name
@@ -149,7 +152,7 @@ const SingleCountArchive = () => {
         .filter((row): row is NonNullable<typeof row> => row !== null)
         .sort((a, b) => {
           const colorRank = (row: { stockQuantity: number; countQuantity: number }) => {
-            const s = Number(row.stockQuantity);
+            const s = getCountExpectedQuantity(row);
             const c = Number(row.countQuantity);
             if (s > c) return 0; // red
             if (s < c) return 1; // green
@@ -164,6 +167,10 @@ const SingleCountArchive = () => {
 
   const { columns, rowKeys } = useMemo(() => {
     const showInnerDatas = !isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user);
+    // Ayrılmış kaydı yalnızca pazaryeri siparişlerinin düştüğü depo sayımında oluşur.
+    const showReserved = !!currentCount?.products?.some(
+      (option) => option.reservedQuantity != null
+    );
 
     const cols = [
       { key: t("Date"), isSortable: true },
@@ -171,6 +178,7 @@ const SingleCountArchive = () => {
       { key: t("Product"), isSortable: true },
       { key: t("SKU"), isSortable: false },
       { key: t("Stock Quantity"), isSortable: true },
+      ...(showReserved ? [{ key: t("Reserved"), isSortable: true }] : []),
       { key: t("Count Quantity"), isSortable: true },
       { key: t("Difference"), isSortable: true },
       { key: t("Delete Request"), isSortable: true },
@@ -188,11 +196,24 @@ const SingleCountArchive = () => {
       { key: "product" },
       { key: "sku" },
       { key: "stockQuantity" },
+      ...(showReserved
+        ? [
+            {
+              key: "reservedQuantity",
+              node: (row: any) => (
+                <ReservedQuantityCell
+                  reservedQuantity={row.reservedQuantity}
+                  reservedDetails={row.reservedDetails}
+                />
+              ),
+            },
+          ]
+        : []),
       { key: "countQuantity" },
       {
         key: "difference",
         node: (row: any) => {
-          const diff = Number(row.countQuantity) - Number(row.stockQuantity);
+          const diff = Number(row.countQuantity) - getCountExpectedQuantity(row);
           return <span>{diff > 0 ? `+${diff}` : diff}</span>;
         },
       },
@@ -214,7 +235,12 @@ const SingleCountArchive = () => {
     ];
 
     return { columns: cols, rowKeys: keys };
-  }, [t, countArchiveCompletedCountDisabledCondition, user]);
+  }, [
+    t,
+    countArchiveCompletedCountDisabledCondition,
+    user,
+    currentCount?.products,
+  ]);
 
   const displayRows = useMemo(() => {
     if (isActionDisabled(countArchiveCompletedCountDisabledCondition, ActionEnum.SHOW_INNER_DATAS, user)) return [];

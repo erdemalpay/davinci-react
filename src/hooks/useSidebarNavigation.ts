@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import Cookies from "js-cookie";
+import { clearAuthToken } from "../utils/authToken";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -305,7 +305,7 @@ export function useSidebarNavigation(onClose: () => void) {
     clearLocalStoragePreservingOnboarding();
     localStorage.setItem("loggedOut", "true");
     setTimeout(() => localStorage.removeItem("loggedOut"), 500);
-    Cookies.remove("jwt");
+    clearAuthToken();
     setUser(undefined);
     queryClient.clear();
     onClose();

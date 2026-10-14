@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { FaCheck, FaFileUpload } from "react-icons/fa";
 import { IoIosCreate, IoMdClose } from "react-icons/io";
 import { toast } from "react-toastify";
-import * as XLSX from "xlsx";
 import { Header } from "../components/header/Header";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
@@ -178,6 +177,8 @@ const BulkProductAdding = () => {
     reader.onload = async (e: ProgressEvent<FileReader>) => {
       const buffer = e.target?.result;
       if (buffer) {
+        // Loaded on demand: xlsx is too big for the main bundle.
+        const XLSX = await import("xlsx");
         const wb = XLSX.read(buffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
