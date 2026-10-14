@@ -663,10 +663,6 @@ interface CancelHepsiburadaOrder {
   hepsiburadaLineItemId: string;
   quantity: number;
 }
-interface CancelN11Order {
-  n11LineItemId: string;
-  quantity: number;
-}
 export function cancelTrendyolOrder(payload: CancelTrendyolOrder) {
   return post({
     path: `/order/cancel-trendyol-order`,
@@ -715,39 +711,6 @@ export function useCancelHepsiburadaOrderMutation() {
   const { t } = useTranslation();
   return useMutation({
     mutationFn: cancelHepsiburadaOrder,
-    onMutate: async () => {
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({
-        queryKey: [`${Paths.Order}/collection/query`],
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
-      queryClient.invalidateQueries({
-        queryKey: [`${Paths.Order}/collection/query`],
-      });
-    },
-    onError: (_err: any) => {
-      const errorMessage =
-        _err?.response?.data?.message || t("An unexpected error occurred");
-      setTimeout(() => toast.error(errorMessage), 200);
-    },
-  });
-}
-export function cancelN11Order(payload: CancelN11Order) {
-  return post({
-    path: `/order/cancel-n11-order`,
-    payload: {
-      n11LineItemId: payload.n11LineItemId,
-      quantity: Number(payload.quantity),
-    },
-  });
-}
-export function useCancelN11OrderMutation() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
-  return useMutation({
-    mutationFn: cancelN11Order,
     onMutate: async () => {
       queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/query`] });
       queryClient.invalidateQueries({

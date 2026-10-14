@@ -3,8 +3,8 @@ import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import HepsiBuradaPriceComparision from "../components/stocks/HepsiBuradaPriceComparision";
 import HepsiBuradaStockComparision from "../components/stocks/HepsiBuradaStockComparision";
-import N11PriceComparision from "../components/stocks/N11PriceComparision";
-import N11StockComparision from "../components/stocks/N11StockComparision";
+import MarketplacePriceComparision from "../components/stocks/MarketplacePriceComparision";
+import MarketplaceStockComparision from "../components/stocks/MarketplaceStockComparision";
 import ShopifyPriceComparision from "../components/stocks/ShopifyPriceComparision";
 import ShopifyStockComparision from "../components/stocks/ShopifyStockComparision";
 import TrendyolPriceComparision from "../components/stocks/TrendyolPriceComparision";
@@ -13,6 +13,8 @@ import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { IntegrationPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+import { IDEFIX_CHANNEL } from "../utils/api/idefix";
+import { N11_CHANNEL } from "../utils/api/n11";
 // Mail-related tabs moved to separate Mail page
 
 export const IntegrationPageTabs = [
@@ -62,14 +64,28 @@ export const IntegrationPageTabs = [
     number: IntegrationPageTabEnum.N11STOCKCOMPARISION,
     label: "n11 Stock Comparison",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
-    content: <N11StockComparision />,
+    content: <MarketplaceStockComparision channel={N11_CHANNEL} />,
     isDisabled: false,
   },
   {
     number: IntegrationPageTabEnum.N11PRICECOMPARISION,
     label: "n11 Price Comparison",
     icon: <MdOutlinePriceChange className="text-lg font-thin" />,
-    content: <N11PriceComparision />,
+    content: <MarketplacePriceComparision channel={N11_CHANNEL} />,
+    isDisabled: false,
+  },
+  {
+    number: IntegrationPageTabEnum.IDEFIXSTOCKCOMPARISION,
+    label: "idefix Stock Comparison",
+    icon: <MdOutlineCompare className="text-lg font-thin" />,
+    content: <MarketplaceStockComparision channel={IDEFIX_CHANNEL} />,
+    isDisabled: false,
+  },
+  {
+    number: IntegrationPageTabEnum.IDEFIXPRICECOMPARISION,
+    label: "idefix Price Comparison",
+    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
+    content: <MarketplacePriceComparision channel={IDEFIX_CHANNEL} />,
     isDisabled: false,
   },
   // Back In Stock, Mail Subscriptions and Mail Logs moved to Mail page

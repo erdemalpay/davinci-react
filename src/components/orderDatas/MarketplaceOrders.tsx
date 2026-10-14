@@ -9,7 +9,6 @@ import { useUserContext } from "../../context/User.context";
 import {
   ActionEnum,
   DateRangeKey,
-  DisabledConditionEnum,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -21,16 +20,15 @@ import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetAllMenuItems } from "../../utils/api/menu/menu-item";
 import {
-  useCancelN11OrderMutation,
-  useGetOrders,
-} from "../../utils/api/order/order";
+  MarketplaceChannel,
+  useCancelMarketplaceOrderMutation,
+  useProcessMarketplaceClaimsMutation,
+  useSyncMarketplaceOrdersMutation,
+} from "../../utils/api/marketplace";
+import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
-import {
-  useProcessN11AcceptedClaimsMutation,
-  useSyncN11OrdersMutation,
-} from "../../utils/api/n11";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
@@ -40,7 +38,9 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-const N11Orders = () => {
+// Polling ile gelen pazaryeri siparişleri (n11, idefix); kanala özel her şey
+// channel ayarından gelir.
+const MarketplaceOrders = ({ channel }: { channel: MarketplaceChannel }) => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const sellLocations = useGetSellLocations();
@@ -49,11 +49,11 @@ const N11Orders = () => {
   const categories = useGetAllCategories();
   const discounts = useGetOrderDiscounts();
   const [rowToAction, setRowToAction] = useState<any>({});
-  const { mutate: cancelN11Order } = useCancelN11OrderMutation();
+  const { mutate: cancelOrder } = useCancelMarketplaceOrderMutation(channel);
   const { mutate: processAcceptedClaims } =
-    useProcessN11AcceptedClaimsMutation();
-  const { mutate: syncN11Orders, isPending: isSyncingN11Orders } =
-    useSyncN11OrdersMutation();
+    useProcessMarketplaceClaimsMutation(channel);
+  const { mutate: syncOrders, isPending: isSyncingOrders } =
+    useSyncMarketplaceOrdersMutation(channel);
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const items = useGetAllMenuItems();
@@ -67,12 +67,9 @@ const N11Orders = () => {
     setShowOrderDataFilters,
   } = useOrderContext();
 
-  const n11OrdersPageDisabledCondition = useMemo(() => {
-    return getItem(
-      DisabledConditionEnum.ORDERDATAS_N11ORDERS,
-      disabledConditions
-    );
-  }, [disabledConditions]);
+  const pageDisabledCondition = useMemo(() => {
+    return getItem(channel.ordersDisabledCondition, disabledConditions);
+  }, [disabledConditions, channel]);
 
   const flatRows = useMemo(() => {
     if (!orders || !sellLocations || !users || !discounts) {
@@ -81,9 +78,9 @@ const N11Orders = () => {
     const allRows = orders
       ?.filter((order) => {
         if (
-          order?.n11OrderNumber !== null &&
-          order?.n11OrderNumber !== undefined &&
-          order?.n11OrderNumber !== ""
+          order?.[channel.orderNumberField] !== null &&
+          order?.[channel.orderNumberField] !== undefined &&
+          order?.[channel.orderNumberField] !== ""
         ) {
           if (filterPanelFormElements?.cancelHour !== "") {
             return (
@@ -171,13 +168,7 @@ const N11Orders = () => {
       ),
       formattedDate: "Total",
     };
-    if (
-      !isActionDisabled(
-        n11OrdersPageDisabledCondition,
-        ActionEnum.SHOWTOTAL,
-        user
-      )
-    ) {
+    if (!isActionDisabled(pageDisabledCondition, ActionEnum.SHOWTOTAL, user)) {
       allRows?.unshift(totalRow as any);
     }
     return allRows;
@@ -189,7 +180,7 @@ const N11Orders = () => {
     items,
     sellLocations,
     t,
-    n11OrdersPageDisabledCondition,
+    pageDisabledCondition,
     user,
   ]);
 
@@ -199,7 +190,7 @@ const N11Orders = () => {
     flatRows
       ?.filter((row: any) => row?._id !== "total")
       ?.forEach((row: any) => {
-        const key = row?.n11OrderNumber as string;
+        const key = row?.[channel.orderNumberField] as string;
         const group = groups.get(key);
         if (group) {
           group.push(row);
@@ -302,9 +293,9 @@ const N11Orders = () => {
       { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
       { key: t("Hour"), isSortable: true, correspondingKey: "createdHour" },
       {
-        key: t("n11 Order Number"),
+        key: t(`${channel.label} Order Number`),
         isSortable: true,
-        correspondingKey: "n11OrderNumber",
+        correspondingKey: channel.orderNumberField,
       },
       {
         key: t("Sales Channel"),
@@ -343,7 +334,7 @@ const N11Orders = () => {
         },
       },
       { key: "createdHour", className: "min-w-40 pr-2" },
-      { key: "n11OrderNumber", className: "min-w-40 pr-2" },
+      { key: channel.orderNumberField, className: "min-w-40 pr-2" },
       { key: "paymentMethod", className: "min-w-40 pr-2" },
       { key: "item", className: "min-w-40 pr-2" },
       {
@@ -419,7 +410,7 @@ const N11Orders = () => {
             inputs={cancelInputs}
             formKeys={cancelFormKeys}
             setForm={setCancelForm}
-            submitItem={cancelN11Order as any}
+            submitItem={cancelOrder as any}
             constantValues={{
               status: rowToAction.status,
               paidQuantity: rowToAction.paidQuantity,
@@ -431,8 +422,8 @@ const N11Orders = () => {
                 );
                 return;
               }
-              cancelN11Order({
-                n11LineItemId: rowToAction.n11LineItemId,
+              cancelOrder({
+                lineItemId: rowToAction[channel.lineItemField],
                 quantity: cancelForm.quantity,
               });
             }}
@@ -443,7 +434,7 @@ const N11Orders = () => {
         isModalOpen: isCancelOrderModalOpen,
         setIsModal: setIsCancelOrderModalOpen,
         isDisabled: isActionDisabled(
-          n11OrdersPageDisabledCondition,
+          pageDisabledCondition,
           ActionEnum.DELETE,
           user
         ),
@@ -456,8 +447,8 @@ const N11Orders = () => {
       cancelInputs,
       cancelFormKeys,
       cancelForm,
-      cancelN11Order,
-      n11OrdersPageDisabledCondition,
+      cancelOrder,
+      pageDisabledCondition,
       user,
     ]
   );
@@ -694,7 +685,7 @@ const N11Orders = () => {
           />
         ),
         isDisabled: isActionDisabled(
-          n11OrdersPageDisabledCondition,
+          pageDisabledCondition,
           ActionEnum.PROCESS,
           user
         ),
@@ -704,20 +695,18 @@ const N11Orders = () => {
         node: (
           <ButtonFilter
             buttonName={
-              isSyncingN11Orders ? t("Syncing...") : t("Sync n11 Orders Now")
+              isSyncingOrders
+                ? t("Syncing...")
+                : t(`Sync ${channel.label} Orders Now`)
             }
             onclick={() => {
-              syncN11Orders();
+              syncOrders();
             }}
           />
         ),
         isDisabled:
-          isSyncingN11Orders ||
-          isActionDisabled(
-            n11OrdersPageDisabledCondition,
-            ActionEnum.PROCESS,
-            user
-          ),
+          isSyncingOrders ||
+          isActionDisabled(pageDisabledCondition, ActionEnum.PROCESS, user),
       },
       {
         isUpperSide: false,
@@ -735,7 +724,7 @@ const N11Orders = () => {
           />
         ),
         isDisabled: isActionDisabled(
-          n11OrdersPageDisabledCondition,
+          pageDisabledCondition,
           ActionEnum.REFRESH,
           user
         ),
@@ -756,13 +745,13 @@ const N11Orders = () => {
     [
       t,
       queryClient,
-      n11OrdersPageDisabledCondition,
+      pageDisabledCondition,
       user,
       showOrderDataFilters,
       setShowOrderDataFilters,
       processAcceptedClaims,
-      syncN11Orders,
-      isSyncingN11Orders,
+      syncOrders,
+      isSyncingOrders,
       filterPanelFormElements,
       initialFilterPanelFormElements,
       setFilterPanelFormElements,
@@ -773,7 +762,7 @@ const N11Orders = () => {
     <>
       <div className="w-[95%] mx-auto mb-auto ">
         <GenericTable
-          title={t("n11 Orders")}
+          title={t(`${channel.label} Orders`)}
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
@@ -784,9 +773,9 @@ const N11Orders = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={
-            !isActionDisabled(n11OrdersPageDisabledCondition, ActionEnum.EXCEL, user)
+            !isActionDisabled(pageDisabledCondition, ActionEnum.EXCEL, user)
           }
-          excelFileName={t("N11Orders.xlsx")}
+          excelFileName={t(channel.excelFileName)}
           excelRows={flatRows}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {
@@ -800,4 +789,4 @@ const N11Orders = () => {
   );
 };
 
-export default N11Orders;
+export default MarketplaceOrders;
