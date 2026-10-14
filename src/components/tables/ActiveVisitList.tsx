@@ -115,7 +115,7 @@ export function ActiveVisitList({
       return;
     }
     if (isManagerOrKasa) {
-      toggleVisitAsManager();
+      toggleVisitAsManager(userId);
       return;
     }
     setIsScannerOpen(true);
@@ -451,7 +451,7 @@ export function ActiveVisitList({
                   color="gray"
                   {...(!isDisabledCondition &&
                   isUserActive(visit.user) &&
-                  visit.user === user?._id
+                  (visit.user === user?._id || isManager)
                     ? { onClose: () => handleChipClose(visit.user) }
                     : {})}
                 />
