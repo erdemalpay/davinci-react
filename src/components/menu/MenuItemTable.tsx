@@ -40,6 +40,7 @@ import {
   useUpdateItemsSlugsMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
+import { useMatchN11ItemsByBarcodeMutation } from "../../utils/api/n11";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
@@ -110,6 +111,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     useCreateMultipleShopifyProductMutation();
   const { mutateAsync: matchHepsiburadaByBarcodeAsync } =
     useMatchHepsiburadaItemsByBarcodeMutation();
+  const { mutateAsync: matchN11ByBarcodeAsync } =
+    useMatchN11ItemsByBarcodeMutation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
@@ -643,6 +646,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       {
         type: InputTypes.TEXT,
+        formKey: "n11StockCode",
+        label: "n11 Stok Kodu",
+        placeholder: "n11 Stok Kodu",
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
         formKey: "sku",
         label: "Sku",
         placeholder: "Sku",
@@ -710,6 +720,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "shopifyId", type: FormKeyTypeEnum.STRING },
       { key: "trendyolBarcode", type: FormKeyTypeEnum.STRING },
       { key: "hepsiBuradaSku", type: FormKeyTypeEnum.STRING },
+      { key: "n11StockCode", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
       { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
@@ -749,6 +760,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "Shopify ID", isSortable: true },
       { key: t("Trendyol Barcode"), isSortable: false },
       { key: t("Hepsi Burada Sku"), isSortable: false },
+      { key: t("n11 Stock Code"), isSortable: false },
       { key: t("Created At"), isSortable: true },
       ...(showMenuBarcodeInfo
         ? [
@@ -908,6 +920,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       { key: "trendyolBarcode", className: "min-w-32 pr-1" },
       { key: "hepsiBuradaSku", className: "min-w-32 pr-1" },
+      { key: "n11StockCode", className: "min-w-32 pr-1" },
       {
         key: "createdAt",
         node: (row: MenuItem & { formattedCreatedAt?: string }) => {
@@ -1695,6 +1708,24 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
+      {
+        name: t("n11 Match"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-purple-700 hover:text-purple-700 hover:border-purple-700 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+        onClick: async () => {
+          await matchN11ByBarcodeAsync(selectedRows.map((row) => row._id));
+          setSelectedRows([]);
+          setIsSelectionActive(false);
+          setIsEditSelectionCompeted(false);
+        },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
     ],
     [
       t,
@@ -1714,6 +1745,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       updateItem,
       updateItemAsync,
       matchHepsiburadaByBarcodeAsync,
+      matchN11ByBarcodeAsync,
       menuPageDisabledCondition,
       user,
     ]
