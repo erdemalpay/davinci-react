@@ -2185,6 +2185,8 @@
   "I can't take care of the table": "Masayla ilgilenemiyorum",
   "Taken care of or not": "İlgilenildi mi?",
   "Assignment steps": "Atama adımları",
+  "sec": "sn",
+  "Duration must be at least 1 second": "Süre en az 1 saniye ve tam sayı olmalı",
   "A new version of the panel is ready.": "Panelin yeni sürümü hazır.",
   "Refresh": "Yenile",
   "Staff Performance": "Performans Takibi",
