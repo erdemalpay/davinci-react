@@ -41,6 +41,7 @@ export const Paths = {
   Tables: "/tables",
   Visits: "/visits",
   Accounting: "/accounting",
+  Inventory: "/inventory",
   PanelControl: "/panel-control",
   Order: "/order",
   Checklist: "/checklist",
