@@ -6,7 +6,9 @@ export type StaffCountField =
   | "ordersDelivered"
   | "collections"
   | "gameplaysCreated"
-  | "gameplaysMentored";
+  | "gameplaysMentored"
+  // The narration points of the games explained.
+  | "gameplaysMentoredPoints";
 
 // What one person did on one cafe day.
 export type StaffDailyCounts = {
@@ -185,6 +187,7 @@ export function getStaffPerformance(
     collections: 0,
     gameplaysCreated: 0,
     gameplaysMentored: 0,
+    gameplaysMentoredPoints: 0,
   };
   for (const counts of dailyCounts) {
     if (!countedDates.has(counts.date)) continue;

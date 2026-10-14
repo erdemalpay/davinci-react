@@ -25,10 +25,12 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetUserShifts } from "../../utils/api/shift";
+import { useGetStaffDailyCounts } from "../../utils/api/staffPerformance";
 import { useGetUsers } from "../../utils/api/user";
 import { useGetFilteredVisits } from "../../utils/api/visit";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { StaffCountField } from "../../utils/staffPerformance";
 import InfoCard from "../common/InfoCard";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -55,6 +57,7 @@ const GameMasterSummary = ({ userId }: Props) => {
   const [partTimeAttendance, setPartTimeAttendance] = useState(0);
   const [unknownAttendance, setUnknownAttendance] = useState(0);
   const [offShiftCoverageDays, setOffShiftCoverageDays] = useState(0);
+  const [countedDates, setCountedDates] = useState<string[]>([]);
   const {
     setFilterVisitScheduleOverviewPanelFormElements,
     setShowVisitScheduleOverviewFilters,
@@ -80,6 +83,25 @@ const GameMasterSummary = ({ userId }: Props) => {
   const gameplayCountsByDate = useGetGameplayCountsByDate(userId);
 
   const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.75;
+
+  // The averages take only what was done on the counted days: a day left out
+  // of the averages leaves out its work too.
+  const dailyCounts = useGetStaffDailyCounts(
+    filterPanelFormElements.after,
+    filterPanelFormElements.before || format(new Date(), "yyyy-MM-dd"),
+    Number(filterPanelFormElements.location) || undefined,
+    !!filterPanelFormElements.after
+  );
+  const countedTotal = (field: StaffCountField) =>
+    dailyCounts
+      .filter(
+        (counts) => counts.user === userId && countedDates.includes(counts.date)
+      )
+      .reduce((sum, counts) => sum + (counts[field] ?? 0), 0);
+  const dailyAverage = (field: StaffCountField) =>
+    unknownAttendance === 0 && attendancePoint > 0
+      ? (countedTotal(field) / attendancePoint).toFixed(2).replace(/\.?0+$/, "")
+      : "";
 
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(
@@ -169,12 +191,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Order Created Count"),
       value: allUserInfos().createdByCount,
       isAverage: true,
-      averageValue:
-        unknownAttendance === 0 && attendancePoint > 0
-          ? (allUserInfos().createdByCount / attendancePoint)
-              .toFixed(2)
-              .replace(/\.?0+$/, "")
-          : "",
+      averageValue: dailyAverage("ordersCreated"),
       color: "purple",
     },
     {
@@ -182,12 +199,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Order Delivered Count"),
       value: allUserInfos().deliveredByCount,
       isAverage: true,
-      averageValue:
-        unknownAttendance === 0 && attendancePoint > 0
-          ? (allUserInfos().deliveredByCount / attendancePoint)
-              .toFixed(2)
-              .replace(/\.?0+$/, "")
-          : "",
+      averageValue: dailyAverage("ordersDelivered"),
       color: "green",
     },
     {
@@ -195,12 +207,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Created Gameplay Count"),
       value: allUserInfos().gameplayCount,
       isAverage: true,
-      averageValue:
-        unknownAttendance === 0 && attendancePoint > 0
-          ? (allUserInfos().gameplayCount / attendancePoint)
-              .toFixed(2)
-              .replace(/\.?0+$/, "")
-          : "",
+      averageValue: dailyAverage("gameplaysCreated"),
       color: "orange",
     },
     {
@@ -208,12 +215,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Mentored Gameplay Count"),
       value: allUserInfos().mentoredGameplayCount,
       isAverage: true,
-      averageValue:
-        unknownAttendance === 0 && attendancePoint > 0
-          ? (allUserInfos().mentoredGameplayCount / attendancePoint)
-              .toFixed(2)
-              .replace(/\.?0+$/, "")
-          : "",
+      averageValue: dailyAverage("gameplaysMentored"),
       color: "purple",
     },
     {
@@ -221,12 +223,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Collection Count"),
       value: allUserInfos().collectionCount,
       isAverage: true,
-      averageValue:
-        unknownAttendance === 0 && attendancePoint > 0
-          ? (allUserInfos().collectionCount / attendancePoint)
-              .toFixed(2)
-              .replace(/\.?0+$/, "")
-          : "",
+      averageValue: dailyAverage("collections"),
       color: "red",
     },
     {
@@ -247,12 +244,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Mentored Games Total Points"),
       value: allUserInfos().mentoredGamesTotalPoints,
       isAverage: true,
-      averageValue:
-        unknownAttendance === 0 && attendancePoint > 0
-          ? (allUserInfos().mentoredGamesTotalPoints / attendancePoint)
-              .toFixed(2)
-              .replace(/\.?0+$/, "")
-          : "",
+      averageValue: dailyAverage("gameplaysMentoredPoints"),
       color: "brown",
     },
   ];
@@ -406,11 +398,13 @@ const GameMasterSummary = ({ userId }: Props) => {
           partTimeAttendance: pt,
           unknownAttendance: ua,
           offShiftCoverageDays: osc,
+          countedDates: dates,
         }) => {
           setFullTimeAttendance(ft);
           setPartTimeAttendance(pt);
           setUnknownAttendance(ua);
           setOffShiftCoverageDays(osc);
+          setCountedDates(dates);
         }}
       />
       <div

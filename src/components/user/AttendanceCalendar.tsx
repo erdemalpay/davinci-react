@@ -1,6 +1,6 @@
 import { ResponsiveCalendar } from "@nivo/calendar";
 import { addDays, format, startOfYear } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
 import useIsSmallScreen from "../../hooks/useIsSmallScreen";
@@ -43,6 +43,8 @@ interface AttendanceCalendarProps {
     partTimeAttendance: number;
     unknownAttendance: number;
     offShiftCoverageDays: number;
+    // The days the averages are taken over.
+    countedDates: string[];
   }) => void;
 }
 
@@ -145,6 +147,16 @@ const AttendanceCalendar = ({
       .map((visit) => visit.date)
   ).size;
 
+  const countedDatesKey = [
+    ...new Set(filteredVisits.map((visit) => visit.date)),
+  ]
+    .sort()
+    .join(",");
+  const countedDates = useMemo(
+    () => (countedDatesKey ? countedDatesKey.split(",") : []),
+    [countedDatesKey]
+  );
+
   // Calculate off-shift coverage days (unique days marked as notInAverage)
   const offShiftCoverageDays = new Set(
     categorizedVisits
@@ -159,12 +171,14 @@ const AttendanceCalendar = ({
       partTimeAttendance,
       unknownAttendance,
       offShiftCoverageDays,
+      countedDates,
     });
   }, [
     fullTimeAttendance,
     partTimeAttendance,
     unknownAttendance,
     offShiftCoverageDays,
+    countedDates,
     onAttendanceChange,
   ]);
 
