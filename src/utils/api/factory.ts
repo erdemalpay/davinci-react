@@ -49,6 +49,7 @@ export const Paths = {
   Shopify: "/shopify",
   Trendyol: "/trendy",
   N11: "/n11",
+  IDEFIX: "/idefix",
   Hepsiburada: "/hepsiburada",
   Redis: "/redis",
   ButtonCalls: "/button-calls",
