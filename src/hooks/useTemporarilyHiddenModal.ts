@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const HIDE_TIMEOUT_MS = 2 * 60 * 1000;
+const HIDE_TIMEOUT_MS = 4 * 60 * 1000;
 
 // A full-screen state that can be hidden for a while; it opens again after
 // two minutes unless autoReopen is off (then only a click opens it).

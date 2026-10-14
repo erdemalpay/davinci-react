@@ -15,6 +15,7 @@ import { useGetUser } from "../../utils/api/user";
 import { DateInput } from "../common/DateInput2";
 import { OnboardingModal } from "../onboarding/OnboardingModal";
 import { BreakButton } from "./BreakButton";
+import { FavoritePagesNav } from "./FavoritePagesNav";
 import { LocationSelector } from "./LocationSelector";
 import logo from "./logo.svg";
 import { MiddlemanButton } from "./MiddlemanButton";
@@ -69,9 +70,9 @@ export function Header({
         <div
           className={`${
             dateProps ? "h-12 sm:h-16" : "h-16"
-          } flex justify-between pl-2 lg:pl-4 pr-2 lg:pr-6 mr-2 lg:mr-20`}
+          } flex items-center pl-2 lg:pl-4 pr-2 lg:pr-6 mr-2 lg:mr-20`}
         >
-          <div className="flex flex-row gap-2 items-center">
+          <div className="flex flex-row shrink-0 gap-2 items-center">
             <Link to={Routes.Tables} onClick={handleScrollToTop}>
               <img
                 src={logo}
@@ -85,7 +86,8 @@ export function Header({
               </span>
             </Link>
           </div>
-          <div className="w-auto h-full flex items-center justify-end gap-x-2 sm:gap-x-4">
+          <FavoritePagesNav />
+          <div className="ml-auto w-auto h-full flex shrink-0 items-center justify-end gap-x-2 sm:gap-x-4">
             <Link
               to={Routes.Profile}
               className="hidden sm:flex items-center gap-2"
