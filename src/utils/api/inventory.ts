@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import {
   InventoryBox,
+  InventoryGame,
   InventoryLinkableGame,
   InventoryLocation,
   InventoryMovement,
@@ -37,6 +38,9 @@ export function useGetInventoryMovements() {
     baseUrl,
     "movements",
   ]);
+}
+export function useGetInventoryGames() {
+  return useGetList<InventoryGame>(`${baseUrl}/games`, [baseUrl, "games"]);
 }
 export function useGetInventoryLinkableGames() {
   return useGetList<InventoryLinkableGame>(`${baseUrl}/linkable-games`, [

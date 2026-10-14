@@ -3031,9 +3031,10 @@ export type InventoryMovement = {
   createdAt: string;
 };
 
-export type InventoryLinkableGame = {
+export type InventoryGame = {
   _id: number;
   name: string;
-  product: string;
   shortCode?: string;
 };
+
+export type InventoryLinkableGame = InventoryGame & { product: string };

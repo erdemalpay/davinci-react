@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useAddInventoryBoxesMutation,
-  useGetInventoryLinkableGames,
+  useGetInventoryGames,
   useGetInventoryLocations,
 } from "../../utils/api/inventory";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -27,11 +27,11 @@ type Props = { isOpen: boolean; close: () => void };
 // Envanter sayfasından elle kutu ekleme (tüketim kaydı gerektirmez).
 const AddBoxPanel = ({ isOpen, close }: Props) => {
   const { t } = useTranslation();
-  const linkableGames = useGetInventoryLinkableGames();
+  const games = useGetInventoryGames();
   const locations = useGetInventoryLocations();
   const { mutate: addBoxes } = useAddInventoryBoxesMutation();
   const [form, setForm] = useState<AddBoxForm>({});
-  const game = linkableGames.find((g) => g._id === Number(form.game));
+  const game = games.find((g) => g._id === Number(form.game));
   const needsShortCode = !!game && !game.shortCode;
 
   // `isDisabled` alanı gizler; gizli alan zorunlu sayılmasın diye `required` da koşullu.
@@ -41,7 +41,7 @@ const AddBoxPanel = ({ isOpen, close }: Props) => {
         type: InputTypes.SELECT,
         formKey: "game",
         label: t("Game"),
-        options: linkableGames.map((g) => ({ value: g._id, label: g.name })),
+        options: games.map((g) => ({ value: g._id, label: g.name })),
         placeholder: t("Game"),
         required: true,
       },
@@ -72,7 +72,7 @@ const AddBoxPanel = ({ isOpen, close }: Props) => {
         isDisabled: !needsShortCode,
       },
     ],
-    [t, linkableGames, locations, game, needsShortCode]
+    [t, games, locations, game, needsShortCode]
   );
 
   return (
