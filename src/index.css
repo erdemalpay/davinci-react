@@ -454,3 +454,57 @@ body {
     "__Plus_Jakarta_Sans_Fallback_a182b8", Helvetica, Arial, sans-serif;
   font-style: normal;
 }
+
+/* The strip of a hidden busy state (break, taking a payment, ...): its
+   border's colors flow along it and it slowly fades in and out. */
+@keyframes busy-border-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes busy-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.busy-strip {
+  --busy-a: #f97316;
+  --busy-b: #facc15;
+  --busy-c: #ef4444;
+  padding: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--busy-a),
+    var(--busy-b),
+    var(--busy-c),
+    var(--busy-a),
+    var(--busy-b),
+    var(--busy-c),
+    var(--busy-a)
+  );
+  background-size: 200% 100%;
+  animation: busy-border-flow 4s linear infinite,
+    busy-blink 2.4s ease-in-out infinite;
+}
+
+/* The middleman's strip, in its own teal. */
+.busy-strip-teal {
+  --busy-a: #14b8a6;
+  --busy-b: #99f6e4;
+  --busy-c: #0f766e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .busy-strip {
+    animation: none;
+  }
+}

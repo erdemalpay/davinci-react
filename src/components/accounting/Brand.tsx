@@ -6,7 +6,6 @@ import { FaFileUpload } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
-import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -331,9 +330,11 @@ const Brand = () => {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
+    reader.onload = async (e: ProgressEvent<FileReader>) => {
       const buffer = e.target?.result;
       if (buffer) {
+        // Loaded on demand: xlsx is too big for the main bundle.
+        const XLSX = await import("xlsx");
         const wb = XLSX.read(buffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];

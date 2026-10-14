@@ -24,6 +24,12 @@ import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
 import { buildReceiptData } from "./../utils/printReceiptESCPOS";
 import { printerService } from "./../utils/printerService";
+import {
+  FORCE_RECONNECT_AFTER_HIDDEN_MS,
+  mergeCreatedOrders,
+  resyncAfterMissedEvents,
+  upsertCollection,
+} from "../utils/socketSync";
 import { socketEventListeners } from "./socketConstant";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
@@ -165,8 +171,20 @@ export function useWebSocket(shouldConnect = false) {
 
     socketRef.current = socket;
 
+    // Reconnecting is socket.io's job. The server replays the events missed
+    // while away for up to two minutes (socket.recovered); after a longer
+    // absence the data on screen is reloaded.
+    let hasConnected = false;
     socket.on("connect", () => {
-      console.log("✅ WebSocket connection established.");
+      console.log(
+        "✅ WebSocket connection established.",
+        socket.recovered ? "(missed events replayed)" : ""
+      );
+      if (hasConnected && !socket.recovered) {
+        const { queryClient } = latestValuesRef.current;
+        resyncAfterMissedEvents(queryClient);
+      }
+      hasConnected = true;
       disconnectTimeRef.current = null;
     });
 
@@ -181,56 +199,36 @@ export function useWebSocket(shouldConnect = false) {
       // In other cases, Socket.IO will automatically reconnect
     });
 
-    socket.on("reconnect", (attemptNumber) => {
-      const { queryClient, selectedDate } = latestValuesRef.current;
-      const disconnectDuration = disconnectTimeRef.current
-        ? Date.now() - disconnectTimeRef.current
-        : 0;
-
-      console.log(
-        `🔄 WebSocket reconnected (attempt: ${attemptNumber}, disconnect duration: ${Math.round(
-          disconnectDuration / 1000
-        )}s)`
-      );
-
-      // Re-fetch data that was missed during disconnection
-      if (disconnectDuration > 30000) {
-        // If connection was lost for more than 30 seconds, invalidate all queries
-        console.log(
-          "⚠️ Connection was lost for a long time, refetching all active queries..."
-        );
-        queryClient.invalidateQueries();
-      } else {
-        // Otherwise, only invalidate critical queries
-        const criticalQueries = [
-          [`${Paths.Order}/today`, selectedDate],
-          [Paths.Tables, selectedDate],
-          [`${Paths.Order}/collection/today`, selectedDate],
-          [`${Paths.Notification}/new`],
-          [`${Paths.Notification}/all`],
-          [`${Paths.Accounting}/stocks`],
-          [`${Paths.Accounting}/stocks/query`],
-        ];
-
-        criticalQueries.forEach((queryKey) => {
-          queryClient.invalidateQueries({ queryKey });
-        });
-      }
-    });
-
-    socket.on("reconnect_attempt", (attemptNumber) => {
+    // Reconnection events come from the manager (socket.io), not the socket.
+    socket.io.on("reconnect_attempt", (attemptNumber) => {
       console.log(`🔄 WebSocket reconnection attempt: ${attemptNumber}`);
     });
-
-    socket.on("reconnect_error", (error: Error) => {
+    socket.io.on("reconnect_error", (error: Error) => {
       console.warn("⚠️ WebSocket reconnection error:", error);
     });
 
-    socket.on("reconnect_failed", () => {
-      console.error(
-        "❌ WebSocket reconnection failed. Please try reconnecting manually."
-      );
-    });
+    // Back from the lock screen or another app, or back online: the socket
+    // may have died silently meanwhile. Reconnect now; the server replays
+    // what was missed.
+    let hiddenAt: number | null = null;
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenAt = Date.now();
+        return;
+      }
+      const hiddenFor = hiddenAt ? Date.now() - hiddenAt : 0;
+      hiddenAt = null;
+      if (!socket.connected) {
+        socket.connect();
+      } else if (hiddenFor >= FORCE_RECONNECT_AFTER_HIDDEN_MS) {
+        socket.io.engine?.close();
+      }
+    };
+    const handleOnline = () => {
+      if (!socket.connected) socket.connect();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("online", handleOnline);
 
     socket.on("connect_error", (error) => {
       console.error("❌ WebSocket connection error:", error.message);
@@ -549,20 +547,7 @@ export function useWebSocket(shouldConnect = false) {
               }
             }
 
-            // Update or add the collection in the cache
-            const existingIndex = oldData.findIndex(
-              (c) => c._id === collection._id
-            );
-
-            if (existingIndex !== -1) {
-              // Update existing collection
-              return oldData.map((c) =>
-                c._id === collection._id ? collection : c
-              );
-            } else {
-              // Add new collection
-              return [...oldData, collection];
-            }
+            return upsertCollection(oldData, collection);
           }
         );
       }
@@ -685,11 +670,14 @@ export function useWebSocket(shouldConnect = false) {
         user: creatingUser,
         locationId,
         kitchenIds,
+        orders: createdOrders,
       }: {
         table: Table;
         user: User;
         locationId: number;
         kitchenIds: string[];
+        // The created orders (older APIs don't send them).
+        orders?: Order[];
       }) => {
         const {
           queryClient,
@@ -703,8 +691,6 @@ export function useWebSocket(shouldConnect = false) {
           setSelectedNewOrders,
         } = latestValuesRef.current;
 
-        queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
-
         const {
           selectedDate,
           menuItems,
@@ -717,61 +703,81 @@ export function useWebSocket(shouldConnect = false) {
             (id) => getItem(id, currentKitchens ?? [])?.isPrintEnabled
           );
 
-        const existingOrders = queryClient.getQueryData<Order[]>([
-          `${Paths.Order}/today`,
-          selectedDate,
-        ]);
-        const existingOrderIds = new Set(
-          existingOrders
-            ?.filter(
-              (o) =>
-                (typeof o.table === "number" ? o.table : o.table?._id) ===
-                table._id
-            )
-            .map((o) => o._id)
-        );
-
-        const newOrdersPromise = queryClient
-          .refetchQueries({ queryKey: [`${Paths.Order}/today`, selectedDate] })
-          .then(() => {
-            const todayOrders = queryClient.getQueryData<Order[]>([
-              `${Paths.Order}/today`,
-              selectedDate,
-            ]);
-            const newOrders = todayOrders?.filter(
-              (o) =>
-                (typeof o.table === "number" ? o.table : o.table?._id) ===
-                  table._id &&
-                o.status !== OrderStatus.CANCELLED &&
-                !existingOrderIds.has(o._id)
-            );
-            console.log("🖨️ [createMultipleOrder] fiş bilgileri:", {
-              tableName: table.name,
-              orderCount: newOrders?.length ?? 0,
-              orders: newOrders?.map((o) => ({
-                urun: (o.item as unknown as MenuItem)?.name ?? o.item,
-                adet: o.quantity,
-                ...(o.activityTableName
-                  ? { activityMasa: o.activityTableName }
-                  : {}),
-                ...(o.activityPlayer
-                  ? { activityOyuncu: o.activityPlayer }
-                  : {}),
-                not: o.note || "-",
-              })),
-              printerConnected: printerService.isConnected,
-            });
-            if (newOrders?.length && shouldPrint) {
-              buildReceiptData({
-                orders: newOrders,
-                items: menuItems,
-                tableName: table.name,
-              }).then((data) => {
-                if (data) printerService.print(data);
-              });
-            }
-            return newOrders;
+        const todayKey = [`${Paths.Order}/today`, selectedDate];
+        const printNewOrders = (newOrders: Order[] | undefined) => {
+          console.log("🖨️ [createMultipleOrder] fiş bilgileri:", {
+            tableName: table.name,
+            orderCount: newOrders?.length ?? 0,
+            orders: newOrders?.map((o) => ({
+              urun: (o.item as unknown as MenuItem)?.name ?? o.item,
+              adet: o.quantity,
+              ...(o.activityTableName
+                ? { activityMasa: o.activityTableName }
+                : {}),
+              ...(o.activityPlayer ? { activityOyuncu: o.activityPlayer } : {}),
+              not: o.note || "-",
+            })),
+            printerConnected: printerService.isConnected,
           });
+          if (newOrders?.length && shouldPrint) {
+            buildReceiptData({
+              orders: newOrders,
+              items: menuItems,
+              tableName: table.name,
+            }).then((data) => {
+              if (data) printerService.print(data);
+            });
+          }
+          return newOrders;
+        };
+
+        let newOrdersPromise: Promise<Order[] | undefined>;
+        if (createdOrders) {
+          // The orders came with the event: add them, no reload. Only the
+          // ones this panel didn't have yet are printed, as before.
+          const hadOrders = !!queryClient.getQueryData<Order[]>(todayKey);
+          let added: Order[] = [];
+          queryClient.setQueryData<Order[]>(todayKey, (oldData) => {
+            const merged = mergeCreatedOrders(oldData, createdOrders);
+            added = merged.added;
+            return merged.orders;
+          });
+          if (!hadOrders) {
+            queryClient.invalidateQueries({ queryKey: todayKey });
+          }
+          newOrdersPromise = Promise.resolve(
+            printNewOrders(
+              (hadOrders ? added : createdOrders).filter(
+                (o) => o.status !== OrderStatus.CANCELLED
+              )
+            )
+          );
+        } else {
+          const existingOrders = queryClient.getQueryData<Order[]>(todayKey);
+          const existingOrderIds = new Set(
+            existingOrders
+              ?.filter(
+                (o) =>
+                  (typeof o.table === "number" ? o.table : o.table?._id) ===
+                  table._id
+              )
+              .map((o) => o._id)
+          );
+          newOrdersPromise = queryClient
+            .refetchQueries({ queryKey: todayKey })
+            .then(() => {
+              const todayOrders = queryClient.getQueryData<Order[]>(todayKey);
+              return printNewOrders(
+                todayOrders?.filter(
+                  (o) =>
+                    (typeof o.table === "number" ? o.table : o.table?._id) ===
+                      table._id &&
+                    o.status !== OrderStatus.CANCELLED &&
+                    !existingOrderIds.has(o._id)
+                )
+              );
+            });
+        }
 
         if (!user) {
           console.log("User not found in createMultipleOrder");
@@ -847,6 +853,8 @@ export function useWebSocket(shouldConnect = false) {
 
     // Cleanup: only close socket when component unmounts
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("online", handleOnline);
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;

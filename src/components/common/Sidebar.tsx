@@ -1,11 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AutocompleteInputHandle } from "../panelComponents/FormElements/AutocompleteInput";
 import { useHotkey } from "../../hooks/useHotkey";
+import { useFavoritePages } from "../../hooks/useFavoritePages";
 import {
   FiChevronDown,
   FiChevronLeft,
   FiChevronRight,
+  FiEdit3,
   FiSearch,
 } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
@@ -20,6 +22,7 @@ import {
   type SidebarRouteItem,
 } from "../../hooks/useSidebarNavigation";
 import AutocompleteInput from "../panelComponents/FormElements/AutocompleteInput";
+import { FavoriteBookmarkButton } from "./FavoriteBookmarkButton";
 import SidebarTooltip from "./SidebarTooltip";
 
 export const Sidebar = () => {
@@ -30,6 +33,7 @@ export const Sidebar = () => {
     isSidebarOpen,
     setIsSidebarOpen,
     resetGeneralContext,
+    setSelectedMenuItem,
     isHoverExpanded,
     setIsHoverExpanded,
   } = useGeneralContext();
@@ -39,6 +43,7 @@ export const Sidebar = () => {
   const previousRouteRef = useRef<string | null>(null);
   const searchInputRef = useRef<AutocompleteInputHandle>(null);
   const isFirstRender = useRef(true);
+  const [isEditingFavorites, setIsEditingFavorites] = useState(false);
 
   const {
     user,
@@ -57,6 +62,24 @@ export const Sidebar = () => {
     setSearchValue,
     handleLogoutClick,
   } = useSidebarNavigation(() => setIsSidebarOpen(false));
+  const { isFavorite, isUpdating, toggleFavorite } = useFavoritePages();
+
+  const renderFavoriteButton = (pageName: string, path?: string) => {
+    if (!isExpanded || !path) return null;
+
+    const favorite = isFavorite(path);
+    if (!favorite && !isEditingFavorites) return null;
+
+    return (
+      <FavoriteBookmarkButton
+        pageName={pageName}
+        path={path}
+        isFavorite={favorite}
+        disabled={isUpdating}
+        onToggle={toggleFavorite}
+      />
+    );
+  };
 
   useHotkey("meta+shift+f, ctrl+shift+f", () => {
     if (!isSidebarOpen) {
@@ -123,28 +146,33 @@ export const Sidebar = () => {
           const tabSlug = getTabSlug(tab.label);
           const isActive = item.path === currentRoute && activeTab === tabSlug;
 
+          const tabPath = `${item.path}?tab=${tabSlug}`;
+
           return (
-            <button
-              key={tab.label}
-              onClick={() => {
-                resetGeneralContext();
-                setSearchValue("");
-                navigate(`${item.path}?tab=${tabSlug}`);
-                window.scrollTo(0, 0);
-                setIsSidebarOpen(false);
-              }}
-              className={`
-                w-full flex justify-start text-left ${paddingClass} pr-3 py-2 rounded-lg
-                text-sm transition-colors
-                ${
-                  isActive
-                    ? "bg-blue-50 text-blue-600 font-medium"
-                    : "text-gray-500 hover:bg-gray-50"
-                }
-              `}
-            >
-              {t(tab.label)}
-            </button>
+            <div key={tab.label} className="flex items-center">
+              <button
+                onClick={() => {
+                  resetGeneralContext();
+                  setSelectedMenuItem(null);
+                  setSearchValue("");
+                  navigate(tabPath);
+                  window.scrollTo(0, 0);
+                  setIsSidebarOpen(false);
+                }}
+                className={`
+                  min-w-0 flex-1 flex justify-start text-left ${paddingClass} pr-3 py-2 rounded-lg
+                  text-sm transition-colors
+                  ${
+                    isActive
+                      ? "bg-blue-50 text-blue-600 font-medium"
+                      : "text-gray-500 hover:bg-gray-50"
+                  }
+                `}
+              >
+                <span className="truncate">{t(tab.label)}</span>
+              </button>
+              {renderFavoriteButton(tab.label, tabPath)}
+            </div>
           );
         })}
       </div>
@@ -234,9 +262,28 @@ export const Sidebar = () => {
       >
         <div
           className={`h-16 bg-gray-800 flex items-center border-b border-gray-700 transition-all duration-200 ${
-            isExpanded ? "justify-end pr-4" : "justify-center"
+            isExpanded ? "justify-end gap-1 pr-4" : "justify-center"
           }`}
         >
+          {isExpanded && (
+            <button
+              type="button"
+              onClick={() => setIsEditingFavorites((active) => !active)}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+                isEditingFavorites
+                  ? "bg-blue-600 text-white hover:bg-blue-500"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              aria-label={t(
+                isEditingFavorites
+                  ? "Finish editing favorites"
+                  : "Edit favorites"
+              )}
+              aria-pressed={isEditingFavorites}
+            >
+              <FiEdit3 className="text-lg" />
+            </button>
+          )}
           <button
             onClick={() => {
               if (isHoverExpanded && !isSidebarOpen) {
@@ -365,6 +412,8 @@ export const Sidebar = () => {
                                   {t(child.name)}
                                 </button>
 
+                                {renderFavoriteButton(child.name, child.path)}
+
                                 {isExpanded && childHasTabs && (
                                   <button
                                     onClick={(e) => {
@@ -435,6 +484,8 @@ export const Sidebar = () => {
                           {isExpanded && <span>{t(child.name)}</span>}
                         </button>
 
+                        {renderFavoriteButton(child.name, child.path)}
+
                         {isExpanded && childHasTabs && (
                           <button
                             onClick={(e) => {
@@ -498,6 +549,8 @@ export const Sidebar = () => {
 
                         {isExpanded && <span>{t(route.name)}</span>}
                       </button>
+
+                      {renderFavoriteButton(route.name, route.path)}
 
                       {isExpanded && routeHasTabs && (
                         <button

@@ -6,10 +6,11 @@ import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { post } from "../index";
 import { useOrderContext } from "./../../../context/Order.context";
 
-interface ConsumptStockPayload {
+export interface ConsumptStockPayload {
   product: string;
   location: string;
   quantity: number;
+  inventory?: { location: number; shortCode?: string };
 }
 interface StockTransferPayload {
   currentStockLocation: string;

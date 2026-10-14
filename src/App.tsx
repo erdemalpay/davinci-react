@@ -9,6 +9,7 @@ import { BreakOverlay } from "./components/common/BreakOverlay";
 import { GameplayTimeOverlay } from "./components/common/GameplayTimeOverlay";
 import { LogoutConfirmationModal } from "./components/common/LogoutConfirmationModal";
 import { MiddlemanOverlay } from "./components/common/MiddlemanOverlay";
+import { NewVersionBanner } from "./components/common/NewVersionBanner";
 
 import { Sidebar } from "./components/common/Sidebar";
 import { DataContextProvider } from "./context/Data.context";
@@ -111,6 +112,7 @@ function App() {
       <GameplayTimeOverlay />
       <MiddlemanOverlay />
       <LogoutConfirmationModal />
+      <NewVersionBanner />
       {user && <ChangePasswordModal />}
       <ToastContainer
         autoClose={2000}

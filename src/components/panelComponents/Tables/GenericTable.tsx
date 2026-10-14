@@ -1,5 +1,4 @@
 import { Tooltip } from "@material-tailwind/react";
-import "pdfmake/build/pdfmake";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFilePdf } from "react-icons/bs";
@@ -16,7 +15,6 @@ import { PiFadersHorizontal } from "react-icons/pi";
 import { RiFilter3Line } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
 import useIsSmallScreen from "../../../hooks/useIsSmallScreen";
 import { useStickyColumns } from "../../../hooks/useStickyColumns";
@@ -456,7 +454,10 @@ const GenericTable = <T,>({
     }
   };
 
-  const generatePDF = () => {
+  // pdfmake and xlsx are loaded only when exporting: together they are
+  // over a fifth of the panel's code.
+  const generatePDF = async () => {
+    await import("pdfmake/build/pdfmake");
     const pdfMake = (window as any).pdfMake;
     const data: any[] = [];
     data.push(
@@ -511,7 +512,8 @@ const GenericTable = <T,>({
     pdfMake.createPdf(documentDefinition).open();
   };
 
-  const generateExcel = () => {
+  const generateExcel = async () => {
+    const XLSX = await import("xlsx");
     const workbook = XLSX.utils.book_new();
 
     if (isCollapsible && !excelRows) {
@@ -760,7 +762,7 @@ const GenericTable = <T,>({
                   style={stickyCellStyle}
                   className={`${
                     keyIndex === 0 ? "pl-3" : ""
-                  } py-3 min-w-20 ${stickyCellClassName} ${
+                  } py-3 min-w-24 ${stickyCellClassName} ${
                     rowKey?.className
                   } ${columnClassName}`}
                 >
@@ -830,24 +832,32 @@ const GenericTable = <T,>({
                 style={stickyCellStyle}
                 className={`${
                   keyIndex === 0 ? "pl-3" : ""
-                } py-3 ${stickyCellClassName} ${rowKey?.className} ${columnClassName} ${
+                } py-3 ${stickyCellClassName} ${
+                  rowKey?.className
+                } ${columnClassName} ${
                   cellValue.length > tooltipLimit && clickableCell
                     ? "max-w-xs"
                     : "min-w-20 md:min-w-0"
                 } `}
               >
                 {rowKey.isImage ? (
-                  <img
-                    src={(row[rowKey.key as keyof T] as string) || imageHolder}
-                    alt="img"
-                    className="w-12 h-12 rounded-full cursor-pointer min-w-12"
-                    onClick={() => {
-                      setImageModalSrc(
-                        (row[rowKey.key as keyof T] as string) ?? imageHolder
-                      );
-                      setIsImageModalOpen(true);
-                    }}
-                  />
+                  <div
+                    className={`flex items-center justify-center ${rowKey?.className} `}
+                  >
+                    <img
+                      src={
+                        (row[rowKey.key as keyof T] as string) || imageHolder
+                      }
+                      alt="img"
+                      className="w-12 h-12 rounded-full cursor-pointer min-w-12"
+                      onClick={() => {
+                        setImageModalSrc(
+                          (row[rowKey.key as keyof T] as string) ?? imageHolder
+                        );
+                        setIsImageModalOpen(true);
+                      }}
+                    />
+                  </div>
                 ) : cellValue.length > tooltipLimit && clickableCell ? (
                   <div
                     className="cursor-pointer hover:text-blue-500 transition-colors"
@@ -1344,7 +1354,9 @@ const GenericTable = <T,>({
                                   (!outsideSortProps ||
                                     !column?.correspondingKey) &&
                                   (sortConfig?.key ===
-                                    usedRowKeys[isActionsAtFront ? index - 1 : index]?.key &&
+                                    usedRowKeys[
+                                      isActionsAtFront ? index - 1 : index
+                                    ]?.key &&
                                   sortConfig?.direction === "ascending" ? (
                                     <GenericButton
                                       variant="icon"
@@ -1352,10 +1364,9 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
-                                            keyof T,
-                                            string
-                                          >,
+                                          usedRowKeys[
+                                            isActionsAtFront ? index - 1 : index
+                                          ].key as Extract<keyof T, string>,
                                           "descending"
                                         )
                                       }
@@ -1369,10 +1380,9 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
-                                            keyof T,
-                                            string
-                                          >,
+                                          usedRowKeys[
+                                            isActionsAtFront ? index - 1 : index
+                                          ].key as Extract<keyof T, string>,
                                           "ascending"
                                         )
                                       }

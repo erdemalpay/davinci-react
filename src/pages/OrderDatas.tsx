@@ -22,6 +22,7 @@ import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSa
 import HepsiburadaOrders from "../components/orderDatas/HepsiburadaOrders";
 import IkasOrders from "../components/orderDatas/IkasOrders";
 import KitchenDataPage from "../components/orderDatas/KitchenDataPage";
+import MarketplaceOrders from "../components/orderDatas/MarketplaceOrders";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import PreOrders from "../components/orderDatas/PreOrders";
@@ -36,6 +37,8 @@ import { useUserContext } from "../context/User.context";
 import { OrderDataTabEnum } from "../types";
 import { useGetAllCategories } from "../utils/api/menu/category";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+import { IDEFIX_CHANNEL } from "../utils/api/idefix";
+import { N11_CHANNEL } from "../utils/api/n11";
 
 export const OrderDataTabs = [
   {
@@ -148,6 +151,20 @@ export const OrderDataTabs = [
     label: "Hepsiburada Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <HepsiburadaOrders />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.N11ORDERS,
+    label: "n11 Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <MarketplaceOrders channel={N11_CHANNEL} />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.IDEFIXORDERS,
+    label: "idefix Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <MarketplaceOrders channel={IDEFIX_CHANNEL} />,
     isDisabled: false,
   },
   {

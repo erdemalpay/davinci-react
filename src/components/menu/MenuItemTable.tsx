@@ -5,8 +5,12 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { IoCheckmark, IoCloseOutline, IoChevronDown, IoChevronUp } from "react-icons/io5";
-import { toast } from "react-toastify";
+import {
+  IoCheckmark,
+  IoChevronDown,
+  IoChevronUp,
+  IoCloseOutline,
+} from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -20,6 +24,7 @@ import {
   MenuPopular,
   TURKISHLIRA,
 } from "../../types";
+import { UpdatePayload } from "../../utils/api";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
@@ -27,9 +32,10 @@ import {
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { UpdatePayload } from "../../utils/api";
 import { useMatchHepsiburadaItemsByBarcodeMutation } from "../../utils/api/hepsiburada";
+import { IDEFIX_CHANNEL } from "../../utils/api/idefix";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useMatchMarketplaceItemsByBarcodeMutation } from "../../utils/api/marketplace";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import {
   useCreateMultipleShopifyProductMutation,
@@ -40,6 +46,7 @@ import {
   useUpdateItemsSlugsMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
+import { N11_CHANNEL } from "../../utils/api/n11";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
@@ -110,6 +117,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     useCreateMultipleShopifyProductMutation();
   const { mutateAsync: matchHepsiburadaByBarcodeAsync } =
     useMatchHepsiburadaItemsByBarcodeMutation();
+  const { mutateAsync: matchN11ByBarcodeAsync } =
+    useMatchMarketplaceItemsByBarcodeMutation(N11_CHANNEL);
+  const { mutateAsync: matchIdefixByBarcodeAsync } =
+    useMatchMarketplaceItemsByBarcodeMutation(IDEFIX_CHANNEL);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
@@ -643,6 +654,20 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       {
         type: InputTypes.TEXT,
+        formKey: "n11StockCode",
+        label: "n11 Stok Kodu",
+        placeholder: "n11 Stok Kodu",
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "idefixBarcode",
+        label: "idefix Barkodu",
+        placeholder: "idefix Barkodu",
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
         formKey: "sku",
         label: "Sku",
         placeholder: "Sku",
@@ -710,6 +735,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "shopifyId", type: FormKeyTypeEnum.STRING },
       { key: "trendyolBarcode", type: FormKeyTypeEnum.STRING },
       { key: "hepsiBuradaSku", type: FormKeyTypeEnum.STRING },
+      { key: "n11StockCode", type: FormKeyTypeEnum.STRING },
+      { key: "idefixBarcode", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
       { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
@@ -723,6 +750,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   // these are the columns and rowKeys for the table
   const { columns, rowKeys } = useMemo(() => {
     const cols = [
+      { key: t("Action"), isSortable: false },
       { key: "", isSortable: false },
       { key: t("Name"), isSortable: true },
       { key: t("Description"), isSortable: true },
@@ -749,6 +777,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "Shopify ID", isSortable: true },
       { key: t("Trendyol Barcode"), isSortable: false },
       { key: t("Hepsi Burada Sku"), isSortable: false },
+      { key: t("n11 Stock Code"), isSortable: false },
+      { key: t("idefix Barcode"), isSortable: false },
       { key: t("Created At"), isSortable: true },
       ...(showMenuBarcodeInfo
         ? [
@@ -771,10 +801,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: t("Pre Order"), isSortable: false },
     ];
 
-    const keys: RowKeyType<
-      MenuItem & { formattedCreatedAt?: string }
-    >[] = [
-      { key: "imageUrl", isImage: true },
+    const keys: RowKeyType<MenuItem & { formattedCreatedAt?: string }>[] = [
+      { key: "imageUrl", isImage: true, className: "min-w-24 " },
       {
         key: "name",
         node: (item: MenuItem) => {
@@ -811,9 +839,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               {isOpen ? description : previewText}
               {isTruncatable && (
                 <button
-                  onClick={() =>
-                    setOpenDescriptionId(isOpen ? null : item._id)
-                  }
+                  onClick={() => setOpenDescriptionId(isOpen ? null : item._id)}
                   className="inline-flex items-center align-text-bottom text-xl text-gray-700 hover:text-blue-500"
                 >
                   {isOpen ? <IoChevronUp /> : <IoChevronDown />}
@@ -908,6 +934,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       { key: "trendyolBarcode", className: "min-w-32 pr-1" },
       { key: "hepsiBuradaSku", className: "min-w-32 pr-1" },
+      { key: "n11StockCode", className: "min-w-32 pr-1" },
+      { key: "idefixBarcode", className: "min-w-32 pr-1" },
       {
         key: "createdAt",
         node: (row: MenuItem & { formattedCreatedAt?: string }) => {
@@ -1049,7 +1077,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         });
       }
     }
-    cols.push({ key: t("Action"), isSortable: false });
 
     return { columns: cols, rowKeys: keys };
   }, [
@@ -1081,9 +1108,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           close={() => setIsAddModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={(payload) =>
-            createItem(payload as Partial<MenuItem>)
-          }
+          submitItem={(payload) => createItem(payload as Partial<MenuItem>)}
           constantValues={{
             category: singleItemGroup?.category._id,
             locations: [1, 2],
@@ -1215,34 +1240,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const actions = useMemo(
     () => [
       {
-        name: t("Delete"),
-        icon: <HiOutlineTrash />,
-        setRow: setRowToAction,
-        modal: rowToAction ? (
-          <ConfirmationDialog
-            isOpen={isCloseAllConfirmationDialogOpen}
-            close={() => setIsCloseAllConfirmationDialogOpen(false)}
-            confirm={() => {
-              deleteItem(rowToAction?._id);
-              setIsCloseAllConfirmationDialogOpen(false);
-            }}
-            title={t("Delete Item")}
-            text={`${rowToAction?.name} ${t("GeneralDeleteMessage")}`}
-          />
-        ) : null,
-        className: "text-red-500 cursor-pointer text-2xl",
-        isModal: true,
-        isModalOpen: isCloseAllConfirmationDialogOpen,
-        setIsModal: setIsCloseAllConfirmationDialogOpen,
-        isPath: false,
-        isDisabled: menuPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
-      },
-      {
         name: t("Edit"),
         icon: <FiEdit />,
         className: "text-blue-500 cursor-pointer text-xl",
@@ -1273,6 +1270,34 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isDisabled: menuPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteItem(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Item")}
+            text={`${rowToAction?.name} ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
             user?.role?._id &&
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
@@ -1695,6 +1720,42 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
+      {
+        name: t("n11 Match"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-purple-700 hover:text-purple-700 hover:border-purple-700 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+        onClick: async () => {
+          await matchN11ByBarcodeAsync(selectedRows.map((row) => row._id));
+          setSelectedRows([]);
+          setIsSelectionActive(false);
+          setIsEditSelectionCompeted(false);
+        },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        name: t("idefix Match"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-purple-700 hover:text-purple-700 hover:border-purple-700 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+        onClick: async () => {
+          await matchIdefixByBarcodeAsync(selectedRows.map((row) => row._id));
+          setSelectedRows([]);
+          setIsSelectionActive(false);
+          setIsEditSelectionCompeted(false);
+        },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
     ],
     [
       t,
@@ -1714,6 +1775,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       updateItem,
       updateItemAsync,
       matchHepsiburadaByBarcodeAsync,
+      matchN11ByBarcodeAsync,
+      matchIdefixByBarcodeAsync,
       menuPageDisabledCondition,
       user,
     ]
@@ -1740,6 +1803,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isCollapsibleCheckActive={false}
         addCollapsible={addCollapsible}
         isCollapsible={products.length > 0}
+        isActionsAtFront={true}
         collapsibleActions={collapsibleActions}
         isDraggable={true}
         isToolTipEnabled={false}

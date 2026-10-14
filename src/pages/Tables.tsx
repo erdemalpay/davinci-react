@@ -12,6 +12,7 @@ import { DateInput } from "../components/common/DateInput2";
 import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
+import { ConsumptionPanel } from "../components/inventory/ConsumptionPanel";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -75,28 +76,40 @@ import {
   menuItemHasDecrementStock,
 } from "../utils/getItem";
 import { sortTable } from "../utils/sort";
+import { useIsLgScreen } from "../hooks/useMediaQuery";
+import { useStableGroups } from "../hooks/useStableGroups";
+import { useGetAccountProducts } from "../utils/api/account/product";
+import { useGetAccountStocks } from "../utils/api/account/stock";
+import { useGetMemberships } from "../utils/api/membership";
+import { useGetTodayOrders } from "../utils/api/order/order";
+import { useGetTodayCollections } from "../utils/api/order/orderCollection";
+import { NO_ITEMS, tableIdOf } from "../utils/tableGroups";
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
   const {
-    todayOrders,
-    todayCollections,
     menuItems,
     categories,
     games,
     kitchens,
-    products,
     discounts,
     stockLocations,
     storeLocations,
     orderNotes,
-    memberships,
-    stocks,
     users,
     user,
     visits = [],
   } = useDataContext();
+  const todayOrders = useGetTodayOrders();
+  const todayCollections = useGetTodayCollections();
+  const products = useGetAccountProducts();
+  const memberships = useGetMemberships();
+  const stocks = useGetAccountStocks();
+  const isLgScreen = useIsLgScreen();
+  // Each table card gets its own orders; a card re-renders only when they
+  // change.
+  const tableCollectionsMap = useStableGroups(todayCollections, tableIdOf);
   const [tableOrderPaymentTableId, setTableOrderPaymentTableId] = useState<
     number | null
   >(null);
@@ -1272,25 +1285,7 @@ const Tables = () => {
     setSelectedDate(formatDate(newDate));
   };
 
-  const tableOrdersMap = useMemo(() => {
-    if (!todayOrders) return new Map<string | number, Order[]>();
-
-    const map = new Map<string | number, Order[]>();
-    todayOrders.forEach((order) => {
-      const tableId = (order.table as Table)?._id;
-      if (!tableId) return;
-
-      if (!map.has(tableId)) {
-        map.set(tableId, []);
-      }
-      const orders = map.get(tableId);
-      if (orders) {
-        orders.push(order);
-      }
-    });
-
-    return map;
-  }, [todayOrders]);
+  const tableOrdersMap = useStableGroups(todayOrders, tableIdOf);
 
   const isConfirmationRequiredOrder = useCallback(
     (order: Order) => {
@@ -2178,56 +2173,70 @@ const Tables = () => {
             </div>
           </div>
         </div>
-        <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
-          {tableColumns?.map((tablesColumns, idx) => (
-            <div key={idx + "tablecolumns"}>
-              {tablesColumns.map((table) => {
-                return (
-                  <div
-                    id={`table-large-${table?._id}`}
-                    key={table?._id || table?.startHour}
-                    className={`rounded-md transition-shadow duration-300 ${
-                      highlightedTableTargetId === `table-large-${table?._id}`
-                        ? "ring-4 ring-amber-400 ring-offset-2"
-                        : ""
-                    }`}
-                  >
-                    <TableCard
-                      table={table}
-                      mentors={mentors}
-                      showAllGameplays={showAllGameplays}
-                      showAllOrders={showAllOrders}
-                      showServedOrders={showServedOrders}
-                      tables={tables}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-        <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
-          {tables?.map((table) => (
-            <div
-              id={`table-${table?._id}`}
-              key={table?._id || table?.startHour}
-              className={`rounded-md transition-shadow duration-300 ${
-                highlightedTableTargetId === `table-${table?._id}`
-                  ? "ring-4 ring-amber-400 ring-offset-2"
-                  : ""
-              }`}
-            >
-              <TableCard
-                table={table}
-                mentors={mentors}
-                showAllGameplays={showAllGameplays}
-                showAllOrders={showAllOrders}
-                showServedOrders={showServedOrders}
-                tables={tables}
-              />
-            </div>
-          ))}
-        </div>
+        {/* One grid only: the other one, hidden by CSS, used to render
+            every table card a second time. */}
+        {isLgScreen && (
+          <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
+            {tableColumns?.map((tablesColumns, idx) => (
+              <div key={idx + "tablecolumns"}>
+                {tablesColumns.map((table) => {
+                  return (
+                    <div
+                      id={`table-large-${table?._id}`}
+                      key={table?._id || table?.startHour}
+                      className={`rounded-md transition-shadow duration-300 ${
+                        highlightedTableTargetId === `table-large-${table?._id}`
+                          ? "ring-4 ring-amber-400 ring-offset-2"
+                          : ""
+                      }`}
+                    >
+                      <TableCard
+                        table={table}
+                        mentors={mentors}
+                        showAllGameplays={showAllGameplays}
+                        showAllOrders={showAllOrders}
+                        showServedOrders={showServedOrders}
+                        tables={tables}
+                        tableOrders={tableOrdersMap.get(table._id) ?? NO_ITEMS}
+                        tableCollections={
+                          tableCollectionsMap.get(table._id) ?? NO_ITEMS
+                        }
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
+        {!isLgScreen && (
+          <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
+            {tables?.map((table) => (
+              <div
+                id={`table-${table?._id}`}
+                key={table?._id || table?.startHour}
+                className={`rounded-md transition-shadow duration-300 ${
+                  highlightedTableTargetId === `table-${table?._id}`
+                    ? "ring-4 ring-amber-400 ring-offset-2"
+                    : ""
+                }`}
+              >
+                <TableCard
+                  table={table}
+                  mentors={mentors}
+                  showAllGameplays={showAllGameplays}
+                  showAllOrders={showAllOrders}
+                  showServedOrders={showServedOrders}
+                  tables={tables}
+                  tableOrders={tableOrdersMap.get(table._id) ?? NO_ITEMS}
+                  tableCollections={
+                    tableCollectionsMap.get(table._id) ?? NO_ITEMS
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       {isCreateTableDialogOpen && (
         <GenericAddEditPanel
@@ -2285,7 +2294,7 @@ const Tables = () => {
         />
       )}
       {isConsumptModalOpen && (
-        <GenericAddEditPanel
+        <ConsumptionPanel
           close={() => {
             setIsConsumptModalOpen(false);
             setIsTabInputScreenOpen(false);
@@ -2296,7 +2305,7 @@ const Tables = () => {
           }}
           isOpen={isConsumptModalOpen}
           formKeys={consumptFormKeys}
-          submitItem={consumptStock as any}
+          submit={consumptStock}
           buttonName={t("Submit")}
           generalClassName="  shadow-none overflow-scroll  no-scrollbar sm:h-[60%] sm:min-w-[60%]  "
           topClassName="flex flex-col gap-2  "

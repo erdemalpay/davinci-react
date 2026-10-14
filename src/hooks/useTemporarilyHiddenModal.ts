@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
-const HIDE_TIMEOUT_MS = 2 * 60 * 1000;
+const HIDE_TIMEOUT_MS = 4 * 60 * 1000;
 
-export const useTemporarilyHiddenModal = (isActive: boolean) => {
+// A full-screen state that can be hidden for a while; it opens again after
+// two minutes unless autoReopen is off (then only a click opens it).
+export const useTemporarilyHiddenModal = (
+  isActive: boolean,
+  autoReopen = true
+) => {
   const [isModalHidden, setIsModalHidden] = useState(false);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -21,6 +26,7 @@ export const useTemporarilyHiddenModal = (isActive: boolean) => {
 
   const handleHideModal = () => {
     setIsModalHidden(true);
+    if (!autoReopen) return;
     // Auto-show modal after timeout
     hideTimeoutRef.current = setTimeout(() => {
       setIsModalHidden(false);

@@ -26,7 +26,8 @@ export const MiddlemanOverlay = () => {
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeMiddlemen = useGetMiddlemanByDate(todayDate);
   const { isModalHidden, handleHideModal, handleShowModal } =
-    useTemporarilyHiddenModal(!!currentMiddleman);
+    // Hidden, it stays a strip at the top until clicked.
+    useTemporarilyHiddenModal(!!currentMiddleman, false);
 
   useEffect(() => {
     const showStrip = !!user && !!currentMiddleman && isModalHidden;
@@ -86,10 +87,12 @@ export const MiddlemanOverlay = () => {
       <div className="fixed top-16 left-0 right-0 z-40 pointer-events-none">
         <div
           onClick={handleShowModal}
-          className="pointer-events-auto cursor-pointer bg-gradient-to-r from-teal-500 to-teal-700 animate-pulse shadow-sm py-1.5 md:py-1"
-          style={{ minHeight: STRIP_HEIGHT_PX }}
+          className="pointer-events-auto cursor-pointer busy-strip busy-strip-teal shadow-sm"
         >
-          <div className="px-3 flex items-center justify-center gap-2">
+          <div
+            className="bg-gradient-to-r from-teal-500 to-teal-700 py-1.5 md:py-1 px-3 flex items-center justify-center gap-2"
+            style={{ minHeight: STRIP_HEIGHT_PX - 4 }}
+          >
             <GiRoundTable className="text-white text-xs shrink-0 md:text-sm" />
             <span className="text-white text-xs font-medium md:text-sm">
               {t("You're the middleman")} – {getDuration()} {t("minutes")}

@@ -1363,7 +1363,8 @@ const Shifts = () => {
         isPath: false,
         isDisabled:
           selectedLocationId === -1 ||
-          shiftsDisabledCondition?.actions?.some(
+          !shiftsDisabledCondition ||
+          shiftsDisabledCondition.actions.some(
             (ac) =>
               ac.action === ActionEnum.UPDATE &&
               user?.role?._id &&
@@ -1374,7 +1375,8 @@ const Shifts = () => {
         name: t("Delete"),
         isDisabled:
           selectedLocationId === -1 ||
-          shiftsDisabledCondition?.actions?.some(
+          !shiftsDisabledCondition ||
+          shiftsDisabledCondition.actions.some(
             (ac) =>
               ac.action === ActionEnum.DELETE &&
               user?.role?._id &&
@@ -1427,7 +1429,8 @@ const Shifts = () => {
         isPath: false,
         isDisabled:
           selectedLocationId === -1 ||
-          shiftsDisabledCondition?.actions?.some(
+          !shiftsDisabledCondition ||
+          shiftsDisabledCondition.actions.some(
             (ac) =>
               ac.action === ActionEnum.COPY_SHIFT &&
               user?.role?._id &&
@@ -1478,12 +1481,14 @@ const Shifts = () => {
       isModalOpen: isCopyShiftIntervalModalOpen,
       setIsModal: setIsCopyShiftIntervalModalOpen,
       isPath: false,
-      isDisabled: shiftsDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.COPY_DAY_INTERVAL &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
+      isDisabled:
+        !shiftsDisabledCondition ||
+        shiftsDisabledCondition.actions.some(
+          (ac) =>
+            ac.action === ActionEnum.COPY_DAY_INTERVAL &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
@@ -1570,12 +1575,14 @@ const Shifts = () => {
             }}
           />
         ),
-        isDisabled: shiftsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ASSIGN_CHEF &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled:
+          !shiftsDisabledCondition ||
+          shiftsDisabledCondition.actions.some(
+            (ac) =>
+              ac.action === ActionEnum.ASSIGN_CHEF &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
       },
       {
         label: t("Assign Middleman"),
@@ -1588,12 +1595,14 @@ const Shifts = () => {
             }}
           />
         ),
-        isDisabled: shiftsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ASSIGN_MIDDLEMAN &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled:
+          !shiftsDisabledCondition ||
+          shiftsDisabledCondition.actions.some(
+            (ac) =>
+              ac.action === ActionEnum.ASSIGN_MIDDLEMAN &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
       },
       {
         label: t("Assign Outside Operation"),
@@ -1606,12 +1615,14 @@ const Shifts = () => {
             }}
           />
         ),
-        isDisabled: shiftsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ASSIGN_OUTSIDE_OPERATION &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled:
+          !shiftsDisabledCondition ||
+          shiftsDisabledCondition.actions.some(
+            (ac) =>
+              ac.action === ActionEnum.ASSIGN_OUTSIDE_OPERATION &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
       },
       {
         label: t("Enable Edit"),
@@ -1624,12 +1635,14 @@ const Shifts = () => {
             }}
           />
         ),
-        isDisabled: shiftsDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.ENABLEEDIT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
+        isDisabled:
+          !shiftsDisabledCondition ||
+          shiftsDisabledCondition.actions.some(
+            (ac) =>
+              ac.action === ActionEnum.ENABLEEDIT &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
       },
     ],
     [
@@ -1756,7 +1769,8 @@ const Shifts = () => {
         }
         isExcel={
           user &&
-          !shiftsDisabledCondition?.actions?.some(
+          shiftsDisabledCondition &&
+          !shiftsDisabledCondition.actions.some(
             (ac) =>
               ac.action === ActionEnum.EXCEL &&
               user?.role?._id &&
