@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { QuickDateRangeFilter } from "../components/common/QuickDateRangeFilter";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
-import { RoleEnum, User } from "../types";
+import { DateRangeKey, RoleEnum, User, commonDateOptions } from "../types";
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetUserShifts } from "../utils/api/shift";
@@ -83,6 +83,17 @@ const toneClasses: Record<PerformanceTone, string> = {
   worst: "bg-red-500 text-white",
 };
 
+// Ranges looking back; future ones say nothing about performance.
+const DATE_OPTIONS = commonDateOptions.filter(
+  (option) =>
+    ![
+      "nextWeek",
+      "nextMonth",
+      "fromTodayToEndOfNextMonth",
+      "customDate",
+    ].includes(option.value)
+);
+
 const formatNumber = (value: number) =>
   value.toLocaleString("tr-TR", {
     minimumFractionDigits: 1,
@@ -102,10 +113,8 @@ export default function StaffPerformance() {
   const { t } = useTranslation();
   const users = useGetUsers();
   const locations = useGetStoreLocations();
-  const [range, setRange] = useState(() => {
-    const { after, before } = dateRanges.thisMonth();
-    return { after, before };
-  });
+  // date: the chosen preset, empty for a range picked by hand.
+  const [range, setRange] = useState(() => dateRanges.thisMonth());
   const [location, setLocation] = useState<number | undefined>();
   const [dayFilters, setDayFilters] = useState<DayFilters>({
     includeMiddlemanDays: false,
@@ -342,19 +351,31 @@ export default function StaffPerformance() {
               />
               {t("Include other marked days")}
             </label>
+            <select
+              className="border rounded px-2 py-1 text-sm"
+              value={range.date}
+              onChange={(event) => {
+                const dateRange =
+                  dateRanges[event.target.value as DateRangeKey];
+                if (dateRange) setRange(dateRange());
+              }}
+            >
+              {!range.date && <option value="">{t("Custom Date")}</option>}
+              {DATE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {t(option.label)}
+                </option>
+              ))}
+            </select>
             <QuickDateRangeFilter
               startDate={range.after}
               endDate={range.before}
               onChange={(after: string, before: string) => {
                 if (!after || !before) {
-                  const thisMonth = dateRanges.thisMonth();
-                  setRange({
-                    after: thisMonth.after,
-                    before: thisMonth.before,
-                  });
+                  setRange(dateRanges.thisMonth());
                   return;
                 }
-                setRange({ after, before });
+                setRange({ after, before, date: "" });
               }}
             />
           </div>
