@@ -5,8 +5,12 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { IoCheckmark, IoCloseOutline, IoChevronDown, IoChevronUp } from "react-icons/io5";
-import { toast } from "react-toastify";
+import {
+  IoCheckmark,
+  IoChevronDown,
+  IoChevronUp,
+  IoCloseOutline,
+} from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -20,6 +24,7 @@ import {
   MenuPopular,
   TURKISHLIRA,
 } from "../../types";
+import { UpdatePayload } from "../../utils/api";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
@@ -27,9 +32,10 @@ import {
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { UpdatePayload } from "../../utils/api";
 import { useMatchHepsiburadaItemsByBarcodeMutation } from "../../utils/api/hepsiburada";
+import { IDEFIX_CHANNEL } from "../../utils/api/idefix";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useMatchMarketplaceItemsByBarcodeMutation } from "../../utils/api/marketplace";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import {
   useCreateMultipleShopifyProductMutation,
@@ -40,8 +46,6 @@ import {
   useUpdateItemsSlugsMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
-import { IDEFIX_CHANNEL } from "../../utils/api/idefix";
-import { useMatchMarketplaceItemsByBarcodeMutation } from "../../utils/api/marketplace";
 import { N11_CHANNEL } from "../../utils/api/n11";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
@@ -746,6 +750,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   // these are the columns and rowKeys for the table
   const { columns, rowKeys } = useMemo(() => {
     const cols = [
+      { key: t("Action"), isSortable: false },
       { key: "", isSortable: false },
       { key: t("Name"), isSortable: true },
       { key: t("Description"), isSortable: true },
@@ -796,10 +801,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: t("Pre Order"), isSortable: false },
     ];
 
-    const keys: RowKeyType<
-      MenuItem & { formattedCreatedAt?: string }
-    >[] = [
-      { key: "imageUrl", isImage: true },
+    const keys: RowKeyType<MenuItem & { formattedCreatedAt?: string }>[] = [
+      { key: "imageUrl", isImage: true, className: "min-w-24 " },
       {
         key: "name",
         node: (item: MenuItem) => {
@@ -836,9 +839,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               {isOpen ? description : previewText}
               {isTruncatable && (
                 <button
-                  onClick={() =>
-                    setOpenDescriptionId(isOpen ? null : item._id)
-                  }
+                  onClick={() => setOpenDescriptionId(isOpen ? null : item._id)}
                   className="inline-flex items-center align-text-bottom text-xl text-gray-700 hover:text-blue-500"
                 >
                   {isOpen ? <IoChevronUp /> : <IoChevronDown />}
@@ -1076,7 +1077,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         });
       }
     }
-    cols.push({ key: t("Action"), isSortable: false });
 
     return { columns: cols, rowKeys: keys };
   }, [
@@ -1108,9 +1108,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           close={() => setIsAddModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={(payload) =>
-            createItem(payload as Partial<MenuItem>)
-          }
+          submitItem={(payload) => createItem(payload as Partial<MenuItem>)}
           constantValues={{
             category: singleItemGroup?.category._id,
             locations: [1, 2],
@@ -1242,34 +1240,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const actions = useMemo(
     () => [
       {
-        name: t("Delete"),
-        icon: <HiOutlineTrash />,
-        setRow: setRowToAction,
-        modal: rowToAction ? (
-          <ConfirmationDialog
-            isOpen={isCloseAllConfirmationDialogOpen}
-            close={() => setIsCloseAllConfirmationDialogOpen(false)}
-            confirm={() => {
-              deleteItem(rowToAction?._id);
-              setIsCloseAllConfirmationDialogOpen(false);
-            }}
-            title={t("Delete Item")}
-            text={`${rowToAction?.name} ${t("GeneralDeleteMessage")}`}
-          />
-        ) : null,
-        className: "text-red-500 cursor-pointer text-2xl",
-        isModal: true,
-        isModalOpen: isCloseAllConfirmationDialogOpen,
-        setIsModal: setIsCloseAllConfirmationDialogOpen,
-        isPath: false,
-        isDisabled: menuPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.DELETE &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
-      },
-      {
         name: t("Edit"),
         icon: <FiEdit />,
         className: "text-blue-500 cursor-pointer text-xl",
@@ -1300,6 +1270,34 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isDisabled: menuPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteItem(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Item")}
+            text={`${rowToAction?.name} ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
             user?.role?._id &&
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
@@ -1805,6 +1803,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isCollapsibleCheckActive={false}
         addCollapsible={addCollapsible}
         isCollapsible={products.length > 0}
+        isActionsAtFront={true}
         collapsibleActions={collapsibleActions}
         isDraggable={true}
         isToolTipEnabled={false}
