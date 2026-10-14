@@ -261,6 +261,7 @@ export type User = {
   ];
   settings?: {
     orderCategoryOn?: boolean;
+    favoritePages?: string[];
     // Managers: the day ("yyyy-MM-dd") they asked to get game master calls.
     includeInGameAssignmentsDate?: string;
   };

@@ -7,9 +7,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { useDataContext } from "../context/Data.context";
-import { useFilteredRoutes } from "./useFilteredRoutes";
-import { Routes } from "../navigation/constants";
 import { Role } from "../types";
 import { useGetBreaksByDate } from "../utils/api/break";
 import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
@@ -19,6 +16,7 @@ import { clearLocalStoragePreservingOnboarding } from "../utils/onboardingStorag
 import { getTabSlug } from "../utils/slug";
 import { usernamify } from "../utils/string";
 import { Tab } from "../components/panelComponents/shared/types";
+import { useResolvedSidebarRoutes } from "./useResolvedSidebarRoutes";
 
 export type SidebarRouteItem = {
   name: string;
@@ -50,68 +48,19 @@ export function useSidebarNavigation(onClose: () => void) {
   const queryClient = useQueryClient();
 
   const { setUser } = useUserContext();
-  const { resetGeneralContext, setIsLogoutModalOpen } = useGeneralContext();
-  const { kitchens, categories } = useDataContext();
-
+  const { resetGeneralContext, setIsLogoutModalOpen, setSelectedMenuItem } =
+    useGeneralContext();
   const user = useGetUser();
-  const rawRoutes = useFilteredRoutes() as SidebarRouteItem[];
-
-  const routes = useMemo(() => {
-
-    let result = rawRoutes;
-
-    if (kitchens?.length) {
-      const kitchenTabs: Tab[] = kitchens.map((kitchen, index) => ({
-        number: index,
-        label: kitchen.name,
-        content: null,
-        isDisabled: false,
-      }));
-      result = result.map((route) =>
-        route.path === Routes.Orders ? { ...route, tabs: kitchenTabs } : route
-      );
-    }
-
-    if (categories?.length) {
-      const activeAndSortedCategories = [...categories]
-        .filter((c) => c.active || c.isKitchenMenu)
-        .sort((a, b) => a.order - b.order);
-
-      const categoryTabs: Tab[] = activeAndSortedCategories.map((category, index) => ({
-        number: index,
-        label: category.name,
-        content: null,
-        isDisabled: false,
-      }));
-
-      const menuTabs: Tab[] = [
-        ...categoryTabs,
-        ...["Popular", "Closed Items", "Categories", "Order Categories Order", "Customer Popups"].map(
-          (label, i) => ({ number: categoryTabs.length + i, label, content: null, isDisabled: false })
-        ),
-      ];
-
-      result = result.map((route) =>
-        route.path === Routes.Menu && route.children
-          ? {
-              ...route,
-              children: route.children.map((child) =>
-                child.path === Routes.Menu ? { ...child, tabs: menuTabs } : child
-              ),
-            }
-          : route
-      );
-    }
-
-    return result;
-  }, [rawRoutes, kitchens, categories]);
+  const routes = useResolvedSidebarRoutes();
   const pages = useGetPanelControlPages();
 
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeBreaks = useGetBreaksByDate(todayDate);
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
 
-  const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>({});
+  const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
+    {}
+  );
   const [searchValue, setSearchValue] = useState("");
 
   const currentRoute = location.pathname;
@@ -163,10 +112,11 @@ export function useSidebarNavigation(onClose: () => void) {
 
       if (!controlPage) return [];
 
-      const controlTabs = (controlPage.tabs as {
-        name: string;
-        permissionRoles?: number[];
-      }[]) ?? [];
+      const controlTabs =
+        (controlPage.tabs as {
+          name: string;
+          permissionRoles?: number[];
+        }[]) ?? [];
 
       if (controlTabs.length === 0) return item.tabs;
 
@@ -205,6 +155,7 @@ export function useSidebarNavigation(onClose: () => void) {
     if (!item.path) return;
 
     resetGeneralContext();
+    setSelectedMenuItem(null);
     setSearchValue("");
 
     const allowedTabs = getAllowedTabs(item);
