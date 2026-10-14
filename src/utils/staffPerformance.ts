@@ -33,6 +33,9 @@ export type AttendanceDay = {
 export type DayFilters = {
   includeMiddlemanDays: boolean;
   includeServiceStaffDays: boolean;
+  // Marked in the user summary without a middleman or service staff duty in
+  // the plan.
+  includeMarkedDays: boolean;
 };
 
 export const PART_TIME_DAY_WEIGHT = 0.75;
@@ -116,14 +119,7 @@ export function getAttendanceDays({
 export function isDayCounted(day: AttendanceDay, filters: DayFilters) {
   if (day.isMiddleman && !filters.includeMiddlemanDays) return false;
   if (day.isServiceStaff && !filters.includeServiceStaffDays) return false;
-  // Marked by hand without the duty in the plan: a middleman or service staff
-  // day, but which one isn't known, so it counts only when both do.
-  if (
-    day.isNotInAverage &&
-    !day.isMiddleman &&
-    !day.isServiceStaff &&
-    !(filters.includeMiddlemanDays && filters.includeServiceStaffDays)
-  ) {
+  if (getDayKind(day) === "marked" && !filters.includeMarkedDays) {
     return false;
   }
   return true;
@@ -141,28 +137,51 @@ export type DayBreakdown = {
   marked: number;
 };
 
-export function getDayBreakdown(days: AttendanceDay[]): DayBreakdown {
-  const breakdown: DayBreakdown = {
-    full: 0,
-    partTime: 0,
-    unplanned: 0,
-    serviceStaff: 0,
-    middleman: 0,
-    marked: 0,
+export type DayKind = keyof DayBreakdown;
+
+export function getDayKind(day: AttendanceDay): DayKind {
+  if (day.isMiddleman) return "middleman";
+  if (day.isServiceStaff) return "serviceStaff";
+  if (day.isNotInAverage) return "marked";
+  if (day.isUnplanned) return "unplanned";
+  if (day.weight === 1) return "full";
+  return "partTime";
+}
+
+// The dates of each kind, in order.
+export function getDayDates(days: AttendanceDay[]): Record<DayKind, string[]> {
+  const dates: Record<DayKind, string[]> = {
+    full: [],
+    partTime: [],
+    unplanned: [],
+    serviceStaff: [],
+    middleman: [],
+    marked: [],
   };
   for (const day of days) {
-    if (day.isMiddleman) breakdown.middleman += 1;
-    else if (day.isServiceStaff) breakdown.serviceStaff += 1;
-    else if (day.isNotInAverage) breakdown.marked += 1;
-    else if (day.isUnplanned) breakdown.unplanned += 1;
-    else if (day.weight === 1) breakdown.full += 1;
-    else breakdown.partTime += 1;
+    dates[getDayKind(day)].push(day.date);
   }
-  return breakdown;
+  for (const kindDates of Object.values(dates)) {
+    kindDates.sort();
+  }
+  return dates;
+}
+
+export function getDayBreakdown(days: AttendanceDay[]): DayBreakdown {
+  const dates = getDayDates(days);
+  return {
+    full: dates.full.length,
+    partTime: dates.partTime.length,
+    unplanned: dates.unplanned.length,
+    serviceStaff: dates.serviceStaff.length,
+    middleman: dates.middleman.length,
+    marked: dates.marked.length,
+  };
 }
 
 export type StaffPerformance = {
   days: DayBreakdown;
+  dayDates: Record<DayKind, string[]>;
   // The days the averages are divided by: full days 1, part-time 0.75.
   dayCount: number;
   // Per day.
@@ -200,7 +219,12 @@ export function getStaffPerformance(
   for (const field of Object.keys(averages) as StaffCountField[]) {
     averages[field] = dayCount > 0 ? totals[field] / dayCount : 0;
   }
-  return { days: getDayBreakdown(days), dayCount, averages };
+  return {
+    days: getDayBreakdown(days),
+    dayDates: getDayDates(days),
+    dayCount,
+    averages,
+  };
 }
 
 export const mean = (values: number[]) =>
