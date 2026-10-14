@@ -4,7 +4,8 @@ import { Paths, useGetList } from "./factory";
 export function useGetStaffDailyCounts(
   after: string,
   before: string,
-  location?: number
+  location?: number,
+  enabled = true
 ) {
   let url = `${Paths.StaffPerformance}/daily-counts?after=${after}&before=${before}`;
   if (location) {
@@ -13,6 +14,7 @@ export function useGetStaffDailyCounts(
   return useGetList<StaffDailyCounts>(
     url,
     [Paths.StaffPerformance, after, before, location],
-    true
+    true,
+    { enabled }
   );
 }
