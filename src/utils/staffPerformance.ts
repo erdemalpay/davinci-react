@@ -23,6 +23,7 @@ export type AttendanceDay = {
   // Duties in the shift plan.
   isMiddleman: boolean;
   isServiceStaff: boolean;
+  isOutsideOperation: boolean;
   // Marked in the user summary as left out of the averages.
   isNotInAverage: boolean;
 };
@@ -81,6 +82,9 @@ export function getAttendanceDays({
       isServiceStaff: !!dayPlan?.shifts.some(
         (slot) => slot.chefUser === userId
       ),
+      isOutsideOperation: !!dayPlan?.shifts.some((slot) =>
+        slot.outsideOperationUsers?.includes(userId)
+      ),
       isNotInAverage: !!ownShift?.notInAverage,
     };
 
@@ -95,6 +99,8 @@ export function getAttendanceDays({
             isUnplanned: seen.isUnplanned && day.isUnplanned,
             isMiddleman: seen.isMiddleman || day.isMiddleman,
             isServiceStaff: seen.isServiceStaff || day.isServiceStaff,
+            isOutsideOperation:
+              seen.isOutsideOperation || day.isOutsideOperation,
             isNotInAverage: seen.isNotInAverage || day.isNotInAverage,
           }
         : day
@@ -121,20 +127,54 @@ export function isDayCounted(day: AttendanceDay, filters: DayFilters) {
   return true;
 }
 
+// How someone's days went, each day in one kind: a middleman or service
+// staff day first, else by the shift plan.
+export type DayBreakdown = {
+  full: number;
+  partTime: number;
+  unplanned: number;
+  serviceStaff: number;
+  middleman: number;
+  // Marked as not in average without the duty in the plan.
+  marked: number;
+};
+
+export function getDayBreakdown(days: AttendanceDay[]): DayBreakdown {
+  const breakdown: DayBreakdown = {
+    full: 0,
+    partTime: 0,
+    unplanned: 0,
+    serviceStaff: 0,
+    middleman: 0,
+    marked: 0,
+  };
+  for (const day of days) {
+    if (day.isMiddleman) breakdown.middleman += 1;
+    else if (day.isServiceStaff) breakdown.serviceStaff += 1;
+    else if (day.isNotInAverage) breakdown.marked += 1;
+    else if (day.isUnplanned) breakdown.unplanned += 1;
+    else if (day.weight === 1) breakdown.full += 1;
+    else breakdown.partTime += 1;
+  }
+  return breakdown;
+}
+
 export type StaffPerformance = {
+  days: DayBreakdown;
+  // The days the averages are divided by: full days 1, part-time 0.75.
   dayCount: number;
-  unplannedDayCount: number;
   // Per day.
   averages: Record<StaffCountField, number>;
 };
 
-// Someone's daily averages over the days that count.
+// Someone's daily averages over the days that count, out of the days they
+// can be judged on in this table.
 export function getStaffPerformance(
   days: AttendanceDay[],
   dailyCounts: StaffDailyCounts[],
-  filters: DayFilters
+  isCounted: (day: AttendanceDay) => boolean
 ): StaffPerformance {
-  const counted = days.filter((day) => isDayCounted(day, filters));
+  const counted = days.filter(isCounted);
   const countedDates = new Set(counted.map((day) => day.date));
   const dayCount = counted.reduce((sum, day) => sum + day.weight, 0);
 
@@ -157,11 +197,7 @@ export function getStaffPerformance(
   for (const field of Object.keys(averages) as StaffCountField[]) {
     averages[field] = dayCount > 0 ? totals[field] / dayCount : 0;
   }
-  return {
-    dayCount,
-    unplannedDayCount: counted.filter((day) => day.isUnplanned).length,
-    averages,
-  };
+  return { days: getDayBreakdown(days), dayCount, averages };
 }
 
 export const mean = (values: number[]) =>
