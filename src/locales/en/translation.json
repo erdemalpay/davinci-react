@@ -2114,6 +2114,7 @@
   "Games Explained": "Games Explained",
   "Include middleman days": "Include middleman days",
   "Include service staff days": "Include service staff days",
+  "Include other marked days": "Include other marked days",
   "Days": "Days",
   "No data": "No data",
   "Days missing from the shift plan": "Days missing from the shift plan",
@@ -2133,5 +2134,5 @@
   "Middleman days": "Middleman days",
   "Marked days": "Marked days",
   "Counted days": "Counted days",
-  "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman and service staff days count only when included. Colors compare with the group's average (15% and 30% above or below).": "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman and service staff days count only when included. Colors compare with the group's average (15% and 30% above or below)."
+  "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman, service staff and other marked days count only when included. Hover over a day count to see its dates. Colors compare with the group's average (15% and 30% above or below).": "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman, service staff and other marked days count only when included. Hover over a day count to see its dates. Colors compare with the group's average (15% and 30% above or below)."
 }

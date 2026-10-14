@@ -1,3 +1,5 @@
+import { Tooltip } from "@material-tailwind/react";
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { QuickDateRangeFilter } from "../components/common/QuickDateRangeFilter";
@@ -14,6 +16,7 @@ import {
   AttendanceDay,
   DayBreakdown,
   DayFilters,
+  DayKind,
   PerformanceTone,
   StaffCountField,
   StaffDailyCounts,
@@ -36,6 +39,7 @@ type PerformanceRow = {
   // Shown after the name, e.g. a game master in the service staff table.
   note?: string;
   days: DayBreakdown;
+  dayDates: Record<DayKind, string[]>;
   dayCount: number;
   averages: Record<StaffCountField, number>;
   learnedGameCount: number;
@@ -85,6 +89,10 @@ const formatNumber = (value: number) =>
     maximumFractionDigits: 1,
   });
 
+// "yyyy-MM-dd" as "dd.MM.yyyy".
+const formatDayDate = (date: string) =>
+  format(new Date(`${date}T00:00:00`), "dd.MM.yyyy");
+
 const formatDays = (value: number) =>
   value.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 
@@ -102,6 +110,7 @@ export default function StaffPerformance() {
   const [dayFilters, setDayFilters] = useState<DayFilters>({
     includeMiddlemanDays: false,
     includeServiceStaffDays: false,
+    includeMarkedDays: false,
   });
 
   const visits = useGetFilteredVisits(range.after, range.before);
@@ -321,6 +330,18 @@ export default function StaffPerformance() {
               />
               {t("Include service staff days")}
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <SwitchButton
+                checked={dayFilters.includeMarkedDays}
+                onChange={(checked) =>
+                  setDayFilters({
+                    ...dayFilters,
+                    includeMarkedDays: checked,
+                  })
+                }
+              />
+              {t("Include other marked days")}
+            </label>
             <QuickDateRangeFilter
               startDate={range.after}
               endDate={range.before}
@@ -349,7 +370,7 @@ export default function StaffPerformance() {
         ))}
         <p className="text-xs text-gray-500">
           {t(
-            "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman and service staff days count only when included. Colors compare with the group's average (15% and 30% above or below)."
+            "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman, service staff and other marked days count only when included. Hover over a day count to see its dates. Colors compare with the group's average (15% and 30% above or below)."
           )}
         </p>
       </div>
@@ -437,7 +458,24 @@ function PerformanceTable({
                     key={key}
                     className="border border-gray-300 px-3 py-2 text-center"
                   >
-                    {row.days[key]}
+                    {row.days[key] > 0 ? (
+                      <Tooltip
+                        content={
+                          <div className="flex flex-col">
+                            {row.dayDates[key].map((date) => (
+                              <span key={date}>{formatDayDate(date)}</span>
+                            ))}
+                          </div>
+                        }
+                        placement="top"
+                      >
+                        <span className="cursor-default underline decoration-dotted">
+                          {row.days[key]}
+                        </span>
+                      </Tooltip>
+                    ) : (
+                      row.days[key]
+                    )}
                   </td>
                 ))}
                 <td className="border border-gray-300 px-3 py-2 text-center font-semibold">
