@@ -10,6 +10,7 @@ import {
   FormElementsState,
   GameAvailabilityStatus,
   UnmetExplanationRequest,
+  UnmetFollowUp,
   GmCallReasonEnum,
 } from "../types";
 import { gmCallReasonLabels } from "../components/buttonCalls/assignmentDisplay";
@@ -23,6 +24,12 @@ const statusLabels: Record<GameAvailabilityStatus, string> = {
   [GameAvailabilityStatus.BUSY]: "Everyone who knows the game was busy",
   [GameAvailabilityStatus.LATER]: "Someone who knows the game came later",
   [GameAvailabilityStatus.UNAVAILABLE]: "Nobody who knows the game that day",
+};
+
+const followUpLabels: Record<UnmetFollowUp, string> = {
+  [UnmetFollowUp.OTHER_GAME]: "Picked another game",
+  [UnmetFollowUp.RECOMMENDATION]: "Asked for a recommendation",
+  [UnmetFollowUp.LEFT]: "Gave up",
 };
 
 // Explanation requests that couldn't be met right away, so managers can see
@@ -47,7 +54,11 @@ export default function UnmetExplanationRequests() {
     () =>
       requests.map((request: UnmetExplanationRequest) => {
         const outcome = !request.waited
-          ? t("Picked another game or left")
+          ? t(
+              request.followUp
+                ? followUpLabels[request.followUp]
+                : "Picked another game or left"
+            )
           : request.explainedBy
           ? t("Explained by {{name}}", {
               name: getItem(request.explainedBy, users)?.name ?? "",
@@ -73,6 +84,23 @@ export default function UnmetExplanationRequests() {
         };
       }),
     [requests, locations, games, users, t]
+  );
+
+  // How the requests ended: waited in line, or what the table did instead.
+  const outcomeCounts = useMemo(
+    () => [
+      {
+        label: t("Waited"),
+        count: requests.filter((request) => request.waited).length,
+      },
+      ...Object.values(UnmetFollowUp).map((followUp) => ({
+        label: t(followUpLabels[followUp]),
+        count: requests.filter(
+          (request) => !request.waited && request.followUp === followUp
+        ).length,
+      })),
+    ],
+    [requests, t]
   );
 
   const columns = useMemo(
@@ -191,7 +219,18 @@ export default function UnmetExplanationRequests() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[98%] mx-auto my-10">
+      <div className="w-[98%] mx-auto my-10 flex flex-col gap-4">
+        <div className="flex flex-wrap gap-3">
+          {outcomeCounts.map(({ label, count }) => (
+            <div
+              key={label}
+              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm"
+            >
+              <span className="text-gray-500">{label}: </span>
+              <span className="font-semibold">{count}</span>
+            </div>
+          ))}
+        </div>
         <GenericTable
           rowKeys={rowKeys}
           filters={tableFilters}

@@ -2,6 +2,7 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { DatePresetSelect } from "../components/common/DatePresetSelect";
 import { QuickDateRangeFilter } from "../components/common/QuickDateRangeFilter";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -102,11 +103,8 @@ export default function StaffPerformance() {
   const { t } = useTranslation();
   const users = useGetUsers();
   const locations = useGetStoreLocations();
-  const [range, setRange] = useState(() => {
-    const { after, before } = dateRanges.thisMonth();
-    return { after, before };
-  });
-  const [location, setLocation] = useState<number | undefined>();
+  // date: the chosen preset, empty for a range picked by hand.
+  const [range, setRange] = useState(() => dateRanges.thisMonth());
   const [dayFilters, setDayFilters] = useState<DayFilters>({
     includeMiddlemanDays: false,
     includeServiceStaffDays: false,
@@ -115,11 +113,7 @@ export default function StaffPerformance() {
 
   const visits = useGetFilteredVisits(range.after, range.before);
   const shifts = useGetUserShifts(range.after, range.before);
-  const dailyCounts = useGetStaffDailyCounts(
-    range.after,
-    range.before,
-    location
-  );
+  const dailyCounts = useGetStaffDailyCounts(range.after, range.before);
 
   const average = (field: StaffCountField) => (row: PerformanceRow) =>
     row.averages[field];
@@ -263,7 +257,6 @@ export default function StaffPerformance() {
               visits,
               shifts,
               locations,
-              location,
             }).filter(isEligible);
             const performance = getStaffPerformance(
               days,
@@ -290,22 +283,6 @@ export default function StaffPerformance() {
         <div className="flex flex-wrap items-center gap-4 justify-between">
           <h1 className="text-xl font-semibold">{t("Staff Performance")}</h1>
           <div className="flex flex-wrap items-center gap-4">
-            <select
-              className="border rounded px-2 py-1 text-sm"
-              value={location ?? ""}
-              onChange={(event) =>
-                setLocation(
-                  event.target.value ? Number(event.target.value) : undefined
-                )
-              }
-            >
-              <option value="">{t("All Locations")}</option>
-              {locations.map((loc) => (
-                <option key={loc._id} value={loc._id}>
-                  {loc.name}
-                </option>
-              ))}
-            </select>
             <label className="flex items-center gap-2 text-sm">
               <SwitchButton
                 checked={dayFilters.includeMiddlemanDays}
@@ -342,19 +319,16 @@ export default function StaffPerformance() {
               />
               {t("Include other marked days")}
             </label>
+            <DatePresetSelect value={range.date} onChange={setRange} />
             <QuickDateRangeFilter
               startDate={range.after}
               endDate={range.before}
               onChange={(after: string, before: string) => {
                 if (!after || !before) {
-                  const thisMonth = dateRanges.thisMonth();
-                  setRange({
-                    after: thisMonth.after,
-                    before: thisMonth.before,
-                  });
+                  setRange(dateRanges.thisMonth());
                   return;
                 }
-                setRange({ after, before });
+                setRange({ after, before, date: "" });
               }}
             />
           </div>

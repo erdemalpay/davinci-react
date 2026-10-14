@@ -683,7 +683,15 @@ export type UnmetExplanationRequest = {
   waited: boolean;
   explainedBy?: string;
   callFinishHour?: string;
+  // What the table did instead of waiting.
+  followUp?: UnmetFollowUp;
 };
+
+export enum UnmetFollowUp {
+  OTHER_GAME = "OTHER_GAME",
+  RECOMMENDATION = "RECOMMENDATION",
+  LEFT = "LEFT",
+}
 
 export enum AssignmentActionEnum {
   ASSIGNED = "assigned",

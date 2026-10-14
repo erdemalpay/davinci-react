@@ -1,6 +1,6 @@
-import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { DatePresetSelect } from "../components/common/DatePresetSelect";
 import { QuickDateRangeFilter } from "../components/common/QuickDateRangeFilter";
 import { Header } from "../components/header/Header";
 import { useDataContext } from "../context/Data.context";
@@ -10,7 +10,7 @@ import {
   declineReasonLabels,
 } from "../types";
 import { useGetAssignmentEvents } from "../utils/api/buttonCall";
-import { useGetStoreLocations } from "../utils/api/location";
+import { dateRanges } from "../utils/api/dateRanges";
 import {
   ASSIGNED_CALL_TYPES,
   AssignedCallType,
@@ -40,12 +40,9 @@ const headCell = "border border-gray-300 px-3 py-2 text-center bg-gray-100";
 export default function CallSummary() {
   const { t } = useTranslation();
   const { users = [] } = useDataContext();
-  const locations = useGetStoreLocations();
-  const today = format(new Date(), "yyyy-MM-dd");
-  const [range, setRange] = useState({ after: today, before: today });
-  const [location, setLocation] = useState<number | "">("");
+  // date: the chosen preset, empty for a range picked by hand.
+  const [range, setRange] = useState(() => dateRanges.today());
   const events = useGetAssignmentEvents({
-    location,
     after: range.after,
     before: range.before,
   });
@@ -109,30 +106,15 @@ export default function CallSummary() {
         <div className="flex flex-wrap items-center gap-4 justify-between">
           <h1 className="text-xl font-semibold">{t("Call Summary")}</h1>
           <div className="flex flex-wrap items-center gap-4">
-            <select
-              className="border rounded px-2 py-1 text-sm"
-              value={location}
-              onChange={(event) =>
-                setLocation(
-                  event.target.value ? Number(event.target.value) : ""
-                )
-              }
-            >
-              <option value="">{t("All Locations")}</option>
-              {locations.map((loc) => (
-                <option key={loc._id} value={loc._id}>
-                  {loc.name}
-                </option>
-              ))}
-            </select>
+            <DatePresetSelect value={range.date} onChange={setRange} />
             <QuickDateRangeFilter
               startDate={range.after}
               endDate={range.before}
               onChange={(after: string, before: string) =>
                 setRange(
                   after && before
-                    ? { after, before }
-                    : { after: today, before: today }
+                    ? { after, before, date: "" }
+                    : dateRanges.today()
                 )
               }
             />
