@@ -1432,6 +1432,7 @@
   "Nov": "Kas",
   "Dec": "Ara",
   "Daily Duration": "Günlük Süre",
+  "Daily Break Duration": "Günlük Mola Süresi",
   "All Gameplay Time": "Oyun Anlatımı Süreleri",
   "Auto Prepared": "Otomatik Hazırlandı",
   "Create Shopify Product": "Shopify Ürünü Oluştur",
@@ -2143,6 +2144,8 @@
   "Unplanned days": "Plansız Gün",
   "Service staff days": "Servis Günü",
   "Middleman days": "Ortacı Günü",
+  "Days assigned as service staff": "Servis elemanı olarak atandığı günler",
+  "Days assigned as middleman": "Ortacı olarak atandığı günler",
   "Marked days": "İşaretli Gün",
   "Counted days": "Hesaplanan Gün",
   "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman, service staff and other marked days count only when included. Hover over a day count to see its dates. Colors compare with the group's average (15% and 30% above or below).": "Hesaplanan gün: tam gün 1, yarım gün 0,75 sayılır; vardiya planında olmayan günler tam gün sayılır. Ortacı, servis ve diğer işaretli günler sadece dahil edildiğinde sayılır. Gün sayısının üzerine gelince hangi günler olduğu görünür. Renkler grubun ortalamasına göre (%15 ve %30 üstü/altı)."
