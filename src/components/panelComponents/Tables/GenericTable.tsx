@@ -762,7 +762,7 @@ const GenericTable = <T,>({
                   style={stickyCellStyle}
                   className={`${
                     keyIndex === 0 ? "pl-3" : ""
-                  } py-3 min-w-20 ${stickyCellClassName} ${
+                  } py-3 min-w-24 ${stickyCellClassName} ${
                     rowKey?.className
                   } ${columnClassName}`}
                 >
@@ -832,24 +832,32 @@ const GenericTable = <T,>({
                 style={stickyCellStyle}
                 className={`${
                   keyIndex === 0 ? "pl-3" : ""
-                } py-3 ${stickyCellClassName} ${rowKey?.className} ${columnClassName} ${
+                } py-3 ${stickyCellClassName} ${
+                  rowKey?.className
+                } ${columnClassName} ${
                   cellValue.length > tooltipLimit && clickableCell
                     ? "max-w-xs"
                     : "min-w-20 md:min-w-0"
                 } `}
               >
                 {rowKey.isImage ? (
-                  <img
-                    src={(row[rowKey.key as keyof T] as string) || imageHolder}
-                    alt="img"
-                    className="w-12 h-12 rounded-full cursor-pointer min-w-12"
-                    onClick={() => {
-                      setImageModalSrc(
-                        (row[rowKey.key as keyof T] as string) ?? imageHolder
-                      );
-                      setIsImageModalOpen(true);
-                    }}
-                  />
+                  <div
+                    className={`flex items-center justify-center ${rowKey?.className} `}
+                  >
+                    <img
+                      src={
+                        (row[rowKey.key as keyof T] as string) || imageHolder
+                      }
+                      alt="img"
+                      className="w-12 h-12 rounded-full cursor-pointer min-w-12"
+                      onClick={() => {
+                        setImageModalSrc(
+                          (row[rowKey.key as keyof T] as string) ?? imageHolder
+                        );
+                        setIsImageModalOpen(true);
+                      }}
+                    />
+                  </div>
                 ) : cellValue.length > tooltipLimit && clickableCell ? (
                   <div
                     className="cursor-pointer hover:text-blue-500 transition-colors"
@@ -1346,7 +1354,9 @@ const GenericTable = <T,>({
                                   (!outsideSortProps ||
                                     !column?.correspondingKey) &&
                                   (sortConfig?.key ===
-                                    usedRowKeys[isActionsAtFront ? index - 1 : index]?.key &&
+                                    usedRowKeys[
+                                      isActionsAtFront ? index - 1 : index
+                                    ]?.key &&
                                   sortConfig?.direction === "ascending" ? (
                                     <GenericButton
                                       variant="icon"
@@ -1354,10 +1364,9 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
-                                            keyof T,
-                                            string
-                                          >,
+                                          usedRowKeys[
+                                            isActionsAtFront ? index - 1 : index
+                                          ].key as Extract<keyof T, string>,
                                           "descending"
                                         )
                                       }
@@ -1371,10 +1380,9 @@ const GenericTable = <T,>({
                                       className="p-0"
                                       onClick={() =>
                                         sortRows(
-                                          usedRowKeys[isActionsAtFront ? index - 1 : index].key as Extract<
-                                            keyof T,
-                                            string
-                                          >,
+                                          usedRowKeys[
+                                            isActionsAtFront ? index - 1 : index
+                                          ].key as Extract<keyof T, string>,
                                           "ascending"
                                         )
                                       }
