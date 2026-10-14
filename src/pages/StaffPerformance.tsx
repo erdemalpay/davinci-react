@@ -2,10 +2,11 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { DatePresetSelect } from "../components/common/DatePresetSelect";
 import { QuickDateRangeFilter } from "../components/common/QuickDateRangeFilter";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
-import { DateRangeKey, RoleEnum, User, commonDateOptions } from "../types";
+import { RoleEnum, User } from "../types";
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetUserShifts } from "../utils/api/shift";
@@ -83,17 +84,6 @@ const toneClasses: Record<PerformanceTone, string> = {
   worst: "bg-red-500 text-white",
 };
 
-// Ranges looking back; future ones say nothing about performance.
-const DATE_OPTIONS = commonDateOptions.filter(
-  (option) =>
-    ![
-      "nextWeek",
-      "nextMonth",
-      "fromTodayToEndOfNextMonth",
-      "customDate",
-    ].includes(option.value)
-);
-
 const formatNumber = (value: number) =>
   value.toLocaleString("tr-TR", {
     minimumFractionDigits: 1,
@@ -115,7 +105,6 @@ export default function StaffPerformance() {
   const locations = useGetStoreLocations();
   // date: the chosen preset, empty for a range picked by hand.
   const [range, setRange] = useState(() => dateRanges.thisMonth());
-  const [location, setLocation] = useState<number | undefined>();
   const [dayFilters, setDayFilters] = useState<DayFilters>({
     includeMiddlemanDays: false,
     includeServiceStaffDays: false,
@@ -124,11 +113,7 @@ export default function StaffPerformance() {
 
   const visits = useGetFilteredVisits(range.after, range.before);
   const shifts = useGetUserShifts(range.after, range.before);
-  const dailyCounts = useGetStaffDailyCounts(
-    range.after,
-    range.before,
-    location
-  );
+  const dailyCounts = useGetStaffDailyCounts(range.after, range.before);
 
   const average = (field: StaffCountField) => (row: PerformanceRow) =>
     row.averages[field];
@@ -272,7 +257,6 @@ export default function StaffPerformance() {
               visits,
               shifts,
               locations,
-              location,
             }).filter(isEligible);
             const performance = getStaffPerformance(
               days,
@@ -299,22 +283,6 @@ export default function StaffPerformance() {
         <div className="flex flex-wrap items-center gap-4 justify-between">
           <h1 className="text-xl font-semibold">{t("Staff Performance")}</h1>
           <div className="flex flex-wrap items-center gap-4">
-            <select
-              className="border rounded px-2 py-1 text-sm"
-              value={location ?? ""}
-              onChange={(event) =>
-                setLocation(
-                  event.target.value ? Number(event.target.value) : undefined
-                )
-              }
-            >
-              <option value="">{t("All Locations")}</option>
-              {locations.map((loc) => (
-                <option key={loc._id} value={loc._id}>
-                  {loc.name}
-                </option>
-              ))}
-            </select>
             <label className="flex items-center gap-2 text-sm">
               <SwitchButton
                 checked={dayFilters.includeMiddlemanDays}
@@ -351,22 +319,7 @@ export default function StaffPerformance() {
               />
               {t("Include other marked days")}
             </label>
-            <select
-              className="border rounded px-2 py-1 text-sm"
-              value={range.date}
-              onChange={(event) => {
-                const dateRange =
-                  dateRanges[event.target.value as DateRangeKey];
-                if (dateRange) setRange(dateRange());
-              }}
-            >
-              {!range.date && <option value="">{t("Custom Date")}</option>}
-              {DATE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {t(option.label)}
-                </option>
-              ))}
-            </select>
+            <DatePresetSelect value={range.date} onChange={setRange} />
             <QuickDateRangeFilter
               startDate={range.after}
               endDate={range.before}
