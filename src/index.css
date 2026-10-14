@@ -454,3 +454,47 @@ body {
     "__Plus_Jakarta_Sans_Fallback_a182b8", Helvetica, Arial, sans-serif;
   font-style: normal;
 }
+
+/* The strip of a hidden busy state (break, taking a payment, ...): its
+   border's colors flow along it and it slowly fades in and out. */
+@keyframes busy-border-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes busy-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.busy-strip {
+  padding: 2px;
+  background: linear-gradient(
+    90deg,
+    #f97316,
+    #facc15,
+    #ef4444,
+    #f97316,
+    #facc15,
+    #ef4444,
+    #f97316
+  );
+  background-size: 200% 100%;
+  animation: busy-border-flow 4s linear infinite,
+    busy-blink 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .busy-strip {
+    animation: none;
+  }
+}

@@ -21,7 +21,8 @@ export const BreakOverlay = () => {
   const [currentBreak, setCurrentBreak] = useState<Break | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const { isModalHidden, handleHideModal, handleShowModal } =
-    useTemporarilyHiddenModal(!!currentBreak);
+    // Hidden, it stays a strip at the top until clicked.
+    useTemporarilyHiddenModal(!!currentBreak, false);
 
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeBreaks = useGetBreaksByDate(todayDate);
@@ -98,16 +99,18 @@ export const BreakOverlay = () => {
         onClick={handleShowModal}
         className="fixed top-16 left-0 right-0 z-40 cursor-pointer"
       >
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 animate-pulse shadow-sm">
-          <div className="px-4 py-1">
-            <div className="flex items-center justify-center gap-2">
-              <MdCoffee className="text-white text-sm" />
-              <span className="text-white text-sm font-medium">
-                {stateTitle} - {getBreakDuration()} {t("minutes")}
-              </span>
-              <span className="text-white/70 text-xs">
-                ({t("Click to open")})
-              </span>
+        <div className="busy-strip shadow-sm">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500">
+            <div className="px-4 py-1">
+              <div className="flex items-center justify-center gap-2">
+                <MdCoffee className="text-white text-sm" />
+                <span className="text-white text-sm font-medium">
+                  {stateTitle} - {getBreakDuration()} {t("minutes")}
+                </span>
+                <span className="text-white/70 text-xs">
+                  ({t("Click to open")})
+                </span>
+              </div>
             </div>
           </div>
         </div>
