@@ -39,6 +39,7 @@ import {
   useReopenTableMutation,
 } from "../../../utils/api/table";
 import { MinimalUser, useGetUser } from "../../../utils/api/user";
+import { getActiveUserIds } from "../../../utils/activeUsers";
 import {
   lockBodyScroll,
   unlockBodyScroll,
@@ -116,11 +117,11 @@ const OrderPaymentModal = ({
     };
   }, []);
 
-  const activeUsers = visits
-    ?.filter(
-      (visit) => !visit?.finishHour && visit.location === selectedLocationId
-    )
-    .map((visit) => visit.user);
+  const activeUsers = getActiveUserIds(
+    visits,
+    users,
+    selectedLocationId
+  );
   const {
     isCollectionModalOpen,
     setIsCollectionModalOpen,

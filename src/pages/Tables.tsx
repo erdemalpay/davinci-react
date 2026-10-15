@@ -1226,6 +1226,19 @@ const Tables = () => {
         );
       };
 
+      users.forEach((listedUser) => {
+        const user = listedUser as User;
+        if (
+          user.isVisitDisabled &&
+          !newMentors.includes(user) &&
+          !isUserOnBreak(user._id) &&
+          !isUserInGameplayTime(user._id) &&
+          !isUserMiddleman(user._id)
+        ) {
+          newMentors.push(user);
+        }
+      });
+
       visits.forEach((visit) => {
         const user = getItem(visit.user, users) as User;
         if (user && !visit?.finishHour && !newMentors.includes(user)) {

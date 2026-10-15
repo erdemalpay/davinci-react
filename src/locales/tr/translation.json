@@ -622,6 +622,8 @@
   "Shift Change Approved": "Vardiya Değişimi Onaylandı",
   "Shift Change Rejected": "Vardiya Değişimi Reddedildi",
   "Visit": "Giriş Çıkış",
+  "Visit Disabled": "Giriş Çıkış Devre Dışı",
+  "Show Visit Disabled": "Giriş Çıkış Devre Dışı Sütununu Göster",
   "Create Table": "Masa Oluştur",
   "Update Table": "Masa Güncelle",
   "Closed Table": "Masa Kapatıldı",
