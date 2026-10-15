@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
 import { beforeEach, describe, expect, it } from "vitest";
+import { shouldEnableQuery } from "./auth";
 import { clearAuthToken, getAuthToken, setAuthToken } from "./authToken";
 
 describe("auth token", () => {
@@ -27,5 +28,12 @@ describe("auth token", () => {
     clearAuthToken();
 
     expect(getAuthToken()).toBeUndefined();
+  });
+
+  it("keeps queries enabled when only the cookie is left", () => {
+    setAuthToken("token-1");
+    localStorage.clear();
+
+    expect(shouldEnableQuery()).toBe(true);
   });
 });

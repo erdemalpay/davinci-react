@@ -7,7 +7,7 @@ export const ACCESS_TOKEN = "jwt";
 // background (often on older phones), logging people out mid-shift while
 // localStorage still had a valid token. The cookie is still written, as a
 // fallback, with the token's own lifetime.
-const COOKIE_DAYS = 365;
+const COOKIE_DAYS = 30;
 
 export function getAuthToken(): string | undefined {
   try {
