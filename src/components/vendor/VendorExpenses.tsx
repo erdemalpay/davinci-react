@@ -5,6 +5,7 @@ import {
   ExpenseTypes,
   FormElementsState,
   commonDateOptions,
+  DateRangeKey,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -16,6 +17,7 @@ import {
 } from "../../utils/panelInputs";
 import GenericExpenses from "../expense/GenericExpenses";
 import { InputTypes } from "../panelComponents/shared/types";
+import { dateRanges } from "../../utils/api/dateRanges";
 
 const VendorExpenses = () => {
   const { t } = useTranslation();
@@ -59,6 +61,15 @@ const VendorExpenses = () => {
         })),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements((prev: FormElementsState) => ({
+              ...prev,
+              ...dateRange(),
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,

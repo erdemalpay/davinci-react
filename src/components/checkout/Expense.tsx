@@ -13,6 +13,8 @@ import {
   DisabledConditionEnum,
   ExpenseTypes,
   commonDateOptions,
+  FormElementsState,
+  DateRangeKey,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import {
@@ -46,6 +48,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { dateRanges } from "../../utils/api/dateRanges";
 
 const Expenses = () => {
   const { t } = useTranslation();
@@ -176,6 +179,15 @@ const Expenses = () => {
         }),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterCheckoutPanelFormElements((prev: FormElementsState) => ({
+              ...prev,
+              ...dateRange(),
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,
