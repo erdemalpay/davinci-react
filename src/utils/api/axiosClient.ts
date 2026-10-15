@@ -6,8 +6,6 @@ export const axiosClient = axios.create({
   responseType: "json",
 });
 
-export { ACCESS_TOKEN } from "../authToken";
-
 axiosClient.interceptors.request.use(
   async (req) => {
     const accessToken = getAuthToken();
