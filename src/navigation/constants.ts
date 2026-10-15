@@ -65,6 +65,11 @@ const CallSummary = lazyWithReload(() => import("../pages/CallSummary"));
 const CallAssignmentLog = lazyWithReload(
   () => import("../pages/CallAssignmentLog")
 );
+const PersonTimeline = lazyWithReload(
+  () => import("../pages/PersonTimeline")
+);
+const TableTimeline = lazyWithReload(() => import("../pages/TableTimeline"));
+const DayLoad = lazyWithReload(() => import("../pages/DayLoad"));
 const StaffStateSummary = lazyWithReload(
   () => import("../pages/StaffStateSummary")
 );
@@ -200,6 +205,9 @@ export enum Routes {
   CallSummary = "/call-summary",
   StaffPerformance = "/staff-performance",
   StaffStateSummary = "/staff-state-summary",
+  PersonTimeline = "/person-timeline",
+  TableTimeline = "/table-timeline",
+  DayLoad = "/day-load",
   Notifications = "/notifications",
   Expirations = "/expirations",
   ExpirationList = "/expiration-list/:expirationListId",
@@ -516,6 +524,24 @@ export const allRoutes: {
     name: "Staff State Summary",
     path: Routes.StaffStateSummary,
     element: StaffStateSummary,
+    isOnSidebar: true,
+  },
+  {
+    name: "Person Timeline",
+    path: Routes.PersonTimeline,
+    element: PersonTimeline,
+    isOnSidebar: true,
+  },
+  {
+    name: "Table Timeline",
+    path: Routes.TableTimeline,
+    element: TableTimeline,
+    isOnSidebar: true,
+  },
+  {
+    name: "Day Load",
+    path: Routes.DayLoad,
+    element: DayLoad,
     isOnSidebar: true,
   },
   {
