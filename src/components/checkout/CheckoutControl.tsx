@@ -11,6 +11,8 @@ import {
   CheckoutControl,
   DisabledConditionEnum,
   commonDateOptions,
+  FormElementsState,
+  DateRangeKey,
 } from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
 import { useGetQueryPayments } from "../../utils/api/account/payment";
@@ -33,6 +35,7 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { dateRanges } from "../../utils/api/dateRanges";
 
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
@@ -270,6 +273,15 @@ const CheckoutControlPage = () => {
       }),
       placeholder: t("Date"),
       required: true,
+      additionalOnChange: ({ value }: { value: string }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterCheckoutPanelFormElements((prev: FormElementsState) => ({
+            ...prev,
+            ...dateRange(),
+          }));
+        }
+      },
       isOnClearActive: false,
     },
     {

@@ -4,12 +4,14 @@ import {
   ExpenseTypes,
   FormElementsState,
   commonDateOptions,
+  DateRangeKey,
 } from "../../types";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { StockLocationInput, VendorInput } from "../../utils/panelInputs";
 import GenericExpenses from "../expense/GenericExpenses";
 import { InputTypes } from "../panelComponents/shared/types";
+import { dateRanges } from "../../utils/api/dateRanges";
 type Props = {
   selectedService: { _id: string } | null;
 };
@@ -48,6 +50,15 @@ const ServiceExpenses = ({ selectedService }: Props) => {
         })),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements((prev: FormElementsState) => ({
+              ...prev,
+              ...dateRange(),
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,
