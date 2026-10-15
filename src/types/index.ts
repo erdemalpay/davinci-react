@@ -1784,6 +1784,7 @@ export enum StocksPageTabEnum {
 export enum InventoryPageTabEnum {
   INVENTORY,
   HISTORY,
+  BULK_COUNT,
 }
 
 export enum LogsPageTabEnum {

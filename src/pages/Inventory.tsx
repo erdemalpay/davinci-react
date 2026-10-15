@@ -1,6 +1,7 @@
 import { BsClockHistory } from "react-icons/bs";
-import { TbPackages } from "react-icons/tb";
+import { TbListCheck, TbPackages } from "react-icons/tb";
 import { Header } from "../components/header/Header";
+import BulkCount from "../components/inventory/BulkCount";
 import InventoryBoxes from "../components/inventory/InventoryBoxes";
 import InventoryMovements from "../components/inventory/InventoryMovements";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -22,6 +23,13 @@ export const InventoryPageTabs = [
     label: "Inventory History",
     icon: <BsClockHistory className="text-lg font-thin" />,
     content: <InventoryMovements />,
+    isDisabled: false,
+  },
+  {
+    number: InventoryPageTabEnum.BULK_COUNT,
+    label: "Bulk Count",
+    icon: <TbListCheck className="text-lg font-thin" />,
+    content: <BulkCount />,
     isDisabled: false,
   },
 ];
