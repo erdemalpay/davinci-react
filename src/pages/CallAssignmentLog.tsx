@@ -10,6 +10,7 @@ import {
   AssignmentEvent,
   ButtonCallTypeEnum,
   commonDateOptions,
+  DateRangeKey,
   FormElementsState,
 } from "../types";
 import {
@@ -171,6 +172,15 @@ export default function CallAssignmentLog() {
         })),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements((prev: FormElementsState) => ({
+              ...prev,
+              ...dateRange(),
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,

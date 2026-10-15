@@ -7,6 +7,7 @@ import { InputTypes } from "../components/panelComponents/shared/types";
 import { useDataContext } from "../context/Data.context";
 import {
   commonDateOptions,
+  DateRangeKey,
   FormElementsState,
   GameAvailabilityStatus,
   UnmetExplanationRequest,
@@ -160,6 +161,15 @@ export default function UnmetExplanationRequests() {
         })),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements((prev: FormElementsState) => ({
+              ...prev,
+              ...dateRange(),
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,
