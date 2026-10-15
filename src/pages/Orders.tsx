@@ -28,6 +28,7 @@ import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { MinimalUser } from "../utils/api/user";
+import { getActiveUserIds } from "../utils/activeUsers";
 import { formatDate, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
@@ -86,11 +87,12 @@ function Orders() {
     useState<MinimalUser | null>(null);
   const currentActionUser = selectedActionUser || user;
   const actionUserOptions = useMemo(() => {
-    const activeVisitUsers = (visits ?? [])
-      .filter(
-        (visit) => !visit?.finishHour && visit.location === selectedLocationId
-      )
-      .map((visit) => getItem(visit.user, users))
+    const activeVisitUsers = getActiveUserIds(
+      visits,
+      users,
+      selectedLocationId
+    )
+      .map((userId) => getItem(userId, users))
       .filter((u): u is MinimalUser => u !== undefined);
     return user
       ? [user, ...activeVisitUsers.filter((u) => u._id !== user._id)]

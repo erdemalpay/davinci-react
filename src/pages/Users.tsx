@@ -47,6 +47,7 @@ interface TableUser {
   imageUrl: string;
   workType: WorkType;
   cafeId?: string;
+  isVisitDisabled?: boolean;
   userGames: [
     {
       game: number;
@@ -70,6 +71,8 @@ export default function Users() {
     setResetedUserInfo({ username, password: tempPassword });
   });
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
+  const [showVisitDisabledColumn, setShowVisitDisabledColumn] =
+    useState(false);
   const { updateUser } = useUserMutations();
   const [createdUserInfo, setCreatedUserInfo] = useState<{
     username: string;
@@ -169,9 +172,12 @@ export default function Users() {
       { key: t("Display Name"), isSortable: true },
       { key: t("Full Name"), isSortable: true },
       { key: t("Role"), isSortable: true },
+      ...(showVisitDisabledColumn
+        ? [{ key: t("Visit Disabled"), isSortable: true }]
+        : []),
       { key: t("Action"), isSortable: false },
     ],
-    [t]
+    [t, showVisitDisabledColumn]
   );
 
   const rowKeys = useMemo(
@@ -199,8 +205,41 @@ export default function Users() {
         isOptional: true,
         options: roleOptions,
       },
+      ...(showVisitDisabledColumn
+        ? [
+            {
+              key: "isVisitDisabled",
+              node: (row: TableUser) => (
+                <CheckSwitch
+                  checked={row.isVisitDisabled ?? false}
+                  disabled={isActionDisabled(
+                    usersPageDisabledCondition,
+                    ActionEnum.UPDATE,
+                    user
+                  )}
+                  onChange={() => {
+                    updateUser({
+                      id: row._id,
+                      updates: {
+                        isVisitDisabled: !row.isVisitDisabled,
+                      },
+                    });
+                  }}
+                />
+              ),
+            },
+          ]
+        : []),
     ],
-    [resetGeneralContext, navigate, roleOptions]
+    [
+      resetGeneralContext,
+      navigate,
+      roleOptions,
+      updateUser,
+      usersPageDisabledCondition,
+      user,
+      showVisitDisabledColumn,
+    ]
   );
 
   const actions = useMemo(
@@ -359,8 +398,24 @@ export default function Users() {
           />
         ),
       },
+      {
+        label: t("Show Visit Disabled"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={showVisitDisabledColumn}
+            onChange={setShowVisitDisabledColumn}
+          />
+        ),
+      },
     ],
-    [t, showInactiveUsers, usersPageDisabledCondition, user]
+    [
+      t,
+      showInactiveUsers,
+      showVisitDisabledColumn,
+      usersPageDisabledCondition,
+      user,
+    ]
   );
 
   const roleNormalizedUsers = useMemo(() => {

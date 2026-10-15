@@ -21,8 +21,14 @@ export function ManagerCheckInDialog({
   onCancel,
 }: Props) {
   const { t } = useTranslation();
-  const [selectedUserId, setSelectedUserId] = useState(currentUserId);
-  const selectedUser = users.find((u) => u._id === selectedUserId);
+  const availableUsers = users.filter((user) => !user.isVisitDisabled);
+  const initialUserId = availableUsers.some(
+    (user) => user._id === currentUserId
+  )
+    ? currentUserId
+    : availableUsers[0]?._id ?? "";
+  const [selectedUserId, setSelectedUserId] = useState(initialUserId);
+  const selectedUser = availableUsers.find((u) => u._id === selectedUserId);
   const isCheckOut = isInCafe(selectedUserId);
 
   return (
@@ -42,7 +48,7 @@ export function ManagerCheckInDialog({
         </h3>
         <CommonSelectInput
           label={t("User")}
-          options={users
+          options={availableUsers
             .map((u) => ({ value: u._id, label: u.name }))
             .sort((a, b) => a.label.localeCompare(b.label))}
           value={

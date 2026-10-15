@@ -7,7 +7,10 @@ import { UserGameUpdateType } from "./../../types/index";
 import { Assignment } from "./assignment";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
-export type MinimalUser = Pick<User, "_id" | "name" | "role">;
+export type MinimalUser = Pick<
+  User,
+  "_id" | "name" | "role" | "isVisitDisabled"
+>;
 
 export interface CompleteGameLearningTaskDto {
   assignmentId: number;
