@@ -1,3 +1,4 @@
+import { subMonths } from "date-fns";
 import { useState } from "react";
 import { useGetReleaseNotes } from "../../utils/api/panelControl/releaseNote";
 import { useGetUser } from "../../utils/api/user";
@@ -13,10 +14,12 @@ export function OnboardingModalWrapper() {
 
   const seen = getSeenReleaseIds(user._id);
   const userStart = user.jobStartDate ? new Date(user.jobStartDate) : null;
+  const oneMonthAgo = subMonths(new Date(), 1);
   const unseenReleases = allReleases
     .filter((r) => {
       if (!r.isPublished) return false;
       if (seen.includes(r.releaseId)) return false;
+      if (r.date && new Date(r.date) < oneMonthAgo) return false;
       if (userStart && r.date) {
         return new Date(r.date) >= userStart;
       }
