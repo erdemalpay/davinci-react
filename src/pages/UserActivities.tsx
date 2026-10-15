@@ -8,11 +8,18 @@ import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useFilterContext } from "../context/Filter.context";
 import { useGeneralContext } from "../context/General.context";
-import { Activity, activityTypeDetails, commonDateOptions } from "../types";
+import {
+  Activity,
+  activityTypeDetails,
+  commonDateOptions,
+  FormElementsState,
+  DateRangeKey,
+} from "../types";
 import { useGetActivities } from "../utils/api/activity";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
+import { dateRanges } from "../utils/api/dateRanges";
 
 const USER_ACTIVITIES_ROWS_PER_PAGE_OPTIONS: number[] = [
   10, 20, 50, 100, 200, 1000, 2000, 5000,
@@ -185,6 +192,15 @@ const UserActivities = () => {
         })),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterActivityFormElements((prev: FormElementsState) => ({
+              ...prev,
+              ...dateRange(),
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,

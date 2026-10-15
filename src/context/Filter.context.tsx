@@ -1,5 +1,12 @@
 import { format, startOfMonth } from "date-fns";
-import { PropsWithChildren, createContext, useContext, useState } from "react";
+import {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useContext,
+  useState,
+} from "react";
 import {
   GAMEEXPENSETYPE,
   StockHistoryStatusEnum,
@@ -24,7 +31,7 @@ type FilterContextType = {
   setFilterFeedbackPanelFormElements: (state: FormElementsState) => void;
   initialFilterFeedbackPanelFormElements: FormElementsState;
   filterCheckoutPanelFormElements: FormElementsState;
-  setFilterCheckoutPanelFormElements: (state: FormElementsState) => void;
+  setFilterCheckoutPanelFormElements: Dispatch<SetStateAction<FormElementsState>>;
   showProductFilters: boolean;
   setShowProductFilters: (state: boolean) => void;
   showServiceFilters: boolean;
@@ -98,7 +105,7 @@ type FilterContextType = {
   filterActivityFormElements: FormElementsState;
   initialFilterActivityFormElements: FormElementsState;
   initialFilterExpensesPanelFormElements: FormElementsState;
-  setFilterActivityFormElements: (state: FormElementsState) => void;
+  setFilterActivityFormElements: Dispatch<SetStateAction<FormElementsState>>;
   isGameEnableEdit: boolean;
   setIsGameEnableEdit: (state: boolean) => void;
   showLearnedGamesFilters: boolean;

@@ -24,6 +24,7 @@ import {
   DisabledConditionEnum,
   buttonCallTypes,
   commonDateOptions,
+  DateRangeKey,
 } from "../types";
 import {
   useButtonCallMutations,
@@ -277,6 +278,15 @@ export default function ButtonCalls() {
         }),
         placeholder: t("Date"),
         required: true,
+        additionalOnChange: ({ value }: { value: string }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements((prev: FormElementsState) => ({
+              ...prev,
+              ...dateRange(),
+            }));
+          }
+        },
       },
       {
         type: InputTypes.DATE,
