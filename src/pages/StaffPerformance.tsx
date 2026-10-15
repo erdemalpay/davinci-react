@@ -1,13 +1,11 @@
 import { Tooltip } from "@material-tailwind/react";
-import { format } from "date-fns";
+import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
+import { tr } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DatePresetSelect } from "../components/common/DatePresetSelect";
-import { QuickDateRangeFilter } from "../components/common/QuickDateRangeFilter";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { RoleEnum, User } from "../types";
-import { dateRanges } from "../utils/api/dateRanges";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetUserShifts } from "../utils/api/shift";
 import { useGetStaffDailyCounts } from "../utils/api/staffPerformance";
@@ -84,6 +82,15 @@ const toneClasses: Record<PerformanceTone, string> = {
   worst: "bg-red-500 text-white",
 };
 
+// This month and the two years before it, newest first.
+const MONTH_OPTIONS = Array.from({ length: 25 }, (_, index) => {
+  const month = subMonths(startOfMonth(new Date()), index);
+  return {
+    value: format(month, "yyyy-MM"),
+    label: format(month, "LLLL yyyy", { locale: tr }),
+  };
+});
+
 const formatNumber = (value: number) =>
   value.toLocaleString("tr-TR", {
     minimumFractionDigits: 1,
@@ -103,8 +110,15 @@ export default function StaffPerformance() {
   const { t } = useTranslation();
   const users = useGetUsers();
   const locations = useGetStoreLocations();
-  // date: the chosen preset, empty for a range picked by hand.
-  const [range, setRange] = useState(() => dateRanges.thisMonth());
+  // One month at a time: "yyyy-MM".
+  const [month, setMonth] = useState(() => format(new Date(), "yyyy-MM"));
+  const range = useMemo(() => {
+    const first = new Date(`${month}-01T00:00:00`);
+    return {
+      after: format(startOfMonth(first), "yyyy-MM-dd"),
+      before: format(endOfMonth(first), "yyyy-MM-dd"),
+    };
+  }, [month]);
   const [dayFilters, setDayFilters] = useState<DayFilters>({
     includeMiddlemanDays: false,
     includeServiceStaffDays: false,
@@ -319,18 +333,17 @@ export default function StaffPerformance() {
               />
               {t("Include other marked days")}
             </label>
-            <DatePresetSelect value={range.date} onChange={setRange} />
-            <QuickDateRangeFilter
-              startDate={range.after}
-              endDate={range.before}
-              onChange={(after: string, before: string) => {
-                if (!after || !before) {
-                  setRange(dateRanges.thisMonth());
-                  return;
-                }
-                setRange({ after, before, date: "" });
-              }}
-            />
+            <select
+              className="border rounded px-2 py-1 text-sm"
+              value={month}
+              onChange={(event) => setMonth(event.target.value)}
+            >
+              {MONTH_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         {groups.map((group) => (

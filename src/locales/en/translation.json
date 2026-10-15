@@ -1424,6 +1424,7 @@
   "Nov": "Nov",
   "Dec": "Dec",
   "Daily Duration": "Daily Duration",
+  "Daily Break Duration": "Daily Break Duration",
   "All Gameplay Time": "All Gameplay Time",
   "Auto Prepared": "Auto Prepared",
   "Create Shopify Product": "Create Shopify Product",
@@ -2135,6 +2136,8 @@
   "Unplanned days": "Unplanned days",
   "Service staff days": "Service staff days",
   "Middleman days": "Middleman days",
+  "Days assigned as service staff": "Days assigned as service staff",
+  "Days assigned as middleman": "Days assigned as middleman",
   "Marked days": "Marked days",
   "Counted days": "Counted days",
   "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman, service staff and other marked days count only when included. Hover over a day count to see its dates. Colors compare with the group's average (15% and 30% above or below).": "Counted days: a full day counts as 1, a part-time day as 0.75; days missing from the shift plan count as full days. Middleman, service staff and other marked days count only when included. Hover over a day count to see its dates. Colors compare with the group's average (15% and 30% above or below)."
