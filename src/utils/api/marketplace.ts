@@ -53,9 +53,11 @@ export function useUpdateAllMarketplaceStocksMutation(
       setTimeout(
         () =>
           toast.success(
-            t(`${channel.label} stock: {{updated}} products sent`, {
-              updated: data?.updated ?? 0,
-            })
+            data?.updated
+              ? t(`${channel.label} stock: {{updated}} products sent`, {
+                  updated: data.updated,
+                })
+              : t(`${channel.label} stocks are already up to date`)
           ),
         200
       );
@@ -83,9 +85,11 @@ export function useUpdateAllMarketplacePricesMutation(
                   `${channel.label} price: {{updated}} products sent, {{missing}} without online price`,
                   { updated: data?.updated ?? 0, missing }
                 )
-              : t(`${channel.label} price: {{updated}} products sent`, {
-                  updated: data?.updated ?? 0,
+              : data?.updated
+              ? t(`${channel.label} price: {{updated}} products sent`, {
+                  updated: data.updated,
                 })
+              : t(`${channel.label} prices are already up to date`)
           ),
         200
       );
