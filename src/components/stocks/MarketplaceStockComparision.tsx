@@ -48,7 +48,7 @@ const MarketplaceStockComparision = ({
     return items
       ?.filter((item) => item[channel.menuItemField])
       ?.map((item) => item.matchedProduct);
-  }, [items]);
+  }, [items, channel]);
 
   const channelItemProducts = useMemo(() => {
     return products?.filter((product) =>
@@ -91,7 +91,7 @@ const MarketplaceStockComparision = ({
         };
         return getOrder(a) - getOrder(b);
       });
-  }, [channelItemProducts, stocks, marketplaceProducts, items]);
+  }, [channelItemProducts, stocks, marketplaceProducts, items, channel]);
 
   const columns = useMemo(
     () => [
@@ -100,7 +100,7 @@ const MarketplaceStockComparision = ({
       { key: t("Store Stock"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
-    [t]
+    [t, channel]
   );
 
   const rowKeys = useMemo(
@@ -139,7 +139,7 @@ const MarketplaceStockComparision = ({
         },
       },
     ],
-    [t, updateAccountStock, updateMarketplaceStock]
+    [t, channel, updateAccountStock, updateMarketplaceStock]
   );
 
   const filters = useMemo(
@@ -161,7 +161,7 @@ const MarketplaceStockComparision = ({
         ),
       },
     ],
-    [t, updateAllStocks, isUpdatingStocks]
+    [t, channel, updateAllStocks, isUpdatingStocks]
   );
 
   return (

@@ -777,7 +777,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "Shopify ID", isSortable: true },
       { key: t("Trendyol Barcode"), isSortable: false },
       { key: t("Hepsi Burada Sku"), isSortable: false },
-      { key: t("n11 Stock Code"), isSortable: false },
+      { key: t("n11 Barcode"), isSortable: false },
       { key: t("idefix Barcode"), isSortable: false },
       { key: t("Created At"), isSortable: true },
       ...(showMenuBarcodeInfo
@@ -934,7 +934,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       { key: "trendyolBarcode", className: "min-w-32 pr-1" },
       { key: "hepsiBuradaSku", className: "min-w-32 pr-1" },
-      { key: "n11StockCode", className: "min-w-32 pr-1" },
+      {
+        key: "n11StockCode",
+        className: "min-w-32 pr-1",
+        // n11 ürünü GTIN ile eşleşir; GTIN bizdeki barkoddur.
+        node: (row: MenuItem) => (row.n11StockCode ? row.barcode : ""),
+      },
       { key: "idefixBarcode", className: "min-w-32 pr-1" },
       {
         key: "createdAt",
