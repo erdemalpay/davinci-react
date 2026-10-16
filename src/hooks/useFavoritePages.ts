@@ -31,6 +31,7 @@ export function useFavoritePages(): {
   isUpdating: boolean;
   isFavorite: (path: string) => boolean;
   toggleFavorite: (path: string) => void;
+  reorderFavorites: (orderedPaths: string[]) => void;
 } {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -139,6 +140,16 @@ export function useFavoritePages(): {
       if (!user || isSavingRef.current) return;
       isSavingRef.current = true;
       updateMutation.mutate(toggleFavoritePage(favoritePaths, path));
+    },
+    // orderedPaths holds only the pages shown in the header; saved paths the
+    // user can't see right now (e.g. lost permission) are kept at the end.
+    reorderFavorites: (orderedPaths) => {
+      if (!user || isSavingRef.current) return;
+      isSavingRef.current = true;
+      updateMutation.mutate([
+        ...orderedPaths,
+        ...favoritePaths.filter((path) => !orderedPaths.includes(path)),
+      ]);
     },
   };
 }
