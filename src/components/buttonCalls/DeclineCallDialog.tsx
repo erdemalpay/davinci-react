@@ -10,7 +10,7 @@ type Props = {
   games: MinimalGame[];
   // "I don't know the game" only makes sense for game master calls.
   canNotKnowGame?: boolean;
-  // "The table was taken care of": closes the call.
+  // "I took care of the table": closes the call.
   onHandled: () => void;
   onDecline: (reason: DeclineReasonEnum, note?: string, game?: number) => void;
   onCancel: () => void;
@@ -94,7 +94,7 @@ export function DeclineCallDialog({
               onClick={onHandled}
               className={`${buttonClass} bg-green-600 text-white hover:bg-green-700`}
             >
-              {t("The table was taken care of")}
+              {t("I took care of the table")}
             </button>
             <button onClick={() => setStep("reasons")} className={optionClass}>
               {t("I can't take care of the table")}
