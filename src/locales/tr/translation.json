@@ -2289,5 +2289,6 @@
   "Orders being prepared": "Hazırlanan siparişler",
   "Orders sent and not yet prepared at each moment.": "Her an gönderilmiş ama henüz hazırlanmamış siparişler.",
   "h": "sa",
-  "min": "dk"
+  "min": "dk",
+  "Idle": "Boşta"
 }
