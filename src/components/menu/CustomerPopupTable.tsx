@@ -5,6 +5,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { CustomerPopup, CustomerPopupTriggerType } from "../../types";
+import { SCREEN_IMAGES_FOLDER, useGetScreenImages } from "../../utils/api/asset";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useCustomerPopupMutations,
@@ -38,6 +39,7 @@ const CustomerPopupTable = () => {
   const locations = useGetStoreLocations();
   const menuItems = useGetAllMenuItems();
   const popups = useGetCustomerPopups();
+  const screenImages = useGetScreenImages(true);
   const { createCustomerPopup, updateCustomerPopup, deleteCustomerPopup } =
     useCustomerPopupMutations();
 
@@ -79,6 +81,19 @@ const CustomerPopupTable = () => {
       label: t("Image"),
       required: false,
       folderName: "customer-popup",
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "tvImagePublicId",
+      label: t("TV Image"),
+      options:
+        screenImages?.map(({ publicId }) => ({
+          value: publicId,
+          label: publicId.replace(`${SCREEN_IMAGES_FOLDER}/`, ""),
+        })) ?? [],
+      placeholder: t("TV Image"),
+      helperText: t("PopupTvImageHelp"),
+      required: false,
     },
     {
       type: InputTypes.TEXT,
@@ -194,6 +209,7 @@ const CustomerPopupTable = () => {
     { key: "title", type: FormKeyTypeEnum.STRING },
     { key: "content", type: FormKeyTypeEnum.STRING },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+    { key: "tvImagePublicId", type: FormKeyTypeEnum.STRING },
     { key: "buttonText", type: FormKeyTypeEnum.STRING },
     { key: "buttonUrl", type: FormKeyTypeEnum.STRING },
     { key: "triggerType", type: FormKeyTypeEnum.STRING },

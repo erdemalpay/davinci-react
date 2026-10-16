@@ -3167,6 +3167,7 @@ export type CustomerPopup = {
   imageUrl?: string;
   buttonText?: string;
   buttonUrl?: string;
+  tvImagePublicId?: string;
   isActive: boolean;
   triggerType: CustomerPopupTriggerType;
   periodicDays: number[];
