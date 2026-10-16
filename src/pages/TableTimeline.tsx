@@ -8,6 +8,7 @@ import { DayPicker } from "../components/timeline/DayPicker";
 import { StatCard } from "../components/timeline/StatCard";
 import { TimelineChart } from "../components/timeline/TimelineChart";
 import {
+  defaultLocationId,
   durationBetween,
   formatDuration,
   formatMoney,
@@ -41,7 +42,7 @@ export default function TableTimeline() {
   const location =
     Number(params.get("location")) ||
     timeline?.table.location ||
-    locations[0]?._id ||
+    defaultLocationId(locations) ||
     0;
   const tables =
     useGet<Table[]>(
