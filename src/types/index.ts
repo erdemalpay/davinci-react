@@ -261,6 +261,7 @@ export type User = {
   ];
   settings?: {
     orderCategoryOn?: boolean;
+    favoritePages?: string[];
     // Managers: the day ("yyyy-MM-dd") they asked to get game master calls.
     includeInGameAssignmentsDate?: string;
   };
@@ -335,7 +336,7 @@ export type AccountCountProduct = {
   productDeleteRequest?: string;
   reservedQuantity?: number;
   reservedDetails?: {
-    channel: "shopify" | "trendyol" | "hepsiburada";
+    channel: "shopify" | "trendyol" | "hepsiburada" | "n11" | "idefix";
     orderNumber: string;
     quantity: number;
   }[];
@@ -493,6 +494,7 @@ export type AccountProductStockHistory = {
   status: string;
   user: string;
   createdAt: Date;
+  hasInventory?: boolean;
 };
 
 export enum VisitSource {
@@ -787,6 +789,8 @@ export enum DisabledConditionEnum {
   ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
   ORDERDATAS_TRENDYOLORDERS = "trendyolorders",
   ORDERDATAS_HEPSIBURADAORDERS = "hepsiburadaorders",
+  ORDERDATAS_N11ORDERS = "n11orders",
+  ORDERDATAS_IDEFIXORDERS = "idefixorders",
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
   ORDERDATAS_IKASORDERS = "ikasorders", //bunu silince build hatası alıyoruz
@@ -822,6 +826,8 @@ export enum DisabledConditionEnum {
   ACCOUNTING_UPPERCATEGORIES = "uppercategories",
   ACCOUNTING_ORDERNOTES = "ordernotes",
   ACCOUNTING_ACTIONS = "actions",
+  ACCOUNTING_INVENTORYLOCATIONS = "inventorylocations",
+  INVENTORY_INVENTORY = "inventory",
   MENU = "menu",
   MENU_CATEGORIES = "menu_categories",
   ITEMPAGE = "itempage",
@@ -991,6 +997,8 @@ export const DAVINCI_GAME_CATEGORY_FILTER_VALUE = "davinci-games";
 export type MenuItem = {
   trendyolBarcode: unknown;
   hepsiBuradaSku?: unknown;
+  n11StockCode?: string;
+  idefixBarcode?: string;
   _id: number;
   name: string;
   description: string;
@@ -1745,6 +1753,7 @@ export enum AccountingPageTabEnum {
   ORDERNOTES,
   ROLES,
   ACTIONS,
+  INVENTORYLOCATIONS,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,
@@ -1770,6 +1779,11 @@ export enum StocksPageTabEnum {
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
   GAMEBATCHESFIFO,
+}
+
+export enum InventoryPageTabEnum {
+  INVENTORY,
+  HISTORY,
 }
 
 export enum LogsPageTabEnum {
@@ -1821,6 +1835,10 @@ export enum IntegrationPageTabEnum {
   HEPSIBURADAPRICECOMPARISION,
   HEPSIBURADASTOCKCOMPARISION,
   GLOBALPRICECOMPARISION,
+  N11STOCKCOMPARISION,
+  N11PRICECOMPARISION,
+  IDEFIXSTOCKCOMPARISION,
+  IDEFIXPRICECOMPARISION,
 }
 
 export enum MailPageTabEnum {
@@ -1969,6 +1987,8 @@ export enum OrderDataTabEnum {
   HEPSIBURADAORDERS,
   PERSONALORDERDATAS,
   DAVINCIGAMESALESREPORT,
+  N11ORDERS,
+  IDEFIXORDERS,
 }
 export enum StockHistoryStatusEnum {
   EXPENSEENTRY = "EXPENSEENTRY",
@@ -2001,6 +2021,10 @@ export enum StockHistoryStatusEnum {
   CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
   HEPSIBURADAORDERCREATE = "HEPSIBURADAORDERCREATE",
   HEPSIBURADAORDERCANCEL = "HEPSIBURADAORDERCANCEL",
+  N11ORDERCREATE = "N11ORDERCREATE",
+  N11ORDERCANCEL = "N11ORDERCANCEL",
+  IDEFIXORDERCREATE = "IDEFIXORDERCREATE",
+  IDEFIXORDERCANCEL = "IDEFIXORDERCANCEL",
 }
 
 export const stockHistoryStatuses = [
@@ -2153,6 +2177,26 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.HEPSIBURADAORDERCANCEL,
     label: "Hepsiburada Order Cancel",
     backgroundColor: "bg-orange-900",
+  },
+  {
+    value: StockHistoryStatusEnum.N11ORDERCREATE,
+    label: "n11 Order Create",
+    backgroundColor: "bg-purple-600",
+  },
+  {
+    value: StockHistoryStatusEnum.N11ORDERCANCEL,
+    label: "n11 Order Cancel",
+    backgroundColor: "bg-purple-900",
+  },
+  {
+    value: StockHistoryStatusEnum.IDEFIXORDERCREATE,
+    label: "idefix Order Create",
+    backgroundColor: "bg-sky-600",
+  },
+  {
+    value: StockHistoryStatusEnum.IDEFIXORDERCANCEL,
+    label: "idefix Order Cancel",
+    backgroundColor: "bg-sky-900",
   },
 ];
 
@@ -3123,6 +3167,7 @@ export type CustomerPopup = {
   imageUrl?: string;
   buttonText?: string;
   buttonUrl?: string;
+  tvImagePublicId?: string;
   isActive: boolean;
   triggerType: CustomerPopupTriggerType;
   periodicDays: number[];
@@ -3136,3 +3181,43 @@ export type CustomerPopup = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+export type InventoryLocation = {
+  _id: number;
+  name: string;
+  backgroundColor?: string;
+  note?: string;
+  active: boolean;
+};
+
+export type InventoryBox = {
+  _id: string;
+  game: number;
+  location: number;
+  source: "CONSUMPTION" | "MANUAL";
+  stockHistory?: number;
+  active: boolean;
+  createdAt: string;
+};
+
+export type InventoryMovementType = "CREATE" | "MOVE" | "DEACTIVATE" | "CANCEL";
+
+export type InventoryMovement = {
+  _id: number;
+  box: string;
+  game?: number;
+  type: InventoryMovementType;
+  fromLocation?: number;
+  toLocation?: number;
+  note?: string;
+  user: string;
+  createdAt: string;
+};
+
+export type InventoryGame = {
+  _id: number;
+  name: string;
+  shortCode?: string;
+};
+
+export type InventoryLinkableGame = InventoryGame & { product: string };

@@ -81,6 +81,8 @@ const TrendyolStockComparision = () => {
           menuPrice: foundMenuItem?.onlinePrice ?? 0,
         };
       })
+      // Trendyol'a yüklenmemiş ürünleri gösterme (menüde barkodu olsa bile).
+      .filter((row) => row.barcode)
       .sort((a, b) => {
         const getOrder = (row: TrendyolStockRow) => {
           if (row.trendyolStock > row.storeStock) return 0;

@@ -8,7 +8,7 @@ import logoImage from "../assets/login/logo.png";
 import { GenericButton } from "../components/common/GenericButton";
 import { RoleEnum } from "../types";
 import { LoginCredentials, useLogin } from "../utils/api/auth";
-import { ACCESS_TOKEN } from "../utils/api/axiosClient";
+import { getAuthToken } from "../utils/authToken";
 import { Paths } from "../utils/api/factory";
 import { getUserWithToken } from "../utils/api/user";
 interface FormElements extends HTMLFormControlsCollection {
@@ -56,7 +56,7 @@ const Login = () => {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        const token = localStorage.getItem(ACCESS_TOKEN);
+        const token = getAuthToken();
         if (token && localStorage.getItem("loggedIn")) {
           const loggedInUser = await getUserWithToken();
 

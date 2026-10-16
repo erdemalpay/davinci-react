@@ -61,6 +61,7 @@ export function ActiveVisitList({
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const isDisabledCondition = panelSettings?.isVisitEntryDisabled;
+  const isCurrentUserVisitDisabled = user?.isVisitDisabled === true;
 
   // Get active gameplay times and middleman sessions for today
   const todayDate = format(new Date(), "yyyy-MM-dd");
@@ -115,14 +116,14 @@ export function ActiveVisitList({
       return;
     }
     if (isManagerOrKasa) {
-      toggleVisitAsManager();
+      toggleVisitAsManager(userId);
       return;
     }
     setIsScannerOpen(true);
   }
 
   function handleCheckboxChange() {
-    if (isDisabledCondition) {
+    if (isDisabledCondition || isCurrentUserVisitDisabled) {
       return;
     }
     if (isManager) {
@@ -136,6 +137,9 @@ export function ActiveVisitList({
     setIsScannerOpen(true);
   }
   const isUserActive = (userId: string) => {
+    if (getItem(userId, users)?.isVisitDisabled) {
+      return true;
+    }
     return visits
       .filter((visit) => visit.user === userId)
       .some((visit) => !visit?.finishHour);
@@ -206,6 +210,20 @@ export function ActiveVisitList({
     { unique: [], seenUsers: {} }
   ).unique;
 
+  users.forEach((listedUser) => {
+    if (
+      listedUser.isVisitDisabled &&
+      !uniqueVisits.some((visit) => visit.user === listedUser._id)
+    ) {
+      uniqueVisits.push({
+        user: listedUser._id,
+        location: selectedLocationId,
+        date: todayDate,
+        startHour: "00:00",
+      } as Visit);
+    }
+  });
+
   const isCurrentUserCheckedIn = user?._id ? isUserActive(user._id) : false;
 
   const getVisitBadgePriority = (visit: Visit) => {
@@ -271,7 +289,7 @@ export function ActiveVisitList({
 
   return (
     <div className="flex flex-col w-full">
-      {!isDisabledCondition && (
+      {!isDisabledCondition && !isCurrentUserVisitDisabled && (
         <div className="flex flex-row w-full items-center gap-3">
           <Checkbox
             checked={isCurrentUserCheckedIn}
@@ -451,7 +469,8 @@ export function ActiveVisitList({
                   color="gray"
                   {...(!isDisabledCondition &&
                   isUserActive(visit.user) &&
-                  visit.user === user?._id
+                  !userOnVisit.isVisitDisabled &&
+                  (visit.user === user?._id || isManager)
                     ? { onClose: () => handleChipClose(visit.user) }
                     : {})}
                 />

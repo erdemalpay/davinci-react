@@ -12,6 +12,7 @@ import { DateInput } from "../components/common/DateInput2";
 import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
+import { ConsumptionPanel } from "../components/inventory/ConsumptionPanel";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -1225,6 +1226,19 @@ const Tables = () => {
         );
       };
 
+      users.forEach((listedUser) => {
+        const user = listedUser as User;
+        if (
+          user.isVisitDisabled &&
+          !newMentors.includes(user) &&
+          !isUserOnBreak(user._id) &&
+          !isUserInGameplayTime(user._id) &&
+          !isUserMiddleman(user._id)
+        ) {
+          newMentors.push(user);
+        }
+      });
+
       visits.forEach((visit) => {
         const user = getItem(visit.user, users) as User;
         if (user && !visit?.finishHour && !newMentors.includes(user)) {
@@ -2293,7 +2307,7 @@ const Tables = () => {
         />
       )}
       {isConsumptModalOpen && (
-        <GenericAddEditPanel
+        <ConsumptionPanel
           close={() => {
             setIsConsumptModalOpen(false);
             setIsTabInputScreenOpen(false);
@@ -2304,7 +2318,7 @@ const Tables = () => {
           }}
           isOpen={isConsumptModalOpen}
           formKeys={consumptFormKeys}
-          submitItem={consumptStock as any}
+          submit={consumptStock}
           buttonName={t("Submit")}
           generalClassName="  shadow-none overflow-scroll  no-scrollbar sm:h-[60%] sm:min-w-[60%]  "
           topClassName="flex flex-col gap-2  "

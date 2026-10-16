@@ -8,6 +8,7 @@ import { useUserContext } from "../context/User.context";
 import { BreakTypeEnum, breakTypeOf, Shift } from "../types";
 import { useGetBreaksByLocation } from "../utils/api/break";
 import { useGetShifts } from "../utils/api/shift";
+import { getActiveUserIds } from "../utils/activeUsers";
 import { getItem, getRefId } from "../utils/getItem";
 
 // Whether the current user going on a break needs a confirmation (see
@@ -54,16 +55,11 @@ export function useBreakWarning() {
   const staffInCafeCount = useMemo(
     () =>
       new Set(
-        visits
-          .filter(
-            (visit) =>
-              !visit.finishHour &&
-              visit.location === selectedLocationId &&
-              !outsideOperation.has(visit.user)
-          )
-          .map((visit) => visit.user)
+        getActiveUserIds(visits, users, selectedLocationId).filter(
+          (userId) => !outsideOperation.has(userId)
+        )
       ).size,
-    [visits, selectedLocationId, outsideOperation]
+    [visits, users, selectedLocationId, outsideOperation]
   );
 
   const warning = getBreakWarning(othersOnBreak.length, staffInCafeCount);

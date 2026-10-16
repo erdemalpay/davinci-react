@@ -1,12 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { toast } from "react-toastify";
-import { postWithHeader, remove } from ".";
-import { Paths, useGetList } from "./factory";
+import { patch, postWithHeader, remove } from ".";
+import { getApiErrorMessage } from "../getApiErrorMessage";
+import { Paths, useGet, useGetList } from "./factory";
 
 export type FolderImages = {
   url: string;
   publicId: string;
+};
+
+export const SCREEN_IMAGES_FOLDER = "tv-screen";
+
+// duration is in seconds
+export type ScreenImage = FolderImages & {
+  duration: number;
 };
 
 export type UploadLog = {
@@ -36,6 +44,35 @@ export function useGetFolderImages(folderName: string) {
     [Paths.Asset, folderName],
     true
   );
+}
+
+export function useGetScreenImages(enabled: boolean) {
+  return useGet<ScreenImage[]>(
+    `${Paths.Asset}/screen-images`,
+    [Paths.Asset, "screen-images"],
+    true,
+    { enabled }
+  );
+}
+
+type ScreenImageSetting = Pick<ScreenImage, "publicId" | "duration">;
+
+export function useUpdateScreenImagesMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (images: ScreenImageSetting[]) =>
+      patch<{ images: ScreenImageSetting[] }, ScreenImage[]>({
+        path: `${Paths.Asset}/screen-images`,
+        payload: { images },
+      }),
+    // The response is the saved list, so no refetch is needed
+    onSuccess: (savedImages) => {
+      queryClient.setQueryData([Paths.Asset, "screen-images"], savedImages);
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "An unexpected error occurred"));
+    },
+  });
 }
 
 type UploadParams = {

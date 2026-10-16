@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { OnboardingModalWrapper } from "../components/onboarding/OnboardingModalWrapper";
 import { useUserContext } from "../context/User.context";
 import useAuth from "../hooks/useAuth";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { allRoutes, PublicRoutes } from "./constants";
 
@@ -14,6 +15,7 @@ export function PrivateRoutes() {
 
   // Only fetch pages when user is authenticated
   const pages = useGetPanelControlPages(!!user);
+  useGetDisabledConditions();
 
   const currentRoute = allRoutes
     .filter((route) => route.path)
