@@ -39,7 +39,7 @@ const MarketplacePriceComparision = ({
     return items
       ?.filter((item) => item[channel.menuItemField])
       ?.map((item) => item.matchedProduct);
-  }, [items]);
+  }, [items, channel]);
 
   const channelItemProducts = useMemo(() => {
     return products?.filter((product) =>
@@ -76,7 +76,7 @@ const MarketplacePriceComparision = ({
         };
         return getOrder(a) - getOrder(b);
       });
-  }, [channelItemProducts, items, marketplaceProducts]);
+  }, [channelItemProducts, items, marketplaceProducts, channel]);
 
   const columns = useMemo(
     () => [
@@ -86,7 +86,7 @@ const MarketplacePriceComparision = ({
       { key: t("Item Online Price"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ],
-    [t]
+    [t, channel]
   );
 
   const rowKeys = useMemo(
@@ -119,7 +119,7 @@ const MarketplacePriceComparision = ({
         },
       },
     ],
-    [t, updateMarketplacePrice]
+    [t, channel, updateMarketplacePrice]
   );
 
   const filters = useMemo(
@@ -136,7 +136,7 @@ const MarketplacePriceComparision = ({
         ),
       },
     ],
-    [t, updateAllPrices]
+    [t, channel, updateAllPrices]
   );
 
   return (
