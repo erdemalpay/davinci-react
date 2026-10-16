@@ -2281,5 +2281,6 @@
   "Orders being prepared": "Orders being prepared",
   "Orders sent and not yet prepared at each moment.": "Orders sent and not yet prepared at each moment.",
   "h": "h",
-  "min": "min"
+  "min": "min",
+  "Idle": "Idle"
 }

@@ -321,3 +321,9 @@ export const declineText = (
     lookups.t,
     lookups.games
   );
+
+// Neorama is where most of the day happens, so pages open on it.
+const DEFAULT_LOCATION_ID = 2;
+export const defaultLocationId = (locations: { _id: number }[]) =>
+  (locations.find((l) => l._id === DEFAULT_LOCATION_ID) ?? locations[0])?._id ??
+  0;
