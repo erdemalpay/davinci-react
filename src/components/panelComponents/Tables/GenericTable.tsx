@@ -174,6 +174,7 @@ const GenericTable = <T,>({
   const [showHeaderLeftButton, setShowHeaderLeftButton] = useState(false);
   const [showHeaderRightButton, setShowHeaderRightButton] = useState(false);
   const headerScrollRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending";
@@ -1053,6 +1054,7 @@ const GenericTable = <T,>({
             {isSearch && (
               <div className="relative w-fit">
                 <input
+                  ref={searchInputRef}
                   id="search"
                   type="text"
                   value={searchQuery}
@@ -1065,7 +1067,10 @@ const GenericTable = <T,>({
                 />
                 {searchQuery && (
                   <GenericButton
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => {
+                      setSearchQuery("");
+                      searchInputRef.current?.focus();
+                    }}
                     variant="clear"
                     aria-label="Clear search"
                   >
