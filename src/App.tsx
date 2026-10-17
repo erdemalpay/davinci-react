@@ -9,6 +9,7 @@ import { BreakOverlay } from "./components/common/BreakOverlay";
 import { GameplayTimeOverlay } from "./components/common/GameplayTimeOverlay";
 import { LogoutConfirmationModal } from "./components/common/LogoutConfirmationModal";
 import { MiddlemanOverlay } from "./components/common/MiddlemanOverlay";
+import { UpstairsDutyNotice } from "./components/common/UpstairsDutyNotice";
 import { NewVersionBanner } from "./components/common/NewVersionBanner";
 
 import { Sidebar } from "./components/common/Sidebar";
@@ -111,6 +112,7 @@ function App() {
       <BreakOverlay />
       <GameplayTimeOverlay />
       <MiddlemanOverlay />
+      <UpstairsDutyNotice />
       <LogoutConfirmationModal />
       <NewVersionBanner />
       {user && <ChangePasswordModal />}

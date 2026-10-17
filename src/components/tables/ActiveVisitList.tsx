@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { BiCoffee } from "react-icons/bi";
 import { FaConciergeBell, FaUserSlash } from "react-icons/fa";
 import { GiPerspectiveDiceSixFacesRandom, GiRoundTable } from "react-icons/gi";
-import { MdHourglassTop } from "react-icons/md";
+import { MdHourglassTop, MdStairs } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -23,6 +23,7 @@ import {
   busyStateLabels,
 } from "../../types";
 import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
+import { useGetUpstairsDuties } from "../../utils/api/upstairsDuty";
 import {
   useGetMiddlemanByDate,
   useMiddlemanMutations,
@@ -67,6 +68,8 @@ export function ActiveVisitList({
   const todayDate = format(new Date(), "yyyy-MM-dd");
   const activeGameplayTimes = useGetGameplayTimesByDate(todayDate);
   const activeMiddlemen = useGetMiddlemanByDate(todayDate);
+  const upstairsDuties = useGetUpstairsDuties(selectedLocationId, todayDate);
+  const upstairsDutyUser = upstairsDuties?.find((d) => !d.finishHour)?.user;
   const todayShifts = useGetShifts(
     todayDate,
     todayDate,
@@ -332,6 +335,7 @@ export function ActiveVisitList({
               ? `${t(busyStateLabels[busyType])}: ${userBreak.note}`
               : t(busyStateLabels[busyType]);
           const userRole = userOnVisit.role?.name ?? "";
+          const isUpstairsDuty = visit.user === upstairsDutyUser;
 
           // Build tooltip content based on user status
           let tooltipContent = userRole;
@@ -347,6 +351,9 @@ export function ActiveVisitList({
             tooltipContent = `${userRole}  •  ${t("Outside Operation")}`;
           } else if (userChef) {
             tooltipContent = `${userRole}  •  ${t("Service Staff")}`;
+          }
+          if (isUpstairsDuty) {
+            tooltipContent += `  •  ${t("Upstairs duty")}`;
           }
 
           const getChipValue = () => {
@@ -398,6 +405,14 @@ export function ActiveVisitList({
               return (
                 <span className="flex items-center gap-1">
                   <FaConciergeBell className="text-sm" />
+                  {userName}
+                </span>
+              );
+            }
+            if (isUpstairsDuty) {
+              return (
+                <span className="flex items-center gap-1">
+                  <MdStairs className="text-sm" />
                   {userName}
                 </span>
               );
