@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Area,
   AreaChart,
@@ -22,6 +22,7 @@ import {
   defaultLocationId,
   formatDuration,
 } from "../components/timeline/timelineDisplay";
+import { Routes } from "../navigation/constants";
 import { LoadPoint, useGetDayLoad } from "../utils/api/timeline";
 import { useGetStoreLocations } from "../utils/api/location";
 
@@ -176,10 +177,16 @@ export default function DayLoad() {
                   stats.peakCustomers.tables
                 } ${t("tables")}`}
               />
-              <StatCard
-                label={t("A call waiting for someone")}
-                value={formatDuration(stats.waitingTime, t)}
-              />
+              <Link
+                to={`${Routes.WaitingCalls}?date=${date}&location=${location}`}
+                className="rounded-lg hover:ring-1 hover:ring-gray-400"
+              >
+                <StatCard
+                  label={t("A call waiting for someone")}
+                  value={formatDuration(stats.waitingTime, t)}
+                  hint={t("Why each call waited")}
+                />
+              </Link>
               <StatCard
                 label={t("A call waiting, nobody free")}
                 value={formatDuration(stats.waitingWithNoneFreeTime, t)}
