@@ -2324,5 +2324,11 @@
   "Taken by": "Alan:",
   "Closed without anyone": "Kimse almadan kapandı",
   "Still waiting": "Hâlâ bekliyor",
-  "Why each call waited": "Hangi çağrı neden bekledi →"
+  "Why each call waited": "Hangi çağrı neden bekledi →",
+  "At the warehouse": "Depoda",
+  "Cleaning the bar": "Bar temizliğinde",
+  "I'm at the warehouse": "Depodayım",
+  "I'm cleaning the bar": "Bar temizliği yapıyorum",
+  "Warehouse": "Depo",
+  "Bar cleaning": "Bar temizliği"
 }

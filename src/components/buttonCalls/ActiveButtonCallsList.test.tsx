@@ -114,7 +114,7 @@ describe("ActiveButtonCallsList", () => {
         "I'm recommending a game",
         "I'm preparing an order",
         "I'm taking a payment",
-        "WC",
+        "I'm at the warehouse",
         "Other",
       ]) {
         expect(screen.getByText(label)).toBeTruthy();

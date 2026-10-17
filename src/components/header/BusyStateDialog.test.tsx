@@ -27,12 +27,24 @@ describe("BusyStateDialog", () => {
     expect(onSelect).toHaveBeenCalledWith(BreakTypeEnum.TAKING_PAYMENT);
   });
 
-  it("offers WC", () => {
+  it("offers the warehouse, no longer WC", () => {
     const onSelect = vi.fn();
     render(<BusyStateDialog onSelect={onSelect} onCancel={vi.fn()} />);
 
-    fireEvent.click(screen.getByText("WC"));
-    expect(onSelect).toHaveBeenCalledWith(BreakTypeEnum.WC);
+    expect(screen.queryByText("WC")).toBeNull();
+    expect(screen.queryByText("I'm cleaning the bar")).toBeNull();
+    fireEvent.click(screen.getByText("I'm at the warehouse"));
+    expect(onSelect).toHaveBeenCalledWith(BreakTypeEnum.WAREHOUSE);
+  });
+
+  it("offers bar cleaning to baristas", () => {
+    const onSelect = vi.fn();
+    render(
+      <BusyStateDialog onSelect={onSelect} onCancel={vi.fn()} isBarista />
+    );
+
+    fireEvent.click(screen.getByText("I'm cleaning the bar"));
+    expect(onSelect).toHaveBeenCalledWith(BreakTypeEnum.BAR_CLEANING);
   });
 
   it("asks for an explanation for other", () => {

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DeclineReasonEnum, declineReasonLabels } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { DeclineReasonEnum, declineReasonLabels, isBarista } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 
 type Props = {
@@ -23,7 +24,7 @@ const listedReasons = [
   DeclineReasonEnum.RECOMMENDING_GAME,
   DeclineReasonEnum.PREPARING_ORDER,
   DeclineReasonEnum.TAKING_PAYMENT,
-  DeclineReasonEnum.WC,
+  DeclineReasonEnum.WAREHOUSE,
 ];
 
 const MAX_GAME_RESULTS = 20;
@@ -43,6 +44,10 @@ export function DeclineCallDialog({
   onCancel,
 }: Props) {
   const { t, i18n } = useTranslation();
+  const { user } = useUserContext();
+  const reasons = isBarista(user?.role?._id)
+    ? [...listedReasons, DeclineReasonEnum.BAR_CLEANING]
+    : listedReasons;
   const [step, setStep] = useState<"choice" | "reasons" | "other" | "game">(
     "choice"
   );
@@ -104,7 +109,7 @@ export function DeclineCallDialog({
 
         {step === "reasons" && (
           <div className="flex flex-col gap-2">
-            {listedReasons.map((reason) => (
+            {reasons.map((reason) => (
               <button
                 key={reason}
                 onClick={() => onDecline(reason)}
