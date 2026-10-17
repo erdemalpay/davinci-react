@@ -2330,5 +2330,8 @@
   "I'm at the warehouse": "Depodayım",
   "I'm cleaning the bar": "Bar temizliği yapıyorum",
   "Warehouse": "Depo",
-  "Bar cleaning": "Bar temizliği"
+  "Bar cleaning": "Bar temizliği",
+  "Waited at least": "En az",
+  "Only calls closed without anyone taking them": "Sadece kimse almadan kapananlar",
+  "previously": "önceki"
 }

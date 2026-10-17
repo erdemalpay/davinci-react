@@ -1,3 +1,4 @@
+import { AssignmentStep } from "../../components/buttonCalls/assignmentDisplay";
 import { Paths, useGet, useGetList } from "./factory";
 
 export type TimelineKind =
@@ -173,6 +174,8 @@ export type WaitingCall = {
     // Who was free among the people the reason is about.
     free: string[];
   }[];
+  // Assignments, declines and take-overs, in order.
+  events: AssignmentStep[];
 };
 
 export function useGetWaitingCalls(location: number, date: string) {
