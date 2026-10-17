@@ -1060,7 +1060,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     const insertIndex = 3;
     for (const location of locations) {
       if (singleItemGroup?.category?.locations?.includes(location._id)) {
-        cols.splice(insertIndex, 0, { key: location.name, isSortable: false });
+        // cols'un başında "Action" sütunu var, keys'te karşılığı yok
+        cols.splice(insertIndex + 1, 0, {
+          key: location.name,
+          isSortable: false,
+        });
         keys.splice(insertIndex, 0, {
           key: location.name,
           node: (row: MenuItem) => {
