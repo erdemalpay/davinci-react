@@ -2282,5 +2282,15 @@
   "Orders sent and not yet prepared at each moment.": "Orders sent and not yet prepared at each moment.",
   "h": "h",
   "min": "min",
-  "Idle": "Idle"
+  "Idle": "Idle",
+  "I'm the middleman": "I'm the middleman",
+  "{{name}} went to a call: they're the only one who knows {{game}}. You're the middleman until they're back.": "{{name}} went to a call: they're the only one who knows {{game}}. You're the middleman until they're back.",
+  "The middleman": "The middleman",
+  "the game": "the game",
+  "You're on upstairs duty": "You're on upstairs duty",
+  "Your upstairs duty is over": "Your upstairs duty is over",
+  "Upstairs is busy. Stay upstairs: the upstairs tables' calls come to you first.": "Upstairs is busy. Stay upstairs: the upstairs tables' calls come to you first.",
+  "Upstairs is calmer now. You're back to normal.": "Upstairs is calmer now. You're back to normal.",
+  "OK": "OK",
+  "Upstairs duty": "Upstairs duty"
 }

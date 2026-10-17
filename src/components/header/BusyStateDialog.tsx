@@ -5,6 +5,8 @@ import { BreakTypeEnum } from "../../types";
 type Props = {
   onSelect: (type: BreakTypeEnum, note?: string) => void;
   onCancel: () => void;
+  // Game masters can also become the middleman, unless someone else is.
+  middleman?: { onSelect: () => void; takenBy?: string };
 };
 
 // What the options say when choosing ("I'm going on a break", ...).
@@ -17,7 +19,7 @@ const options: { type: BreakTypeEnum; label: string }[] = [
 ];
 
 // Picks the busy state (a break is one of them); "Other" needs a note.
-export function BusyStateDialog({ onSelect, onCancel }: Props) {
+export function BusyStateDialog({ onSelect, onCancel, middleman }: Props) {
   const { t } = useTranslation();
   const [isOther, setIsOther] = useState(false);
   const [note, setNote] = useState("");
@@ -52,6 +54,20 @@ export function BusyStateDialog({ onSelect, onCancel }: Props) {
                 {t(label)}
               </button>
             ))}
+            {middleman && (
+              <button
+                disabled={!!middleman.takenBy}
+                onClick={middleman.onSelect}
+                className={`${buttonClass} bg-teal-50 text-teal-800 hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                {t("I'm the middleman")}
+                {middleman.takenBy && (
+                  <span className="block text-xs font-normal text-gray-500">
+                    {middleman.takenBy} {t("is the middleman")}
+                  </span>
+                )}
+              </button>
+            )}
             <button
               onClick={() => setIsOther(true)}
               className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}

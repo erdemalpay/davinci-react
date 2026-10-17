@@ -2290,5 +2290,15 @@
   "Orders sent and not yet prepared at each moment.": "Her an gönderilmiş ama henüz hazırlanmamış siparişler.",
   "h": "sa",
   "min": "dk",
-  "Idle": "Boşta"
+  "Idle": "Boşta",
+  "I'm the middleman": "Ortacıyım",
+  "{{name}} went to a call: they're the only one who knows {{game}}. You're the middleman until they're back.": "{{name}}, {{game}} oyununu bilen tek kişi olduğu için çağrıya atandı. O dönene kadar ortacı olarak atandınız.",
+  "The middleman": "Ortacı",
+  "the game": "oyun",
+  "You're on upstairs duty": "Üstçü olarak atandınız",
+  "Your upstairs duty is over": "Üstçülüğünüz bitti",
+  "Upstairs is busy. Stay upstairs: the upstairs tables' calls come to you first.": "Üst kat yoğun. Üst katta bekleyin: üst kat masalarının çağrıları önce size gelecek.",
+  "Upstairs is calmer now. You're back to normal.": "Üst kat sakinleşti. Normal GM olarak devam ediyorsunuz.",
+  "OK": "Tamam",
+  "Upstairs duty": "Üstçü"
 }
