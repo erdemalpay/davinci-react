@@ -27,7 +27,10 @@ const callTypeLabels: Record<AssignedCallType, string> = {
   [ButtonCallTypeEnum.ORDERREADYCALL]: "Order Ready Call",
 };
 
-const DECLINE_REASONS = Object.values(DeclineReasonEnum);
+// WC is no longer offered; old WC declines still count in the total.
+const DECLINE_REASONS = Object.values(DeclineReasonEnum).filter(
+  (reason) => reason !== DeclineReasonEnum.WC
+);
 
 const formatRate = (rate: number) =>
   `%${(rate * 100).toLocaleString("tr-TR", { maximumFractionDigits: 0 })}`;
