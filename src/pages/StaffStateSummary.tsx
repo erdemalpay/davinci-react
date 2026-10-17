@@ -20,7 +20,6 @@ const stateColumns: { key: string; label: string }[] = [
   { key: BreakTypeEnum.TAKING_PAYMENT, label: "Taking a payment" },
   { key: BreakTypeEnum.WAREHOUSE, label: "Warehouse" },
   { key: BreakTypeEnum.BAR_CLEANING, label: "Bar cleaning" },
-  { key: BreakTypeEnum.WC, label: "WC" },
   { key: BreakTypeEnum.OTHER, label: "Other" },
   { key: "EXPLAINING", label: "Explaining a game" },
   { key: "MIDDLEMAN", label: "Middleman" },
