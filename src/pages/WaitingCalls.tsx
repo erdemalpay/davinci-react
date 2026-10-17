@@ -2,7 +2,13 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
-import { gmCallReasonLabels } from "../components/buttonCalls/assignmentDisplay";
+import {
+  assignmentActionColors,
+  assignmentActionLabels,
+  AssignmentStep,
+  formatDeclineReason,
+  gmCallReasonLabels,
+} from "../components/buttonCalls/assignmentDisplay";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import { DayPicker } from "../components/timeline/DayPicker";
@@ -15,7 +21,11 @@ import {
 } from "../components/timeline/timelineDisplay";
 import { useTimelineLookups } from "../components/timeline/useTimelineLookups";
 import { Routes } from "../navigation/constants";
-import { ButtonCallTypeEnum, GmCallReasonEnum } from "../types";
+import {
+  AssignmentActionEnum,
+  ButtonCallTypeEnum,
+  GmCallReasonEnum,
+} from "../types";
 import { useGetStoreLocations } from "../utils/api/location";
 import {
   useGetWaitingCalls,
@@ -23,9 +33,9 @@ import {
   WaitingReason,
 } from "../utils/api/timeline";
 
-// Waits shorter than this are hidden unless asked for: the assignment
-// usually runs within a few seconds.
-const SHORT_WAIT_SECONDS = 60;
+// Waits shorter than this many minutes are hidden by default: the
+// assignment usually runs within a few seconds.
+const DEFAULT_MIN_WAIT_MINUTES = 1;
 
 const reasons: {
   key: WaitingReason;
@@ -79,6 +89,29 @@ const reasons: {
 const reasonOf = (key: WaitingReason) =>
   reasons.find((r) => r.key === key) ?? reasons[0];
 
+type Segment = WaitingCall["segments"][number];
+
+// The stretches and what happened to the call (assigned, declined, taken
+// over), in time order; at the same moment the event first.
+function callRows(call: WaitingCall) {
+  const rows: (
+    | { kind: "segment"; at: number; segment: Segment }
+    | { kind: "event"; at: number; event: AssignmentStep }
+  )[] = [
+    ...call.segments.map((segment) => ({
+      kind: "segment" as const,
+      at: durationBetween(call.start, segment.start) + 0.5,
+      segment,
+    })),
+    ...(call.events ?? []).map((event) => ({
+      kind: "event" as const,
+      at: durationBetween(call.start, event.hour),
+      event,
+    })),
+  ];
+  return rows.sort((a, b) => a.at - b.at);
+}
+
 const callTypeLabel = (type: string) =>
   type === ButtonCallTypeEnum.ORDERCALL
     ? "Service call"
@@ -99,7 +132,11 @@ export default function WaitingCalls() {
     Number(params.get("location")) || defaultLocationId(locations);
   const calls = useGetWaitingCalls(location, date);
   const [reason, setReason] = useState<WaitingReason>();
-  const [showShort, setShowShort] = useState(false);
+  const [minWaitMinutes, setMinWaitMinutes] = useState(
+    String(DEFAULT_MIN_WAIT_MINUTES)
+  );
+  const [onlyClosedUnanswered, setOnlyClosedUnanswered] = useState(false);
+  const minWaitSeconds = Math.max(0, Number(minWaitMinutes) || 0) * 60;
 
   const update = (changes: Record<string, string>) =>
     setParams({ date, location: String(location), ...changes });
@@ -110,8 +147,15 @@ export default function WaitingCalls() {
   }));
 
   const longEnough = useMemo(
-    () => calls.filter((c) => showShort || c.waited >= SHORT_WAIT_SECONDS),
-    [calls, showShort]
+    () =>
+      calls.filter(
+        (c) =>
+          c.waited >= minWaitSeconds &&
+          // Closed while nobody had it: the table gave up, or someone
+          // closed it without taking it.
+          (!onlyClosedUnanswered || (!!c.end && !c.assignedTo))
+      ),
+    [calls, minWaitSeconds, onlyClosedUnanswered]
   );
   const hiddenCount = calls.length - longEnough.length;
 
@@ -212,19 +256,33 @@ export default function WaitingCalls() {
           ))}
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-gray-600 w-fit cursor-pointer">
-          <input
-            type="checkbox"
-            checked={showShort}
-            onChange={(e) => setShowShort(e.target.checked)}
-          />
-          {t("Show waits under 1 minute")}
-          {!showShort && hiddenCount > 0 && (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
+          <label className="flex items-center gap-2">
+            {t("Waited at least")}
+            <input
+              type="number"
+              min={0}
+              step={1}
+              value={minWaitMinutes}
+              onChange={(e) => setMinWaitMinutes(e.target.value)}
+              className="w-16 rounded border border-gray-300 px-2 py-1 text-gray-900"
+            />
+            {t("min")}
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={onlyClosedUnanswered}
+              onChange={(e) => setOnlyClosedUnanswered(e.target.checked)}
+            />
+            {t("Only calls closed without anyone taking them")}
+          </label>
+          {hiddenCount > 0 && (
             <span className="text-gray-400">
               ({hiddenCount} {t("hidden")})
             </span>
           )}
-        </label>
+        </div>
 
         {shown.length === 0 ? (
           <div className="bg-white rounded-lg border border-gray-200 p-6 text-center text-gray-500">
@@ -284,29 +342,69 @@ export default function WaitingCalls() {
                 </div>
 
                 <ul className="flex flex-col gap-1 text-sm">
-                  {call.segments.map((s) => (
-                    <li key={s.start} className="flex items-start gap-2">
-                      <span
-                        className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: reasonOf(s.reason).color }}
-                      />
-                      <span>
-                        <span className="text-gray-500">
-                          {shortHour(s.start)}–{shortHour(s.end)} ·{" "}
-                          {formatDuration(durationBetween(s.start, s.end), t)} ·{" "}
-                        </span>
-                        <span className="text-gray-900">
-                          {t(reasonOf(s.reason).label)}
-                        </span>
-                        {s.free.length > 0 && (
-                          <span className="text-gray-500">
-                            {" "}
-                            ({t("free")}: {personLinks(s.free)})
+                  {callRows(call).map((row) => {
+                    if (row.kind === "event") {
+                      const e = row.event;
+                      return (
+                        <li
+                          key={`e-${e.hour}-${e.action}-${e.user}`}
+                          className="flex items-start gap-2 text-gray-600"
+                        >
+                          <span
+                            className={`mt-1.5 h-2 w-2 shrink-0 rotate-45 ${
+                              assignmentActionColors[e.action]
+                            }`}
+                          />
+                          <span>
+                            <span className="text-gray-500">
+                              {shortHour(e.hour)} ·{" "}
+                            </span>
+                            {t(assignmentActionLabels[e.action])}:{" "}
+                            {personLinks([e.user])}
+                            {e.action === AssignmentActionEnum.CLAIMED &&
+                              e.fromUser && (
+                                <span className="text-gray-500">
+                                  {" "}
+                                  ({t("previously")}: {names.user(e.fromUser)})
+                                </span>
+                              )}
+                            {e.action === AssignmentActionEnum.DECLINED &&
+                              e.reason && (
+                                <span className="font-medium text-gray-900">
+                                  {" "}
+                                  — {formatDeclineReason(e, t, lookups.games)}
+                                </span>
+                              )}
                           </span>
-                        )}
-                      </span>
-                    </li>
-                  ))}
+                        </li>
+                      );
+                    }
+                    const s = row.segment;
+                    return (
+                      <li key={s.start} className="flex items-start gap-2">
+                        <span
+                          className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: reasonOf(s.reason).color }}
+                        />
+                        <span>
+                          <span className="text-gray-500">
+                            {shortHour(s.start)}–{shortHour(s.end)} ·{" "}
+                            {formatDuration(durationBetween(s.start, s.end), t)}{" "}
+                            ·{" "}
+                          </span>
+                          <span className="text-gray-900">
+                            {t(reasonOf(s.reason).label)}
+                          </span>
+                          {s.free.length > 0 && (
+                            <span className="text-gray-500">
+                              {" "}
+                              ({t("free")}: {personLinks(s.free)})
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 <div className="text-xs text-gray-500">
