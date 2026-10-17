@@ -2322,5 +2322,8 @@
   "I'm at the warehouse": "I'm at the warehouse",
   "I'm cleaning the bar": "I'm cleaning the bar",
   "Warehouse": "Warehouse",
-  "Bar cleaning": "Bar cleaning"
+  "Bar cleaning": "Bar cleaning",
+  "Waited at least": "Waited at least",
+  "Only calls closed without anyone taking them": "Only calls closed without anyone taking them",
+  "previously": "previously"
 }
