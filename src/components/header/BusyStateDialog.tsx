@@ -5,6 +5,8 @@ import { BreakTypeEnum } from "../../types";
 type Props = {
   onSelect: (type: BreakTypeEnum, note?: string) => void;
   onCancel: () => void;
+  // Baristas can also be cleaning the bar.
+  isBarista?: boolean;
   // Game masters can also become the middleman, unless someone else is.
   middleman?: { onSelect: () => void; takenBy?: string };
 };
@@ -15,11 +17,20 @@ const options: { type: BreakTypeEnum; label: string }[] = [
   { type: BreakTypeEnum.RECOMMENDING_GAME, label: "I'm recommending a game" },
   { type: BreakTypeEnum.PREPARING_ORDER, label: "I'm preparing an order" },
   { type: BreakTypeEnum.TAKING_PAYMENT, label: "I'm taking a payment" },
-  { type: BreakTypeEnum.WC, label: "WC" },
+  { type: BreakTypeEnum.WAREHOUSE, label: "I'm at the warehouse" },
+];
+
+const baristaOptions: typeof options = [
+  { type: BreakTypeEnum.BAR_CLEANING, label: "I'm cleaning the bar" },
 ];
 
 // Picks the busy state (a break is one of them); "Other" needs a note.
-export function BusyStateDialog({ onSelect, onCancel, middleman }: Props) {
+export function BusyStateDialog({
+  onSelect,
+  onCancel,
+  isBarista = false,
+  middleman,
+}: Props) {
   const { t } = useTranslation();
   const [isOther, setIsOther] = useState(false);
   const [note, setNote] = useState("");
@@ -45,15 +56,17 @@ export function BusyStateDialog({ onSelect, onCancel, middleman }: Props) {
 
         {!isOther ? (
           <div className="flex flex-col gap-2">
-            {options.map(({ type, label }) => (
-              <button
-                key={type}
-                onClick={() => onSelect(type)}
-                className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}
-              >
-                {t(label)}
-              </button>
-            ))}
+            {[...options, ...(isBarista ? baristaOptions : [])].map(
+              ({ type, label }) => (
+                <button
+                  key={type}
+                  onClick={() => onSelect(type)}
+                  className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}
+                >
+                  {t(label)}
+                </button>
+              )
+            )}
             {middleman && (
               <button
                 disabled={!!middleman.takenBy}

@@ -2300,5 +2300,11 @@
   "Upstairs is busy. Stay upstairs: the upstairs tables' calls come to you first.": "Üst kat yoğun. Üst katta bekleyin: üst kat masalarının çağrıları önce size gelecek.",
   "Upstairs is calmer now. You're back to normal.": "Üst kat sakinleşti. Normal GM olarak devam ediyorsunuz.",
   "OK": "Tamam",
-  "Upstairs duty": "Üstçü"
+  "Upstairs duty": "Üstçü",
+  "At the warehouse": "Depoda",
+  "Cleaning the bar": "Bar temizliğinde",
+  "I'm at the warehouse": "Depodayım",
+  "I'm cleaning the bar": "Bar temizliği yapıyorum",
+  "Warehouse": "Depo",
+  "Bar cleaning": "Bar temizliği"
 }
