@@ -15,6 +15,7 @@ import {
   isAssignedCallType,
   CreateBreakDto,
   DeclineReasonEnum,
+  isBarista,
   RoleEnum,
   User,
 } from "../../types";
@@ -41,6 +42,8 @@ const declineReasonForBusyState: Record<BreakTypeEnum, DeclineReasonEnum> = {
   [BreakTypeEnum.PREPARING_ORDER]: DeclineReasonEnum.PREPARING_ORDER,
   [BreakTypeEnum.TAKING_PAYMENT]: DeclineReasonEnum.TAKING_PAYMENT,
   [BreakTypeEnum.WC]: DeclineReasonEnum.WC,
+  [BreakTypeEnum.WAREHOUSE]: DeclineReasonEnum.WAREHOUSE,
+  [BreakTypeEnum.BAR_CLEANING]: DeclineReasonEnum.BAR_CLEANING,
   [BreakTypeEnum.OTHER]: DeclineReasonEnum.OTHER,
 };
 
@@ -268,6 +271,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         <BusyStateDialog
           onSelect={handleSelectState}
           onCancel={() => setIsStateDialogOpen(false)}
+          isBarista={isBarista(user?.role?._id)}
           middleman={
             isGameRole
               ? {

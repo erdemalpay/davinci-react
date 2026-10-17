@@ -18,6 +18,8 @@ const stateColumns: { key: string; label: string }[] = [
   { key: BreakTypeEnum.RECOMMENDING_GAME, label: "Recommending a game" },
   { key: BreakTypeEnum.PREPARING_ORDER, label: "Preparing an order" },
   { key: BreakTypeEnum.TAKING_PAYMENT, label: "Taking a payment" },
+  { key: BreakTypeEnum.WAREHOUSE, label: "Warehouse" },
+  { key: BreakTypeEnum.BAR_CLEANING, label: "Bar cleaning" },
   { key: BreakTypeEnum.WC, label: "WC" },
   { key: BreakTypeEnum.OTHER, label: "Other" },
   { key: "EXPLAINING", label: "Explaining a game" },
