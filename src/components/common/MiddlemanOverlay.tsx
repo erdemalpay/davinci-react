@@ -5,12 +5,14 @@ import { GiRoundTable } from "react-icons/gi";
 import { MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
+import { useDataContext } from "../../context/Data.context";
 import { useUserContext } from "../../context/User.context";
 import { Middleman } from "../../types";
 import {
   useGetMiddlemanByDate,
   useMiddlemanMutations,
 } from "../../utils/api/middleman";
+import { getItem } from "../../utils/getItem";
 
 const STRIP_HEIGHT_PX = 32;
 const BODY_ATTR = "data-middleman-strip";
@@ -18,6 +20,7 @@ const BODY_ATTR = "data-middleman-strip";
 export const MiddlemanOverlay = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const { users = [], games = [] } = useDataContext();
   const { updateMiddleman } = useMiddlemanMutations();
   const [currentMiddleman, setCurrentMiddleman] = useState<Middleman | null>(
     null
@@ -119,6 +122,21 @@ export const MiddlemanOverlay = () => {
           <p className="text-gray-600">
             {t("Started at")} {currentMiddleman.startHour}
           </p>
+          {currentMiddleman.coveringFor && (
+            <p className="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-amber-900">
+              {t(
+                "{{name}} went to a call: they're the only one who knows {{game}}. You're the middleman until they're back.",
+                {
+                  name:
+                    getItem(currentMiddleman.coveringFor, users)?.name ??
+                    t("The middleman"),
+                  game:
+                    getItem(currentMiddleman.coveringGame, games)?.name ??
+                    t("the game"),
+                }
+              )}
+            </p>
+          )}
         </div>
 
         <div className="mb-6">

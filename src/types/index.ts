@@ -573,8 +573,23 @@ export type Middleman = {
   date: string;
   startHour: string;
   finishHour?: string;
+  // An automatic stand-in: the middleman who went to a call for a game
+  // only they knew, the call and the game.
+  coveringFor?: string;
+  coveringCall?: number;
+  coveringGame?: number;
   createdAt?: Date;
   updatedAt?: Date;
+};
+
+// "Üstçü": started and ended automatically when upstairs gets busy.
+export type UpstairsDuty = {
+  _id: number;
+  user: string;
+  location: number;
+  date: string;
+  startHour: string;
+  finishHour?: string;
 };
 
 export type CreateMiddlemanDto = {

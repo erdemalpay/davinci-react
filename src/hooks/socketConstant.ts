@@ -310,6 +310,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Middlemen}`],
   },
   {
+    event: "upstairsDutyChanged",
+    invalidateKeys: [`${Paths.UpstairsDuty}`],
+  },
+  {
     event: "shopifyProductStockChanged",
     invalidateKeys: [`${Paths.Shopify}/product`, `${Paths.Accounting}/stocks`],
   },
