@@ -131,10 +131,16 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     note?: string;
   }>({ type: BreakTypeEnum.BREAK });
 
-  const doStartBreak = (
-    type = pendingBreak.type,
-    note: string | undefined = pendingBreak.note
-  ) => {
+  // Called with the state just picked, or (after the break warning) with
+  // the pending one. Only "Other" carries a note.
+  const doStartBreak = ({
+    type,
+    note: pickedNote,
+  }: {
+    type: BreakTypeEnum;
+    note?: string;
+  } = pendingBreak) => {
+    const note = type === BreakTypeEnum.OTHER ? pickedNote : undefined;
     if (!user?._id || !selectedLocationId) return;
     // Holding a call: hand it back with this reason; the API puts me in
     // the busy state and gives the call to someone else.
@@ -180,7 +186,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       setIsBreakWarningOpen(true);
       return;
     }
-    doStartBreak(type, note);
+    doStartBreak({ type, note });
   };
 
   const handleStartBreak = () => {
