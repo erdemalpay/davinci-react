@@ -142,3 +142,44 @@ export function useGetDayLoad(location: number, date: string) {
     { enabled: !!location && !!date }
   );
 }
+
+// Why a call had nobody at a moment (see the API's timeline.waiting.ts).
+export type WaitingReason =
+  | "nobodyInCafe"
+  | "allBusy"
+  | "otherRoleFree"
+  | "declined"
+  | "upstairsDuty"
+  | "gameUnknown"
+  | "notAssigned";
+
+export type WaitingCall = {
+  callId: number;
+  callType: string;
+  gmCallReason?: string;
+  game?: number;
+  tableName: string;
+  table?: number;
+  start: string;
+  end?: string;
+  assignedTo?: string;
+  closedBy?: string;
+  // Seconds without anyone.
+  waited: number;
+  segments: {
+    start: string;
+    end: string;
+    reason: WaitingReason;
+    // Who was free among the people the reason is about.
+    free: string[];
+  }[];
+};
+
+export function useGetWaitingCalls(location: number, date: string) {
+  return useGetList<WaitingCall>(
+    `${Paths.Timeline}/waiting-calls?location=${location}&date=${date}`,
+    [Paths.Timeline, "waiting-calls", location, date],
+    true,
+    { enabled: !!location && !!date }
+  );
+}
