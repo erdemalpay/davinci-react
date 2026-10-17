@@ -539,7 +539,11 @@ export enum BreakTypeEnum {
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
   TAKING_PAYMENT = "TAKING_PAYMENT",
+  // No longer offered; kept for past records.
   WC = "WC",
+  WAREHOUSE = "WAREHOUSE",
+  // Baristas only.
+  BAR_CLEANING = "BAR_CLEANING",
   OTHER = "OTHER",
 }
 
@@ -550,8 +554,14 @@ export const busyStateLabels: Record<BreakTypeEnum, string> = {
   [BreakTypeEnum.PREPARING_ORDER]: "Preparing an order",
   [BreakTypeEnum.TAKING_PAYMENT]: "Taking a payment",
   [BreakTypeEnum.WC]: "At the WC",
+  [BreakTypeEnum.WAREHOUSE]: "At the warehouse",
+  [BreakTypeEnum.BAR_CLEANING]: "Cleaning the bar",
   [BreakTypeEnum.OTHER]: "Busy",
 };
+
+// Baristas and the bar chef (who works as one) can be cleaning the bar.
+export const isBarista = (role?: number) =>
+  role === RoleEnum.BARISTA || role === RoleEnum.BARCHEF;
 
 export const breakTypeOf = (breakRecord?: { type?: BreakTypeEnum }) =>
   breakRecord?.type ?? BreakTypeEnum.BREAK;
@@ -573,8 +583,23 @@ export type Middleman = {
   date: string;
   startHour: string;
   finishHour?: string;
+  // An automatic stand-in: the middleman who went to a call for a game
+  // only they knew, the call and the game.
+  coveringFor?: string;
+  coveringCall?: number;
+  coveringGame?: number;
   createdAt?: Date;
   updatedAt?: Date;
+};
+
+// "Üstçü": started and ended automatically when upstairs gets busy.
+export type UpstairsDuty = {
+  _id: number;
+  user: string;
+  location: number;
+  date: string;
+  startHour: string;
+  finishHour?: string;
 };
 
 export type CreateMiddlemanDto = {
@@ -726,6 +751,8 @@ export enum DeclineReasonEnum {
   RECOMMENDING_GAME = "RECOMMENDING_GAME",
   PREPARING_ORDER = "PREPARING_ORDER",
   WC = "WC",
+  WAREHOUSE = "WAREHOUSE",
+  BAR_CLEANING = "BAR_CLEANING",
   DOESNT_KNOW_GAME = "DOESNT_KNOW_GAME",
   OTHER = "OTHER",
 }
@@ -736,6 +763,8 @@ export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
   [DeclineReasonEnum.RECOMMENDING_GAME]: "I'm recommending a game",
   [DeclineReasonEnum.PREPARING_ORDER]: "I'm preparing an order",
   [DeclineReasonEnum.WC]: "WC",
+  [DeclineReasonEnum.WAREHOUSE]: "I'm at the warehouse",
+  [DeclineReasonEnum.BAR_CLEANING]: "I'm cleaning the bar",
   [DeclineReasonEnum.DOESNT_KNOW_GAME]: "I don't know the game",
   [DeclineReasonEnum.OTHER]: "Other",
 };

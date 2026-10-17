@@ -94,7 +94,7 @@ describe("ActiveButtonCallsList", () => {
 
       tapMine();
       expect(screen.getByText("Table T5")).toBeTruthy();
-      fireEvent.click(screen.getByText("The table was taken care of"));
+      fireEvent.click(screen.getByText("I took care of the table"));
 
       expect(mocks.finish).toHaveBeenCalledWith(
         expect.objectContaining({ tableName: "T5" })
@@ -114,7 +114,7 @@ describe("ActiveButtonCallsList", () => {
         "I'm recommending a game",
         "I'm preparing an order",
         "I'm taking a payment",
-        "WC",
+        "I'm at the warehouse",
         "Other",
       ]) {
         expect(screen.getByText(label)).toBeTruthy();

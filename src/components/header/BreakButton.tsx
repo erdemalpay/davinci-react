@@ -15,6 +15,9 @@ import {
   isAssignedCallType,
   CreateBreakDto,
   DeclineReasonEnum,
+  isBarista,
+  RoleEnum,
+  User,
 } from "../../types";
 import {
   useDeclineButtonCallMutation,
@@ -24,7 +27,12 @@ import {
   useBreakMutations,
   useGetBreaksByLocation,
 } from "../../utils/api/break";
-import { useGetMiddlemanByLocation } from "../../utils/api/middleman";
+import { useGetGameplayTimesByDate } from "../../utils/api/gameplaytime";
+import {
+  useGetMiddlemanByLocation,
+  useMiddlemanMutations,
+} from "../../utils/api/middleman";
+import { getRefId } from "../../utils/getItem";
 import { useBreakWarning } from "../../hooks/useBreakWarning";
 
 // Becoming busy while holding a call declines it with the same reason.
@@ -34,6 +42,8 @@ const declineReasonForBusyState: Record<BreakTypeEnum, DeclineReasonEnum> = {
   [BreakTypeEnum.PREPARING_ORDER]: DeclineReasonEnum.PREPARING_ORDER,
   [BreakTypeEnum.TAKING_PAYMENT]: DeclineReasonEnum.TAKING_PAYMENT,
   [BreakTypeEnum.WC]: DeclineReasonEnum.WC,
+  [BreakTypeEnum.WAREHOUSE]: DeclineReasonEnum.WAREHOUSE,
+  [BreakTypeEnum.BAR_CLEANING]: DeclineReasonEnum.BAR_CLEANING,
   [BreakTypeEnum.OTHER]: DeclineReasonEnum.OTHER,
 };
 
@@ -58,6 +68,25 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
 
   // Get active middlemen for current location
   const activeMiddlemen = useGetMiddlemanByLocation(selectedLocationId || 0);
+  const { createMiddleman, updateMiddleman } = useMiddlemanMutations();
+  const activeGameplayTimes = useGetGameplayTimesByDate(
+    format(new Date(), "yyyy-MM-dd")
+  );
+  // Being the middleman is one of the busy states for game masters.
+  const isGameRole =
+    user?.role?._id === RoleEnum.GAMEMASTER ||
+    user?.role?._id === RoleEnum.GAMEMANAGER;
+  const myMiddleman = activeMiddlemen?.find(
+    (m) => getRefId(m.user) === user?._id && !m.finishHour
+  );
+  const otherMiddleman = activeMiddlemen?.find(
+    (m) => getRefId(m.user) !== user?._id && !m.finishHour
+  );
+  const otherMiddlemanName =
+    otherMiddleman &&
+    (typeof otherMiddleman.user === "object"
+      ? (otherMiddleman.user as User).name
+      : t("Someone"));
 
   const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
 
@@ -165,17 +194,41 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       return;
     }
 
-    const isCurrentUserMiddleman = activeMiddlemen?.some(
-      (m) =>
-        (typeof m.user === "string" ? m.user : m.user._id) === user._id &&
-        !m.finishHour
+    setIsStateDialogOpen(true);
+  };
+
+  const handleStartMiddleman = () => {
+    setIsStateDialogOpen(false);
+    if (!user || !selectedLocationId) return;
+    const isExplaining = activeGameplayTimes?.some(
+      (g) =>
+        getRefId(g.user) === user._id &&
+        (typeof g.location === "number" ? g.location : g.location._id) ===
+          selectedLocationId &&
+        !g.finishHour
     );
-    if (isCurrentUserMiddleman) {
-      toast.error(t("You cannot start a break while you are the middleman"));
+    if (isExplaining) {
+      toast.error(
+        t("You cannot be a middleman while you are in a gameplay session")
+      );
       return;
     }
+    createMiddleman({
+      user: user._id,
+      location: selectedLocationId,
+      date: format(new Date(), "yyyy-MM-dd"),
+      startHour: format(new Date(), "HH:mm"),
+    });
+    toast.success(t("Middleman started"));
+  };
 
-    setIsStateDialogOpen(true);
+  const handleEndMiddleman = () => {
+    if (!myMiddleman) return;
+    updateMiddleman({
+      id: myMiddleman._id,
+      updates: { finishHour: format(new Date(), "HH:mm") },
+    });
+    toast.success(t("Middleman ended"));
   };
 
   const handleEndBreak = () => {
@@ -218,25 +271,42 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         <BusyStateDialog
           onSelect={handleSelectState}
           onCancel={() => setIsStateDialogOpen(false)}
+          isBarista={isBarista(user?.role?._id)}
+          middleman={
+            isGameRole
+              ? {
+                  onSelect: handleStartMiddleman,
+                  takenBy: otherMiddlemanName || undefined,
+                }
+              : undefined
+          }
         />
       )}
       <div className="relative">
         <button
-          onClick={isOnBreak ? handleEndBreak : handleStartBreak}
+          onClick={
+            myMiddleman
+              ? handleEndMiddleman
+              : isOnBreak
+              ? handleEndBreak
+              : handleStartBreak
+          }
           className={`flex items-center gap-2 px-3 py-2 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105 ${
-            isOnBreak
+            isOnBreak || myMiddleman
               ? "bg-red-600 hover:bg-red-700"
               : "bg-green-600 hover:bg-green-700"
           }`}
           title={
-            isOnBreak
+            myMiddleman
+              ? t("End Middleman")
+              : isOnBreak
               ? `${t(busyStateLabels[currentType])} - ${t("End")}`
               : t("Busy")
           }
         >
           <MdFreeBreakfast className="text-lg" />
           <span className="hidden sm:inline">
-            {isOnBreak ? t("End") : t("Busy")}
+            {isOnBreak || myMiddleman ? t("End") : t("Busy")}
           </span>
         </button>
       </div>

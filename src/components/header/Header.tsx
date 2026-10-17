@@ -18,7 +18,6 @@ import { BreakButton } from "./BreakButton";
 import { FavoritePagesNav } from "./FavoritePagesNav";
 import { LocationSelector } from "./LocationSelector";
 import logo from "./logo.svg";
-import { MiddlemanButton } from "./MiddlemanButton";
 import NotificationModal from "./NotificationModal";
 import { PageSelector } from "./PageSelector";
 
@@ -103,7 +102,6 @@ export function Header({
               <LocationSelector allowedLocations={allowedLocations} />
             )}
             <BreakButton />
-            <MiddlemanButton />
             {dateProps && (
               <div className="sm:hidden">
                 <DateInput

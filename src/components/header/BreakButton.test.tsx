@@ -33,6 +33,13 @@ vi.mock("../../utils/api/break", () => ({
 }));
 vi.mock("../../utils/api/middleman", () => ({
   useGetMiddlemanByLocation: () => [],
+  useMiddlemanMutations: () => ({
+    createMiddleman: vi.fn(),
+    updateMiddleman: vi.fn(),
+  }),
+}));
+vi.mock("../../utils/api/gameplaytime", () => ({
+  useGetGameplayTimesByDate: () => [],
 }));
 vi.mock("../../hooks/useBreakWarning", () => ({
   useBreakWarning: () => ({ warning: null, text: "" }),

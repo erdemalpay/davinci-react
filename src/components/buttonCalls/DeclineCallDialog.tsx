@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DeclineReasonEnum, declineReasonLabels } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { DeclineReasonEnum, declineReasonLabels, isBarista } from "../../types";
 import { MinimalGame } from "../../utils/api/game";
 
 type Props = {
@@ -10,7 +11,7 @@ type Props = {
   games: MinimalGame[];
   // "I don't know the game" only makes sense for game master calls.
   canNotKnowGame?: boolean;
-  // "The table was taken care of": closes the call.
+  // "I took care of the table": closes the call.
   onHandled: () => void;
   onDecline: (reason: DeclineReasonEnum, note?: string, game?: number) => void;
   onCancel: () => void;
@@ -23,7 +24,7 @@ const listedReasons = [
   DeclineReasonEnum.RECOMMENDING_GAME,
   DeclineReasonEnum.PREPARING_ORDER,
   DeclineReasonEnum.TAKING_PAYMENT,
-  DeclineReasonEnum.WC,
+  DeclineReasonEnum.WAREHOUSE,
 ];
 
 const MAX_GAME_RESULTS = 20;
@@ -43,6 +44,10 @@ export function DeclineCallDialog({
   onCancel,
 }: Props) {
   const { t, i18n } = useTranslation();
+  const { user } = useUserContext();
+  const reasons = isBarista(user?.role?._id)
+    ? [...listedReasons, DeclineReasonEnum.BAR_CLEANING]
+    : listedReasons;
   const [step, setStep] = useState<"choice" | "reasons" | "other" | "game">(
     "choice"
   );
@@ -94,7 +99,7 @@ export function DeclineCallDialog({
               onClick={onHandled}
               className={`${buttonClass} bg-green-600 text-white hover:bg-green-700`}
             >
-              {t("The table was taken care of")}
+              {t("I took care of the table")}
             </button>
             <button onClick={() => setStep("reasons")} className={optionClass}>
               {t("I can't take care of the table")}
@@ -104,7 +109,7 @@ export function DeclineCallDialog({
 
         {step === "reasons" && (
           <div className="flex flex-col gap-2">
-            {listedReasons.map((reason) => (
+            {reasons.map((reason) => (
               <button
                 key={reason}
                 onClick={() => onDecline(reason)}

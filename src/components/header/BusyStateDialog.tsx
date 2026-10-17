@@ -5,6 +5,10 @@ import { BreakTypeEnum } from "../../types";
 type Props = {
   onSelect: (type: BreakTypeEnum, note?: string) => void;
   onCancel: () => void;
+  // Baristas can also be cleaning the bar.
+  isBarista?: boolean;
+  // Game masters can also become the middleman, unless someone else is.
+  middleman?: { onSelect: () => void; takenBy?: string };
 };
 
 // What the options say when choosing ("I'm going on a break", ...).
@@ -13,11 +17,20 @@ const options: { type: BreakTypeEnum; label: string }[] = [
   { type: BreakTypeEnum.RECOMMENDING_GAME, label: "I'm recommending a game" },
   { type: BreakTypeEnum.PREPARING_ORDER, label: "I'm preparing an order" },
   { type: BreakTypeEnum.TAKING_PAYMENT, label: "I'm taking a payment" },
-  { type: BreakTypeEnum.WC, label: "WC" },
+  { type: BreakTypeEnum.WAREHOUSE, label: "I'm at the warehouse" },
+];
+
+const baristaOptions: typeof options = [
+  { type: BreakTypeEnum.BAR_CLEANING, label: "I'm cleaning the bar" },
 ];
 
 // Picks the busy state (a break is one of them); "Other" needs a note.
-export function BusyStateDialog({ onSelect, onCancel }: Props) {
+export function BusyStateDialog({
+  onSelect,
+  onCancel,
+  isBarista = false,
+  middleman,
+}: Props) {
   const { t } = useTranslation();
   const [isOther, setIsOther] = useState(false);
   const [note, setNote] = useState("");
@@ -43,15 +56,31 @@ export function BusyStateDialog({ onSelect, onCancel }: Props) {
 
         {!isOther ? (
           <div className="flex flex-col gap-2">
-            {options.map(({ type, label }) => (
+            {[...options, ...(isBarista ? baristaOptions : [])].map(
+              ({ type, label }) => (
+                <button
+                  key={type}
+                  onClick={() => onSelect(type)}
+                  className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}
+                >
+                  {t(label)}
+                </button>
+              )
+            )}
+            {middleman && (
               <button
-                key={type}
-                onClick={() => onSelect(type)}
-                className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}
+                disabled={!!middleman.takenBy}
+                onClick={middleman.onSelect}
+                className={`${buttonClass} bg-teal-50 text-teal-800 hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60`}
               >
-                {t(label)}
+                {t("I'm the middleman")}
+                {middleman.takenBy && (
+                  <span className="block text-xs font-normal text-gray-500">
+                    {middleman.takenBy} {t("is the middleman")}
+                  </span>
+                )}
               </button>
-            ))}
+            )}
             <button
               onClick={() => setIsOther(true)}
               className={`${buttonClass} bg-gray-100 text-gray-800 hover:bg-gray-200`}

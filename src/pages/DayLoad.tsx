@@ -18,7 +18,10 @@ import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import { DayPicker } from "../components/timeline/DayPicker";
 import { StatCard } from "../components/timeline/StatCard";
-import { formatDuration } from "../components/timeline/timelineDisplay";
+import {
+  defaultLocationId,
+  formatDuration,
+} from "../components/timeline/timelineDisplay";
 import { LoadPoint, useGetDayLoad } from "../utils/api/timeline";
 import { useGetStoreLocations } from "../utils/api/location";
 
@@ -33,7 +36,7 @@ const callSeries: Series[] = [
 ];
 
 const staffSeries: Series[] = [
-  { key: "freeStaff", label: "Free", color: "#22c55e" },
+  { key: "freeStaff", label: "Idle", color: "#22c55e" },
   { key: "call", label: "On a call", color: "#2563eb" },
   { key: "explaining", label: "Explaining", color: "#8b5cf6" },
   { key: "middleman", label: "Middleman", color: "#14b8a6" },
@@ -72,7 +75,8 @@ export default function DayLoad() {
   const locations = useGetStoreLocations() ?? [];
   const [params, setParams] = useSearchParams();
   const date = params.get("date") ?? format(new Date(), "yyyy-MM-dd");
-  const location = Number(params.get("location")) || locations[0]?._id || 0;
+  const location =
+    Number(params.get("location")) || defaultLocationId(locations);
   const points = useGetDayLoad(location, date);
 
   const update = (changes: Record<string, string>) =>
