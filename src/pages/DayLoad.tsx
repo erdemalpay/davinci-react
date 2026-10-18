@@ -23,7 +23,9 @@ import {
   defaultLocationId,
   formatDuration,
 } from "../components/timeline/timelineDisplay";
+import { useDataContext } from "../context/Data.context";
 import { Routes } from "../navigation/constants";
+import { getItem } from "../utils/getItem";
 import { LoadPoint, useGetDayLoad } from "../utils/api/timeline";
 import { useGetStoreLocations } from "../utils/api/location";
 
@@ -45,6 +47,43 @@ const staffSeries: Series[] = [
   { key: "otherBusy", label: "Busy", color: "#facc15" },
   { key: "break", label: "On break", color: "#f59e0b" },
 ];
+
+// Hovering the staff chart: each state with how many and who.
+function StaffTooltip({
+  active,
+  payload,
+  label,
+  userName,
+}: {
+  active?: boolean;
+  payload?: { payload: LoadPoint }[];
+  label?: string;
+  userName: (id: string) => string;
+}) {
+  const { t } = useTranslation();
+  const point = payload?.[0]?.payload;
+  if (!active || !point) return null;
+  return (
+    <div className="rounded border border-gray-200 bg-white p-2 text-xs shadow">
+      <div className="mb-1 font-semibold text-gray-800">{label}</div>
+      {staffSeries.map(({ key, label: seriesLabel, color }) => {
+        const count = point[key] as number;
+        if (!count) return null;
+        const names = (point.people?.[key] ?? []).map(userName);
+        return (
+          <div key={key} className="flex gap-1">
+            <span style={{ color }} className="font-medium">
+              {t(seriesLabel)}: {count}
+            </span>
+            {names.length > 0 && (
+              <span className="text-gray-600">({names.join(", ")})</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // A stretch of the day picked by dragging over a chart (point indexes).
 type Range = { from: number; to: number };
@@ -78,6 +117,8 @@ function ChartCard({
 export default function DayLoad() {
   const { t } = useTranslation();
   const locations = useGetStoreLocations() ?? [];
+  const { users = [] } = useDataContext();
+  const userName = (id: string) => getItem(id, users)?.name ?? id;
   const [params, setParams] = useSearchParams();
   const date = params.get("date") ?? format(new Date(), "yyyy-MM-dd");
   const location =
@@ -172,12 +213,12 @@ export default function DayLoad() {
       />
     ));
 
-  const axes = (
+  const axes = (tooltip?: React.ReactElement) => (
     <>
       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
       <XAxis dataKey="hour" minTickGap={24} tick={{ fontSize: 11 }} />
       <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
-      <Tooltip />
+      <Tooltip content={tooltip} />
       <Legend wrapperStyle={{ fontSize: 12 }} />
       {dragArea}
     </>
@@ -267,7 +308,7 @@ export default function DayLoad() {
               )}
             >
               <ComposedChart data={points} {...dragHandlers}>
-                {axes}
+                {axes()}
                 {series(callSeries)}
                 <Line
                   type="stepAfter"
@@ -287,13 +328,13 @@ export default function DayLoad() {
               )}
             >
               <AreaChart data={points} {...dragHandlers}>
-                {axes}
+                {axes(<StaffTooltip userName={userName} />)}
                 {series(staffSeries)}
               </AreaChart>
             </ChartCard>
             <ChartCard title={t("Tables and customers")}>
               <AreaChart data={points} {...dragHandlers}>
-                {axes}
+                {axes()}
                 <Area
                   type="stepAfter"
                   dataKey="customers"
@@ -319,7 +360,7 @@ export default function DayLoad() {
               note={t("Orders sent and not yet prepared at each moment.")}
             >
               <AreaChart data={points} {...dragHandlers}>
-                {axes}
+                {axes()}
                 <Area
                   type="stepAfter"
                   dataKey="preparingOrders"
