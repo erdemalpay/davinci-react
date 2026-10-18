@@ -9,6 +9,8 @@ type Props = {
   isBarista?: boolean;
   // Game masters can also become the middleman, unless someone else is.
   middleman?: { onSelect: () => void; takenBy?: string };
+  // A game master can take the upstairs duty over from whoever has it.
+  upstairsDuty?: { onSelect: () => void; heldBy: string };
 };
 
 // What the options say when choosing ("I'm going on a break", ...).
@@ -30,6 +32,7 @@ export function BusyStateDialog({
   onCancel,
   isBarista = false,
   middleman,
+  upstairsDuty,
 }: Props) {
   const { t } = useTranslation();
   const [isOther, setIsOther] = useState(false);
@@ -79,6 +82,17 @@ export function BusyStateDialog({
                     {middleman.takenBy} {t("is the middleman")}
                   </span>
                 )}
+              </button>
+            )}
+            {upstairsDuty && (
+              <button
+                onClick={upstairsDuty.onSelect}
+                className={`${buttonClass} bg-indigo-50 text-indigo-800 hover:bg-indigo-100`}
+              >
+                {t("I'll take upstairs duty")}
+                <span className="block text-xs font-normal text-gray-500">
+                  {upstairsDuty.heldBy} {t("is on upstairs duty")}
+                </span>
               </button>
             )}
             <button
