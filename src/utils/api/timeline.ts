@@ -133,6 +133,8 @@ export type LoadPoint = {
   middleman: number;
   break: number;
   otherBusy: number;
+  // Who is free and who is busy with what (user ids).
+  people?: Partial<Record<string, string[]>>;
 };
 
 export function useGetDayLoad(location: number, date: string) {
