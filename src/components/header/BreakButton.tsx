@@ -32,7 +32,11 @@ import {
   useGetMiddlemanByLocation,
   useMiddlemanMutations,
 } from "../../utils/api/middleman";
-import { getRefId } from "../../utils/getItem";
+import {
+  useGetUpstairsDuties,
+  useTakeUpstairsDutyMutation,
+} from "../../utils/api/upstairsDuty";
+import { getItem, getRefId } from "../../utils/getItem";
 import { useBreakWarning } from "../../hooks/useBreakWarning";
 
 // Becoming busy while holding a call declines it with the same reason.
@@ -55,7 +59,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
-  const { visits = [] } = useDataContext();
+  const { visits = [], users = [] } = useDataContext();
   const { createBreak, updateBreak } = useBreakMutations();
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [currentBreakId, setCurrentBreakId] = useState<number | null>(null);
@@ -87,6 +91,19 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     (typeof otherMiddleman.user === "object"
       ? (otherMiddleman.user as User).name
       : t("Someone"));
+
+  // Someone else's upstairs duty, which a game master can take over.
+  const duties = useGetUpstairsDuties(
+    selectedLocationId || 0,
+    format(new Date(), "yyyy-MM-dd")
+  );
+  const otherDuty = duties?.find((d) => !d.finishHour && d.user !== user?._id);
+  const { mutate: takeUpstairsDuty } = useTakeUpstairsDutyMutation();
+  const handleTakeUpstairsDuty = () => {
+    setIsStateDialogOpen(false);
+    if (!selectedLocationId) return;
+    takeUpstairsDuty(selectedLocationId);
+  };
 
   const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
 
@@ -283,6 +300,15 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
               ? {
                   onSelect: handleStartMiddleman,
                   takenBy: otherMiddlemanName || undefined,
+                }
+              : undefined
+          }
+          upstairsDuty={
+            isGameRole && otherDuty && !myMiddleman
+              ? {
+                  onSelect: handleTakeUpstairsDuty,
+                  heldBy:
+                    getItem(otherDuty.user, users)?.name ?? otherDuty.user,
                 }
               : undefined
           }

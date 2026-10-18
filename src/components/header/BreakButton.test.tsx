@@ -38,6 +38,10 @@ vi.mock("../../utils/api/middleman", () => ({
     updateMiddleman: vi.fn(),
   }),
 }));
+vi.mock("../../utils/api/upstairsDuty", () => ({
+  useGetUpstairsDuties: () => [],
+  useTakeUpstairsDutyMutation: () => ({ mutate: vi.fn() }),
+}));
 vi.mock("../../utils/api/gameplaytime", () => ({
   useGetGameplayTimesByDate: () => [],
 }));
