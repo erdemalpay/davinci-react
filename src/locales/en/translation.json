@@ -2327,5 +2327,17 @@
   "Only calls closed without anyone taking them": "Only calls closed without anyone taking them",
   "previously": "previously",
   "Upstairs Duty Timeline": "Upstairs Duty Timeline",
-  "No upstairs duty": "No upstairs duty"
+  "No upstairs duty": "No upstairs duty",
+  "{{duration}} explaining": "{{duration}} explaining",
+  "{{duration}} played": "{{duration}} played",
+  "Showing": "Showing",
+  "Whole day": "Whole day",
+  "Drag over a chart to look at a stretch of the day.": "Drag over a chart to look at a stretch of the day.",
+  "I'll take upstairs duty": "I'll take upstairs duty",
+  "is on upstairs duty": "is on upstairs duty",
+  "Only game masters take upstairs duty": "Only game masters take upstairs duty",
+  "There is no upstairs duty right now": "There is no upstairs duty right now",
+  "Check in to the cafe first": "Check in to the cafe first",
+  "The middleman cannot take upstairs duty": "The middleman cannot take upstairs duty",
+  "The upstairs duty just changed": "The upstairs duty just changed"
 }
