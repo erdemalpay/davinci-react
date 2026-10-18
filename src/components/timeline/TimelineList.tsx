@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Routes } from "../../navigation/constants";
 import { AssignmentActionEnum } from "../../types";
@@ -40,13 +40,44 @@ export function TimelineList({
   const names = makeNames(lookups);
   const rowRefs = useRef<(HTMLLIElement | null)[]>([]);
 
+  // A game and its explanation start together: one row says how long the
+  // explanation took and how long the game was played.
+  const explanationOf = useMemo(() => {
+    const byGameplay = new Map<number, number>();
+    const used = new Set<number>();
+    items.forEach((item, i) => {
+      if (item.kind !== "gameplay") return;
+      const match = items.findIndex(
+        (other, j) =>
+          other.kind === "explanation" &&
+          !used.has(j) &&
+          shortHour(other.start) === shortHour(item.start) &&
+          (view === "person"
+            ? other.table === undefined || other.table === item.table
+            : other.user === item.user)
+      );
+      if (match >= 0) {
+        used.add(match);
+        byGameplay.set(i, match);
+      }
+    });
+    return byGameplay;
+  }, [items, view]);
+  const rowOf = useMemo(() => {
+    const row = new Map<number, number>();
+    explanationOf.forEach((explanation, gameplay) =>
+      row.set(explanation, gameplay)
+    );
+    return row;
+  }, [explanationOf]);
+
   useEffect(() => {
     if (selected === undefined) return;
-    rowRefs.current[selected]?.scrollIntoView({
+    rowRefs.current[rowOf.get(selected) ?? selected]?.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
-  }, [selected]);
+  }, [selected, rowOf]);
 
   const personLink = (user?: string) =>
     user ? (
@@ -76,9 +107,9 @@ export function TimelineList({
       )
     ) : null;
 
-  const details = (item: TimelineItem) => {
+  const details = (item: TimelineItem, index: number) => {
     const lines: React.ReactNode[] = [];
-    const duration = durationBetween(item.start, item.end);
+    let duration = durationBetween(item.start, item.end);
     switch (item.kind) {
       case "shift":
         if (item.isServiceStaff) lines.push(t("Service staff"));
@@ -109,6 +140,28 @@ export function TimelineList({
           );
         }
         if (item.playerCount) lines.push(`${item.playerCount} ${t("people")}`);
+        {
+          const explanationIndex = explanationOf.get(index);
+          if (explanationIndex !== undefined) {
+            const explanation = items[explanationIndex];
+            lines.push(
+              t("{{duration}} explaining", {
+                duration: formatDuration(
+                  durationBetween(explanation.start, explanation.end),
+                  t
+                ),
+              })
+            );
+            if (duration > 0) {
+              lines.push(
+                t("{{duration}} played", {
+                  duration: formatDuration(duration, t),
+                })
+              );
+            }
+            duration = 0;
+          }
+        }
         break;
       case "explanation":
         if (view === "person") lines.push(tableLink(item));
@@ -234,15 +287,18 @@ export function TimelineList({
   return (
     <ol className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
       {items.map((item, index) => {
+        if (rowOf.has(index)) return null;
         const Icon = iconOf(item);
-        const lines = details(item);
+        const lines = details(item, index);
         return (
           <li
             key={index}
             ref={(el) => (rowRefs.current[index] = el)}
             onClick={() => onSelect(index)}
             className={`flex gap-3 px-4 py-3 cursor-pointer ${
-              selected === index ? "bg-yellow-50" : "hover:bg-gray-50"
+              selected === index || rowOf.get(selected ?? -1) === index
+                ? "bg-yellow-50"
+                : "hover:bg-gray-50"
             }`}
           >
             <div className="w-24 shrink-0 text-sm tabular-nums text-gray-600">

@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -9,6 +9,7 @@ import {
   ComposedChart,
   Legend,
   Line,
+  ReferenceArea,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -26,7 +27,7 @@ import { Routes } from "../navigation/constants";
 import { LoadPoint, useGetDayLoad } from "../utils/api/timeline";
 import { useGetStoreLocations } from "../utils/api/location";
 
-const STEP_SECONDS = 5 * 60;
+const STEP_SECONDS = 60;
 
 type Series = { key: keyof LoadPoint; label: string; color: string };
 
@@ -44,6 +45,9 @@ const staffSeries: Series[] = [
   { key: "otherBusy", label: "Busy", color: "#facc15" },
   { key: "break", label: "On break", color: "#f59e0b" },
 ];
+
+// A stretch of the day picked by dragging over a chart (point indexes).
+type Range = { from: number; to: number };
 
 function ChartCard({
   title,
@@ -78,10 +82,52 @@ export default function DayLoad() {
   const date = params.get("date") ?? format(new Date(), "yyyy-MM-dd");
   const location =
     Number(params.get("location")) || defaultLocationId(locations);
-  const points = useGetDayLoad(location, date);
+  const dayPoints = useGetDayLoad(location, date);
+  const [zoom, setZoom] = useState<Range>();
+  const [dragging, setDragging] = useState<Range>();
+  const points = useMemo(
+    () => (zoom ? dayPoints.slice(zoom.from, zoom.to + 1) : dayPoints),
+    [dayPoints, zoom]
+  );
 
-  const update = (changes: Record<string, string>) =>
+  const update = (changes: Record<string, string>) => {
+    setZoom(undefined);
     setParams({ date, location: String(location), ...changes });
+  };
+
+  // Dragging over a chart picks a stretch of the day; only that is shown.
+  type ChartMouse = { activeTooltipIndex?: number } | null;
+  const indexOf = (e: ChartMouse) =>
+    e?.activeTooltipIndex === undefined
+      ? undefined
+      : (zoom?.from ?? 0) + e.activeTooltipIndex;
+  const dragHandlers = {
+    onMouseDown: (e: ChartMouse) => {
+      const i = indexOf(e);
+      if (i !== undefined) setDragging({ from: i, to: i });
+    },
+    onMouseMove: (e: ChartMouse) => {
+      const i = indexOf(e);
+      if (dragging && i !== undefined) setDragging({ ...dragging, to: i });
+    },
+    onMouseUp: () => {
+      if (dragging && dragging.from !== dragging.to) {
+        setZoom({
+          from: Math.min(dragging.from, dragging.to),
+          to: Math.max(dragging.from, dragging.to),
+        });
+      }
+      setDragging(undefined);
+    },
+  };
+  const dragArea = dragging && dragging.from !== dragging.to && (
+    <ReferenceArea
+      x1={dayPoints[dragging.from]?.hour}
+      x2={dayPoints[dragging.to]?.hour}
+      fill="#3b82f6"
+      fillOpacity={0.15}
+    />
+  );
 
   const locationOptions = locations.map((l) => ({
     value: String(l._id),
@@ -133,6 +179,7 @@ export default function DayLoad() {
       <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
       <Tooltip />
       <Legend wrapperStyle={{ fontSize: 12 }} />
+      {dragArea}
     </>
   );
 
@@ -157,6 +204,27 @@ export default function DayLoad() {
             <DayPicker date={date} onChange={(d) => update({ date: d })} />
           </div>
         </div>
+        {zoom ? (
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <span className="text-gray-700">
+              {t("Showing")}: {points[0]?.hour}–
+              {points[points.length - 1]?.hour}
+            </span>
+            <button
+              type="button"
+              className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50"
+              onClick={() => setZoom(undefined)}
+            >
+              {t("Whole day")}
+            </button>
+          </div>
+        ) : (
+          dayPoints.length > 0 && (
+            <p className="text-xs text-gray-500">
+              {t("Drag over a chart to look at a stretch of the day.")}
+            </p>
+          )
+        )}
 
         {!stats ? (
           <div className="bg-white rounded-lg border border-gray-200 p-6 text-center text-gray-500">
@@ -198,7 +266,7 @@ export default function DayLoad() {
                 "Calls open at each moment by type; the line is the calls nobody had at that moment."
               )}
             >
-              <ComposedChart data={points}>
+              <ComposedChart data={points} {...dragHandlers}>
                 {axes}
                 {series(callSeries)}
                 <Line
@@ -218,13 +286,13 @@ export default function DayLoad() {
                 "Game masters, the game manager and service staff in the cafe, and what they were doing. Outside operation not counted."
               )}
             >
-              <AreaChart data={points}>
+              <AreaChart data={points} {...dragHandlers}>
                 {axes}
                 {series(staffSeries)}
               </AreaChart>
             </ChartCard>
             <ChartCard title={t("Tables and customers")}>
-              <AreaChart data={points}>
+              <AreaChart data={points} {...dragHandlers}>
                 {axes}
                 <Area
                   type="stepAfter"
@@ -250,7 +318,7 @@ export default function DayLoad() {
               title={t("Orders being prepared")}
               note={t("Orders sent and not yet prepared at each moment.")}
             >
-              <AreaChart data={points}>
+              <AreaChart data={points} {...dragHandlers}>
                 {axes}
                 <Area
                   type="stepAfter"

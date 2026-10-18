@@ -2335,5 +2335,17 @@
   "Only calls closed without anyone taking them": "Sadece kimse almadan kapananlar",
   "previously": "önceki",
   "Upstairs Duty Timeline": "Üstçü Zaman Çizelgesi",
-  "No upstairs duty": "Üstçü kaydı yok"
+  "No upstairs duty": "Üstçü kaydı yok",
+  "{{duration}} explaining": "{{duration}} anlatım",
+  "{{duration}} played": "{{duration}} oynandı",
+  "Showing": "Gösterilen",
+  "Whole day": "Tüm gün",
+  "Drag over a chart to look at a stretch of the day.": "Bir zaman aralığına bakmak için grafikte tıklayıp sürükleyin.",
+  "I'll take upstairs duty": "Üstçülüğü ben alayım",
+  "is on upstairs duty": "şu an üstçü",
+  "Only game masters take upstairs duty": "Üstçülüğü sadece GM'ler alabilir",
+  "There is no upstairs duty right now": "Şu an üstçü yok",
+  "Check in to the cafe first": "Önce kafeye giriş yapın",
+  "The middleman cannot take upstairs duty": "Ortacı üstçü olamaz",
+  "The upstairs duty just changed": "Üstçü az önce değişti, tekrar deneyin"
 }
