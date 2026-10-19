@@ -6,9 +6,7 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
-  ComposedChart,
   Legend,
-  Line,
   ReferenceArea,
   ResponsiveContainer,
   Tooltip,
@@ -37,6 +35,17 @@ const callSeries: Series[] = [
   { key: "gmCalls", label: "Game master call", color: "#2563eb" },
   { key: "serviceCalls", label: "Service call", color: "#f97316" },
   { key: "orderReadyCalls", label: "Order Ready Call", color: "#ec4899" },
+];
+
+// The same types, counting only the calls nobody had.
+const waitingSeries: Series[] = [
+  { key: "waitingGmCalls", label: "Game master call", color: "#2563eb" },
+  { key: "waitingServiceCalls", label: "Service call", color: "#f97316" },
+  {
+    key: "waitingOrderReadyCalls",
+    label: "Order Ready Call",
+    color: "#ec4899",
+  },
 ];
 
 const staffSeries: Series[] = [
@@ -303,23 +312,21 @@ export default function DayLoad() {
             </div>
             <ChartCard
               title={t("Open calls")}
-              note={t(
-                "Calls open at each moment by type; the line is the calls nobody had at that moment."
-              )}
+              note={t("Calls open at each moment by type.")}
             >
-              <ComposedChart data={points} {...dragHandlers}>
+              <AreaChart data={points} {...dragHandlers}>
                 {axes()}
                 {series(callSeries)}
-                <Line
-                  type="stepAfter"
-                  dataKey="waitingCalls"
-                  name={t("Waiting for someone")}
-                  stroke="#dc2626"
-                  strokeWidth={2}
-                  dot={false}
-                  isAnimationActive={false}
-                />
-              </ComposedChart>
+              </AreaChart>
+            </ChartCard>
+            <ChartCard
+              title={t("Calls waiting for someone")}
+              note={t("Open calls nobody had at each moment.")}
+            >
+              <AreaChart data={points} {...dragHandlers}>
+                {axes()}
+                {series(waitingSeries)}
+              </AreaChart>
             </ChartCard>
             <ChartCard
               title={t("Staff taking calls")}

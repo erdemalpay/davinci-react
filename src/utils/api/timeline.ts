@@ -123,6 +123,9 @@ export type LoadPoint = {
   serviceCalls: number;
   orderReadyCalls: number;
   waitingCalls: number;
+  waitingGmCalls: number;
+  waitingServiceCalls: number;
+  waitingOrderReadyCalls: number;
   tables: number;
   customers: number;
   preparingOrders: number;
