@@ -13,6 +13,7 @@ import {
 import { GenericButton } from "../common/GenericButton";
 import EliminationBracket from "./EliminationBracket";
 import MatchCard from "./MatchCard";
+import RoundTimer from "./RoundTimer";
 
 interface Props {
   tournament: Tournament;
@@ -78,7 +79,7 @@ const MatchesTab = ({ tournament }: Props) => {
 
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-6 my-4">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <GenericButton
           variant="primary"
           disabled={isFinished || hasPendingTie}
@@ -89,6 +90,9 @@ const MatchesTab = ({ tournament }: Props) => {
             ? t("Start Tournament")
             : t("Generate Next Round")}
         </GenericButton>
+        {latest && (
+          <RoundTimer tournament={tournament} roundMatches={latest.matches} />
+        )}
         {hasPendingTie && (
           <span className="text-sm text-amber-700 font-medium">
             {t("Waiting for tie decision")}

@@ -57,6 +57,13 @@ export interface Tournament {
   byePoints?: number;
   advanceCount?: number;
   advancePerTable?: number;
+  roundDuration?: number; // tur süresi (dk); boşsa süre sınırı yok
+  // O anki tura verilen ek süre (dk) ve sayacın elle bitirilmesi; her yeni turda sıfırlanır
+  roundExtraMinutes?: number;
+  isRoundTimerStopped?: boolean;
+  // Duraklatıldıysa duraklatıldığı an; önceki duraklamalarda geçen toplam süre (sn)
+  roundPausedAt?: string | null;
+  roundPausedSeconds?: number;
 }
 
 export interface TournamentRegistration {
@@ -99,6 +106,7 @@ export interface TournamentMatch {
   players: TournamentMatchPlayer[];
   // Eleme masasında çıkış sınırında eşitlik: organizatör `slots` kişi seçene kadar dolu
   pendingTie?: { participantIds: number[]; slots: number } | null;
+  createdAt?: string; // turun başladığı an (tur sayacı)
 }
 
 export interface TournamentStanding {
