@@ -755,6 +755,8 @@ export enum DeclineReasonEnum {
   BAR_CLEANING = "BAR_CLEANING",
   DOESNT_KNOW_GAME = "DOESNT_KNOW_GAME",
   OTHER = "OTHER",
+  // Set by the system: they started explaining a game at another table.
+  STARTED_EXPLAINING = "STARTED_EXPLAINING",
 }
 
 export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
@@ -767,6 +769,7 @@ export const declineReasonLabels: Record<DeclineReasonEnum, string> = {
   [DeclineReasonEnum.BAR_CLEANING]: "I'm cleaning the bar",
   [DeclineReasonEnum.DOESNT_KNOW_GAME]: "I don't know the game",
   [DeclineReasonEnum.OTHER]: "Other",
+  [DeclineReasonEnum.STARTED_EXPLAINING]: "Started explaining at another table",
 };
 
 export enum GmCallReasonEnum {
