@@ -37,6 +37,17 @@ const callSeries: Series[] = [
   { key: "orderReadyCalls", label: "Order Ready Call", color: "#ec4899" },
 ];
 
+// The same types, counting only the calls nobody had.
+const waitingSeries: Series[] = [
+  { key: "waitingGmCalls", label: "Game master call", color: "#2563eb" },
+  { key: "waitingServiceCalls", label: "Service call", color: "#f97316" },
+  {
+    key: "waitingOrderReadyCalls",
+    label: "Order Ready Call",
+    color: "#ec4899",
+  },
+];
+
 const staffSeries: Series[] = [
   { key: "freeStaff", label: "Idle", color: "#22c55e" },
   { key: "call", label: "On a call", color: "#2563eb" },
@@ -314,15 +325,7 @@ export default function DayLoad() {
             >
               <AreaChart data={points} {...dragHandlers}>
                 {axes()}
-                <Area
-                  type="stepAfter"
-                  dataKey="waitingCalls"
-                  name={t("Waiting for someone")}
-                  stroke="#dc2626"
-                  fill="#dc2626"
-                  fillOpacity={0.4}
-                  isAnimationActive={false}
-                />
+                {series(waitingSeries)}
               </AreaChart>
             </ChartCard>
             <ChartCard
