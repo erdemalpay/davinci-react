@@ -21,6 +21,7 @@ import {
   TieBreakPicker,
   useScoreEntry,
 } from "./useScoreEntry";
+import { MoveHereButton, SeatActions, SeatEditing } from "./useSeatEditing";
 
 interface Props {
   tournament: Tournament;
@@ -28,6 +29,7 @@ interface Props {
   participants: TournamentParticipant[];
   names: Map<number, string>;
   editableRound?: number; // skoru girilebilen (son) eleme turu
+  seatEditing: SeatEditing;
 }
 
 type BracketTable = {
@@ -279,6 +281,7 @@ interface BracketBoxProps {
   isChampionTable: boolean;
   isAdvancer: (participantId: number) => boolean | undefined;
   boxRef: (el: HTMLDivElement | null) => void;
+  seatEditing: SeatEditing;
 }
 
 // Ağaçtaki tek masa kutusu; son turda skorlar doğrudan isimlerin yanına girilir
@@ -289,6 +292,7 @@ const BracketBox = ({
   isChampionTable,
   isAdvancer,
   boxRef,
+  seatEditing,
 }: BracketBoxProps) => {
   const { t } = useTranslation();
   const { match } = table;
@@ -303,13 +307,18 @@ const BracketBox = ({
         match ? "border-gray-300" : "border-dashed border-gray-300"
       }`}
     >
-      <p className="px-2 py-1 text-xs text-gray-400 border-b">
-        {match?.isBye || table.isBye
-          ? t("Bye")
-          : table.isThirdPlace
-          ? t("Third Place Match")
-          : `${t("Table")} ${table.tableNo}`}
-      </p>
+      <div className="flex items-center justify-between gap-2 px-2 py-1 border-b">
+        <p className="text-xs text-gray-400">
+          {match?.isBye || table.isBye
+            ? t("Bye")
+            : table.isThirdPlace
+            ? t("Third Place Match")
+            : `${t("Table")} ${table.tableNo}`}
+        </p>
+        {match && isEditable && (
+          <MoveHereButton match={match} seatEditing={seatEditing} />
+        )}
+      </div>
       {!match &&
         table.seats?.map(
           (participantId) =>
@@ -330,7 +339,12 @@ const BracketBox = ({
         </p>
       )}
       {match && isEditable ? (
-        <BracketScoreEditor match={match} players={players} names={names} />
+        <BracketScoreEditor
+          match={match}
+          players={players}
+          names={names}
+          seatEditing={seatEditing}
+        />
       ) : (
         players.map((player) => {
           const tied =
@@ -376,12 +390,14 @@ interface BracketScoreEditorProps {
   match: TournamentMatch;
   players: TournamentMatch["players"];
   names: Map<number, string>;
+  seatEditing: SeatEditing;
 }
 
 const BracketScoreEditor = ({
   match,
   players,
   names,
+  seatEditing,
 }: BracketScoreEditorProps) => {
   const { t } = useTranslation();
   const { scores, setScore, isFilled, save } = useScoreEntry(match);
@@ -390,7 +406,9 @@ const BracketScoreEditor = ({
       {players.map((player) => (
         <div
           key={player.participantId}
-          className="flex items-center gap-2 px-2 py-1 border-b"
+          className={`flex items-center gap-2 px-2 py-1 border-b ${
+            seatEditing.isSelected(player.participantId) ? "bg-blue-100" : ""
+          }`}
         >
           <span className="w-4 text-xs text-gray-400">
             {match.isCompleted ? player.rank : ""}
@@ -405,6 +423,11 @@ const BracketScoreEditor = ({
             placeholder={t("Score")}
             value={scores[player.participantId]}
             onChange={(e) => setScore(player.participantId, e.target.value)}
+          />
+          <SeatActions
+            match={match}
+            participantId={player.participantId}
+            seatEditing={seatEditing}
           />
         </div>
       ))}
@@ -422,6 +445,7 @@ const EliminationBracket = ({
   participants,
   names,
   editableRound,
+  seatEditing,
 }: Props) => {
   const roundName = useEliminationRoundName();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -509,6 +533,7 @@ const EliminationBracket = ({
                     isFinished
                   }
                   isAdvancer={(participantId) => isAdvancer(participantId, c)}
+                  seatEditing={seatEditing}
                   boxRef={(el) => {
                     if (el) boxRefs.current.set(table.key, el);
                     else boxRefs.current.delete(table.key);

@@ -6,15 +6,23 @@ import {
   TieBreakPicker,
   useScoreEntry,
 } from "./useScoreEntry";
+import { MoveHereButton, SeatActions, SeatEditing } from "./useSeatEditing";
 
 interface Props {
   match: TournamentMatch;
   names: Map<number, string>;
   totals: Map<number, number>;
   isEditable: boolean;
+  seatEditing: SeatEditing;
 }
 
-const MatchCard = ({ match, names, totals, isEditable }: Props) => {
+const MatchCard = ({
+  match,
+  names,
+  totals,
+  isEditable,
+  seatEditing,
+}: Props) => {
   const { t } = useTranslation();
   const { scores, setScore, isFilled, save } = useScoreEntry(match);
   const canEdit = isEditable && !match.isBye;
@@ -48,13 +56,20 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
         match.isCompleted ? "bg-green-50" : "bg-white"
       }`}
     >
-      <p className="font-semibold text-sm">
-        {t("Table")} {match.tableNo}
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-semibold text-sm">
+          {t("Table")} {match.tableNo}
+        </p>
+        {canEdit && <MoveHereButton match={match} seatEditing={seatEditing} />}
+      </div>
       {players.map((player) => (
         <div
           key={player.participantId}
-          className="flex items-center gap-2 text-sm"
+          className={`flex items-center gap-2 text-sm ${
+            seatEditing.isSelected(player.participantId)
+              ? "rounded bg-blue-100"
+              : ""
+          }`}
         >
           {match.isCompleted && (
             <span className="w-6 text-gray-500">{player.rank}.</span>
@@ -78,6 +93,13 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
             <span className="w-14 text-right font-medium">
               +{player.points}
             </span>
+          )}
+          {canEdit && (
+            <SeatActions
+              match={match}
+              participantId={player.participantId}
+              seatEditing={seatEditing}
+            />
           )}
         </div>
       ))}

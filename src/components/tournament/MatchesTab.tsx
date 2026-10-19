@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MatchStage,
@@ -10,10 +11,12 @@ import {
   useGetTournamentParticipants,
   useTournamentActions,
 } from "../../utils/api/tournament";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import EliminationBracket from "./EliminationBracket";
 import MatchCard from "./MatchCard";
 import RoundTimer from "./RoundTimer";
+import { useSeatEditing } from "./useSeatEditing";
 
 interface Props {
   tournament: Tournament;
@@ -56,9 +59,16 @@ const MatchesTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const matches = useGetTournamentMatches(tournament._id);
   const participants = useGetTournamentParticipants(tournament._id);
-  const { generateNextRound, isGeneratingRound } = useTournamentActions();
+  const {
+    generateNextRound,
+    isGeneratingRound,
+    regenerateRound,
+    isRegeneratingRound,
+  } = useTournamentActions();
+  const [isRegenerateDialogOpen, setIsRegenerateDialogOpen] = useState(false);
 
   const names = new Map(participants.map((p) => [p._id, p.name]));
+  const seatEditing = useSeatEditing(tournament, names);
   // Puan turlarında skoru girilmemiş kartlar oyuncuların o anki toplamına göre dizilir
   const totals = new Map<number, number>();
   matches
@@ -76,6 +86,8 @@ const MatchesTab = ({ tournament }: Props) => {
   const latestKey = latest?.key;
   const isFinished = tournament.status === TournamentStatus.FINISHED;
   const hasPendingTie = matches.some((m) => m.pendingTie);
+  // Turda skor girildiyse yeniden eşleştirme oynanmış maçı silerdi; sadece yer değiştirilir
+  const isLatestScored = latest?.matches.some((m) => m.isCompleted && !m.isBye);
 
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-6 my-4">
@@ -90,6 +102,17 @@ const MatchesTab = ({ tournament }: Props) => {
             ? t("Start Tournament")
             : t("Generate Next Round")}
         </GenericButton>
+        {latest && !isFinished && (
+          <GenericButton
+            variant="outline"
+            disabled={isLatestScored}
+            isLoading={isRegeneratingRound}
+            title={isLatestScored ? t("RegenerateRoundDisabled") : undefined}
+            onClick={() => setIsRegenerateDialogOpen(true)}
+          >
+            {t("Re-pair Round")}
+          </GenericButton>
+        )}
         {latest && (
           <RoundTimer tournament={tournament} roundMatches={latest.matches} />
         )}
@@ -104,6 +127,19 @@ const MatchesTab = ({ tournament }: Props) => {
           </span>
         )}
       </div>
+      {seatEditing.overlay}
+      <ConfirmationDialog
+        isOpen={isRegenerateDialogOpen}
+        close={() => setIsRegenerateDialogOpen(false)}
+        confirm={() => {
+          regenerateRound(tournament._id);
+          setIsRegenerateDialogOpen(false);
+        }}
+        title={t("Re-pair Round")}
+        text={t("RegenerateRoundMessage", {
+          count: participants.filter((p) => p.isActive).length,
+        })}
+      />
 
       {matches.some((m) => m.stage === MatchStage.ELIMINATION) && (
         <section className="flex flex-col gap-3">
@@ -118,6 +154,7 @@ const MatchesTab = ({ tournament }: Props) => {
                 ? latest.round
                 : undefined
             }
+            seatEditing={seatEditing}
           />
         </section>
       )}
@@ -139,6 +176,7 @@ const MatchesTab = ({ tournament }: Props) => {
                   names={names}
                   totals={totals}
                   isEditable={group.key === latestKey && !isFinished}
+                  seatEditing={seatEditing}
                 />
               ))}
             </div>

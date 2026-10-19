@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { get, patch, post, remove } from ".";
+import { get, patch, post, remove, UpdatePayload } from ".";
 import {
   ConfirmationStatus,
   MatchStage,
@@ -127,6 +127,33 @@ export function useTournamentActions() {
     ...withSuccess("Participant removed"),
   });
 
+  const updateParticipant = useMutation({
+    mutationFn: ({
+      id,
+      updates,
+    }: UpdatePayload<Partial<TournamentParticipant>>) =>
+      patch({ path: `${baseUrl}/participants/${id}`, payload: updates }),
+    ...withSuccess("Saved"),
+  });
+
+  // swapWithId boşsa oyuncu hedef masaya taşınır
+  const moveParticipant = useMutation({
+    mutationFn: ({
+      participantId,
+      matchId,
+      swapWithId,
+    }: {
+      participantId: number;
+      matchId: number;
+      swapWithId?: number;
+    }) =>
+      patch({
+        path: `${baseUrl}/participants/${participantId}/seat`,
+        payload: { matchId, swapWithId },
+      }),
+    ...withSuccess("Seats updated"),
+  });
+
   const generateNextRound = useMutation({
     mutationFn: (tournamentId: number) =>
       post<object, TournamentMatch[]>({
@@ -139,6 +166,15 @@ export function useTournamentActions() {
       toast.success(
         t(created?.length ? "Round created" : "Tournament finished")
       ),
+  });
+
+  const regenerateRound = useMutation({
+    mutationFn: (tournamentId: number) =>
+      post({
+        path: `${baseUrl}/${tournamentId}/rounds/regenerate`,
+        payload: {},
+      }),
+    ...withSuccess("Round re-paired"),
   });
 
   // Sunucunun döndürdüğü maçı listeye hemen yazar; skor ve beraberlik seçimi
@@ -195,6 +231,10 @@ export function useTournamentActions() {
     promoteRegistrations: promoteRegistrations.mutate,
     addParticipant: addParticipant.mutate,
     removeParticipant: removeParticipant.mutate,
+    updateParticipant: updateParticipant.mutate,
+    moveParticipant: moveParticipant.mutate,
+    regenerateRound: regenerateRound.mutate,
+    isRegeneratingRound: regenerateRound.isPending,
     generateNextRound: generateNextRound.mutate,
     isGeneratingRound: generateNextRound.isPending,
     submitScores: submitScores.mutate,

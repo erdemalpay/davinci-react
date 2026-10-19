@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
   ConfirmationStatus,
@@ -12,6 +13,7 @@ import {
   useGetTournamentRegistrations,
   useTournamentActions,
 } from "../../utils/api/tournament";
+import { normalizeText } from "../../utils/slug";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -24,6 +26,12 @@ import { useRegistrationLabels } from "./RegistrationsTab";
 // Başvurudan gelmeyen katılımcılar kaynak filtresinde bu değerle seçilir
 const MANUAL_SOURCE = "manual";
 
+// Adı ve soyadı aynı olanlar (ortadaki isim farklı olsa da) aynı kişi olabilir
+const nameKey = (name: string) => {
+  const words = normalizeText(name).trim().split(/\s+/);
+  return `${words[0]} ${words[words.length - 1]}`;
+};
+
 interface Props {
   tournament: Tournament;
 }
@@ -32,13 +40,16 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const participants = useGetTournamentParticipants(tournament._id);
   const registrations = useGetTournamentRegistrations(tournament._id);
-  const { addParticipant, removeParticipant } = useTournamentActions();
+  const { addParticipant, removeParticipant, updateParticipant } =
+    useTournamentActions();
   const { sourceLabels } = useRegistrationLabels();
 
   const [rowToAction, setRowToAction] = useState<TournamentParticipant>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ name: "" });
   const [showFilters, setShowFilters] = useState(false);
   const [filterFormElements, setFilterFormElements] = useState<
     Record<string, string>
@@ -56,6 +67,9 @@ const ParticipantsTab = ({ tournament }: Props) => {
     true: t("Active"),
     false: t("Withdrawn"),
   };
+  const similar = addForm.name.trim()
+    ? participants.find((p) => nameKey(p.name) === nameKey(addForm.name))
+    : undefined;
   const sourceOf = (participant: TournamentParticipant) =>
     registrations.find((r) => r._id === participant.registrationId)?.source ??
     MANUAL_SOURCE;
@@ -88,9 +102,38 @@ const ParticipantsTab = ({ tournament }: Props) => {
     {
       key: "isActive",
       node: (row: TournamentParticipant) =>
-        row.isActive ? t("Active") : t("Withdrawn"),
+        row.isActive ? (
+          t("Active")
+        ) : (
+          <div className="flex items-center gap-2">
+            {t("Withdrawn")}
+            {!isFinished && (
+              <GenericButton
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  updateParticipant({
+                    id: row._id,
+                    updates: { isActive: true },
+                  })
+                }
+              >
+                {t("Undo")}
+              </GenericButton>
+            )}
+          </div>
+        ),
     },
   ];
+
+  const nameInput = {
+    type: InputTypes.TEXT,
+    formKey: "name",
+    label: t("Name"),
+    placeholder: t("Name"),
+    required: true,
+  };
+  const nameFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {
     name: t("Add Participant"),
@@ -100,17 +143,15 @@ const ParticipantsTab = ({ tournament }: Props) => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
-        inputs={[
-          {
-            type: InputTypes.TEXT,
-            formKey: "name",
-            label: t("Name"),
-            placeholder: t("Name"),
-            required: true,
-          },
-        ]}
-        formKeys={[{ key: "name", type: FormKeyTypeEnum.STRING }]}
+        inputs={[nameInput]}
+        formKeys={nameFormKeys}
         nonImageInputsClassName="grid grid-cols-1 gap-4"
+        setForm={setAddForm}
+        isConfirmationDialogRequired={() => !!similar}
+        confirmationDialogHeader={t("Similar Name")}
+        confirmationDialogText={t("SimilarNameMessage", {
+          name: similar?.name,
+        })}
         submitItem={(item) =>
           addParticipant({
             tournamentId: tournament._id,
@@ -206,6 +247,31 @@ const ParticipantsTab = ({ tournament }: Props) => {
       isModal: true,
       isModalOpen: isDeleteDialogOpen,
       setIsModal: setIsDeleteDialogOpen,
+      isPath: false,
+    },
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={[nameInput]}
+          formKeys={nameFormKeys}
+          submitItem={updateParticipant as any}
+          isEditMode
+          topClassName="flex flex-col gap-2"
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: { name: rowToAction.name },
+          }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
       isPath: false,
     },
   ];
