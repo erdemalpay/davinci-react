@@ -6,6 +6,7 @@ import PublicFormCard, {
   PublicFormLoading,
 } from "../components/common/PublicFormCard";
 import StatusScreen from "../components/common/StatusScreen";
+import CheckInQrCard from "../components/tournament/CheckInQrCard";
 import { RegistrationSource } from "../types/tournament";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import {
@@ -32,7 +33,8 @@ const TournamentRegister = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
+  // Kayıt olunca dolar; turnuva günü girişte okutulacak QR'ın içeriği (eski API'de boş)
+  const [checkInCode, setCheckInCode] = useState<string>();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,13 +43,13 @@ const TournamentRegister = () => {
     setError(null);
     setIsSubmitting(true);
     try {
-      await registerTournament(slug, {
+      const registration = await registerTournament(slug, {
         fullName: fullName.trim(),
         phone,
         email: email.trim(),
         source: parseSource(searchParams.get("source")),
       });
-      setIsRegistered(true);
+      setCheckInCode(registration.checkInCode ?? "");
     } catch (err: unknown) {
       setError(
         getApiErrorMessage(
@@ -73,15 +75,27 @@ const TournamentRegister = () => {
     );
   }
 
-  if (isRegistered) {
+  const dateText = `${format(new Date(tournament.date), "dd/MM/yyyy")}${
+    tournament.startTime ? ` · ${tournament.startTime}` : ""
+  }`;
+
+  if (checkInCode !== undefined) {
     return (
-      <StatusScreen
-        isSuccess
+      <PublicFormCard
         title={t("Your registration has been received!")}
-        description={t("TournamentRegisteredDescription", {
+        subtitle={t("TournamentRegisteredDescription", {
           name: tournament.name,
         })}
-      />
+      >
+        {checkInCode && (
+          <CheckInQrCard
+            code={checkInCode}
+            tournamentName={tournament.name}
+            dateText={dateText}
+            fullName={fullName.trim()}
+          />
+        )}
+      </PublicFormCard>
     );
   }
 
@@ -97,9 +111,7 @@ const TournamentRegister = () => {
   return (
     <PublicFormCard
       title={tournament.name}
-      subtitle={`${format(new Date(tournament.date), "dd/MM/yyyy")}${
-        tournament.startTime ? ` · ${tournament.startTime}` : ""
-      } · ${t("Davinci Board Game Cafe")}`}
+      subtitle={`${dateText} · ${t("Davinci Board Game Cafe")}`}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

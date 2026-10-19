@@ -127,6 +127,24 @@ export function useTournamentActions() {
     ...withSuccess("Participant removed"),
   });
 
+  // Girişte okutulan QR'ın sahibi katılımcı olur
+  const checkIn = useMutation({
+    mutationFn: ({
+      tournamentId,
+      code,
+    }: {
+      tournamentId: number;
+      code: string;
+    }) =>
+      post<{ code: string }, { fullName: string }>({
+        path: `${baseUrl}/${tournamentId}/check-in`,
+        payload: { code },
+      }),
+    ...options,
+    onSuccess: ({ fullName }: { fullName: string }) =>
+      toast.success(t("CheckedInMessage", { name: fullName })),
+  });
+
   const updateParticipant = useMutation({
     mutationFn: ({
       id,
@@ -231,6 +249,7 @@ export function useTournamentActions() {
     promoteRegistrations: promoteRegistrations.mutate,
     addParticipant: addParticipant.mutate,
     removeParticipant: removeParticipant.mutate,
+    checkIn: checkIn.mutateAsync,
     updateParticipant: updateParticipant.mutate,
     moveParticipant: moveParticipant.mutate,
     regenerateRound: regenerateRound.mutate,
@@ -263,5 +282,8 @@ export function registerTournament(
     source?: RegistrationSource;
   }
 ) {
-  return post({ path: `${baseUrl}/public/${slug}/register`, payload });
+  return post<typeof payload, { _id: number; checkInCode: string }>({
+    path: `${baseUrl}/public/${slug}/register`,
+    payload,
+  });
 }
