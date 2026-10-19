@@ -44,3 +44,17 @@ export function useGetActivities(
   const url = `${BASE_URL_ACTIVITIES}/query?${queryString}`;
   return useGet<ActivityPayload>(url, [url, page, limit, filters], true);
 }
+
+// One time someone added the game to the games they know, or removed it.
+export type GameLearningRecord = {
+  user: string;
+  learned: boolean;
+  date: string;
+};
+
+export function useGetGameLearningHistory(gameId: number) {
+  const url = `${BASE_URL_ACTIVITIES}/game-learning/${gameId}`;
+  return useGet<GameLearningRecord[]>(url, [url], true, {
+    enabled: !!gameId,
+  });
+}
