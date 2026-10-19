@@ -11,6 +11,7 @@ import {
   TournamentMatch,
   TournamentParticipant,
   TournamentRegistration,
+  TournamentLive,
   TournamentStanding,
 } from "../../types/tournament";
 import { getApiErrorMessage } from "../getApiErrorMessage";
@@ -270,6 +271,19 @@ export function useGetPublicTournament(slug: string | undefined) {
     queryFn: () => get({ path }),
     enabled: !!slug,
     staleTime: 0,
+  });
+}
+
+// Websocket bütün panel olaylarını yayınladığı için herkese açık sayfa ona bağlanmaz;
+// 5 sn'de bir ve telefon ekranına geri dönülünce hemen yenilenir
+export function useGetTournamentLive(slug: string | undefined) {
+  const path = slug ? `${baseUrl}/public/${slug}/live` : "";
+  return useQuery<TournamentLive>({
+    queryKey: [path],
+    queryFn: () => get({ path }),
+    enabled: !!slug,
+    refetchInterval: 5_000,
+    refetchOnWindowFocus: true,
   });
 }
 

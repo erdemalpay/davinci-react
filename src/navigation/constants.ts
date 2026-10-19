@@ -144,6 +144,7 @@ export enum PublicRoutes {
   Login = "/login",
   CampaignForm = "/campaign/:eventSlug",
   TournamentRegister = "/tournament/:slug",
+  TournamentLive = "/tournament/:slug/live",
 }
 
 export enum Routes {

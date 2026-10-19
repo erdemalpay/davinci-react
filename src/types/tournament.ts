@@ -135,3 +135,11 @@ export interface PublicTournament {
   startTime?: string;
   isRegistrationOpen: boolean;
 }
+
+// Oyuncuların telefondan takip ettiği sayfanın verisi; katılımcıların sadece adı gelir
+export interface TournamentLive {
+  tournament: Tournament;
+  participants: Pick<TournamentParticipant, "_id" | "name" | "isActive">[];
+  matches: TournamentMatch[];
+  standings: TournamentStanding[];
+}

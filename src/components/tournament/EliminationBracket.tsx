@@ -21,15 +21,17 @@ import {
   TieBreakPicker,
   useScoreEntry,
 } from "./useScoreEntry";
+import { playerRowProps } from "./MatchCard";
 import { MoveHereButton, SeatActions, SeatEditing } from "./useSeatEditing";
 
 interface Props {
   tournament: Tournament;
   matches: TournamentMatch[];
-  participants: TournamentParticipant[];
+  participants: Pick<TournamentParticipant, "_id" | "isActive">[];
   names: Map<number, string>;
   editableRound?: number; // skoru girilebilen (son) eleme turu
-  seatEditing: SeatEditing;
+  seatEditing?: SeatEditing;
+  highlightIds?: Set<number>;
 }
 
 type BracketTable = {
@@ -48,7 +50,7 @@ type Column = { round: number; tables: BracketTable[] };
 export const buildColumns = (
   tournament: Tournament,
   elimination: TournamentMatch[],
-  participants: TournamentParticipant[]
+  participants: Pick<TournamentParticipant, "_id" | "isActive">[]
 ): Column[] => {
   const byRound = new Map<number, TournamentMatch[]>();
   elimination.forEach((match) =>
@@ -281,7 +283,8 @@ interface BracketBoxProps {
   isChampionTable: boolean;
   isAdvancer: (participantId: number) => boolean | undefined;
   boxRef: (el: HTMLDivElement | null) => void;
-  seatEditing: SeatEditing;
+  seatEditing?: SeatEditing;
+  highlightIds?: Set<number>;
 }
 
 // Ağaçtaki tek masa kutusu; son turda skorlar doğrudan isimlerin yanına girilir
@@ -293,6 +296,7 @@ const BracketBox = ({
   isAdvancer,
   boxRef,
   seatEditing,
+  highlightIds,
 }: BracketBoxProps) => {
   const { t } = useTranslation();
   const { match } = table;
@@ -315,7 +319,7 @@ const BracketBox = ({
             ? t("Third Place Match")
             : `${t("Table")} ${table.tableNo}`}
         </p>
-        {match && isEditable && (
+        {match && isEditable && seatEditing && (
           <MoveHereButton match={match} seatEditing={seatEditing} />
         )}
       </div>
@@ -325,7 +329,12 @@ const BracketBox = ({
             participantId !== undefined && (
               <div
                 key={participantId}
-                className="px-2 py-1 border-b last:border-b-0"
+                {...playerRowProps(
+                  participantId,
+                  "px-2 py-1 border-b last:border-b-0",
+                  undefined,
+                  highlightIds
+                )}
               >
                 {names.get(participantId)}
               </div>
@@ -338,7 +347,7 @@ const BracketBox = ({
             : t("Waiting for winners")}
         </p>
       )}
-      {match && isEditable ? (
+      {match && isEditable && seatEditing ? (
         <BracketScoreEditor
           match={match}
           players={players}
@@ -358,9 +367,18 @@ const BracketBox = ({
           return (
             <div
               key={player.participantId}
-              className={`flex items-center gap-2 px-2 py-1 border-b last:border-b-0 ${
-                advanced ? "bg-green-50 font-medium" : ""
-              } ${match?.isCompleted && !advanced ? "text-gray-400" : ""}`}
+              {...playerRowProps(
+                player.participantId,
+                `flex items-center gap-2 px-2 py-1 border-b last:border-b-0 ${
+                  advanced && !highlightIds?.has(player.participantId)
+                    ? "bg-green-50"
+                    : ""
+                } ${advanced ? "font-medium" : ""} ${
+                  match?.isCompleted && !advanced ? "text-gray-400" : ""
+                }`,
+                undefined,
+                highlightIds
+              )}
             >
               <span className="w-4 text-xs text-gray-400">
                 {match?.isCompleted ? player.rank : ""}
@@ -406,9 +424,11 @@ const BracketScoreEditor = ({
       {players.map((player) => (
         <div
           key={player.participantId}
-          className={`flex items-center gap-2 px-2 py-1 border-b ${
-            seatEditing.isSelected(player.participantId) ? "bg-blue-100" : ""
-          }`}
+          {...playerRowProps(
+            player.participantId,
+            "flex items-center gap-2 px-2 py-1 border-b",
+            seatEditing
+          )}
         >
           <span className="w-4 text-xs text-gray-400">
             {match.isCompleted ? player.rank : ""}
@@ -446,6 +466,7 @@ const EliminationBracket = ({
   names,
   editableRound,
   seatEditing,
+  highlightIds,
 }: Props) => {
   const roundName = useEliminationRoundName();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -534,6 +555,7 @@ const EliminationBracket = ({
                   }
                   isAdvancer={(participantId) => isAdvancer(participantId, c)}
                   seatEditing={seatEditing}
+                  highlightIds={highlightIds}
                   boxRef={(el) => {
                     if (el) boxRefs.current.set(table.key, el);
                     else boxRefs.current.delete(table.key);

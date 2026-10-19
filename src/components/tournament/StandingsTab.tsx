@@ -3,6 +3,8 @@ import {
   MatchStage,
   Tournament,
   TournamentFormat,
+  TournamentMatch,
+  TournamentParticipant,
   TournamentStanding,
 } from "../../types/tournament";
 import {
@@ -18,13 +20,23 @@ interface Props {
   tournament: Tournament;
 }
 
+interface StandingsTableProps {
+  tournament: Tournament;
+  standings: TournamentStanding[];
+  matches: TournamentMatch[];
+  participants: Pick<TournamentParticipant, "_id" | "isActive">[];
+}
+
 // Eleme oynandıysa sıra = turnuvanın genel sonucu (en ileri gidenler üstte);
 // puan turları her tur için bir sütunda o turda alınan puanla gösterilir.
-const StandingsTab = ({ tournament }: Props) => {
+// Panel ve oyuncuların takip sayfası aynı tabloyu kullanır.
+export const StandingsTable = ({
+  tournament,
+  standings,
+  matches,
+  participants,
+}: StandingsTableProps) => {
   const { t } = useTranslation();
-  const standings = useGetTournamentStandings(tournament._id);
-  const matches = useGetTournamentMatches(tournament._id);
-  const participants = useGetTournamentParticipants(tournament._id);
   const roundName = useEliminationRoundName();
   // Tur adları (Yarı Final, Final…) ağaçtaki sütun sayısına göre verilir
   const eliminationRounds = buildColumns(
@@ -119,6 +131,20 @@ const StandingsTab = ({ tournament }: Props) => {
       rows={standings}
       isActionsActive={false}
       title={t("Standings")}
+    />
+  );
+};
+
+const StandingsTab = ({ tournament }: Props) => {
+  const standings = useGetTournamentStandings(tournament._id);
+  const matches = useGetTournamentMatches(tournament._id);
+  const participants = useGetTournamentParticipants(tournament._id);
+  return (
+    <StandingsTable
+      tournament={tournament}
+      standings={standings}
+      matches={matches}
+      participants={participants}
     />
   );
 };
