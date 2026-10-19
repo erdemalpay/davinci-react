@@ -86,7 +86,7 @@ const CheckInQrCard = (props: Props) => {
     buildQrImage(props)
       .then(setImage)
       .catch(() => setImage(""));
-  }, [props.code]);
+  }, [props.code, props.tournamentName, props.dateText, props.fullName]);
 
   return (
     <div className="flex flex-col items-center gap-4 text-center">
