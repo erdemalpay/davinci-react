@@ -6,9 +6,7 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
-  ComposedChart,
   Legend,
-  Line,
   ReferenceArea,
   ResponsiveContainer,
   Tooltip,
@@ -303,23 +301,29 @@ export default function DayLoad() {
             </div>
             <ChartCard
               title={t("Open calls")}
-              note={t(
-                "Calls open at each moment by type; the line is the calls nobody had at that moment."
-              )}
+              note={t("Calls open at each moment by type.")}
             >
-              <ComposedChart data={points} {...dragHandlers}>
+              <AreaChart data={points} {...dragHandlers}>
                 {axes()}
                 {series(callSeries)}
-                <Line
+              </AreaChart>
+            </ChartCard>
+            <ChartCard
+              title={t("Calls waiting for someone")}
+              note={t("Open calls nobody had at each moment.")}
+            >
+              <AreaChart data={points} {...dragHandlers}>
+                {axes()}
+                <Area
                   type="stepAfter"
                   dataKey="waitingCalls"
                   name={t("Waiting for someone")}
                   stroke="#dc2626"
-                  strokeWidth={2}
-                  dot={false}
+                  fill="#dc2626"
+                  fillOpacity={0.4}
                   isAnimationActive={false}
                 />
-              </ComposedChart>
+              </AreaChart>
             </ChartCard>
             <ChartCard
               title={t("Staff taking calls")}
