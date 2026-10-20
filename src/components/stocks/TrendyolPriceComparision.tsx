@@ -46,6 +46,7 @@ const TrendyolPriceComparision = () => {
   }, [products, trendyolItemsProductsIds]);
 
   const rows = useMemo(() => {
+    // Trendyol'a yüklenmemiş ürünleri gösterme (menüde barkodu olsa bile).
     return trendyolItemProducts
       ?.map((trendyolItemProduct) => {
         const foundMenuItem = items.find(
@@ -66,6 +67,7 @@ const TrendyolPriceComparision = () => {
           trendyolStock: foundTrendyolProduct?.quantity ?? 0,
         };
       })
+      .filter((row) => row.barcode)
       .sort((a, b) => {
         const getOrder = (row: TrendyolPriceRow) => {
           if (row.menuPrice > row.trendyolPrice) return 0;
