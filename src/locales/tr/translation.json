@@ -2355,5 +2355,6 @@
   "Learn date entered": "Girilen öğrenme tarihi",
   "What happened": "Ne oldu",
   "removed it": "çıkardı",
-  "Show who removed it": "Çıkaranları da göster"
+  "Show who removed it": "Çıkaranları da göster",
+  "No middleman after 22:00": "22:00'den sonra ortacı olunamaz"
 }
