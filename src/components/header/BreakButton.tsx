@@ -84,11 +84,12 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const isGameRole =
     user?.role?._id === RoleEnum.GAMEMASTER ||
     user?.role?._id === RoleEnum.GAMEMANAGER;
+  // A middleman away on a call has left the role free for anyone to take.
   const myMiddleman = activeMiddlemen?.find(
-    (m) => getRefId(m.user) === user?._id && !m.finishHour
+    (m) => getRefId(m.user) === user?._id && !m.finishHour && !m.awayOnCall
   );
   const otherMiddleman = activeMiddlemen?.find(
-    (m) => getRefId(m.user) !== user?._id && !m.finishHour
+    (m) => getRefId(m.user) !== user?._id && !m.finishHour && !m.awayOnCall
   );
   const otherMiddlemanName =
     otherMiddleman &&
