@@ -7,13 +7,25 @@ import { useQrCheckInOutMutation } from "../../utils/api/visit";
 interface QrScannerModalProps {
   isOpen: boolean;
   close: () => void;
+  // Verilirse okunan kod buna gider ve pencere açık kalır (kapıda art arda okutma);
+  // verilmezse personel giriş/çıkışı yapılır
+  onScan?: (code: string) => Promise<unknown>;
+  title?: string;
+  hint?: string;
 }
 
-export const QrScannerModal = ({ isOpen, close }: QrScannerModalProps) => {
+export const QrScannerModal = ({
+  isOpen,
+  close,
+  onScan,
+  title,
+  hint,
+}: QrScannerModalProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
   const submittingRef = useRef(false);
+  const lastCodeRef = useRef<string>();
   const [error, setError] = useState<string>("");
   const { mutate: qrCheckInOut } = useQrCheckInOutMutation();
 
@@ -21,6 +33,7 @@ export const QrScannerModal = ({ isOpen, close }: QrScannerModalProps) => {
     if (!isOpen) return;
     setError("");
     submittingRef.current = false;
+    lastCodeRef.current = undefined;
 
     // Kamera (getUserMedia) yalnızca güvenli bağlamda çalışır: HTTPS veya localhost.
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
@@ -40,6 +53,18 @@ export const QrScannerModal = ({ isOpen, close }: QrScannerModalProps) => {
         videoEl,
         (result) => {
           if (!result || submittingRef.current) return;
+          if (onScan) {
+            // Kamera aynı QR'ı saniyede birkaç kez okur; yeni bir QR gelene kadar tekrar gönderme
+            if (result.getText() === lastCodeRef.current) return;
+            lastCodeRef.current = result.getText();
+            submittingRef.current = true;
+            onScan(result.getText())
+              .catch(() => undefined) // hata toast'ı mutation'ın onError'ında
+              .finally(() => {
+                submittingRef.current = false;
+              });
+            return;
+          }
           submittingRef.current = true; // çoklu callback'te tek istek garantisi
           qrCheckInOut(result.getText(), {
             onSuccess: (data) => {
@@ -81,7 +106,7 @@ export const QrScannerModal = ({ isOpen, close }: QrScannerModalProps) => {
       <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md mx-4 shadow-2xl flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800">
-            {t("Scan QR to check in/out")}
+            {title ?? t("Scan QR to check in/out")}
           </h2>
           <button
             onClick={close}
@@ -101,7 +126,7 @@ export const QrScannerModal = ({ isOpen, close }: QrScannerModalProps) => {
           />
         )}
         <p className="text-xs text-gray-500 text-center">
-          {t("Point your camera at the QR shown at the cafe")}
+          {hint ?? t("Point your camera at the QR shown at the cafe")}
         </p>
       </div>
     </div>

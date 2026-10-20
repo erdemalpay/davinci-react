@@ -67,6 +67,8 @@ const ADVANCED_KEYS = [
   "byePoints",
 ];
 const FORM_ONLY_KEYS = ["customizeRules"];
+// Turnuva başladıktan sonra da değişebilir (oyunlar uzarsa süre uzatılır)
+const ALWAYS_EDITABLE_KEYS = ["customizeRules", "roundDuration"];
 
 export const DEFAULT_FORM_VALUES = {
   format: TournamentFormat.LEAGUE_THEN_ELIMINATION,
@@ -125,7 +127,8 @@ export const toFormValues = (tournament: Tournament) => {
     ) ||
     (tournament.format === TournamentFormat.LEAGUE_THEN_ELIMINATION &&
       tournament.advancePerTable !==
-        autoRules(eliminationSize(tournament)).advancePerTable);
+        autoRules(eliminationSize(tournament)).advancePerTable) ||
+    (hasRounds(tournament.format) && Boolean(tournament.roundDuration));
   // Tarih alanı YYYY-MM-DD bekler, backend tam zaman damgası döner
   const toDateInput = (date?: string) =>
     date ? formatDateInTurkey(new Date(date)) : "";
@@ -146,6 +149,13 @@ export const toFormValues = (tournament: Tournament) => {
 const isEmpty = (value: unknown) =>
   value === "" || value === null || value === undefined;
 
+// Puan turlu biçimlerde süre puanlama ayarlarının altında; ayarlar kapatılınca süre de kalkar
+const effectiveRoundDuration = (values: FormValues) => {
+  const format = values.format as TournamentFormat;
+  if (hasRounds(format) && !values.customizeRules) return 0;
+  return Number(values.roundDuration) || 0;
+};
+
 // Formu backend'e gidecek kurallara çevirir: seçilen biçimde kullanılmayan ayarlar
 // gönderilmez, özelleştirilmeyen ya da boş bırakılan ayarlar otomatik değerini alır.
 export const toPayload = (item: object, emptyValue?: null) => {
@@ -157,6 +167,7 @@ export const toPayload = (item: object, emptyValue?: null) => {
     if (
       FORM_ONLY_KEYS.includes(key) ||
       RULE_KEYS.includes(key) ||
+      key === "roundDuration" ||
       key.startsWith(SIZE_POINTS_PREFIX)
     )
       return;
@@ -172,6 +183,9 @@ export const toPayload = (item: object, emptyValue?: null) => {
 
   payload.format = format;
   payload.tableSize = Number(values.tableSize);
+  const roundDuration = effectiveRoundDuration(values);
+  if (roundDuration) payload.roundDuration = roundDuration;
+  else if (emptyValue === null) payload.roundDuration = null;
   if (hasRounds(format)) {
     payload.leagueRounds = values.leagueRounds;
     ADVANCED_KEYS.forEach((key) => {
@@ -248,6 +262,7 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "minTableSize", type: FormKeyTypeEnum.NUMBER },
   { key: "placementPoints", type: FormKeyTypeEnum.STRING },
   { key: "byePoints", type: FormKeyTypeEnum.NUMBER },
+  { key: "roundDuration", type: FormKeyTypeEnum.NUMBER },
 ];
 
 const MIN_EXAMPLE_PLAYER_COUNT = 16;
@@ -333,6 +348,9 @@ const PlanSummary = ({ values }: { values: FormValues }) => {
   const firstTables = Math.ceil(exampleCount / tableSize);
 
   const steps: string[] = [];
+  const roundDuration = effectiveRoundDuration(values);
+  if (roundDuration)
+    steps.push(t("PlanRoundDuration", { minutes: roundDuration }));
   if (hasRounds(format)) {
     steps.push(
       t("PlanRounds", { rounds, tables: firstTables, tableSize, points })
@@ -392,6 +410,14 @@ export const useTournamentFormInputs = (
   const auto = autoRules(Number(values.tableSize));
   const isCustomizing = Boolean(values.customizeRules);
   const isTwoStage = format === TournamentFormat.LEAGUE_THEN_ELIMINATION;
+  const roundDurationInput = {
+    type: InputTypes.NUMBER,
+    formKey: "roundDuration",
+    label: t("Round Duration (min)"),
+    placeholder: t("No time limit"),
+    required: false,
+    helperText: t("RoundDurationHelp"),
+  };
 
   const ruleInputs = [
     {
@@ -474,6 +500,8 @@ export const useTournamentFormInputs = (
           },
         ]
       : []),
+    // Puan turu olmayan biçimde puanlama ayarı yok; süre doğrudan sorulur
+    ...(hasRounds(format) ? [] : [roundDurationInput]),
     ...(hasRounds(format)
       ? [
           {
@@ -489,6 +517,7 @@ export const useTournamentFormInputs = (
       : []),
     ...(hasRounds(format) && isCustomizing
       ? [
+          roundDurationInput,
           {
             type: InputTypes.TEXT,
             formKey: "placementPoints",
@@ -554,7 +583,10 @@ export const useTournamentFormInputs = (
             : []),
         ]
       : []),
-  ].map((input) => ({ ...input, isReadOnly: isRuleLocked }));
+  ].map((input) => ({
+    ...input,
+    isReadOnly: isRuleLocked && !ALWAYS_EDITABLE_KEYS.includes(input.formKey),
+  }));
 
   return [
     {
