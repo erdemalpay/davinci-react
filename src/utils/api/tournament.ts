@@ -1,7 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { get, patch, post, remove } from ".";
+import { get, patch, post, remove, UpdatePayload } from ".";
 import {
   ConfirmationStatus,
   MatchStage,
@@ -11,6 +16,7 @@ import {
   TournamentMatch,
   TournamentParticipant,
   TournamentRegistration,
+  TournamentLive,
   TournamentStanding,
 } from "../../types/tournament";
 import { getApiErrorMessage } from "../getApiErrorMessage";
@@ -52,8 +58,17 @@ export const useGetTournamentParticipants = (id: number) =>
 export const useGetTournamentMatches = (id: number) =>
   useTournamentResource<TournamentMatch>(id, "matches");
 
-export const useGetTournamentStandings = (id: number) =>
-  useTournamentResource<TournamentStanding>(id, "standings");
+// round verilirse tablo o puan turunun sonundaki haliyle gelir; tur değişirken eski tablo
+// ekranda kalır, boş tabloya düşüp titremez
+const roundQuery = (round?: number) => (round ? `?round=${round}` : "");
+
+export const useGetTournamentStandings = (id: number, round?: number) =>
+  useGetList<TournamentStanding>(
+    `${baseUrl}/${id}/standings${roundQuery(round)}`,
+    [...tournamentKey(id, "standings"), round],
+    true,
+    { placeholderData: keepPreviousData }
+  );
 
 export function useTournamentActions() {
   const queryClient = useQueryClient();
@@ -127,6 +142,51 @@ export function useTournamentActions() {
     ...withSuccess("Participant removed"),
   });
 
+  // Girişte okutulan QR'ın sahibi katılımcı olur
+  const checkIn = useMutation({
+    mutationFn: ({
+      tournamentId,
+      code,
+    }: {
+      tournamentId: number;
+      code: string;
+    }) =>
+      post<{ code: string }, { fullName: string }>({
+        path: `${baseUrl}/${tournamentId}/check-in`,
+        payload: { code },
+      }),
+    ...options,
+    onSuccess: ({ fullName }: { fullName: string }) =>
+      toast.success(t("CheckedInMessage", { name: fullName })),
+  });
+
+  const updateParticipant = useMutation({
+    mutationFn: ({
+      id,
+      updates,
+    }: UpdatePayload<Partial<TournamentParticipant>>) =>
+      patch({ path: `${baseUrl}/participants/${id}`, payload: updates }),
+    ...withSuccess("Saved"),
+  });
+
+  // swapWithId boşsa oyuncu hedef masaya taşınır
+  const moveParticipant = useMutation({
+    mutationFn: ({
+      participantId,
+      matchId,
+      swapWithId,
+    }: {
+      participantId: number;
+      matchId: number;
+      swapWithId?: number;
+    }) =>
+      patch({
+        path: `${baseUrl}/participants/${participantId}/seat`,
+        payload: { matchId, swapWithId },
+      }),
+    ...withSuccess("Seats updated"),
+  });
+
   const generateNextRound = useMutation({
     mutationFn: (tournamentId: number) =>
       post<object, TournamentMatch[]>({
@@ -139,6 +199,15 @@ export function useTournamentActions() {
       toast.success(
         t(created?.length ? "Round created" : "Tournament finished")
       ),
+  });
+
+  const regenerateRound = useMutation({
+    mutationFn: (tournamentId: number) =>
+      post({
+        path: `${baseUrl}/${tournamentId}/rounds/regenerate`,
+        payload: {},
+      }),
+    ...withSuccess("Round re-paired"),
   });
 
   // Sunucunun döndürdüğü maçı listeye hemen yazar; skor ve beraberlik seçimi
@@ -195,6 +264,11 @@ export function useTournamentActions() {
     promoteRegistrations: promoteRegistrations.mutate,
     addParticipant: addParticipant.mutate,
     removeParticipant: removeParticipant.mutate,
+    checkIn: checkIn.mutateAsync,
+    updateParticipant: updateParticipant.mutate,
+    moveParticipant: moveParticipant.mutate,
+    regenerateRound: regenerateRound.mutate,
+    isRegeneratingRound: regenerateRound.isPending,
     generateNextRound: generateNextRound.mutate,
     isGeneratingRound: generateNextRound.isPending,
     submitScores: submitScores.mutate,
@@ -214,6 +288,20 @@ export function useGetPublicTournament(slug: string | undefined) {
   });
 }
 
+// Websocket bütün panel olaylarını yayınladığı için herkese açık sayfa ona bağlanmaz;
+// 5 sn'de bir ve telefon ekranına geri dönülünce hemen yenilenir
+export function useGetTournamentLive(slug: string | undefined, round?: number) {
+  const path = slug ? `${baseUrl}/public/${slug}/live${roundQuery(round)}` : "";
+  return useQuery<TournamentLive>({
+    queryKey: [path],
+    queryFn: () => get({ path }),
+    enabled: !!slug,
+    refetchInterval: 5_000,
+    refetchOnWindowFocus: true,
+    placeholderData: keepPreviousData,
+  });
+}
+
 export function registerTournament(
   slug: string,
   payload: {
@@ -223,5 +311,8 @@ export function registerTournament(
     source?: RegistrationSource;
   }
 ) {
-  return post({ path: `${baseUrl}/public/${slug}/register`, payload });
+  return post<typeof payload, { _id: number; checkInCode: string }>({
+    path: `${baseUrl}/public/${slug}/register`,
+    payload,
+  });
 }
