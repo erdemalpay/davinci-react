@@ -2356,5 +2356,6 @@
   "What happened": "Ne oldu",
   "removed it": "çıkardı",
   "Show who removed it": "Çıkaranları da göster",
-  "No middleman after 22:00": "22:00'den sonra ortacı olunamaz"
+  "No middleman after 22:00": "22:00'den sonra ortacı olunamaz",
+  "{{name}} went to a call. You're the middleman until they're back.": "{{name}} çağrıya gitti. O dönene kadar ortacı sensin."
 }
