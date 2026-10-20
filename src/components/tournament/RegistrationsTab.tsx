@@ -140,15 +140,17 @@ const RegistrationsTab = ({ tournament }: Props) => {
   ];
 
   return (
-    <GenericTable
-      rowKeys={rowKeys}
-      columns={columns}
-      rows={rows}
-      isActionsActive={false}
-      title={t("Registrations")}
-      filterPanel={filterPanel}
-      filters={filters}
-    />
+    <div className="w-[95%] mx-auto my-4">
+      <GenericTable
+        rowKeys={rowKeys}
+        columns={columns}
+        rows={rows}
+        isActionsActive={false}
+        title={t("Registrations")}
+        filterPanel={filterPanel}
+        filters={filters}
+      />
+    </div>
   );
 };
 

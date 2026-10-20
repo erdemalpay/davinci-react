@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -13,6 +13,7 @@ import {
   useGetTournamentRegistrations,
   useTournamentActions,
 } from "../../utils/api/tournament";
+import { lazyWithReload } from "../../utils/lazyWithReload";
 import { normalizeText } from "../../utils/slug";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
@@ -22,6 +23,13 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import PromoteRegistrationsModal from "./PromoteRegistrationsModal";
 import { useRegistrationLabels } from "./RegistrationsTab";
+
+// QR okuyucu (zxing) sadece açıldığında yüklenir
+const QrScannerModal = lazyWithReload(() =>
+  import("../tables/QrScannerModal").then((m) => ({
+    default: m.QrScannerModal,
+  }))
+);
 
 // Başvurudan gelmeyen katılımcılar kaynak filtresinde bu değerle seçilir
 const MANUAL_SOURCE = "manual";
@@ -40,13 +48,14 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const participants = useGetTournamentParticipants(tournament._id);
   const registrations = useGetTournamentRegistrations(tournament._id);
-  const { addParticipant, removeParticipant, updateParticipant } =
+  const { addParticipant, removeParticipant, updateParticipant, checkIn } =
     useTournamentActions();
   const { sourceLabels } = useRegistrationLabels();
 
   const [rowToAction, setRowToAction] = useState<TournamentParticipant>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({ name: "" });
@@ -223,6 +232,19 @@ const ParticipantsTab = ({ tournament }: Props) => {
         </GenericButton>
       ),
     },
+    {
+      isUpperSide: true,
+      isDisabled: isFinished,
+      node: (
+        <GenericButton
+          variant="primary"
+          size="sm"
+          onClick={() => setIsScannerOpen(true)}
+        >
+          {t("Check In With QR")}
+        </GenericButton>
+      ),
+    },
   ];
 
   const actions = [
@@ -256,12 +278,14 @@ const ParticipantsTab = ({ tournament }: Props) => {
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
-        <GenericAddEditPanel
+        <GenericAddEditPanel<Partial<TournamentParticipant>>
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[nameInput]}
           formKeys={nameFormKeys}
-          submitItem={updateParticipant as any}
+          submitItem={(item) => {
+            if ("updates" in item) updateParticipant(item);
+          }}
           isEditMode
           topClassName="flex flex-col gap-2"
           itemToEdit={{
@@ -277,7 +301,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
   ];
 
   return (
-    <>
+    <div className="w-[95%] mx-auto my-4">
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}
@@ -303,7 +327,18 @@ const ParticipantsTab = ({ tournament }: Props) => {
           close={() => setIsPromoteModalOpen(false)}
         />
       )}
-    </>
+      {isScannerOpen && (
+        <Suspense fallback={null}>
+          <QrScannerModal
+            isOpen={isScannerOpen}
+            close={() => setIsScannerOpen(false)}
+            onScan={(code) => checkIn({ tournamentId: tournament._id, code })}
+            title={t("Check In With QR")}
+            hint={t("Scan the QR on the player's phone")}
+          />
+        </Suspense>
+      )}
+    </div>
   );
 };
 
