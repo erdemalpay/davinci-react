@@ -278,12 +278,14 @@ const ParticipantsTab = ({ tournament }: Props) => {
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
-        <GenericAddEditPanel
+        <GenericAddEditPanel<Partial<TournamentParticipant>>
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[nameInput]}
           formKeys={nameFormKeys}
-          submitItem={updateParticipant as any}
+          submitItem={(item) => {
+            if ("updates" in item) updateParticipant(item);
+          }}
           isEditMode
           topClassName="flex flex-col gap-2"
           itemToEdit={{
@@ -299,7 +301,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
   ];
 
   return (
-    <>
+    <div className="w-[95%] mx-auto my-4">
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}
@@ -336,7 +338,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
           />
         </Suspense>
       )}
-    </>
+    </div>
   );
 };
 
