@@ -301,7 +301,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
   ];
 
   return (
-    <>
+    <div className="w-[95%] mx-auto my-4">
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}
@@ -338,7 +338,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
           />
         </Suspense>
       )}
-    </>
+    </div>
   );
 };
 
