@@ -236,6 +236,22 @@ describe("ActiveButtonCallsList", () => {
       expect(screen.getByText("Not enough staff")).toBeTruthy();
     });
 
+    it("says the break warning was confirmed when declining for a break", () => {
+      mocks.breakWarning = "lowStaff";
+      render(<ActiveButtonCallsList />);
+
+      tapAndCant();
+      fireEvent.click(screen.getByText("Break"));
+      fireEvent.click(screen.getByText("Confirm"));
+
+      expect(mocks.decline).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: DeclineReasonEnum.BREAK,
+          breakWarningConfirmed: true,
+        })
+      );
+    });
+
     it("can be cancelled", () => {
       render(<ActiveButtonCallsList />);
 

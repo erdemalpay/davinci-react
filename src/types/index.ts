@@ -574,6 +574,8 @@ export type CreateBreakDto = {
   type?: BreakTypeEnum;
   // Required for BreakTypeEnum.OTHER.
   note?: string;
+  // Confirmed the break warning; logged as an activity.
+  breakWarningConfirmed?: boolean;
 };
 
 export type Middleman = {
@@ -2330,6 +2332,7 @@ export enum ActivityType {
   REOPENED_TABLE = "REOPENED_TABLE",
   START_BREAK = "START_BREAK",
   FINISH_BREAK = "FINISH_BREAK",
+  CONFIRM_BREAK_WARNING = "CONFIRM_BREAK_WARNING",
   START_GAMEPLAY_TIME = "START_GAMEPLAY_TIME",
   FINISH_GAMEPLAY_TIME = "FINISH_GAMEPLAY_TIME",
   SHIFT_CHANGE_APPROVED = "SHIFT_CHANGE_APPROVED",
@@ -2642,6 +2645,11 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_BREAK,
     label: "Finish Break",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.CONFIRM_BREAK_WARNING,
+    label: "Break Warning Confirmed",
+    bgColor: "bg-orange-500",
   },
   {
     value: ActivityType.START_GAMEPLAY_TIME,

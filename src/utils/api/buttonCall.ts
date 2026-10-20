@@ -189,6 +189,8 @@ export interface DeclineButtonCallPayload {
   note?: string;
   // The game the game master doesn't know, when the call has none.
   game?: number;
+  // Going on a break after confirming the break warning.
+  breakWarningConfirmed?: boolean;
 }
 
 function declineButtonCall({
@@ -196,9 +198,15 @@ function declineButtonCall({
   reason,
   note,
   game,
+  breakWarningConfirmed,
 }: DeclineButtonCallPayload) {
   return post<
-    { reason: DeclineReasonEnum; note?: string; game?: number },
+    {
+      reason: DeclineReasonEnum;
+      note?: string;
+      game?: number;
+      breakWarningConfirmed?: boolean;
+    },
     ButtonCall
   >({
     path: `${Paths.ButtonCalls}/${id}/decline`,
@@ -206,6 +214,7 @@ function declineButtonCall({
       reason,
       ...(note && { note }),
       ...(game !== undefined && { game }),
+      ...(breakWarningConfirmed && { breakWarningConfirmed }),
     },
   });
 }
