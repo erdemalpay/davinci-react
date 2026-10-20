@@ -617,6 +617,7 @@
   "Visit Entry": "Giriş",
   "Visit Exit": "Çıkış",
   "Finish Break": "Mola Bitir",
+  "Break Warning Confirmed": "Yoğunlukta Mola Onayı",
   "Start Gameplay Time": "Oyun Anlatımı Başlat",
   "Finish Gameplay Time": "Oyun Anlatımı Bitir",
   "Shift Change Approved": "Vardiya Değişimi Onaylandı",
@@ -2349,5 +2350,13 @@
   "Check in to the cafe first": "Önce kafeye giriş yapın",
   "The middleman cannot take upstairs duty": "Ortacı üstçü olamaz",
   "The upstairs duty just changed": "Üstçü az önce değişti, tekrar deneyin",
-  "Started explaining at another table": "Başka masada anlatıma başladı"
+  "Started explaining at another table": "Başka masada anlatıma başladı",
+  "Added to the games they know": "Biliyorum'a ekledi",
+  "Removed from the games they know": "Biliyorum'dan çıkardı",
+  "Learn date entered": "Girilen öğrenme tarihi",
+  "What happened": "Ne oldu",
+  "removed it": "çıkardı",
+  "Show who removed it": "Çıkaranları da göster",
+  "No middleman after 22:00": "22:00'den sonra ortacı olunamaz",
+  "{{name}} went to a call. You're the middleman until they're back.": "{{name}} çağrıya gitti. O dönene kadar ortacı sensin."
 }

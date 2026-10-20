@@ -58,7 +58,9 @@ export const MiddlemanOverlay = () => {
       const userActive = activeMiddlemen.find(
         (m) =>
           (typeof m.user === "string" ? m.user : m.user._id) === user._id &&
-          !m.finishHour
+          !m.finishHour &&
+          // Away on a call: not the middleman until they're back.
+          !m.awayOnCall
       );
       setCurrentMiddleman(userActive || null);
     }
@@ -124,17 +126,26 @@ export const MiddlemanOverlay = () => {
           </p>
           {currentMiddleman.coveringFor && (
             <p className="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-amber-900">
-              {t(
-                "{{name}} went to a call: they're the only one who knows {{game}}. You're the middleman until they're back.",
-                {
-                  name:
-                    getItem(currentMiddleman.coveringFor, users)?.name ??
-                    t("The middleman"),
-                  game:
-                    getItem(currentMiddleman.coveringGame, games)?.name ??
-                    t("the game"),
-                }
-              )}
+              {currentMiddleman.coveringGame
+                ? t(
+                    "{{name}} went to a call: they're the only one who knows {{game}}. You're the middleman until they're back.",
+                    {
+                      name:
+                        getItem(currentMiddleman.coveringFor, users)?.name ??
+                        t("The middleman"),
+                      game:
+                        getItem(currentMiddleman.coveringGame, games)?.name ??
+                        t("the game"),
+                    }
+                  )
+                : t(
+                    "{{name}} went to a call. You're the middleman until they're back.",
+                    {
+                      name:
+                        getItem(currentMiddleman.coveringFor, users)?.name ??
+                        t("The middleman"),
+                    }
+                  )}
             </p>
           )}
         </div>

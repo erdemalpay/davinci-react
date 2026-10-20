@@ -1005,6 +1005,7 @@
   "Visit Exit": "Visit Exit",
   "Start Break": "Start Break",
   "Finish Break": "Finish Break",
+  "Break Warning Confirmed": "Break Warning Confirmed",
   "Start Gameplay Time": "Start Gameplay Time",
   "Finish Gameplay Time": "Finish Gameplay Time",
   "Shift Change Approved": "Shift Change Approved",
@@ -2341,5 +2342,13 @@
   "Check in to the cafe first": "Check in to the cafe first",
   "The middleman cannot take upstairs duty": "The middleman cannot take upstairs duty",
   "The upstairs duty just changed": "The upstairs duty just changed",
-  "Started explaining at another table": "Started explaining at another table"
+  "Started explaining at another table": "Started explaining at another table",
+  "Added to the games they know": "Added to the games they know",
+  "Removed from the games they know": "Removed from the games they know",
+  "Learn date entered": "Learn date entered",
+  "What happened": "What happened",
+  "removed it": "removed it",
+  "Show who removed it": "Show who removed it",
+  "No middleman after 22:00": "No middleman after 22:00",
+  "{{name}} went to a call. You're the middleman until they're back.": "{{name}} went to a call. You're the middleman until they're back."
 }

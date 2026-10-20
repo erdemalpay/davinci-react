@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   calls: [] as ButtonCall[],
   createBreak: vi.fn(),
   decline: vi.fn(),
+  breakWarning: null as string | null,
 }));
 
 vi.mock("react-i18next", () => ({
@@ -46,7 +47,10 @@ vi.mock("../../utils/api/gameplaytime", () => ({
   useGetGameplayTimesByDate: () => [],
 }));
 vi.mock("../../hooks/useBreakWarning", () => ({
-  useBreakWarning: () => ({ warning: null, text: "" }),
+  useBreakWarning: () => ({
+    warning: mocks.breakWarning,
+    text: "Not enough staff",
+  }),
 }));
 vi.mock("../../utils/api/buttonCall", () => ({
   useGetActiveButtonCalls: () => mocks.calls,
@@ -73,6 +77,7 @@ describe("BreakButton", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.calls = [];
+    mocks.breakWarning = null;
   });
 
   it("starts a break", () => {
@@ -113,6 +118,34 @@ describe("BreakButton", () => {
       id: "7",
       reason: DeclineReasonEnum.OTHER,
       note: "Depo",
+    });
+  });
+
+  it("says the break warning was confirmed", () => {
+    mocks.breakWarning = "lowStaff";
+    render(<BreakButton />);
+
+    goBusy("Break");
+    expect(mocks.createBreak).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText("Confirm"));
+
+    expect(mocks.createBreak).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "BREAK", breakWarningConfirmed: true })
+    );
+  });
+
+  it("says so when handing back my call after the break warning", () => {
+    mocks.breakWarning = "lowStaff";
+    mocks.calls = [myCall];
+    render(<BreakButton />);
+
+    goBusy("Break");
+    fireEvent.click(screen.getByText("Confirm"));
+
+    expect(mocks.decline).toHaveBeenCalledWith({
+      id: "7",
+      reason: DeclineReasonEnum.BREAK,
+      breakWarningConfirmed: true,
     });
   });
 });

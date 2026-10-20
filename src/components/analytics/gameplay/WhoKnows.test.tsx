@@ -32,6 +32,10 @@ vi.mock("../../../utils/api/game", () => ({
   useGetGamesMinimal: () => games,
 }));
 
+vi.mock("../../../utils/api/activity", () => ({
+  useGetGameLearningHistory: () => [],
+}));
+
 vi.mock("../../../utils/api/user", () => ({
   useGetAllUsers: () => users,
 }));
