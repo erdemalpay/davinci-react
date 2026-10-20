@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { get, patch, post, remove, UpdatePayload } from ".";
@@ -53,8 +58,17 @@ export const useGetTournamentParticipants = (id: number) =>
 export const useGetTournamentMatches = (id: number) =>
   useTournamentResource<TournamentMatch>(id, "matches");
 
-export const useGetTournamentStandings = (id: number) =>
-  useTournamentResource<TournamentStanding>(id, "standings");
+// round verilirse tablo o puan turunun sonundaki haliyle gelir; tur değişirken eski tablo
+// ekranda kalır, boş tabloya düşüp titremez
+const roundQuery = (round?: number) => (round ? `?round=${round}` : "");
+
+export const useGetTournamentStandings = (id: number, round?: number) =>
+  useGetList<TournamentStanding>(
+    `${baseUrl}/${id}/standings${roundQuery(round)}`,
+    [...tournamentKey(id, "standings"), round],
+    true,
+    { placeholderData: keepPreviousData }
+  );
 
 export function useTournamentActions() {
   const queryClient = useQueryClient();
@@ -276,14 +290,15 @@ export function useGetPublicTournament(slug: string | undefined) {
 
 // Websocket bütün panel olaylarını yayınladığı için herkese açık sayfa ona bağlanmaz;
 // 5 sn'de bir ve telefon ekranına geri dönülünce hemen yenilenir
-export function useGetTournamentLive(slug: string | undefined) {
-  const path = slug ? `${baseUrl}/public/${slug}/live` : "";
+export function useGetTournamentLive(slug: string | undefined, round?: number) {
+  const path = slug ? `${baseUrl}/public/${slug}/live${roundQuery(round)}` : "";
   return useQuery<TournamentLive>({
     queryKey: [path],
     queryFn: () => get({ path }),
     enabled: !!slug,
     refetchInterval: 5_000,
     refetchOnWindowFocus: true,
+    placeholderData: keepPreviousData,
   });
 }
 

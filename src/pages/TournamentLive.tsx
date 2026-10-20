@@ -47,7 +47,8 @@ const LiveClock = ({
 const TournamentLive = () => {
   const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
-  const { data, isLoading, isError } = useGetTournamentLive(slug);
+  const [afterRound, setAfterRound] = useState<number>();
+  const { data, isLoading, isError } = useGetTournamentLive(slug, afterRound);
   const [tab, setTab] = useState(LiveTab.MATCHES);
   const [search, setSearch] = useState("");
 
@@ -174,6 +175,8 @@ const TournamentLive = () => {
             standings={standings}
             matches={matches}
             participants={participants}
+            afterRound={afterRound}
+            setAfterRound={setAfterRound}
           />
         )}
       </div>
