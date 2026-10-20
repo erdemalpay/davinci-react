@@ -194,14 +194,16 @@ const StandingsTab = ({ tournament }: Props) => {
   const matches = useGetTournamentMatches(tournament._id);
   const participants = useGetTournamentParticipants(tournament._id);
   return (
-    <StandingsTable
-      tournament={tournament}
-      standings={standings}
-      matches={matches}
-      participants={participants}
-      afterRound={afterRound}
-      setAfterRound={setAfterRound}
-    />
+    <div className="w-[95%] mx-auto my-4">
+      <StandingsTable
+        tournament={tournament}
+        standings={standings}
+        matches={matches}
+        participants={participants}
+        afterRound={afterRound}
+        setAfterRound={setAfterRound}
+      />
+    </div>
   );
 };
 
