@@ -289,6 +289,7 @@ const FilterContext = createContext<FilterContextType>({
     product: [],
     location: "",
     itemCategory: [],
+    isDaVinciGame: "",
   },
   setFilterGameStockPanelFormElements: () => {},
   showGameStockPrices: false,
@@ -936,7 +937,11 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [
     filterGameStockPanelFormElements,
     setFilterGameStockPanelFormElements,
-  ] = useState<FormElementsState>({ product: [], location: "" });
+  ] = useState<FormElementsState>({
+    product: [],
+    location: "",
+    isDaVinciGame: "",
+  });
   const [
     filterAssignGamePanelFormElements,
     setFilterAssignGamePanelFormElements,
