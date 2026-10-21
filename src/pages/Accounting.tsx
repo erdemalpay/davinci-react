@@ -6,6 +6,7 @@ import { GrActions } from "react-icons/gr";
 import { IoStorefrontSharp } from "react-icons/io5";
 import {
   MdEditNote,
+  MdOutlineEventNote,
   MdOutlineInventory2,
   MdOutlinePayment,
 } from "react-icons/md";
@@ -30,6 +31,7 @@ import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
 import Roles from "../components/accounting/Roles";
 import Service from "../components/accounting/Service";
+import StaffLeaveTypes from "../components/accounting/StaffLeaveTypes";
 import ShopifyCategoriesPage from "../components/accounting/ShopifyCategories";
 import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
@@ -158,6 +160,13 @@ export const AccountingPageTabs = [
     label: "Inventory Locations",
     icon: <MdOutlineInventory2 className="text-lg font-thin" />,
     content: <InventoryLocations />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.STAFFLEAVETYPES,
+    label: "Staff Leave Types",
+    icon: <MdOutlineEventNote className="text-lg font-thin" />,
+    content: <StaffLeaveTypes />,
     isDisabled: false,
   },
 ];
