@@ -2392,5 +2392,15 @@
   "Learn date entered": "Learn date entered",
   "What happened": "What happened",
   "removed it": "removed it",
-  "Show who removed it": "Show who removed it"
+  "Show who removed it": "Show who removed it",
+  "Which stock was it given from?": "Which stock was it given from?",
+  "No products to deliver": "No products to deliver",
+  "Deliver": "Deliver",
+  "Saved, but the stock could not be transferred to the depot; transfer it manually": "Saved, but the stock could not be transferred to the depot; transfer it manually",
+  "Store Pickup Transfer": "Store Pickup Transfer",
+  "To be delivered": "To be delivered",
+  "Undo Delivery": "Undo Delivery",
+  "Delivery will be undone": "Delivery will be undone",
+  "Stock will be returned to": "Stock will be returned to",
+  "Stock will not change.": "Stock will not change."
 }

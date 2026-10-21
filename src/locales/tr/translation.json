@@ -2400,5 +2400,15 @@
   "Learn date entered": "Girilen öğrenme tarihi",
   "What happened": "Ne oldu",
   "removed it": "çıkardı",
-  "Show who removed it": "Çıkaranları da göster"
+  "Show who removed it": "Çıkaranları da göster",
+  "Which stock was it given from?": "Hangi stoktan verildi?",
+  "No products to deliver": "Teslim edilecek ürün yok",
+  "Deliver": "Teslim Et",
+  "Saved, but the stock could not be transferred to the depot; transfer it manually": "Kaydedildi, ancak stok depoya aktarılamadı; elle aktarın",
+  "Store Pickup Transfer": "Mağazadan Teslim Transferi",
+  "To be delivered": "Teslim edilecek",
+  "Undo Delivery": "Teslimi Geri Al",
+  "Delivery will be undone": "Teslimi geri alınacak",
+  "Stock will be returned to": "Stok şuraya geri dönecek",
+  "Stock will not change.": "Stok değişmeyecek."
 }
