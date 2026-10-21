@@ -55,6 +55,10 @@ interface BreakButtonProps {
   onBreakStart?: () => void;
 }
 
+// Nobody becomes the middleman from 22:00 until the cafe's night is over.
+const isPastMiddlemanHours = (now: Date) =>
+  now.getHours() >= 22 || now.getHours() < 6;
+
 export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -80,11 +84,12 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const isGameRole =
     user?.role?._id === RoleEnum.GAMEMASTER ||
     user?.role?._id === RoleEnum.GAMEMANAGER;
+  // A middleman away on a call has left the role free for anyone to take.
   const myMiddleman = activeMiddlemen?.find(
-    (m) => getRefId(m.user) === user?._id && !m.finishHour
+    (m) => getRefId(m.user) === user?._id && !m.finishHour && !m.awayOnCall
   );
   const otherMiddleman = activeMiddlemen?.find(
-    (m) => getRefId(m.user) !== user?._id && !m.finishHour
+    (m) => getRefId(m.user) !== user?._id && !m.finishHour && !m.awayOnCall
   );
   const otherMiddlemanName =
     otherMiddleman &&
@@ -150,13 +155,16 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
 
   // Called with the state just picked, or (after the break warning) with
   // the pending one. Only "Other" carries a note.
-  const doStartBreak = ({
-    type,
-    note: pickedNote,
-  }: {
-    type: BreakTypeEnum;
-    note?: string;
-  } = pendingBreak) => {
+  const doStartBreak = (
+    {
+      type,
+      note: pickedNote,
+    }: {
+      type: BreakTypeEnum;
+      note?: string;
+    } = pendingBreak,
+    breakWarningConfirmed = false
+  ) => {
     const note = type === BreakTypeEnum.OTHER ? pickedNote : undefined;
     if (!user?._id || !selectedLocationId) return;
     // Holding a call: hand it back with this reason; the API puts me in
@@ -166,6 +174,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         id: myOpenCall._id,
         reason: declineReasonForBusyState[type],
         ...(note && { note }),
+        ...(breakWarningConfirmed && { breakWarningConfirmed }),
       });
       toast.success(
         type === BreakTypeEnum.BREAK
@@ -183,6 +192,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       startHour: format(new Date(), "HH:mm"),
       type,
       ...(note && { note }),
+      ...(breakWarningConfirmed && { breakWarningConfirmed }),
     };
     createBreak(breakData);
     toast.success(
@@ -285,7 +295,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
         <ConfirmationDialog
           isOpen={isBreakWarningOpen}
           close={() => setIsBreakWarningOpen(false)}
-          confirm={() => doStartBreak()}
+          confirm={() => doStartBreak(pendingBreak, true)}
           title={t("Break Warning")}
           text={breakWarningText}
         />
@@ -296,7 +306,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
           onCancel={() => setIsStateDialogOpen(false)}
           isBarista={isBarista(user?.role?._id)}
           middleman={
-            isGameRole
+            isGameRole && !isPastMiddlemanHours(new Date())
               ? {
                   onSelect: handleStartMiddleman,
                   takenBy: otherMiddlemanName || undefined,
