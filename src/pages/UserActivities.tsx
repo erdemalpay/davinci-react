@@ -17,7 +17,7 @@ import {
 } from "../types";
 import { useGetActivities } from "../utils/api/activity";
 import { useGetUsersMinimal } from "../utils/api/user";
-import { formatAsLocalDate } from "../utils/format";
+import { formatAsLocalDate, toIstDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 import { dateRanges } from "../utils/api/dateRanges";
 
@@ -75,13 +75,15 @@ const UserActivities = () => {
         userName: getItem(activity.user, users)?.name,
         userId: activity.user._id,
         createdDate: activity?.createdAt
-          ? format(activity.createdAt, "yyyy-MM-dd")
+          ? format(toIstDate(activity.createdAt), "yyyy-MM-dd")
           : "",
         formattedCreatedDate: activity?.createdAt
-          ? formatAsLocalDate(format(activity.createdAt, "yyyy-MM-dd"))
+          ? formatAsLocalDate(
+              format(toIstDate(activity.createdAt), "yyyy-MM-dd")
+            )
           : "",
         createHour: activity?.createdAt
-          ? format(activity.createdAt, "HH:mm")
+          ? format(toIstDate(activity.createdAt), "HH:mm")
           : "",
         collapsible: {
           collapsibleColumns: [{ key: t("Details"), isSortable: false }],
