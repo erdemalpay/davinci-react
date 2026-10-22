@@ -9,9 +9,14 @@ import {
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import Loading from "../components/common/Loading";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
-import { InputTypes } from "../components/panelComponents/shared/types";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
@@ -36,6 +41,12 @@ import {
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
+import {
+  NEORAMA_LOCATION_ID,
+  PICKUP_DEPOT_LOCATION_ID,
+  getPickupDelivery,
+  getStockReturnLocationIds,
+} from "../utils/shopifyPickUpDelivery";
 
 const QUIZ_TICKET_MENU_CATEGORY_ID = 9;
 
@@ -63,6 +74,15 @@ const ShopifyPickUp = () => {
 
   const [showQuizTicketPickUpOrders, setShowQuizTicketPickUpOrders] =
     useState(false);
+  const [ordersToDeliver, setOrdersToDeliver] = useState<Order[] | null>(
+    null
+  );
+  const [deliveryLocation, setDeliveryLocation] = useState(
+    PICKUP_DEPOT_LOCATION_ID
+  );
+
+  // Geri alma önce onay ister; stoğun nereye döneceği onay metninde yazar.
+  const [ordersToUndo, setOrdersToUndo] = useState<Order[] | null>(null);
 
   const shopifyPickUpDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.SHOPIFY_PICK_UP, disabledConditions);
@@ -120,12 +140,8 @@ const ShopifyPickUp = () => {
 
         return {
           _id: first._id,
+          orders: groupOrders,
           orderIds: groupOrders.map((o) => o._id),
-          // #1322: getirilmemis urun teslim edilmis olamaz; tum gruba picked
-          // yazmak veritabanina yanlis kayit birakiyordu.
-          broughtOrderIds: groupOrders
-            .filter((o) => o.isShopifyPickUpOrderBrought)
-            .map((o) => o._id),
           isReturned: groupOrders.some((o) => o.isReturned),
           date: format(first.createdAt, "yyyy-MM-dd"),
           formattedDate: format(first.createdAt, "dd-MM-yyyy"),
@@ -304,31 +320,16 @@ const ShopifyPickUp = () => {
       {
         key: "isShopifyCustomerPicked",
         node: (row: any) => {
+          // Teslimde hangi stoktan verildiği sorulur; kayıt modalın submit'inde.
           const handleDeliver = () => {
             setExpandedRows({});
-            if (row.broughtOrderIds.length === 0) {
-              toast.warning(
-                t("Mark the products as brought from the depot first")
-              );
-              return;
-            }
-            updateSimpleOrdersBulk({
-              ids: row.broughtOrderIds,
-              updates: {
-                isShopifyCustomerPicked: true,
-                deliveredAt: new Date(),
-                deliveredBy: user?._id,
-              },
-            });
+            setDeliveryLocation(PICKUP_DEPOT_LOCATION_ID);
+            setOrdersToDeliver(row.orders);
           };
 
-          // Geri alma her zaman TUM grubu temizler: yarim kalinti gorunmez olur.
           const handleUndoDelivery = () => {
             setExpandedRows({});
-            updateSimpleOrdersBulk({
-              ids: row.orderIds,
-              updates: { isShopifyCustomerPicked: false },
-            });
+            setOrdersToUndo(row.orders);
           };
 
           if (row?.isShopifyCustomerPicked) {
@@ -366,8 +367,87 @@ const ShopifyPickUp = () => {
         },
       },
     ],
-    [updateSimpleOrdersBulk, user, setExpandedRows, t]
+    [setExpandedRows, t]
   );
+
+  const noDeliveryMessage = (location: number) =>
+    t(
+      location === PICKUP_DEPOT_LOCATION_ID
+        ? "Mark the products as brought from the depot first"
+        : "No products to deliver"
+    );
+
+  const getLocationName = (id: number) => getItem(id, locations)?.name ?? "";
+
+  const getItemNames = (orders: Order[]) =>
+    orders.map((order) => getItem(order.item, items)?.name ?? "").join(", ");
+
+  const getDeliveredOrders = (orders: Order[]) =>
+    orders.filter((order) => order.isShopifyCustomerPicked);
+
+  // Teslim edilmiş ürün, verildiği yerle yazılır: geri alınınca stok oraya döner.
+  const getDeliveredNames = (orders: Order[]) =>
+    getDeliveredOrders(orders)
+      .map((order) => {
+        const name = getItem(order.item, items)?.name ?? "";
+        return order.shopifyPickUpStockLocation != null
+          ? `${name} (${getLocationName(order.shopifyPickUpStockLocation)})`
+          : name;
+      })
+      .join(", ");
+
+  const deliveredOrders = getDeliveredOrders(ordersToDeliver ?? []);
+
+  const getUndoText = (orders: Order[]) => {
+    const returnLocations = getStockReturnLocationIds(orders)
+      .map(getLocationName)
+      .join(", ");
+    return [
+      `${t("Delivery will be undone")}: ${getDeliveredNames(orders)}.`,
+      returnLocations
+        ? `${t("Stock will be returned to")}: ${returnLocations}.`
+        : t("Stock will not change."),
+    ].join(" ");
+  };
+
+  // Ön siparişli siparişte hangi ürünün verileceği buradan anlaşılır.
+  const getDeliveryMessages = (location: number) => {
+    const { ids } = getPickupDelivery(ordersToDeliver ?? [], location, items);
+    const toDeliver = (ordersToDeliver ?? []).filter((order) =>
+      ids.includes(order._id)
+    );
+    return [
+      toDeliver.length > 0
+        ? `${t("To be delivered")}: ${getItemNames(toDeliver)}`
+        : noDeliveryMessage(location),
+      ...(deliveredOrders.length > 0
+        ? [`${t("Delivered")}: ${getDeliveredNames(ordersToDeliver ?? [])}`]
+        : []),
+    ];
+  };
+
+  const deliverOrders = (location: number) => {
+    if (!ordersToDeliver) return;
+    const { ids, markBrought } = getPickupDelivery(
+      ordersToDeliver,
+      location,
+      items
+    );
+    if (ids.length === 0) {
+      toast.warning(noDeliveryMessage(location));
+      return;
+    }
+    updateSimpleOrdersBulk({
+      ids,
+      updates: {
+        isShopifyCustomerPicked: true,
+        deliveredAt: new Date(),
+        deliveredBy: user?._id,
+        ...(markBrought && { isShopifyPickUpOrderBrought: true }),
+      },
+      pickupStockLocation: location,
+    });
+  };
 
   const filterPanelInputs = useMemo(
     () => [
@@ -605,6 +685,72 @@ const ShopifyPickUp = () => {
           />
         </div>
       </div>
+      {ordersToDeliver && (
+        <GenericAddEditPanel<{ pickupStockLocation: number }>
+          isOpen={true}
+          close={() => setOrdersToDeliver(null)}
+          header={t("Which stock was it given from?")}
+          upperMessage={getDeliveryMessages(deliveryLocation)}
+          setForm={(form) =>
+            setDeliveryLocation(Number(form.pickupStockLocation))
+          }
+          inputs={[
+            {
+              type: InputTypes.SELECT,
+              formKey: "pickupStockLocation",
+              label: t("Stock Location"),
+              options: [PICKUP_DEPOT_LOCATION_ID, NEORAMA_LOCATION_ID].map(
+                (id) => ({
+                  value: id,
+                  label: getItem(id, locations)?.name ?? "",
+                })
+              ),
+              placeholder: t("Stock Location"),
+              required: true,
+            },
+          ]}
+          formKeys={[
+            { key: "pickupStockLocation", type: FormKeyTypeEnum.NUMBER },
+          ]}
+          constantValues={{ pickupStockLocation: PICKUP_DEPOT_LOCATION_ID }}
+          submitItem={(form) => {
+            if (!("updates" in form)) deliverOrders(form.pickupStockLocation);
+          }}
+          buttonName={t("Deliver")}
+          // Kısmen teslim edilmiş siparişin tiki pencereyi açar; geri alma buradan.
+          additionalButtons={
+            deliveredOrders.length > 0
+              ? [
+                  {
+                    label: "Undo Delivery",
+                    onClick: () => {
+                      setOrdersToUndo(ordersToDeliver);
+                      setOrdersToDeliver(null);
+                    },
+                  },
+                ]
+              : undefined
+          }
+          topClassName="flex flex-col gap-2"
+          generalClassName="overflow-visible"
+        />
+      )}
+      {ordersToUndo && (
+        <ConfirmationDialog
+          isOpen={true}
+          close={() => setOrdersToUndo(null)}
+          confirm={() => {
+            // Geri alma her zaman TUM grubu temizler: yarim kalinti gorunmez olur.
+            updateSimpleOrdersBulk({
+              ids: ordersToUndo.map((order) => order._id),
+              updates: { isShopifyCustomerPicked: false },
+            });
+            setOrdersToUndo(null);
+          }}
+          title={t("Undo Delivery")}
+          text={getUndoText(ordersToUndo)}
+        />
+      )}
     </>
   );
 };

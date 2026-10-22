@@ -166,6 +166,8 @@ const shopifyWarningMessages: Record<string, string> = {
   SHOPIFY_FULFILLMENT_FAILED: "Saved, but the Shopify order could not be closed",
   SHOPIFY_FULFILLMENT_SKIPPED:
     "Saved, but no Shopify package matched the delivered products",
+  PICKUP_STOCK_TRANSFER_FAILED:
+    "Saved, but the stock could not be transferred to the depot; transfer it manually",
 };
 
 /** @deprecated IkasPickUp temizliği yapılınca kaldırılacak (bu hooku sadece ikas kullanıyordu) */
@@ -230,10 +232,14 @@ export function useShopifyPickUpOrderMutation() {
   });
 
   const { mutate: updateSimpleOrdersBulk, isPending: isBulkPending } = useMutation({
-    mutationFn: ({ ids, updates }: { ids: number[]; updates: Partial<Order> }) =>
-      patch<{ ids: number[]; updates: Partial<Order> }, Order[]>({
+    mutationFn: (payload: {
+      ids: number[];
+      updates: Partial<Order>;
+      pickupStockLocation?: number;
+    }) =>
+      patch<typeof payload, Order[]>({
         path: `${Paths.Order}/simple-bulk`,
-        payload: { ids, updates },
+        payload,
       }),
     onMutate: async ({ ids, updates }) => {
       await queryClient.cancelQueries({ queryKey: queryKeyPrefix });

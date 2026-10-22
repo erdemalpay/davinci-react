@@ -1279,6 +1279,7 @@ export type Order = {
   shopifyCustomer?: ShopifyCustomer;
   isShopifyCustomerPicked?: boolean;
   isShopifyPickUpOrderBrought?: boolean;
+  shopifyPickUpStockLocation?: number;
   isShopifyPickUp?: boolean;
   isShipped?: boolean;
   shopifyOrderNumber?: string;
@@ -2046,6 +2047,7 @@ export enum StockHistoryStatusEnum {
   ORDERCREATE = "ORDERCREATE",
   STOCKEQUALIZE = "STOCKEQUALIZE",
   STOCKTRANSFER = "STOCKTRANSFER",
+  PICKUPSTOCKTRANSFER = "PICKUPSTOCKTRANSFER",
   LOSSPRODUCT = "LOSSPRODUCT",
   ORDERRETURN = "ORDERRETURN",
   IKASORDERCREATE = "IKASORDERCREATE",
@@ -2154,6 +2156,11 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.STOCKTRANSFER,
     label: "Stock Transfer",
     backgroundColor: "bg-yellow-800",
+  },
+  {
+    value: StockHistoryStatusEnum.PICKUPSTOCKTRANSFER,
+    label: "Store Pickup Transfer",
+    backgroundColor: "bg-yellow-600",
   },
   {
     value: StockHistoryStatusEnum.LOSSPRODUCT,
