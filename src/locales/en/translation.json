@@ -2395,5 +2395,14 @@
   "removed it": "removed it",
   "Show who removed it": "Show who removed it",
   "No middleman after 22:00": "No middleman after 22:00",
-  "{{name}} went to a call. You're the middleman until they're back.": "{{name}} went to a call. You're the middleman until they're back."
+  "{{name}} went to a call. You're the middleman until they're back.": "{{name}} went to a call. You're the middleman until they're back.",
+  "Table Management": "Table Management",
+  "Reservations & Events": "Reservations & Events",
+  "Game Management": "Game Management",
+  "Counts & Checks": "Counts & Checks",
+  "Stock Management": "Stock Management",
+  "Definitions & Images": "Definitions & Images",
+  "Menu Management": "Menu Management",
+  "Expenses & Cash": "Expenses & Cash",
+  "User Management": "User Management"
 }
