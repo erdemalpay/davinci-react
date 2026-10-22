@@ -863,6 +863,7 @@ export enum DisabledConditionEnum {
   ACCOUNTING_ORDERNOTES = "ordernotes",
   ACCOUNTING_ACTIONS = "actions",
   ACCOUNTING_INVENTORYLOCATIONS = "inventorylocations",
+  ACCOUNTING_STAFFLEAVETYPES = "staffleavetypes",
   INVENTORY_INVENTORY = "inventory",
   MENU = "menu",
   MENU_CATEGORIES = "menu_categories",
@@ -870,6 +871,7 @@ export enum DisabledConditionEnum {
   VISITS_VISITSCHEDULEOVERVIEW = "visits_visitscheduleoverview",
   VISITS_ALLVISITS = "visits_allvisits",
   VISITS_SHIFTS = "visits_shifts",
+  VISITS_STAFFLEAVECALENDAR = "visits_staffleavecalendar",
   CHECKLISTS_CHECKARCHIVE = "checklists_checkarchive",
   CHECKLISTS_CHECKLISTS = "checklists_checklists",
   CHECKLISTS_CHECKLISTS_INNERPAGE = "checklists_checklists_innerpage",
@@ -1719,6 +1721,7 @@ export enum VisitPageTabEnum {
   CHANGEREQUESTMANAGEMENT,
   USERCHANGEREQUESTTAB,
   SHIFTSCALENDAR,
+  STAFFLEAVECALENDAR,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
@@ -1791,6 +1794,7 @@ export enum AccountingPageTabEnum {
   ROLES,
   ACTIONS,
   INVENTORYLOCATIONS,
+  STAFFLEAVETYPES,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,
@@ -3238,6 +3242,33 @@ export type InventoryLocation = {
   backgroundColor?: string;
   note?: string;
   active: boolean;
+};
+
+export type StaffLeaveType = {
+  _id: number;
+  name: string;
+  backgroundColor?: string;
+  active: boolean;
+};
+
+export type StaffLeaveNote = {
+  date: string;
+  text: string;
+  createdBy: string;
+};
+
+// Tek gün için startDate ile endDate aynıdır.
+export type StaffLeave = {
+  _id: number;
+  user: string;
+  type: number;
+  startDate: string;
+  endDate: string;
+  // Sunucu cevabı gelene kadar listedeki geçici kayıtta yok.
+  notes?: StaffLeaveNote[];
+  createdBy: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export type InventoryBox = {

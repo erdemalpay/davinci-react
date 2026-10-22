@@ -5,6 +5,7 @@ import {
   MdChangeCircle,
   MdOutlineAdminPanelSettings,
   MdOutlineCalendarMonth,
+  MdOutlineEventNote,
   MdOutlinePerson,
   MdOutlineSchedule,
 } from "react-icons/md";
@@ -17,6 +18,7 @@ import DailyVisit from "../components/visits/DailyVisit";
 import ShiftChange from "../components/visits/ShiftChange";
 import Shifts from "../components/visits/Shifts";
 import ShiftsCalendar from "../components/visits/ShiftsCalendar";
+import StaffLeaveCalendar from "../components/visits/StaffLeaveCalendar";
 import UserChangeRequestTab from "../components/visits/UserChangeRequestTab";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
@@ -67,6 +69,13 @@ export const VisitPageTabs = [
     label: "ShiftsCalendar",
     icon: <MdOutlineCalendarMonth className="text-lg font-thin" />,
     content: <ShiftsCalendar />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.STAFFLEAVECALENDAR,
+    label: "Staff Leave Calendar",
+    icon: <MdOutlineEventNote className="text-lg font-thin" />,
+    content: <StaffLeaveCalendar />,
     isDisabled: false,
   },
   {
