@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate, toIstDate } from "../../utils/format";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { getItem } from "../../utils/getItem";
@@ -98,11 +98,12 @@ const isParsableDate = (value: string) => {
   return !Number.isNaN(parsed.getTime());
 };
 
+// Timestamps are shown in cafe (Istanbul) time wherever the viewer is.
 const formatDateValue = (value: string) => {
-  const parsed = new Date(value);
-  const formattedDate = formatAsLocalDate(format(parsed, "yyyy-MM-dd"));
   const hasTime = value.includes("T");
-  if (!hasTime) return formattedDate;
+  if (!hasTime) return formatAsLocalDate(value);
+  const parsed = toIstDate(value);
+  const formattedDate = formatAsLocalDate(format(parsed, "yyyy-MM-dd"));
   return `${formattedDate} ${format(parsed, "HH:mm")}`;
 };
 

@@ -2405,5 +2405,14 @@
   "Undo Delivery": "Undo Delivery",
   "Delivery will be undone": "Delivery will be undone",
   "Stock will be returned to": "Stock will be returned to",
-  "Stock will not change.": "Stock will not change."
+  "Stock will not change.": "Stock will not change.",
+  "Table Management": "Table Management",
+  "Reservations & Events": "Reservations & Events",
+  "Game Management": "Game Management",
+  "Counts & Checks": "Counts & Checks",
+  "Stock Management": "Stock Management",
+  "Definitions & Images": "Definitions & Images",
+  "Menu Management": "Menu Management",
+  "Expenses & Cash": "Expenses & Cash",
+  "User Management": "User Management"
 }

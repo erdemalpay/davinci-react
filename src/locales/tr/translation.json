@@ -2413,5 +2413,14 @@
   "Undo Delivery": "Teslimi Geri Al",
   "Delivery will be undone": "Teslimi geri alınacak",
   "Stock will be returned to": "Stok şuraya geri dönecek",
-  "Stock will not change.": "Stok değişmeyecek."
+  "Stock will not change.": "Stok değişmeyecek.",
+  "Table Management": "Masa Yönetimi",
+  "Reservations & Events": "Rezervasyon ve Etkinlik",
+  "Game Management": "Oyun Yönetimi",
+  "Counts & Checks": "Sayım ve Kontrol",
+  "Stock Management": "Stok Yönetimi",
+  "Definitions & Images": "Tanımlar ve Görseller",
+  "Menu Management": "Menü Yönetimi",
+  "Expenses & Cash": "Giderler ve Kasa",
+  "User Management": "Kullanıcı Yönetimi"
 }
