@@ -20,6 +20,7 @@ import { useResolvedSidebarRoutes } from "./useResolvedSidebarRoutes";
 
 export type SidebarRouteItem = {
   name: string;
+  sidebarLabel?: string;
   path?: string;
   link?: string;
   isOnSidebar?: boolean;
@@ -132,6 +133,22 @@ export function useSidebarNavigation(onClose: () => void) {
     [pages, user]
   );
 
+  // The page itself opens its first tab, so a first tab named like the page
+  // would only repeat it in the menu (e.g. Inventory / Inventory).
+  const getMenuTabs = useCallback(
+    (item: SidebarRouteItem): Tab[] => {
+      const allowedTabs = getAllowedTabs(item);
+      const [firstTab] = allowedTabs;
+      return firstTab && t(firstTab.label) === t(item.name)
+        ? allowedTabs.slice(1)
+        : allowedTabs;
+    },
+    [getAllowedTabs, t]
+  );
+
+  const getGroupLabel = (route: SidebarRouteItem) =>
+    t(route.sidebarLabel ?? route.name);
+
   const getFilteredChildren = useCallback(
     (route: SidebarRouteItem) =>
       route.children?.filter(
@@ -176,20 +193,20 @@ export function useSidebarNavigation(onClose: () => void) {
     routes.forEach((route) => {
       const filteredChildren = getFilteredChildren(route);
 
-      const pushWithTabs = (item: SidebarRouteItem, groupName?: string) => {
+      const pushWithTabs = (item: SidebarRouteItem, groupLabel?: string) => {
         list.push({
           label: t(item.name),
           path: item.path || "",
           link: item.link,
-          groupLabel: groupName ? t(groupName) : undefined,
+          groupLabel,
         });
 
-        getAllowedTabs(item).forEach((tab) => {
+        getMenuTabs(item).forEach((tab) => {
           list.push({
             label: `${t(item.name)} / ${t(tab.label)}`,
             path: item.path || "",
             tabSlug: getTabSlug(tab.label),
-            groupLabel: groupName ? t(groupName) : undefined,
+            groupLabel,
           });
         });
       };
@@ -197,10 +214,10 @@ export function useSidebarNavigation(onClose: () => void) {
       if (filteredChildren && filteredChildren.length > 1) {
         filteredChildren
           .filter((c) => c.isOnSidebar)
-          .forEach((child) => pushWithTabs(child, route.name));
+          .forEach((child) => pushWithTabs(child, getGroupLabel(route)));
       } else if (filteredChildren && filteredChildren.length === 1) {
         const child = filteredChildren[0];
-        if (child.isOnSidebar) pushWithTabs(child, route.name);
+        if (child.isOnSidebar) pushWithTabs(child, getGroupLabel(route));
       } else if (route.isOnSidebar) {
         pushWithTabs(route);
       }
@@ -216,7 +233,7 @@ export function useSidebarNavigation(onClose: () => void) {
         ? { ...item, label: `${item.groupLabel} / ${item.label}` }
         : item
     );
-  }, [routes, getFilteredChildren, getAllowedTabs, t]);
+  }, [routes, getFilteredChildren, getMenuTabs, t]);
 
   const menuOptions = useMemo<MenuOption[]>(() => {
     const seenLabels = new Set<string>();
@@ -281,6 +298,8 @@ export function useSidebarNavigation(onClose: () => void) {
     toggleGroup,
     getActiveTab,
     getAllowedTabs,
+    getMenuTabs,
+    getGroupLabel,
     getFilteredChildren,
     handleRouteNavigation,
     menuOptions,

@@ -29,6 +29,8 @@ export function PageSelector() {
     toggleGroup,
     getActiveTab,
     getAllowedTabs,
+    getMenuTabs,
+    getGroupLabel,
     getFilteredChildren,
     handleRouteNavigation,
     menuOptions,
@@ -41,14 +43,14 @@ export function PageSelector() {
   const renderTabs = (item: SidebarRouteItem) => {
     if (!item.path) return null;
 
-    const allowedTabs = getAllowedTabs(item);
-    if (allowedTabs.length === 0) return null;
+    const menuTabs = getMenuTabs(item);
+    if (menuTabs.length === 0) return null;
 
     const activeTab = getActiveTab();
 
     return (
       <div className="mt-1 space-y-1 bg-gray-50">
-        {allowedTabs.map((tab) => {
+        {menuTabs.map((tab) => {
           const tabSlug = getTabSlug(tab.label);
           const isActive = item.path === currentRoute && activeTab === tabSlug;
 
@@ -147,7 +149,7 @@ export function PageSelector() {
                     toggleGroup(route.name);
                   }}
                 >
-                  <span>{t(route.name)}</span>
+                  <span>{getGroupLabel(route)}</span>
                   {openGroups[route.name] ? (
                     <FiChevronDown className="text-lg" />
                   ) : (
@@ -168,7 +170,7 @@ export function PageSelector() {
                           <div className="flex items-center">
                             <button
                               className={`
-                                flex-1 flex items-center pl-8 pr-3 py-2 rounded-none
+                                flex-1 flex items-center pl-8 pr-3 py-2 rounded-none text-left
                                 text-sm font-normal transition-colors
                                 ${
                                   child.path === currentRoute
@@ -226,7 +228,7 @@ export function PageSelector() {
                 <div className="flex items-center">
                   <button
                     className={`
-                      flex-1 flex items-center pl-4 pr-3 py-2 rounded-none
+                      flex-1 flex items-center pl-4 pr-3 py-2 rounded-none text-left
                       text-sm font-normal transition-colors
                       ${
                         child.path === currentRoute
@@ -273,7 +275,7 @@ export function PageSelector() {
               <div className="flex items-center">
                 <button
                   className={`
-                    flex-1 flex items-center px-4 py-2 rounded-none
+                    flex-1 flex items-center px-4 py-2 rounded-none text-left
                     text-md font-normal transition-colors
                     ${
                       route.path === currentRoute
