@@ -677,10 +677,13 @@ const Product = () => {
               countList: rowToAction.countList,
             }}
             handleUpdate={() => {
+              // Sayım listesi ve konum düzenlemede kapalı; gönderilirse ürünün
+              // sayım listesindeki konumları boşalıyordu.
+              const { countList, locations, ...updates } = inputForm;
               updateAccountProduct({
                 id: rowToAction?._id,
                 updates: {
-                  ...inputForm,
+                  ...updates,
                   matchedMenuItem: Number(inputForm?.matchedMenuItem),
                 },
               });

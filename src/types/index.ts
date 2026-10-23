@@ -575,6 +575,8 @@ export type CreateBreakDto = {
   type?: BreakTypeEnum;
   // Required for BreakTypeEnum.OTHER.
   note?: string;
+  // Confirmed the break warning; logged as an activity.
+  breakWarningConfirmed?: boolean;
 };
 
 export type Middleman = {
@@ -589,6 +591,8 @@ export type Middleman = {
   coveringFor?: string;
   coveringCall?: number;
   coveringGame?: number;
+  // The middleman went to this call and nobody has stood in yet.
+  awayOnCall?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -860,6 +864,7 @@ export enum DisabledConditionEnum {
   ACCOUNTING_ORDERNOTES = "ordernotes",
   ACCOUNTING_ACTIONS = "actions",
   ACCOUNTING_INVENTORYLOCATIONS = "inventorylocations",
+  ACCOUNTING_STAFFLEAVETYPES = "staffleavetypes",
   INVENTORY_INVENTORY = "inventory",
   MENU = "menu",
   MENU_CATEGORIES = "menu_categories",
@@ -867,6 +872,7 @@ export enum DisabledConditionEnum {
   VISITS_VISITSCHEDULEOVERVIEW = "visits_visitscheduleoverview",
   VISITS_ALLVISITS = "visits_allvisits",
   VISITS_SHIFTS = "visits_shifts",
+  VISITS_STAFFLEAVECALENDAR = "visits_staffleavecalendar",
   CHECKLISTS_CHECKARCHIVE = "checklists_checkarchive",
   CHECKLISTS_CHECKLISTS = "checklists_checklists",
   CHECKLISTS_CHECKLISTS_INNERPAGE = "checklists_checklists_innerpage",
@@ -1276,6 +1282,7 @@ export type Order = {
   shopifyCustomer?: ShopifyCustomer;
   isShopifyCustomerPicked?: boolean;
   isShopifyPickUpOrderBrought?: boolean;
+  shopifyPickUpStockLocation?: number;
   isShopifyPickUp?: boolean;
   isShipped?: boolean;
   shopifyOrderNumber?: string;
@@ -1715,6 +1722,7 @@ export enum VisitPageTabEnum {
   CHANGEREQUESTMANAGEMENT,
   USERCHANGEREQUESTTAB,
   SHIFTSCALENDAR,
+  STAFFLEAVECALENDAR,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
@@ -1787,6 +1795,7 @@ export enum AccountingPageTabEnum {
   ROLES,
   ACTIONS,
   INVENTORYLOCATIONS,
+  STAFFLEAVETYPES,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,
@@ -2043,6 +2052,7 @@ export enum StockHistoryStatusEnum {
   ORDERCREATE = "ORDERCREATE",
   STOCKEQUALIZE = "STOCKEQUALIZE",
   STOCKTRANSFER = "STOCKTRANSFER",
+  PICKUPSTOCKTRANSFER = "PICKUPSTOCKTRANSFER",
   LOSSPRODUCT = "LOSSPRODUCT",
   ORDERRETURN = "ORDERRETURN",
   IKASORDERCREATE = "IKASORDERCREATE",
@@ -2151,6 +2161,11 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.STOCKTRANSFER,
     label: "Stock Transfer",
     backgroundColor: "bg-yellow-800",
+  },
+  {
+    value: StockHistoryStatusEnum.PICKUPSTOCKTRANSFER,
+    label: "Store Pickup Transfer",
+    backgroundColor: "bg-yellow-600",
   },
   {
     value: StockHistoryStatusEnum.LOSSPRODUCT,
@@ -2330,6 +2345,7 @@ export enum ActivityType {
   REOPENED_TABLE = "REOPENED_TABLE",
   START_BREAK = "START_BREAK",
   FINISH_BREAK = "FINISH_BREAK",
+  CONFIRM_BREAK_WARNING = "CONFIRM_BREAK_WARNING",
   START_GAMEPLAY_TIME = "START_GAMEPLAY_TIME",
   FINISH_GAMEPLAY_TIME = "FINISH_GAMEPLAY_TIME",
   SHIFT_CHANGE_APPROVED = "SHIFT_CHANGE_APPROVED",
@@ -2642,6 +2658,11 @@ export const activityTypeDetails = [
     value: ActivityType.FINISH_BREAK,
     label: "Finish Break",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.CONFIRM_BREAK_WARNING,
+    label: "Break Warning Confirmed",
+    bgColor: "bg-orange-500",
   },
   {
     value: ActivityType.START_GAMEPLAY_TIME,
@@ -3222,6 +3243,33 @@ export type InventoryLocation = {
   backgroundColor?: string;
   note?: string;
   active: boolean;
+};
+
+export type StaffLeaveType = {
+  _id: number;
+  name: string;
+  backgroundColor?: string;
+  active: boolean;
+};
+
+export type StaffLeaveNote = {
+  date: string;
+  text: string;
+  createdBy: string;
+};
+
+// Tek gün için startDate ile endDate aynıdır.
+export type StaffLeave = {
+  _id: number;
+  user: string;
+  type: number;
+  startDate: string;
+  endDate: string;
+  // Sunucu cevabı gelene kadar listedeki geçici kayıtta yok.
+  notes?: StaffLeaveNote[];
+  createdBy: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export type InventoryBox = {

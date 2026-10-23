@@ -54,6 +54,8 @@ export const Sidebar = () => {
     toggleGroup,
     getActiveTab,
     getAllowedTabs,
+    getMenuTabs,
+    getGroupLabel,
     getFilteredChildren,
     handleRouteNavigation,
     menuOptions,
@@ -135,14 +137,14 @@ export const Sidebar = () => {
   const renderTabs = (item: SidebarRouteItem, paddingClass = "pl-12") => {
     if (!isExpanded || !item.path) return null;
 
-    const allowedTabs = getAllowedTabs(item);
-    if (allowedTabs.length === 0) return null;
+    const menuTabs = getMenuTabs(item);
+    if (menuTabs.length === 0) return null;
 
     const activeTab = getActiveTab();
 
     return (
       <div className="mt-1 space-y-1">
-        {allowedTabs.map((tab) => {
+        {menuTabs.map((tab) => {
           const tabSlug = getTabSlug(tab.label);
           const isActive = item.path === currentRoute && activeTab === tabSlug;
 
@@ -346,7 +348,7 @@ export const Sidebar = () => {
 
                 return (
                   <div key={route.name}>
-                    <SidebarTooltip content={t(route.name)}>
+                    <SidebarTooltip content={getGroupLabel(route)}>
                       <button
                         onClick={() => {
                           if (!isSidebarOpen) {
@@ -360,7 +362,7 @@ export const Sidebar = () => {
                           }
                         }}
                         className="
-                          w-full flex items-center justify-between px-2 py-2 rounded-lg
+                          w-full flex items-center justify-between px-2 py-2 rounded-lg text-left
                           text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors
                         "
                       >
@@ -369,7 +371,7 @@ export const Sidebar = () => {
                             <IconComponent className="text-xl" />
                           </div>
 
-                          {isExpanded && <span>{t(route.name)}</span>}
+                          {isExpanded && <span>{getGroupLabel(route)}</span>}
                         </div>
                         {isExpanded &&
                           (isGroupOpen ? (
@@ -394,7 +396,7 @@ export const Sidebar = () => {
                               <div className="flex items-center">
                                 <button
                                   className={`
-                                    flex-1 flex items-center pl-8 pr-3 py-2 rounded-lg mt-1
+                                    flex-1 flex items-center pl-8 pr-3 py-2 rounded-lg mt-1 text-left
                                     text-sm transition-colors
                                     ${
                                       child.path === currentRoute
@@ -456,7 +458,7 @@ export const Sidebar = () => {
                       <div className="flex items-center">
                         <button
                           className={`
-                            flex-1 flex items-center gap-2.5 px-2 py-2 rounded-lg
+                            flex-1 flex items-center gap-2.5 px-2 py-2 rounded-lg text-left
                             text-sm transition-colors
                             ${
                               child.path === currentRoute
@@ -522,7 +524,7 @@ export const Sidebar = () => {
                     <div className="flex items-center">
                       <button
                         className={`
-                          flex-1 flex items-center gap-2.5 px-2 py-2 rounded-lg
+                          flex-1 flex items-center gap-2.5 px-2 py-2 rounded-lg text-left
                           text-sm transition-colors
                           ${
                             route.path === currentRoute

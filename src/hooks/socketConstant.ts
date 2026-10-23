@@ -350,4 +350,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "inventoryChanged",
     invalidateKeys: [`${Paths.Inventory}`],
   },
+  {
+    event: "staffLeaveChanged",
+    invalidateKeys: [`${Paths.StaffLeave}`, `${Paths.StaffLeave}/types`],
+  },
 ];

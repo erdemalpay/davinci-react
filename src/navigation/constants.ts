@@ -238,6 +238,9 @@ export enum Routes {
 
 export const allRoutes: {
   name: string;
+  // Shown on a sidebar group instead of name, which must keep matching the
+  // panel-control page because the group is also the route for its path.
+  sidebarLabel?: string;
   path?: string;
   isOnSidebar: boolean;
   exceptionalRoles?: number[];
@@ -248,6 +251,7 @@ export const allRoutes: {
 }[] = [
   {
     name: "Tables",
+    sidebarLabel: "Table Management",
     path: Routes.Tables,
     element: Tables,
     isOnSidebar: true,
@@ -350,6 +354,7 @@ export const allRoutes: {
   },
   {
     name: "Reservations",
+    sidebarLabel: "Reservations & Events",
     path: Routes.Reservations,
     element: Reservations,
     isOnSidebar: true,
@@ -408,6 +413,7 @@ export const allRoutes: {
   },
   {
     name: "Games",
+    sidebarLabel: "Game Management",
     path: Routes.Games,
     element: Games,
     isOnSidebar: true,
@@ -623,6 +629,7 @@ export const allRoutes: {
   },
   {
     name: "Count Lists",
+    sidebarLabel: "Counts & Checks",
     path: Routes.CountLists,
     element: CountLists,
     isOnSidebar: true,
@@ -710,6 +717,7 @@ export const allRoutes: {
   },
   {
     name: "Stocks",
+    sidebarLabel: "Stock Management",
     path: Routes.Stocks,
     element: Stocks,
     isOnSidebar: true,
@@ -780,6 +788,7 @@ export const allRoutes: {
   },
   {
     name: "Constants",
+    sidebarLabel: "Definitions & Images",
     path: Routes.Accounting,
     element: Accounting,
     isOnSidebar: true,
@@ -864,6 +873,7 @@ export const allRoutes: {
   },
   {
     name: "Menu",
+    sidebarLabel: "Menu Management",
     path: Routes.Menu,
     element: Menu,
     isOnSidebar: true,
@@ -914,6 +924,7 @@ export const allRoutes: {
   },
   {
     name: "Expenses",
+    sidebarLabel: "Expenses & Cash",
     path: Routes.Expenses,
     element: Expenses,
     isOnSidebar: true,
@@ -951,6 +962,7 @@ export const allRoutes: {
   },
   {
     name: "Users",
+    sidebarLabel: "User Management",
     path: Routes.Users,
     element: Users,
     isOnSidebar: true,

@@ -126,10 +126,14 @@ const GameStock = () => {
           (!filterGameStockPanelFormElements?.brand ||
             rowProduct?.brand?.includes(
               filterGameStockPanelFormElements?.brand
-            ))
+            )) &&
+          (!filterGameStockPanelFormElements?.isDaVinciGame ||
+            (getItem(rowProduct?.matchedMenuItem, items)?.isDaVinciGame ??
+              false) ===
+              (filterGameStockPanelFormElements?.isDaVinciGame === "true"))
         );
       });
-  }, [stocks, filterGameStockPanelFormElements, products]);
+  }, [stocks, filterGameStockPanelFormElements, products, items]);
 
   const inputs = useMemo(
     () => [
@@ -658,6 +662,17 @@ const GameStock = () => {
         isMultiple: true,
         placeholder: t("Item Category"),
         required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "isDaVinciGame",
+        label: t("Da Vinci Games"),
+        options: [
+          { value: "true", label: t("Yes") },
+          { value: "false", label: t("No") },
+        ],
+        placeholder: t("Da Vinci Games"),
+        required: true,
       },
       {
         type: InputTypes.SELECT,

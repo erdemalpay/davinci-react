@@ -174,6 +174,7 @@ const MarketplaceOrders = ({ channel }: { channel: MarketplaceChannel }) => {
     return allRows;
   }, [
     orders,
+    channel,
     filterPanelFormElements,
     users,
     discounts,
@@ -286,7 +287,7 @@ const MarketplaceOrders = ({ channel }: { channel: MarketplaceChannel }) => {
       });
     }
     return groupedRows;
-  }, [flatRows, t]);
+  }, [flatRows, t, channel]);
 
   const columns = useMemo(
     () => [
@@ -318,7 +319,7 @@ const MarketplaceOrders = ({ channel }: { channel: MarketplaceChannel }) => {
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
     ],
-    [t]
+    [t, channel]
   );
 
   const rowKeys = useMemo(
@@ -366,7 +367,7 @@ const MarketplaceOrders = ({ channel }: { channel: MarketplaceChannel }) => {
       { key: "location" },
       { key: "statusLabel", className: "min-w-32 pr-2" },
     ],
-    []
+    [channel]
   );
 
   const searchRowKeys = useMemo(
@@ -442,6 +443,7 @@ const MarketplaceOrders = ({ channel }: { channel: MarketplaceChannel }) => {
     ],
     [
       t,
+      channel,
       rowToAction,
       isCancelOrderModalOpen,
       cancelInputs,
@@ -744,6 +746,7 @@ const MarketplaceOrders = ({ channel }: { channel: MarketplaceChannel }) => {
     ],
     [
       t,
+      channel,
       queryClient,
       pageDisabledCondition,
       user,
