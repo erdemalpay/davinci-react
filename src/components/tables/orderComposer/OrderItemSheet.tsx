@@ -123,9 +123,21 @@ const OrderItemSheet = ({
             >
               <FiMinus />
             </button>
-            <span className="min-w-12 text-center text-2xl font-bold tabular-nums">
-              {draft.quantity}
-            </span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              aria-label={t("Quantity")}
+              value={draft.quantity || ""}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) =>
+                update({
+                  quantity: Math.max(0, Math.floor(Number(e.target.value)) || 0),
+                })
+              }
+              onBlur={() => draft.quantity < 1 && update({ quantity: 1 })}
+              className="inputHideNumberArrows w-20 h-12 rounded-xl border border-gray-300 text-center text-2xl font-bold tabular-nums focus:outline-none focus:border-blue-500"
+            />
             <button
               type="button"
               aria-label={t("Increase")}
@@ -297,8 +309,9 @@ const OrderItemSheet = ({
           </button>
           <button
             type="button"
+            disabled={draft.quantity < 1}
             onClick={() => onSave({ ...draft, note: draft.note.trim() })}
-            className="flex-[2] h-12 rounded-xl bg-blue-600 hover:bg-blue-700 font-semibold text-white tabular-nums"
+            className="flex-[2] h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 font-semibold text-white tabular-nums"
           >
             {isEdit ? t("Update") : t("Add")} ({unitPrice * draft.quantity}{" "}
             {TURKISHLIRA})
