@@ -84,6 +84,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const isGameRole =
     user?.role?._id === RoleEnum.GAMEMASTER ||
     user?.role?._id === RoleEnum.GAMEMANAGER;
+  const canBeMiddleman = isGameRole || user?.role?._id === RoleEnum.BARCHEF;
   // A middleman away on a call has left the role free for anyone to take.
   const myMiddleman = activeMiddlemen?.find(
     (m) => getRefId(m.user) === user?._id && !m.finishHour && !m.awayOnCall
@@ -306,7 +307,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
           onCancel={() => setIsStateDialogOpen(false)}
           isBarista={isBarista(user?.role?._id)}
           middleman={
-            isGameRole && !isPastMiddlemanHours(new Date())
+            canBeMiddleman && !isPastMiddlemanHours(new Date())
               ? {
                   onSelect: handleStartMiddleman,
                   takenBy: otherMiddlemanName || undefined,
