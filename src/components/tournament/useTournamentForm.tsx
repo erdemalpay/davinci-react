@@ -250,6 +250,11 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "date", type: FormKeyTypeEnum.DATE },
   { key: "startTime", type: FormKeyTypeEnum.STRING },
   { key: "registrationDeadline", type: FormKeyTypeEnum.DATE },
+  { key: "capacity", type: FormKeyTypeEnum.NUMBER },
+  { key: "waitlistCapacity", type: FormKeyTypeEnum.NUMBER },
+  { key: "hasEntryFee", type: FormKeyTypeEnum.BOOLEAN },
+  { key: "participationNote", type: FormKeyTypeEnum.STRING },
+  { key: "waitlistNote", type: FormKeyTypeEnum.STRING },
   { key: "format", type: FormKeyTypeEnum.STRING },
   { key: "tableSize", type: FormKeyTypeEnum.NUMBER },
   { key: "eliminationTableSize", type: FormKeyTypeEnum.NUMBER },
@@ -639,6 +644,54 @@ export const useTournamentFormInputs = (
       isDatePicker: true,
       helperText: t("RegistrationDeadlineHelp"),
     },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "capacity",
+      label: t("Capacity"),
+      placeholder: t("Unlimited"),
+      required: false,
+      helperText: t("CapacityHelp"),
+    },
+    // Yedek ayarları ancak kontenjan varken anlamlı
+    ...(values.capacity
+      ? [
+          {
+            type: InputTypes.NUMBER,
+            formKey: "waitlistCapacity",
+            label: t("Waitlist Capacity"),
+            placeholder: t("Unlimited"),
+            required: false,
+            helperText: t("WaitlistCapacityHelp"),
+          },
+        ]
+      : []),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "hasEntryFee",
+      label: t("Entry Fee Is Charged"),
+      required: false,
+      helperText: t("HasEntryFeeHelp"),
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "participationNote",
+      label: t("Participation Info"),
+      placeholder: t("ParticipationNotePlaceholder"),
+      required: false,
+      helperText: t("ParticipationNoteHelp"),
+    },
+    ...(values.capacity
+      ? [
+          {
+            type: InputTypes.TEXTAREA,
+            formKey: "waitlistNote",
+            label: t("Waitlist Info"),
+            placeholder: t("WaitlistNotePlaceholder"),
+            required: false,
+            helperText: t("WaitlistNoteHelp"),
+          },
+        ]
+      : []),
     ...ruleInputs,
   ];
 };
