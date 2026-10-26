@@ -588,6 +588,8 @@ export type Middleman = {
   coveringFor?: string;
   coveringCall?: number;
   coveringGame?: number;
+  // The middleman went to this call and nobody has stood in yet.
+  awayOnCall?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };

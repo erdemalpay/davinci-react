@@ -55,6 +55,10 @@ interface BreakButtonProps {
   onBreakStart?: () => void;
 }
 
+// Nobody becomes the middleman from 22:00 until the cafe's night is over.
+const isPastMiddlemanHours = (now: Date) =>
+  now.getHours() >= 22 || now.getHours() < 6;
+
 export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -80,11 +84,12 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   const isGameRole =
     user?.role?._id === RoleEnum.GAMEMASTER ||
     user?.role?._id === RoleEnum.GAMEMANAGER;
+  // A middleman away on a call has left the role free for anyone to take.
   const myMiddleman = activeMiddlemen?.find(
-    (m) => getRefId(m.user) === user?._id && !m.finishHour
+    (m) => getRefId(m.user) === user?._id && !m.finishHour && !m.awayOnCall
   );
   const otherMiddleman = activeMiddlemen?.find(
-    (m) => getRefId(m.user) !== user?._id && !m.finishHour
+    (m) => getRefId(m.user) !== user?._id && !m.finishHour && !m.awayOnCall
   );
   const otherMiddlemanName =
     otherMiddleman &&
@@ -296,7 +301,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
           onCancel={() => setIsStateDialogOpen(false)}
           isBarista={isBarista(user?.role?._id)}
           middleman={
-            isGameRole
+            isGameRole && !isPastMiddlemanHours(new Date())
               ? {
                   onSelect: handleStartMiddleman,
                   takenBy: otherMiddlemanName || undefined,
