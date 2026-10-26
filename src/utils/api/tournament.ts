@@ -13,6 +13,7 @@ import {
   PublicTournament,
   RegistrationSource,
   Tournament,
+  TournamentCheckIn,
   TournamentMatch,
   TournamentParticipant,
   TournamentRegistration,
@@ -142,7 +143,8 @@ export function useTournamentActions() {
     ...withSuccess("Participant removed"),
   });
 
-  // Girişte okutulan QR'ın sahibi katılımcı olur
+  // Girişte okutulan QR: geliş kaydedilir; ücretli turnuvada asil ödeme bekler (bildirimi
+  // QR penceresindeki ödeme kartı), yedek kafede bekler
   const checkIn = useMutation({
     mutationFn: ({
       tournamentId,
@@ -151,9 +153,40 @@ export function useTournamentActions() {
       tournamentId: number;
       code: string;
     }) =>
-      post<{ code: string }, { fullName: string }>({
+      post<{ code: string }, TournamentCheckIn>({
         path: `${baseUrl}/${tournamentId}/check-in`,
         payload: { code },
+      }),
+    ...options,
+    onSuccess: ({
+      fullName,
+      waitlistNumber,
+      isParticipant,
+    }: TournamentCheckIn) => {
+      if (isParticipant)
+        toast.success(t("CheckedInMessage", { name: fullName }));
+      else if (waitlistNumber)
+        toast.info(
+          t("WaitlistArrivedMessage", {
+            name: fullName,
+            number: waitlistNumber,
+          })
+        );
+    },
+  });
+
+  // Ödeme alınan asil ya da sırası gelen yedek katılımcı olur; kontenjan doluysa backend reddeder
+  const admitRegistration = useMutation({
+    mutationFn: ({
+      tournamentId,
+      registrationId,
+    }: {
+      tournamentId: number;
+      registrationId: number;
+    }) =>
+      post<object, { fullName: string }>({
+        path: `${baseUrl}/${tournamentId}/registrations/${registrationId}/admit`,
+        payload: {},
       }),
     ...options,
     onSuccess: ({ fullName }: { fullName: string }) =>
@@ -265,6 +298,7 @@ export function useTournamentActions() {
     addParticipant: addParticipant.mutate,
     removeParticipant: removeParticipant.mutate,
     checkIn: checkIn.mutateAsync,
+    admitRegistration: admitRegistration.mutateAsync,
     updateParticipant: updateParticipant.mutate,
     moveParticipant: moveParticipant.mutate,
     regenerateRound: regenerateRound.mutate,
@@ -311,7 +345,16 @@ export function registerTournament(
     source?: RegistrationSource;
   }
 ) {
-  return post<typeof payload, { _id: number; checkInCode: string }>({
+  // registrationStatus kontenjanlı turnuvada "Asil" / "Yedek 3"; waitlistNote sadece yedekte
+  return post<
+    typeof payload,
+    {
+      _id: number;
+      checkInCode: string;
+      registrationStatus?: string;
+      waitlistNote?: string;
+    }
+  >({
     path: `${baseUrl}/public/${slug}/register`,
     payload,
   });

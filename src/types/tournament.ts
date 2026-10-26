@@ -64,6 +64,11 @@ export interface Tournament {
   // Duraklatıldıysa duraklatıldığı an; önceki duraklamalarda geçen toplam süre (sn)
   roundPausedAt?: string | null;
   roundPausedSeconds?: number;
+  capacity?: number; // asil kontenjanı; boşsa sınırsız, asil/yedek ayrımı yok
+  waitlistCapacity?: number; // boşsa yedek sınırsız
+  hasEntryFee?: boolean; // ücretliyse asil ödeme alınınca katılımcı olur
+  participationNote?: string; // kayıt formunda ve mailde gösterilir
+  waitlistNote?: string; // yalnızca yedeklere gösterilir
 }
 
 export interface TournamentRegistration {
@@ -76,6 +81,18 @@ export interface TournamentRegistration {
   confirmationStatus: ConfirmationStatus;
   confirmedAt?: string;
   createdAt: string;
+  sequence?: number; // turnuvadaki kayıt sırası; eski başvurularda yok
+  isPaid?: boolean;
+  arrivedAt?: string; // QR okutulup kafeye geldiği an
+}
+
+// QR okutmanın sonucu; ücretli turnuvada asil ödeme alınana kadar katılımcı olmaz
+export interface TournamentCheckIn {
+  registrationId: number;
+  fullName: string;
+  waitlistNumber?: number;
+  hasEntryFee: boolean;
+  isParticipant: boolean;
 }
 
 export interface TournamentParticipant {
@@ -134,6 +151,7 @@ export interface PublicTournament {
   date: string;
   startTime?: string;
   isRegistrationOpen: boolean;
+  participationNote?: string;
 }
 
 // Oyuncuların telefondan takip ettiği sayfanın verisi; katılımcıların sadece adı gelir
