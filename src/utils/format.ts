@@ -1,5 +1,7 @@
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+import { TFunction } from "i18next";
+import { Visit, VisitSource } from "../types";
 
 export function formatAsLocalDate(dateString: string) {
   const date = new Date(dateString);
@@ -40,4 +42,15 @@ export function getFirstDayOfCurrentMonth() {
   // Formatting the date in 'yyyy-mm-dd' format
   const formattedDate = firstDay.toISOString().slice(0, 10);
   return formattedDate;
+}
+
+// The nightly job closes forgotten visits with the shift end, so the hour alone looks like a real check-out
+export function formatVisitFinishHour(
+  visit: Pick<Visit, "finishHour" | "visitFinishSource">,
+  t: TFunction
+) {
+  if (!visit.finishHour) return "";
+  return visit.visitFinishSource === VisitSource.AUTO
+    ? `${visit.finishHour} (${t("Forgot to check out")})`
+    : visit.finishHour;
 }

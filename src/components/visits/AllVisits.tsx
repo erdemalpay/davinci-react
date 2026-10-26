@@ -8,6 +8,7 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
+  VisitSource,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -15,7 +16,7 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetFilteredVisits, useVisitMutation } from "../../utils/api/visit";
-import { convertDateFormat } from "../../utils/format";
+import { convertDateFormat, formatVisitFinishHour } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
@@ -78,11 +79,11 @@ const AllVisits = () => {
           userName: foundUser?.name,
           locationName: foundLocation?.name,
           userRole: foundUser?.role?.name,
-          finishHour: visit?.finishHour ?? " ",
+          finishHour: formatVisitFinishHour(visit, t) || " ",
         };
       });
     return allRows || [];
-  }, [visits, filterAllVisitsPanelFormElements, users, locations]);
+  }, [visits, filterAllVisitsPanelFormElements, users, locations, t]);
 
   const columns = useMemo(
     () => [
@@ -137,11 +138,12 @@ const AllVisits = () => {
           return (
             <div className="flex flex-col">
               <p>{row.finishHour}</p>
-              {row.visitFinishSource && (
-                <p className="text-xs text-gray-500">
-                  {t(row.visitFinishSource)}
-                </p>
-              )}
+              {row.visitFinishSource &&
+                row.visitFinishSource !== VisitSource.AUTO && (
+                  <p className="text-xs text-gray-500">
+                    {t(row.visitFinishSource)}
+                  </p>
+                )}
             </div>
           );
         },
