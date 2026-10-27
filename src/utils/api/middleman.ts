@@ -51,6 +51,25 @@ export const useGetMiddlemen = (
   );
 };
 
+// Each person's middleman days (one person a day: whoever was the
+// middleman the longest) and the days they worked in the middleman hours.
+export interface MiddlemanShare {
+  user: string;
+  dates: string[];
+  workedDays: number;
+}
+
+export const useGetMiddlemanShares = (after?: string, before?: string) => {
+  const query = [after && `after=${after}`, before && `before=${before}`]
+    .filter(Boolean)
+    .join("&");
+  return useGet<MiddlemanShare[]>(
+    `${middlemanBaseUrl}/shares?${query}`,
+    [middlemanBaseUrl, "shares", after, before],
+    true
+  );
+};
+
 export const useGetMiddlemanByLocation = (location: number) => {
   return useGet<Middleman[]>(
     `${middlemanBaseUrl}/location/${location}`,
