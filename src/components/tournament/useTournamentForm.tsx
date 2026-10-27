@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useDataContext } from "../../context/Data.context";
 import {
   PairingMode,
+  Tiebreaker,
   Tournament,
   TournamentFormat,
 } from "../../types/tournament";
@@ -11,14 +12,25 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 // Organizatöre sadece biçim + en fazla iki soru sorulur; puanlama ve masa ayarları
 // masa büyüklüğünden türetilir (BGA gibi: bay geçen birincilik puanını alır).
-export const autoRules = (tableSize: number) => {
+// Oyun skoruyla eşitlik bozmada Catan resmi kuralı: puan = galibiyet (1-0-0-0), eşleşme
+// rastgele (aynı rakipten kaçınarak), masadan sadece kazanan çıkar.
+export const autoRules = (tableSize: number, tiebreaker?: unknown) => {
   const size = Math.max(2, Number(tableSize) || 2);
+  const minTableSize = Math.max(2, size - 1);
+  if (tiebreaker === Tiebreaker.SCORE)
+    return {
+      pairingMode: PairingMode.RANDOM,
+      placementPoints: [1, ...new Array(size - 1).fill(0)],
+      byePoints: 1,
+      minTableSize,
+      advancePerTable: 1,
+    };
   const middle = Array.from({ length: size - 2 }, (_, i) => size - 2 - i);
   return {
     pairingMode: PairingMode.SWISS,
     placementPoints: [size, ...middle, 0],
     byePoints: size,
-    minTableSize: Math.max(2, size - 1),
+    minTableSize,
     advancePerTable: Math.ceil(size / 2),
   };
 };
@@ -59,6 +71,8 @@ export const RULE_KEYS = [
   "advanceCount",
   "advancePerTable",
   "thirdPlaceMatch",
+  "tiebreaker",
+  "scoreCap",
 ];
 const ADVANCED_KEYS = [
   "pairingMode",
@@ -78,6 +92,7 @@ export const DEFAULT_FORM_VALUES = {
   advancePerTable: 2,
   customizeRules: false,
   pairingMode: PairingMode.SWISS,
+  tiebreaker: Tiebreaker.OPPONENTS,
 };
 
 const pointsText = (points?: number[]) => points?.join(",") ?? "";
@@ -92,7 +107,7 @@ const parsePoints = (text: unknown) =>
 const fullTablePoints = (values: FormValues) =>
   values.customizeRules && values.placementPoints
     ? parsePoints(values.placementPoints)
-    : autoRules(Number(values.tableSize)).placementPoints;
+    : autoRules(Number(values.tableSize), values.tiebreaker).placementPoints;
 
 // Eksik masa (ör. 4'lük turnuvada 3 kişi) varsayılanı: birincilik puanı aynı kalır,
 // diğerleri sondan alınır (4,2,1,0 → 4,1,0) ki küçük masada oynamak avantaj olmasın
@@ -113,7 +128,7 @@ const smallTableSizes = (tableSize: number, minTableSize: number) =>
   );
 
 export const toFormValues = (tournament: Tournament) => {
-  const auto = autoRules(tournament.tableSize);
+  const auto = autoRules(tournament.tableSize, tournament.tiebreaker);
   const isCustomized =
     tournament.pairingMode !== auto.pairingMode ||
     pointsText(tournament.placementPoints) !==
@@ -127,7 +142,8 @@ export const toFormValues = (tournament: Tournament) => {
     ) ||
     (tournament.format === TournamentFormat.LEAGUE_THEN_ELIMINATION &&
       tournament.advancePerTable !==
-        autoRules(eliminationSize(tournament)).advancePerTable) ||
+        autoRules(eliminationSize(tournament), tournament.tiebreaker)
+          .advancePerTable) ||
     (hasRounds(tournament.format) && Boolean(tournament.roundDuration));
   // Tarih alanı YYYY-MM-DD bekler, backend tam zaman damgası döner
   const toDateInput = (date?: string) =>
@@ -161,7 +177,7 @@ const effectiveRoundDuration = (values: FormValues) => {
 export const toPayload = (item: object, emptyValue?: null) => {
   const values = item as FormValues;
   const format = values.format as TournamentFormat;
-  const auto = autoRules(Number(values.tableSize));
+  const auto = autoRules(Number(values.tableSize), values.tiebreaker);
   const payload: FormValues = {};
   Object.entries(values).forEach(([key, value]) => {
     if (
@@ -188,6 +204,10 @@ export const toPayload = (item: object, emptyValue?: null) => {
   else if (emptyValue === null) payload.roundDuration = null;
   if (hasRounds(format)) {
     payload.leagueRounds = values.leagueRounds;
+    payload.tiebreaker = values.tiebreaker ?? Tiebreaker.OPPONENTS;
+    if (values.tiebreaker === Tiebreaker.SCORE && !isEmpty(values.scoreCap))
+      payload.scoreCap = Number(values.scoreCap);
+    else if (emptyValue === null) payload.scoreCap = null;
     ADVANCED_KEYS.forEach((key) => {
       payload[key] = pick(key);
     });
@@ -234,7 +254,7 @@ export const toPayload = (item: object, emptyValue?: null) => {
     // Masadan çıkan sayısı eleme masasının büyüklüğünden türetilir
     payload.advancePerTable = pick(
       "advancePerTable",
-      autoRules(eliminationSize(values)).advancePerTable
+      autoRules(eliminationSize(values), values.tiebreaker).advancePerTable
     );
     if (!isEmpty(values.eliminationTableSize))
       payload.eliminationTableSize = Number(values.eliminationTableSize);
@@ -250,6 +270,11 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "date", type: FormKeyTypeEnum.DATE },
   { key: "startTime", type: FormKeyTypeEnum.STRING },
   { key: "registrationDeadline", type: FormKeyTypeEnum.DATE },
+  { key: "capacity", type: FormKeyTypeEnum.NUMBER },
+  { key: "waitlistCapacity", type: FormKeyTypeEnum.NUMBER },
+  { key: "hasEntryFee", type: FormKeyTypeEnum.BOOLEAN },
+  { key: "participationNote", type: FormKeyTypeEnum.STRING },
+  { key: "waitlistNote", type: FormKeyTypeEnum.STRING },
   { key: "format", type: FormKeyTypeEnum.STRING },
   { key: "tableSize", type: FormKeyTypeEnum.NUMBER },
   { key: "eliminationTableSize", type: FormKeyTypeEnum.NUMBER },
@@ -263,6 +288,8 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "placementPoints", type: FormKeyTypeEnum.STRING },
   { key: "byePoints", type: FormKeyTypeEnum.NUMBER },
   { key: "roundDuration", type: FormKeyTypeEnum.NUMBER },
+  { key: "tiebreaker", type: FormKeyTypeEnum.STRING },
+  { key: "scoreCap", type: FormKeyTypeEnum.NUMBER },
 ];
 
 const MIN_EXAMPLE_PLAYER_COUNT = 16;
@@ -332,7 +359,10 @@ const PlanSummary = ({ values }: { values: FormValues }) => {
 
   const finalTableSize = eliminationStageSize(values);
   const points = pointsText(fullTablePoints(values));
-  const autoPerTable = autoRules(finalTableSize).advancePerTable;
+  const autoPerTable = autoRules(
+    finalTableSize,
+    values.tiebreaker
+  ).advancePerTable;
   const perTable = Number(
     format === TournamentFormat.ELIMINATION || values.customizeRules
       ? values.advancePerTable || autoPerTable
@@ -407,7 +437,7 @@ export const useTournamentFormInputs = (
   const locations = useGetStoreLocations();
 
   const format = values.format as TournamentFormat;
-  const auto = autoRules(Number(values.tableSize));
+  const auto = autoRules(Number(values.tableSize), values.tiebreaker);
   const isCustomizing = Boolean(values.customizeRules);
   const isTwoStage = format === TournamentFormat.LEAGUE_THEN_ELIMINATION;
   const roundDurationInput = {
@@ -455,6 +485,35 @@ export const useTournamentFormInputs = (
             required: true,
             helperText: t("LeagueRoundsHelp"),
           },
+          {
+            type: InputTypes.SELECT,
+            formKey: "tiebreaker",
+            label: t("On A Points Tie"),
+            options: [
+              {
+                value: Tiebreaker.OPPONENTS,
+                label: t("Opponents' Average Points"),
+              },
+              { value: Tiebreaker.SCORE, label: t("Game Score (Catan)") },
+            ],
+            placeholder: t("Opponents' Average Points"),
+            required: false,
+            helperText: t(
+              `TiebreakerHelp_${values.tiebreaker ?? Tiebreaker.OPPONENTS}`
+            ),
+          },
+          ...(values.tiebreaker === Tiebreaker.SCORE
+            ? [
+                {
+                  type: InputTypes.NUMBER,
+                  formKey: "scoreCap",
+                  label: t("Max Score Per Game"),
+                  placeholder: t("Unlimited"),
+                  required: false,
+                  helperText: t("ScoreCapHelp"),
+                },
+              ]
+            : []),
         ]
       : []),
     ...(isTwoStage
@@ -574,7 +633,8 @@ export const useTournamentFormInputs = (
                   formKey: "advancePerTable",
                   label: t("Players Advancing Per Table"),
                   placeholder: String(
-                    autoRules(eliminationSize(values)).advancePerTable
+                    autoRules(eliminationSize(values), values.tiebreaker)
+                      .advancePerTable
                   ),
                   required: false,
                   helperText: t("AdvancePerTableHelp"),
@@ -639,6 +699,54 @@ export const useTournamentFormInputs = (
       isDatePicker: true,
       helperText: t("RegistrationDeadlineHelp"),
     },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "capacity",
+      label: t("Capacity"),
+      placeholder: t("Unlimited"),
+      required: false,
+      helperText: t("CapacityHelp"),
+    },
+    // Yedek ayarları ancak kontenjan varken anlamlı
+    ...(values.capacity
+      ? [
+          {
+            type: InputTypes.NUMBER,
+            formKey: "waitlistCapacity",
+            label: t("Waitlist Capacity"),
+            placeholder: t("Unlimited"),
+            required: false,
+            helperText: t("WaitlistCapacityHelp"),
+          },
+        ]
+      : []),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "hasEntryFee",
+      label: t("Entry Fee Is Charged"),
+      required: false,
+      helperText: t("HasEntryFeeHelp"),
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "participationNote",
+      label: t("Participation Info"),
+      placeholder: t("ParticipationNotePlaceholder"),
+      required: false,
+      helperText: t("ParticipationNoteHelp"),
+    },
+    ...(values.capacity
+      ? [
+          {
+            type: InputTypes.TEXTAREA,
+            formKey: "waitlistNote",
+            label: t("Waitlist Info"),
+            placeholder: t("WaitlistNotePlaceholder"),
+            required: false,
+            helperText: t("WaitlistNoteHelp"),
+          },
+        ]
+      : []),
     ...ruleInputs,
   ];
 };

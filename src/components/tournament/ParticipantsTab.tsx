@@ -4,7 +4,9 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
   ConfirmationStatus,
+  ListStatus,
   Tournament,
+  TournamentCheckIn,
   TournamentParticipant,
   TournamentStatus,
 } from "../../types/tournament";
@@ -48,14 +50,21 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const participants = useGetTournamentParticipants(tournament._id);
   const registrations = useGetTournamentRegistrations(tournament._id);
-  const { addParticipant, removeParticipant, updateParticipant, checkIn } =
-    useTournamentActions();
+  const {
+    addParticipant,
+    removeParticipant,
+    updateParticipant,
+    checkIn,
+    admitRegistration,
+  } = useTournamentActions();
   const { sourceLabels } = useRegistrationLabels();
 
   const [rowToAction, setRowToAction] = useState<TournamentParticipant>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  // Ücretli turnuvada QR'ı okutulan, ödemesi alınınca katılımcı olacak asil
+  const [awaitingPayment, setAwaitingPayment] = useState<TournamentCheckIn>();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({ name: "" });
@@ -331,10 +340,53 @@ const ParticipantsTab = ({ tournament }: Props) => {
         <Suspense fallback={null}>
           <QrScannerModal
             isOpen={isScannerOpen}
-            close={() => setIsScannerOpen(false)}
-            onScan={(code) => checkIn({ tournamentId: tournament._id, code })}
+            close={() => {
+              setIsScannerOpen(false);
+              setAwaitingPayment(undefined);
+            }}
+            onScan={async (code) => {
+              const result = await checkIn({
+                tournamentId: tournament._id,
+                code,
+              });
+              setAwaitingPayment(
+                result.hasEntryFee &&
+                  !result.isParticipant &&
+                  result.listStatus !== ListStatus.WITHDRAWN &&
+                  !result.waitlistNumber
+                  ? result
+                  : undefined
+              );
+            }}
             title={t("Check In With QR")}
             hint={t("Scan the QR on the player's phone")}
+            footer={
+              awaitingPayment && (
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                  <p className="text-sm text-gray-800">
+                    <span className="font-semibold">
+                      {awaitingPayment.fullName}
+                    </span>
+                    {` · ${t("Primary")} · ${t("Entry fee not paid")}`}
+                  </p>
+                  <GenericButton
+                    variant="success"
+                    size="sm"
+                    onClick={
+                      () =>
+                        admitRegistration({
+                          tournamentId: tournament._id,
+                          registrationId: awaitingPayment.registrationId,
+                        })
+                          .then(() => setAwaitingPayment(undefined))
+                          .catch(() => undefined) // hata toast'ı mutation'ın onError'ında
+                    }
+                  >
+                    {t("Fee Paid")}
+                  </GenericButton>
+                </div>
+              )
+            }
           />
         </Suspense>
       )}

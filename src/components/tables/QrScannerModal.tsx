@@ -1,5 +1,5 @@
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useQrCheckInOutMutation } from "../../utils/api/visit";
@@ -12,6 +12,8 @@ interface QrScannerModalProps {
   onScan?: (code: string) => Promise<unknown>;
   title?: string;
   hint?: string;
+  // Okutma sonucuna göre pencerenin altında gösterilen içerik (ör. ödeme bekleyen oyuncu)
+  footer?: ReactNode;
 }
 
 export const QrScannerModal = ({
@@ -20,6 +22,7 @@ export const QrScannerModal = ({
   onScan,
   title,
   hint,
+  footer,
 }: QrScannerModalProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -128,6 +131,7 @@ export const QrScannerModal = ({
         <p className="text-xs text-gray-500 text-center">
           {hint ?? t("Point your camera at the QR shown at the cafe")}
         </p>
+        {footer}
       </div>
     </div>
   );

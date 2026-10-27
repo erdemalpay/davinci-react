@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { OptionType } from "../../types";
 import {
   MatchStage,
+  Tiebreaker,
   Tournament,
   TournamentFormat,
   TournamentMatch,
@@ -16,7 +17,7 @@ import {
 } from "../../utils/api/tournament";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { buildColumns } from "./EliminationBracket";
+import { eliminationRoundCount } from "./EliminationBracket";
 import { groupRounds } from "./MatchesBoard";
 import { useEliminationRoundName } from "./useTournamentForm";
 
@@ -47,12 +48,11 @@ export const StandingsTable = ({
 }: StandingsTableProps) => {
   const { t } = useTranslation();
   const roundName = useEliminationRoundName();
-  // Tur adları (Yarı Final, Final…) ağaçtaki sütun sayısına göre verilir
-  const eliminationRounds = buildColumns(
+  const eliminationRounds = eliminationRoundCount(
     tournament,
-    matches.filter((m) => m.stage === MatchStage.ELIMINATION),
+    matches,
     participants
-  ).length;
+  );
   const hasLeague = tournament.format !== TournamentFormat.ELIMINATION;
   // Ulaşılan aşama ancak eleme başlayınca bilgi taşır
   const hasElimination = standings.some((row) => row.elimination);
@@ -60,6 +60,7 @@ export const StandingsTable = ({
     0,
     ...standings.flatMap((row) => row.rounds?.map((r) => r.round) ?? [])
   );
+  const byScore = tournament.tiebreaker === Tiebreaker.SCORE;
   const roundNumbers = Array.from({ length: playedRounds }, (_, i) => i + 1);
   // Skoru tamamlanmış puan turları; son puan turu listelenmez, onun sonu güncel tablodan izlenir
   const finishedRounds = groupRounds(matches)
@@ -107,7 +108,18 @@ export const StandingsTable = ({
             {t("Bye")}
           </span>
         )}
-        <span className="font-medium">+{result.points}</span>
+        {byScore ? (
+          // Oyun skoru turnuvasında turun skoru yazılır; kazanılan tur vurgulanır
+          <span
+            className={
+              result.points > 0 ? "font-semibold text-green-600" : undefined
+            }
+          >
+            {result.score ?? "–"}
+          </span>
+        ) : (
+          <span className="font-medium">+{result.points}</span>
+        )}
       </span>
     );
   };
@@ -121,8 +133,13 @@ export const StandingsTable = ({
             key: t("Round Short N", { round }),
             isSortable: false,
           })),
-          { key: t("Total"), isSortable: true },
-          { key: t("Avg. Opponent Points"), isSortable: true },
+          { key: byScore ? t("Wins") : t("Total"), isSortable: true },
+          ...(byScore
+            ? [
+                { key: t("Score"), isSortable: true },
+                { key: "%", isSortable: true },
+              ]
+            : [{ key: t("Avg. Opponent Points"), isSortable: true }]),
         ]
       : []),
     ...(hasElimination ? [{ key: t("Result"), isSortable: false }] : []),
@@ -143,7 +160,9 @@ export const StandingsTable = ({
               <span className="font-semibold">{row.points}</span>
             ),
           },
-          { key: "avgOpponentPoints" },
+          ...(byScore
+            ? [{ key: "totalScore" }, { key: "scoreShare" }]
+            : [{ key: "avgOpponentPoints" }]),
         ]
       : []),
     ...(hasElimination ? [{ key: "result", node: result }] : []),

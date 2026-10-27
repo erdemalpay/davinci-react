@@ -35,6 +35,9 @@ const TournamentRegister = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Kayıt olunca dolar; turnuva günü girişte okutulacak QR'ın içeriği (eski API'de boş)
   const [checkInCode, setCheckInCode] = useState<string>();
+  // Kontenjanlı turnuvada "Asil" / "Yedek 3"; yedek notu sadece yedekte gelir
+  const [registrationStatus, setRegistrationStatus] = useState<string>();
+  const [waitlistNote, setWaitlistNote] = useState<string>();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,6 +52,8 @@ const TournamentRegister = () => {
         email: email.trim(),
         source: parseSource(searchParams.get("source")),
       });
+      setRegistrationStatus(registration.registrationStatus);
+      setWaitlistNote(registration.waitlistNote);
       setCheckInCode(registration.checkInCode ?? "");
     } catch (err: unknown) {
       setError(
@@ -87,6 +92,19 @@ const TournamentRegister = () => {
           name: tournament.name,
         })}
       >
+        {registrationStatus && (
+          <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm text-gray-700">
+            <p>
+              {t("Registration status")}:{" "}
+              <span className="font-semibold text-indigo-700">
+                {registrationStatus}
+              </span>
+            </p>
+            {waitlistNote && (
+              <p className="mt-1 whitespace-pre-line">{waitlistNote}</p>
+            )}
+          </div>
+        )}
         {checkInCode && (
           <CheckInQrCard
             code={checkInCode}
@@ -161,6 +179,12 @@ const TournamentRegister = () => {
             className={inputClassName}
           />
         </div>
+
+        {tournament.participationNote && (
+          <p className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-gray-700 whitespace-pre-line">
+            {tournament.participationNote}
+          </p>
+        )}
 
         <p className="text-xs text-gray-500">
           {t("TournamentRegisterContactNote")}

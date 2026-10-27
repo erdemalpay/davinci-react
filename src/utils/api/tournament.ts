@@ -9,10 +9,13 @@ import { toast } from "react-toastify";
 import { get, patch, post, remove, UpdatePayload } from ".";
 import {
   ConfirmationStatus,
+  ListStatus,
   MatchStage,
+  PublicRegistration,
   PublicTournament,
   RegistrationSource,
   Tournament,
+  TournamentCheckIn,
   TournamentMatch,
   TournamentParticipant,
   TournamentRegistration,
@@ -103,7 +106,7 @@ export function useTournamentActions() {
         path: `${baseUrl}/registrations/${registrationId}`,
         payload: { confirmationStatus },
       }),
-    ...withSuccess("Confirmation updated"),
+    ...withSuccess("Call status updated"),
   });
 
   const promoteRegistrations = useMutation({
@@ -142,7 +145,8 @@ export function useTournamentActions() {
     ...withSuccess("Participant removed"),
   });
 
-  // Girişte okutulan QR'ın sahibi katılımcı olur
+  // Girişte okutulan QR: geliş kaydedilir; ücretli turnuvada asil ödeme bekler (bildirimi
+  // QR penceresindeki ödeme kartı), yedek kafede bekler
   const checkIn = useMutation({
     mutationFn: ({
       tournamentId,
@@ -151,9 +155,74 @@ export function useTournamentActions() {
       tournamentId: number;
       code: string;
     }) =>
-      post<{ code: string }, { fullName: string }>({
+      post<{ code: string }, TournamentCheckIn>({
         path: `${baseUrl}/${tournamentId}/check-in`,
         payload: { code },
+      }),
+    ...options,
+    onSuccess: ({
+      fullName,
+      listStatus,
+      waitlistNumber,
+      isParticipant,
+    }: TournamentCheckIn) => {
+      if (isParticipant)
+        toast.success(t("CheckedInMessage", { name: fullName }));
+      else if (listStatus === ListStatus.WITHDRAWN)
+        toast.warning(t("WithdrawnArrivedMessage", { name: fullName }));
+      else if (waitlistNumber)
+        toast.info(
+          t("WaitlistArrivedMessage", {
+            name: fullName,
+            number: waitlistNumber,
+          })
+        );
+    },
+  });
+
+  const setManualMain = useMutation({
+    mutationFn: ({
+      tournamentId,
+      registrationId,
+      isManualMain,
+    }: {
+      tournamentId: number;
+      registrationId: number;
+      isManualMain: boolean;
+    }) =>
+      patch({
+        path: `${baseUrl}/${tournamentId}/registrations/${registrationId}/main`,
+        payload: { isManualMain },
+      }),
+    ...withSuccess("Saved"),
+  });
+
+  // Bekleyen değişiklikler bildirilen yer olur; asile geçene ve sırası değişene mail gider
+  const publishWaitlist = useMutation({
+    mutationFn: (tournamentId: number) =>
+      post<object, { promoted: number; waitlistUpdated: number }>({
+        path: `${baseUrl}/${tournamentId}/waitlist/publish`,
+        payload: {},
+      }),
+    ...options,
+    onSuccess: ({ promoted, waitlistUpdated }) =>
+      toast.success(
+        t("WaitlistPublishedMessage", { promoted, updated: waitlistUpdated })
+      ),
+  });
+
+  // Ödeme alınan asil ya da sırası gelen yedek katılımcı olur; kontenjan doluysa backend reddeder
+  const admitRegistration = useMutation({
+    mutationFn: ({
+      tournamentId,
+      registrationId,
+    }: {
+      tournamentId: number;
+      registrationId: number;
+    }) =>
+      post<object, { fullName: string }>({
+        path: `${baseUrl}/${tournamentId}/registrations/${registrationId}/admit`,
+        payload: {},
       }),
     ...options,
     onSuccess: ({ fullName }: { fullName: string }) =>
@@ -265,6 +334,10 @@ export function useTournamentActions() {
     addParticipant: addParticipant.mutate,
     removeParticipant: removeParticipant.mutate,
     checkIn: checkIn.mutateAsync,
+    setManualMain: setManualMain.mutate,
+    publishWaitlist: publishWaitlist.mutate,
+    isPublishingWaitlist: publishWaitlist.isPending,
+    admitRegistration: admitRegistration.mutateAsync,
     updateParticipant: updateParticipant.mutate,
     moveParticipant: moveParticipant.mutate,
     regenerateRound: regenerateRound.mutate,
@@ -302,6 +375,22 @@ export function useGetTournamentLive(slug: string | undefined, round?: number) {
   });
 }
 
+export function useGetPublicRegistration(code: string | undefined) {
+  const path = code ? `${baseUrl}/public/registration/${code}` : "";
+  return useQuery<PublicRegistration>({
+    queryKey: [path],
+    queryFn: () => get({ path }),
+    enabled: !!code,
+  });
+}
+
+export function declineRegistration(code: string) {
+  return post<object, PublicRegistration>({
+    path: `${baseUrl}/public/registration/${code}/decline`,
+    payload: {},
+  });
+}
+
 export function registerTournament(
   slug: string,
   payload: {
@@ -311,7 +400,16 @@ export function registerTournament(
     source?: RegistrationSource;
   }
 ) {
-  return post<typeof payload, { _id: number; checkInCode: string }>({
+  // registrationStatus kontenjanlı turnuvada "Asil" / "Yedek 3"; waitlistNote sadece yedekte
+  return post<
+    typeof payload,
+    {
+      _id: number;
+      checkInCode: string;
+      registrationStatus?: string;
+      waitlistNote?: string;
+    }
+  >({
     path: `${baseUrl}/public/${slug}/register`,
     payload,
   });

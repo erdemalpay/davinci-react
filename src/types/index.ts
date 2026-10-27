@@ -253,6 +253,7 @@ export type User = {
   rowsPerPage?: number;
   language?: string;
   isVisitDisabled?: boolean;
+  noUpstairsDuty?: boolean;
   userGames: [
     {
       game: number;
