@@ -6,9 +6,12 @@ import {
   MatchStage,
   Tournament,
   TournamentMatch,
+  TournamentStanding,
 } from "../../types/tournament";
 import { GenericButton } from "../common/GenericButton";
+import TournamentPodium from "./TournamentPodium";
 import { WARNING_MS, formatRemaining, useRoundClock } from "./useRoundClock";
+import { useEliminationRoundName } from "./useTournamentForm";
 
 // Oyuncuların eşleşmeleri ve puan tablosunu telefondan takip ettiği sayfa
 const tournamentLiveUrl = (slug: string) =>
@@ -24,12 +27,22 @@ export const requestFullscreen = () =>
 interface Props {
   tournament: Tournament;
   roundMatches: TournamentMatch[];
+  eliminationRounds: number;
+  podium: TournamentStanding[]; // turnuva bittiyse ilk üç
   close: () => void;
 }
 
-// TV'ye yansıtılan ekran: tur sayacı (varsa) ve oyuncuların okutup takip edeceği QR
-const TvScreen = ({ tournament, roundMatches, close }: Props) => {
+// TV'ye yansıtılan ekran: tur sayacı (varsa) ve oyuncuların okutup takip edeceği QR;
+// şampiyon açıklanınca podyum ekranı kaplar, QR köşede sonuçlar için kalır
+const TvScreen = ({
+  tournament,
+  roundMatches,
+  eliminationRounds,
+  podium,
+  close,
+}: Props) => {
   const { t } = useTranslation();
+  const roundName = useEliminationRoundName();
   const { isActive, pausedAt, remaining, isOver } = useRoundClock(
     tournament,
     roundMatches
@@ -62,7 +75,7 @@ const TvScreen = ({ tournament, roundMatches, close }: Props) => {
     roundMatch &&
     (roundMatch.stage === MatchStage.LEAGUE
       ? t("League Round N", { round: roundMatch.round })
-      : t("Elimination Round N", { round: roundMatch.round }));
+      : roundName(roundMatch.round, eliminationRounds));
   const timeColor = isOver
     ? "text-red-500"
     : pausedAt
@@ -83,41 +96,61 @@ const TvScreen = ({ tournament, roundMatches, close }: Props) => {
       <p className="text-3xl font-semibold text-gray-300 md:text-5xl">
         {tournament.name}
       </p>
-      {roundLabel && (
-        <p className="text-2xl text-gray-400 md:text-4xl">{roundLabel}</p>
-      )}
-      <div className="flex flex-wrap items-center justify-center gap-[6vw]">
-        {isActive && (
-          <div className="flex flex-col items-center gap-4">
-            <p
-              className={`font-bold tabular-nums leading-none ${
-                isOver ? "text-[9vw]" : "text-[16vw]"
-              } ${timeColor}`}
-            >
-              {isOver ? t("Time Up") : formatRemaining(remaining)}
-            </p>
-            {pausedAt && !isOver && (
-              <p className="text-3xl font-semibold text-blue-300">
-                {t("Paused")}
+      {podium.length > 0 ? (
+        <>
+          <TournamentPodium podium={podium} isLarge />
+          {qr && (
+            <div className="absolute bottom-6 right-6 flex flex-col items-center gap-2">
+              <img
+                src={qr}
+                alt="QR"
+                className="w-[12vw] rounded-lg bg-white p-2"
+              />
+              <p className="text-lg text-gray-300">
+                {t("Scan to see the results")}
               </p>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          {roundLabel && (
+            <p className="text-2xl text-gray-400 md:text-4xl">{roundLabel}</p>
+          )}
+          <div className="flex flex-wrap items-center justify-center gap-[6vw]">
+            {isActive && (
+              <div className="flex flex-col items-center gap-4">
+                <p
+                  className={`font-bold tabular-nums leading-none ${
+                    isOver ? "text-[9vw]" : "text-[16vw]"
+                  } ${timeColor}`}
+                >
+                  {isOver ? t("Time Up") : formatRemaining(remaining)}
+                </p>
+                {pausedAt && !isOver && (
+                  <p className="text-3xl font-semibold text-blue-300">
+                    {t("Paused")}
+                  </p>
+                )}
+              </div>
+            )}
+            {qr && (
+              <div className="flex flex-col items-center gap-4">
+                <img
+                  src={qr}
+                  alt="QR"
+                  className={`rounded-xl bg-white p-3 ${
+                    isActive ? "w-[26vw]" : "w-[36vw]"
+                  } max-w-xl`}
+                />
+                <p className="text-2xl text-gray-200 md:text-3xl">
+                  {t("Scan to follow matches and standings")}
+                </p>
+              </div>
             )}
           </div>
-        )}
-        {qr && (
-          <div className="flex flex-col items-center gap-4">
-            <img
-              src={qr}
-              alt="QR"
-              className={`rounded-xl bg-white p-3 ${
-                isActive ? "w-[26vw]" : "w-[36vw]"
-              } max-w-xl`}
-            />
-            <p className="text-2xl text-gray-200 md:text-3xl">
-              {t("Scan to follow matches and standings")}
-            </p>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

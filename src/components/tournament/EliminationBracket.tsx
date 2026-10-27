@@ -77,7 +77,8 @@ export const buildColumns = (
     return columns;
   const tableSize = eliminationSize(tournament);
   const perTable =
-    tournament.advancePerTable ?? autoRules(tableSize).advancePerTable;
+    tournament.advancePerTable ??
+    autoRules(tableSize, tournament.tiebreaker).advancePerTable;
   // Backend'deki nextEliminationRound'un aynısı: bay geçen doğrudan çıkar, masadan ilk
   // `perTable` kişi çıkar (en az biri elenir); sıra önce tüm birinciler, sonra ikinciler.
   // Skoru girilen (beraberlik kararı beklemeyen) masada kimin çıktığı bellidir.
@@ -221,6 +222,18 @@ export const buildColumns = (
   return columns;
 };
 
+// Tur adları (Yarı Final, Final…) ağaçtaki sütun sayısına göre verilir
+export const eliminationRoundCount = (
+  tournament: Tournament,
+  matches: TournamentMatch[],
+  participants: Pick<TournamentParticipant, "_id" | "isActive">[]
+) =>
+  buildColumns(
+    tournament,
+    matches.filter((m) => m.stage === MatchStage.ELIMINATION),
+    participants
+  ).length;
+
 // Bir masadan çıkanların bir sonraki turda oturduğu masalar; oyuncuları henüz belli
 // olmayan turda backend gibi yılan sırasıyla (1-4 / 2-3) dağıtılır.
 // 3.'lük masasına çizgi çekilmez (Challonge'daki gibi ayrı durur).
@@ -356,9 +369,6 @@ const BracketBox = ({
         />
       ) : (
         players.map((player) => {
-          const tied =
-            match?.isCompleted &&
-            players.filter((p) => p.score === player.score).length > 1;
           const isChampion = isChampionTable && player.rank === 1;
           const isThird =
             table.isThirdPlace && match?.isCompleted && player.rank === 1;
@@ -388,11 +398,6 @@ const BracketBox = ({
               </span>
               {isChampion && <FaCrown className="text-amber-500" />}
               {isThird && <FaMedal className="text-amber-700" />}
-              {tied && (
-                <span className="text-[10px] rounded bg-amber-100 text-amber-700 px-1">
-                  {t("Tie")}
-                </span>
-              )}
               <span className="w-8 text-right text-gray-500">
                 {player.score ?? "-"}
               </span>
