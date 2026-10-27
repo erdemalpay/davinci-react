@@ -35,9 +35,10 @@ const TournamentRegister = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Kayıt olunca dolar; turnuva günü girişte okutulacak QR'ın içeriği (eski API'de boş)
   const [checkInCode, setCheckInCode] = useState<string>();
-  // Kontenjanlı turnuvada "Asil" / "Yedek 3"; yedek notu sadece yedekte gelir
+  // Kontenjanlı turnuvada "Asil" / "Yedek 3"; not asilde asil, yedekte yedek bilgisidir
   const [registrationStatus, setRegistrationStatus] = useState<string>();
-  const [waitlistNote, setWaitlistNote] = useState<string>();
+  const [waitlistNumber, setWaitlistNumber] = useState<number>();
+  const [registrationNote, setRegistrationNote] = useState<string>();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,7 +54,8 @@ const TournamentRegister = () => {
         source: parseSource(searchParams.get("source")),
       });
       setRegistrationStatus(registration.registrationStatus);
-      setWaitlistNote(registration.waitlistNote);
+      setWaitlistNumber(registration.waitlistNumber);
+      setRegistrationNote(registration.registrationNote);
       setCheckInCode(registration.checkInCode ?? "");
     } catch (err: unknown) {
       setError(
@@ -95,13 +97,15 @@ const TournamentRegister = () => {
         {registrationStatus && (
           <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm text-gray-700">
             <p>
-              {t("Registration status")}:{" "}
+              {t("RegistrationThanks", { name: tournament.name })}{" "}
               <span className="font-semibold text-indigo-700">
-                {registrationStatus}
+                {waitlistNumber
+                  ? t("YouAreOnWaitlist", { number: waitlistNumber })
+                  : t("YouAreInMainList")}
               </span>
             </p>
-            {waitlistNote && (
-              <p className="mt-1 whitespace-pre-line">{waitlistNote}</p>
+            {registrationNote && (
+              <p className="mt-1 whitespace-pre-line">{registrationNote}</p>
             )}
           </div>
         )}

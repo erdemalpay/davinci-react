@@ -76,8 +76,9 @@ export interface Tournament {
   capacity?: number; // asil kontenjanı; boşsa sınırsız, asil/yedek ayrımı yok
   waitlistCapacity?: number; // boşsa yedek sınırsız
   hasEntryFee?: boolean; // ücretliyse asil ödeme alınınca katılımcı olur
-  participationNote?: string; // kayıt formunda ve mailde gösterilir
-  waitlistNote?: string; // yalnızca yedeklere gösterilir
+  participationNote?: string; // kayıt formunda, kayıt olmadan önce gösterilir
+  mainNote?: string; // yalnızca asillere, kayıttan sonra ve mailde gösterilir
+  waitlistNote?: string; // yalnızca yedeklere, kayıttan sonra ve mailde gösterilir
 }
 
 // Yedek listesinde kişiye bildirilen yer (backend ListStatus)

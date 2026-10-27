@@ -71,7 +71,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const [showFilters, setShowFilters] = useState(false);
   const [filterFormElements, setFilterFormElements] = useState<
     Record<string, string>
-  >({ source: "", isActive: "" });
+  >({ source: "", isActive: "", isPaid: "" });
 
   const isFinished = tournament.status === TournamentStatus.FINISHED;
   const promotedIds = new Set(participants.map((p) => p.registrationId));
@@ -88,9 +88,19 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const similar = addForm.name.trim()
     ? participants.find((p) => nameKey(p.name) === nameKey(addForm.name))
     : undefined;
+  const registrationOf = (participant: TournamentParticipant) =>
+    registrations.find((r) => r._id === participant.registrationId);
   const sourceOf = (participant: TournamentParticipant) =>
-    registrations.find((r) => r._id === participant.registrationId)?.source ??
-    MANUAL_SOURCE;
+    registrationOf(participant)?.source ?? MANUAL_SOURCE;
+  // Ödeme bilgisi başvuruda tutulur; elle eklenen katılımcının ödeme kaydı yoktur
+  const feeOptions: Record<string, string> = {
+    true: t("Fee Paid"),
+    false: t("Fee Not Paid"),
+  };
+  const feeStatusOf = (participant: TournamentParticipant) => {
+    const registration = registrationOf(participant);
+    return registration && String(!!registration.isPaid);
+  };
 
   const rows = useMemo(
     () =>
@@ -99,7 +109,9 @@ const ParticipantsTab = ({ tournament }: Props) => {
           (!filterFormElements.source ||
             sourceOf(p) === filterFormElements.source) &&
           (!filterFormElements.isActive ||
-            String(p.isActive) === filterFormElements.isActive)
+            String(p.isActive) === filterFormElements.isActive) &&
+          (!filterFormElements.isPaid ||
+            feeStatusOf(p) === filterFormElements.isPaid)
       ),
     [participants, registrations, filterFormElements]
   );
@@ -107,6 +119,9 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Added From"), isSortable: false },
+    ...(tournament.hasEntryFee
+      ? [{ key: t("Entry Fee"), isSortable: false }]
+      : []),
     { key: t("Status"), isSortable: false },
     { key: t("Actions"), isSortable: false },
   ];
@@ -117,6 +132,17 @@ const ParticipantsTab = ({ tournament }: Props) => {
       key: "registrationId",
       node: (row: TournamentParticipant) => sourceOptions[sourceOf(row)],
     },
+    ...(tournament.hasEntryFee
+      ? [
+          {
+            key: "isPaid",
+            node: (row: TournamentParticipant) => {
+              const status = feeStatusOf(row);
+              return status ? feeOptions[status] : "-";
+            },
+          },
+        ]
+      : []),
     {
       key: "isActive",
       node: (row: TournamentParticipant) =>
@@ -210,6 +236,21 @@ const ParticipantsTab = ({ tournament }: Props) => {
         placeholder: t("Status"),
         required: false,
       },
+      ...(tournament.hasEntryFee
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "isPaid",
+              label: t("Entry Fee"),
+              options: Object.entries(feeOptions).map(([value, label]) => ({
+                value,
+                label,
+              })),
+              placeholder: t("Entry Fee"),
+              required: false,
+            },
+          ]
+        : []),
     ],
     formElements: filterFormElements,
     setFormElements: setFilterFormElements,
