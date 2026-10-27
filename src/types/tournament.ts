@@ -80,6 +80,24 @@ export interface Tournament {
   waitlistNote?: string; // yalnızca yedeklere gösterilir
 }
 
+// Yedek listesinde kişiye bildirilen yer (backend ListStatus)
+export enum ListStatus {
+  MAIN = "main",
+  WAITLIST = "waitlist",
+  WITHDRAWN = "withdrawn",
+}
+
+// Katılmayacak bilgisinin geldiği yer
+export enum DeclineSource {
+  LINK = "link",
+  PANEL = "panel",
+}
+
+export interface ListPosition {
+  listStatus: ListStatus;
+  waitlist?: number;
+}
+
 export interface TournamentRegistration {
   _id: number;
   tournamentId: number;
@@ -93,12 +111,28 @@ export interface TournamentRegistration {
   sequence?: number; // turnuvadaki kayıt sırası; eski başvurularda yok
   isPaid?: boolean;
   arrivedAt?: string; // QR okutulup kafeye geldiği an
+  declineSource?: DeclineSource | null;
+  isManualMain?: boolean; // "Asil yap" denildi, liste güncellenince asil olur
+  position?: ListPosition; // kişiye bildirilen yer; kontenjansız turnuvada yok
+  nextPosition?: ListPosition; // "Yedek Listesini Güncelle"de alacağı yer
+}
+
+// Maildeki "Katılamayacağım" linkinin açtığı sayfa
+export interface PublicRegistration {
+  tournamentName: string;
+  date: string;
+  startTime?: string;
+  fullName: string;
+  registrationStatus?: string;
+  isDeclined: boolean;
+  canDecline: boolean;
 }
 
 // QR okutmanın sonucu; ücretli turnuvada asil ödeme alınana kadar katılımcı olmaz
 export interface TournamentCheckIn {
   registrationId: number;
   fullName: string;
+  listStatus?: ListStatus;
   waitlistNumber?: number;
   hasEntryFee: boolean;
   isParticipant: boolean;

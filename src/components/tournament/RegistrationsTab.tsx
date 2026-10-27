@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ConfirmationStatus,
+  DeclineSource,
+  ListPosition,
+  ListStatus,
   RegistrationSource,
   Tournament,
   TournamentRegistration,
@@ -13,6 +16,7 @@ import {
   useTournamentActions,
 } from "../../utils/api/tournament";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { GenericButton } from "../common/GenericButton";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -24,9 +28,10 @@ export const useRegistrationLabels = () => {
     [RegistrationSource.SOCIAL]: t("Social Media"),
     [RegistrationSource.OTHER]: t("Unknown"),
   };
+  // Görevlinin WhatsApp/telefonla aramasının sonucu
   const confirmationLabels: Record<ConfirmationStatus, string> = {
-    [ConfirmationStatus.PENDING]: t("Pending"),
-    [ConfirmationStatus.CONFIRMED]: t("Confirmed"),
+    [ConfirmationStatus.PENDING]: t("Not Called"),
+    [ConfirmationStatus.CONFIRMED]: t("Will Come"),
     [ConfirmationStatus.DECLINED]: t("Not Coming"),
     [ConfirmationStatus.UNREACHABLE]: t("Unreachable"),
   };
@@ -41,11 +46,12 @@ enum ArrivalStatus {
   NO_SHOW = "noShow",
 }
 
-// Kontenjanı aşan kaydın yedek numarası (backend'deki waitlistNumber); asilse undefined
-const waitlistNumber = (tournament: Tournament, row: TournamentRegistration) =>
-  tournament.capacity && row.sequence && row.sequence > tournament.capacity
-    ? row.sequence - tournament.capacity
-    : undefined;
+const isSamePosition = (a?: ListPosition, b?: ListPosition) =>
+  a?.listStatus === b?.listStatus && a?.waitlist === b?.waitlist;
+
+// Bekleyen değişiklik: liste güncellenince bu başvurunun yeri değişecek
+const hasPendingChange = (row: TournamentRegistration) =>
+  !!row.nextPosition && !isSamePosition(row.position, row.nextPosition);
 
 interface Props {
   tournament: Tournament;
@@ -55,11 +61,20 @@ const RegistrationsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const registrations = useGetTournamentRegistrations(tournament._id);
   const participants = useGetTournamentParticipants(tournament._id);
-  const { updateConfirmation, admitRegistration } = useTournamentActions();
+  const {
+    updateConfirmation,
+    admitRegistration,
+    setManualMain,
+    publishWaitlist,
+    isPublishingWaitlist,
+  } = useTournamentActions();
   const { sourceLabels, confirmationLabels } = useRegistrationLabels();
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAdmit, setRowToAdmit] = useState<TournamentRegistration>();
   const [isAdmitDialogOpen, setIsAdmitDialogOpen] = useState(false);
+  const [rowToMakeMain, setRowToMakeMain] = useState<TournamentRegistration>();
+  const [isMakeMainDialogOpen, setIsMakeMainDialogOpen] = useState(false);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   const [filterFormElements, setFilterFormElements] = useState<
     Record<string, string>
   >({ source: "", confirmationStatus: "", arrivalStatus: "" });
@@ -79,11 +94,59 @@ const RegistrationsTab = ({ tournament }: Props) => {
     [ArrivalStatus.EXPECTED]: t("Expected"),
     [ArrivalStatus.NO_SHOW]: t("Did Not Come"),
   };
-  const placeLabel = (row: TournamentRegistration) => {
-    if (!row.sequence) return "-";
-    const waitlist = waitlistNumber(tournament, row);
-    return waitlist ? t("Waitlist N", { number: waitlist }) : t("Primary");
+  const positionLabel = (position?: ListPosition) => {
+    if (position?.listStatus === ListStatus.MAIN) return t("Primary");
+    if (position?.listStatus === ListStatus.WAITLIST)
+      return t("Waitlist N", { number: position.waitlist });
+    if (position?.listStatus === ListStatus.WITHDRAWN) return t("Not Coming");
+    return "-";
   };
+  const placeLabel = (row: TournamentRegistration) =>
+    positionLabel(row.position);
+  const declineSourceLabels: Record<DeclineSource, string> = {
+    [DeclineSource.LINK]: t("Via Link"),
+    [DeclineSource.PANEL]: t("Via Panel"),
+  };
+
+  const isDeclined = (row: TournamentRegistration) =>
+    row.confirmationStatus === ConfirmationStatus.DECLINED;
+  // Elle asil yapılan boş yeri alır: asile geçmek üzere olan son yedek yedekte kalır; boş yer
+  // yoksa asil sayısı kontenjanı aşar
+  const makeMainWarning = (row: TournamentRegistration) => {
+    const bumped = registrations
+      .filter(
+        (r) =>
+          r._id !== row._id &&
+          r.position?.listStatus === ListStatus.WAITLIST &&
+          r.nextPosition?.listStatus === ListStatus.MAIN &&
+          !r.isManualMain
+      )
+      .sort(
+        (a, b) => (b.position?.waitlist ?? 0) - (a.position?.waitlist ?? 0)
+      )[0];
+    if (bumped)
+      return t("MakeMainBumpsMessage", {
+        name: bumped.fullName,
+        place: placeLabel(bumped),
+      });
+    const mainCount =
+      registrations.filter(
+        (r) => r.nextPosition?.listStatus === ListStatus.MAIN
+      ).length + 1;
+    return mainCount > (tournament.capacity ?? 0)
+      ? t("MakeMainOverCapacityMessage", {
+          count: mainCount,
+          capacity: tournament.capacity,
+        })
+      : "";
+  };
+  const pendingRows = registrations.filter(hasPendingChange);
+  const promotedNames = pendingRows
+    .filter((r) => r.nextPosition?.listStatus === ListStatus.MAIN)
+    .map((r) => r.fullName);
+  const mailCount = pendingRows.filter(
+    (r) => r.nextPosition?.listStatus !== ListStatus.WITHDRAWN
+  ).length;
 
   const rows = useMemo(() => {
     const filtered = registrations.filter(
@@ -95,9 +158,11 @@ const RegistrationsTab = ({ tournament }: Props) => {
         (!filterFormElements.arrivalStatus ||
           arrivalStatusOf(r) === filterFormElements.arrivalStatus)
     );
-    // Kafede bekleyenler sırayla alınır: en küçük sıra numarası üstte
+    // Kafede bekleyenler sırayla alınır: asiller, sonra en küçük yedek numarası üstte
     return filterFormElements.arrivalStatus === ArrivalStatus.AT_CAFE
-      ? [...filtered].sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
+      ? [...filtered].sort(
+          (a, b) => (a.position?.waitlist ?? 0) - (b.position?.waitlist ?? 0)
+        )
       : filtered;
   }, [registrations, participants, tournament.status, filterFormElements]);
 
@@ -111,7 +176,7 @@ const RegistrationsTab = ({ tournament }: Props) => {
     { key: t("Phone"), isSortable: false },
     { key: t("Email"), isSortable: false },
     { key: t("Source"), isSortable: true },
-    { key: t("Confirmation"), isSortable: true },
+    { key: t("Call Status"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
 
@@ -121,7 +186,34 @@ const RegistrationsTab = ({ tournament }: Props) => {
       ? [
           {
             key: "sequence",
-            node: (row: TournamentRegistration) => placeLabel(row),
+            node: (row: TournamentRegistration) => (
+              <span className="whitespace-nowrap">
+                {placeLabel(row)}
+                {hasPendingChange(row) && (
+                  <span
+                    className="ml-1 text-amber-600"
+                    title={t("Applies when the waitlist is updated")}
+                  >
+                    → {positionLabel(row.nextPosition)}
+                  </span>
+                )}
+                {row.isManualMain && (
+                  <button
+                    type="button"
+                    className="ml-2 text-xs text-gray-500 underline"
+                    onClick={() =>
+                      setManualMain({
+                        tournamentId: tournament._id,
+                        registrationId: row._id,
+                        isManualMain: false,
+                      })
+                    }
+                  >
+                    {t("Undo")}
+                  </button>
+                )}
+              </span>
+            ),
           },
         ]
       : []),
@@ -152,22 +244,29 @@ const RegistrationsTab = ({ tournament }: Props) => {
     {
       key: "confirmationStatus",
       node: (row: TournamentRegistration) => (
-        <select
-          className="border rounded px-2 py-1 text-sm"
-          value={row.confirmationStatus}
-          onChange={(e) =>
-            updateConfirmation({
-              registrationId: row._id,
-              confirmationStatus: e.target.value as ConfirmationStatus,
-            })
-          }
-        >
-          {Object.entries(confirmationLabels).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-col items-start gap-0.5">
+          <select
+            className="border rounded px-2 py-1 text-sm"
+            value={row.confirmationStatus}
+            onChange={(e) =>
+              updateConfirmation({
+                registrationId: row._id,
+                confirmationStatus: e.target.value as ConfirmationStatus,
+              })
+            }
+          >
+            {Object.entries(confirmationLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          {isDeclined(row) && row.declineSource && (
+            <span className="text-xs text-gray-500">
+              {declineSourceLabels[row.declineSource]}
+            </span>
+          )}
+        </div>
       ),
     },
   ];
@@ -189,12 +288,12 @@ const RegistrationsTab = ({ tournament }: Props) => {
       {
         type: InputTypes.SELECT,
         formKey: "confirmationStatus",
-        label: t("Confirmation"),
+        label: t("Call Status"),
         options: Object.entries(confirmationLabels).map(([value, label]) => ({
           value,
           label,
         })),
-        placeholder: t("Confirmation"),
+        placeholder: t("Call Status"),
         required: false,
       },
       {
@@ -215,6 +314,24 @@ const RegistrationsTab = ({ tournament }: Props) => {
   };
 
   const filters = [
+    ...(hasCapacity
+      ? [
+          {
+            isUpperSide: true,
+            node: (
+              <GenericButton
+                variant="primary"
+                size="sm"
+                disabled={!pendingRows.length}
+                isLoading={isPublishingWaitlist}
+                onClick={() => setIsPublishDialogOpen(true)}
+              >
+                {t("Update Waitlist")}
+              </GenericButton>
+            ),
+          },
+        ]
+      : []),
     {
       label: t("Show Filters"),
       isUpperSide: true,
@@ -232,6 +349,43 @@ const RegistrationsTab = ({ tournament }: Props) => {
     ? t("Take Fee And Add Participant")
     : t("Add As Participant");
   const actions = [
+    ...(hasCapacity
+      ? [
+          {
+            name: t("Make Main"),
+            isButton: true,
+            setRow: setRowToMakeMain,
+            isDisabled: (row: TournamentRegistration) =>
+              row.position?.listStatus !== ListStatus.WAITLIST ||
+              !!row.isManualMain ||
+              isDeclined(row) ||
+              tournament.status !== TournamentStatus.NOT_STARTED,
+            modal: rowToMakeMain ? (
+              <ConfirmationDialog
+                isOpen={isMakeMainDialogOpen}
+                close={() => setIsMakeMainDialogOpen(false)}
+                confirm={() => {
+                  setManualMain({
+                    tournamentId: tournament._id,
+                    registrationId: rowToMakeMain._id,
+                    isManualMain: true,
+                  });
+                  setIsMakeMainDialogOpen(false);
+                }}
+                title={t("Make Main")}
+                text={[
+                  t("MakeMainMessage", { name: rowToMakeMain.fullName }),
+                  makeMainWarning(rowToMakeMain),
+                ].join(" ")}
+              />
+            ) : null,
+            isModal: true,
+            isModalOpen: isMakeMainDialogOpen,
+            setIsModal: setIsMakeMainDialogOpen,
+            isPath: false,
+          },
+        ]
+      : []),
     {
       name: admitLabel,
       isButton: true,
@@ -268,6 +422,20 @@ const RegistrationsTab = ({ tournament }: Props) => {
 
   return (
     <div className="w-[95%] mx-auto my-4">
+      <ConfirmationDialog
+        isOpen={isPublishDialogOpen}
+        close={() => setIsPublishDialogOpen(false)}
+        confirm={() => {
+          publishWaitlist(tournament._id);
+          setIsPublishDialogOpen(false);
+        }}
+        title={t("Update Waitlist")}
+        text={t("PublishWaitlistMessage", {
+          promoted: promotedNames.join(", ") || "-",
+          updated: mailCount - promotedNames.length,
+          mails: mailCount,
+        })}
+      />
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}

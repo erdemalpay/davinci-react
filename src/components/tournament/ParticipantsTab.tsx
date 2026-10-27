@@ -4,6 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
   ConfirmationStatus,
+  ListStatus,
   Tournament,
   TournamentCheckIn,
   TournamentParticipant,
@@ -351,6 +352,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
               setAwaitingPayment(
                 result.hasEntryFee &&
                   !result.isParticipant &&
+                  result.listStatus !== ListStatus.WITHDRAWN &&
                   !result.waitlistNumber
                   ? result
                   : undefined
