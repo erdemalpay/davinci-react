@@ -2134,7 +2134,7 @@
   "Registration not found": "Registration not found",
   "This link does not belong to a valid registration.": "This link does not belong to a valid registration.",
   "Your registration has been cancelled": "Your registration has been cancelled",
-  "RegistrationCancelledDescription": "We cancelled your {{name}} registration. Thanks for letting us know; your spot will go to the next player on the waitlist.",
+  "RegistrationCancelledDescription": "We cancelled your {{name}} registration. Thanks for letting us know.",
   "Cancellation period has ended": "Cancellation period has ended",
   "CancellationEndedDescription": "The tournament has started, so the registration can no longer be cancelled here.",
   "CancelRegistrationDescription": "If you can't attend the tournament, you can cancel your registration here. Your spot will go to the next player on the waitlist.",

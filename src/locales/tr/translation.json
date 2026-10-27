@@ -2142,7 +2142,7 @@
   "Registration not found": "Kayıt bulunamadı",
   "This link does not belong to a valid registration.": "Bu bağlantı geçerli bir kayda ait değil.",
   "Your registration has been cancelled": "Kaydınız iptal edildi",
-  "RegistrationCancelledDescription": "{{name}} kaydınızı iptal ettik. Haber verdiğiniz için teşekkürler; yeriniz sıradaki yedeğe verilecek.",
+  "RegistrationCancelledDescription": "{{name}} kaydınızı iptal ettik. Haber verdiğiniz için teşekkürler.",
   "Cancellation period has ended": "İptal süresi doldu",
   "CancellationEndedDescription": "Turnuva başladığı için kayıt artık buradan iptal edilemiyor.",
   "CancelRegistrationDescription": "Turnuvaya katılamayacaksanız kaydınızı buradan iptal edebilirsiniz. Yeriniz sıradaki yedeğe verilir.",
