@@ -35,7 +35,8 @@ const TournamentRegister = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Kayıt olunca dolar; turnuva günü girişte okutulacak QR'ın içeriği (eski API'de boş)
   const [checkInCode, setCheckInCode] = useState<string>();
-  // Kontenjanlı turnuvada "Asil" / "Yedek 3"; not asilde asil, yedekte yedek bilgisidir
+  // Kontenjanlı turnuvada "Asil" / "Yedek 3"; not asilde asil, yedekte yedek bilgisidir.
+  // Not doluysa kutuda yalnızca o gösterilir, boşsa otomatik cümle çıkar
   const [registrationStatus, setRegistrationStatus] = useState<string>();
   const [waitlistNumber, setWaitlistNumber] = useState<number>();
   const [registrationNote, setRegistrationNote] = useState<string>();
@@ -96,16 +97,17 @@ const TournamentRegister = () => {
       >
         {registrationStatus && (
           <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm text-gray-700">
-            <p>
-              {t("RegistrationThanks", { name: tournament.name })}{" "}
-              <span className="font-semibold text-indigo-700">
-                {waitlistNumber
-                  ? t("YouAreOnWaitlist", { number: waitlistNumber })
-                  : t("YouAreInMainList")}
-              </span>
-            </p>
-            {registrationNote && (
-              <p className="mt-1 whitespace-pre-line">{registrationNote}</p>
+            {registrationNote ? (
+              <p className="whitespace-pre-line">{registrationNote}</p>
+            ) : (
+              <p>
+                {t("RegistrationThanks", { name: tournament.name })}{" "}
+                <span className="font-semibold text-indigo-700">
+                  {waitlistNumber
+                    ? t("YouAreOnWaitlist", { number: waitlistNumber })
+                    : t("YouAreInMainList")}
+                </span>
+              </p>
             )}
           </div>
         )}
