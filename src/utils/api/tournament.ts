@@ -400,14 +400,15 @@ export function registerTournament(
     source?: RegistrationSource;
   }
 ) {
-  // registrationStatus kontenjanlı turnuvada "Asil" / "Yedek 3"; waitlistNote sadece yedekte
+  // registrationStatus kontenjanlı turnuvada "Asil" / "Yedek 3"; registrationNote asilde asil, yedekte yedek notu
   return post<
     typeof payload,
     {
       _id: number;
       checkInCode: string;
       registrationStatus?: string;
-      waitlistNote?: string;
+      waitlistNumber?: number;
+      registrationNote?: string;
     }
   >({
     path: `${baseUrl}/public/${slug}/register`,

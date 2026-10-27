@@ -46,6 +46,15 @@ enum ArrivalStatus {
   NO_SHOW = "noShow",
 }
 
+// Sıra sütununun sıralama değeri: önce asiller (kayıt sırasıyla), sonra yedekler (yedek numarasıyla)
+const WAITLIST_ORDER_BASE = 1_000_000;
+const placeOrderOf = (row: TournamentRegistration) => {
+  if (row.position?.listStatus === ListStatus.MAIN) return row.sequence ?? 0;
+  if (row.position?.listStatus === ListStatus.WAITLIST)
+    return WAITLIST_ORDER_BASE + (row.position.waitlist ?? 0);
+  return 2 * WAITLIST_ORDER_BASE;
+};
+
 const isSamePosition = (a?: ListPosition, b?: ListPosition) =>
   a?.listStatus === b?.listStatus && a?.waitlist === b?.waitlist;
 
@@ -77,7 +86,13 @@ const RegistrationsTab = ({ tournament }: Props) => {
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   const [filterFormElements, setFilterFormElements] = useState<
     Record<string, string>
-  >({ source: "", confirmationStatus: "", arrivalStatus: "" });
+  >({
+    source: "",
+    confirmationStatus: "",
+    arrivalStatus: "",
+    listStatus: "",
+    pendingChange: "",
+  });
 
   const hasCapacity = Boolean(tournament.capacity);
   const joinedIds = new Set(participants.map((p) => p.registrationId));
@@ -141,6 +156,21 @@ const RegistrationsTab = ({ tournament }: Props) => {
       : "";
   };
   const pendingRows = registrations.filter(hasPendingChange);
+  const listStatusLabels: Record<ListStatus, string> = {
+    [ListStatus.MAIN]: t("Primary"),
+    [ListStatus.WAITLIST]: t("Waitlist"),
+    [ListStatus.WITHDRAWN]: t("Not Coming"),
+  };
+  // Asil/Yedek Sıra sütunundaki gibi bildirilen yere bakar; vazgeçenler yalnızca "Gelmeyecek"te çıkar
+  const matchesListStatus = (row: TournamentRegistration) => {
+    const wanted = filterFormElements.listStatus;
+    if (!wanted) return true;
+    const isWithdrawn =
+      isDeclined(row) || row.position?.listStatus === ListStatus.WITHDRAWN;
+    return wanted === ListStatus.WITHDRAWN
+      ? isWithdrawn
+      : !isWithdrawn && row.position?.listStatus === wanted;
+  };
   const promotedNames = pendingRows
     .filter((r) => r.nextPosition?.listStatus === ListStatus.MAIN)
     .map((r) => r.fullName);
@@ -156,19 +186,24 @@ const RegistrationsTab = ({ tournament }: Props) => {
         (!filterFormElements.confirmationStatus ||
           r.confirmationStatus === filterFormElements.confirmationStatus) &&
         (!filterFormElements.arrivalStatus ||
-          arrivalStatusOf(r) === filterFormElements.arrivalStatus)
+          arrivalStatusOf(r) === filterFormElements.arrivalStatus) &&
+        matchesListStatus(r) &&
+        (!filterFormElements.pendingChange ||
+          hasPendingChange(r) === (filterFormElements.pendingChange === "true"))
     );
     // Kafede bekleyenler sırayla alınır: asiller, sonra en küçük yedek numarası üstte
-    return filterFormElements.arrivalStatus === ArrivalStatus.AT_CAFE
-      ? [...filtered].sort(
-          (a, b) => (a.position?.waitlist ?? 0) - (b.position?.waitlist ?? 0)
-        )
-      : filtered;
+    const ordered =
+      filterFormElements.arrivalStatus === ArrivalStatus.AT_CAFE
+        ? [...filtered].sort(
+            (a, b) => (a.position?.waitlist ?? 0) - (b.position?.waitlist ?? 0)
+          )
+        : filtered;
+    return ordered.map((r) => ({ ...r, placeOrder: placeOrderOf(r) }));
   }, [registrations, participants, tournament.status, filterFormElements]);
 
   const columns = [
     { key: t("Name"), isSortable: true },
-    ...(hasCapacity ? [{ key: t("Place"), isSortable: false }] : []),
+    ...(hasCapacity ? [{ key: t("Place"), isSortable: true }] : []),
     { key: t("Arrival"), isSortable: false },
     ...(tournament.hasEntryFee
       ? [{ key: t("Entry Fee"), isSortable: false }]
@@ -185,7 +220,7 @@ const RegistrationsTab = ({ tournament }: Props) => {
     ...(hasCapacity
       ? [
           {
-            key: "sequence",
+            key: "placeOrder",
             node: (row: TournamentRegistration) => (
               <span className="whitespace-nowrap">
                 {placeLabel(row)}
@@ -307,6 +342,31 @@ const RegistrationsTab = ({ tournament }: Props) => {
         placeholder: t("Arrival"),
         required: false,
       },
+      ...(hasCapacity
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "listStatus",
+              label: t("List"),
+              options: Object.entries(listStatusLabels).map(
+                ([value, label]) => ({ value, label })
+              ),
+              placeholder: t("List"),
+              required: false,
+            },
+            {
+              type: InputTypes.SELECT,
+              formKey: "pendingChange",
+              label: t("Pending Change"),
+              options: [
+                { value: "true", label: t("Yes") },
+                { value: "false", label: t("No") },
+              ],
+              placeholder: t("Pending Change"),
+              required: false,
+            },
+          ]
+        : []),
     ],
     formElements: filterFormElements,
     setFormElements: setFilterFormElements,

@@ -274,6 +274,7 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "waitlistCapacity", type: FormKeyTypeEnum.NUMBER },
   { key: "hasEntryFee", type: FormKeyTypeEnum.BOOLEAN },
   { key: "participationNote", type: FormKeyTypeEnum.STRING },
+  { key: "mainNote", type: FormKeyTypeEnum.STRING },
   { key: "waitlistNote", type: FormKeyTypeEnum.STRING },
   { key: "format", type: FormKeyTypeEnum.STRING },
   { key: "tableSize", type: FormKeyTypeEnum.NUMBER },
@@ -737,6 +738,14 @@ export const useTournamentFormInputs = (
     },
     ...(values.capacity
       ? [
+          {
+            type: InputTypes.TEXTAREA,
+            formKey: "mainNote",
+            label: t("Main List Info"),
+            placeholder: t("MainNotePlaceholder"),
+            required: false,
+            helperText: t("MainNoteHelp"),
+          },
           {
             type: InputTypes.TEXTAREA,
             formKey: "waitlistNote",
