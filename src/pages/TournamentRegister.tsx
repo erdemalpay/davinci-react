@@ -33,6 +33,7 @@ const TournamentRegister = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPrivacyNotice, setShowPrivacyNotice] = useState(false);
   // Kayıt olunca dolar; turnuva günü girişte okutulacak QR'ın içeriği (eski API'de boş)
   const [checkInCode, setCheckInCode] = useState<string>();
   // Kontenjanlı turnuvada "Asil" / "Yedek 3"; not asilde asil, yedekte yedek bilgisidir.
@@ -192,9 +193,30 @@ const TournamentRegister = () => {
           </p>
         )}
 
-        <p className="text-xs text-gray-500">
-          {t("TournamentRegisterContactNote")}
-        </p>
+        <div className="space-y-1">
+          <label className="flex items-start gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              required
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300"
+            />
+            <span>{t("TournamentPrivacyRead")}</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowPrivacyNotice((shown) => !shown)}
+            className="text-xs text-indigo-600 hover:underline"
+          >
+            {showPrivacyNotice
+              ? t("TournamentPrivacyHide")
+              : t("TournamentPrivacyShow")}
+          </button>
+          {showPrivacyNotice && (
+            <p className="rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-600 whitespace-pre-line">
+              {t("TournamentPrivacyNotice")}
+            </p>
+          )}
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
