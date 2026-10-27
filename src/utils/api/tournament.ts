@@ -9,7 +9,9 @@ import { toast } from "react-toastify";
 import { get, patch, post, remove, UpdatePayload } from ".";
 import {
   ConfirmationStatus,
+  ListStatus,
   MatchStage,
+  PublicRegistration,
   PublicTournament,
   RegistrationSource,
   Tournament,
@@ -104,7 +106,7 @@ export function useTournamentActions() {
         path: `${baseUrl}/registrations/${registrationId}`,
         payload: { confirmationStatus },
       }),
-    ...withSuccess("Confirmation updated"),
+    ...withSuccess("Call status updated"),
   });
 
   const promoteRegistrations = useMutation({
@@ -160,11 +162,14 @@ export function useTournamentActions() {
     ...options,
     onSuccess: ({
       fullName,
+      listStatus,
       waitlistNumber,
       isParticipant,
     }: TournamentCheckIn) => {
       if (isParticipant)
         toast.success(t("CheckedInMessage", { name: fullName }));
+      else if (listStatus === ListStatus.WITHDRAWN)
+        toast.warning(t("WithdrawnArrivedMessage", { name: fullName }));
       else if (waitlistNumber)
         toast.info(
           t("WaitlistArrivedMessage", {
@@ -173,6 +178,37 @@ export function useTournamentActions() {
           })
         );
     },
+  });
+
+  const setManualMain = useMutation({
+    mutationFn: ({
+      tournamentId,
+      registrationId,
+      isManualMain,
+    }: {
+      tournamentId: number;
+      registrationId: number;
+      isManualMain: boolean;
+    }) =>
+      patch({
+        path: `${baseUrl}/${tournamentId}/registrations/${registrationId}/main`,
+        payload: { isManualMain },
+      }),
+    ...withSuccess("Saved"),
+  });
+
+  // Bekleyen değişiklikler bildirilen yer olur; asile geçene ve sırası değişene mail gider
+  const publishWaitlist = useMutation({
+    mutationFn: (tournamentId: number) =>
+      post<object, { promoted: number; waitlistUpdated: number }>({
+        path: `${baseUrl}/${tournamentId}/waitlist/publish`,
+        payload: {},
+      }),
+    ...options,
+    onSuccess: ({ promoted, waitlistUpdated }) =>
+      toast.success(
+        t("WaitlistPublishedMessage", { promoted, updated: waitlistUpdated })
+      ),
   });
 
   // Ödeme alınan asil ya da sırası gelen yedek katılımcı olur; kontenjan doluysa backend reddeder
@@ -298,6 +334,9 @@ export function useTournamentActions() {
     addParticipant: addParticipant.mutate,
     removeParticipant: removeParticipant.mutate,
     checkIn: checkIn.mutateAsync,
+    setManualMain: setManualMain.mutate,
+    publishWaitlist: publishWaitlist.mutate,
+    isPublishingWaitlist: publishWaitlist.isPending,
     admitRegistration: admitRegistration.mutateAsync,
     updateParticipant: updateParticipant.mutate,
     moveParticipant: moveParticipant.mutate,
@@ -333,6 +372,22 @@ export function useGetTournamentLive(slug: string | undefined, round?: number) {
     refetchInterval: 5_000,
     refetchOnWindowFocus: true,
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useGetPublicRegistration(code: string | undefined) {
+  const path = code ? `${baseUrl}/public/registration/${code}` : "";
+  return useQuery<PublicRegistration>({
+    queryKey: [path],
+    queryFn: () => get({ path }),
+    enabled: !!code,
+  });
+}
+
+export function declineRegistration(code: string) {
+  return post<object, PublicRegistration>({
+    path: `${baseUrl}/public/registration/${code}/decline`,
+    payload: {},
   });
 }
 
