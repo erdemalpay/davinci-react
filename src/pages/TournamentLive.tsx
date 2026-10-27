@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { PublicFormLoading } from "../components/common/PublicFormCard";
@@ -16,7 +16,6 @@ import { useRoundClock } from "../components/tournament/useRoundClock";
 import {
   Tournament,
   TournamentMatch,
-  TournamentStanding,
   TournamentStatus,
 } from "../types/tournament";
 import { useGetTournamentLive } from "../utils/api/tournament";
@@ -56,11 +55,12 @@ const TournamentLive = () => {
   const { data, isLoading, isError } = useGetTournamentLive(slug, afterRound);
   const [tab, setTab] = useState(LiveTab.MATCHES);
   const [search, setSearch] = useState("");
-  // Geçmiş bir turun tablosuna bakılırken de podyum güncel sonuçtan kalır
-  const finalStandings = useRef<TournamentStanding[]>([]);
-  if (data && !afterRound) finalStandings.current = data.standings;
+  // Geçmiş bir turun tablosuna bakılırken de podyum güncel sonuçtan gelir
+  // (tur seçili değilken aynı sorgudur, ayrı istek atılmaz)
+  const { data: current } = useGetTournamentLive(slug);
+  const finalStandings = current?.standings ?? [];
   const isFinished = data?.tournament.status === TournamentStatus.FINISHED;
-  // Sayfa 5 sn'de bir yenilendiği için final skoru girilince herkesin telefonunda patlar;
+  // Sayfa 5 sn'de bir yenilendiği için şampiyon açıklanınca herkesin telefonunda patlar;
   // her cihazda bir kez
   useFinishConfetti(
     isFinished,
@@ -102,8 +102,7 @@ const TournamentLive = () => {
   // Adını arayan tek bir oyuncu bulunduysa podyumun altında kendi derecesi yazar
   const ownRank =
     highlightIds.size === 1
-      ? finalStandings.current.find((row) => highlightIds.has(row.participantId))
-          ?.rank
+      ? finalStandings.find((row) => highlightIds.has(row.participantId))?.rank
       : undefined;
   if (tournament.status === TournamentStatus.NOT_STARTED) {
     return (
@@ -134,7 +133,7 @@ const TournamentLive = () => {
           </p>
           {isFinished ? (
             <div className="mt-4 border-t border-gray-100 pt-4">
-              <TournamentPodium podium={podiumOf(finalStandings.current)} />
+              <TournamentPodium podium={podiumOf(finalStandings)} />
               {ownRank && (
                 <p className="mt-3 text-sm font-medium text-indigo-700">
                   {t("You finished Nth", { rank: ownRank })}
