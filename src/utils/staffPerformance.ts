@@ -22,8 +22,9 @@ export type AttendanceDay = {
   // missing from the shift plan counts as a full day.
   weight: number;
   isUnplanned: boolean;
-  // Duties in the shift plan.
+  // The day's middleman (by the middleman records).
   isMiddleman: boolean;
+  // Duties in the shift plan.
   isServiceStaff: boolean;
   isOutsideOperation: boolean;
   // Marked in the user summary as left out of the averages.
@@ -47,12 +48,14 @@ export function getAttendanceDays({
   shifts,
   locations,
   location,
+  middlemanDates = [],
 }: {
   userId: string;
   visits: Visit[];
   shifts: Shift[];
   locations: Location[];
   location?: number;
+  middlemanDates?: string[];
 }): AttendanceDay[] {
   const days = new Map<string, AttendanceDay>();
   for (const visit of visits) {
@@ -81,9 +84,7 @@ export function getAttendanceDays({
       weight:
         shiftType === LocationShiftType.PARTTIME ? PART_TIME_DAY_WEIGHT : 1,
       isUnplanned: !isPlanned,
-      isMiddleman: !!dayPlan?.shifts.some(
-        (slot) => slot.middlemanUser === userId
-      ),
+      isMiddleman: middlemanDates.includes(visit.date),
       isServiceStaff: !!dayPlan?.shifts.some(
         (slot) => slot.chefUser === userId
       ),
