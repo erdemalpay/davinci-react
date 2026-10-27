@@ -2500,5 +2500,8 @@
   "Definitions & Images": "Tanımlar ve Görseller",
   "Menu Management": "Menü Yönetimi",
   "Expenses & Cash": "Giderler ve Kasa",
-  "User Management": "Kullanıcı Yönetimi"
+  "User Management": "Kullanıcı Yönetimi",
+  "No Upstairs Duty": "Üstçü Atanmasın",
+  "Show No Upstairs Duty": "Üstçü Muafiyetini Göster",
+  "No middleman before 14:00": "14:00'ten önce ortacı olunamaz"
 }
