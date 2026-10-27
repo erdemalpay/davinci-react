@@ -391,6 +391,7 @@ export function ActiveButtonCallsList() {
             declineButtonCall({
               id: breakDeclinePending._id,
               reason: DeclineReasonEnum.BREAK,
+              breakWarningConfirmed: true,
             });
             setBreakDeclinePending(null);
           }}
