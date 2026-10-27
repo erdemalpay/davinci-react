@@ -1585,26 +1585,6 @@ const Shifts = () => {
           ),
       },
       {
-        label: t("Assign Middleman"),
-        isUpperSide: false,
-        node: (
-          <SwitchButton
-            checked={isMiddlemanAssignOpen}
-            onChange={() => {
-              setIsMiddlemanAssignOpen(!isMiddlemanAssignOpen);
-            }}
-          />
-        ),
-        isDisabled:
-          !shiftsDisabledCondition ||
-          shiftsDisabledCondition.actions.some(
-            (ac) =>
-              ac.action === ActionEnum.ASSIGN_MIDDLEMAN &&
-              user?.role?._id &&
-              !ac?.permissionsRoles?.includes(user?.role?._id)
-          ),
-      },
-      {
         label: t("Assign Outside Operation"),
         isUpperSide: false,
         node: (
