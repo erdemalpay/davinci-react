@@ -15,6 +15,13 @@ export enum PairingMode {
   RANDOM = "random",
 }
 
+// Puanı eşit oyuncuların sırası: rakiplerin ortalama puanı ya da oyunda alınan skor
+// (Catan resmi kuralı: toplam skor → masadaki pay → 2.lik, 3.lük sayısı)
+export enum Tiebreaker {
+  OPPONENTS = "opponents",
+  SCORE = "score",
+}
+
 export enum MatchStage {
   LEAGUE = "league",
   ELIMINATION = "elimination",
@@ -58,6 +65,8 @@ export interface Tournament {
   advanceCount?: number;
   advancePerTable?: number;
   roundDuration?: number; // tur süresi (dk); boşsa süre sınırı yok
+  tiebreaker?: Tiebreaker; // boşsa rakiplerin ortalama puanı
+  scoreCap?: number; // oyun skoruyla eşitlik bozmada oyun başına sayılan en fazla skor
   // O anki tura verilen ek süre (dk) ve sayacın elle bitirilmesi; her yeni turda sıfırlanır
   roundExtraMinutes?: number;
   isRoundTimerStopped?: boolean;
@@ -134,8 +143,11 @@ export interface TournamentStanding {
   matchesPlayed: number;
   byeCount: number;
   avgOpponentPoints: number;
+  // Sadece oyun skoruyla eşitlik bozmada: sınırlanmış toplam skor ve masadaki payların toplamı (%)
+  totalScore?: number;
+  scoreShare?: number;
   // Puan turlarında tur tur alınan puan (bay geçtiyse isBye)
-  rounds?: { round: number; points: number; isBye: boolean }[];
+  rounds?: { round: number; points: number; score?: number; isBye: boolean }[];
   // Elemeye çıktıysa ulaştığı son tur ve o masadaki sırası
   elimination?: {
     round: number;

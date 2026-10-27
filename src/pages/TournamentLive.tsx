@@ -8,6 +8,10 @@ import MatchesBoard, {
   groupRounds,
 } from "../components/tournament/MatchesBoard";
 import { StandingsTable } from "../components/tournament/StandingsTab";
+import TournamentPodium, {
+  podiumOf,
+  useFinishConfetti,
+} from "../components/tournament/TournamentPodium";
 import { useRoundClock } from "../components/tournament/useRoundClock";
 import {
   Tournament,
@@ -51,6 +55,17 @@ const TournamentLive = () => {
   const { data, isLoading, isError } = useGetTournamentLive(slug, afterRound);
   const [tab, setTab] = useState(LiveTab.MATCHES);
   const [search, setSearch] = useState("");
+  // Geçmiş bir turun tablosuna bakılırken de podyum güncel sonuçtan gelir
+  // (tur seçili değilken aynı sorgudur, ayrı istek atılmaz)
+  const { data: current } = useGetTournamentLive(slug);
+  const finalStandings = current?.standings ?? [];
+  const isFinished = data?.tournament.status === TournamentStatus.FINISHED;
+  // Sayfa 5 sn'de bir yenilendiği için şampiyon açıklanınca herkesin telefonunda patlar;
+  // her cihazda bir kez
+  useFinishConfetti(
+    isFinished,
+    data && `tournament-confetti-${data.tournament._id}`
+  );
 
   const query = normalizeText(search.trim());
   const highlightIds = useMemo(
@@ -84,6 +99,11 @@ const TournamentLive = () => {
   }
 
   const { tournament, participants, matches, standings } = data;
+  // Adını arayan tek bir oyuncu bulunduysa podyumun altında kendi derecesi yazar
+  const ownRank =
+    highlightIds.size === 1
+      ? finalStandings.find((row) => highlightIds.has(row.participantId))?.rank
+      : undefined;
   if (tournament.status === TournamentStatus.NOT_STARTED) {
     return (
       <StatusScreen
@@ -111,10 +131,15 @@ const TournamentLive = () => {
             {format(new Date(tournament.date), "dd/MM/yyyy")}
             {tournament.startTime ? ` · ${tournament.startTime}` : ""}
           </p>
-          {tournament.status === TournamentStatus.FINISHED ? (
-            <p className="mt-2 font-medium text-green-700">
-              {t("Tournament finished")}
-            </p>
+          {isFinished ? (
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <TournamentPodium podium={podiumOf(finalStandings)} />
+              {ownRank && (
+                <p className="mt-3 text-sm font-medium text-indigo-700">
+                  {t("You finished Nth", { rank: ownRank })}
+                </p>
+              )}
+            </div>
           ) : (
             latest && (
               <LiveClock
