@@ -2520,5 +2520,6 @@
   "No Upstairs Duty": "Üstçü Atanmasın",
   "Show No Upstairs Duty": "Üstçü Muafiyetini Göster",
   "No middleman before 14:00": "14:00'ten önce ortacı olunamaz",
-  "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "14:00–22:00 arası çalıştığı {{workedDays}} günün {{days}} günü"
+  "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "14:00–22:00 arası çalıştığı {{workedDays}} günün {{days}} günü",
+  "(reserved)": "(rezerve)"
 }

@@ -2512,5 +2512,6 @@
   "No Upstairs Duty": "No Upstairs Duty",
   "Show No Upstairs Duty": "Show No Upstairs Duty",
   "No middleman before 14:00": "No middleman before 14:00",
-  "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "{{days}} of {{workedDays}} days worked from 14:00 to 22:00"
+  "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "{{days}} of {{workedDays}} days worked from 14:00 to 22:00",
+  "(reserved)": "(reserved)"
 }
