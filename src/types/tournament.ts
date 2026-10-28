@@ -183,7 +183,13 @@ export interface TournamentStanding {
   totalScore?: number;
   scoreShare?: number;
   // Puan turlarında tur tur alınan puan (bay geçtiyse isBye)
-  rounds?: { round: number; points: number; score?: number; isBye: boolean }[];
+  rounds?: {
+    round: number;
+    points: number;
+    score?: number;
+    share?: number; // o turdaki masa payı (%); scoreShare bunların toplamı
+    isBye: boolean;
+  }[];
   // Elemeye çıktıysa ulaştığı son tur ve o masadaki sırası
   elimination?: {
     round: number;
