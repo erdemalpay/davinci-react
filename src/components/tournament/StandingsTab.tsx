@@ -62,12 +62,12 @@ export const StandingsTable = ({
   );
   const byScore = tournament.tiebreaker === Tiebreaker.SCORE;
   const roundNumbers = Array.from({ length: playedRounds }, (_, i) => i + 1);
-  // Skoru tamamlanmış puan turları; son puan turu listelenmez, onun sonu güncel tablodan izlenir
+  // Skoru tamamlanmış puan turları; son puan turunun sonu da seçilebilir (eleme başlayınca
+  // güncel tablo elemenin sonucunu gösterir, puan turlarının tablosu buradan izlenir)
   const finishedRounds = groupRounds(matches)
     .filter(
       (group) =>
         group.stage === MatchStage.LEAGUE &&
-        group.round < tournament.leagueRounds &&
         group.matches.every((m) => m.isCompleted)
     )
     .map((group) => group.round);
@@ -124,6 +124,21 @@ export const StandingsTable = ({
     );
   };
 
+  // % turlardaki masa paylarının toplamıdır (3 turda 100'ü aşabilir); toplamı oluşturan paylar altta
+  const scoreShareCell = (row: TournamentStanding) => {
+    const shares = row.rounds?.flatMap((r) => r.share ?? []) ?? [];
+    return (
+      <span className="whitespace-nowrap">
+        <span>{row.scoreShare}</span>
+        {shares.length > 1 && (
+          <span className="block text-[11px] text-gray-400">
+            {shares.join(" + ")}
+          </span>
+        )}
+      </span>
+    );
+  };
+
   const columns = [
     { key: t("Rank"), isSortable: true },
     { key: t("Name"), isSortable: true },
@@ -161,7 +176,10 @@ export const StandingsTable = ({
             ),
           },
           ...(byScore
-            ? [{ key: "totalScore" }, { key: "scoreShare" }]
+            ? [
+                { key: "totalScore" },
+                { key: "scoreShare", node: scoreShareCell },
+              ]
             : [{ key: "avgOpponentPoints" }]),
         ]
       : []),
@@ -196,14 +214,19 @@ export const StandingsTable = ({
   ];
 
   return (
-    <GenericTable
-      rowKeys={rowKeys}
-      columns={columns}
-      rows={standings}
-      isActionsActive={false}
-      title={t("Standings")}
-      filters={filters}
-    />
+    <>
+      <GenericTable
+        rowKeys={rowKeys}
+        columns={columns}
+        rows={standings}
+        isActionsActive={false}
+        title={t("Standings")}
+        filters={filters}
+      />
+      {hasLeague && byScore && (
+        <p className="mt-2 px-1 text-xs text-gray-500">{t("ScoreShareNote")}</p>
+      )}
+    </>
   );
 };
 
