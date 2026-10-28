@@ -7,6 +7,7 @@ import PublicFormCard, {
 } from "../components/common/PublicFormCard";
 import StatusScreen from "../components/common/StatusScreen";
 import CheckInQrCard from "../components/tournament/CheckInQrCard";
+import RegistrationNote from "../components/tournament/RegistrationNote";
 import { RegistrationSource } from "../types/tournament";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import {
@@ -100,7 +101,10 @@ const TournamentRegister = () => {
           <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm text-gray-700">
             {registrationNote ? (
               <>
-                <p className="whitespace-pre-line">{registrationNote}</p>
+                <RegistrationNote
+                  note={registrationNote}
+                  checkInCode={checkInCode}
+                />
                 {waitlistNumber && (
                   <p className="mt-2 font-semibold text-indigo-700">
                     {t("WaitlistPosition", { number: waitlistNumber })}
