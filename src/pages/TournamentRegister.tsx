@@ -99,7 +99,14 @@ const TournamentRegister = () => {
         {registrationStatus && (
           <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm text-gray-700">
             {registrationNote ? (
-              <p className="whitespace-pre-line">{registrationNote}</p>
+              <>
+                <p className="whitespace-pre-line">{registrationNote}</p>
+                {waitlistNumber && (
+                  <p className="mt-2 font-semibold text-indigo-700">
+                    {t("WaitlistPosition", { number: waitlistNumber })}
+                  </p>
+                )}
+              </>
             ) : (
               <p>
                 {t("RegistrationThanks", { name: tournament.name })}{" "}
