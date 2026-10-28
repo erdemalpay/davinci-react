@@ -58,6 +58,7 @@ import {
   useOrderMutations,
 } from "../utils/api/order/order";
 import { useGetReservations } from "../utils/api/reservations";
+import { getComingReservedTableNames } from "../utils/reservedTables";
 import {
   getOpenTableDates,
   useGetTables,
@@ -217,20 +218,10 @@ const Tables = () => {
     selectedDate || formatDate(new Date())
   );
 
-  const comingReservedTableNames = useMemo(() => {
-    if (!reservations || !selectedLocationId) return new Set<string>();
-
-    return new Set(
-      reservations
-        .filter(
-          (reservation) =>
-            reservation.status === ReservationStatusEnum.COMING &&
-            reservation.location === selectedLocationId &&
-            reservation.reservedTable
-        )
-        .map((reservation) => reservation.reservedTable)
-    );
-  }, [reservations, selectedLocationId]);
+  const comingReservedTableNames = useMemo(
+    () => getComingReservedTableNames(reservations, selectedLocationId),
+    [reservations, selectedLocationId]
+  );
 
   const inactiveCategories = useMemo(() => {
     return categories?.filter((category) => !category.active) || [];
@@ -1743,10 +1734,12 @@ const Tables = () => {
               );
             })
             ?.sort((a, b) => Number(a) - Number(b))
-            ?.map((t, index) => {
+            ?.map((name) => {
               return {
-                value: t,
-                label: t,
+                value: name,
+                label: comingReservedTableNames.has(name)
+                  ? `${name} ${t("(reserved)")}`
+                  : name,
               };
             }),
           isSortDisabled: true,
@@ -1804,10 +1797,12 @@ const Tables = () => {
           );
         })
         ?.sort((a, b) => Number(a) - Number(b))
-        ?.map((t, index) => {
+        ?.map((name) => {
           return {
-            value: t,
-            label: t,
+            value: name,
+            label: comingReservedTableNames.has(name)
+              ? `${name} ${t("(reserved)")}`
+              : name,
           };
         }),
       placeholder: t("Tables"),
