@@ -2198,6 +2198,7 @@
   "Players Per Table In Elimination": "Elemede Masa Başına Oyuncu",
   "EliminationTableSizeHelp": "Boş bırakırsan puan turlarındaki masa büyüklüğü kullanılır. Farklı olabilir: ör. puan turları 4'lük, çeyrek/yarı/final 2 kişilik (birebir) oynanır.",
   "Round Short N": "{{round}}. Tur",
+  "ScoreShareNote": "%: her oyunda oyuncunun puanının masadaki toplam puana oranı, tüm oyunların toplamı (100'ü geçebilir). Eşitlikte kullanılır.",
   "Current": "Güncel",
   "End Of Round N": "{{round}}. Tur Sonu",
   "No scored match this round": "Bu turda skoru girilmiş maçı yok",
