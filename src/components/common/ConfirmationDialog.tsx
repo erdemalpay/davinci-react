@@ -8,12 +8,16 @@ export function ConfirmationDialog({
   confirm,
   title,
   text,
+  cancelLabel,
+  confirmLabel,
 }: {
   isOpen: boolean;
   close: () => void;
   confirm: () => void;
   title: string;
   text: string;
+  cancelLabel?: string;
+  confirmLabel?: string;
 }) {
   const { t } = useTranslation();
   return (
@@ -51,7 +55,7 @@ export function ConfirmationDialog({
                       size="sm"
                       className="px-6 py-3"
                     >
-                      {t("Cancel")}
+                      {cancelLabel ?? t("Cancel")}
                     </GenericButton>
                     <GenericButton
                       onClick={confirm}
@@ -59,7 +63,7 @@ export function ConfirmationDialog({
                       size="sm"
                       className="px-6 py-3"
                     >
-                      {t("Confirm")}
+                      {confirmLabel ?? t("Confirm")}
                     </GenericButton>
                   </div>
                 </div>

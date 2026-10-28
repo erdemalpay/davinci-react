@@ -1,16 +1,25 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { get, patch, post, remove } from ".";
+import { get, patch, post, remove, UpdatePayload } from ".";
 import {
   ConfirmationStatus,
+  ListStatus,
   MatchStage,
+  PublicRegistration,
   PublicTournament,
   RegistrationSource,
   Tournament,
+  TournamentCheckIn,
   TournamentMatch,
   TournamentParticipant,
   TournamentRegistration,
+  TournamentLive,
   TournamentStanding,
 } from "../../types/tournament";
 import { getApiErrorMessage } from "../getApiErrorMessage";
@@ -52,8 +61,17 @@ export const useGetTournamentParticipants = (id: number) =>
 export const useGetTournamentMatches = (id: number) =>
   useTournamentResource<TournamentMatch>(id, "matches");
 
-export const useGetTournamentStandings = (id: number) =>
-  useTournamentResource<TournamentStanding>(id, "standings");
+// round verilirse tablo o puan turunun sonundaki haliyle gelir; tur değişirken eski tablo
+// ekranda kalır, boş tabloya düşüp titremez
+const roundQuery = (round?: number) => (round ? `?round=${round}` : "");
+
+export const useGetTournamentStandings = (id: number, round?: number) =>
+  useGetList<TournamentStanding>(
+    `${baseUrl}/${id}/standings${roundQuery(round)}`,
+    [...tournamentKey(id, "standings"), round],
+    true,
+    { placeholderData: keepPreviousData }
+  );
 
 export function useTournamentActions() {
   const queryClient = useQueryClient();
@@ -88,7 +106,7 @@ export function useTournamentActions() {
         path: `${baseUrl}/registrations/${registrationId}`,
         payload: { confirmationStatus },
       }),
-    ...withSuccess("Confirmation updated"),
+    ...withSuccess("Call status updated"),
   });
 
   const promoteRegistrations = useMutation({
@@ -127,6 +145,117 @@ export function useTournamentActions() {
     ...withSuccess("Participant removed"),
   });
 
+  // Girişte okutulan QR: geliş kaydedilir; ücretli turnuvada asil ödeme bekler (bildirimi
+  // QR penceresindeki ödeme kartı), yedek kafede bekler
+  const checkIn = useMutation({
+    mutationFn: ({
+      tournamentId,
+      code,
+    }: {
+      tournamentId: number;
+      code: string;
+    }) =>
+      post<{ code: string }, TournamentCheckIn>({
+        path: `${baseUrl}/${tournamentId}/check-in`,
+        payload: { code },
+      }),
+    ...options,
+    onSuccess: ({
+      fullName,
+      listStatus,
+      waitlistNumber,
+      isParticipant,
+    }: TournamentCheckIn) => {
+      if (isParticipant)
+        toast.success(t("CheckedInMessage", { name: fullName }));
+      else if (listStatus === ListStatus.WITHDRAWN)
+        toast.warning(t("WithdrawnArrivedMessage", { name: fullName }));
+      else if (waitlistNumber)
+        toast.info(
+          t("WaitlistArrivedMessage", {
+            name: fullName,
+            number: waitlistNumber,
+          })
+        );
+    },
+  });
+
+  const setManualMain = useMutation({
+    mutationFn: ({
+      tournamentId,
+      registrationId,
+      isManualMain,
+    }: {
+      tournamentId: number;
+      registrationId: number;
+      isManualMain: boolean;
+    }) =>
+      patch({
+        path: `${baseUrl}/${tournamentId}/registrations/${registrationId}/main`,
+        payload: { isManualMain },
+      }),
+    ...withSuccess("Saved"),
+  });
+
+  // Bekleyen değişiklikler bildirilen yer olur; asile geçene ve sırası değişene mail gider
+  const publishWaitlist = useMutation({
+    mutationFn: (tournamentId: number) =>
+      post<object, { promoted: number; waitlistUpdated: number }>({
+        path: `${baseUrl}/${tournamentId}/waitlist/publish`,
+        payload: {},
+      }),
+    ...options,
+    onSuccess: ({ promoted, waitlistUpdated }) =>
+      toast.success(
+        t("WaitlistPublishedMessage", { promoted, updated: waitlistUpdated })
+      ),
+  });
+
+  // Ödeme alınan asil ya da sırası gelen yedek katılımcı olur; kontenjan doluysa backend reddeder
+  const admitRegistration = useMutation({
+    mutationFn: ({
+      tournamentId,
+      registrationId,
+    }: {
+      tournamentId: number;
+      registrationId: number;
+    }) =>
+      post<object, { fullName: string }>({
+        path: `${baseUrl}/${tournamentId}/registrations/${registrationId}/admit`,
+        payload: {},
+      }),
+    ...options,
+    onSuccess: ({ fullName }: { fullName: string }) =>
+      toast.success(t("CheckedInMessage", { name: fullName })),
+  });
+
+  const updateParticipant = useMutation({
+    mutationFn: ({
+      id,
+      updates,
+    }: UpdatePayload<Partial<TournamentParticipant>>) =>
+      patch({ path: `${baseUrl}/participants/${id}`, payload: updates }),
+    ...withSuccess("Saved"),
+  });
+
+  // swapWithId boşsa oyuncu hedef masaya taşınır
+  const moveParticipant = useMutation({
+    mutationFn: ({
+      participantId,
+      matchId,
+      swapWithId,
+    }: {
+      participantId: number;
+      matchId: number;
+      swapWithId?: number;
+    }) =>
+      patch({
+        path: `${baseUrl}/participants/${participantId}/seat`,
+        payload: { matchId, swapWithId },
+      }),
+    ...withSuccess("Seats updated"),
+  });
+
   const generateNextRound = useMutation({
     mutationFn: (tournamentId: number) =>
       post<object, TournamentMatch[]>({
@@ -139,6 +268,15 @@ export function useTournamentActions() {
       toast.success(
         t(created?.length ? "Round created" : "Tournament finished")
       ),
+  });
+
+  const regenerateRound = useMutation({
+    mutationFn: (tournamentId: number) =>
+      post({
+        path: `${baseUrl}/${tournamentId}/rounds/regenerate`,
+        payload: {},
+      }),
+    ...withSuccess("Round re-paired"),
   });
 
   // Sunucunun döndürdüğü maçı listeye hemen yazar; skor ve beraberlik seçimi
@@ -195,6 +333,15 @@ export function useTournamentActions() {
     promoteRegistrations: promoteRegistrations.mutate,
     addParticipant: addParticipant.mutate,
     removeParticipant: removeParticipant.mutate,
+    checkIn: checkIn.mutateAsync,
+    setManualMain: setManualMain.mutate,
+    publishWaitlist: publishWaitlist.mutate,
+    isPublishingWaitlist: publishWaitlist.isPending,
+    admitRegistration: admitRegistration.mutateAsync,
+    updateParticipant: updateParticipant.mutate,
+    moveParticipant: moveParticipant.mutate,
+    regenerateRound: regenerateRound.mutate,
+    isRegeneratingRound: regenerateRound.isPending,
     generateNextRound: generateNextRound.mutate,
     isGeneratingRound: generateNextRound.isPending,
     submitScores: submitScores.mutate,
@@ -214,6 +361,36 @@ export function useGetPublicTournament(slug: string | undefined) {
   });
 }
 
+// Websocket bütün panel olaylarını yayınladığı için herkese açık sayfa ona bağlanmaz;
+// 5 sn'de bir ve telefon ekranına geri dönülünce hemen yenilenir
+export function useGetTournamentLive(slug: string | undefined, round?: number) {
+  const path = slug ? `${baseUrl}/public/${slug}/live${roundQuery(round)}` : "";
+  return useQuery<TournamentLive>({
+    queryKey: [path],
+    queryFn: () => get({ path }),
+    enabled: !!slug,
+    refetchInterval: 5_000,
+    refetchOnWindowFocus: true,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useGetPublicRegistration(code: string | undefined) {
+  const path = code ? `${baseUrl}/public/registration/${code}` : "";
+  return useQuery<PublicRegistration>({
+    queryKey: [path],
+    queryFn: () => get({ path }),
+    enabled: !!code,
+  });
+}
+
+export function declineRegistration(code: string) {
+  return post<object, PublicRegistration>({
+    path: `${baseUrl}/public/registration/${code}/decline`,
+    payload: {},
+  });
+}
+
 export function registerTournament(
   slug: string,
   payload: {
@@ -223,5 +400,18 @@ export function registerTournament(
     source?: RegistrationSource;
   }
 ) {
-  return post({ path: `${baseUrl}/public/${slug}/register`, payload });
+  // registrationStatus kontenjanlı turnuvada "Asil" / "Yedek 3"; registrationNote asilde asil, yedekte yedek notu
+  return post<
+    typeof payload,
+    {
+      _id: number;
+      checkInCode: string;
+      registrationStatus?: string;
+      waitlistNumber?: number;
+      registrationNote?: string;
+    }
+  >({
+    path: `${baseUrl}/public/${slug}/register`,
+    payload,
+  });
 }

@@ -6,6 +6,7 @@ import PublicFormCard, {
   PublicFormLoading,
 } from "../components/common/PublicFormCard";
 import StatusScreen from "../components/common/StatusScreen";
+import CheckInQrCard from "../components/tournament/CheckInQrCard";
 import { RegistrationSource } from "../types/tournament";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import {
@@ -32,7 +33,14 @@ const TournamentRegister = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [showPrivacyNotice, setShowPrivacyNotice] = useState(false);
+  // Kayıt olunca dolar; turnuva günü girişte okutulacak QR'ın içeriği (eski API'de boş)
+  const [checkInCode, setCheckInCode] = useState<string>();
+  // Kontenjanlı turnuvada "Asil" / "Yedek 3"; not asilde asil, yedekte yedek bilgisidir.
+  // Not doluysa kutuda yalnızca o gösterilir, boşsa otomatik cümle çıkar
+  const [registrationStatus, setRegistrationStatus] = useState<string>();
+  const [waitlistNumber, setWaitlistNumber] = useState<number>();
+  const [registrationNote, setRegistrationNote] = useState<string>();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,13 +49,16 @@ const TournamentRegister = () => {
     setError(null);
     setIsSubmitting(true);
     try {
-      await registerTournament(slug, {
+      const registration = await registerTournament(slug, {
         fullName: fullName.trim(),
         phone,
         email: email.trim(),
         source: parseSource(searchParams.get("source")),
       });
-      setIsRegistered(true);
+      setRegistrationStatus(registration.registrationStatus);
+      setWaitlistNumber(registration.waitlistNumber);
+      setRegistrationNote(registration.registrationNote);
+      setCheckInCode(registration.checkInCode ?? "");
     } catch (err: unknown) {
       setError(
         getApiErrorMessage(
@@ -73,15 +84,43 @@ const TournamentRegister = () => {
     );
   }
 
-  if (isRegistered) {
+  const dateText = `${format(new Date(tournament.date), "dd/MM/yyyy")}${
+    tournament.startTime ? ` · ${tournament.startTime}` : ""
+  }`;
+
+  if (checkInCode !== undefined) {
     return (
-      <StatusScreen
-        isSuccess
+      <PublicFormCard
         title={t("Your registration has been received!")}
-        description={t("TournamentRegisteredDescription", {
+        subtitle={t("TournamentRegisteredDescription", {
           name: tournament.name,
         })}
-      />
+      >
+        {registrationStatus && (
+          <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm text-gray-700">
+            {registrationNote ? (
+              <p className="whitespace-pre-line">{registrationNote}</p>
+            ) : (
+              <p>
+                {t("RegistrationThanks", { name: tournament.name })}{" "}
+                <span className="font-semibold text-indigo-700">
+                  {waitlistNumber
+                    ? t("YouAreOnWaitlist", { number: waitlistNumber })
+                    : t("YouAreInMainList")}
+                </span>
+              </p>
+            )}
+          </div>
+        )}
+        {checkInCode && (
+          <CheckInQrCard
+            code={checkInCode}
+            tournamentName={tournament.name}
+            dateText={dateText}
+            fullName={fullName.trim()}
+          />
+        )}
+      </PublicFormCard>
     );
   }
 
@@ -97,9 +136,7 @@ const TournamentRegister = () => {
   return (
     <PublicFormCard
       title={tournament.name}
-      subtitle={`${format(new Date(tournament.date), "dd/MM/yyyy")}${
-        tournament.startTime ? ` · ${tournament.startTime}` : ""
-      } · ${t("Davinci Board Game Cafe")}`}
+      subtitle={`${dateText} · ${t("Davinci Board Game Cafe")}`}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -150,9 +187,36 @@ const TournamentRegister = () => {
           />
         </div>
 
-        <p className="text-xs text-gray-500">
-          {t("TournamentRegisterContactNote")}
-        </p>
+        {tournament.participationNote && (
+          <p className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-gray-700 whitespace-pre-line">
+            {tournament.participationNote}
+          </p>
+        )}
+
+        <div className="space-y-1">
+          <label className="flex items-start gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              required
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300"
+            />
+            <span>{t("TournamentPrivacyRead")}</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowPrivacyNotice((shown) => !shown)}
+            className="text-xs text-indigo-600 hover:underline"
+          >
+            {showPrivacyNotice
+              ? t("TournamentPrivacyHide")
+              : t("TournamentPrivacyShow")}
+          </button>
+          {showPrivacyNotice && (
+            <p className="rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-600 whitespace-pre-line">
+              {t("TournamentPrivacyNotice")}
+            </p>
+          )}
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">

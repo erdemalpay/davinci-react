@@ -71,3 +71,25 @@ export function toggleFavoritePage(
     ? favoritePaths.filter((favoritePath) => favoritePath !== path)
     : [...favoritePaths, path];
 }
+
+export function reorderFavoritePage(
+  favoritePaths: string[],
+  draggedPath: string,
+  targetPath: string
+): string[] {
+  const draggedIndex = favoritePaths.indexOf(draggedPath);
+  const targetIndex = favoritePaths.indexOf(targetPath);
+
+  if (
+    draggedIndex === -1 ||
+    targetIndex === -1 ||
+    draggedIndex === targetIndex
+  ) {
+    return favoritePaths;
+  }
+
+  const reorderedPaths = [...favoritePaths];
+  const [draggedFavorite] = reorderedPaths.splice(draggedIndex, 1);
+  reorderedPaths.splice(targetIndex, 0, draggedFavorite);
+  return reorderedPaths;
+}

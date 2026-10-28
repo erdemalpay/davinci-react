@@ -1,5 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useRef } from "react";
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Role, User } from "../types";
@@ -11,6 +15,7 @@ import {
   FavoritePage,
   FavoriteRoute,
   getSidebarPageOptions,
+  reorderFavoritePage,
   resolveFavoritePages,
   toggleFavoritePage,
 } from "../utils/favoritePages";
@@ -18,6 +23,7 @@ import { usernamify } from "../utils/string";
 import { useResolvedSidebarRoutes } from "./useResolvedSidebarRoutes";
 
 const currentUserQueryKey = [Paths.Users, "me"];
+const favoritePagesMutationKey = [Paths.User, "favorite-pages"];
 
 function updateFavoritePagesRequest(favoritePages: string[]): Promise<User> {
   return patch<{ favoritePages: string[] }, User>({
@@ -31,13 +37,16 @@ export function useFavoritePages(): {
   isUpdating: boolean;
   isFavorite: (path: string) => boolean;
   toggleFavorite: (path: string) => void;
+  reorderFavorite: (draggedPath: string, targetPath: string) => void;
 } {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const user = useGetUser();
   const routes = useResolvedSidebarRoutes() as FavoriteRoute[];
   const controlPages = useGetPanelControlPages();
-  const isSavingRef = useRef(false);
+  const activeFavoritePageMutations = useIsMutating({
+    mutationKey: favoritePagesMutationKey,
+  });
   const roleId = (user?.role as Role | undefined)?._id;
 
   const getAllowedChildren = useCallback(
@@ -96,6 +105,7 @@ export function useFavoritePages(): {
   const favoritePaths = user?.settings?.favoritePages ?? [];
 
   const updateMutation = useMutation({
+    mutationKey: favoritePagesMutationKey,
     mutationFn: updateFavoritePagesRequest,
     onMutate: async (nextFavoritePaths) => {
       await queryClient.cancelQueries({ queryKey: currentUserQueryKey });
@@ -126,19 +136,25 @@ export function useFavoritePages(): {
           : updatedUser
       );
     },
-    onSettled: () => {
-      isSavingRef.current = false;
-    },
   });
+
+  const isFavoritePagesSaving = () =>
+    queryClient.isMutating({ mutationKey: favoritePagesMutationKey }) > 0;
 
   return {
     favoritePages: resolveFavoritePages(favoritePaths, availablePages),
-    isUpdating: updateMutation.isPending,
+    isUpdating: activeFavoritePageMutations > 0,
     isFavorite: (path) => favoritePaths.includes(path),
     toggleFavorite: (path) => {
-      if (!user || isSavingRef.current) return;
-      isSavingRef.current = true;
+      if (!user || isFavoritePagesSaving()) return;
       updateMutation.mutate(toggleFavoritePage(favoritePaths, path));
+    },
+    reorderFavorite: (draggedPath, targetPath) => {
+      if (!user || isFavoritePagesSaving() || draggedPath === targetPath)
+        return;
+      updateMutation.mutate(
+        reorderFavoritePage(favoritePaths, draggedPath, targetPath)
+      );
     },
   };
 }
