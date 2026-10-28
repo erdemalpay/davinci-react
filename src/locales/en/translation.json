@@ -2110,6 +2110,7 @@
   "ParticipationNotePlaceholder": "E.g.: The weekend entry fee applies to the tournament. Please be at the cafe 30 minutes before the tournament.",
   "ParticipationNoteHelp": "Shown below the registration form, before registering. It is not included in the registration email.",
   "Main List Info": "Main List Info",
+  "Secondary Logo": "Secondary Logo",
   "MainNotePlaceholder": "E.g.: To confirm your pre-registration, you must be at the cafe by 13:00 on the tournament day.",
   "MainNoteHelp": "Shown only to main list players (including those moved up from the waitlist), after registering and in the email. The line \"You are on the main list.\" is written automatically at the start.",
   "RegistrationThanks": "Thank you for pre-registering for {{name}}.",

@@ -79,6 +79,7 @@ export interface Tournament {
   participationNote?: string; // kayıt formunda, kayıt olmadan önce gösterilir
   mainNote?: string; // yalnızca asillere, kayıttan sonra ve mailde gösterilir
   waitlistNote?: string; // yalnızca yedeklere, kayıttan sonra ve mailde gösterilir
+  secondaryLogoUrl?: string; // canlı turnuva ekranında Da Vinci logosunun yanında gösterilir
 }
 
 // Yedek listesinde kişiye bildirilen yer (backend ListStatus)

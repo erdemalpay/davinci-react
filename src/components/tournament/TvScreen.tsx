@@ -8,6 +8,7 @@ import {
   TournamentMatch,
   TournamentStanding,
 } from "../../types/tournament";
+import { cleanLogoUrl } from "../../utils/logoUrl";
 import { GenericButton } from "../common/GenericButton";
 import TournamentPodium from "./TournamentPodium";
 import { WARNING_MS, formatRemaining, useRoundClock } from "./useRoundClock";
@@ -93,6 +94,20 @@ const TvScreen = ({
       >
         {t("Exit Full Screen")}
       </GenericButton>
+      <div className="flex items-center justify-center gap-[4vw]">
+        <img
+          src="/logo.svg"
+          alt={t("Davinci Board Game Cafe")}
+          className="h-[9vw] w-[16vw] object-contain"
+        />
+        {tournament.secondaryLogoUrl && (
+          <img
+            src={cleanLogoUrl(tournament.secondaryLogoUrl)}
+            alt={tournament.name}
+            className="h-[9vw] w-[16vw] object-contain"
+          />
+        )}
+      </div>
       <p className="text-3xl font-semibold text-gray-300 md:text-5xl">
         {tournament.name}
       </p>
