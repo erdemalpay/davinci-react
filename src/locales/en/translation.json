@@ -2190,6 +2190,7 @@
   "Players Per Table In Elimination": "Players Per Table In Elimination",
   "EliminationTableSizeHelp": "Leave empty to use the point-round table size. It can differ: e.g. 4-player tables in point rounds, head-to-head (2-player) quarter/semi/final.",
   "Round Short N": "Round {{round}}",
+  "ScoreShareNote": "%: in each game, the player's score divided by the table's total score, summed over all games (can exceed 100). Used to break ties.",
   "Current": "Current",
   "End Of Round N": "End of Round {{round}}",
   "No scored match this round": "No scored match this round",
