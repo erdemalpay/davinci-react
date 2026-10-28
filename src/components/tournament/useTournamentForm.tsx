@@ -81,6 +81,8 @@ const ADVANCED_KEYS = [
   "byePoints",
 ];
 const FORM_ONLY_KEYS = ["customizeRules"];
+// Sunucunun yönettiği sayaçlar; form açılırken kopyalanan eski değer kayıtların üstüne yazılmasın
+const SERVER_MANAGED_KEYS = ["registrationCount", "waitlistAnchor"];
 // Turnuva başladıktan sonra da değişebilir (oyunlar uzarsa süre uzatılır)
 const ALWAYS_EDITABLE_KEYS = ["customizeRules", "roundDuration"];
 
@@ -182,6 +184,7 @@ export const toPayload = (item: object, emptyValue?: null) => {
   Object.entries(values).forEach(([key, value]) => {
     if (
       FORM_ONLY_KEYS.includes(key) ||
+      SERVER_MANAGED_KEYS.includes(key) ||
       RULE_KEYS.includes(key) ||
       key === "roundDuration" ||
       key.startsWith(SIZE_POINTS_PREFIX)

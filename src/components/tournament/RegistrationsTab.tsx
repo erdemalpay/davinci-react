@@ -128,6 +128,8 @@ const RegistrationsTab = ({ tournament }: Props) => {
   // Elle asil yapılan boş yeri alır: asile geçmek üzere olan son yedek yedekte kalır; boş yer
   // yoksa asil sayısı kontenjanı aşar
   const makeMainWarning = (row: TournamentRegistration) => {
+    // Zaten asile geçecekse kimse yedekte kalmaz, kontenjan da aşılmaz
+    if (row.nextPosition?.listStatus === ListStatus.MAIN) return "";
     const bumped = registrations
       .filter(
         (r) =>
