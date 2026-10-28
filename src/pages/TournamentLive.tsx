@@ -19,6 +19,7 @@ import {
   TournamentStatus,
 } from "../types/tournament";
 import { useGetTournamentLive } from "../utils/api/tournament";
+import { cleanLogoUrl } from "../utils/logoUrl";
 import { normalizeText } from "../utils/slug";
 
 enum LiveTab {
@@ -121,11 +122,20 @@ const TournamentLive = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-6">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         <div className="rounded-2xl bg-white p-4 text-center shadow-lg">
-          <img
-            src="/logo.svg"
-            alt={t("Davinci Board Game Cafe")}
-            className="mx-auto mb-2 h-10"
-          />
+          <div className="mb-2 flex items-center justify-center gap-4">
+            <img
+              src="/logo.svg"
+              alt={t("Davinci Board Game Cafe")}
+              className="h-14 w-24 object-contain"
+            />
+            {tournament.secondaryLogoUrl && (
+              <img
+                src={cleanLogoUrl(tournament.secondaryLogoUrl)}
+                alt={tournament.name}
+                className="h-14 w-24 object-contain"
+              />
+            )}
+          </div>
           <h1 className="text-xl font-bold text-gray-800">{tournament.name}</h1>
           <p className="text-sm text-gray-500">
             {format(new Date(tournament.date), "dd/MM/yyyy")}

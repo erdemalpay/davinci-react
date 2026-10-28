@@ -2118,6 +2118,7 @@
   "ParticipationNotePlaceholder": "Örn: Turnuvaya hafta sonu giriş ücreti uygulanır. Lütfen turnuvadan 30 dakika önce kafede olunuz.",
   "ParticipationNoteHelp": "Kayıt formunun altında, kayıt olmadan önce gösterilir. Kayıt mailinde yer almaz.",
   "Main List Info": "Asil Bilgisi",
+  "Secondary Logo": "İkinci Logo",
   "MainNotePlaceholder": "Örn: Ön kayıt durumunuzu kesin kayda çevirebilmek için turnuva günü en geç 13:00'da kafede olmanız gerekmektedir.",
   "MainNoteHelp": "Sadece asillere (yedekten asile geçenlere de), kayıttan sonra ve mailde gösterilir. Mailin başında \"Asil listede yer alıyorsunuz.\" cümlesi kendiliğinden yazılır.",
   "RegistrationThanks": "{{name}} ön kaydınız için teşekkür ederiz.",

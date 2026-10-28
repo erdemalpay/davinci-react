@@ -276,6 +276,7 @@ export const TOURNAMENT_FORM_KEYS = [
   { key: "participationNote", type: FormKeyTypeEnum.STRING },
   { key: "mainNote", type: FormKeyTypeEnum.STRING },
   { key: "waitlistNote", type: FormKeyTypeEnum.STRING },
+  { key: "secondaryLogoUrl", type: FormKeyTypeEnum.STRING },
   { key: "format", type: FormKeyTypeEnum.STRING },
   { key: "tableSize", type: FormKeyTypeEnum.NUMBER },
   { key: "eliminationTableSize", type: FormKeyTypeEnum.NUMBER },
@@ -727,6 +728,12 @@ export const useTournamentFormInputs = (
       label: t("Entry Fee Is Charged"),
       required: false,
       helperText: t("HasEntryFeeHelp"),
+    },
+    {
+      type: InputTypes.IMAGE,
+      formKey: "secondaryLogoUrl",
+      label: t("Secondary Logo"),
+      required: false,
     },
     {
       type: InputTypes.TEXTAREA,

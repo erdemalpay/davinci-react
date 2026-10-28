@@ -179,6 +179,7 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
         }}
         setForm={setAddForm}
         inputs={addInputs}
+        folderName="tournament"
         formKeys={TOURNAMENT_FORM_KEYS}
         submitItem={(item: Tournament | UpdatePayload<Tournament>) =>
           createTournament(toPayload(item) as Partial<Tournament>)
@@ -241,6 +242,7 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
           }}
           setForm={setEditForm}
           inputs={editInputs}
+          folderName="tournament"
           formKeys={TOURNAMENT_FORM_KEYS}
           submitItem={handleUpdate}
           isEditMode={true}
