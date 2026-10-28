@@ -48,6 +48,7 @@ interface TableUser {
   workType: WorkType;
   cafeId?: string;
   isVisitDisabled?: boolean;
+  noUpstairsDuty?: boolean;
   userGames: [
     {
       game: number;
@@ -72,6 +73,8 @@ export default function Users() {
   });
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const [showVisitDisabledColumn, setShowVisitDisabledColumn] =
+    useState(false);
+  const [showNoUpstairsDutyColumn, setShowNoUpstairsDutyColumn] =
     useState(false);
   const { updateUser } = useUserMutations();
   const [createdUserInfo, setCreatedUserInfo] = useState<{
@@ -175,9 +178,12 @@ export default function Users() {
       ...(showVisitDisabledColumn
         ? [{ key: t("Visit Disabled"), isSortable: true }]
         : []),
+      ...(showNoUpstairsDutyColumn
+        ? [{ key: t("No Upstairs Duty"), isSortable: true }]
+        : []),
       { key: t("Action"), isSortable: false },
     ],
-    [t, showVisitDisabledColumn]
+    [t, showVisitDisabledColumn, showNoUpstairsDutyColumn]
   );
 
   const rowKeys = useMemo(
@@ -230,6 +236,30 @@ export default function Users() {
             },
           ]
         : []),
+      // Never made the upstairs duty by the system.
+      ...(showNoUpstairsDutyColumn
+        ? [
+            {
+              key: "noUpstairsDuty",
+              node: (row: TableUser) => (
+                <CheckSwitch
+                  checked={row.noUpstairsDuty ?? false}
+                  disabled={isActionDisabled(
+                    usersPageDisabledCondition,
+                    ActionEnum.UPDATE,
+                    user
+                  )}
+                  onChange={() => {
+                    updateUser({
+                      id: row._id,
+                      updates: { noUpstairsDuty: !row.noUpstairsDuty },
+                    });
+                  }}
+                />
+              ),
+            },
+          ]
+        : []),
     ],
     [
       resetGeneralContext,
@@ -239,6 +269,7 @@ export default function Users() {
       usersPageDisabledCondition,
       user,
       showVisitDisabledColumn,
+      showNoUpstairsDutyColumn,
     ]
   );
 
@@ -408,11 +439,22 @@ export default function Users() {
           />
         ),
       },
+      {
+        label: t("Show No Upstairs Duty"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={showNoUpstairsDutyColumn}
+            onChange={setShowNoUpstairsDutyColumn}
+          />
+        ),
+      },
     ],
     [
       t,
       showInactiveUsers,
       showVisitDisabledColumn,
+      showNoUpstairsDutyColumn,
       usersPageDisabledCondition,
       user,
     ]

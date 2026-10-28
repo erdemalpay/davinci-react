@@ -2350,5 +2350,9 @@
   "removed it": "removed it",
   "Show who removed it": "Show who removed it",
   "No middleman after 22:00": "No middleman after 22:00",
-  "{{name}} went to a call. You're the middleman until they're back.": "{{name}} went to a call. You're the middleman until they're back."
+  "{{name}} went to a call. You're the middleman until they're back.": "{{name}} went to a call. You're the middleman until they're back.",
+  "No Upstairs Duty": "No Upstairs Duty",
+  "Show No Upstairs Duty": "Show No Upstairs Duty",
+  "No middleman before 14:00": "No middleman before 14:00",
+  "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "{{days}} of {{workedDays}} days worked from 14:00 to 22:00"
 }

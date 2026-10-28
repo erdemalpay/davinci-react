@@ -56,11 +56,37 @@ interface UpperCategoryReportRow extends UpperCategory {
     collapsibleHeader: string;
     collapsibleColumns: { key: string; isSortable: boolean }[];
     collapsibleRows: Record<string, unknown>[];
-    collapsibleRowKeys: { key: string }[];
+    collapsibleRowKeys: CategoryRowKey[];
   };
   className?: string;
   isSortable?: boolean;
 }
+
+type CategoryRowKey = {
+  key: string;
+  node?: (row: Record<string, unknown>) => JSX.Element;
+};
+
+// Amounts are sums of order prices, so round them before showing.
+const money = (value: unknown) =>
+  formatCurrency(Number(value ?? 0)) + " " + TURKISHLIRA;
+const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+const categoryRowKeys: CategoryRowKey[] = [
+  { key: "category" },
+  { key: "percentage" },
+  { key: "quantity" },
+  ...[
+    "discount",
+    "totalAmount",
+    "generalAmount",
+    "percentageGeneralAmount",
+  ].map((key) => ({
+    key,
+    node: (row: Record<string, unknown>) => <p>{money(row[key])}</p>,
+  })),
+  { key: "ratioToTotal" },
+];
 
 const UpperCategoryBasedSalesReport = () => {
   const { t } = useTranslation();
@@ -220,11 +246,12 @@ const UpperCategoryBasedSalesReport = () => {
                     ?.name,
                   percentage: categoryGroupItem?.percentage,
                   quantity: category?.paidQuantity ?? 0,
-                  discount: category?.discount ?? 0,
-                  totalAmount: category?.amount ?? 0,
-                  generalAmount: categoryAmount,
-                  percentageGeneralAmount:
-                    categoryAmount * categoryGroupItem?.percentage * 0.01,
+                  discount: roundMoney(category?.discount ?? 0),
+                  totalAmount: roundMoney(category?.amount ?? 0),
+                  generalAmount: roundMoney(categoryAmount),
+                  percentageGeneralAmount: roundMoney(
+                    categoryAmount * categoryGroupItem?.percentage * 0.01
+                  ),
                   ratioToTotal:
                     grandTotal > 0
                       ? formatPercentage((categoryAmount / grandTotal) * 100)
@@ -233,16 +260,7 @@ const UpperCategoryBasedSalesReport = () => {
               })
               .sort((a, b) => b.quantity - a.quantity)
               ?.filter((row) => row.quantity > 0),
-            collapsibleRowKeys: [
-              { key: "category" },
-              { key: "percentage" },
-              { key: "quantity" },
-              { key: "discount" },
-              { key: "totalAmount" },
-              { key: "generalAmount" },
-              { key: "percentageGeneralAmount" },
-              { key: "ratioToTotal" },
-            ],
+            collapsibleRowKeys: categoryRowKeys,
           },
         };
       })
@@ -302,9 +320,9 @@ const UpperCategoryBasedSalesReport = () => {
                 getItem(row.categoryId, categories)?.name ?? t("Unknown"),
               percentage: 0,
               quantity: row.paidQuantity,
-              discount: row.discount,
-              totalAmount: row.amount,
-              generalAmount: row.totalAmountWithDiscount,
+              discount: roundMoney(row.discount),
+              totalAmount: roundMoney(row.amount),
+              generalAmount: roundMoney(row.totalAmountWithDiscount),
               percentageGeneralAmount: 0,
               ratioToTotal:
                 grandTotal > 0
@@ -314,16 +332,7 @@ const UpperCategoryBasedSalesReport = () => {
                   : "0%",
             }))
             .sort((a, b) => b.quantity - a.quantity),
-          collapsibleRowKeys: [
-            { key: "category" },
-            { key: "percentage" },
-            { key: "quantity" },
-            { key: "discount" },
-            { key: "totalAmount" },
-            { key: "generalAmount" },
-            { key: "percentageGeneralAmount" },
-            { key: "ratioToTotal" },
-          ],
+          collapsibleRowKeys: categoryRowKeys,
         },
       });
     }
@@ -357,16 +366,7 @@ const UpperCategoryBasedSalesReport = () => {
           { key: t("Ratio to Total"), isSortable: false },
         ],
         collapsibleRows: [],
-        collapsibleRowKeys: [
-          { key: "category" },
-          { key: "percentage" },
-          { key: "quantity" },
-          { key: "discount" },
-          { key: "totalAmount" },
-          { key: "generalAmount" },
-          { key: "percentageGeneralAmount" },
-          { key: "ratioToTotal" },
-        ],
+        collapsibleRowKeys: categoryRowKeys,
       },
     };
 
