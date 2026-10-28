@@ -11,7 +11,11 @@ import ParticipantsTab from "../components/tournament/ParticipantsTab";
 import RegistrationsTab from "../components/tournament/RegistrationsTab";
 import StandingsTab from "../components/tournament/StandingsTab";
 import { Routes } from "../navigation/constants";
-import { useGetTournaments } from "../utils/api/tournament";
+import {
+  useGetTournamentParticipants,
+  useGetTournamentRegistrations,
+  useGetTournaments,
+} from "../utils/api/tournament";
 
 const TournamentDetail = () => {
   const { t } = useTranslation();
@@ -21,6 +25,8 @@ const TournamentDetail = () => {
     (item) => String(item._id) === tournamentId
   );
   const [activeTab, setActiveTab] = useState<number>(0);
+  const registrations = useGetTournamentRegistrations(Number(tournamentId));
+  const participants = useGetTournamentParticipants(Number(tournamentId));
 
   const pageNavigations = [
     { name: t("Tournaments"), path: Routes.Tournaments, canBeClicked: true },
@@ -46,6 +52,7 @@ const TournamentDetail = () => {
       number: 0,
       label: "Registrations",
       icon: <RiFileList3Line className="text-lg font-thin" />,
+      count: registrations.length,
       content: <RegistrationsTab tournament={tournament} />,
       isDisabled: false,
     },
@@ -53,6 +60,7 @@ const TournamentDetail = () => {
       number: 1,
       label: "Participants",
       icon: <MdPeople className="text-lg font-thin" />,
+      count: participants.length,
       content: <ParticipantsTab tournament={tournament} />,
       isDisabled: false,
     },

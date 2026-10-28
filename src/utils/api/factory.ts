@@ -73,6 +73,7 @@ export const Paths = {
   CustomerPopup: "/menu/customer-popup",
   EventSurvey: "/event-survey",
   Tournaments: "/tournaments",
+  StaffLeave: "/staff-leave",
 };
 
 interface Props<T> {

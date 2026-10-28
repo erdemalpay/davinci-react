@@ -41,6 +41,9 @@ export default function Menu() {
     setIsCategoryTabChanged(true);
   };
   const handleTabChange = () => {
+    // Kategoriler gelmeden sekme kurulursa ?tab=<kategori> bulunamaz ve
+    // UnifiedTabPanel adresi ilk sekmeye (Popüler) çevirir.
+    if (categories.length === 0) return;
     const usedCategoryIds = new Set<number>();
     if (items) {
       for (const item of items) {

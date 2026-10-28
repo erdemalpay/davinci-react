@@ -21,13 +21,17 @@ import {
   TieBreakPicker,
   useScoreEntry,
 } from "./useScoreEntry";
+import { playerRowProps } from "./MatchCard";
+import { MoveHereButton, SeatActions, SeatEditing } from "./useSeatEditing";
 
 interface Props {
   tournament: Tournament;
   matches: TournamentMatch[];
-  participants: TournamentParticipant[];
+  participants: Pick<TournamentParticipant, "_id" | "isActive">[];
   names: Map<number, string>;
   editableRound?: number; // skoru girilebilen (son) eleme turu
+  seatEditing?: SeatEditing;
+  highlightIds?: Set<number>;
 }
 
 type BracketTable = {
@@ -46,7 +50,7 @@ type Column = { round: number; tables: BracketTable[] };
 export const buildColumns = (
   tournament: Tournament,
   elimination: TournamentMatch[],
-  participants: TournamentParticipant[]
+  participants: Pick<TournamentParticipant, "_id" | "isActive">[]
 ): Column[] => {
   const byRound = new Map<number, TournamentMatch[]>();
   elimination.forEach((match) =>
@@ -73,7 +77,8 @@ export const buildColumns = (
     return columns;
   const tableSize = eliminationSize(tournament);
   const perTable =
-    tournament.advancePerTable ?? autoRules(tableSize).advancePerTable;
+    tournament.advancePerTable ??
+    autoRules(tableSize, tournament.tiebreaker).advancePerTable;
   // Backend'deki nextEliminationRound'un aynısı: bay geçen doğrudan çıkar, masadan ilk
   // `perTable` kişi çıkar (en az biri elenir); sıra önce tüm birinciler, sonra ikinciler.
   // Skoru girilen (beraberlik kararı beklemeyen) masada kimin çıktığı bellidir.
@@ -217,6 +222,18 @@ export const buildColumns = (
   return columns;
 };
 
+// Tur adları (Yarı Final, Final…) ağaçtaki sütun sayısına göre verilir
+export const eliminationRoundCount = (
+  tournament: Tournament,
+  matches: TournamentMatch[],
+  participants: Pick<TournamentParticipant, "_id" | "isActive">[]
+) =>
+  buildColumns(
+    tournament,
+    matches.filter((m) => m.stage === MatchStage.ELIMINATION),
+    participants
+  ).length;
+
 // Bir masadan çıkanların bir sonraki turda oturduğu masalar; oyuncuları henüz belli
 // olmayan turda backend gibi yılan sırasıyla (1-4 / 2-3) dağıtılır.
 // 3.'lük masasına çizgi çekilmez (Challonge'daki gibi ayrı durur).
@@ -279,6 +296,8 @@ interface BracketBoxProps {
   isChampionTable: boolean;
   isAdvancer: (participantId: number) => boolean | undefined;
   boxRef: (el: HTMLDivElement | null) => void;
+  seatEditing?: SeatEditing;
+  highlightIds?: Set<number>;
 }
 
 // Ağaçtaki tek masa kutusu; son turda skorlar doğrudan isimlerin yanına girilir
@@ -289,6 +308,8 @@ const BracketBox = ({
   isChampionTable,
   isAdvancer,
   boxRef,
+  seatEditing,
+  highlightIds,
 }: BracketBoxProps) => {
   const { t } = useTranslation();
   const { match } = table;
@@ -303,20 +324,30 @@ const BracketBox = ({
         match ? "border-gray-300" : "border-dashed border-gray-300"
       }`}
     >
-      <p className="px-2 py-1 text-xs text-gray-400 border-b">
-        {match?.isBye || table.isBye
-          ? t("Bye")
-          : table.isThirdPlace
-          ? t("Third Place Match")
-          : `${t("Table")} ${table.tableNo}`}
-      </p>
+      <div className="flex items-center justify-between gap-2 px-2 py-1 border-b">
+        <p className="text-xs text-gray-400">
+          {match?.isBye || table.isBye
+            ? t("Bye")
+            : table.isThirdPlace
+            ? t("Third Place Match")
+            : `${t("Table")} ${table.tableNo}`}
+        </p>
+        {match && isEditable && seatEditing && (
+          <MoveHereButton match={match} seatEditing={seatEditing} />
+        )}
+      </div>
       {!match &&
         table.seats?.map(
           (participantId) =>
             participantId !== undefined && (
               <div
                 key={participantId}
-                className="px-2 py-1 border-b last:border-b-0"
+                {...playerRowProps(
+                  participantId,
+                  "px-2 py-1 border-b last:border-b-0",
+                  undefined,
+                  highlightIds
+                )}
               >
                 {names.get(participantId)}
               </div>
@@ -329,13 +360,15 @@ const BracketBox = ({
             : t("Waiting for winners")}
         </p>
       )}
-      {match && isEditable ? (
-        <BracketScoreEditor match={match} players={players} names={names} />
+      {match && isEditable && seatEditing ? (
+        <BracketScoreEditor
+          match={match}
+          players={players}
+          names={names}
+          seatEditing={seatEditing}
+        />
       ) : (
         players.map((player) => {
-          const tied =
-            match?.isCompleted &&
-            players.filter((p) => p.score === player.score).length > 1;
           const isChampion = isChampionTable && player.rank === 1;
           const isThird =
             table.isThirdPlace && match?.isCompleted && player.rank === 1;
@@ -344,9 +377,18 @@ const BracketBox = ({
           return (
             <div
               key={player.participantId}
-              className={`flex items-center gap-2 px-2 py-1 border-b last:border-b-0 ${
-                advanced ? "bg-green-50 font-medium" : ""
-              } ${match?.isCompleted && !advanced ? "text-gray-400" : ""}`}
+              {...playerRowProps(
+                player.participantId,
+                `flex items-center gap-2 px-2 py-1 border-b last:border-b-0 ${
+                  advanced && !highlightIds?.has(player.participantId)
+                    ? "bg-green-50"
+                    : ""
+                } ${advanced ? "font-medium" : ""} ${
+                  match?.isCompleted && !advanced ? "text-gray-400" : ""
+                }`,
+                undefined,
+                highlightIds
+              )}
             >
               <span className="w-4 text-xs text-gray-400">
                 {match?.isCompleted ? player.rank : ""}
@@ -356,11 +398,6 @@ const BracketBox = ({
               </span>
               {isChampion && <FaCrown className="text-amber-500" />}
               {isThird && <FaMedal className="text-amber-700" />}
-              {tied && (
-                <span className="text-[10px] rounded bg-amber-100 text-amber-700 px-1">
-                  {t("Tie")}
-                </span>
-              )}
               <span className="w-8 text-right text-gray-500">
                 {player.score ?? "-"}
               </span>
@@ -376,12 +413,14 @@ interface BracketScoreEditorProps {
   match: TournamentMatch;
   players: TournamentMatch["players"];
   names: Map<number, string>;
+  seatEditing: SeatEditing;
 }
 
 const BracketScoreEditor = ({
   match,
   players,
   names,
+  seatEditing,
 }: BracketScoreEditorProps) => {
   const { t } = useTranslation();
   const { scores, setScore, isFilled, save } = useScoreEntry(match);
@@ -390,7 +429,11 @@ const BracketScoreEditor = ({
       {players.map((player) => (
         <div
           key={player.participantId}
-          className="flex items-center gap-2 px-2 py-1 border-b"
+          {...playerRowProps(
+            player.participantId,
+            "flex items-center gap-2 px-2 py-1 border-b",
+            seatEditing
+          )}
         >
           <span className="w-4 text-xs text-gray-400">
             {match.isCompleted ? player.rank : ""}
@@ -405,6 +448,11 @@ const BracketScoreEditor = ({
             placeholder={t("Score")}
             value={scores[player.participantId]}
             onChange={(e) => setScore(player.participantId, e.target.value)}
+          />
+          <SeatActions
+            match={match}
+            participantId={player.participantId}
+            seatEditing={seatEditing}
           />
         </div>
       ))}
@@ -422,6 +470,8 @@ const EliminationBracket = ({
   participants,
   names,
   editableRound,
+  seatEditing,
+  highlightIds,
 }: Props) => {
   const roundName = useEliminationRoundName();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -509,6 +559,8 @@ const EliminationBracket = ({
                     isFinished
                   }
                   isAdvancer={(participantId) => isAdvancer(participantId, c)}
+                  seatEditing={seatEditing}
+                  highlightIds={highlightIds}
                   boxRef={(el) => {
                     if (el) boxRefs.current.set(table.key, el);
                     else boxRefs.current.delete(table.key);

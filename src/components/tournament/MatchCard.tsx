@@ -6,15 +6,45 @@ import {
   TieBreakPicker,
   useScoreEntry,
 } from "./useScoreEntry";
+import { MoveHereButton, SeatActions, SeatEditing } from "./useSeatEditing";
 
 interface Props {
   match: TournamentMatch;
   names: Map<number, string>;
   totals: Map<number, number>;
   isEditable: boolean;
+  seatEditing?: SeatEditing;
+  highlightIds?: Set<number>;
 }
 
-const MatchCard = ({ match, names, totals, isEditable }: Props) => {
+// Panelde yer değiştirmek için seçilen oyuncu mavi, takip sayfasında "Masamı bul"
+// ile bulunan oyuncu sarı yanar (sayfa data-highlighted olan ilk satıra kayar)
+export const playerRowProps = (
+  participantId: number,
+  className: string,
+  seatEditing?: SeatEditing,
+  highlightIds?: Set<number>
+) => {
+  const isHighlighted = highlightIds?.has(participantId);
+  const state = seatEditing?.isSelected(participantId)
+    ? "bg-blue-100"
+    : isHighlighted
+    ? "bg-yellow-100"
+    : "";
+  return {
+    className: `${className} ${state}`,
+    "data-highlighted": isHighlighted || undefined,
+  };
+};
+
+const MatchCard = ({
+  match,
+  names,
+  totals,
+  isEditable,
+  seatEditing,
+  highlightIds,
+}: Props) => {
   const { t } = useTranslation();
   const { scores, setScore, isFilled, save } = useScoreEntry(match);
   const canEdit = isEditable && !match.isBye;
@@ -22,7 +52,16 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
   if (match.isBye) {
     const [player] = match.players;
     return (
-      <div className="border rounded-md p-3 bg-gray-50 text-sm">
+      <div
+        {...playerRowProps(
+          player.participantId,
+          `border rounded-md p-3 text-sm ${
+            highlightIds?.has(player.participantId) ? "" : "bg-gray-50"
+          }`,
+          undefined,
+          highlightIds
+        )}
+      >
         <span className="font-medium">{t("Bye")}:</span>{" "}
         {names.get(player.participantId)}
         {player.points !== undefined && ` (+${player.points})`}
@@ -48,13 +87,23 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
         match.isCompleted ? "bg-green-50" : "bg-white"
       }`}
     >
-      <p className="font-semibold text-sm">
-        {t("Table")} {match.tableNo}
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-semibold text-sm">
+          {t("Table")} {match.tableNo}
+        </p>
+        {canEdit && seatEditing && (
+          <MoveHereButton match={match} seatEditing={seatEditing} />
+        )}
+      </div>
       {players.map((player) => (
         <div
           key={player.participantId}
-          className="flex items-center gap-2 text-sm"
+          {...playerRowProps(
+            player.participantId,
+            "flex items-center gap-2 text-sm rounded",
+            seatEditing,
+            highlightIds
+          )}
         >
           {match.isCompleted && (
             <span className="w-6 text-gray-500">{player.rank}.</span>
@@ -78,6 +127,13 @@ const MatchCard = ({ match, names, totals, isEditable }: Props) => {
             <span className="w-14 text-right font-medium">
               +{player.points}
             </span>
+          )}
+          {canEdit && seatEditing && (
+            <SeatActions
+              match={match}
+              participantId={player.participantId}
+              seatEditing={seatEditing}
+            />
           )}
         </div>
       ))}

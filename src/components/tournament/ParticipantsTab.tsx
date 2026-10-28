@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
   ConfirmationStatus,
+  ListStatus,
   Tournament,
+  TournamentCheckIn,
   TournamentParticipant,
   TournamentStatus,
 } from "../../types/tournament";
@@ -12,6 +15,8 @@ import {
   useGetTournamentRegistrations,
   useTournamentActions,
 } from "../../utils/api/tournament";
+import { lazyWithReload } from "../../utils/lazyWithReload";
+import { normalizeText } from "../../utils/slug";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -21,8 +26,21 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import PromoteRegistrationsModal from "./PromoteRegistrationsModal";
 import { useRegistrationLabels } from "./RegistrationsTab";
 
+// QR okuyucu (zxing) sadece açıldığında yüklenir
+const QrScannerModal = lazyWithReload(() =>
+  import("../tables/QrScannerModal").then((m) => ({
+    default: m.QrScannerModal,
+  }))
+);
+
 // Başvurudan gelmeyen katılımcılar kaynak filtresinde bu değerle seçilir
 const MANUAL_SOURCE = "manual";
+
+// Adı ve soyadı aynı olanlar (ortadaki isim farklı olsa da) aynı kişi olabilir
+const nameKey = (name: string) => {
+  const words = normalizeText(name).trim().split(/\s+/);
+  return `${words[0]} ${words[words.length - 1]}`;
+};
 
 interface Props {
   tournament: Tournament;
@@ -32,17 +50,28 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const participants = useGetTournamentParticipants(tournament._id);
   const registrations = useGetTournamentRegistrations(tournament._id);
-  const { addParticipant, removeParticipant } = useTournamentActions();
+  const {
+    addParticipant,
+    removeParticipant,
+    updateParticipant,
+    checkIn,
+    admitRegistration,
+  } = useTournamentActions();
   const { sourceLabels } = useRegistrationLabels();
 
   const [rowToAction, setRowToAction] = useState<TournamentParticipant>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  // Ücretli turnuvada QR'ı okutulan, ödemesi alınınca katılımcı olacak asil
+  const [awaitingPayment, setAwaitingPayment] = useState<TournamentCheckIn>();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ name: "" });
   const [showFilters, setShowFilters] = useState(false);
   const [filterFormElements, setFilterFormElements] = useState<
     Record<string, string>
-  >({ source: "", isActive: "" });
+  >({ source: "", isActive: "", isPaid: "" });
 
   const isFinished = tournament.status === TournamentStatus.FINISHED;
   const promotedIds = new Set(participants.map((p) => p.registrationId));
@@ -56,9 +85,22 @@ const ParticipantsTab = ({ tournament }: Props) => {
     true: t("Active"),
     false: t("Withdrawn"),
   };
+  const similar = addForm.name.trim()
+    ? participants.find((p) => nameKey(p.name) === nameKey(addForm.name))
+    : undefined;
+  const registrationOf = (participant: TournamentParticipant) =>
+    registrations.find((r) => r._id === participant.registrationId);
   const sourceOf = (participant: TournamentParticipant) =>
-    registrations.find((r) => r._id === participant.registrationId)?.source ??
-    MANUAL_SOURCE;
+    registrationOf(participant)?.source ?? MANUAL_SOURCE;
+  // Ödeme bilgisi başvuruda tutulur; elle eklenen katılımcının ödeme kaydı yoktur
+  const feeOptions: Record<string, string> = {
+    true: t("Fee Paid"),
+    false: t("Fee Not Paid"),
+  };
+  const feeStatusOf = (participant: TournamentParticipant) => {
+    const registration = registrationOf(participant);
+    return registration && String(!!registration.isPaid);
+  };
 
   const rows = useMemo(
     () =>
@@ -67,7 +109,9 @@ const ParticipantsTab = ({ tournament }: Props) => {
           (!filterFormElements.source ||
             sourceOf(p) === filterFormElements.source) &&
           (!filterFormElements.isActive ||
-            String(p.isActive) === filterFormElements.isActive)
+            String(p.isActive) === filterFormElements.isActive) &&
+          (!filterFormElements.isPaid ||
+            feeStatusOf(p) === filterFormElements.isPaid)
       ),
     [participants, registrations, filterFormElements]
   );
@@ -75,6 +119,9 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Added From"), isSortable: false },
+    ...(tournament.hasEntryFee
+      ? [{ key: t("Entry Fee"), isSortable: false }]
+      : []),
     { key: t("Status"), isSortable: false },
     { key: t("Actions"), isSortable: false },
   ];
@@ -85,12 +132,52 @@ const ParticipantsTab = ({ tournament }: Props) => {
       key: "registrationId",
       node: (row: TournamentParticipant) => sourceOptions[sourceOf(row)],
     },
+    ...(tournament.hasEntryFee
+      ? [
+          {
+            key: "isPaid",
+            node: (row: TournamentParticipant) => {
+              const status = feeStatusOf(row);
+              return status ? feeOptions[status] : "-";
+            },
+          },
+        ]
+      : []),
     {
       key: "isActive",
       node: (row: TournamentParticipant) =>
-        row.isActive ? t("Active") : t("Withdrawn"),
+        row.isActive ? (
+          t("Active")
+        ) : (
+          <div className="flex items-center gap-2">
+            {t("Withdrawn")}
+            {!isFinished && (
+              <GenericButton
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  updateParticipant({
+                    id: row._id,
+                    updates: { isActive: true },
+                  })
+                }
+              >
+                {t("Undo")}
+              </GenericButton>
+            )}
+          </div>
+        ),
     },
   ];
+
+  const nameInput = {
+    type: InputTypes.TEXT,
+    formKey: "name",
+    label: t("Name"),
+    placeholder: t("Name"),
+    required: true,
+  };
+  const nameFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {
     name: t("Add Participant"),
@@ -100,17 +187,15 @@ const ParticipantsTab = ({ tournament }: Props) => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
-        inputs={[
-          {
-            type: InputTypes.TEXT,
-            formKey: "name",
-            label: t("Name"),
-            placeholder: t("Name"),
-            required: true,
-          },
-        ]}
-        formKeys={[{ key: "name", type: FormKeyTypeEnum.STRING }]}
+        inputs={[nameInput]}
+        formKeys={nameFormKeys}
         nonImageInputsClassName="grid grid-cols-1 gap-4"
+        setForm={setAddForm}
+        isConfirmationDialogRequired={() => !!similar}
+        confirmationDialogHeader={t("Similar Name")}
+        confirmationDialogText={t("SimilarNameMessage", {
+          name: similar?.name,
+        })}
         submitItem={(item) =>
           addParticipant({
             tournamentId: tournament._id,
@@ -151,6 +236,21 @@ const ParticipantsTab = ({ tournament }: Props) => {
         placeholder: t("Status"),
         required: false,
       },
+      ...(tournament.hasEntryFee
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "isPaid",
+              label: t("Entry Fee"),
+              options: Object.entries(feeOptions).map(([value, label]) => ({
+                value,
+                label,
+              })),
+              placeholder: t("Entry Fee"),
+              required: false,
+            },
+          ]
+        : []),
     ],
     formElements: filterFormElements,
     setFormElements: setFilterFormElements,
@@ -182,6 +282,19 @@ const ParticipantsTab = ({ tournament }: Props) => {
         </GenericButton>
       ),
     },
+    {
+      isUpperSide: true,
+      isDisabled: isFinished,
+      node: (
+        <GenericButton
+          variant="primary"
+          size="sm"
+          onClick={() => setIsScannerOpen(true)}
+        >
+          {t("Check In With QR")}
+        </GenericButton>
+      ),
+    },
   ];
 
   const actions = [
@@ -208,10 +321,37 @@ const ParticipantsTab = ({ tournament }: Props) => {
       setIsModal: setIsDeleteDialogOpen,
       isPath: false,
     },
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel<Partial<TournamentParticipant>>
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={[nameInput]}
+          formKeys={nameFormKeys}
+          submitItem={(item) => {
+            if ("updates" in item) updateParticipant(item);
+          }}
+          isEditMode
+          topClassName="flex flex-col gap-2"
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: { name: rowToAction.name },
+          }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
   ];
 
   return (
-    <>
+    <div className="w-[95%] mx-auto my-4">
       <GenericTable
         rowKeys={rowKeys}
         columns={columns}
@@ -237,7 +377,61 @@ const ParticipantsTab = ({ tournament }: Props) => {
           close={() => setIsPromoteModalOpen(false)}
         />
       )}
-    </>
+      {isScannerOpen && (
+        <Suspense fallback={null}>
+          <QrScannerModal
+            isOpen={isScannerOpen}
+            close={() => {
+              setIsScannerOpen(false);
+              setAwaitingPayment(undefined);
+            }}
+            onScan={async (code) => {
+              const result = await checkIn({
+                tournamentId: tournament._id,
+                code,
+              });
+              setAwaitingPayment(
+                result.hasEntryFee &&
+                  !result.isParticipant &&
+                  result.listStatus !== ListStatus.WITHDRAWN &&
+                  !result.waitlistNumber
+                  ? result
+                  : undefined
+              );
+            }}
+            title={t("Check In With QR")}
+            hint={t("Scan the QR on the player's phone")}
+            footer={
+              awaitingPayment && (
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                  <p className="text-sm text-gray-800">
+                    <span className="font-semibold">
+                      {awaitingPayment.fullName}
+                    </span>
+                    {` · ${t("Primary")} · ${t("Entry fee not paid")}`}
+                  </p>
+                  <GenericButton
+                    variant="success"
+                    size="sm"
+                    onClick={
+                      () =>
+                        admitRegistration({
+                          tournamentId: tournament._id,
+                          registrationId: awaitingPayment.registrationId,
+                        })
+                          .then(() => setAwaitingPayment(undefined))
+                          .catch(() => undefined) // hata toast'ı mutation'ın onError'ında
+                    }
+                  >
+                    {t("Fee Paid")}
+                  </GenericButton>
+                </div>
+              )
+            }
+          />
+        </Suspense>
+      )}
+    </div>
   );
 };
 
