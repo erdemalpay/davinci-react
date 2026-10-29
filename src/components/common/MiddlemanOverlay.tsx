@@ -138,8 +138,18 @@ export const MiddlemanOverlay = () => {
                         t("the game"),
                     }
                   )
-                : t(
+                : currentMiddleman.coveringCall
+                ? t(
                     "{{name}} went to a call. You're the middleman until they're back.",
+                    {
+                      name:
+                        getItem(currentMiddleman.coveringFor, users)?.name ??
+                        t("The middleman"),
+                    }
+                  )
+                : // Not in yet, busy or just ended their role.
+                  t(
+                    "{{name}} is today's middleman. You're the middleman until they take over.",
                     {
                       name:
                         getItem(currentMiddleman.coveringFor, users)?.name ??
