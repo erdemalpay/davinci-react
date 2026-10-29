@@ -155,6 +155,18 @@ export default function Reservations() {
     setIsReservationCalledDialogOpen(false);
   }
 
+  function handleMoveToEnd() {
+    if (!selectedReservation) return;
+    updateReservationCall({
+      id: selectedReservation._id,
+      updates: {
+        status: ReservationStatusEnum.WAITING,
+        moveToEnd: true,
+      } as Partial<Reservation>,
+    });
+    setIsReservationCalledDialogOpen(false);
+  }
+
   function handleDurationConfirm() {
     if (!selectedReservation) return;
 
@@ -678,6 +690,7 @@ export default function Reservations() {
             isOpen={isReservationCalledDialogOpen}
             close={() => setIsReservationCalledDialogOpen(false)}
             handle={handleCallResponse}
+            moveToEnd={handleMoveToEnd}
             reservation={selectedReservation}
           />
         )}
