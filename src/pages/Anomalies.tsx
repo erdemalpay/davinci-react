@@ -235,7 +235,7 @@ export default function Anomalies() {
       <div className="w-[98%] max-w-5xl mx-auto my-6 flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold">{t("Anomalies")}</h1>
+            <h1 className="text-xl font-semibold">{t("Unusual Events")}</h1>
             <p className="text-sm text-gray-500">
               {t(
                 "Things that usually don't happen, checked every morning at 06:30 for the day before."
@@ -294,7 +294,7 @@ export default function Anomalies() {
 
         {days.length === 0 && (
           <p className="text-center text-gray-500 py-8">
-            {t("No anomalies in these days")}
+            {t("No unusual events in these days")}
           </p>
         )}
 

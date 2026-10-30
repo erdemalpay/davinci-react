@@ -531,12 +531,6 @@ export const allRoutes: {
     isOnSidebar: true,
   },
   {
-    name: "Anomalies",
-    path: Routes.Anomalies,
-    element: Anomalies,
-    isOnSidebar: true,
-  },
-  {
     name: "Staff State Summary",
     path: Routes.StaffStateSummary,
     element: StaffStateSummary,
@@ -1039,6 +1033,12 @@ export const allRoutes: {
         isOnSidebar: true,
         tabs: PanelControlPageTabs,
         exceptionalRoles: [RoleEnum.MANAGER],
+      },
+      {
+        name: "Unusual Events",
+        path: Routes.Anomalies,
+        element: Anomalies,
+        isOnSidebar: true,
       },
       {
         name: "Education",
