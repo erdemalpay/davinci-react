@@ -13,6 +13,7 @@ export enum TournamentFormat {
 export enum PairingMode {
   SWISS = "swiss",
   RANDOM = "random",
+  CATAN_PLAN = "catan_plan", // önceden hazırlanmış Catan oturma planı (numara çekilişi)
 }
 
 // Puanı eşit oyuncuların sırası: rakiplerin ortalama puanı ya da oyunda alınan skor
@@ -140,12 +141,21 @@ export interface TournamentCheckIn {
   isParticipant: boolean;
 }
 
+// Catan eşleşme planında bir numaranın bir turdaki masası ve başlangıç sırası
+export interface CatanPlanSlot {
+  round: number;
+  tableNo: number;
+  seat: number;
+}
+
 export interface TournamentParticipant {
   _id: number;
   tournamentId: number;
   name: string;
   registrationId?: number;
   isActive: boolean;
+  drawNumber?: number; // Catan eşleşme planında turnuva başında çekilen numara
+  schedule?: CatanPlanSlot[]; // numaranın 3 turluk programı
 }
 
 export interface TournamentMatchPlayer {
@@ -153,6 +163,7 @@ export interface TournamentMatchPlayer {
   score?: number;
   rank?: number;
   points?: number;
+  seat?: number; // Catan eşleşme planında masadaki başlangıç sırası (1-4)
   wonTieBreak?: boolean; // eşit skorda organizatörün öne aldığı oyuncu
 }
 
@@ -211,7 +222,10 @@ export interface PublicTournament {
 // Oyuncuların telefondan takip ettiği sayfanın verisi; katılımcıların sadece adı gelir
 export interface TournamentLive {
   tournament: Tournament;
-  participants: Pick<TournamentParticipant, "_id" | "name" | "isActive">[];
+  participants: Pick<
+    TournamentParticipant,
+    "_id" | "name" | "isActive" | "drawNumber" | "schedule"
+  >[];
   matches: TournamentMatch[];
   standings: TournamentStanding[];
 }
