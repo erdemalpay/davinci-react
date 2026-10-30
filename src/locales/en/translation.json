@@ -1332,6 +1332,7 @@
   "You called {{name}} ({{phone}}).": "You called {{name}} ({{phone}}).",
   "Not coming": "Not coming",
   "Not responded": "Not responded",
+  "Will come later (move to end)": "Will come later (move to end)",
   "Coming": "Coming",
   "Show Sub Products": "Show Sub Products",
   "Gameplay Activity Calendar": "Gameplay Activity Calendar",
@@ -2513,5 +2514,6 @@
   "Show No Upstairs Duty": "Show No Upstairs Duty",
   "No middleman before 14:00": "No middleman before 14:00",
   "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "{{days}} of {{workedDays}} days worked from 14:00 to 22:00",
-  "(reserved)": "(reserved)"
+  "(reserved)": "(reserved)",
+  "{{name}} is today's middleman. You're the middleman until they take over.": "{{name}} is today's middleman. You're the middleman until they take over."
 }

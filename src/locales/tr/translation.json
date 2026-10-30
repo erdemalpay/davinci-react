@@ -1343,6 +1343,7 @@
   "You called {{name}} ({{phone}}).": "{{name}} ({{phone}}) kişisini aradınız.",
   "Not coming": "Gelmeyecek",
   "Not responded": "Cevap vermedi",
+  "Will come later (move to end)": "Sonra gelecek (sona at)",
   "Coming": "Gelecek",
   "Show Sub Products": "Alt Ürünleri Göster",
   "Gameplay Activity Calendar": "Oyun Anlatım Takvimi",
@@ -2521,5 +2522,6 @@
   "Show No Upstairs Duty": "Üstçü Muafiyetini Göster",
   "No middleman before 14:00": "14:00'ten önce ortacı olunamaz",
   "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "14:00–22:00 arası çalıştığı {{workedDays}} günün {{days}} günü",
-  "(reserved)": "(rezerve)"
+  "(reserved)": "(rezerve)",
+  "{{name}} is today's middleman. You're the middleman until they take over.": "Günün ortacısı {{name}}. O devralana kadar ortacı sensin."
 }
