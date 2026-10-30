@@ -5,6 +5,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import {
   ConfirmationStatus,
   ListStatus,
+  PairingMode,
   Tournament,
   TournamentCheckIn,
   TournamentParticipant,
@@ -74,6 +75,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
   >({ source: "", isActive: "", isPaid: "" });
 
   const isFinished = tournament.status === TournamentStatus.FINISHED;
+  const isCatanPlan = tournament.pairingMode === PairingMode.CATAN_PLAN;
   const promotedIds = new Set(participants.map((p) => p.registrationId));
   const promotable = registrations.filter((r) => !promotedIds.has(r._id));
 
@@ -118,6 +120,12 @@ const ParticipantsTab = ({ tournament }: Props) => {
 
   const columns = [
     { key: t("Name"), isSortable: true },
+    ...(isCatanPlan
+      ? [
+          { key: t("Draw Number"), isSortable: true },
+          { key: t("Plan Schedule"), isSortable: false },
+        ]
+      : []),
     { key: t("Added From"), isSortable: false },
     ...(tournament.hasEntryFee
       ? [{ key: t("Entry Fee"), isSortable: false }]
@@ -128,6 +136,24 @@ const ParticipantsTab = ({ tournament }: Props) => {
 
   const rowKeys = [
     { key: "name" },
+    ...(isCatanPlan
+      ? [
+          { key: "drawNumber" },
+          {
+            key: "schedule",
+            node: (row: TournamentParticipant) =>
+              row.schedule
+                ?.map(
+                  (slot) =>
+                    `${slot.round}: ${t("Table")} ${slot.tableNo} / ${t(
+                      "Seat N",
+                      { seat: slot.seat }
+                    )}`
+                )
+                .join(" · ") ?? "-",
+          },
+        ]
+      : []),
     {
       key: "registrationId",
       node: (row: TournamentParticipant) => sourceOptions[sourceOf(row)],

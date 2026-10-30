@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MatchStage,
+  PairingMode,
   Tournament,
   TournamentFormat,
   TournamentStatus,
@@ -14,6 +15,7 @@ import {
 } from "../../utils/api/tournament";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
+import CatanPlanOverview from "./CatanPlanOverview";
 import { eliminationRoundCount } from "./EliminationBracket";
 import MatchesBoard, { groupRounds } from "./MatchesBoard";
 import RoundTimer from "./RoundTimer";
@@ -119,6 +121,9 @@ const MatchesTab = ({ tournament }: Props) => {
         <div className="rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50 to-white p-5">
           <TournamentPodium podium={podium} />
         </div>
+      )}
+      {tournament.pairingMode === PairingMode.CATAN_PLAN && (
+        <CatanPlanOverview participants={participants} />
       )}
       {seatEditing.overlay}
       <ConfirmationDialog
