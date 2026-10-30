@@ -2524,12 +2524,10 @@
   "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "14:00–22:00 arası çalıştığı {{workedDays}} günün {{days}} günü",
   "(reserved)": "(rezerve)",
   "{{name}} is today's middleman. You're the middleman until they take over.": "Günün ortacısı {{name}}. O devralana kadar ortacı sensin.",
-  "Anomalies": "Anomaliler",
   "Things that usually don't happen, checked every morning at 06:30 for the day before.": "Normalde olmayan durumlar. Her sabah 06:30'da bir önceki gün için kontrol edilir.",
   "Show reviewed": "İncelenenleri göster",
   "Check a day again": "Bir günü yeniden kontrol et",
   "Checking...": "Kontrol ediliyor...",
-  "No anomalies in these days": "Bu günlerde anomali yok",
   "Reviewed": "İncelendi",
   "Only a past day can be checked": "Sadece geçmiş bir gün kontrol edilebilir",
   "severity.HIGH": "Yüksek",
@@ -2592,5 +2590,7 @@
   "Large stock correction": "Büyük stok düzeltmesi",
   "{{product}}'s stock was corrected by {{change}} ({{value}}).": "{{product}} stoğu {{change}} düzeltildi ({{value}}).",
   "Unusual waste": "Olağandışı fire",
-  "{{value}} of waste; usually {{usual}} on a day with waste.": "{{value}} fire; fire olan günlerde normalde {{usual}}."
+  "{{value}} of waste; usually {{usual}} on a day with waste.": "{{value}} fire; fire olan günlerde normalde {{usual}}.",
+  "Unusual Events": "Olağandışı Durumlar",
+  "No unusual events in these days": "Bu günlerde olağandışı durum yok"
 }

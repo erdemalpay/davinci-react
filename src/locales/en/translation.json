@@ -2516,12 +2516,10 @@
   "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "{{days}} of {{workedDays}} days worked from 14:00 to 22:00",
   "(reserved)": "(reserved)",
   "{{name}} is today's middleman. You're the middleman until they take over.": "{{name}} is today's middleman. You're the middleman until they take over.",
-  "Anomalies": "Anomalies",
   "Things that usually don't happen, checked every morning at 06:30 for the day before.": "Things that usually don't happen, checked every morning at 06:30 for the day before.",
   "Show reviewed": "Show reviewed",
   "Check a day again": "Check a day again",
   "Checking...": "Checking...",
-  "No anomalies in these days": "No anomalies in these days",
   "Reviewed": "Reviewed",
   "Only a past day can be checked": "Only a past day can be checked",
   "severity.HIGH": "High",
@@ -2584,5 +2582,7 @@
   "Large stock correction": "Large stock correction",
   "{{product}}'s stock was corrected by {{change}} ({{value}}).": "{{product}}'s stock was corrected by {{change}} ({{value}}).",
   "Unusual waste": "Unusual waste",
-  "{{value}} of waste; usually {{usual}} on a day with waste.": "{{value}} of waste; usually {{usual}} on a day with waste."
+  "{{value}} of waste; usually {{usual}} on a day with waste.": "{{value}} of waste; usually {{usual}} on a day with waste.",
+  "Unusual Events": "Unusual Events",
+  "No unusual events in these days": "No unusual events in these days"
 }
