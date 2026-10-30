@@ -998,6 +998,12 @@ export const allRoutes: {
     isOnSidebar: false,
   },
   {
+    name: "Unusual Events",
+    path: Routes.Anomalies,
+    element: Anomalies,
+    isOnSidebar: false,
+  },
+  {
     name: "Points",
     path: Routes.Points,
     element: Points,
