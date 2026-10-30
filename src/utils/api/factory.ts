@@ -63,6 +63,7 @@ export const Paths = {
   Consumers: "/consumers",
   Breaks: "/breaks",
   Middlemen: "/middlemen",
+  Anomalies: "/anomalies",
   UpstairsDuty: "/upstairs-duty",
   WebhookLog: "/webhook-log",
   PriceCompareLog: "/price-compare-log",
