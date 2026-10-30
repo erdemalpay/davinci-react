@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FaCrown, FaMedal } from "react-icons/fa";
 import {
   MatchStage,
+  Tiebreaker,
   Tournament,
   TournamentMatch,
   TournamentParticipant,
@@ -289,9 +290,24 @@ const arrangeColumns = (columns: Column[]) => {
   return { columns: arranged, targets };
 };
 
+// Catan yarı final ve finalinde sandalye, renk ve başlangıç sırasını ön eleme sıralaması
+// yüksek olan önce seçer; masadaki oyuncular zaten bu sırayla dizilidir
+const PickOrderBadge = ({ order }: { order: number }) => {
+  const { t } = useTranslation();
+  return (
+    <span
+      className="ml-1 rounded bg-indigo-50 px-1 text-[10px] text-indigo-700"
+      title={t("Pick Order Help")}
+    >
+      {t("Pick Order N", { order })}
+    </span>
+  );
+};
+
 interface BracketBoxProps {
   table: BracketTable;
   names: Map<number, string>;
+  showPickOrder: boolean;
   isEditable: boolean;
   isChampionTable: boolean;
   isAdvancer: (participantId: number) => boolean | undefined;
@@ -304,6 +320,7 @@ interface BracketBoxProps {
 const BracketBox = ({
   table,
   names,
+  showPickOrder,
   isEditable,
   isChampionTable,
   isAdvancer,
@@ -365,10 +382,11 @@ const BracketBox = ({
           match={match}
           players={players}
           names={names}
+          showPickOrder={showPickOrder}
           seatEditing={seatEditing}
         />
       ) : (
-        players.map((player) => {
+        players.map((player, index) => {
           const isChampion = isChampionTable && player.rank === 1;
           const isThird =
             table.isThirdPlace && match?.isCompleted && player.rank === 1;
@@ -395,6 +413,9 @@ const BracketBox = ({
               </span>
               <span className="flex-1 truncate">
                 {names.get(player.participantId)}
+                {showPickOrder && !match?.isCompleted && (
+                  <PickOrderBadge order={index + 1} />
+                )}
               </span>
               {isChampion && <FaCrown className="text-amber-500" />}
               {isThird && <FaMedal className="text-amber-700" />}
@@ -413,6 +434,7 @@ interface BracketScoreEditorProps {
   match: TournamentMatch;
   players: TournamentMatch["players"];
   names: Map<number, string>;
+  showPickOrder: boolean;
   seatEditing: SeatEditing;
 }
 
@@ -420,13 +442,14 @@ const BracketScoreEditor = ({
   match,
   players,
   names,
+  showPickOrder,
   seatEditing,
 }: BracketScoreEditorProps) => {
   const { t } = useTranslation();
   const { scores, setScore, isFilled, save } = useScoreEntry(match);
   return (
     <div className="flex flex-col">
-      {players.map((player) => (
+      {players.map((player, index) => (
         <div
           key={player.participantId}
           {...playerRowProps(
@@ -440,6 +463,9 @@ const BracketScoreEditor = ({
           </span>
           <span className="flex-1 truncate">
             {names.get(player.participantId)}
+            {showPickOrder && !match.isCompleted && (
+              <PickOrderBadge order={index + 1} />
+            )}
             {player.wonTieBreak && <ChosenInTieBadge />}
           </span>
           <input
@@ -549,6 +575,7 @@ const EliminationBracket = ({
                   key={table.key}
                   table={table}
                   names={names}
+                  showPickOrder={tournament.tiebreaker === Tiebreaker.SCORE}
                   isEditable={
                     column.round === editableRound && !table.match?.isBye
                   }

@@ -50,3 +50,28 @@ describe("oyun skoruyla eşitlik bozma (Catan)", () => {
     });
   });
 });
+
+describe("Catan eşleşme planı", () => {
+  it("özelleştirilen eşleşme modunu ve 3 tur ayarını gönderir", () => {
+    expect(
+      toPayload({
+        ...catanForm,
+        leagueRounds: 3,
+        customizeRules: true,
+        pairingMode: PairingMode.CATAN_PLAN,
+      })
+    ).toMatchObject({
+      pairingMode: PairingMode.CATAN_PLAN,
+      tableSize: 4,
+      leagueRounds: 3,
+      minTableSize: 3,
+      placementPoints: [1, 0, 0, 0],
+    });
+  });
+
+  it("özelleştirilmediyse otomatik rastgele eşleşme kalır", () => {
+    expect(
+      toPayload({ ...catanForm, pairingMode: PairingMode.CATAN_PLAN })
+    ).toMatchObject({ pairingMode: PairingMode.RANDOM });
+  });
+});
