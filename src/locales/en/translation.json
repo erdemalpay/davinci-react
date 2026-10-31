@@ -1985,7 +1985,7 @@
   "Copy Social Media Link": "Copy social media link",
   "Social Media": "Social Media",
   "Link copied": "Link copied",
-  "PairingModeHelp": "Swiss: first round is random, afterwards players with similar points sit together; leaders play each other (like Board Game Arena). Random: every round is shuffled. In both, repeat opponents are avoided as much as possible. Catan Matching Plan: for 49-64 players, numbers are drawn at the start and the tables and starting seats of all 3 rounds are known in advance (4 players per table, at most 3 rounds).",
+  "PairingModeHelp": "Swiss: first round is random, afterwards players with similar points sit together; leaders play each other (like Board Game Arena). Random: every round is shuffled. In both, repeat opponents are avoided as much as possible. Catan Matching Plan: for 29-64 players, numbers are drawn at the start and the tables and starting seats of all 3 rounds are known in advance (4 players per table, at most 3 rounds). The official German plans are used; missing players leave 3-player tables.",
   "TableSizeHelp": "Players per table. If players don't divide evenly, tables are balanced (e.g. 15 players / 4 per table → 4-4-4-3).",
   "MinTableSizeHelp": "Minimum players at a table. If a table would fall below this, the extra player gets a bye (e.g. 13 players / 3 per table, min 3 → 1 bye).",
   "LeagueRoundsHelp": "Everyone plays this many rounds and scores points by their finishing place at the table.",
