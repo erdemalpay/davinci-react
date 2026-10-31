@@ -593,6 +593,8 @@ export type Middleman = {
   coveringGame?: number;
   // The middleman went to this call and nobody has stood in yet.
   awayOnCall?: number;
+  // The middleman is busy (this break record) and keeps the role.
+  awayOnBreak?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
