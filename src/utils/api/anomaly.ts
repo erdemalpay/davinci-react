@@ -38,9 +38,11 @@ export function useGetAnomalies(after: string, before: string) {
   );
 }
 
-export function useAnomalyMutations() {
+// Updates the list the page shows (same range), so a change shows at once.
+export function useAnomalyMutations(after: string, before: string) {
   const { updateItem: updateAnomaly } = useMutationApi<Anomaly>({
     baseQuery: baseUrl,
+    queryKey: [baseUrl, after, before],
   });
   return { updateAnomaly };
 }
