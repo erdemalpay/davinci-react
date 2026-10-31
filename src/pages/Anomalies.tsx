@@ -49,10 +49,6 @@ const anomalyTexts: Record<string, { title: string; text: string }> = {
     title: "Table left open",
     text: "Table {{table}}, opened at {{startHour}}, wasn't closed.",
   },
-  LONG_OPEN_TABLE: {
-    title: "Long open table",
-    text: "Table {{table}} was open {{minutes}} minutes ({{startHour}}–{{finishHour}}).",
-  },
   TABLE_WITHOUT_ORDERS: {
     title: "Table without orders",
     text: "Table {{table}} was open {{minutes}} minutes ({{startHour}}–{{finishHour}}) without any order.",
@@ -89,13 +85,9 @@ const anomalyTexts: Record<string, { title: string; text: string }> = {
     title: "Long break",
     text: "{{breakType}} from {{startHour}} for {{minutes}} minutes.",
   },
-  MANY_BREAKS: {
-    title: "Many breaks",
-    text: "{{count}} breaks in a day.",
-  },
   CONCURRENT_BREAKS: {
     title: "Breaks at the same time",
-    text: "{{first}} and {{second}} were on a break together from {{from}} for {{minutes}} minutes.",
+    text: "{{people}} were on a break together {{from}}–{{to}} ({{minutes}} minutes); {{working}} of the {{present}} people in were left working.",
   },
   VISIT_DELETED: {
     title: "Check-in deleted",
@@ -195,6 +187,12 @@ export default function Anomalies() {
     }
     for (const field of PERSON_FIELDS) {
       if (values[field]) values[field] = nameOf(String(values[field]));
+    }
+    if (values.people) {
+      values.people = String(values.people)
+        .split(",")
+        .map((id) => nameOf(id))
+        .join(", ");
     }
     if (values.game) {
       values.game =
