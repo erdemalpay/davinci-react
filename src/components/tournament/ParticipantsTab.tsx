@@ -170,7 +170,17 @@ const ParticipantsTab = ({ tournament }: Props) => {
 
   const rowKeys = [
     { key: "name" },
-    ...(isCatanPlan ? [{ key: "drawNumber" }, { key: "scheduleText" }] : []),
+    ...(isCatanPlan
+      ? [
+          // Sıralama sayıya göre kalsın diye anahtar drawNumber, görünen metin "-" ile
+          {
+            key: "drawNumber",
+            node: (row: TournamentParticipant & { drawNumberText: string }) =>
+              row.drawNumberText,
+          },
+          { key: "scheduleText" },
+        ]
+      : []),
     { key: "sourceText" },
     ...(tournament.hasEntryFee ? [{ key: "feeText" }] : []),
     {
