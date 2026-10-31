@@ -7,6 +7,7 @@ import StatusScreen from "../components/common/StatusScreen";
 import MatchesBoard, {
   groupRounds,
 } from "../components/tournament/MatchesBoard";
+import { PlayerSchedule } from "../components/tournament/CatanPlanOverview";
 import { StandingsTable } from "../components/tournament/StandingsTab";
 import TournamentPodium, {
   podiumOf,
@@ -195,6 +196,11 @@ const TournamentLive = () => {
                   {t("No player found with this name")}
                 </p>
               )}
+              <PlayerSchedule
+                participants={participants.filter((p) =>
+                  highlightIds.has(p._id)
+                )}
+              />
             </div>
             <MatchesBoard
               tournament={tournament}

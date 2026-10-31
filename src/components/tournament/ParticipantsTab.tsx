@@ -5,6 +5,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import {
   ConfirmationStatus,
   ListStatus,
+  PairingMode,
   Tournament,
   TournamentCheckIn,
   TournamentParticipant,
@@ -74,6 +75,7 @@ const ParticipantsTab = ({ tournament }: Props) => {
   >({ source: "", isActive: "", isPaid: "" });
 
   const isFinished = tournament.status === TournamentStatus.FINISHED;
+  const isCatanPlan = tournament.pairingMode === PairingMode.CATAN_PLAN;
   const promotedIds = new Set(participants.map((p) => p.registrationId));
   const promotable = registrations.filter((r) => !promotedIds.has(r._id));
 
@@ -102,47 +104,85 @@ const ParticipantsTab = ({ tournament }: Props) => {
     return registration && String(!!registration.isPaid);
   };
 
+  // Tablonun PDF/Excel dışa aktarması satırdaki düz alanları okur; ekranda görünen metinler
+  // bu yüzden satıra yazılır
   const rows = useMemo(
     () =>
-      participants.filter(
-        (p) =>
-          (!filterFormElements.source ||
-            sourceOf(p) === filterFormElements.source) &&
-          (!filterFormElements.isActive ||
-            String(p.isActive) === filterFormElements.isActive) &&
-          (!filterFormElements.isPaid ||
-            feeStatusOf(p) === filterFormElements.isPaid)
-      ),
-    [participants, registrations, filterFormElements]
+      participants
+        .filter(
+          (p) =>
+            (!filterFormElements.source ||
+              sourceOf(p) === filterFormElements.source) &&
+            (!filterFormElements.isActive ||
+              String(p.isActive) === filterFormElements.isActive) &&
+            (!filterFormElements.isPaid ||
+              feeStatusOf(p) === filterFormElements.isPaid)
+        )
+        .map((p) => ({
+          ...p,
+          drawNumberText: p.drawNumber ? String(p.drawNumber) : "-",
+          scheduleText:
+            p.schedule
+              ?.map(
+                (slot) =>
+                  `${slot.round}: ${t("Table")} ${slot.tableNo} / ${t(
+                    "Seat N",
+                    { seat: slot.seat }
+                  )}`
+              )
+              .join(" · ") ?? "-",
+          sourceText: sourceOptions[sourceOf(p)],
+          feeText: feeOptions[feeStatusOf(p) ?? ""] ?? "-",
+          statusText: statusOptions[String(p.isActive)],
+        })),
+    [participants, registrations, filterFormElements, t]
   );
 
   const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: t("Added From"), isSortable: false },
-    ...(tournament.hasEntryFee
-      ? [{ key: t("Entry Fee"), isSortable: false }]
+    { key: t("Name"), isSortable: true, correspondingKey: "name" },
+    ...(isCatanPlan
+      ? [
+          {
+            key: t("Draw Number"),
+            isSortable: true,
+            correspondingKey: "drawNumberText",
+          },
+          {
+            key: t("Plan Schedule"),
+            isSortable: false,
+            correspondingKey: "scheduleText",
+          },
+        ]
       : []),
-    { key: t("Status"), isSortable: false },
+    { key: t("Added From"), isSortable: false, correspondingKey: "sourceText" },
+    ...(tournament.hasEntryFee
+      ? [
+          {
+            key: t("Entry Fee"),
+            isSortable: false,
+            correspondingKey: "feeText",
+          },
+        ]
+      : []),
+    { key: t("Status"), isSortable: false, correspondingKey: "statusText" },
     { key: t("Actions"), isSortable: false },
   ];
 
   const rowKeys = [
     { key: "name" },
-    {
-      key: "registrationId",
-      node: (row: TournamentParticipant) => sourceOptions[sourceOf(row)],
-    },
-    ...(tournament.hasEntryFee
+    ...(isCatanPlan
       ? [
+          // Sıralama sayıya göre kalsın diye anahtar drawNumber, görünen metin "-" ile
           {
-            key: "isPaid",
-            node: (row: TournamentParticipant) => {
-              const status = feeStatusOf(row);
-              return status ? feeOptions[status] : "-";
-            },
+            key: "drawNumber",
+            node: (row: TournamentParticipant & { drawNumberText: string }) =>
+              row.drawNumberText,
           },
+          { key: "scheduleText" },
         ]
       : []),
+    { key: "sourceText" },
+    ...(tournament.hasEntryFee ? [{ key: "feeText" }] : []),
     {
       key: "isActive",
       node: (row: TournamentParticipant) =>
@@ -361,6 +401,9 @@ const ParticipantsTab = ({ tournament }: Props) => {
         title={`${t("Participants")} (${
           participants.filter((p) => p.isActive).length
         })`}
+        isPdf
+        isExcel
+        excelFileName={`${tournament.name}.xlsx`}
         addButton={addButton}
         filterPanel={filterPanel}
         filters={filters}

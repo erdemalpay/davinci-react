@@ -626,6 +626,10 @@ export const useTournamentFormInputs = (
             options: [
               { value: PairingMode.SWISS, label: t("Swiss") },
               { value: PairingMode.RANDOM, label: t("Random") },
+              {
+                value: PairingMode.CATAN_PLAN,
+                label: t("Catan Matching Plan"),
+              },
             ],
             placeholder: t("Swiss"),
             required: false,
