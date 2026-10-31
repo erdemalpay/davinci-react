@@ -5,6 +5,7 @@ import { GiRoundTable } from "react-icons/gi";
 import { MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useTemporarilyHiddenModal } from "../../hooks/useTemporarilyHiddenModal";
+import { openBusyDialog } from "../header/busyDialogEvent";
 import { useDataContext } from "../../context/Data.context";
 import { useUserContext } from "../../context/User.context";
 import { Middleman } from "../../types";
@@ -59,8 +60,9 @@ export const MiddlemanOverlay = () => {
         (m) =>
           (typeof m.user === "string" ? m.user : m.user._id) === user._id &&
           !m.finishHour &&
-          // Away on a call: not the middleman until they're back.
-          !m.awayOnCall
+          // Away on a call or busy: not the middleman until they're back.
+          !m.awayOnCall &&
+          !m.awayOnBreak
       );
       setCurrentMiddleman(userActive || null);
     }
@@ -174,6 +176,15 @@ export const MiddlemanOverlay = () => {
           >
             <MdVisibilityOff className="text-xl" />
             {t("Hide")}
+          </button>
+          <button
+            onClick={() => {
+              handleHideModal();
+              openBusyDialog();
+            }}
+            className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
+          >
+            {t("Busy")}
           </button>
           <button
             onClick={handleEnd}
