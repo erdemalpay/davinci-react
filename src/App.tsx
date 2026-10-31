@@ -24,8 +24,10 @@ import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { ShiftContextProvider } from "./context/Shift.context";
 import { UserContextProvider, useUserContext } from "./context/User.context";
+import { useFillMissingPages } from "./hooks/useFillMissingPages";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
+import { Role, RoleEnum } from "./types";
 import { printerService } from "./utils/printerService";
 import { ProfileTabEnum } from "./pages/Profile";
 
@@ -94,6 +96,9 @@ function App() {
 
   // Only connect to WebSocket when user is authenticated
   useWebSocket(!!user);
+  useFillMissingPages(
+    !!user && (user.role as Role)?._id === RoleEnum.MANAGER
+  );
 
   useEffect(() => {
     printerService.reconnect();
