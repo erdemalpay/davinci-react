@@ -5,6 +5,7 @@ import { MdFreeBreakfast } from "react-icons/md";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { BusyStateDialog } from "./BusyStateDialog";
+import { OPEN_BUSY_DIALOG_EVENT } from "./busyDialogEvent";
 import { useDataContext } from "../../context/Data.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
@@ -85,16 +86,22 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     user?.role?._id === RoleEnum.GAMEMASTER ||
     user?.role?._id === RoleEnum.GAMEMANAGER;
   const canBeMiddleman = isGameRole || user?.role?._id === RoleEnum.BARCHEF;
-  // A middleman away on a call has left the role free for anyone to take;
-  // taking it from someone only standing in makes you the day's middleman.
+  // A middleman away on a call or busy has left the role free for anyone
+  // to take; taking it from someone only standing in makes you the day's
+  // middleman.
   const myMiddleman = activeMiddlemen?.find(
-    (m) => getRefId(m.user) === user?._id && !m.finishHour && !m.awayOnCall
+    (m) =>
+      getRefId(m.user) === user?._id &&
+      !m.finishHour &&
+      !m.awayOnCall &&
+      !m.awayOnBreak
   );
   const otherMiddleman = activeMiddlemen?.find(
     (m) =>
       getRefId(m.user) !== user?._id &&
       !m.finishHour &&
       !m.awayOnCall &&
+      !m.awayOnBreak &&
       !m.coveringFor
   );
   const otherMiddlemanName =
@@ -262,6 +269,7 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
   };
 
   const handleEndMiddleman = () => {
+    setIsStateDialogOpen(false);
     if (!myMiddleman) return;
     updateMiddleman({
       id: myMiddleman._id,
@@ -290,6 +298,13 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
     );
   };
 
+  // The middleman screen opens the dialog too.
+  useEffect(() => {
+    const open = () => setIsStateDialogOpen(true);
+    window.addEventListener(OPEN_BUSY_DIALOG_EVENT, open);
+    return () => window.removeEventListener(OPEN_BUSY_DIALOG_EVENT, open);
+  }, []);
+
   // Don't show break button if user doesn't have an active visit (not at the cafe)
   if (!hasActiveVisit) {
     return null;
@@ -312,12 +327,15 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
           onCancel={() => setIsStateDialogOpen(false)}
           isBarista={isBarista(user?.role?._id)}
           middleman={
-            canBeMiddleman && isMiddlemanHours(new Date())
+            !myMiddleman && canBeMiddleman && isMiddlemanHours(new Date())
               ? {
                   onSelect: handleStartMiddleman,
                   takenBy: otherMiddlemanName || undefined,
                 }
               : undefined
+          }
+          endMiddleman={
+            myMiddleman ? { onSelect: handleEndMiddleman } : undefined
           }
           upstairsDuty={
             isGameRole && otherDuty && !myMiddleman
@@ -332,29 +350,21 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       )}
       <div className="relative">
         <button
-          onClick={
-            myMiddleman
-              ? handleEndMiddleman
-              : isOnBreak
-              ? handleEndBreak
-              : handleStartBreak
-          }
+          onClick={isOnBreak ? handleEndBreak : handleStartBreak}
           className={`flex items-center gap-2 px-3 py-2 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105 ${
-            isOnBreak || myMiddleman
+            isOnBreak
               ? "bg-red-600 hover:bg-red-700"
               : "bg-green-600 hover:bg-green-700"
           }`}
           title={
-            myMiddleman
-              ? t("End Middleman")
-              : isOnBreak
+            isOnBreak
               ? `${t(busyStateLabels[currentType])} - ${t("End")}`
               : t("Busy")
           }
         >
           <MdFreeBreakfast className="text-lg" />
           <span className="hidden sm:inline">
-            {isOnBreak || myMiddleman ? t("End") : t("Busy")}
+            {isOnBreak ? t("End") : t("Busy")}
           </span>
         </button>
       </div>
