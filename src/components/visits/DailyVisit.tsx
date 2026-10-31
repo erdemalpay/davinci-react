@@ -5,7 +5,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetGivenDateVisits } from "../../utils/api/visit";
 import { formatDate, parseDate } from "../../utils/dateUtil";
-import { formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate, formatVisitFinishHour } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { DateInput } from "../common/DateInput2";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -23,7 +23,7 @@ export default function DailyVisit() {
       const foundUser = getItem(visit.user, users);
       if (!foundUser) return acc;
       const visitHours = `${visit.startHour}${
-        visit.finishHour ? " - " + visit.finishHour : ""
+        visit.finishHour ? " - " + formatVisitFinishHour(visit, t) : ""
       }`;
       const existingEntry = acc.find((entry) => entry.userId === visit.user);
       if (existingEntry) {
@@ -56,7 +56,7 @@ export default function DailyVisit() {
       return acc;
     }, [] as Array<{ userId: string; userName: string; visitDate: string; visitHours: string; visitHoursList: string[]; collapsible: any }>);
     return allRows || [];
-  }, [givenDateVisits, users]);
+  }, [givenDateVisits, users, t]);
 
   const columns = useMemo(
     () => [
