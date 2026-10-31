@@ -178,7 +178,7 @@ export default function Anomalies() {
   const [runDate, setRunDate] = useState(yesterday);
   const [showReviewed, setShowReviewed] = useState(false);
   const anomalies = useGetAnomalies(after, before);
-  const { updateAnomaly } = useAnomalyMutations();
+  const { updateAnomaly } = useAnomalyMutations(after, before);
   const { mutate: runAnomalies, isPending: isRunning } =
     useRunAnomaliesMutation();
 
