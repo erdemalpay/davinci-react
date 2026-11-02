@@ -52,7 +52,7 @@ export function CreateGameplayDialog({
   const [data, setData] = useState<Partial<CreateGameplayDto>>({
     ...gameplay,
     isGameplayTime: true,
-    isAutoEntry: true,
+    isAutoEntry: table.type !== TableTypes.ACTIVITY,
   });
   const { users } = useDataContext();
   const popularGames = useGetPopularGamesLast30Days();
@@ -157,16 +157,22 @@ export function CreateGameplayDialog({
             },
           ]
         : []),
-      {
-        type: InputTypes.CHECKBOX,
-        formKey: "isAutoEntry",
-        label: t("Is Auto Entry"),
-        placeholder: t("Is Auto Entry"),
-        required: data?.playerCount && table.playerCount < data?.playerCount,
-        isDisabled: !(
-          data?.playerCount && table.playerCount < data?.playerCount
-        ),
-      },
+      // Activity tables take entries per table and player by hand.
+      ...(isActivityTable
+        ? []
+        : [
+            {
+              type: InputTypes.CHECKBOX,
+              formKey: "isAutoEntry",
+              label: t("Is Auto Entry"),
+              placeholder: t("Is Auto Entry"),
+              required:
+                data?.playerCount && table.playerCount < data?.playerCount,
+              isDisabled: !(
+                data?.playerCount && table.playerCount < data?.playerCount
+              ),
+            },
+          ]),
       {
         type: InputTypes.QUICKSELECT,
         formKey: "mentor",
@@ -239,7 +245,9 @@ export function CreateGameplayDialog({
 
   const gameplayFormKeys = [
     { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
-    { key: "isAutoEntry", type: FormKeyTypeEnum.BOOLEAN },
+    ...(isActivityTable
+      ? []
+      : [{ key: "isAutoEntry", type: FormKeyTypeEnum.BOOLEAN }]),
     { key: "mentor", type: FormKeyTypeEnum.STRING },
     { key: "isGameplayTime", type: FormKeyTypeEnum.BOOLEAN },
     { key: "game", type: FormKeyTypeEnum.NUMBER },
@@ -264,7 +272,7 @@ export function CreateGameplayDialog({
         location: gameplay.location || table.location,
         playerCount: table.playerCount,
         isGameplayTime: true,
-        isAutoEntry: true,
+        isAutoEntry: !isActivityTable,
         startHour: format(new Date(), "HH:mm"),
         mentor:
           typeof gameplay.mentor === "object"
