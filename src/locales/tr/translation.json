@@ -2530,7 +2530,6 @@
   "No Upstairs Duty": "Üstçü Atanmasın",
   "Show No Upstairs Duty": "Üstçü Muafiyetini Göster",
   "No middleman before 14:00": "14:00'ten önce ortacı olunamaz",
-  "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "14:00–22:00 arası çalıştığı {{workedDays}} günün {{days}} günü",
   "(reserved)": "(rezerve)",
   "{{name}} is today's middleman. You're the middleman until they take over.": "Günün ortacısı {{name}}. O devralana kadar ortacı sensin.",
   "Things that usually don't happen, checked every morning at 06:30 for the day before.": "Normalde olmayan durumlar. Her sabah 06:30'da bir önceki gün için kontrol edilir.",
@@ -2598,5 +2597,6 @@
   "{{value}} of waste; usually {{usual}} on a day with waste.": "{{value}} fire; fire olan günlerde normalde {{usual}}.",
   "Unusual Events": "Olağandışı Durumlar",
   "No unusual events in these days": "Bu günlerde olağandışı durum yok",
-  "You stay the middleman; someone stands in until you're back.": "Ortacılık sende kalır; sen dönene kadar biri yerine bakar."
+  "You stay the middleman; someone stands in until you're back.": "Ortacılık sende kalır; sen dönene kadar biri yerine bakar.",
+  "MiddlemanTimeShare": "14:00–22:00 arası {{worked}} çalışmanın {{middleman}} ortacılık (%{{percent}})"
 }
