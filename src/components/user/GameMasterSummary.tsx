@@ -98,6 +98,14 @@ const GameMasterSummary = ({ userId }: Props) => {
   // The days the shift plan made them service staff, and the days they were
   // the middleman.
   const dutyDays = useMemo(() => {
+    // "12 sa 5 dk", rounded down to the minute.
+    const formatHoursMinutes = (seconds: number) => {
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      return hours > 0
+        ? `${hours} ${t("h")} ${minutes % 60} ${t("min")}`
+        : `${minutes} ${t("min")}`;
+    };
     const daysWhere = (isOnDuty: (slot: ShiftValue) => boolean) =>
       [
         ...new Set(
@@ -114,10 +122,13 @@ const GameMasterSummary = ({ userId }: Props) => {
       {
         title: t("Middleman days"),
         dates: middlemanShare?.dates ?? [],
-        note: middlemanShare?.workedDays
-          ? t("{{days}} of {{workedDays}} days worked from 14:00 to 22:00", {
-              days: middlemanShare.dates.length,
-              workedDays: middlemanShare.workedDays,
+        note: middlemanShare?.workedSeconds
+          ? t("MiddlemanTimeShare", {
+              middleman: formatHoursMinutes(middlemanShare.seconds),
+              worked: formatHoursMinutes(middlemanShare.workedSeconds),
+              percent: Math.round(
+                (middlemanShare.seconds / middlemanShare.workedSeconds) * 100
+              ),
             })
           : undefined,
       },
