@@ -2522,7 +2522,6 @@
   "No Upstairs Duty": "No Upstairs Duty",
   "Show No Upstairs Duty": "Show No Upstairs Duty",
   "No middleman before 14:00": "No middleman before 14:00",
-  "{{days}} of {{workedDays}} days worked from 14:00 to 22:00": "{{days}} of {{workedDays}} days worked from 14:00 to 22:00",
   "(reserved)": "(reserved)",
   "{{name}} is today's middleman. You're the middleman until they take over.": "{{name}} is today's middleman. You're the middleman until they take over.",
   "Things that usually don't happen, checked every morning at 06:30 for the day before.": "Things that usually don't happen, checked every morning at 06:30 for the day before.",
@@ -2590,5 +2589,6 @@
   "{{value}} of waste; usually {{usual}} on a day with waste.": "{{value}} of waste; usually {{usual}} on a day with waste.",
   "Unusual Events": "Unusual Events",
   "No unusual events in these days": "No unusual events in these days",
-  "You stay the middleman; someone stands in until you're back.": "You stay the middleman; someone stands in until you're back."
+  "You stay the middleman; someone stands in until you're back.": "You stay the middleman; someone stands in until you're back.",
+  "MiddlemanTimeShare": "{{middleman}} as middleman of {{worked}} worked from 14:00 to 22:00 ({{percent}}%)"
 }

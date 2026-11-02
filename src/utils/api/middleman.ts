@@ -51,12 +51,14 @@ export const useGetMiddlemen = (
   );
 };
 
-// Each person's middleman days (one person a day: whoever was the
-// middleman the longest) and the days they worked in the middleman hours.
+// Each person's middleman time (as the day's middleman or standing in,
+// without the time on a call, explaining or busy), the time they worked in
+// the middleman hours, and the days they were the day's main middleman.
 export interface MiddlemanShare {
   user: string;
+  seconds: number;
+  workedSeconds: number;
   dates: string[];
-  workedDays: number;
 }
 
 export const useGetMiddlemanShares = (after?: string, before?: string) => {
