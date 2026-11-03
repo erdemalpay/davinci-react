@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaCrown, FaMedal } from "react-icons/fa";
 import {
@@ -304,6 +304,23 @@ const PickOrderBadge = ({ order }: { order: number }) => {
   );
 };
 
+// İsim tek satırda kalır (sığmazsa üstüne gelince tam adı görünür); etiketler isimle aynı
+// kutuda kesilmesin diye altına konur
+const BracketPlayerName = ({
+  name,
+  children,
+}: {
+  name?: string;
+  children?: ReactNode;
+}) => (
+  <span className="min-w-0 flex-1">
+    <span className="block truncate text-xs" title={name}>
+      {name}
+    </span>
+    {children}
+  </span>
+);
+
 interface BracketBoxProps {
   table: BracketTable;
   names: Map<number, string>;
@@ -411,12 +428,11 @@ const BracketBox = ({
               <span className="w-4 text-xs text-gray-400">
                 {match?.isCompleted ? player.rank : ""}
               </span>
-              <span className="flex-1 truncate">
-                {names.get(player.participantId)}
+              <BracketPlayerName name={names.get(player.participantId)}>
                 {showPickOrder && !match?.isCompleted && (
                   <PickOrderBadge order={index + 1} />
                 )}
-              </span>
+              </BracketPlayerName>
               {isChampion && <FaCrown className="text-amber-500" />}
               {isThird && <FaMedal className="text-amber-700" />}
               <span className="w-8 text-right text-gray-500">
@@ -461,13 +477,12 @@ const BracketScoreEditor = ({
           <span className="w-4 text-xs text-gray-400">
             {match.isCompleted ? player.rank : ""}
           </span>
-          <span className="flex-1 truncate">
-            {names.get(player.participantId)}
+          <BracketPlayerName name={names.get(player.participantId)}>
             {showPickOrder && !match.isCompleted && (
               <PickOrderBadge order={index + 1} />
             )}
             {player.wonTieBreak && <ChosenInTieBadge />}
-          </span>
+          </BracketPlayerName>
           <input
             type="number"
             className="w-14 border rounded px-1 py-0.5 text-right"
@@ -565,7 +580,7 @@ const EliminationBracket = ({
           ))}
         </svg>
         {columns.map((column, c) => (
-          <div key={column.round} className="flex flex-col w-60">
+          <div key={column.round} className="flex flex-col w-[21rem]">
             <p className="text-xs font-semibold uppercase text-gray-500 mb-3 text-center">
               {roundName(column.round, columns.length)}
             </p>
