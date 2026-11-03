@@ -5,6 +5,7 @@ import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
+import { useQuantityUpdateQueue } from "../../hooks/useQuantityUpdateQueue";
 import { Order, OrderStatus } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
@@ -27,6 +28,13 @@ type DisabledButtons = {
   [key: string]: boolean;
 };
 
+const isFullyDiscounted = (order: Order) =>
+  Boolean(
+    order?.discount &&
+      ((order?.discountAmount && order?.discountAmount >= order?.unitPrice) ||
+        (order?.discountPercentage && order?.discountPercentage >= 100))
+  );
+
 const OrderListForPanelTab = ({
   tableId,
   orderStatus,
@@ -42,6 +50,8 @@ const OrderListForPanelTab = ({
   );
   const [disabledButtons, setDisabledButtons] = useState<DisabledButtons>({});
   const { mutate: updateOrderCancel } = useUpdateOrderForCancelMutation();
+  const { getQuantityBase, queueQuantityUpdate } =
+    useQuantityUpdateQueue(tableOrders, updateOrder);
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order?.createdAt).getTime();
     const currentTime = new Date().getTime();
@@ -95,47 +105,29 @@ const OrderListForPanelTab = ({
             {/* name and quantity */}
             <div className="flex gap-1 items-center">
               <p>{orderItem?.name}</p>
-              <h1 className="text-xs">({order?.quantity})</h1>
+              <h1 className="text-xs">({getQuantityBase(order).quantity})</h1>
             </div>
 
             <div className="flex flex-row gap-2 items-center">
               <FiMinusCircle
                 className="w-5 h-5 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
                 onClick={() => {
-                  if (order?.quantity === 1) {
+                  const base = getQuantityBase(order);
+                  if (base.quantity === 1) {
                     toast.error(t("Order quantity cannot be less than 1"));
                     return;
                   }
-                  if (
-                    order?.paidQuantity > 0 &&
-                    !(
-                      order?.discount &&
-                      ((order?.discountAmount &&
-                        order?.discountAmount >= order?.unitPrice) ||
-                        (order?.discountPercentage &&
-                          order?.discountPercentage >= 100))
-                    )
-                  ) {
+                  const isFree = isFullyDiscounted(order);
+                  if ((base.paidQuantity ?? 0) > 0 && !isFree) {
                     toast.error(t("Paid orders cannot be changed"));
                     return;
                   }
-                  let updates = {
-                    quantity: order?.quantity - 1,
-                    paidQuantity: order?.paidQuantity,
-                  };
-                  if (
-                    order?.discount &&
-                    ((order?.discountAmount &&
-                      order?.discountAmount >= order?.unitPrice) ||
-                      (order?.discountPercentage &&
-                        order?.discountPercentage >= 100))
-                  ) {
-                    updates = {
-                      quantity: order?.quantity - 1,
-                      paidQuantity: order?.paidQuantity - 1,
-                    };
-                  }
-                  updateOrder({ id: order?._id, updates });
+                  queueQuantityUpdate(order?._id, {
+                    quantity: base.quantity - 1,
+                    paidQuantity: isFree
+                      ? (base.paidQuantity ?? 0) - 1
+                      : base.paidQuantity,
+                  });
                 }}
               />
               {(
@@ -162,9 +154,9 @@ const OrderListForPanelTab = ({
                           o._id !== order._id
                       );
                       if (existingPendingOrder) {
-                        updateOrder({
-                          id: existingPendingOrder._id,
-                          updates: { quantity: existingPendingOrder.quantity + 1 },
+                        queueQuantityUpdate(existingPendingOrder._id, {
+                          quantity:
+                            getQuantityBase(existingPendingOrder).quantity + 1,
                         });
                       } else {
                         const { _id, ...orderWithoutId } = order;
@@ -183,9 +175,8 @@ const OrderListForPanelTab = ({
                         });
                       }
                     } else {
-                      updateOrder({
-                        id: order?._id,
-                        updates: { quantity: order?.quantity + 1 },
+                      queueQuantityUpdate(order?._id, {
+                        quantity: getQuantityBase(order).quantity + 1,
                       });
                     }
                   }}
@@ -226,12 +217,7 @@ const OrderListForPanelTab = ({
                     </p>
                   </div>
                 )}
-              {(order?.paidQuantity === 0 ||
-                (order?.discount &&
-                  ((order?.discountAmount &&
-                    order?.discountAmount >= order?.unitPrice) ||
-                    (order?.discountPercentage &&
-                      order?.discountPercentage >= 100)))) && (
+              {(order?.paidQuantity === 0 || isFullyDiscounted(order)) && (
                 <HiOutlineTrash
                   className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
                   onClick={() => handleCancel(order)}
