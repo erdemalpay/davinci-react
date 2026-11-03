@@ -2016,7 +2016,7 @@
   "Remove Participant": "Katılımcıyı Çıkar",
   "RemoveParticipantMessage": "{{name}} turnuvadan çıkarılacak. Maç oynadıysa silinmez, çekildi olarak işaretlenir. Devam edilsin mi?",
   "Take Participants From Registrations": "Başvurulardan Katılımcı Al",
-  "PromoteRegistrationsHelp": "Teyit edenler işaretli gelir. Gelmeyenlerin işaretini kaldırın; sadece işaretliler katılımcı olur.",
+  "PromoteRegistrationsHelp": "Kimse işaretli gelmez. Ücretini aldığınız kişileri arayıp işaretleyin; sadece işaretliler katılımcı olur.",
   "Add Selected": "Seçilenleri Ekle",
   "Matches": "Eşleşmeler",
   "Start Tournament": "Turnuvayı Başlat",

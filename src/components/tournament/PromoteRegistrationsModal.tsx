@@ -1,29 +1,38 @@
 import { Dialog } from "@headlessui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TournamentRegistration } from "../../types/tournament";
 import { useTournamentActions } from "../../utils/api/tournament";
+import { normalizeText } from "../../utils/slug";
 import { GenericButton } from "../common/GenericButton";
 import { useRegistrationLabels } from "./RegistrationsTab";
 
 interface Props {
   tournamentId: number;
   registrations: TournamentRegistration[];
-  initiallySelected: number[];
   close: () => void;
 }
 
-// Turnuva günü: teyit edenler işaretli gelir, gelmeyenin işareti kaldırılır.
+// Turnuva günü: kimse işaretli gelmez. Ücreti alınan QR'lılar zaten katılımcı olur; buraya
+// QR'ı bulamayıp ismi not alınanlar düşer, aranıp elle işaretlenir.
 const PromoteRegistrationsModal = ({
   tournamentId,
   registrations,
-  initiallySelected,
   close,
 }: Props) => {
   const { t } = useTranslation();
   const { promoteRegistrations } = useTournamentActions();
   const { confirmationLabels } = useRegistrationLabels();
-  const [selected, setSelected] = useState(new Set(initiallySelected));
+  const [selected, setSelected] = useState(new Set<number>());
+  const [search, setSearch] = useState("");
+
+  // Kafede olanlar üstte; arama işaretleri bozmaz
+  const visible = useMemo(() => {
+    const query = normalizeText(search);
+    return registrations
+      .filter((r) => normalizeText(r.fullName).includes(query))
+      .sort((a, b) => Number(!!b.arrivedAt) - Number(!!a.arrivedAt));
+  }, [registrations, search]);
 
   const toggle = (id: number) => {
     const next = new Set(selected);
@@ -56,8 +65,17 @@ const PromoteRegistrationsModal = ({
               {t("PromoteRegistrationsHelp")}
             </p>
           </div>
+          <div className="px-6 pt-3">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("Search")}
+              className="w-full rounded-md border px-3 py-2 text-sm"
+            />
+          </div>
           <ul className="overflow-y-auto divide-y px-6">
-            {registrations.map((registration) => (
+            {visible.map((registration) => (
               <li key={registration._id}>
                 <label className="flex items-center gap-3 py-2 cursor-pointer">
                   <input
@@ -66,6 +84,11 @@ const PromoteRegistrationsModal = ({
                     onChange={() => toggle(registration._id)}
                   />
                   <span className="flex-1">{registration.fullName}</span>
+                  {registration.arrivedAt && (
+                    <span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                      {t("At Cafe")}
+                    </span>
+                  )}
                   <span className="text-xs text-gray-500">
                     {confirmationLabels[registration.confirmationStatus]}
                   </span>
