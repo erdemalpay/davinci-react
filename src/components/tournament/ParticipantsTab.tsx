@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
-  ConfirmationStatus,
   ListStatus,
   PairingMode,
   Tournament,
@@ -412,11 +411,6 @@ const ParticipantsTab = ({ tournament }: Props) => {
         <PromoteRegistrationsModal
           tournamentId={tournament._id}
           registrations={promotable}
-          initiallySelected={promotable
-            .filter(
-              (r) => r.confirmationStatus === ConfirmationStatus.CONFIRMED
-            )
-            .map((r) => r._id)}
           close={() => setIsPromoteModalOpen(false)}
         />
       )}
