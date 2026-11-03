@@ -30,10 +30,8 @@ const playAlarm = () => {
 const RoundTimer = ({ tournament, roundMatches }: Props) => {
   const { t } = useTranslation();
   const { updateTournament } = useTournamentMutations();
-  const { isActive, pausedAt, remaining, isOver, text } = useRoundClock(
-    tournament,
-    roundMatches
-  );
+  const { isActive, isWaiting, pausedAt, remaining, isOver, text } =
+    useRoundClock(tournament, roundMatches);
   const [isAddingTime, setIsAddingTime] = useState(false);
   const [extraMinutes, setExtraMinutes] = useState("");
   const wasOver = useRef<boolean | null>(null);
@@ -64,6 +62,24 @@ const RoundTimer = ({ tournament, roundMatches }: Props) => {
   };
 
   const stop = () => update({ isRoundTimerStopped: true });
+
+  // Tur kuruldu ama süre elle başlatılana kadar tam süre bekler
+  if (isWaiting)
+    return (
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
+        <span className="font-semibold tabular-nums">{text}</span>
+        <GenericButton
+          size="sm"
+          variant="primary"
+          onClick={() => update({ roundStartedAt: new Date().toISOString() })}
+        >
+          {t("Start Timer")}
+        </GenericButton>
+        <GenericButton size="sm" variant="ghost" onClick={stop}>
+          {t("End Timer")}
+        </GenericButton>
+      </div>
+    );
 
   const togglePause = () =>
     pausedAt

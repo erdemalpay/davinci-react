@@ -44,7 +44,7 @@ const TvScreen = ({
 }: Props) => {
   const { t } = useTranslation();
   const roundName = useEliminationRoundName();
-  const { isActive, pausedAt, remaining, isOver } = useRoundClock(
+  const { isActive, isWaiting, pausedAt, remaining, isOver } = useRoundClock(
     tournament,
     roundMatches
   );
@@ -79,7 +79,7 @@ const TvScreen = ({
       : roundName(roundMatch.round, eliminationRounds));
   const timeColor = isOver
     ? "text-red-500"
-    : pausedAt
+    : pausedAt || isWaiting
     ? "text-blue-300"
     : remaining <= WARNING_MS
     ? "text-orange-400"
@@ -142,9 +142,9 @@ const TvScreen = ({
                 >
                   {isOver ? t("Time Up") : formatRemaining(remaining)}
                 </p>
-                {pausedAt && !isOver && (
+                {(pausedAt || isWaiting) && !isOver && (
                   <p className="text-3xl font-semibold text-blue-300">
-                    {t("Paused")}
+                    {isWaiting ? t("Timer Not Started") : t("Paused")}
                   </p>
                 )}
               </div>
