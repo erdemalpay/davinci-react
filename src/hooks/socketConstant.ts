@@ -31,6 +31,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.CustomerPopup}`],
   },
   {
+    event: "eventQrChanged",
+    invalidateKeys: [`${Paths.EventQr}`],
+  },
+  {
     // Başvuru, katılımcı, maç ve puan tablosu sorguları [Paths.Tournaments, ...] ile başlar
     event: "tournamentChanged",
     invalidateKeys: [`${Paths.Tournaments}`],

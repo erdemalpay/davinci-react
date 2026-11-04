@@ -3313,17 +3313,3 @@ export interface EventQrSetting {
   // Etkinlik günü "YYYY-MM-DD"; o gün başlayınca gizlenir, boşsa süresiz
   date: string;
 }
-
-// Herkese açık sayfadaki ek buton (süresi geçmişse backend null döner)
-export interface PublicEventQrButton {
-  title: string;
-  url: string;
-}
-
-// GET /tournament/public: kaydı açık turnuvalar
-export interface OpenTournament {
-  _id: number;
-  name: string;
-  date: string;
-  slug: string;
-}

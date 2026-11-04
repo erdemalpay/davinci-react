@@ -1,55 +1,44 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
-import { get, patch } from ".";
-import {
-  EventQrSetting,
-  OpenTournament,
-  PublicEventQrButton,
-} from "../../types/index";
-import { Paths, useGet } from "./factory";
+import { EventQrSetting } from "../../types/index";
+import { Tournament } from "../../types/tournament";
+import { Paths, useGet, useMutationApi } from "./factory";
 
-const baseUrl = Paths.EventQr;
-const publicPath = `${baseUrl}/public`;
-const openTournamentsPath = `${Paths.Tournaments}/public`;
+const latestPath = `${Paths.EventQr}/latest`;
 
 export type EventQrForm = Omit<EventQrSetting, "_id">;
 
-// Panel: ayarı okur (JWT gerekir); yüklenirken undefined, ayar hiç kaydedilmemişse ""
-export function useGetEventQr() {
-  return useGet<EventQrSetting | "">(baseUrl);
+export function useEventQrMutations() {
+  const { createItem: createEventQr, updateItem: updateEventQr } =
+    useMutationApi<EventQrSetting>({
+      baseQuery: Paths.EventQr,
+      isAdditionalInvalidate: true,
+      additionalInvalidates: [[latestPath]],
+    });
+  return { createEventQr, updateEventQr };
 }
 
-// Tek kayıtlı ayar: useMutationApi güncellemeyi /:id yoluna gönderir ve önbelleği
-// liste varsayar, bu yüzden burada doğrudan useMutation
-export function useSaveEventQr() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
-  return useMutation({
-    mutationFn: (payload: EventQrForm) =>
-      patch<EventQrForm, EventQrSetting>({ path: baseUrl, payload }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [baseUrl] });
-      queryClient.invalidateQueries({ queryKey: [publicPath] });
-      toast.success(t("Saved"));
-    },
-  });
+// Panel: yüklenirken undefined; en yeni kayıt ilk sıradadır
+export function useGetEventQrs() {
+  return useGet<EventQrSetting[]>(Paths.EventQr);
 }
 
-// Herkese açık sayfa (JWT gerekmez): useGet giriş yoksa çalışmaz ve hata ile yüklenmeyi
-// ayıramaz, bu yüzden tournament.ts'teki public hook'lar gibi doğrudan useQuery
+// Kasadaki QR'ın açtığı herkese açık sayfa (giriş yok, bu yüzden enabled: true);
+// yüklenirken undefined, ek buton yoksa gövde boş gelir
 export function useGetPublicEventQrButton() {
-  return useQuery<PublicEventQrButton | "">({
-    queryKey: [publicPath],
-    queryFn: () => get({ path: publicPath }),
-    staleTime: 0,
-  });
+  return useGet<Pick<EventQrSetting, "title" | "url"> | "">(
+    latestPath,
+    [latestPath],
+    true,
+    { enabled: true }
+  );
 }
 
+// Kaydı açık turnuvalar
 export function useGetOpenTournaments() {
-  return useQuery<OpenTournament[]>({
-    queryKey: [openTournamentsPath],
-    queryFn: () => get({ path: openTournamentsPath }),
-    staleTime: 0,
-  });
+  const path = `${Paths.Tournaments}/public`;
+  return useGet<Pick<Tournament, "_id" | "name" | "date" | "slug">[]>(
+    path,
+    [path],
+    true,
+    { enabled: true }
+  );
 }

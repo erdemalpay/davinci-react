@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { EventQrSetting } from "../../types/index";
+import { PublicRoutes } from "../../navigation/constants";
 import { UpdatePayload } from "../../utils/api";
 import {
   EventQrForm,
-  useGetEventQr,
-  useSaveEventQr,
+  useEventQrMutations,
+  useGetEventQrs,
 } from "../../utils/api/eventQr";
 import { formatDateInTurkey } from "../../utils/format";
 import { printQrCode } from "../../utils/printQrCode";
@@ -16,25 +16,23 @@ interface Props {
   close: () => void;
 }
 
-// Backend'de tek kayıt tutulur; id yalnızca panelin düzenleme modu için gerekir
-const EVENT_QR_ID = 1;
-
 const FORM_KEYS = [
   { key: "title", type: FormKeyTypeEnum.STRING },
   { key: "url", type: FormKeyTypeEnum.STRING },
   { key: "date", type: FormKeyTypeEnum.DATE },
 ];
 
-// Kasadaki kalıcı QR'ın ek butonu: başlık, link ve son gün
+// Kasadaki kalıcı QR'ın ek butonu: başlık, link ve etkinlik günü. En yeni kayıt
+// düzenlenir; hiç kayıt yoksa ilki oluşturulur
 const EventQrModal = ({ isOpen, close }: Props) => {
   const { t } = useTranslation();
-  const data = useGetEventQr();
-  const { mutate: save } = useSaveEventQr();
+  const eventQrs = useGetEventQrs();
+  const { createEventQr, updateEventQr } = useEventQrMutations();
 
-  // Panel başlangıç değerini açılışta bir kez alır; kayıtlı ayar gelmeden açılmaz
-  if (!isOpen || data === undefined) return null;
+  // Panel başlangıç değerini açılışta bir kez alır; kayıtlar gelmeden açılmaz
+  if (!isOpen || eventQrs === undefined) return null;
 
-  const saved: EventQrSetting | undefined = data || undefined;
+  const saved = eventQrs[0];
   const isExpired =
     !!saved?.date && saved.date <= formatDateInTurkey(new Date());
 
@@ -73,7 +71,7 @@ const EventQrModal = ({ isOpen, close }: Props) => {
       formKeys={FORM_KEYS}
       isEditMode
       itemToEdit={{
-        id: EVENT_QR_ID,
+        id: saved?._id ?? 0,
         updates: {
           title: saved?.title ?? "",
           url: saved?.url ?? "",
@@ -81,10 +79,14 @@ const EventQrModal = ({ isOpen, close }: Props) => {
         },
       }}
       submitItem={(item) => {
-        const { title = "", url = "", date = "" } = (
-          item as UpdatePayload<EventQrForm>
-        ).updates;
-        save({ title, url, date });
+        const {
+          title = "",
+          url = "",
+          date = "",
+        } = (item as UpdatePayload<EventQrForm>).updates;
+        const values = { title, url, date };
+        if (saved) updateEventQr({ id: saved._id, updates: values });
+        else createEventQr(values);
       }}
       isCreateCloseActive
       buttonName={t("Save")}
@@ -93,7 +95,7 @@ const EventQrModal = ({ isOpen, close }: Props) => {
           label: t("Print QR Code"),
           onClick: () =>
             printQrCode({
-              url: `${window.location.origin}/etkinlikler`,
+              url: `${window.location.origin}${PublicRoutes.Events}`,
               eventName: t("Events"),
             }),
         },
