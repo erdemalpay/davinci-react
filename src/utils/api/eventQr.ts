@@ -7,7 +7,7 @@ import {
   OpenTournament,
   PublicEventQrButton,
 } from "../../types/index";
-import { Paths } from "./factory";
+import { Paths, useGet } from "./factory";
 
 const baseUrl = Paths.EventQr;
 const publicPath = `${baseUrl}/public`;
@@ -15,14 +15,13 @@ const openTournamentsPath = `${Paths.Tournaments}/public`;
 
 export type EventQrForm = Omit<EventQrSetting, "_id">;
 
-// Panel: ayarı okur (JWT gerekir); ayar hiç kaydedilmemişse gövde boş gelir
+// Panel: ayarı okur (JWT gerekir); yüklenirken undefined, ayar hiç kaydedilmemişse ""
 export function useGetEventQr() {
-  return useQuery<EventQrSetting | "">({
-    queryKey: [baseUrl],
-    queryFn: () => get({ path: baseUrl }),
-  });
+  return useGet<EventQrSetting | "">(baseUrl);
 }
 
+// Tek kayıtlı ayar: useMutationApi güncellemeyi /:id yoluna gönderir ve önbelleği
+// liste varsayar, bu yüzden burada doğrudan useMutation
 export function useSaveEventQr() {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -37,7 +36,8 @@ export function useSaveEventQr() {
   });
 }
 
-// Herkese açık sayfa (JWT gerekmez): ek buton; yoksa gövde boş gelir
+// Herkese açık sayfa (JWT gerekmez): useGet giriş yoksa çalışmaz ve hata ile yüklenmeyi
+// ayıramaz, bu yüzden tournament.ts'teki public hook'lar gibi doğrudan useQuery
 export function useGetPublicEventQrButton() {
   return useQuery<PublicEventQrButton | "">({
     queryKey: [publicPath],
