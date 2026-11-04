@@ -13,18 +13,16 @@ vi.mock("../utils/api/eventQr", () => ({
   useGetPublicEventQrButton: () => mockButton(),
 }));
 
-const loaded = (data: unknown) => ({ data, isLoading: false });
-
 describe("Etkinlikler", () => {
   beforeEach(() => {
-    mockTournaments.mockReturnValue(loaded([]));
-    mockButton.mockReturnValue(loaded(""));
+    mockTournaments.mockReturnValue([]);
+    mockButton.mockReturnValue("");
   });
 
   it("links each open tournament to its registration form", () => {
-    mockTournaments.mockReturnValue(
-      loaded([{ _id: 1, name: "Kale Kombo", date: "2026-11-15", slug: "kale" }])
-    );
+    mockTournaments.mockReturnValue([
+      { _id: 1, name: "Kale Kombo", date: "2026-11-15", slug: "kale" },
+    ]);
     render(<Etkinlikler />);
     const link = screen.getAllByRole("link")[0];
     expect(link.getAttribute("href")).toBe(
@@ -33,9 +31,10 @@ describe("Etkinlikler", () => {
   });
 
   it("shows the extra button with its own link", () => {
-    mockButton.mockReturnValue(
-      loaded({ title: "Tasarım Günü", url: "https://example.com/kayit" })
-    );
+    mockButton.mockReturnValue({
+      title: "Tasarım Günü",
+      url: "https://example.com/kayit",
+    });
     render(<Etkinlikler />);
     expect(
       screen.getByRole("link", { name: "Tasarım Günü" }).getAttribute("href")
@@ -46,5 +45,11 @@ describe("Etkinlikler", () => {
     render(<Etkinlikler />);
     expect(screen.queryByRole("link")).toBeNull();
     expect(screen.getByText("Choose the event you want to join")).toBeTruthy();
+  });
+
+  it("waits for both requests before showing the page", () => {
+    mockButton.mockReturnValue(undefined);
+    render(<Etkinlikler />);
+    expect(screen.queryByText("Choose the event you want to join")).toBeNull();
   });
 });

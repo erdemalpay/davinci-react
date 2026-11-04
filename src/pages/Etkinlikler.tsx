@@ -16,12 +16,11 @@ const buttonClass =
 // Kasadaki QR'ın açtığı sayfa: kaydı açık turnuvalar + panelden tanımlanan ek buton
 const Etkinlikler = () => {
   const { t } = useTranslation();
-  const { data: tournaments, isLoading: isTournamentsLoading } =
-    useGetOpenTournaments();
-  const { data: extraButton, isLoading: isButtonLoading } =
-    useGetPublicEventQrButton();
+  const tournaments = useGetOpenTournaments();
+  const extraButton = useGetPublicEventQrButton();
 
-  if (isTournamentsLoading || isButtonLoading) return <PublicFormLoading />;
+  if (tournaments === undefined || extraButton === undefined)
+    return <PublicFormLoading />;
 
   return (
     <PublicFormCard
@@ -30,7 +29,7 @@ const Etkinlikler = () => {
       isBrandBackground
     >
       <div className="flex flex-col gap-4">
-        {tournaments?.map((tournament) => (
+        {tournaments.map((tournament) => (
           <a
             key={tournament._id}
             href={registrationUrl(tournament.slug, RegistrationSource.QR)}
