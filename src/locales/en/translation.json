@@ -2590,5 +2590,12 @@
   "Unusual Events": "Unusual Events",
   "No unusual events in these days": "No unusual events in these days",
   "You stay the middleman; someone stands in until you're back.": "You stay the middleman; someone stands in until you're back.",
-  "MiddlemanTimeShare": "{{middleman}} as middleman of {{worked}} worked from 14:00 to 22:00 ({{percent}}%)"
+  "MiddlemanTimeShare": "{{middleman}} as middleman of {{worked}} worked from 14:00 to 22:00 ({{percent}}%)",
+  "Welcome": "Welcome",
+  "Choose the event you want to join": "Choose the event you want to join",
+  "Events QR": "Events QR",
+  "EventQrHelp": "People who scan the QR at the cash desk automatically see the tournaments open for registration. The button here is added below them and disappears by itself when the event day starts (at midnight). It stays hidden when the title or link is empty.",
+  "Button Title": "Button Title",
+  "Link": "Link",
+  "Event Day": "Event Day"
 }

@@ -1,0 +1,50 @@
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import Etkinlikler from "./Etkinlikler";
+
+const mockTournaments = vi.fn();
+const mockButton = vi.fn();
+
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+vi.mock("../utils/api/eventQr", () => ({
+  useGetOpenTournaments: () => mockTournaments(),
+  useGetPublicEventQrButton: () => mockButton(),
+}));
+
+const loaded = (data: unknown) => ({ data, isLoading: false });
+
+describe("Etkinlikler", () => {
+  beforeEach(() => {
+    mockTournaments.mockReturnValue(loaded([]));
+    mockButton.mockReturnValue(loaded(""));
+  });
+
+  it("links each open tournament to its registration form", () => {
+    mockTournaments.mockReturnValue(
+      loaded([{ _id: 1, name: "Kale Kombo", date: "2026-11-15", slug: "kale" }])
+    );
+    render(<Etkinlikler />);
+    const link = screen.getAllByRole("link")[0];
+    expect(link.getAttribute("href")).toBe(
+      `${window.location.origin}/tournament/kale?source=qr`
+    );
+  });
+
+  it("shows the extra button with its own link", () => {
+    mockButton.mockReturnValue(
+      loaded({ title: "Tasarım Günü", url: "https://example.com/kayit" })
+    );
+    render(<Etkinlikler />);
+    expect(
+      screen.getByRole("link", { name: "Tasarım Günü" }).getAttribute("href")
+    ).toBe("https://example.com/kayit");
+  });
+
+  it("shows only the welcome text when nothing is open", () => {
+    render(<Etkinlikler />);
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByText("Choose the event you want to join")).toBeTruthy();
+  });
+});
