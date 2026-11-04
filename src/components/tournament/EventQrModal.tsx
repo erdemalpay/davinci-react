@@ -28,11 +28,11 @@ const FORM_KEYS = [
 // Kasadaki kalıcı QR'ın ek butonu: başlık, link ve son gün
 const EventQrModal = ({ isOpen, close }: Props) => {
   const { t } = useTranslation();
-  const { data, isSuccess } = useGetEventQr();
+  const data = useGetEventQr();
   const { mutate: save } = useSaveEventQr();
 
   // Panel başlangıç değerini açılışta bir kez alır; kayıtlı ayar gelmeden açılmaz
-  if (!isOpen || !isSuccess) return null;
+  if (!isOpen || data === undefined) return null;
 
   const saved: EventQrSetting | undefined = data || undefined;
   const isExpired =
