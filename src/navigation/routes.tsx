@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import CampaignForm from "../pages/CampaignForm";
-import Etkinlikler from "../pages/Etkinlikler";
+import Events from "../pages/Events";
 import Login from "../pages/Login";
 import TournamentCancel from "../pages/TournamentCancel";
 import TournamentLive from "../pages/TournamentLive";
@@ -40,7 +40,7 @@ const RouterContainer = () => {
         path={PublicRoutes.TournamentCancel}
         element={<TournamentCancel />}
       />
-      <Route path={PublicRoutes.Events} element={<Etkinlikler />} />
+      <Route path={PublicRoutes.Events} element={<Events />} />
       <Route path={PublicRoutes.Login} element={<Login />} />
       <Route path={PublicRoutes.NotFound} element={<Login />} />
     </Routes>

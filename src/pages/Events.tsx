@@ -3,10 +3,8 @@ import PublicFormCard, {
   PublicFormLoading,
 } from "../components/common/PublicFormCard";
 import { RegistrationSource } from "../types/tournament";
-import {
-  useGetOpenTournaments,
-  useGetPublicEventQrButton,
-} from "../utils/api/eventQr";
+import { useGetPublicEventQrButton } from "../utils/api/eventQr";
+import { useGetOpenTournaments } from "../utils/api/tournament";
 import { registrationUrl } from "../utils/registrationUrl";
 
 // Turnuva ve ek etkinlik butonları aynı boyut ve stilde
@@ -14,7 +12,7 @@ const buttonClass =
   "block w-full rounded-2xl bg-blue-600 px-5 py-5 text-center text-lg font-bold text-white shadow-md hover:bg-blue-700";
 
 // Kasadaki QR'ın açtığı sayfa: kaydı açık turnuvalar + panelden tanımlanan ek buton
-const Etkinlikler = () => {
+const Events = () => {
   const { t } = useTranslation();
   const tournaments = useGetOpenTournaments();
   const extraButton = useGetPublicEventQrButton();
@@ -48,4 +46,4 @@ const Etkinlikler = () => {
   );
 };
 
-export default Etkinlikler;
+export default Events;

@@ -6,7 +6,6 @@ import {
   useEventQrMutations,
   useGetEventQrs,
 } from "../../utils/api/eventQr";
-import { formatDateInTurkey } from "../../utils/format";
 import { printQrCode } from "../../utils/printQrCode";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -33,8 +32,6 @@ const EventQrModal = ({ isOpen, close }: Props) => {
   if (!isOpen || eventQrs === undefined) return null;
 
   const saved = eventQrs[0];
-  const isExpired =
-    !!saved?.date && saved.date <= formatDateInTurkey(new Date());
 
   const inputs = [
     {
@@ -66,7 +63,7 @@ const EventQrModal = ({ isOpen, close }: Props) => {
       isOpen
       close={close}
       header={t("Events QR")}
-      upperMessage={[t("EventQrHelp"), ...(isExpired ? [t("Expired")] : [])]}
+      upperMessage={[t("EventQrHelp")]}
       inputs={inputs}
       formKeys={FORM_KEYS}
       isEditMode
