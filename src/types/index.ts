@@ -3305,3 +3305,11 @@ export type InventoryGame = {
 };
 
 export type InventoryLinkableGame = InventoryGame & { product: string };
+
+export interface EventQrSetting {
+  _id: number;
+  title: string;
+  url: string;
+  // Etkinlik günü "YYYY-MM-DD"; o gün başlayınca gizlenir, boşsa süresiz
+  date: string;
+}

@@ -74,6 +74,7 @@ export const Paths = {
   CustomerPopup: "/menu/customer-popup",
   EventSurvey: "/event-survey",
   Tournaments: "/tournaments",
+  EventQr: "/event-qr",
   StaffLeave: "/staff-leave",
 };
 

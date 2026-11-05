@@ -2598,5 +2598,12 @@
   "Unusual Events": "Olağandışı Durumlar",
   "No unusual events in these days": "Bu günlerde olağandışı durum yok",
   "You stay the middleman; someone stands in until you're back.": "Ortacılık sende kalır; sen dönene kadar biri yerine bakar.",
-  "MiddlemanTimeShare": "14:00–22:00 arası {{worked}} çalışmanın {{middleman}} ortacılık (%{{percent}})"
+  "MiddlemanTimeShare": "14:00–22:00 arası {{worked}} çalışmanın {{middleman}} ortacılık (%{{percent}})",
+  "Welcome": "Hoş geldiniz",
+  "Choose the event you want to join": "Katılmak istediğiniz etkinliği seçin",
+  "Events QR": "Etkinlikler QR'ı",
+  "EventQrHelp": "Kasadaki QR'ı okutanlar kaydı açık turnuvaları otomatik görür. Buradaki buton onların altına eklenir; etkinlik günü başlayınca (gece yarısı) kendiliğinden kaybolur. Başlık ya da link boşsa görünmez.",
+  "Button Title": "Buton başlığı",
+  "Link": "Link",
+  "Event Day": "Etkinlik günü"
 }

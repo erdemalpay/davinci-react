@@ -96,6 +96,7 @@ const TournamentRegister = () => {
         subtitle={t("TournamentRegisteredDescription", {
           name: tournament.name,
         })}
+        isBrandBackground
       >
         {registrationStatus && (
           <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm text-gray-700">
@@ -148,6 +149,7 @@ const TournamentRegister = () => {
     <PublicFormCard
       title={tournament.name}
       subtitle={`${dateText} · ${t("Davinci Board Game Cafe")}`}
+      isBrandBackground
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
