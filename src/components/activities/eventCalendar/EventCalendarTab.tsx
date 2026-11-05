@@ -90,6 +90,16 @@ const DEFAULT_CALENDAR = {
   ] as EventCalendarItem[],
 };
 
+// Satır taşınıp silinince React her satırı (yükleme durumu dahil) doğru eşlesin
+// diye sabit bir anahtar taşır; anahtar kaydedilmez
+type EditorRow = { key: number; item: EventCalendarItem };
+
+let nextRowKey = 0;
+const toRow = (item: EventCalendarItem): EditorRow => ({
+  key: nextRowKey++,
+  item,
+});
+
 const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -98,8 +108,8 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
     useEventCalendarMutations();
   const [title, setTitle] = useState((saved ?? DEFAULT_CALENDAR).title);
   const [hasQr, setHasQr] = useState(saved?.hasQr !== false);
-  const [items, setItems] = useState<EventCalendarItem[]>(
-    (saved ?? DEFAULT_CALENDAR).items
+  const [rows, setRows] = useState(() =>
+    (saved ?? DEFAULT_CALENDAR).items.map(toRow)
   );
 
   const isSaveDisabled = isActionDisabled(
@@ -111,11 +121,11 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
   // Boş rozet satırları ve fazlalık boşluklar kaydedilmez
   const cleanItems = useMemo(
     () =>
-      items.map((item) => ({
+      rows.map(({ item }) => ({
         ...item,
         badge: item.badge.map((line) => line.trim()).filter(Boolean),
       })),
-    [items]
+    [rows]
   );
   const posterData = useMemo(
     () => ({
@@ -128,13 +138,16 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
   const { image, isLoading } = useEventCalendarPoster(posterData);
   const fileName = `${title || "etkinlik-takvimi"}.jpg`;
 
-  const changeItem = (index: number, patch: Partial<EventCalendarItem>) =>
-    setItems((current) =>
-      current.map((item, i) => (i === index ? { ...item, ...patch } : item))
+  // Anahtarla bulunur: ikon yüklenirken satır taşınsa da doğru satır güncellenir
+  const changeItem = (key: number, patch: Partial<EventCalendarItem>) =>
+    setRows((current) =>
+      current.map((row) =>
+        row.key === key ? { ...row, item: { ...row.item, ...patch } } : row
+      )
     );
 
   const moveItem = (index: number, direction: -1 | 1) =>
-    setItems((current) => {
+    setRows((current) => {
       const next = [...current];
       [next[index], next[index + direction]] = [
         next[index + direction],
@@ -170,30 +183,30 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
               {t("Show QR on Poster")}
             </span>
           </div>
-          {items.map((item, index) => (
+          {rows.map(({ key, item }, index) => (
             <EventCalendarRowEditor
-              key={index}
+              key={key}
               item={item}
               isFirst={index === 0}
-              isLast={index === items.length - 1}
-              onChange={(patch) => changeItem(index, patch)}
+              isLast={index === rows.length - 1}
+              onChange={(patch) => changeItem(key, patch)}
               onMove={(direction) => moveItem(index, direction)}
               onRemove={() =>
-                setItems((current) => current.filter((_, i) => i !== index))
+                setRows((current) => current.filter((row) => row.key !== key))
               }
             />
           ))}
           <div className="flex gap-2">
             <GenericButton
               variant="outline"
-              disabled={items.length >= MAX_ROWS}
+              disabled={rows.length >= MAX_ROWS}
               onClick={() =>
-                setItems((current) => [
+                setRows((current) => [
                   ...current,
-                  {
+                  toRow({
                     ...EMPTY_ROW,
                     color: BADGE_COLORS[current.length % BADGE_COLORS.length],
-                  },
+                  }),
                 ])
               }
             >
