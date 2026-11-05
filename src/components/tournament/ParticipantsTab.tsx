@@ -64,8 +64,26 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-  // Ücretli turnuvada QR'ı okutulan, ödemesi alınınca katılımcı olacak asil
-  const [awaitingPayment, setAwaitingPayment] = useState<TournamentCheckIn>();
+  // Ücretli turnuvada art arda okutulan, ödemesi alınınca katılımcı olacak asil oyuncular
+  const [awaitingPayment, setAwaitingPayment] = useState<TournamentCheckIn[]>(
+    []
+  );
+  // Sırayla alınır; ücreti alınan listeden düşer, hata olursa kalanlar listede kalır
+  const payFees = async (payers: TournamentCheckIn[]) => {
+    for (const payer of payers) {
+      try {
+        await admitRegistration({
+          tournamentId: tournament._id,
+          registrationId: payer.registrationId,
+        });
+        setAwaitingPayment((current) =>
+          current.filter((r) => r.registrationId !== payer.registrationId)
+        );
+      } catch {
+        return; // hata toast'ı mutation'ın onError'ında
+      }
+    }
+  };
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({ name: "" });
@@ -426,48 +444,57 @@ const ParticipantsTab = ({ tournament }: Props) => {
             isOpen={isScannerOpen}
             close={() => {
               setIsScannerOpen(false);
-              setAwaitingPayment(undefined);
+              setAwaitingPayment([]);
             }}
             onScan={async (code) => {
               const result = await checkIn({
                 tournamentId: tournament._id,
                 code,
               });
-              setAwaitingPayment(
+              const needsPayment =
                 result.hasEntryFee &&
-                  !result.isParticipant &&
-                  result.listStatus !== ListStatus.WITHDRAWN &&
-                  !result.waitlistNumber
-                  ? result
-                  : undefined
-              );
+                !result.isParticipant &&
+                result.listStatus !== ListStatus.WITHDRAWN &&
+                !result.waitlistNumber;
+              setAwaitingPayment((current) => [
+                ...current.filter(
+                  (r) => r.registrationId !== result.registrationId
+                ),
+                ...(needsPayment ? [result] : []),
+              ]);
             }}
             title={t("Check In With QR")}
             hint={t("Scan the QR on the player's phone")}
             footer={
-              awaitingPayment && (
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
-                  <p className="text-sm text-gray-800">
-                    <span className="font-semibold">
-                      {awaitingPayment.fullName}
-                    </span>
-                    {` · ${t("Primary")} · ${t("Entry fee not paid")}`}
-                  </p>
-                  <GenericButton
-                    variant="success"
-                    size="sm"
-                    onClick={
-                      () =>
-                        admitRegistration({
-                          tournamentId: tournament._id,
-                          registrationId: awaitingPayment.registrationId,
-                        })
-                          .then(() => setAwaitingPayment(undefined))
-                          .catch(() => undefined) // hata toast'ı mutation'ın onError'ında
-                    }
-                  >
-                    {t("Fee Paid")}
-                  </GenericButton>
+              awaitingPayment.length > 0 && (
+                <div className="flex max-h-48 flex-col gap-2 overflow-y-auto">
+                  {awaitingPayment.map((payer) => (
+                    <div
+                      key={payer.registrationId}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3"
+                    >
+                      <p className="text-sm text-gray-800">
+                        <span className="font-semibold">{payer.fullName}</span>
+                        {` · ${t("Primary")} · ${t("Entry fee not paid")}`}
+                      </p>
+                      <GenericButton
+                        variant="success"
+                        size="sm"
+                        onClick={() => payFees([payer])}
+                      >
+                        {t("Fee Paid")}
+                      </GenericButton>
+                    </div>
+                  ))}
+                  {awaitingPayment.length > 1 && (
+                    <GenericButton
+                      variant="success"
+                      size="sm"
+                      onClick={() => payFees(awaitingPayment)}
+                    >
+                      {t("All Fees Paid")}
+                    </GenericButton>
+                  )}
                 </div>
               )
             }
