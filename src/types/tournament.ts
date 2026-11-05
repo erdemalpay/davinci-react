@@ -68,6 +68,8 @@ export interface Tournament {
   roundDuration?: number; // tur süresi (dk); boşsa süre sınırı yok
   tiebreaker?: Tiebreaker; // boşsa rakiplerin ortalama puanı
   scoreCap?: number; // oyun skoruyla eşitlik bozmada oyun başına sayılan en fazla skor
+  // Süre elle başlatıldığı an; null: tur kuruldu ama süre başlamadı, boş: eski tur (maçların oluştuğu andan sayılır)
+  roundStartedAt?: string | null;
   // O anki tura verilen ek süre (dk) ve sayacın elle bitirilmesi; her yeni turda sıfırlanır
   roundExtraMinutes?: number;
   isRoundTimerStopped?: boolean;
