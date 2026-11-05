@@ -34,6 +34,7 @@ type TextInputProps = {
   isDatePickerLabel?: boolean;
   isReadOnly?: boolean;
   isCompactStyle?: boolean;
+  maxLength?: number;
 };
 
 const TextInput = ({
@@ -54,6 +55,7 @@ const TextInput = ({
   isDebounce = false,
   isReadOnly = false,
   isCompactStyle = false,
+  maxLength,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
@@ -327,6 +329,7 @@ const TextInput = ({
             value={localValue}
             onChange={handleChange}
             className={inputClassName}
+            maxLength={maxLength}
             {...(isMinNumber && (type === "number" ? { min: minNumber } : {}))}
             onWheel={type === "number" ? handleWheel : undefined}
           />

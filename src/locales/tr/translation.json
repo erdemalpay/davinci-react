@@ -2605,5 +2605,20 @@
   "EventQrHelp": "Kasadaki QR'ı okutanlar kaydı açık turnuvaları otomatik görür. Buradaki buton onların altına eklenir; etkinlik günü başlayınca (gece yarısı) kendiliğinden kaybolur. Başlık ya da link boşsa görünmez.",
   "Button Title": "Buton başlığı",
   "Link": "Link",
-  "Event Day": "Etkinlik günü"
+  "Event Day": "Etkinlik günü",
+  "Event Calendar": "Etkinlik Takvimi",
+  "EventCalendarHelp": "Aylık etkinlik afişini düzenleyin, önizlemeyi görün; Instagram'da paylaşacağınız görseli İndir ile alın. Kaydedince QR sayfasındaki takvim de güncellenir.",
+  "Poster Title": "Afiş başlığı",
+  "Badge Text": "Rozet yazısı (en fazla 3 satır)",
+  "Line": "Satır",
+  "Icon": "İkon",
+  "No Icon": "İkonsuz",
+  "Upload Icon": "İkon yükle",
+  "Add Row": "Satır ekle",
+  "Move Up": "Yukarı taşı",
+  "Move Down": "Aşağı taşı",
+  "Download": "İndir",
+  "Share": "Paylaş",
+  "Preparing poster": "Afiş hazırlanıyor...",
+  "Show QR on Poster": "Afişte QR göster"
 }

@@ -1,6 +1,8 @@
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { loadImage } from "../../utils/loadImage";
+import { saveImage } from "../../utils/saveImage";
 
 interface Props {
   code: string;
@@ -11,14 +13,6 @@ interface Props {
 
 const WIDTH = 720;
 const QR_SIZE = 560;
-
-const loadImage = (src: string) =>
-  new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-    image.src = src;
-  });
 
 // Uzun turnuva adı tek satıra sığana kadar yazı küçülür
 const fitText = (
@@ -48,6 +42,7 @@ const buildQrImage = async ({
   const qr = await loadImage(
     await QRCode.toDataURL(code, { width: QR_SIZE, margin: 1 })
   );
+  if (!qr) return "";
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
   canvas.height = 900;
@@ -61,21 +56,6 @@ const buildQrImage = async ({
   ctx.drawImage(qr, (WIDTH - QR_SIZE) / 2, 160, QR_SIZE, QR_SIZE);
   fitText(ctx, fullName, 790, 36, "bold", "#1f2937");
   return canvas.toDataURL("image/png");
-};
-
-// Telefonda paylaş menüsü açılır ("Resmi Kaydet" ile galeriye gider); desteklemeyen
-// tarayıcıda resim indirilir
-const saveImage = async (dataUrl: string, fileName: string) => {
-  const blob = await (await fetch(dataUrl)).blob();
-  const file = new File([blob], fileName, { type: "image/png" });
-  if (navigator.canShare?.({ files: [file] })) {
-    await navigator.share({ files: [file] }).catch(() => undefined);
-    return;
-  }
-  const link = document.createElement("a");
-  link.href = dataUrl;
-  link.download = fileName;
-  link.click();
 };
 
 const CheckInQrCard = (props: Props) => {

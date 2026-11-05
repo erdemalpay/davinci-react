@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
+import EventCalendarPoster from "../components/activities/eventCalendar/EventCalendarPoster";
 import PublicFormCard, {
   PublicFormLoading,
 } from "../components/common/PublicFormCard";
 import { RegistrationSource } from "../types/tournament";
+import { useGetPublicEventCalendar } from "../utils/api/eventCalendar";
 import { useGetPublicEventQrButton } from "../utils/api/eventQr";
 import { useGetOpenTournaments } from "../utils/api/tournament";
 import { registrationUrl } from "../utils/registrationUrl";
@@ -11,13 +13,18 @@ import { registrationUrl } from "../utils/registrationUrl";
 const buttonClass =
   "block w-full rounded-2xl bg-blue-600 px-5 py-5 text-center text-lg font-bold text-white shadow-md hover:bg-blue-700";
 
-// Kasadaki QR'ın açtığı sayfa: kaydı açık turnuvalar + panelden tanımlanan ek buton
+// Kasadaki QR'ın açtığı sayfa: etkinlik takvimi afişi + kaydı açık turnuvalar + panelden tanımlanan ek buton
 const Events = () => {
   const { t } = useTranslation();
   const tournaments = useGetOpenTournaments();
   const extraButton = useGetPublicEventQrButton();
+  const calendar = useGetPublicEventCalendar();
 
-  if (tournaments === undefined || extraButton === undefined)
+  if (
+    tournaments === undefined ||
+    extraButton === undefined ||
+    calendar === undefined
+  )
     return <PublicFormLoading />;
 
   return (
@@ -27,6 +34,7 @@ const Events = () => {
       isBrandBackground
     >
       <div className="flex flex-col gap-4">
+        {calendar ? <EventCalendarPoster calendar={calendar} /> : null}
         {tournaments.map((tournament) => (
           <a
             key={tournament._id}

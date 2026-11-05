@@ -75,6 +75,7 @@ export const Paths = {
   EventSurvey: "/event-survey",
   Tournaments: "/tournaments",
   EventQr: "/event-qr",
+  EventCalendar: "/event-calendar",
   StaffLeave: "/staff-leave",
 };
 
