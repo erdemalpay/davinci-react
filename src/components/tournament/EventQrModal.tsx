@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { PublicRoutes } from "../../navigation/constants";
 import { UpdatePayload } from "../../utils/api";
 import {
   EventQrForm,
@@ -7,6 +6,7 @@ import {
   useGetEventQrs,
 } from "../../utils/api/eventQr";
 import { printQrCode } from "../../utils/printQrCode";
+import { eventsUrl } from "../../utils/registrationUrl";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -92,7 +92,7 @@ const EventQrModal = ({ isOpen, close }: Props) => {
           label: t("Print QR Code"),
           onClick: () =>
             printQrCode({
-              url: `${window.location.origin}${PublicRoutes.Events}`,
+              url: eventsUrl(),
               eventName: t("Events"),
             }),
         },
