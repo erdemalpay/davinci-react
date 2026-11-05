@@ -16,6 +16,7 @@ import {
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
@@ -28,6 +29,7 @@ import { ColumnType, FormKeyTypeEnum, InputTypes } from "../panelComponents/shar
 const GameStockLocation = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
+  const categories=useGetCategories()
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
@@ -95,6 +97,13 @@ const GameStockLocation = () => {
       ) {
         return acc;
       }
+      if(filtershowGameStockLocationFiltersPanelFormElements?.category?.length ){
+        const foundMenuItems=items.filter((item)=>filtershowGameStockLocationFiltersPanelFormElements?.category?.includes(item?.category))
+        const foundMenuMatchedProducts=foundMenuItems.map((item)=>item?.matchedProduct)
+        if(!foundMenuMatchedProducts.includes(stock?.product)){
+          return acc
+        }
+      }
 
       if (!acc[productName]) {
         acc[productName] = {
@@ -154,6 +163,18 @@ const GameStockLocation = () => {
             label: product.name,
           })),
         placeholder: t("Product"),
+        required: true,
+        isMultiple: true,
+      },  {
+        type: InputTypes.SELECT,
+        formKey: "category",
+        label: t("Category"),
+        options: categories?.filter((category) => [25,26,27,34].includes(category._id))
+          ?.map((category) => ({
+            value: category._id,
+            label: category.name,
+          })),
+        placeholder: t("Category"),
         required: true,
         isMultiple: true,
       },
@@ -225,7 +246,7 @@ const GameStockLocation = () => {
         required: false,
       },
     ],
-    [products, t]
+    [products, t,categories]
   );
 
   const inputs = useMemo(
