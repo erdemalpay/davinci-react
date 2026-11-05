@@ -2009,7 +2009,7 @@
   "Remove Participant": "Remove Participant",
   "RemoveParticipantMessage": "{{name}} will be removed from the tournament. If they have played, they are marked as withdrawn instead. Continue?",
   "Take Participants From Registrations": "Take Participants From Registrations",
-  "PromoteRegistrationsHelp": "Confirmed registrations are pre-selected. Unselect those who didn't come; only selected ones become participants.",
+  "PromoteRegistrationsHelp": "Nobody is pre-selected. Search and tick the people whose fee you took; only selected ones become participants.",
   "Add Selected": "Add Selected",
   "Matches": "Matches",
   "Start Tournament": "Start Tournament",
