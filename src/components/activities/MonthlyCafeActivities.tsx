@@ -3,11 +3,10 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
-import { AxiosHeaders } from "axios";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { postWithHeader } from "../../utils/api";
+import { uploadOriginalImage } from "../../utils/api/asset";
 import {
   useGetMonthlyActivities,
   useMonthlyActivityMutations,
@@ -91,15 +90,7 @@ const MonthlyCafeActivities = () => {
     }
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("file", pendingFile);
-      formData.append("filename", pendingFile.name);
-      formData.append("foldername", "monthly-activities");
-      const { url } = await postWithHeader<FormData, { url: string }>({
-        path: "/asset/upload/original",
-        payload: formData,
-        headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
-      });
+      const url = await uploadOriginalImage(pendingFile, "monthly-activities");
       createMonthlyActivity(
         { imageUrl: url, monthInfo: monthInfo || undefined },
         {
@@ -129,16 +120,10 @@ const MonthlyCafeActivities = () => {
     try {
       let imageUrl = rowToEdit.imageUrl;
       if (editPendingFile) {
-        const formData = new FormData();
-        formData.append("file", editPendingFile);
-        formData.append("filename", editPendingFile.name);
-        formData.append("foldername", "monthly-activities");
-        const { url } = await postWithHeader<FormData, { url: string }>({
-          path: "/asset/upload/original",
-          payload: formData,
-          headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
-        });
-        imageUrl = url;
+        imageUrl = await uploadOriginalImage(
+          editPendingFile,
+          "monthly-activities"
+        );
       }
       updateMonthlyActivity(
         {

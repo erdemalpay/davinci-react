@@ -23,7 +23,7 @@ import {
   TournamentStanding,
 } from "../../types/tournament";
 import { getApiErrorMessage } from "../getApiErrorMessage";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 const baseUrl = Paths.Tournaments;
 
@@ -350,6 +350,17 @@ export function useTournamentActions() {
 }
 
 // ─── Public kayıt sayfası (JWT gerektirmez) ──────────────────────────────
+
+// Kaydı açık turnuvalar (kasadaki QR'ın açtığı /events sayfası)
+export function useGetOpenTournaments() {
+  const path = `${baseUrl}/public`;
+  return useGet<Pick<Tournament, "_id" | "name" | "date" | "slug">[]>(
+    path,
+    [path],
+    true,
+    { enabled: true }
+  );
+}
 
 export function useGetPublicTournament(slug: string | undefined) {
   const path = slug ? `${baseUrl}/public/${slug}` : "";
