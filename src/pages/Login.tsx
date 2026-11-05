@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import davinciImage from "../assets/login/davinci.png";
 import davinci2Image from "../assets/login/davinci2.png";
-import logoImage from "../assets/login/logo.png";
+import BrandBackground from "../components/common/BrandBackground";
 import { GenericButton } from "../components/common/GenericButton";
 import { RoleEnum } from "../types";
 import { LoginCredentials, useLogin } from "../utils/api/auth";
@@ -80,20 +80,7 @@ const Login = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f5f5f0] via-[#e8e8dd] to-[#f5f5f0] relative flex items-center justify-center overflow-hidden">
-      {/* Animated background pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none animate-pulse"
-        style={{
-          backgroundImage: `url(${logoImage})`,
-          backgroundRepeat: "repeat",
-          backgroundSize: "250px auto",
-          backgroundPosition: "-25px 0",
-          filter: "grayscale(1) brightness(0.5)",
-          animation: "float 20s ease-in-out infinite",
-        }}
-      />
-
+    <BrandBackground className="min-h-screen flex items-center justify-center">
       {/* Floating orbs */}
       <div
         className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-gray-200/30 to-transparent rounded-full blur-3xl animate-bounce"
@@ -257,7 +244,7 @@ const Login = () => {
           </div>
         </form>
       </div>
-    </div>
+    </BrandBackground>
   );
 };
 export default Login;
