@@ -20,6 +20,7 @@ import GameAssignments, {
 import Games, { GamesPageTabs } from "../pages/Games";
 import Integration, { IntegrationPageTabs } from "../pages/Integration";
 import Inventory, { InventoryPageTabs } from "../pages/Inventory";
+import GiftTracking from "../pages/GiftTracking";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Mail, { MailPageTabs } from "../pages/Mail";
 import PanelControl, { PanelControlPageTabs } from "../pages/PanelControl";
@@ -176,6 +177,7 @@ export enum Routes {
   Expenses = "/expenses",
   Stocks = "/stocks",
   Inventory = "/inventory",
+  GiftTracking = "/gift-tracking",
   Comparision = "/comparision",
   Integration = "/integration",
   StockHistoriesReports = "/stock-histories-reports",
@@ -749,6 +751,12 @@ export const allRoutes: {
         tabs: InventoryPageTabs,
       },
       {
+        name: "Gift Tracking",
+        path: Routes.GiftTracking,
+        element: GiftTracking,
+        isOnSidebar: true,
+      },
+      {
         name: "Comparision",
         path: Routes.Comparision,
         element: Comparision,
@@ -1017,6 +1025,12 @@ export const allRoutes: {
     element: Inventory,
     isOnSidebar: false,
     tabs: InventoryPageTabs,
+  },
+  {
+    name: "Gift Tracking",
+    path: Routes.GiftTracking,
+    element: GiftTracking,
+    isOnSidebar: false,
   },
   {
     name: "Consumers",
