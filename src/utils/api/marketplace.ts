@@ -18,6 +18,8 @@ export type MarketplaceChannel<P = any> = {
   productKey: "stockCode" | "barcode";
   productStock: (product: P) => number;
   productPrice: (product: P) => number;
+  // Pazaryerinde pasif olan ürün stok karşılaştırmasında gösterilmez.
+  isProductActive?: (product: P) => boolean;
   // Eşleştirme sonucunda pazaryeri anahtarının geldiği alan.
   matchResultKey: "stockCode" | "idefixBarcode";
   orderNumberField: "n11OrderNumber" | "idefixOrderNumber";
