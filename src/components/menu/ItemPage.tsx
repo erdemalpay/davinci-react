@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState, Suspense } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowForward } from "react-icons/io";
 import { RiDeleteBinLine } from "react-icons/ri";
@@ -24,12 +24,7 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import { H5 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ItemPlatformSalesTable from "./ItemPlatformSalesTable";
-import { lazyWithReload } from "../../utils/lazyWithReload";
-
-// Charts load on demand: apexcharts is a large part of the panel's code.
-const MenuItemPriceHistoryChart = lazyWithReload(
-  () => import("./MenuItemPriceHistoryChart")
-);
+import MenuItemPriceHistoryChart from "./MenuItemPriceHistoryChart";
 
 const ItemPage = () => {
   const { t } = useTranslation();
@@ -269,9 +264,7 @@ const ItemPage = () => {
             </div>
           </div>
         </div>
-        <Suspense fallback={null}>
-          <MenuItemPriceHistoryChart item={foundItem} />
-        </Suspense>
+        <MenuItemPriceHistoryChart item={foundItem} />
         <ItemPlatformSalesTable item={foundItem} />
         <ImageUpload isFolderSelect={false} itemId={selectedMenuItem._id} />
       </div>
