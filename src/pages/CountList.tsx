@@ -1,5 +1,5 @@
 import { Switch } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
@@ -74,6 +74,7 @@ const CountList = () => {
   });
   type CountListRowType = {
     product: string;
+    productId: string;
   };
 
   const counts = useGetAccountCounts();
@@ -95,6 +96,14 @@ const CountList = () => {
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
   const currentCountList = countLists?.find((item) => item._id === countListId);
+  const productsById = useMemo(
+    () => new Map(products?.map((product) => [product._id, product])),
+    [products]
+  );
+  const countListProductIds = useMemo(
+    () => new Set(currentCountList?.products?.map((item) => item.product)),
+    [currentCountList]
+  );
   function handleLocationUpdate(row: any, changedLocationId: number) {
     if (!currentCountList) return;
     const currentLocations = currentCountList?.products?.find(
@@ -102,9 +111,7 @@ const CountList = () => {
     )?.locations;
     const newProducts = [
       ...(currentCountList.products?.filter(
-        (p) =>
-          p.product !==
-          (products?.find((it) => it.name === row.product)?._id ?? "")
+        (p) => p.product !== row.productId
       ) || []),
 
       {
@@ -124,14 +131,11 @@ const CountList = () => {
 
     toast.success(`${t("Count List updated successfully")}`);
   }
-  const rows = () => {
+  const rows = useMemo(() => {
     let productRows = [];
-    const currentCountList = countLists?.find(
-      (item) => item._id === countListId
-    );
     if (currentCountList && currentCountList.products) {
       for (const item of currentCountList.products) {
-        const product = products?.find((it) => it._id === item.product);
+        const product = productsById.get(item.product);
         if (product) {
           const locationEntries = locations?.reduce<LocationEntries>(
             (acc, location) => {
@@ -159,7 +163,7 @@ const CountList = () => {
       return 0;
     });
     return productRows;
-  };
+  }, [currentCountList, productsById, locations]);
   const addProductInputs = [
     {
       type: InputTypes.SELECT,
@@ -167,14 +171,7 @@ const CountList = () => {
       label: t("Product"),
       options:
         products
-          ?.filter((item) => {
-            const countList = countLists?.find(
-              (item) => item._id === countListId
-            );
-            return !countList?.products?.some(
-              (pro) => pro.product === item._id
-            );
-          })
+          ?.filter((item) => !countListProductIds.has(item._id))
           .map((product) => {
             return {
               value: product._id,
@@ -274,9 +271,7 @@ const CountList = () => {
                 (item) => item._id === countListId
               );
               const newProducts = currentCountList?.products?.filter(
-                (item) =>
-                  item.product !==
-                  products?.find((p) => p.name === rowToAction.product)?._id
+                (item) => item.product !== rowToAction.productId
               );
               updateAccountCountList({
                 id: countListId,
@@ -413,7 +408,7 @@ const CountList = () => {
             key={tableKey}
             rowKeys={rowKeys}
             columns={columns}
-            rows={rows()}
+            rows={rows}
             actions={
               user && [RoleEnum.MANAGER].includes(user.role._id)
                 ? actions
