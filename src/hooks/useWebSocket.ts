@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
 import { useDataContext } from "../context/Data.context";
 import {
+  AccountStock,
   Gameplay,
   MenuItem,
   Notification,
@@ -26,6 +27,7 @@ import { buildReceiptData } from "./../utils/printReceiptESCPOS";
 import { printerService } from "./../utils/printerService";
 import {
   FORCE_RECONNECT_AFTER_HIDDEN_MS,
+  applyChangedStocks,
   mergeCreatedOrders,
   resyncAfterMissedEvents,
   upsertCollection,
@@ -451,6 +453,28 @@ export function useWebSocket(shouldConnect = false) {
           return oldData;
         }
       );
+    });
+
+    // Orders send the changed stocks; other stock changes come without them
+    // and the list is reloaded.
+    socket.on("stockChanged", (event?: { stocks?: AccountStock[] }) => {
+      const { queryClient } = latestValuesRef.current;
+      const stockListKey = `${Paths.Accounting}/stocks`;
+      if (event?.stocks?.length) {
+        const changed = event.stocks;
+        queryClient.setQueryData<AccountStock[]>([stockListKey], (stocks) =>
+          applyChangedStocks(stocks, changed)
+        );
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: [stockListKey],
+          exact: false,
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: [`${stockListKey}/query`],
+        exact: false,
+      });
     });
 
     socket.on("orderDeleted", ({ order }: { order: Order }) => {
