@@ -869,6 +869,9 @@ export enum DisabledConditionEnum {
   ACCOUNTING_INVENTORYLOCATIONS = "inventorylocations",
   ACCOUNTING_STAFFLEAVETYPES = "staffleavetypes",
   INVENTORY_INVENTORY = "inventory",
+  ACCOUNTING_GIFTTAGS = "gifttags",
+  ACCOUNTING_GIFTRECIPIENTS = "giftrecipients",
+  GIFTTRACKING = "gifttracking",
   MENU = "menu",
   MENU_CATEGORIES = "menu_categories",
   ITEMPAGE = "itempage",
@@ -1799,6 +1802,8 @@ export enum AccountingPageTabEnum {
   ACTIONS,
   INVENTORYLOCATIONS,
   STAFFLEAVETYPES,
+  GIFTTAGS,
+  GIFTRECIPIENTS,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,
@@ -3247,6 +3252,44 @@ export type InventoryLocation = {
   backgroundColor?: string;
   note?: string;
   active: boolean;
+};
+
+export type GiftTag = {
+  _id: number;
+  name: string;
+  backgroundColor?: string;
+  active: boolean;
+};
+
+export type GiftRecipient = {
+  _id: number;
+  name: string;
+  tags: number[];
+  contactPerson?: string;
+  phone?: string;
+  address?: string;
+  instagramUrl?: string;
+  instagramFollowers?: number;
+  youtubeFollowers?: number;
+  isBlacklisted: boolean;
+};
+
+export type GiftItem = {
+  product: string;
+  quantity: number;
+};
+
+export type Gift = {
+  _id: number;
+  recipient: number;
+  date: string;
+  items: GiftItem[];
+  type: string;
+  shareStatus?: string;
+  engagement?: string;
+  orderReference?: string;
+  note?: string;
+  createdBy: string;
 };
 
 export type StaffLeaveType = {

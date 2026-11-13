@@ -362,4 +362,12 @@ export const socketEventListeners: SocketEventType[] = [
     event: "staffLeaveChanged",
     invalidateKeys: [`${Paths.StaffLeave}`, `${Paths.StaffLeave}/types`],
   },
+  {
+    event: "giftTrackingChanged",
+    invalidateKeys: [
+      `${Paths.GiftTracking}/tags`,
+      `${Paths.GiftTracking}/recipients`,
+      `${Paths.GiftTracking}/gifts`,
+    ],
+  },
 ];

@@ -138,6 +138,7 @@ export const getMenuIcon = (menuName: string): IconType => {
     "Campaign & Survey": MdEditNote,
     "Event Survey Builder": MdEventAvailable,
     "Survey Redeem": MdCardGiftcard,
+    "Gift Tracking": MdCardGiftcard,
     "Survey Analytics": MdBarChart,
     Points: GiSevenPointedStar,
     "Page Details": MdFilePresent,
