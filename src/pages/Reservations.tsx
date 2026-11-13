@@ -37,6 +37,7 @@ import {
   useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
+import { getComingReservedTableNames } from "../utils/reservedTables";
 import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
@@ -87,15 +88,25 @@ export default function Reservations() {
     return users.filter((user) => uniqueUserIdSet.has(user._id));
   }, [visits, users]);
 
+  const reservedTableNames = useMemo(
+    () => getComingReservedTableNames(reservations, selectedLocationId),
+    [reservations, selectedLocationId]
+  );
+
   const tableOptions = useMemo(() => {
     return (
       locations
         .find((location) => location._id === selectedLocationId)
         ?.tableNames?.filter((t) => {
-          return !tables.find(
-            (table) =>
-              (table.name === t || table?.tables?.includes(t)) &&
-              !table?.finishHour
+          return (
+            !tables.find(
+              (table) =>
+                (table.name === t || table?.tables?.includes(t)) &&
+                !table?.finishHour
+            ) &&
+            // Held for another reservation on its way.
+            (!reservedTableNames.has(t) ||
+              t === selectedReservation?.reservedTable)
           );
         })
         ?.sort((a, b) => Number(a) - Number(b))
@@ -106,7 +117,13 @@ export default function Reservations() {
           };
         }) || []
     );
-  }, [locations, selectedLocationId, tables]);
+  }, [
+    locations,
+    selectedLocationId,
+    tables,
+    reservedTableNames,
+    selectedReservation,
+  ]);
 
   const reservationsDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.RESERVATIONS, disabledConditions);
@@ -135,6 +152,18 @@ export default function Reservations() {
       },
     });
 
+    setIsReservationCalledDialogOpen(false);
+  }
+
+  function handleMoveToEnd() {
+    if (!selectedReservation) return;
+    updateReservationCall({
+      id: selectedReservation._id,
+      updates: {
+        status: ReservationStatusEnum.WAITING,
+        moveToEnd: true,
+      } as Partial<Reservation>,
+    });
     setIsReservationCalledDialogOpen(false);
   }
 
@@ -449,7 +478,11 @@ export default function Reservations() {
         setRow: setRowToAction,
         isDisabled:
           (rowToAction && isCompleted(rowToAction)) ||
-          isActionDisabled(reservationsDisabledCondition, ActionEnum.OPENBACK, user),
+          isActionDisabled(
+            reservationsDisabledCondition,
+            ActionEnum.OPENBACK,
+            user
+          ),
         node: (row: Reservation) =>
           isCompleted(row) ? (
             <ButtonTooltip content={t("Open back")}>
@@ -541,10 +574,12 @@ export default function Reservations() {
           );
         })
         ?.sort((a, b) => Number(a) - Number(b))
-        ?.map((t, index) => {
+        ?.map((name) => {
           return {
-            value: t,
-            label: t,
+            value: name,
+            label: reservedTableNames.has(name)
+              ? `${name} ${t("(reserved)")}`
+              : name,
           };
         }),
       isSortDisabled: true,
@@ -655,6 +690,7 @@ export default function Reservations() {
             isOpen={isReservationCalledDialogOpen}
             close={() => setIsReservationCalledDialogOpen(false)}
             handle={handleCallResponse}
+            moveToEnd={handleMoveToEnd}
             reservation={selectedReservation}
           />
         )}

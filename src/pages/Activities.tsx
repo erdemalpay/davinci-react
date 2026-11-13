@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { MdEventNote, MdOutlineCalendarMonth } from "react-icons/md";
+import {
+  MdEventNote,
+  MdOutlineCalendarMonth,
+  MdOutlineEditCalendar,
+} from "react-icons/md";
+import EventCalendarTab from "../components/activities/eventCalendar/EventCalendarTab";
 import MonthlyCafeActivities from "../components/activities/MonthlyCafeActivities";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -20,6 +25,13 @@ export const ActivitiesPageTabs = [
     label: "Monthly Cafe Activities",
     icon: <MdOutlineCalendarMonth className="text-lg font-thin" />,
     content: <MonthlyCafeActivities />,
+    isDisabled: false,
+  },
+  {
+    number: ActivitiesPageTabEnum.EVENT_CALENDAR,
+    label: "Event Calendar",
+    icon: <MdOutlineEditCalendar className="text-lg font-thin" />,
+    content: <EventCalendarTab />,
     isDisabled: false,
   },
 ];

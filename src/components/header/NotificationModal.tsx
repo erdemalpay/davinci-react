@@ -62,7 +62,9 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
       .sort(([, a], [, b]) => b - a)
       .map(([event, count]) => ({
         value: event,
-        label: `${event === OTHER_EVENT_KEY ? t("Other") : t(event)} (${count})`,
+        label: `${
+          event === OTHER_EVENT_KEY ? t("Other") : t(event)
+        } (${count})`,
       }));
   }, [notifications, t]);
 

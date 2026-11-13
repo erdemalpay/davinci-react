@@ -11,6 +11,7 @@ import { MoveHereButton, SeatActions, SeatEditing } from "./useSeatEditing";
 interface Props {
   match: TournamentMatch;
   names: Map<number, string>;
+  drawNumbers?: Map<number, number>;
   totals: Map<number, number>;
   isEditable: boolean;
   seatEditing?: SeatEditing;
@@ -40,6 +41,7 @@ export const playerRowProps = (
 const MatchCard = ({
   match,
   names,
+  drawNumbers,
   totals,
   isEditable,
   seatEditing,
@@ -71,8 +73,12 @@ const MatchCard = ({
 
   // Skor girildiyse masadaki sıraya göre; girilmediyse puan turlarında o anki toplama
   // göre (elemede masalar zaten sıralamaya göre kurulduğu için oturma sırası)
+  // Catan eşleşme planında masadaki oyuncular başlangıç sırasıyla dizilir
+  const isCatanPlan = match.players.some((p) => p.seat !== undefined);
   const players = match.isCompleted
     ? [...match.players].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    : isCatanPlan
+    ? [...match.players].sort((a, b) => (a.seat ?? 0) - (b.seat ?? 0))
     : match.stage === MatchStage.LEAGUE
     ? [...match.players].sort(
         (a, b) =>
@@ -95,6 +101,11 @@ const MatchCard = ({
           <MoveHereButton match={match} seatEditing={seatEditing} />
         )}
       </div>
+      {isCatanPlan && canEdit && match.players.length < 3 && (
+        <p className="rounded bg-amber-50 px-2 py-1 text-xs text-amber-800">
+          {t("Small Table Warning", { count: match.players.length })}
+        </p>
+      )}
       {players.map((player) => (
         <div
           key={player.participantId}
@@ -110,6 +121,19 @@ const MatchCard = ({
           )}
           <span className="flex-1">
             {names.get(player.participantId)}
+            {drawNumbers?.has(player.participantId) && (
+              <span className="ml-1 text-[10px] text-gray-400">
+                #{drawNumbers.get(player.participantId)}
+              </span>
+            )}
+            {player.seat !== undefined && (
+              <span
+                className="ml-1 rounded bg-gray-100 px-1 text-[10px] text-gray-600"
+                title={t("Starting Seat")}
+              >
+                {t("Seat N", { seat: player.seat })}
+              </span>
+            )}
             {player.wonTieBreak && <ChosenInTieBadge />}
           </span>
           {canEdit ? (

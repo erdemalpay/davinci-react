@@ -8,6 +8,7 @@ import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { RoleEnum, User } from "../types";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetUserShifts } from "../utils/api/shift";
+import { useGetMiddlemanShares } from "../utils/api/middleman";
 import { useGetStaffDailyCounts } from "../utils/api/staffPerformance";
 import { useGetUsers } from "../utils/api/user";
 import { useGetFilteredVisits } from "../utils/api/visit";
@@ -128,6 +129,7 @@ export default function StaffPerformance() {
   const visits = useGetFilteredVisits(range.after, range.before);
   const shifts = useGetUserShifts(range.after, range.before);
   const dailyCounts = useGetStaffDailyCounts(range.after, range.before);
+  const middlemanShares = useGetMiddlemanShares(range.after, range.before);
 
   const average = (field: StaffCountField) => (row: PerformanceRow) =>
     row.averages[field];
@@ -271,6 +273,9 @@ export default function StaffPerformance() {
               visits,
               shifts,
               locations,
+              middlemanDates: middlemanShares?.find(
+                (share) => share.user === user._id
+              )?.dates,
             }).filter(isEligible);
             const performance = getStaffPerformance(
               days,

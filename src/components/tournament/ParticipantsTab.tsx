@@ -3,8 +3,10 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
-  ConfirmationStatus,
+  ListStatus,
+  PairingMode,
   Tournament,
+  TournamentCheckIn,
   TournamentParticipant,
   TournamentStatus,
 } from "../../types/tournament";
@@ -48,23 +50,49 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const { t } = useTranslation();
   const participants = useGetTournamentParticipants(tournament._id);
   const registrations = useGetTournamentRegistrations(tournament._id);
-  const { addParticipant, removeParticipant, updateParticipant, checkIn } =
-    useTournamentActions();
+  const {
+    addParticipant,
+    removeParticipant,
+    updateParticipant,
+    checkIn,
+    admitRegistration,
+  } = useTournamentActions();
   const { sourceLabels } = useRegistrationLabels();
 
   const [rowToAction, setRowToAction] = useState<TournamentParticipant>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  // Ücretli turnuvada art arda okutulan, ödemesi alınınca katılımcı olacak asil oyuncular
+  const [awaitingPayment, setAwaitingPayment] = useState<TournamentCheckIn[]>(
+    []
+  );
+  // Sırayla alınır; ücreti alınan listeden düşer, hata olursa kalanlar listede kalır
+  const payFees = async (payers: TournamentCheckIn[]) => {
+    for (const payer of payers) {
+      try {
+        await admitRegistration({
+          tournamentId: tournament._id,
+          registrationId: payer.registrationId,
+        });
+        setAwaitingPayment((current) =>
+          current.filter((r) => r.registrationId !== payer.registrationId)
+        );
+      } catch {
+        return; // hata toast'ı mutation'ın onError'ında
+      }
+    }
+  };
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({ name: "" });
   const [showFilters, setShowFilters] = useState(false);
   const [filterFormElements, setFilterFormElements] = useState<
     Record<string, string>
-  >({ source: "", isActive: "" });
+  >({ source: "", isActive: "", isPaid: "" });
 
   const isFinished = tournament.status === TournamentStatus.FINISHED;
+  const isCatanPlan = tournament.pairingMode === PairingMode.CATAN_PLAN;
   const promotedIds = new Set(participants.map((p) => p.registrationId));
   const promotable = registrations.filter((r) => !promotedIds.has(r._id));
 
@@ -79,35 +107,99 @@ const ParticipantsTab = ({ tournament }: Props) => {
   const similar = addForm.name.trim()
     ? participants.find((p) => nameKey(p.name) === nameKey(addForm.name))
     : undefined;
+  const registrationOf = (participant: TournamentParticipant) =>
+    registrations.find((r) => r._id === participant.registrationId);
   const sourceOf = (participant: TournamentParticipant) =>
-    registrations.find((r) => r._id === participant.registrationId)?.source ??
-    MANUAL_SOURCE;
+    registrationOf(participant)?.source ?? MANUAL_SOURCE;
+  // Ödeme bilgisi başvuruda tutulur; elle eklenen katılımcının ödeme kaydı yoktur
+  const feeOptions: Record<string, string> = {
+    true: t("Fee Paid"),
+    false: t("Fee Not Paid"),
+  };
+  const feeStatusOf = (participant: TournamentParticipant) => {
+    const registration = registrationOf(participant);
+    return registration && String(!!registration.isPaid);
+  };
 
+  // Tablonun PDF/Excel dışa aktarması satırdaki düz alanları okur; ekranda görünen metinler
+  // bu yüzden satıra yazılır
   const rows = useMemo(
     () =>
-      participants.filter(
-        (p) =>
-          (!filterFormElements.source ||
-            sourceOf(p) === filterFormElements.source) &&
-          (!filterFormElements.isActive ||
-            String(p.isActive) === filterFormElements.isActive)
-      ),
-    [participants, registrations, filterFormElements]
+      participants
+        .filter(
+          (p) =>
+            (!filterFormElements.source ||
+              sourceOf(p) === filterFormElements.source) &&
+            (!filterFormElements.isActive ||
+              String(p.isActive) === filterFormElements.isActive) &&
+            (!filterFormElements.isPaid ||
+              feeStatusOf(p) === filterFormElements.isPaid)
+        )
+        .map((p) => ({
+          ...p,
+          drawNumberText: p.drawNumber ? String(p.drawNumber) : "-",
+          scheduleText:
+            p.schedule
+              ?.map(
+                (slot) =>
+                  `${slot.round}: ${t("Table")} ${slot.tableNo} / ${t(
+                    "Seat N",
+                    { seat: slot.seat }
+                  )}`
+              )
+              .join(" · ") ?? "-",
+          sourceText: sourceOptions[sourceOf(p)],
+          feeText: feeOptions[feeStatusOf(p) ?? ""] ?? "-",
+          statusText: statusOptions[String(p.isActive)],
+        })),
+    [participants, registrations, filterFormElements, t]
   );
 
   const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: t("Added From"), isSortable: false },
-    { key: t("Status"), isSortable: false },
+    { key: t("Name"), isSortable: true, correspondingKey: "name" },
+    ...(isCatanPlan
+      ? [
+          {
+            key: t("Draw Number"),
+            isSortable: true,
+            correspondingKey: "drawNumberText",
+          },
+          {
+            key: t("Plan Schedule"),
+            isSortable: false,
+            correspondingKey: "scheduleText",
+          },
+        ]
+      : []),
+    { key: t("Added From"), isSortable: false, correspondingKey: "sourceText" },
+    ...(tournament.hasEntryFee
+      ? [
+          {
+            key: t("Entry Fee"),
+            isSortable: false,
+            correspondingKey: "feeText",
+          },
+        ]
+      : []),
+    { key: t("Status"), isSortable: false, correspondingKey: "statusText" },
     { key: t("Actions"), isSortable: false },
   ];
 
   const rowKeys = [
     { key: "name" },
-    {
-      key: "registrationId",
-      node: (row: TournamentParticipant) => sourceOptions[sourceOf(row)],
-    },
+    ...(isCatanPlan
+      ? [
+          // Sıralama sayıya göre kalsın diye anahtar drawNumber, görünen metin "-" ile
+          {
+            key: "drawNumber",
+            node: (row: TournamentParticipant & { drawNumberText: string }) =>
+              row.drawNumberText,
+          },
+          { key: "scheduleText" },
+        ]
+      : []),
+    { key: "sourceText" },
+    ...(tournament.hasEntryFee ? [{ key: "feeText" }] : []),
     {
       key: "isActive",
       node: (row: TournamentParticipant) =>
@@ -201,6 +293,21 @@ const ParticipantsTab = ({ tournament }: Props) => {
         placeholder: t("Status"),
         required: false,
       },
+      ...(tournament.hasEntryFee
+        ? [
+            {
+              type: InputTypes.SELECT,
+              formKey: "isPaid",
+              label: t("Entry Fee"),
+              options: Object.entries(feeOptions).map(([value, label]) => ({
+                value,
+                label,
+              })),
+              placeholder: t("Entry Fee"),
+              required: false,
+            },
+          ]
+        : []),
     ],
     formElements: filterFormElements,
     setFormElements: setFilterFormElements,
@@ -311,6 +418,9 @@ const ParticipantsTab = ({ tournament }: Props) => {
         title={`${t("Participants")} (${
           participants.filter((p) => p.isActive).length
         })`}
+        isPdf
+        isExcel
+        excelFileName={`${tournament.name}.xlsx`}
         addButton={addButton}
         filterPanel={filterPanel}
         filters={filters}
@@ -319,11 +429,6 @@ const ParticipantsTab = ({ tournament }: Props) => {
         <PromoteRegistrationsModal
           tournamentId={tournament._id}
           registrations={promotable}
-          initiallySelected={promotable
-            .filter(
-              (r) => r.confirmationStatus === ConfirmationStatus.CONFIRMED
-            )
-            .map((r) => r._id)}
           close={() => setIsPromoteModalOpen(false)}
         />
       )}
@@ -331,10 +436,62 @@ const ParticipantsTab = ({ tournament }: Props) => {
         <Suspense fallback={null}>
           <QrScannerModal
             isOpen={isScannerOpen}
-            close={() => setIsScannerOpen(false)}
-            onScan={(code) => checkIn({ tournamentId: tournament._id, code })}
+            close={() => {
+              setIsScannerOpen(false);
+              setAwaitingPayment([]);
+            }}
+            onScan={async (code) => {
+              const result = await checkIn({
+                tournamentId: tournament._id,
+                code,
+              });
+              const needsPayment =
+                result.hasEntryFee &&
+                !result.isParticipant &&
+                result.listStatus !== ListStatus.WITHDRAWN &&
+                !result.waitlistNumber;
+              setAwaitingPayment((current) => [
+                ...current.filter(
+                  (r) => r.registrationId !== result.registrationId
+                ),
+                ...(needsPayment ? [result] : []),
+              ]);
+            }}
             title={t("Check In With QR")}
             hint={t("Scan the QR on the player's phone")}
+            footer={
+              awaitingPayment.length > 0 && (
+                <div className="flex max-h-48 flex-col gap-2 overflow-y-auto">
+                  {awaitingPayment.map((payer) => (
+                    <div
+                      key={payer.registrationId}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3"
+                    >
+                      <p className="text-sm text-gray-800">
+                        <span className="font-semibold">{payer.fullName}</span>
+                        {` · ${t("Primary")} · ${t("Entry fee not paid")}`}
+                      </p>
+                      <GenericButton
+                        variant="success"
+                        size="sm"
+                        onClick={() => payFees([payer])}
+                      >
+                        {t("Fee Paid")}
+                      </GenericButton>
+                    </div>
+                  ))}
+                  {awaitingPayment.length > 1 && (
+                    <GenericButton
+                      variant="success"
+                      size="sm"
+                      onClick={() => payFees(awaitingPayment)}
+                    >
+                      {t("All Fees Paid")}
+                    </GenericButton>
+                  )}
+                </div>
+              )
+            }
           />
         </Suspense>
       )}

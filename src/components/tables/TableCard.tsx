@@ -28,7 +28,6 @@ import { useOrderContext } from "../../context/Order.context";
 import { useOrderTaker } from "../../hooks/useOrderTaker";
 import {
   Gameplay,
-  OnlineLocationId,
   Order,
   OrderCollection,
   OrderStatus,
@@ -49,6 +48,7 @@ import {
   useTableMutations,
 } from "../../utils/api/table";
 import { getItem } from "../../utils/getItem";
+import { getOrderLocation } from "../../utils/orderLocation";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -159,7 +159,7 @@ function TableCardComponent({
     item: 0,
     quantity: 1,
     isOnlinePrice: false,
-    location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+    location: getOrderLocation(table, selectedLocationId),
     stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
     activityPlayer: "",
     activityTableName: "",
@@ -519,9 +519,10 @@ function TableCardComponent({
       return {
         ...quickOrderForm,
         createdAt: new Date(),
-        location: table?.isOnlineSale
-          ? OnlineLocationId
-          : quickOrderForm?.location ?? selectedLocationId,
+        location: getOrderLocation(
+          table,
+          quickOrderForm?.location ?? selectedLocationId
+        ),
         table: table._id,
         unitPrice: quickOrderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -542,9 +543,10 @@ function TableCardComponent({
       return {
         ...quickOrderForm,
         createdAt: new Date(),
-        location: table?.isOnlineSale
-          ? OnlineLocationId
-          : quickOrderForm?.location ?? selectedLocationId,
+        location: getOrderLocation(
+          table,
+          quickOrderForm?.location ?? selectedLocationId
+        ),
         table: table._id,
         unitPrice: quickOrderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -559,9 +561,10 @@ function TableCardComponent({
 
     return {
       ...quickOrderForm,
-      location: table?.isOnlineSale
-        ? OnlineLocationId
-        : quickOrderForm?.location ?? selectedLocationId,
+      location: getOrderLocation(
+        table,
+        quickOrderForm?.location ?? selectedLocationId
+      ),
       table: table._id,
       status: isOrderConfirmationRequired
         ? OrderStatus.CONFIRMATIONREQ
@@ -580,7 +583,7 @@ function TableCardComponent({
     setQuickOrderForm((prev) => ({
       ...prev,
       stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-      location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+      location: getOrderLocation(table, selectedLocationId),
     }));
   }, [selectedLocationId, table?.isOnlineSale]);
   return (
@@ -850,9 +853,7 @@ function TableCardComponent({
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-            location: table?.isOnlineSale
-              ? OnlineLocationId
-              : selectedLocationId,
+            location: getOrderLocation(table, selectedLocationId),
             isOnlinePrice: false,
             isOnlineSale: table.isOnlineSale,
           }}

@@ -13,6 +13,14 @@ export enum TournamentFormat {
 export enum PairingMode {
   SWISS = "swiss",
   RANDOM = "random",
+  CATAN_PLAN = "catan_plan", // önceden hazırlanmış Catan oturma planı (numara çekilişi)
+}
+
+// Puanı eşit oyuncuların sırası: rakiplerin ortalama puanı ya da oyunda alınan skor
+// (Catan resmi kuralı: toplam skor → masadaki pay → 2.lik, 3.lük sayısı)
+export enum Tiebreaker {
+  OPPONENTS = "opponents",
+  SCORE = "score",
 }
 
 export enum MatchStage {
@@ -58,12 +66,41 @@ export interface Tournament {
   advanceCount?: number;
   advancePerTable?: number;
   roundDuration?: number; // tur süresi (dk); boşsa süre sınırı yok
+  tiebreaker?: Tiebreaker; // boşsa rakiplerin ortalama puanı
+  scoreCap?: number; // oyun skoruyla eşitlik bozmada oyun başına sayılan en fazla skor
+  // Süre elle başlatıldığı an; null: tur kuruldu ama süre başlamadı, boş: eski tur (maçların oluştuğu andan sayılır)
+  roundStartedAt?: string | null;
   // O anki tura verilen ek süre (dk) ve sayacın elle bitirilmesi; her yeni turda sıfırlanır
   roundExtraMinutes?: number;
   isRoundTimerStopped?: boolean;
   // Duraklatıldıysa duraklatıldığı an; önceki duraklamalarda geçen toplam süre (sn)
   roundPausedAt?: string | null;
   roundPausedSeconds?: number;
+  capacity?: number; // asil kontenjanı; boşsa sınırsız, asil/yedek ayrımı yok
+  waitlistCapacity?: number; // boşsa yedek sınırsız
+  hasEntryFee?: boolean; // ücretliyse asil ödeme alınınca katılımcı olur
+  participationNote?: string; // kayıt formunda, kayıt olmadan önce gösterilir
+  mainNote?: string; // yalnızca asillere, kayıttan sonra ve mailde gösterilir
+  waitlistNote?: string; // yalnızca yedeklere, kayıttan sonra ve mailde gösterilir
+  secondaryLogoUrl?: string; // canlı turnuva ekranında Da Vinci logosunun yanında gösterilir
+}
+
+// Yedek listesinde kişiye bildirilen yer (backend ListStatus)
+export enum ListStatus {
+  MAIN = "main",
+  WAITLIST = "waitlist",
+  WITHDRAWN = "withdrawn",
+}
+
+// Katılmayacak bilgisinin geldiği yer
+export enum DeclineSource {
+  LINK = "link",
+  PANEL = "panel",
+}
+
+export interface ListPosition {
+  listStatus: ListStatus;
+  waitlist?: number;
 }
 
 export interface TournamentRegistration {
@@ -76,6 +113,41 @@ export interface TournamentRegistration {
   confirmationStatus: ConfirmationStatus;
   confirmedAt?: string;
   createdAt: string;
+  sequence?: number; // turnuvadaki kayıt sırası; eski başvurularda yok
+  isPaid?: boolean;
+  arrivedAt?: string; // QR okutulup kafeye geldiği an
+  declineSource?: DeclineSource | null;
+  isManualMain?: boolean; // "Asil yap" denildi, liste güncellenince asil olur
+  position?: ListPosition; // kişiye bildirilen yer; kontenjansız turnuvada yok
+  nextPosition?: ListPosition; // "Yedek Listesini Güncelle"de alacağı yer
+}
+
+// Maildeki "Katılamayacağım" linkinin açtığı sayfa
+export interface PublicRegistration {
+  tournamentName: string;
+  date: string;
+  startTime?: string;
+  fullName: string;
+  registrationStatus?: string;
+  isDeclined: boolean;
+  canDecline: boolean;
+}
+
+// QR okutmanın sonucu; ücretli turnuvada asil ödeme alınana kadar katılımcı olmaz
+export interface TournamentCheckIn {
+  registrationId: number;
+  fullName: string;
+  listStatus?: ListStatus;
+  waitlistNumber?: number;
+  hasEntryFee: boolean;
+  isParticipant: boolean;
+}
+
+// Catan eşleşme planında bir numaranın bir turdaki masası ve başlangıç sırası
+export interface CatanPlanSlot {
+  round: number;
+  tableNo: number;
+  seat: number;
 }
 
 export interface TournamentParticipant {
@@ -84,6 +156,8 @@ export interface TournamentParticipant {
   name: string;
   registrationId?: number;
   isActive: boolean;
+  drawNumber?: number; // Catan eşleşme planında turnuva başında çekilen numara
+  schedule?: CatanPlanSlot[]; // numaranın 3 turluk programı
 }
 
 export interface TournamentMatchPlayer {
@@ -91,6 +165,7 @@ export interface TournamentMatchPlayer {
   score?: number;
   rank?: number;
   points?: number;
+  seat?: number; // Catan eşleşme planında masadaki başlangıç sırası (1-4)
   wonTieBreak?: boolean; // eşit skorda organizatörün öne aldığı oyuncu
 }
 
@@ -117,8 +192,17 @@ export interface TournamentStanding {
   matchesPlayed: number;
   byeCount: number;
   avgOpponentPoints: number;
+  // Sadece oyun skoruyla eşitlik bozmada: sınırlanmış toplam skor ve masadaki payların toplamı (%)
+  totalScore?: number;
+  scoreShare?: number;
   // Puan turlarında tur tur alınan puan (bay geçtiyse isBye)
-  rounds?: { round: number; points: number; isBye: boolean }[];
+  rounds?: {
+    round: number;
+    points: number;
+    score?: number;
+    share?: number; // o turdaki masa payı (%); scoreShare bunların toplamı
+    isBye: boolean;
+  }[];
   // Elemeye çıktıysa ulaştığı son tur ve o masadaki sırası
   elimination?: {
     round: number;
@@ -134,12 +218,16 @@ export interface PublicTournament {
   date: string;
   startTime?: string;
   isRegistrationOpen: boolean;
+  participationNote?: string;
 }
 
 // Oyuncuların telefondan takip ettiği sayfanın verisi; katılımcıların sadece adı gelir
 export interface TournamentLive {
   tournament: Tournament;
-  participants: Pick<TournamentParticipant, "_id" | "name" | "isActive">[];
+  participants: Pick<
+    TournamentParticipant,
+    "_id" | "name" | "isActive" | "drawNumber" | "schedule"
+  >[];
   matches: TournamentMatch[];
   standings: TournamentStanding[];
 }

@@ -12,7 +12,6 @@ import { DateInput } from "../components/common/DateInput2";
 import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
-import { ConsumptionPanel } from "../components/inventory/ConsumptionPanel";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -31,7 +30,9 @@ import { useDateContext } from "../context/Date.context";
 import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
+import { useIsLgScreen } from "../hooks/useMediaQuery";
 import { useOrderTaker } from "../hooks/useOrderTaker";
+import { useStableGroups } from "../hooks/useStableGroups";
 import { Routes } from "../navigation/constants";
 import {
   MenuItem,
@@ -46,17 +47,29 @@ import {
   TableTypes,
   User,
 } from "../types";
-import { useConsumptStockMutation } from "../utils/api/account/stock";
+import { useGetAccountProducts } from "../utils/api/account/product";
+import {
+  ConsumptStockPayload,
+  useConsumptStockMutation,
+  useGetAccountStocks,
+} from "../utils/api/account/stock";
 import { useGetBreaksByDate } from "../utils/api/break";
 import { useGetCafeActivitys } from "../utils/api/cafeActivity";
 import { useGetGameplayTimesByDate } from "../utils/api/gameplaytime";
+import {
+  useGetInventoryLinkableGames,
+  useGetInventoryLocations,
+} from "../utils/api/inventory";
 import { useGetAllLocations } from "../utils/api/location";
+import { useGetMemberships } from "../utils/api/membership";
 import { useGetActiveCustomerPopups } from "../utils/api/menu/customer-popup";
 import { useGetMiddlemanByDate } from "../utils/api/middleman";
 import {
   useCreateMultipleOrderMutation,
+  useGetTodayOrders,
   useOrderMutations,
 } from "../utils/api/order/order";
+import { useGetTodayCollections } from "../utils/api/order/orderCollection";
 import { useGetReservations } from "../utils/api/reservations";
 import {
   getOpenTableDates,
@@ -75,15 +88,20 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../utils/getItem";
+import { getOrderLocation } from "../utils/orderLocation";
+import { getComingReservedTableNames } from "../utils/reservedTables";
 import { sortTable } from "../utils/sort";
-import { useIsLgScreen } from "../hooks/useMediaQuery";
-import { useStableGroups } from "../hooks/useStableGroups";
-import { useGetAccountProducts } from "../utils/api/account/product";
-import { useGetAccountStocks } from "../utils/api/account/stock";
-import { useGetMemberships } from "../utils/api/membership";
-import { useGetTodayOrders } from "../utils/api/order/order";
-import { useGetTodayCollections } from "../utils/api/order/orderCollection";
 import { NO_ITEMS, tableIdOf } from "../utils/tableGroups";
+
+type ConsumptionForm = {
+  product?: string;
+  quantity?: number;
+  location?: number | string;
+  addToInventory?: boolean;
+  inventoryLocation?: number;
+  inventoryShortCode?: string;
+};
+
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -217,20 +235,10 @@ const Tables = () => {
     selectedDate || formatDate(new Date())
   );
 
-  const comingReservedTableNames = useMemo(() => {
-    if (!reservations || !selectedLocationId) return new Set<string>();
-
-    return new Set(
-      reservations
-        .filter(
-          (reservation) =>
-            reservation.status === ReservationStatusEnum.COMING &&
-            reservation.location === selectedLocationId &&
-            reservation.reservedTable
-        )
-        .map((reservation) => reservation.reservedTable)
-    );
-  }, [reservations, selectedLocationId]);
+  const comingReservedTableNames = useMemo(
+    () => getComingReservedTableNames(reservations, selectedLocationId),
+    [reservations, selectedLocationId]
+  );
 
   const inactiveCategories = useMemo(() => {
     return categories?.filter((category) => !category.active) || [];
@@ -317,8 +325,21 @@ const Tables = () => {
     [stocks]
   );
   const [orderForm, setOrderForm] = useState(initialOrderForm);
-  const consumptInputs = useMemo(
-    () => [
+  const [consumptForm, setConsumptForm] = useState<ConsumptionForm>({
+    product: undefined,
+    quantity: 1,
+    location: selectedLocationId,
+  });
+  const inventoryLinkableGames = useGetInventoryLinkableGames();
+  const inventoryLocations = useGetInventoryLocations();
+  const consumptionGame = consumptForm.product
+    ? inventoryLinkableGames.find((game) => game.product === consumptForm.product)
+    : undefined;
+  const isAddingConsumptionToInventory =
+    !!consumptionGame && !!consumptForm.addToInventory;
+  const needsConsumptionShortCode =
+    isAddingConsumptionToInventory && !consumptionGame?.shortCode;
+  const consumptInputs = [
       {
         type: InputTypes.TAB,
         formKey: "product",
@@ -336,6 +357,10 @@ const Tables = () => {
         placeholder: t("Product"),
         required: true,
         isTopFlexRow: true,
+        invalidateKeys: [
+          { key: "addToInventory", defaultValue: false },
+          { key: "inventoryShortCode", defaultValue: "" },
+        ],
       },
       {
         type: InputTypes.NUMBER,
@@ -352,21 +377,56 @@ const Tables = () => {
         formKey: "location",
         label: t("Location"),
         options: allLocations.map((input) => {
+          const stockQuantity =
+            stocks?.find(
+              (stock) =>
+                stock.product === consumptForm.product &&
+                stock.location === input._id
+            )?.quantity ?? 0;
           return {
             value: input._id,
-            label: input.name,
+            label: input.name + ` (${t("Stock")}: ${stockQuantity})`,
           };
         }),
         isTopFlexRow: true,
         required: true,
       },
-    ],
-    [allLocations, menuItems, products, t]
-  );
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "addToInventory",
+        label: t("Add to inventory"),
+        placeholder: t("Add to inventory"),
+        required: false,
+        isDisabled: !consumptionGame,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "inventoryLocation",
+        label: t("Inventory Location"),
+        options: inventoryLocations
+          .filter((location) => location.active)
+          .map((location) => ({ value: location._id, label: location.name })),
+        placeholder: t("Inventory Location"),
+        required: isAddingConsumptionToInventory,
+        isDisabled: !isAddingConsumptionToInventory,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "inventoryShortCode",
+        label: t("Game short code"),
+        placeholder: t("Game short code"),
+        required: needsConsumptionShortCode,
+        isDisabled: !needsConsumptionShortCode,
+      },
+    ]
+  
   const consumptFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
+    { key: "addToInventory", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "inventoryLocation", type: FormKeyTypeEnum.NUMBER },
+    { key: "inventoryShortCode", type: FormKeyTypeEnum.STRING },
   ];
   const menuItemOptions = useMemo(() => {
     if (!menuItems) {
@@ -684,6 +744,7 @@ const Tables = () => {
       placeholder: t("Discount"),
       isAutoFill: false,
       required: false,
+      isDisabled: isLossProductModalOpen || isConsumptModalOpen,
       isTopFlexRow: true,
     },
     {
@@ -1743,10 +1804,12 @@ const Tables = () => {
               );
             })
             ?.sort((a, b) => Number(a) - Number(b))
-            ?.map((t, index) => {
+            ?.map((name) => {
               return {
-                value: t,
-                label: t,
+                value: name,
+                label: comingReservedTableNames.has(name)
+                  ? `${name} ${t("(reserved)")}`
+                  : name,
               };
             }),
           isSortDisabled: true,
@@ -1804,10 +1867,12 @@ const Tables = () => {
           );
         })
         ?.sort((a, b) => Number(a) - Number(b))
-        ?.map((t, index) => {
+        ?.map((name) => {
           return {
-            value: t,
-            label: t,
+            value: name,
+            label: comingReservedTableNames.has(name)
+              ? `${name} ${t("(reserved)")}`
+              : name,
           };
         }),
       placeholder: t("Tables"),
@@ -2307,7 +2372,7 @@ const Tables = () => {
         />
       )}
       {isConsumptModalOpen && (
-        <ConsumptionPanel
+        <GenericAddEditPanel<ConsumptionForm>
           close={() => {
             setIsConsumptModalOpen(false);
             setIsTabInputScreenOpen(false);
@@ -2315,10 +2380,25 @@ const Tables = () => {
           inputs={consumptInputs}
           constantValues={{
             location: selectedLocationId,
+            quantity: 1,
           }}
+          setForm={setConsumptForm}
           isOpen={isConsumptModalOpen}
           formKeys={consumptFormKeys}
-          submit={consumptStock}
+          submitItem={(form) => {
+            const { addToInventory, inventoryLocation, inventoryShortCode, ...rest } =
+              "updates" in form ? form.updates : form;
+            const payload = rest as ConsumptStockPayload;
+            if (addToInventory && inventoryLocation !== undefined) {
+              payload.inventory = {
+                location: inventoryLocation,
+                ...(inventoryShortCode
+                  ? { shortCode: inventoryShortCode.trim().toUpperCase() }
+                  : {}),
+              };
+            }
+            consumptStock(payload);
+          }}
           buttonName={t("Submit")}
           generalClassName="  shadow-none overflow-scroll  no-scrollbar sm:h-[60%] sm:min-w-[60%]  "
           topClassName="flex flex-col gap-2  "
@@ -2371,7 +2451,7 @@ const Tables = () => {
           constantValues={{
             quantity: 1,
             stockLocation: selectedTable?.isOnlineSale ? 6 : selectedLocationId,
-            location: selectedTable?.isOnlineSale ? 4 : selectedLocationId,
+            location: getOrderLocation(selectedTable, selectedLocationId),
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
@@ -2486,6 +2566,7 @@ const Tables = () => {
           isCreateCloseActive={false}
           constantValues={{
             quantity: 1,
+            stockLocation: selectedLocationId,
           }}
           cancelButtonLabel="Close"
           submitFunction={() => {

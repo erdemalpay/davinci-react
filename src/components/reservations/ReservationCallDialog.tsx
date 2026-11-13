@@ -7,11 +7,14 @@ export function ReservationCallDialog({
   isOpen,
   close,
   handle,
+  moveToEnd,
   reservation,
 }: {
   isOpen: boolean;
   close: () => void;
   handle: (status: ReservationStatusEnum) => void;
+  // "Will come later": back to the end of the waiting list.
+  moveToEnd: () => void;
   reservation?: Reservation;
 }) {
   const { t } = useTranslation();
@@ -46,7 +49,7 @@ export function ReservationCallDialog({
                     name: reservation?.name,
                     phone: reservation?.phone,
                   })}
-                  <div className="flex items-center justify-between mt-9">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mt-9">
                     <GenericButton
                       onClick={() => handle(ReservationStatusEnum.NOT_COMING)}
                       variant="danger"
@@ -62,6 +65,13 @@ export function ReservationCallDialog({
                       size="sm"
                     >
                       {t("Not responded")}
+                    </GenericButton>
+                    <GenericButton
+                      onClick={moveToEnd}
+                      variant="warning"
+                      size="sm"
+                    >
+                      {t("Will come later (move to end)")}
                     </GenericButton>
                     <GenericButton
                       onClick={() => handle(ReservationStatusEnum.COMING)}

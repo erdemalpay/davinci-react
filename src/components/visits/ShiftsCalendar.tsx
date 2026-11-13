@@ -212,15 +212,6 @@ export default function ShiftsCalendar() {
             />
           </div>
         )}
-        {canAssignMiddleman && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm">{t("Assign Middleman")}</span>
-            <SwitchButton
-              checked={isMiddlemanAssignOpen}
-              onChange={() => setIsMiddlemanAssignOpen(!isMiddlemanAssignOpen)}
-            />
-          </div>
-        )}
         {canAssignOutsideOperation && (
           <div className="flex items-center gap-2">
             <span className="text-sm">{t("Assign Outside Operation")}</span>

@@ -3,13 +3,13 @@ import {
   Kitchen,
   MenuCategory,
   MenuItem,
-  OnlineLocationId,
   Order,
   OrderStatus,
   Table,
   User,
 } from "../../../types";
 import { getItem } from "../../../utils/getItem";
+import { getOrderLocation } from "../../../utils/orderLocation";
 
 // One line of the order being composed, before it is sent.
 export type OrderDraft = {
@@ -86,7 +86,7 @@ export function buildOrderObject(
   const base = {
     ...form,
     ...(createdBy ? { createdBy } : {}),
-    location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+    location: getOrderLocation(table, selectedLocationId),
     table: table._id,
     unitPrice: draft.isOnlinePrice
       ? selectedMenuItem.onlinePrice ?? selectedMenuItem.price

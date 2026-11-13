@@ -254,6 +254,7 @@ export type User = {
   rowsPerPage?: number;
   language?: string;
   isVisitDisabled?: boolean;
+  noUpstairsDuty?: boolean;
   userGames: [
     {
       game: number;
@@ -593,6 +594,8 @@ export type Middleman = {
   coveringGame?: number;
   // The middleman went to this call and nobody has stood in yet.
   awayOnCall?: number;
+  // The middleman is busy (this break record) and keeps the role.
+  awayOnBreak?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -841,6 +844,7 @@ export enum DisabledConditionEnum {
   GAMES_WHOKNOWS = "whoknows",
   CAFE_ACTIVITIES = "cafe_activities",
   MONTHLY_CAFE_ACTIVITIES = "monthly_cafe_activities",
+  EVENT_CALENDAR = "event_calendar",
   MEMBERSHIPS = "memberships",
   REWARDS = "rewards",
   COUNTARCHIVE = "countarchive",
@@ -1839,6 +1843,7 @@ export enum LogsPageTabEnum {
 export enum ActivitiesPageTabEnum {
   CAFE_ACTIVITIES,
   MONTHLY_CAFE_ACTIVITIES,
+  EVENT_CALENDAR,
 }
 
 export type ConcurrentRequest = {
@@ -3303,3 +3308,28 @@ export type InventoryGame = {
 };
 
 export type InventoryLinkableGame = InventoryGame & { product: string };
+
+export interface EventQrSetting {
+  _id: number;
+  title: string;
+  url: string;
+  // Etkinlik günü "YYYY-MM-DD"; o gün başlayınca gizlenir, boşsa süresiz
+  date: string;
+}
+
+// Aylık etkinlik afişindeki tek satır; icon hazır ikon anahtarı ya da https görsel adresi
+export interface EventCalendarItem {
+  badge: string[];
+  color: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface EventCalendarSetting {
+  _id: number;
+  title: string;
+  items: EventCalendarItem[];
+  // Afişte QR gösterilsin mi; eski kayıtlarda yoktur ve gösterilir
+  hasQr?: boolean;
+}

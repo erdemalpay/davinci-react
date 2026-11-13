@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { allRoutes } from "../../navigation/constants";
+import { useFillMissingPages } from "../../hooks/useFillMissingPages";
 import { ActionEnum, DisabledConditionEnum, PanelControlPage } from "../../types";
 import {
-  useCreateMultiplePageMutation,
   useGetPanelControlPages,
   usePanelControlPageMutations,
 } from "../../utils/api/panelControl/page";
@@ -31,7 +30,6 @@ const PagePermissions = () => {
   const pagePermissionsDisabledCondition = useMemo(() => {
     return getItem(DisabledConditionEnum.PANELCONTROL_PAGEPERMISSIONS, disabledConditions);
   }, [disabledConditions]);
-  const { mutate: createMultiplePage } = useCreateMultiplePageMutation();
   const { setCurrentPage, setSortConfigKey, setSearchQuery } =
     useGeneralContext();
   const { updatePanelControlPage } = usePanelControlPageMutations();
@@ -51,41 +49,7 @@ const PagePermissions = () => {
     toast.success(`${t("Role permissions updated successfully.")}`);
   }
 
-  const fillMissingPages = () => {
-    const missedRoutes = [];
-    for (const route of allRoutes) {
-      const currentPage = pages.find((page) => page.name === route.name);
-      const routeTabs = route?.tabs;
-
-      const isAllTabsSame =
-        routeTabs?.every((tab: any) => {
-          return currentPage?.tabs?.find((t) => t.name === tab.label);
-        }) ?? true;
-
-      if (!currentPage || !isAllTabsSame) {
-        missedRoutes.push({
-          name: route.name,
-          permissionRoles: currentPage?.permissionRoles ?? [1],
-          tabs: routeTabs?.map((tab: any) => {
-            return {
-              name: tab.label,
-              permissionRoles: currentPage?.tabs?.find(
-                (t) => t.name === tab.label
-              )?.permissionRoles ?? [1],
-            };
-          }),
-        });
-      }
-    }
-
-    if (missedRoutes.length > 0) {
-      createMultiplePage(missedRoutes);
-    }
-  };
-
-  useEffect(() => {
-    fillMissingPages();
-  }, []);
+  useFillMissingPages(true);
 
   const { columns, rowKeys } = useMemo(() => {
     const cols = [{ key: t("Page"), isSortable: true }];

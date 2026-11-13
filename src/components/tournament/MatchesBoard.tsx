@@ -46,7 +46,10 @@ export const groupRounds = (matches: TournamentMatch[]): RoundGroup[] => {
 interface Props {
   tournament: Tournament;
   matches: TournamentMatch[];
-  participants: Pick<TournamentParticipant, "_id" | "name" | "isActive">[];
+  participants: Pick<
+    TournamentParticipant,
+    "_id" | "name" | "isActive" | "drawNumber"
+  >[];
   names: Map<number, string>;
   // Verilmezse sadece görüntülenir (oyuncuların takip sayfası)
   seatEditing?: SeatEditing;
@@ -75,6 +78,11 @@ const MatchesBoard = ({
         )
       )
     );
+  // Catan eşleşme planında oyuncunun çekiliş numarası adının yanında yazılır
+  const drawNumbers = new Map<number, number>();
+  participants.forEach(
+    (p) => p.drawNumber && drawNumbers.set(p._id, p.drawNumber)
+  );
   const rounds = groupRounds(matches);
   const latest = rounds[rounds.length - 1];
   const canEdit =
@@ -116,6 +124,7 @@ const MatchesBoard = ({
                   key={match._id}
                   match={match}
                   names={names}
+                  drawNumbers={drawNumbers}
                   totals={totals}
                   isEditable={canEdit && group.key === latest?.key}
                   seatEditing={seatEditing}

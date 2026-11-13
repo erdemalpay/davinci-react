@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Shift, Visit } from "../../types";
-import { formatAsLocalDate } from "../../utils/format";
+import { Shift, Visit, VisitSource } from "../../types";
+import { formatAsLocalDate, formatVisitFinishHour } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { RowKeyType } from "../panelComponents/shared/types";
 
@@ -15,6 +15,7 @@ type LateEarlyRow = {
   actualFinish: string;
   earlyMinutes: number | null;
   hasNoCheckout?: boolean;
+  actualFinishSource?: VisitSource;
   className?: string;
   isSortable?: boolean;
   isTotal?: boolean;
@@ -96,6 +97,7 @@ const computeLateEarlyRows = (
         lateMinutes: lateMinutes > 0 ? lateMinutes : null,
         plannedEnd: userShift.shiftEndHour ?? "-",
         actualFinish: lastFinishVisit?.visit.finishHour ?? "",
+        actualFinishSource: lastFinishVisit?.visit.visitFinishSource,
         hasNoCheckout: actualFinish === null,
         earlyMinutes:
           earlyMinutes !== null && earlyMinutes > 0 ? earlyMinutes : null,
@@ -182,7 +184,15 @@ const LateEarlySummary = ({ visits, shifts, userId }: Props) => {
           row.hasNoCheckout ? (
             <p className="text-gray-400 italic">{t("No Check-out")}</p>
           ) : (
-            <p>{row.actualFinish}</p>
+            <p>
+              {formatVisitFinishHour(
+                {
+                  finishHour: row.actualFinish,
+                  visitFinishSource: row.actualFinishSource,
+                },
+                t
+              )}
+            </p>
           ),
       },
       {

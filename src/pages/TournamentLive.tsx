@@ -7,7 +7,12 @@ import StatusScreen from "../components/common/StatusScreen";
 import MatchesBoard, {
   groupRounds,
 } from "../components/tournament/MatchesBoard";
+import { PlayerSchedule } from "../components/tournament/CatanPlanOverview";
 import { StandingsTable } from "../components/tournament/StandingsTab";
+import TournamentPodium, {
+  podiumOf,
+  useFinishConfetti,
+} from "../components/tournament/TournamentPodium";
 import { useRoundClock } from "../components/tournament/useRoundClock";
 import {
   Tournament,
@@ -15,6 +20,7 @@ import {
   TournamentStatus,
 } from "../types/tournament";
 import { useGetTournamentLive } from "../utils/api/tournament";
+import { cleanLogoUrl } from "../utils/logoUrl";
 import { normalizeText } from "../utils/slug";
 
 enum LiveTab {
@@ -51,6 +57,17 @@ const TournamentLive = () => {
   const { data, isLoading, isError } = useGetTournamentLive(slug, afterRound);
   const [tab, setTab] = useState(LiveTab.MATCHES);
   const [search, setSearch] = useState("");
+  // Geçmiş bir turun tablosuna bakılırken de podyum güncel sonuçtan gelir
+  // (tur seçili değilken aynı sorgudur, ayrı istek atılmaz)
+  const { data: current } = useGetTournamentLive(slug);
+  const finalStandings = current?.standings ?? [];
+  const isFinished = data?.tournament.status === TournamentStatus.FINISHED;
+  // Sayfa 5 sn'de bir yenilendiği için şampiyon açıklanınca herkesin telefonunda patlar;
+  // her cihazda bir kez
+  useFinishConfetti(
+    isFinished,
+    data && `tournament-confetti-${data.tournament._id}`
+  );
 
   const query = normalizeText(search.trim());
   const highlightIds = useMemo(
@@ -84,6 +101,11 @@ const TournamentLive = () => {
   }
 
   const { tournament, participants, matches, standings } = data;
+  // Adını arayan tek bir oyuncu bulunduysa podyumun altında kendi derecesi yazar
+  const ownRank =
+    highlightIds.size === 1
+      ? finalStandings.find((row) => highlightIds.has(row.participantId))?.rank
+      : undefined;
   if (tournament.status === TournamentStatus.NOT_STARTED) {
     return (
       <StatusScreen
@@ -101,20 +123,34 @@ const TournamentLive = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-6">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         <div className="rounded-2xl bg-white p-4 text-center shadow-lg">
-          <img
-            src="/logo.svg"
-            alt={t("Davinci Board Game Cafe")}
-            className="mx-auto mb-2 h-10"
-          />
+          <div className="mb-2 flex items-center justify-center gap-4">
+            <img
+              src="/logo.svg"
+              alt={t("Davinci Board Game Cafe")}
+              className="h-14 w-24 object-contain"
+            />
+            {tournament.secondaryLogoUrl && (
+              <img
+                src={cleanLogoUrl(tournament.secondaryLogoUrl)}
+                alt={tournament.name}
+                className="h-14 w-24 object-contain"
+              />
+            )}
+          </div>
           <h1 className="text-xl font-bold text-gray-800">{tournament.name}</h1>
           <p className="text-sm text-gray-500">
             {format(new Date(tournament.date), "dd/MM/yyyy")}
             {tournament.startTime ? ` · ${tournament.startTime}` : ""}
           </p>
-          {tournament.status === TournamentStatus.FINISHED ? (
-            <p className="mt-2 font-medium text-green-700">
-              {t("Tournament finished")}
-            </p>
+          {isFinished ? (
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <TournamentPodium podium={podiumOf(finalStandings)} />
+              {ownRank && (
+                <p className="mt-3 text-sm font-medium text-indigo-700">
+                  {t("You finished Nth", { rank: ownRank })}
+                </p>
+              )}
+            </div>
           ) : (
             latest && (
               <LiveClock
@@ -160,6 +196,11 @@ const TournamentLive = () => {
                   {t("No player found with this name")}
                 </p>
               )}
+              <PlayerSchedule
+                participants={participants.filter((p) =>
+                  highlightIds.has(p._id)
+                )}
+              />
             </div>
             <MatchesBoard
               tournament={tournament}

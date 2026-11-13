@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { MdContentCopy, MdPrint } from "react-icons/md";
+import { MdContentCopy } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useDataContext } from "../../context/Data.context";
 import {
@@ -17,7 +17,7 @@ import {
   useGetTournaments,
   useTournamentMutations,
 } from "../../utils/api/tournament";
-import { printQrCode } from "../../utils/printQrCode";
+import { registrationUrl } from "../../utils/registrationUrl";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -30,9 +30,6 @@ import {
   TOURNAMENT_FORM_KEYS,
   useTournamentFormInputs,
 } from "./useTournamentForm";
-
-const registrationUrl = (slug: string, source: RegistrationSource) =>
-  `${window.location.origin}/tournament/${slug}?source=${source}`;
 
 interface Props {
   onSelectTournament: (tournament: Tournament) => void;
@@ -150,18 +147,6 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
           >
             <MdContentCopy /> {t("Social Media")}
           </button>
-          <button
-            title={t("Print QR Code")}
-            className="text-gray-500 hover:text-gray-800 text-lg"
-            onClick={() =>
-              printQrCode({
-                url: registrationUrl(row.slug, RegistrationSource.QR),
-                eventName: row.name,
-              })
-            }
-          >
-            <MdPrint />
-          </button>
         </div>
       ),
     },
@@ -179,6 +164,7 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
         }}
         setForm={setAddForm}
         inputs={addInputs}
+        folderName="tournament"
         formKeys={TOURNAMENT_FORM_KEYS}
         submitItem={(item: Tournament | UpdatePayload<Tournament>) =>
           createTournament(toPayload(item) as Partial<Tournament>)
@@ -241,6 +227,7 @@ const TournamentTable = ({ onSelectTournament }: Props) => {
           }}
           setForm={setEditForm}
           inputs={editInputs}
+          folderName="tournament"
           formKeys={TOURNAMENT_FORM_KEYS}
           submitItem={handleUpdate}
           isEditMode={true}

@@ -27,6 +27,7 @@ import {
   useGetPersonalGameplayMentoredData,
 } from "../../utils/api/gameplay";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetMiddlemanShares } from "../../utils/api/middleman";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetUserShifts } from "../../utils/api/shift";
@@ -89,8 +90,22 @@ const GameMasterSummary = ({ userId }: Props) => {
 
   const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.75;
 
-  // The days the shift plan made them service staff or the middleman.
+  const middlemanShare = useGetMiddlemanShares(
+    filterPanelFormElements.after,
+    filterPanelFormElements.before
+  )?.find((share) => share.user === userId);
+
+  // The days the shift plan made them service staff, and the days they were
+  // the middleman.
   const dutyDays = useMemo(() => {
+    // "12 sa 5 dk", rounded down to the minute.
+    const formatHoursMinutes = (seconds: number) => {
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      return hours > 0
+        ? `${hours} ${t("h")} ${minutes % 60} ${t("min")}`
+        : `${minutes} ${t("min")}`;
+    };
     const daysWhere = (isOnDuty: (slot: ShiftValue) => boolean) =>
       [
         ...new Set(
@@ -105,11 +120,20 @@ const GameMasterSummary = ({ userId }: Props) => {
         dates: daysWhere((slot) => slot.chefUser === userId),
       },
       {
-        title: t("Days assigned as middleman"),
-        dates: daysWhere((slot) => slot.middlemanUser === userId),
+        title: t("Middleman days"),
+        dates: middlemanShare?.dates ?? [],
+        note: middlemanShare?.workedSeconds
+          ? t("MiddlemanTimeShare", {
+              middleman: formatHoursMinutes(middlemanShare.seconds),
+              worked: formatHoursMinutes(middlemanShare.workedSeconds),
+              percent: Math.round(
+                (middlemanShare.seconds / middlemanShare.workedSeconds) * 100
+              ),
+            })
+          : undefined,
       },
     ];
-  }, [shifts, userId, t]);
+  }, [shifts, userId, t, middlemanShare]);
 
   // The averages take only what was done on the counted days: a day left out
   // of the averages leaves out its work too.
@@ -435,7 +459,7 @@ const GameMasterSummary = ({ userId }: Props) => {
         }}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {dutyDays.map(({ title, dates }) => (
+        {dutyDays.map(({ title, dates, note }) => (
           <div
             key={title}
             className="border rounded-lg border-gray-200 bg-white p-4 flex flex-col gap-2"
@@ -443,6 +467,7 @@ const GameMasterSummary = ({ userId }: Props) => {
             <h3 className="font-semibold">
               {title} ({dates.length})
             </h3>
+            {note && <span className="text-sm text-gray-500">{note}</span>}
             {dates.length === 0 ? (
               <span className="text-sm text-gray-500">–</span>
             ) : (

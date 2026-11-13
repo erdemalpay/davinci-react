@@ -63,6 +63,7 @@ export const Paths = {
   Consumers: "/consumers",
   Breaks: "/breaks",
   Middlemen: "/middlemen",
+  Anomalies: "/anomalies",
   UpstairsDuty: "/upstairs-duty",
   WebhookLog: "/webhook-log",
   PriceCompareLog: "/price-compare-log",
@@ -73,6 +74,8 @@ export const Paths = {
   CustomerPopup: "/menu/customer-popup",
   EventSurvey: "/event-survey",
   Tournaments: "/tournaments",
+  EventQr: "/event-qr",
+  EventCalendar: "/event-calendar",
   StaffLeave: "/staff-leave",
 };
 

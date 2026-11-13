@@ -58,6 +58,7 @@ const ButtonCalls = lazyWithReload(() => import("../pages/ButtonCalls"));
 const UnmetExplanationRequests = lazyWithReload(
   () => import("../pages/UnmetExplanationRequests")
 );
+const Anomalies = lazyWithReload(() => import("../pages/Anomalies"));
 const StaffPerformance = lazyWithReload(
   () => import("../pages/StaffPerformance")
 );
@@ -145,6 +146,8 @@ export enum PublicRoutes {
   CampaignForm = "/campaign/:eventSlug",
   TournamentRegister = "/tournament/:slug",
   TournamentLive = "/tournament/:slug/live",
+  TournamentCancel = "/tournament/registration/:code/cancel",
+  Events = "/events",
 }
 
 export enum Routes {
@@ -204,6 +207,7 @@ export enum Routes {
   CallAssignmentLog = "/call-assignment-log",
   CallSummary = "/call-summary",
   StaffPerformance = "/staff-performance",
+  Anomalies = "/anomalies",
   StaffStateSummary = "/staff-state-summary",
   PersonTimeline = "/person-timeline",
   TableTimeline = "/table-timeline",
@@ -995,6 +999,12 @@ export const allRoutes: {
     isOnSidebar: false,
   },
   {
+    name: "Unusual Events",
+    path: Routes.Anomalies,
+    element: Anomalies,
+    isOnSidebar: false,
+  },
+  {
     name: "Points",
     path: Routes.Points,
     element: Points,
@@ -1030,6 +1040,12 @@ export const allRoutes: {
         isOnSidebar: true,
         tabs: PanelControlPageTabs,
         exceptionalRoles: [RoleEnum.MANAGER],
+      },
+      {
+        name: "Unusual Events",
+        path: Routes.Anomalies,
+        element: Anomalies,
+        isOnSidebar: true,
       },
       {
         name: "Education",

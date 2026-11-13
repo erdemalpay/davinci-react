@@ -51,6 +51,27 @@ export const useGetMiddlemen = (
   );
 };
 
+// Each person's middleman time (as the day's middleman or standing in,
+// without the time on a call, explaining or busy), the time they worked in
+// the middleman hours, and the days they were the day's main middleman.
+export interface MiddlemanShare {
+  user: string;
+  seconds: number;
+  workedSeconds: number;
+  dates: string[];
+}
+
+export const useGetMiddlemanShares = (after?: string, before?: string) => {
+  const query = [after && `after=${after}`, before && `before=${before}`]
+    .filter(Boolean)
+    .join("&");
+  return useGet<MiddlemanShare[]>(
+    `${middlemanBaseUrl}/shares?${query}`,
+    [middlemanBaseUrl, "shares", after, before],
+    true
+  );
+};
+
 export const useGetMiddlemanByLocation = (location: number) => {
   return useGet<Middleman[]>(
     `${middlemanBaseUrl}/location/${location}`,
