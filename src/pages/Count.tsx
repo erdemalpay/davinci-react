@@ -362,6 +362,9 @@ const Count = () => {
               }
             >
               {row.product}
+              {row.sku && (
+                <p className="text-xs text-gray-500">{row.sku}</p>
+              )}
             </div>
           );
         },
