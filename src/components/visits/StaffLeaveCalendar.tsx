@@ -11,6 +11,7 @@ import { Tooltip } from "@material-tailwind/react";
 import { enUS, tr } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { MdOutlineStickyNote2 } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
@@ -19,6 +20,7 @@ import {
   DisabledConditionEnum,
   FormElementsState,
   StaffLeave,
+  StaffLeaveNote,
   StaffLeaveType,
 } from "../../types";
 import { UpdatePayload } from "../../utils/api";
@@ -37,6 +39,7 @@ import { MonthlyCalendar, MonthlyNav } from "../calendar/MonthlyCalendar";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { GenericButton } from "../common/GenericButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import FilterPanel from "../panelComponents/Tables/FilterPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -82,6 +85,10 @@ export default function StaffLeaveCalendar() {
   } | null>(null);
   const [noteForm, setNoteForm] = useState<FormElementsState>({ text: "" });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  // Notlar kaydın notes dizisinde tutulur; düzenlenen not index ile seçilir.
+  const [editingNoteIndex, setEditingNoteIndex] = useState<number | null>(null);
+  const [isNoteDeleteDialogOpen, setIsNoteDeleteDialogOpen] = useState(false);
+  const [editNoteForm, setEditNoteForm] = useState<FormElementsState>({});
 
   // include the leading/trailing days of the adjacent months that show up
   // as shaded overflow cells on the calendar grid (week starts on Monday)
@@ -119,17 +126,50 @@ export default function StaffLeaveCalendar() {
   const activeUserName = activeStaffLeave
     ? getItem(activeStaffLeave.user, users)?.name ?? ""
     : "";
+  const activeStaffLeaveTitle = activeStaffLeave
+    ? `${activeUserName} - ${
+        getItem(activeStaffLeave.type, staffLeaveTypes)?.name ?? ""
+      }`
+    : "";
+  const editingNote =
+    editingNoteIndex === null
+      ? undefined
+      : activeStaffLeave?.notes?.[editingNoteIndex];
+  // "Tüm günlere ekle" ile yazılan kopyalar: aynı kişi, aynı metin (notun kendisi dahil).
+  const editingNoteCopyIndexes = editingNote
+    ? (activeStaffLeave?.notes ?? []).flatMap((note, index) =>
+        note.createdBy === editingNote.createdBy &&
+        note.text === editingNote.text
+          ? [index]
+          : []
+      )
+    : [];
+  const getEditingNoteIndexes = (isForAllDays: unknown) =>
+    isForAllDays ? editingNoteCopyIndexes : [editingNoteIndex];
 
-  // Hem takvimdeki tooltip'te hem not penceresinde gösterilir.
-  const getDetailLines = (staffLeave: StaffLeave, date: string) => [
+  // Not ekleme, düzenleme ve silme kaydın notes dizisini değiştirir.
+  const updateNotes = (
+    staffLeave: StaffLeave,
+    notes: StaffLeaveNote[],
+    message: string
+  ) =>
+    updateStaffLeave(
+      { id: staffLeave._id, updates: { notes } },
+      { onSuccess: () => toast.success(message) }
+    );
+
+  // Tarih aralığı not penceresinde, notlarla birlikte hali takvim tooltip'inde gösterilir.
+  const getDateRangeLine = (staffLeave: StaffLeave) =>
     `${convertDateFormat(staffLeave.startDate)} / ${convertDateFormat(
       staffLeave.endDate
-    )}`,
+    )}`;
+  const getNoteLine = (note: StaffLeaveNote) =>
+    `${getItem(note.createdBy, users)?.name ?? ""}: ${note.text}`;
+  const getDetailLines = (staffLeave: StaffLeave, date: string) => [
+    getDateRangeLine(staffLeave),
     ...(staffLeave.notes ?? [])
       .filter((note) => note.date === date)
-      .map(
-        (note) => `${getItem(note.createdBy, users)?.name ?? ""}: ${note.text}`
-      ),
+      .map(getNoteLine),
   ];
 
   const userInput = {
@@ -184,14 +224,16 @@ export default function StaffLeaveCalendar() {
     { key: "endDate", type: FormKeyTypeEnum.DATE },
   ];
 
+  const noteTextInput = {
+    type: InputTypes.TEXTAREA,
+    formKey: "text",
+    label: t("Note"),
+    placeholder: t("Note"),
+    required: true,
+  };
+  const noteTextFormKey = { key: "text", type: FormKeyTypeEnum.STRING };
   const noteInputs = [
-    {
-      type: InputTypes.TEXTAREA,
-      formKey: "text",
-      label: t("Note"),
-      placeholder: t("Note"),
-      required: true,
-    },
+    noteTextInput,
     // Tek günlük kayıtta sorulacak bir şey yok.
     ...(activeStaffLeave &&
     activeStaffLeave.startDate !== activeStaffLeave.endDate
@@ -208,9 +250,54 @@ export default function StaffLeaveCalendar() {
       : []),
   ];
   const noteFormKeys = [
-    { key: "text", type: FormKeyTypeEnum.STRING },
+    noteTextFormKey,
     { key: "isForAllDays", type: FormKeyTypeEnum.BOOLEAN },
   ];
+  const applyToAllDaysLabel = t(
+    "Apply to all days with this note ({{count}})",
+    { count: editingNoteCopyIndexes.length }
+  );
+  const editNoteInputs = [
+    noteTextInput,
+    // Not aralıktaki başka günlerde de varsa eklemedeki gibi sorulur.
+    ...(editingNoteCopyIndexes.length > 1
+      ? [
+          {
+            type: InputTypes.CHECKBOX,
+            formKey: "isForAllDays",
+            label: applyToAllDaysLabel,
+            placeholder: applyToAllDaysLabel,
+            required: false,
+            isTopFlexRow: true,
+          },
+        ]
+      : []),
+  ];
+  // Not penceresinde o günün notları; herkes sadece kendi notunu düzenler.
+  const dayNotes = (activeStaffLeave?.notes ?? []).flatMap((note, index) =>
+    note.date === activeEntry?.date ? [{ note, index }] : []
+  );
+  const dayNotesPanel = dayNotes.length > 0 && (
+    <div className="flex flex-col gap-1 px-4 py-6 text-sm">
+      {dayNotes.map(({ note, index }) => (
+        <div
+          key={index}
+          className="flex items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-1"
+        >
+          <p className="break-words">{getNoteLine(note)}</p>
+          {note.createdBy === user?._id &&
+            !isActionDisabled(disabledCondition, ActionEnum.UPDATE, user) && (
+              <ButtonTooltip content={t("Edit")}>
+                <FiEdit
+                  className="w-5 h-5 flex-shrink-0 text-blue-500 hover:text-blue-800 cursor-pointer"
+                  onClick={() => setEditingNoteIndex(index)}
+                />
+              </ButtonTooltip>
+            )}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="__className_a182b8 w-[95%] mx-auto">
@@ -319,14 +406,18 @@ export default function StaffLeaveCalendar() {
           topClassName="flex flex-col gap-2 "
         />
       )}
-      {activeEntry && activeStaffLeave && (
+      {activeEntry && activeStaffLeave && editingNoteIndex === null && (
         <GenericAddEditPanel
           isOpen={!!activeEntry}
           close={() => setActiveEntry(null)}
-          header={`${activeUserName} - ${
-            getItem(activeStaffLeave.type, staffLeaveTypes)?.name ?? ""
-          }`}
-          upperMessage={getDetailLines(activeStaffLeave, activeEntry.date)}
+          header={activeStaffLeaveTitle}
+          upperMessage={[getDateRangeLine(activeStaffLeave)]}
+          anotherPanel={dayNotesPanel || undefined}
+          anotherPanelTopClassName={
+            dayNotesPanel
+              ? "flex flex-col sm:grid grid-cols-1 md:grid-cols-2 w-full sm:w-11/12 md:w-3/4 lg:w-2/3"
+              : undefined
+          }
           inputs={noteInputs}
           formKeys={noteFormKeys}
           setForm={setNoteForm}
@@ -335,24 +426,20 @@ export default function StaffLeaveCalendar() {
           }
           submitFunction={() => {
             if (!user) return;
-            updateStaffLeave(
-              {
-                id: activeStaffLeave._id,
-                updates: {
-                  notes: [
-                    ...(activeStaffLeave.notes ?? []),
-                    ...(noteForm.isForAllDays
-                      ? getStaffLeaveDays(activeStaffLeave)
-                      : [activeEntry.date]
-                    ).map((date) => ({
-                      date,
-                      text: noteForm.text,
-                      createdBy: user._id,
-                    })),
-                  ],
-                },
-              },
-              { onSuccess: () => toast.success(t("Note added")) }
+            updateNotes(
+              activeStaffLeave,
+              [
+                ...(activeStaffLeave.notes ?? []),
+                ...(noteForm.isForAllDays
+                  ? getStaffLeaveDays(activeStaffLeave)
+                  : [activeEntry.date]
+                ).map((date) => ({
+                  date,
+                  text: noteForm.text,
+                  createdBy: user._id,
+                })),
+              ],
+              t("Note added")
             );
           }}
           buttonName={t("Add Note")}
@@ -364,7 +451,7 @@ export default function StaffLeaveCalendar() {
               ? []
               : [
                   {
-                    label: t("Delete"),
+                    label: "Delete",
                     onClick: () => setIsDeleteDialogOpen(true),
                   },
                 ]
@@ -385,6 +472,70 @@ export default function StaffLeaveCalendar() {
           }}
           title={t("Delete Staff Leave")}
           text={`${activeUserName} ${t("GeneralDeleteMessage")}`}
+        />
+      )}
+      {activeStaffLeave && editingNoteIndex !== null && editingNote && (
+        <GenericAddEditPanel
+          isOpen
+          close={() => setEditingNoteIndex(null)}
+          header={activeStaffLeaveTitle}
+          inputs={editNoteInputs}
+          formKeys={noteFormKeys}
+          setForm={setEditNoteForm}
+          submitItem={(item) => {
+            const { updates } = item as UpdatePayload<FormElementsState>;
+            const indexes = getEditingNoteIndexes(updates.isForAllDays);
+            updateNotes(
+              activeStaffLeave,
+              (activeStaffLeave.notes ?? []).map((note, index) =>
+                indexes.includes(index)
+                  ? { ...note, text: updates.text ?? note.text }
+                  : note
+              ),
+              t("Note updated")
+            );
+            // Kaydedince not penceresine dönmeden ikisi de kapanır.
+            setActiveEntry(null);
+          }}
+          isEditMode={true}
+          itemToEdit={{
+            id: editingNoteIndex,
+            updates: { text: editingNote.text, isForAllDays: false },
+          }}
+          additionalButtons={[
+            {
+              label: "Delete",
+              onClick: () => setIsNoteDeleteDialogOpen(true),
+            },
+          ]}
+          topClassName="flex flex-col gap-2 "
+        />
+      )}
+      {activeStaffLeave && editingNote && (
+        <ConfirmationDialog
+          isOpen={isNoteDeleteDialogOpen}
+          close={() => setIsNoteDeleteDialogOpen(false)}
+          confirm={() => {
+            const indexes = getEditingNoteIndexes(editNoteForm.isForAllDays);
+            updateNotes(
+              activeStaffLeave,
+              (activeStaffLeave.notes ?? []).filter(
+                (_, index) => !indexes.includes(index)
+              ),
+              t("Note deleted")
+            );
+            setIsNoteDeleteDialogOpen(false);
+            setEditingNoteIndex(null);
+            setActiveEntry(null);
+          }}
+          title={t("Delete Note")}
+          text={
+            editNoteForm.isForAllDays
+              ? t("This note will be deleted from {{count}} days.", {
+                  count: editingNoteCopyIndexes.length,
+                })
+              : `${editingNote.text} ${t("GeneralDeleteMessage")}`
+          }
         />
       )}
     </div>
