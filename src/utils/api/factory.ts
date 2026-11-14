@@ -65,6 +65,7 @@ export const Paths = {
   Breaks: "/breaks",
   Middlemen: "/middlemen",
   Anomalies: "/anomalies",
+  Loyalty: "/loyalty",
   UpstairsDuty: "/upstairs-duty",
   WebhookLog: "/webhook-log",
   PriceCompareLog: "/price-compare-log",
