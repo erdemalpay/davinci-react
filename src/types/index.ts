@@ -830,6 +830,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_HEPSIBURADAORDERS = "hepsiburadaorders",
   ORDERDATAS_N11ORDERS = "n11orders",
   ORDERDATAS_IDEFIXORDERS = "idefixorders",
+  ORDERDATAS_AMAZONORDERS = "amazonorders",
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
   ORDERDATAS_IKASORDERS = "ikasorders", //bunu silince build hatası alıyoruz
@@ -1041,6 +1042,7 @@ export type MenuItem = {
   hepsiBuradaSku?: unknown;
   n11StockCode?: string;
   idefixBarcode?: string;
+  amazonSku?: string;
   _id: number;
   name: string;
   description: string;
@@ -1475,6 +1477,7 @@ export type ItemPlatformOrder = {
   shopifyOrderNumber?: string;
   trendyolOrderNumber?: string;
   hepsiburadaOrderNumber?: string;
+  amazonOrderNumber?: string;
 };
 
 export type ItemPlatformOrdersResponse = {
@@ -2036,6 +2039,7 @@ export enum OrderDataTabEnum {
   DAVINCIGAMESALESREPORT,
   N11ORDERS,
   IDEFIXORDERS,
+  AMAZONORDERS,
 }
 export enum StockHistoryStatusEnum {
   EXPENSEENTRY = "EXPENSEENTRY",
@@ -2073,6 +2077,8 @@ export enum StockHistoryStatusEnum {
   N11ORDERCANCEL = "N11ORDERCANCEL",
   IDEFIXORDERCREATE = "IDEFIXORDERCREATE",
   IDEFIXORDERCANCEL = "IDEFIXORDERCANCEL",
+  AMAZONORDERCREATE = "AMAZONORDERCREATE",
+  AMAZONORDERCANCEL = "AMAZONORDERCANCEL",
 }
 
 export const stockHistoryStatuses = [
@@ -2250,6 +2256,16 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.IDEFIXORDERCANCEL,
     label: "idefix Order Cancel",
     backgroundColor: "bg-sky-900",
+  },
+  {
+    value: StockHistoryStatusEnum.AMAZONORDERCREATE,
+    label: "Amazon Order Create",
+    backgroundColor: "bg-amber-600",
+  },
+  {
+    value: StockHistoryStatusEnum.AMAZONORDERCANCEL,
+    label: "Amazon Order Cancel",
+    backgroundColor: "bg-amber-900",
   },
 ];
 

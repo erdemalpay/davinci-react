@@ -50,6 +50,7 @@ export const Paths = {
   Trendyol: "/trendy",
   N11: "/n11",
   IDEFIX: "/idefix",
+  AMAZON: "/amazon",
   Hepsiburada: "/hepsiburada",
   Redis: "/redis",
   ButtonCalls: "/button-calls",
