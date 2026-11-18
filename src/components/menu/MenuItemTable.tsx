@@ -672,8 +672,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       {
         type: InputTypes.TEXT,
         formKey: "amazonSku",
-        label: "Amazon Sku",
-        placeholder: "Amazon Sku",
+        label: t("Amazon Sku"),
+        placeholder: t("Amazon Sku"),
         required: false,
       },
       {
