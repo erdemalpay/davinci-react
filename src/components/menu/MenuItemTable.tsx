@@ -33,6 +33,7 @@ import {
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useMatchHepsiburadaItemsByBarcodeMutation } from "../../utils/api/hepsiburada";
+import { AMAZON_CHANNEL } from "../../utils/api/amazon";
 import { IDEFIX_CHANNEL } from "../../utils/api/idefix";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useMatchMarketplaceItemsByBarcodeMutation } from "../../utils/api/marketplace";
@@ -121,6 +122,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     useMatchMarketplaceItemsByBarcodeMutation(N11_CHANNEL);
   const { mutateAsync: matchIdefixByBarcodeAsync } =
     useMatchMarketplaceItemsByBarcodeMutation(IDEFIX_CHANNEL);
+  const { mutateAsync: matchAmazonByBarcodeAsync } =
+    useMatchMarketplaceItemsByBarcodeMutation(AMAZON_CHANNEL);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
@@ -668,6 +671,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
       {
         type: InputTypes.TEXT,
+        formKey: "amazonSku",
+        label: t("Amazon Sku"),
+        placeholder: t("Amazon Sku"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
         formKey: "sku",
         label: "Sku",
         placeholder: "Sku",
@@ -737,6 +747,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "hepsiBuradaSku", type: FormKeyTypeEnum.STRING },
       { key: "n11StockCode", type: FormKeyTypeEnum.STRING },
       { key: "idefixBarcode", type: FormKeyTypeEnum.STRING },
+      { key: "amazonSku", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
       { key: "isDaVinciGame", type: FormKeyTypeEnum.BOOLEAN },
@@ -779,6 +790,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: t("Hepsi Burada Sku"), isSortable: false },
       { key: t("n11 Barcode"), isSortable: false },
       { key: t("idefix Barcode"), isSortable: false },
+      { key: t("Amazon Sku"), isSortable: false },
       { key: t("Created At"), isSortable: true },
       ...(showMenuBarcodeInfo
         ? [
@@ -941,6 +953,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         node: (row: MenuItem) => (row.n11StockCode ? row.barcode : ""),
       },
       { key: "idefixBarcode", className: "min-w-32 pr-1" },
+      { key: "amazonSku", className: "min-w-32 pr-1" },
       {
         key: "createdAt",
         node: (row: MenuItem & { formattedCreatedAt?: string }) => {
@@ -1765,6 +1778,24 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),
       },
+      {
+        name: t("Amazon Match"),
+        isButton: true,
+        buttonClassName:
+          "px-2 ml-auto bg-purple-700 hover:text-purple-700 hover:border-purple-700 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+        onClick: async () => {
+          await matchAmazonByBarcodeAsync(selectedRows.map((row) => row._id));
+          setSelectedRows([]);
+          setIsSelectionActive(false);
+          setIsEditSelectionCompeted(false);
+        },
+        isDisabled: menuPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ACTIVATE_THE_SELECTION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
     ],
     [
       t,
@@ -1786,6 +1817,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       matchHepsiburadaByBarcodeAsync,
       matchN11ByBarcodeAsync,
       matchIdefixByBarcodeAsync,
+      matchAmazonByBarcodeAsync,
       menuPageDisabledCondition,
       user,
     ]
