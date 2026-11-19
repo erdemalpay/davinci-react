@@ -2689,5 +2689,9 @@
   "Show customers": "Show customers",
   "Most Favorited Products": "Most Favorited Products",
   "Out of stock": "Out of stock",
-  "Draft": "Draft"
+  "Draft": "Draft",
+  "Add to games I know?": "Add to games I know?",
+  "Remove from games I know?": "Remove from games I know?",
+  "{{game}} is not on your list of games you know. Shall we add it?": "{{game}} is not on your list of games you know. Shall we add it?",
+  "{{game}} is on your list of games you know. Shall we remove it?": "{{game}} is on your list of games you know. Shall we remove it?"
 }

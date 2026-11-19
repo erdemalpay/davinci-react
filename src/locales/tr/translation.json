@@ -2697,5 +2697,9 @@
   "Show customers": "Müşterileri göster",
   "Most Favorited Products": "En Çok Favorilenen Ürünler",
   "Out of stock": "Stokta yok",
-  "Draft": "Taslak"
+  "Draft": "Taslak",
+  "Add to games I know?": "Bildiğin oyunlara ekleyelim mi?",
+  "Remove from games I know?": "Bildiğin oyunlardan çıkaralım mı?",
+  "{{game}} is not on your list of games you know. Shall we add it?": "{{game}} bildiğin oyunlar listende yok. Listene ekleyelim mi?",
+  "{{game}} is on your list of games you know. Shall we remove it?": "{{game}} bildiğin oyunlar listende görünüyor. Listenden çıkaralım mı?"
 }

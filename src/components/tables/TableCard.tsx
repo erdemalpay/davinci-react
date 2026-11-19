@@ -36,6 +36,7 @@ import {
   Table,
   TableTypes,
   User,
+  UserGameUpdateType,
 } from "../../types";
 import { useGetActiveButtonCalls } from "../../utils/api/buttonCall";
 import {
@@ -64,6 +65,11 @@ import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import {
+  KnownGamePrompt,
+  KnownGamePromptState,
+  knowsGame,
+} from "../user/KnownGamePrompt";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
 import {
@@ -130,6 +136,9 @@ function TableCardComponent({
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
+  // Explained a game that isn't on their "games I know" list.
+  const [knownGamePrompt, setKnownGamePrompt] =
+    useState<KnownGamePromptState | null>(null);
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { updateTable, deleteTable } = useTableMutations();
   const { mutate: reopenTable } = useReopenTableMutation();
@@ -1252,8 +1261,23 @@ function TableCardComponent({
           mentors={mentors}
           games={games || []}
           visits={visits}
+          onCreated={(mentorId, gameId, date) => {
+            if (!user || mentorId !== user._id || knowsGame(user, gameId)) {
+              return;
+            }
+            setKnownGamePrompt({
+              type: UserGameUpdateType.ADD,
+              gameId,
+              gameName: games?.find((g) => g._id === gameId)?.name ?? "",
+              learnDate: date,
+            });
+          }}
         />
       )}
+      <KnownGamePrompt
+        prompt={knownGamePrompt}
+        close={() => setKnownGamePrompt(null)}
+      />
       {selectedGameplay && isEditGameplayDialogOpen && (
         <EditGameplayDialog
           isOpen={isEditGameplayDialogOpen}
