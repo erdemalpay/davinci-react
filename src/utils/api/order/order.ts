@@ -888,6 +888,7 @@ export function useGetShopifyPickUpOrders(category?: number[]) {
     "cancelledBy",
     "status",
     "location",
+    "item",
   ];
   if (category || shopifyPickUpFilterPanelFormElements.category !== "") {
     url = url.concat(
@@ -919,6 +920,7 @@ export function useGetShopifyPickUpOrders(category?: number[]) {
       shopifyPickUpFilterPanelFormElements.status,
       shopifyPickUpFilterPanelFormElements.category,
       shopifyPickUpFilterPanelFormElements.location,
+      shopifyPickUpFilterPanelFormElements.item,
     ],
     true
   );
