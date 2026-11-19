@@ -15,6 +15,7 @@ import {
   useGetAccountStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -32,6 +33,7 @@ const GameStockLocation = () => {
   const categories=useGetCategories()
   const { user } = useUserContext();
   const products = useGetAccountProducts();
+  const vendors = useGetAccountVendors();
   const items = useGetMenuItems();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
@@ -94,6 +96,14 @@ const GameStockLocation = () => {
       if (
         daVinciGameFilter !== "" &&
         (matchedItem?.isDaVinciGame ?? false) !== (daVinciGameFilter === "true")
+      ) {
+        return acc;
+      }
+      if (
+        filtershowGameStockLocationFiltersPanelFormElements?.vendor &&
+        !foundProduct?.vendor?.includes(
+          filtershowGameStockLocationFiltersPanelFormElements?.vendor
+        )
       ) {
         return acc;
       }
@@ -180,6 +190,17 @@ const GameStockLocation = () => {
       },
       {
         type: InputTypes.SELECT,
+        formKey: "vendor",
+        label: t("Vendor"),
+        options: vendors.map((vendor) => ({
+          value: vendor._id,
+          label: vendor.name,
+        })),
+        placeholder: t("Vendor"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
         formKey: "isDaVinciGame",
         label: t("Da Vinci Games"),
         options: [
@@ -246,7 +267,7 @@ const GameStockLocation = () => {
         required: false,
       },
     ],
-    [products, t,categories]
+    [products, t,categories, vendors]
   );
 
   const inputs = useMemo(
