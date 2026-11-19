@@ -289,6 +289,14 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Point}/history`],
   },
   {
+    event: "loyaltyChanged",
+    invalidateKeys: [`${Paths.Loyalty}`],
+  },
+  {
+    event: "favoritesChanged",
+    invalidateKeys: [`${Paths.Favorites}`],
+  },
+  {
     event: "shiftChangeRequestChanged",
     invalidateKeys: [
       `${Paths.ShiftChangeRequest}`,

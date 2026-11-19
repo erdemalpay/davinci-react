@@ -59,6 +59,7 @@ const UnmetExplanationRequests = lazyWithReload(
   () => import("../pages/UnmetExplanationRequests")
 );
 const Anomalies = lazyWithReload(() => import("../pages/Anomalies"));
+const OnlinePoints = lazyWithReload(() => import("../pages/OnlinePoints"));
 const StaffPerformance = lazyWithReload(
   () => import("../pages/StaffPerformance")
 );
@@ -208,6 +209,7 @@ export enum Routes {
   CallSummary = "/call-summary",
   StaffPerformance = "/staff-performance",
   Anomalies = "/anomalies",
+  OnlinePoints = "/online-points",
   StaffStateSummary = "/staff-state-summary",
   PersonTimeline = "/person-timeline",
   TableTimeline = "/table-timeline",
@@ -1010,6 +1012,12 @@ export const allRoutes: {
     element: Points,
     isOnSidebar: true,
     tabs: PointsPageTabs,
+  },
+  {
+    name: "Online Points",
+    path: Routes.OnlinePoints,
+    element: OnlinePoints,
+    isOnSidebar: true,
   },
   {
     name: "Inventory",
