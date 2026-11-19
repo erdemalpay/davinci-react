@@ -1915,6 +1915,7 @@ export enum PointsPageTabEnum {
 export enum ConsumerPageTabEnum {
   CAFE_CUSTOMERS,
   SHOPIFY_CUSTOMERS,
+  ONLINE_FAVORITES,
 }
 
 export interface ShopifyCollection {
