@@ -38,6 +38,7 @@ export function CreateGameplayDialog({
   mentors,
   games,
   visits = [],
+  onCreated,
 }: {
   isOpen: boolean;
   close: () => void;
@@ -46,6 +47,8 @@ export function CreateGameplayDialog({
   mentors: User[];
   games: MinimalGame[];
   visits?: Visit[];
+  // After the gameplay is saved: who explained which game, on which day.
+  onCreated?: (mentorId: string, gameId: number, date: string) => void;
 }) {
   const { t } = useTranslation();
   const isSmallScreen = useIsSmallScreen();
@@ -106,6 +109,11 @@ export function CreateGameplayDialog({
             t("New gameplay added to table {{tableName}}", {
               tableName: table.name,
             })
+          );
+          onCreated?.(
+            mentorId as string,
+            Number(finalPayload.game),
+            String(finalPayload.date ?? gameplay.date ?? table.date)
           );
           close();
         },

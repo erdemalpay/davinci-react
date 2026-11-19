@@ -14,6 +14,11 @@ const mocks = vi.hoisted(() => ({
   claim: vi.fn(),
   finish: vi.fn(),
   breakWarning: null as string | null,
+  updateUserGame: vi.fn(),
+}));
+
+vi.mock("../../utils/api/user", () => ({
+  updateUserGamesMutation: () => ({ updateUserGame: mocks.updateUserGame }),
 }));
 
 vi.mock("../../hooks/useBreakWarning", () => ({
@@ -48,6 +53,7 @@ vi.mock("../../context/Data.context", () => ({
       { _id: 10, name: "Catan" },
       { _id: 30, name: "Twilight Imperium" },
     ],
+    user: { _id: "ali", userGames: [{ game: 10, learnDate: "2026-01-01" }] },
   }),
 }));
 
@@ -126,7 +132,7 @@ describe("ActiveButtonCallsList", () => {
         reason: DeclineReasonEnum.TAKING_PAYMENT,
         note: undefined,
         game: undefined,
-      });
+      }, expect.anything());
       expect(screen.queryByRole("dialog")).toBeNull();
     });
 
@@ -150,7 +156,7 @@ describe("ActiveButtonCallsList", () => {
         reason: DeclineReasonEnum.OTHER,
         note: "Depoya bakıyorum",
         game: undefined,
-      });
+      }, expect.anything());
     });
 
     it("shows the call's game for help, which can be changed", () => {
@@ -187,7 +193,7 @@ describe("ActiveButtonCallsList", () => {
         reason: DeclineReasonEnum.DOESNT_KNOW_GAME,
         note: undefined,
         game: 30,
-      });
+      }, expect.anything());
     });
 
     it("needs a game when the call has none", () => {
@@ -210,8 +216,41 @@ describe("ActiveButtonCallsList", () => {
         expect.objectContaining({
           reason: DeclineReasonEnum.DOESNT_KNOW_GAME,
           game: 10,
-        })
+        }),
+        expect.anything()
       );
+    });
+
+    it("offers to remove a game I said I don't know but is on my list", () => {
+      mocks.decline.mockImplementation((_vars, opts) => opts?.onSuccess?.());
+      mocks.calls = [
+        gmCall({ _id: "5", tableName: "T5", assignedTo: "ali", game: 10 }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      tapAndCant();
+      fireEvent.click(screen.getByText("I don't know the game"));
+      fireEvent.click(screen.getByRole("button", { name: "Decline" }));
+
+      expect(screen.getByText("Remove from games I know?")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+      expect(mocks.updateUserGame).toHaveBeenCalledWith(
+        expect.objectContaining({ gameId: 10, updateType: "remove" })
+      );
+    });
+
+    it("doesn't ask when the game isn't on my list", () => {
+      mocks.decline.mockImplementation((_vars, opts) => opts?.onSuccess?.());
+      mocks.calls = [
+        gmCall({ _id: "5", tableName: "T5", assignedTo: "ali", game: 30 }),
+      ];
+      render(<ActiveButtonCallsList />);
+
+      tapAndCant();
+      fireEvent.click(screen.getByText("I don't know the game"));
+      fireEvent.click(screen.getByRole("button", { name: "Decline" }));
+
+      expect(screen.queryByText("Remove from games I know?")).toBeNull();
     });
 
     it("declines for a break right away when the cafe has enough staff", () => {
@@ -221,7 +260,8 @@ describe("ActiveButtonCallsList", () => {
       fireEvent.click(screen.getByText("Break"));
 
       expect(mocks.decline).toHaveBeenCalledWith(
-        expect.objectContaining({ reason: DeclineReasonEnum.BREAK })
+        expect.objectContaining({ reason: DeclineReasonEnum.BREAK }),
+        expect.anything()
       );
     });
 
@@ -372,7 +412,8 @@ describe("ActiveButtonCallsList", () => {
         expect.objectContaining({
           id: "8",
           reason: DeclineReasonEnum.TAKING_PAYMENT,
-        })
+        }),
+        expect.anything()
       );
     });
   });

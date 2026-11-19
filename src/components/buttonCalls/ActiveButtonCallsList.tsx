@@ -13,6 +13,7 @@ import {
   DeclineReasonEnum,
   GmCallReasonEnum,
   isAssignedCallType,
+  UserGameUpdateType,
 } from "../../types";
 import {
   useClaimButtonCallMutation,
@@ -21,7 +22,13 @@ import {
   useGetActiveButtonCalls,
 } from "../../utils/api/buttonCall";
 import { useBreakWarning } from "../../hooks/useBreakWarning";
+import { format } from "date-fns";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import {
+  KnownGamePrompt,
+  KnownGamePromptState,
+  knowsGame,
+} from "../user/KnownGamePrompt";
 import { DeclineCallDialog } from "./DeclineCallDialog";
 
 const gmCallReasonLabels: Record<GmCallReasonEnum, string> = {
@@ -36,7 +43,7 @@ export function ActiveButtonCallsList() {
   const { mutate: declineButtonCall } = useDeclineButtonCallMutation();
   const { mutate: claimButtonCall } = useClaimButtonCallMutation();
   const { user } = useUserContext();
-  const { users, games } = useDataContext();
+  const { users, games, user: me } = useDataContext();
   const { selectedLocationId } = useLocationContext();
   const buttonCalls = useGetActiveButtonCalls(ButtonCallType.ACTIVE);
   const activeButtonCalls = buttonCalls?.reduce(
@@ -57,6 +64,9 @@ export function ActiveButtonCallsList() {
   const [breakDeclinePending, setBreakDeclinePending] =
     useState<ButtonCall | null>(null);
   const { warning: breakWarning, text: breakWarningText } = useBreakWarning();
+  // Declined saying they don't know a game that is on their list.
+  const [knownGamePrompt, setKnownGamePrompt] =
+    useState<KnownGamePromptState | null>(null);
   // A tapped call: close it, or take it over when possible.
   const [callForActions, setCallForActions] = useState<ButtonCall | null>(null);
 
@@ -377,11 +387,34 @@ export function ActiveButtonCallsList() {
               setCallToDecline(null);
               return;
             }
-            declineButtonCall({ id: callToDecline._id, reason, note, game });
+            const unknownGame =
+              reason === DeclineReasonEnum.DOESNT_KNOW_GAME
+                ? game ?? callToDecline.game
+                : undefined;
+            declineButtonCall(
+              { id: callToDecline._id, reason, note, game },
+              {
+                onSuccess: () => {
+                  if (!unknownGame || !knowsGame(me, unknownGame)) return;
+                  setKnownGamePrompt({
+                    type: UserGameUpdateType.REMOVE,
+                    gameId: unknownGame,
+                    gameName:
+                      games?.find((g) => g._id === unknownGame)?.name ?? "",
+                    learnDate: format(new Date(), "yyyy-MM-dd"),
+                  });
+                },
+              }
+            );
             setCallToDecline(null);
           }}
         />
       )}
+
+      <KnownGamePrompt
+        prompt={knownGamePrompt}
+        close={() => setKnownGamePrompt(null)}
+      />
 
       {breakDeclinePending && (
         <ConfirmationDialog
