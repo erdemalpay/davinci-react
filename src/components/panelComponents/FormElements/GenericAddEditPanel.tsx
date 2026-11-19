@@ -17,6 +17,7 @@ import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
 import { useOrderContext } from "../../../context/Order.context";
+import { useLockBodyScroll } from "../../../hooks/useLockBodyScroll";
 import { FormElementsState, OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -274,20 +275,7 @@ const GenericAddEditPanel = <T,>({
     };
   }, []);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-    };
-  }, [isOpen]);
+  useLockBodyScroll(isOpen);
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
