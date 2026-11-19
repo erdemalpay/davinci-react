@@ -2669,5 +2669,19 @@
   "All types": "All types",
   "All statuses": "All statuses",
   "Overview": "Overview",
-  "Online Points": "Online Points"
+  "Online Points": "Online Points",
+  "Online Favorites": "Online Favorites",
+  "Favorites": "Favorites",
+  "Added At": "Added At",
+  "Last Added": "Last Added",
+  "Total Favorites": "Total Favorites",
+  "Customers with Favorites": "Customers with Favorites",
+  "Favorited Products": "Favorited Products",
+  "Added in Last 30 Days": "Added in Last 30 Days",
+  "All Time": "All Time",
+  "Customers who favorited": "Customers who favorited",
+  "Show customers": "Show customers",
+  "Most Favorited Products": "Most Favorited Products",
+  "Out of stock": "Out of stock",
+  "Draft": "Draft"
 }

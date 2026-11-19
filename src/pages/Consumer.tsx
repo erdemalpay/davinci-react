@@ -1,6 +1,7 @@
-import { HiOutlineUsers } from "react-icons/hi2";
+import { HiOutlineHeart, HiOutlineUsers } from "react-icons/hi2";
 import CafeCustomers from "../components/consumer/CafeCustomers";
 import ShopifyCustomers from "../components/consumer/ShopifyCustomers";
+import OnlineFavorites from "../components/favorites/OnlineFavorites";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -21,6 +22,13 @@ export const ConsumerPageTabs = [
     label: "Shopify Customers",
     icon: <HiOutlineUsers className="text-lg font-thin" />,
     content: <ShopifyCustomers />,
+    isDisabled: false,
+  },
+  {
+    number: ConsumerPageTabEnum.ONLINE_FAVORITES,
+    label: "Online Favorites",
+    icon: <HiOutlineHeart className="text-lg font-thin" />,
+    content: <OnlineFavorites />,
     isDisabled: false,
   },
 ];

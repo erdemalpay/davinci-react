@@ -2677,5 +2677,19 @@
   "All types": "Tüm türler",
   "All statuses": "Tüm durumlar",
   "Overview": "Genel Bakış",
-  "Online Points": "Online Puanlar"
+  "Online Points": "Online Puanlar",
+  "Online Favorites": "Online Favoriler",
+  "Favorites": "Favoriler",
+  "Added At": "Eklenme Tarihi",
+  "Last Added": "Son Eklenme",
+  "Total Favorites": "Toplam Favori",
+  "Customers with Favorites": "Favorisi Olan Müşteri",
+  "Favorited Products": "Favorilenen Ürün",
+  "Added in Last 30 Days": "Son 30 Günde Eklenen",
+  "All Time": "Tüm Zamanlar",
+  "Customers who favorited": "Favorileyen müşteriler",
+  "Show customers": "Müşterileri göster",
+  "Most Favorited Products": "En Çok Favorilenen Ürünler",
+  "Out of stock": "Stokta yok",
+  "Draft": "Taslak"
 }
