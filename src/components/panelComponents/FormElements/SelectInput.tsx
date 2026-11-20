@@ -57,6 +57,7 @@ interface SelectInputProps {
   isExpandedMultiValueLabel?: boolean;
   menuPortalTarget?: HTMLElement | null;
   menuZIndex?: number;
+  labelClassName?: string;
 }
 
 const normalizeText = (text: string) => {
@@ -114,6 +115,7 @@ const SelectInput = ({
   isExpandedMultiValueLabel = false,
   menuPortalTarget,
   menuZIndex,
+  labelClassName = "",
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -259,7 +261,7 @@ const SelectInput = ({
         <H6
           className={`flex items-center gap-2 ${
             isTopFlexRow ? "w-28 flex-shrink-0" : ""
-          }`}
+          } ${labelClassName}`}
         >
           <span>{label}</span>
           {requiredField && <span className="text-red-400">*</span>}

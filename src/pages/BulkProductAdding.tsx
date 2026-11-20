@@ -1,20 +1,35 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaCheck, FaFileUpload } from "react-icons/fa";
+import { FiEdit } from "react-icons/fi";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { IoIosCreate, IoMdClose } from "react-icons/io";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { ActionEnum, DisabledConditionEnum } from "../types";
+import { useGetAccountBrands } from "../utils/api/account/brand";
+import { useGetAccountCountLists } from "../utils/api/account/countList";
+import { useGetAccountExpenseTypes } from "../utils/api/account/expenseType";
 import {
+  CreateBulkProductAndMenuItem,
   useCreateBulkProductAndMenuItemMutation,
   useUpdateMultipleProductMutations,
   validateBulkProductAndMenuItem,
 } from "../utils/api/account/product";
+import { useGetAccountVendors } from "../utils/api/account/vendor";
+import { useGetAllLocations } from "../utils/api/location";
+import { useGetCategories } from "../utils/api/menu/category";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
 
@@ -47,6 +62,69 @@ const isEmptyRow = (item: any) =>
     hasValue(item?.[key])
   );
 
+// Tek ürün formu: seçmeli alanlarda değer kaydın adıdır, gönderirken excel satırı gibi virgülle birleştirilir
+type SingleProductForm = {
+  name: string;
+  expenseType: string[];
+  brand: string[];
+  vendor: string[];
+  countList: string[];
+  locations: string[];
+  image: string;
+  category: string;
+  itemProduction: string;
+  price: string;
+  onlinePrice: string;
+  sku: string;
+  barcode: string;
+  description: string;
+};
+const initialSingleProductForm: SingleProductForm = {
+  name: "",
+  expenseType: [],
+  brand: [],
+  vendor: [],
+  countList: [],
+  locations: [],
+  image: "",
+  category: "",
+  itemProduction: "",
+  price: "",
+  onlinePrice: "",
+  sku: "",
+  barcode: "",
+  description: "",
+};
+const toNameOptions = (list: { name: string }[]) =>
+  list.map((item) => ({ value: item.name, label: item.name }));
+// Önizleme ya da hatalı satır tabloda sırasıyla tutulur, düzenle/kaldır hangi satır olduğunu buradan bilir
+type ActionRow = CreateBulkProductAndMenuItem & { rowIndex: number };
+const splitNames = (value?: string) =>
+  String(value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+const trimText = (value?: string | number) => String(value ?? "").trim();
+// Tablodaki satırı (excelden ya da formdan) tekrar düzenlemek için forma çevirir
+const toSingleProductForm = (
+  row: CreateBulkProductAndMenuItem
+): SingleProductForm => ({
+  name: trimText(row.name),
+  expenseType: splitNames(row.expenseType),
+  brand: splitNames(row.brand),
+  vendor: splitNames(row.vendor),
+  countList: splitNames(row.countList),
+  locations: splitNames(row.locations),
+  image: trimText(row.image),
+  category: trimText(row.category),
+  itemProduction: trimText(row.itemProduction),
+  price: trimText(row.price),
+  onlinePrice: trimText(row.onlinePrice),
+  sku: trimText(row.sku),
+  barcode: trimText(row.barcode),
+  description: trimText(row.description),
+});
+
 const translateErrorNote = (errorNote: string, t: (key: string) => string) => {
   const separatorIndex = errorNote.indexOf(": ");
   if (separatorIndex === -1) return t(errorNote);
@@ -59,6 +137,9 @@ const translateErrorNote = (errorNote: string, t: (key: string) => string) => {
         .join(", ")}`
     : `${t(prefix)}: ${detail}`;
 };
+
+const bulkProductAddingInfo =
+  "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas.";
 
 const BulkProductAdding = () => {
   const { t } = useTranslation();
@@ -84,6 +165,304 @@ const BulkProductAdding = () => {
     () => previewRows?.filter((row) => row?.errorNote)?.length ?? 0,
     [previewRows]
   );
+  const expenseTypes = useGetAccountExpenseTypes();
+  const brands = useGetAccountBrands();
+  const vendors = useGetAccountVendors();
+  const countLists = useGetAccountCountLists();
+  const locations = useGetAllLocations();
+  const categories = useGetCategories();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [singleProductForm, setSingleProductForm] = useState(
+    initialSingleProductForm
+  );
+  // Excel'deki kural: bir grubun zorunlu alanları sadece o gruptan bir alan doluysa aranır
+  const isProductGroupUsed = productGroupKeys.some((key) =>
+    hasValue(singleProductForm[key as keyof SingleProductForm])
+  );
+  const isMenuGroupUsed = menuGroupKeys.some((key) =>
+    hasValue(singleProductForm[key as keyof SingleProductForm])
+  );
+  const singleProductInputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      labelClassName: "text-red-500",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "expenseType",
+      labelClassName: "text-blue-500",
+      label: t("Expense Type"),
+      options: toNameOptions(expenseTypes),
+      isMultiple: true,
+      placeholder: t("Expense Type"),
+      required: isProductGroupUsed,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "brand",
+      labelClassName: "text-blue-500",
+      label: t("Brand"),
+      options: toNameOptions(brands),
+      isMultiple: true,
+      placeholder: t("Brand"),
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "vendor",
+      labelClassName: "text-blue-500",
+      label: t("Vendor"),
+      options: toNameOptions(vendors),
+      isMultiple: true,
+      placeholder: t("Vendor"),
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "countList",
+      labelClassName: "text-blue-500",
+      label: t("Count List"),
+      options: toNameOptions(countLists),
+      isMultiple: true,
+      placeholder: t("Count List"),
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "locations",
+      labelClassName: "text-blue-500",
+      label: t("Locations"),
+      options: toNameOptions(locations),
+      isMultiple: true,
+      placeholder: t("Locations"),
+      required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "image",
+      labelClassName: "text-orange-500",
+      label: t("Image"),
+      placeholder: "menu/7WondersDuel.png",
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      labelClassName: "text-orange-500",
+      label: t("Menu Category"),
+      options: toNameOptions(categories),
+      placeholder: t("Menu Category"),
+      required: isMenuGroupUsed,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "itemProduction",
+      labelClassName: "text-orange-500",
+      label: t("Ingredients"),
+      placeholder: "7 Wonders Duel_2,Karakum_3,Arnak",
+      required: false,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "price",
+      labelClassName: "text-orange-500",
+      label: t("Price"),
+      placeholder: t("Price"),
+      required: isMenuGroupUsed,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "onlinePrice",
+      labelClassName: "text-orange-500",
+      label: t("Online Price"),
+      placeholder: t("Online Price"),
+      required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "sku",
+      labelClassName: "text-orange-500",
+      label: "SKU",
+      placeholder: "SKU",
+      required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "barcode",
+      labelClassName: "text-orange-500",
+      label: t("Barcode"),
+      placeholder: t("Barcode"),
+      required: false,
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "description",
+      labelClassName: "text-orange-500",
+      label: t("Description"),
+      placeholder: t("Description"),
+      required: false,
+    },
+  ];
+  const singleProductFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.ARRAY },
+    { key: "brand", type: FormKeyTypeEnum.ARRAY },
+    { key: "vendor", type: FormKeyTypeEnum.ARRAY },
+    { key: "countList", type: FormKeyTypeEnum.ARRAY },
+    { key: "locations", type: FormKeyTypeEnum.ARRAY },
+    { key: "image", type: FormKeyTypeEnum.STRING },
+    { key: "category", type: FormKeyTypeEnum.STRING },
+    { key: "itemProduction", type: FormKeyTypeEnum.STRING },
+    { key: "price", type: FormKeyTypeEnum.NUMBER },
+    { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
+    { key: "sku", type: FormKeyTypeEnum.STRING },
+    { key: "barcode", type: FormKeyTypeEnum.STRING },
+    { key: "description", type: FormKeyTypeEnum.STRING },
+  ];
+  // Excel önizlemesiyle aynı: liste doğrulanır, hatalar satırda görünür, kayıt ancak onaydan sonra yapılır
+  const validatePreviewRows = async (items: CreateBulkProductAndMenuItem[]) => {
+    if (items.length === 0) {
+      setPreviewRows(null);
+      return;
+    }
+    setIsPreviewLoading(true);
+    try {
+      const errorNotes = await validateBulkProductAndMenuItem(items);
+      setErrorDataForProductBulkCreation([]);
+      setPreviewRows(
+        items.map((item, index) =>
+          errorNotes?.[index] ? { ...item, errorNote: errorNotes[index] } : item
+        )
+      );
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, t("An unexpected error occurred")));
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  };
+  // Tabloda o an görünen liste: önizleme açıksa o, değilse yüklemeden dönen hatalı satırlar
+  const actionRows: CreateBulkProductAndMenuItem[] =
+    previewRows ?? errorDataForProductBulkCreation;
+  // Eski hata notu tekrar doğrulamaya gitmesin
+  const toPreviewItems = (list: CreateBulkProductAndMenuItem[]) =>
+    list.map((row) => ({ ...row, errorNote: undefined }));
+  // Form satırı listeye eklenir ya da düzenlenen satırın yerine geçer; yükleme sonrası
+  // hatalı satır düzenlenirse o satır hatalılardan çıkıp önizlemeye geçer
+  const submitSingleProduct = (replacedRowIndex?: number) => {
+    const form = singleProductForm;
+    const formRow: CreateBulkProductAndMenuItem = {
+      name: form.name,
+      expenseType: form.expenseType.join(","),
+      brand: form.brand.join(","),
+      vendor: form.vendor.join(","),
+      countList: form.countList.join(","),
+      locations: form.locations.join(","),
+      image: form.image,
+      category: form.category,
+      itemProduction: form.itemProduction,
+      price: hasValue(form.price) ? Number(form.price) : undefined,
+      onlinePrice: hasValue(form.onlinePrice)
+        ? Number(form.onlinePrice)
+        : undefined,
+      sku: form.sku,
+      barcode: form.barcode,
+      description: form.description,
+    };
+    const previewList =
+      replacedRowIndex === undefined
+        ? [...(previewRows ?? []), formRow]
+        : previewRows
+        ? previewRows.map((row, index) =>
+            index === replacedRowIndex ? formRow : row
+          )
+        : [formRow];
+    validatePreviewRows(toPreviewItems(previewList));
+    setSingleProductForm(initialSingleProductForm);
+  };
+  // Ekle ve düzenle aynı formu kullanır
+  const singleProductPanelProps = {
+    inputs: singleProductInputs,
+    formKeys: singleProductFormKeys,
+    setForm: setSingleProductForm,
+    submitItem: () => undefined,
+    generalClassName: "overflow-visible",
+    topClassName: "flex flex-col gap-2",
+    upperMessage: [t(bulkProductAddingInfo)],
+  };
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [rowToAction, setRowToAction] = useState<ActionRow>();
+  const editedRow = rowToAction && actionRows[rowToAction.rowIndex];
+  const actions = [
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal:
+        rowToAction && editedRow ? (
+          <GenericAddEditPanel
+            isOpen={isEditModalOpen}
+            close={() => setIsEditModalOpen(false)}
+            {...singleProductPanelProps}
+            constantValues={toSingleProductForm(editedRow)}
+            isEditMode
+            handleUpdate={() => submitSingleProduct(rowToAction.rowIndex)}
+          />
+        ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+      isDisabled: isActionDisabled(
+        bulkProductAddDisabledCondition,
+        ActionEnum.ADD,
+        user
+      ),
+    },
+    {
+      name: t("Remove"),
+      icon: <HiOutlineTrash />,
+      className: "text-red-500 cursor-pointer text-2xl",
+      isModal: false,
+      isPath: false,
+      // Satır sadece bu listeden kalkar, veritabanına bir şey gitmez.
+      // Önizlemede kalanlar yeniden doğrulanır (ör. aynı ad iki kez eklendiyse)
+      onClick: (row: ActionRow) => {
+        const remainingRows = actionRows.filter(
+          (_, index) => index !== row.rowIndex
+        );
+        if (previewRows) {
+          validatePreviewRows(toPreviewItems(remainingRows));
+        } else {
+          setErrorDataForProductBulkCreation(remainingRows);
+        }
+      },
+    },
+  ];
+  const addButton = {
+    name: t("Add Product"),
+    isModal: true,
+    modal: (
+      <GenericAddEditPanel
+        isOpen={isAddModalOpen}
+        close={() => setIsAddModalOpen(false)}
+        {...singleProductPanelProps}
+        submitFunction={() => submitSingleProduct()}
+      />
+    ),
+    isModalOpen: isAddModalOpen,
+    setIsModal: setIsAddModalOpen,
+    isPath: false,
+    icon: null,
+    isDisabled:
+      isPreviewLoading ||
+      isActionDisabled(bulkProductAddDisabledCondition, ActionEnum.ADD, user),
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+  };
   const processExcelData = async (data: any[], actionType: string) => {
     const isCreate = actionType === "create";
     const headers = data[0];
@@ -145,22 +524,7 @@ const BulkProductAdding = () => {
       updateMultipleProduct(items);
       return;
     }
-    setIsPreviewLoading(true);
-    try {
-      const errorNotes = await validateBulkProductAndMenuItem(items);
-      setErrorDataForProductBulkCreation([]);
-      setPreviewRows(
-        items.map((item, index) =>
-          errorNotes?.[index] ? { ...item, errorNote: errorNotes[index] } : item
-        )
-      );
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message || t("An unexpected error occurred");
-      toast.error(errorMessage);
-    } finally {
-      setIsPreviewLoading(false);
-    }
+    await validatePreviewRows(items);
   };
   const handlePreviewUpload = () => {
     if (!previewRows || invalidPreviewRowCount > 0) return;
@@ -205,9 +569,11 @@ const BulkProductAdding = () => {
         : row
     );
   const rows =
-    (previewRows && translateRowErrors(previewRows)) ??
-    (errorDataForProductBulkCreation?.length > 0
-      ? translateRowErrors(errorDataForProductBulkCreation)
+    actionRows.length > 0
+      ? translateRowErrors(actionRows).map((row, rowIndex) => ({
+          ...row,
+          rowIndex,
+        }))
       : [
           {
             name: "7 Wonders Duel",
@@ -257,7 +623,8 @@ const BulkProductAdding = () => {
             description: "Domates sos, Mozerella peyniri, Fesleğen",
             image: "menu/Margharita.png",
           },
-        ]);
+        ];
+  const isRowActionsActive = actionRows.length > 0;
   const isErrorColumnShown =
     invalidPreviewRowCount > 0 ||
     (!previewRows && errorDataForProductBulkCreation?.length > 0);
@@ -357,6 +724,7 @@ const BulkProductAdding = () => {
           },
         ]
       : []),
+    ...(isRowActionsActive ? [{ key: t("Actions"), isSortable: false }] : []),
   ];
   const rowKeys = [
     { key: "name" },
@@ -486,7 +854,8 @@ const BulkProductAdding = () => {
           key={tableKey}
           rows={rows}
           rowKeys={rowKeys}
-          isActionsActive={false}
+          actions={actions}
+          isActionsActive={isRowActionsActive}
           columns={columns}
           isExcel={
             user &&
@@ -501,14 +870,11 @@ const BulkProductAdding = () => {
             row?.errorNote ? "bg-red-200" : ""
           }
           filters={filters}
+          addButton={addButton}
           excelFileName="BulkProductAdding.xlsx"
         />
         {!previewRows && errorDataForProductBulkCreation?.length === 0 && (
-          <p className="indent-2 text-sm">
-            {t(
-              "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas."
-            )}
-          </p>
+          <p className="indent-2 text-sm">{t(bulkProductAddingInfo)}</p>
         )}
       </div>
     </>
