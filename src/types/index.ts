@@ -226,6 +226,8 @@ export type Feedback = {
   table: number;
   comment?: string;
   starRating?: number;
+  fullName?: string;
+  phone?: string;
   createdAt: Date;
 };
 export enum WorkType {
