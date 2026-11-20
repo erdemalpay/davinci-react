@@ -35,6 +35,7 @@ type TextInputProps = {
   isReadOnly?: boolean;
   isCompactStyle?: boolean;
   maxLength?: number;
+  labelClassName?: string;
 };
 
 const TextInput = ({
@@ -56,6 +57,7 @@ const TextInput = ({
   isReadOnly = false,
   isCompactStyle = false,
   maxLength,
+  labelClassName = "",
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
@@ -174,7 +176,7 @@ const TextInput = ({
         } gap-2  w-full items-center`}
       >
         {label && (
-          <H6 className="min-w-10">
+          <H6 className={`min-w-10 ${labelClassName}`}>
             {label}
             {requiredField && (
               <>
@@ -210,7 +212,7 @@ const TextInput = ({
       <div className="flex justify-between items-center w-full">
         {/* Label on the left */}
         {label && (
-          <H6 className="my-auto">
+          <H6 className={`my-auto ${labelClassName}`}>
             {label}
             {requiredField && <span className="text-red-400">*</span>}
           </H6>
@@ -247,7 +249,7 @@ const TextInput = ({
         <H6
           className={`${
             isTopFlexRow ? "w-28 flex-shrink-0" : "min-w-10"
-          } my-auto`}
+          } my-auto ${labelClassName}`}
         >
           {label}
           {requiredField && (
