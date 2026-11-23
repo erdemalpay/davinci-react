@@ -1,4 +1,4 @@
-import { intervalToDuration, isToday, parseISO } from "date-fns";
+import { addDays, intervalToDuration, isToday, parseISO } from "date-fns";
 export function getDuration(
   dateString: string,
   startTime: string,
@@ -12,6 +12,9 @@ export function getDuration(
     } else {
       end = parseISO(`${dateString} 23:59`);
     }
+  } else if (end < start) {
+    // Gece yarısından sonra biten oyun: bitiş ertesi güne ait
+    end = addDays(end, 1);
   }
 
   const { hours, minutes } = intervalToDuration({ start, end });
