@@ -36,13 +36,24 @@ export interface JoinProductsRequest {
 
 export interface GameBatchFIFO {
   productId: string;
-  purchasedQuantity: number;
-  startDate: string;
-  endDate: string;
-  duration: number;
-  averageSalesPerDay: number;
-  remainingQuantity: number;
+  batchNo: number;
   purchaseDate: string;
+  purchasedQuantity: number;
+  soldQuantity: number;
+  transferredQuantity: number;
+  transfers: { location: number | null; quantity: number }[];
+  otherOutQuantity: number;
+  returnedQuantity: number;
+  remainingQuantity: number;
+  isActive: boolean;
+  sellStartDate: string | null;
+  endDate: string | null;
+  finish90Date: string | null;
+  duration: number | null;
+  duration90: number | null;
+  shelfDuration: number;
+  averageSalesPerDay: number;
+  stockHistoryId: number;
 }
 export function useAccountProductMutations() {
   const {
@@ -205,10 +216,6 @@ export function useGetAllAccountProducts() {
   return useGetList<AccountProduct>(allProductsBaseUrl);
 }
 
-export function useGetGameBatchesWithFIFO(location?: string) {
-  let gameBatchesUrl = `${Paths.Accounting}/game-batches`;
-  if (location) {
-    gameBatchesUrl += `?location=${location}`;
-  }
-  return useGetList<GameBatchFIFO>(gameBatchesUrl);
+export function useGetGameBatchesWithFIFO() {
+  return useGetList<GameBatchFIFO>(`${Paths.Accounting}/game-batches`);
 }
