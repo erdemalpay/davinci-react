@@ -6,6 +6,7 @@ import { Order, OrderStatus, Table } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
+import { formatQuantity } from "../../utils/quantity";
 
 type Props = {
   order: Order;
@@ -63,7 +64,7 @@ const OrderCard = ({ order, table }: Props) => {
     >
       <div className="flex w-4/6 gap-1">
         <p>{getItem(order?.item, menuItems)?.name} </p>
-        <h1 className="text-xs">({order?.quantity})</h1>
+        <h1 className="text-xs">({formatQuantity(order?.quantity)})</h1>
       </div>
 
       <div className="flex flex-row  ">

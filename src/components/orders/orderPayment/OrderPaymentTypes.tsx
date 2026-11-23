@@ -30,7 +30,7 @@ import { getItem } from "../../../utils/getItem";
 import { isCollectableAmount } from "../../../utils/collectionAmount";
 import { advanceSplitPayment } from "../../../utils/splitPayment";
 import PointUserSelectionModal from "./PointUserSelectionModal";
-import { roundQuantity } from "../../../utils/quantity";
+import { formatQuantity, roundQuantity } from "../../../utils/quantity";
 
 type Props = {
   tableOrders: Order[];
@@ -480,7 +480,7 @@ const OrderPaymentTypes = ({
                       >
                         <p className="text-sm">{item?.name}</p>
                         <p className="text-sm">
-                          {orderCollectionItem?.paidQuantity}
+                          {formatQuantity(orderCollectionItem?.paidQuantity)}
                         </p>
                       </div>
                     );

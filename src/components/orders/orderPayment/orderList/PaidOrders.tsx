@@ -9,6 +9,7 @@ import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount"
 import { getItem } from "../../../../utils/getItem";
 import { orderBgColor } from "../../../tables/OrderCard";
 import OrderScreenHeader from "./OrderScreenHeader";
+import { formatQuantity } from "../../../../utils/quantity";
 
 type Props = {
   tableOrders: Order[];
@@ -62,11 +63,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
               <div className="flex flex-row gap-1 text-sm font-medium py-0.2">
                 <p>
                   {"("}
-                  {(() => {
-                    return Number.isInteger(order.paidQuantity)
-                      ? order.paidQuantity
-                      : order.paidQuantity.toFixed(2);
-                  })()}
+                  {formatQuantity(order.paidQuantity)}
                   {")"}-
                 </p>
                 <p>{getItem(order?.item, items)?.name}</p>
