@@ -2689,5 +2689,9 @@
   "Show customers": "Show customers",
   "Most Favorited Products": "Most Favorited Products",
   "Out of stock": "Out of stock",
-  "Draft": "Draft"
+  "Draft": "Draft",
+  "Create new product": "Create new product",
+  "Also add to menu": "Also add to menu",
+  "Create new vendor": "Create new vendor",
+  "Create new brand": "Create new brand"
 }

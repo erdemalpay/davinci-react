@@ -17,8 +17,6 @@ import {
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetAllLocations } from "../../utils/api/location";
-import { useGetCategories } from "../../utils/api/menu/category";
 import {
   useGetMenuItems,
   useMenuItemMutations,
@@ -27,6 +25,15 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
+import {
+  menuItemDefaultsFor,
+  useMenuItemFormInputs,
+} from "../../hooks/useMenuItemFormInputs";
+import {
+  ProductForm,
+  initialProductForm,
+  useProductFormInputs,
+} from "../../hooks/useProductFormInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -41,11 +48,9 @@ const Product = () => {
   const { user } = useUserContext();
   const products = useGetAllAccountProducts();
   const items = useGetMenuItems();
-  const locations = useGetAllLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const countLists = useGetAccountCountLists();
-  const categories = useGetCategories();
   const navigate = useNavigate();
   const vendors = useGetAccountVendors();
   const pages = useGetPanelControlPages();
@@ -78,16 +83,7 @@ const Product = () => {
 
   const [form, setForm] = useState({ stayedProduct: "", removedProduct: "" });
 
-  const initialInputForm = {
-    brand: [] as string[],
-    vendor: [] as string[],
-    expenseType: [] as string[],
-    name: "",
-    matchedMenuItem: "",
-    countList: [] as string[],
-    locations: [],
-  };
-  const [inputForm, setInputForm] = useState(initialInputForm);
+  const [inputForm, setInputForm] = useState<ProductForm>(initialProductForm);
 
   const [
     isCloseAllConfirmationDialogOpen,
@@ -212,157 +208,14 @@ const Product = () => {
     [brands, vendors, expenseTypes, countLists, t]
   );
 
-  const inputs = useMemo(
-    () => [
-      {
-        type: InputTypes.TEXT,
-        formKey: "name",
-        label: t("Name"),
-        placeholder: t("Name"),
-        required: true,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "brand",
-        label: t("Brand"),
-        options: brands.map((brand) => ({
-          value: brand._id,
-          label: brand.name,
-        })),
-        isMultiple: true,
-        placeholder: t("Brand"),
-        required: false,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "vendor",
-        label: t("Vendor"),
-        options: vendors.map((vendor) => ({
-          value: vendor._id,
-          label: vendor.name,
-        })),
-        isMultiple: true,
-        placeholder: t("Vendor"),
-        required: true,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "expenseType",
-        label: t("Expense Type"),
-        options: expenseTypes.map((expenseType) => ({
-          value: expenseType._id,
-          label: expenseType.name,
-        })),
-        isMultiple: true,
-        placeholder: t("Expense Type"),
-        required: true,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "countList",
-        label: t("Count List"),
-        options: countLists.map((countList) => ({
-          value: countList._id,
-          label: countList.name,
-        })),
-        placeholder: t("Count List"),
-        isMultiple: true,
-        required: false,
-        isDisabled: isEditModalOpen,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "locations",
-        label: t("Locations"),
-        options: locations.map((location) => ({
-          value: location._id,
-          label: location.name,
-        })),
-        placeholder: t("Locations"),
-        isMultiple: true,
-        required: inputForm?.countList?.length > 0 && isAddModalOpen,
-        isDisabled: inputForm?.countList?.length === 0 || isEditModalOpen,
-      },
-      {
-        type: InputTypes.SELECT,
-        formKey: "matchedMenuItem",
-        label: t("Matched Menu Item"),
-        options: items.map((item) => ({ value: item._id, label: item.name })),
-        placeholder: t("Matched Menu Item"),
-        required: false,
-      },
-    ],
-    [t, expenseTypes, vendors, brands, items, inputForm, locations, countLists]
-  );
+  const { inputs, formKeys } = useProductFormInputs({
+    inputForm,
+    isAddModalOpen,
+    isEditModalOpen,
+  });
 
-  const formKeys = useMemo(
-    () => [
-      { key: "name", type: FormKeyTypeEnum.STRING },
-      { key: "expenseType", type: FormKeyTypeEnum.STRING },
-      { key: "vendor", type: FormKeyTypeEnum.STRING },
-      { key: "brand", type: FormKeyTypeEnum.ARRAY },
-      { key: "countList", type: FormKeyTypeEnum.ARRAY },
-      { key: "locations", type: FormKeyTypeEnum.ARRAY },
-      { key: "matchedMenuItem", type: FormKeyTypeEnum.STRING },
-    ],
-    []
-  );
-
-  const menuItemInputs = useMemo(
-    () => [
-      {
-        type: InputTypes.SELECT,
-        formKey: "category",
-        label: t("Category"),
-        options: categories.map((category) => ({
-          value: category._id,
-          label: category.name,
-        })),
-        placeholder: t("Category"),
-        required: true,
-      },
-      {
-        type: InputTypes.TEXTAREA,
-        formKey: "description",
-        label: t("Description"),
-        placeholder: t("Description"),
-        required: false,
-      },
-      {
-        type: InputTypes.NUMBER,
-        formKey: "price",
-        label: `${t("Price")}`,
-        placeholder: `${t("Price")}`,
-        required: true,
-      },
-      {
-        type: InputTypes.NUMBER,
-        formKey: "onlinePrice",
-        label: `${t("Online Price")}`,
-        placeholder: `${t("Online Price")}`,
-        required: false,
-      },
-      {
-        type: InputTypes.IMAGE,
-        formKey: "imageUrl",
-        label: "Image",
-        required: false,
-        folderName: "menu",
-      },
-    ],
-    [t, categories]
-  );
-
-  const menuItemFormKeys = useMemo(
-    () => [
-      { key: "category", type: FormKeyTypeEnum.STRING },
-      { key: "description", type: FormKeyTypeEnum.STRING },
-      { key: "price", type: FormKeyTypeEnum.NUMBER },
-      { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
-      { key: "imageUrl", type: FormKeyTypeEnum.STRING },
-    ],
-    []
-  );
+  const { inputs: menuItemInputs, formKeys: menuItemFormKeys } =
+    useMenuItemFormInputs();
 
   const joinProductFormKeys = useMemo(
     () => [
@@ -543,7 +396,6 @@ const Product = () => {
     items,
     isUnitPriceHidden,
     countLists,
-    locations,
   ]);
 
   const addButton = useMemo(
@@ -564,7 +416,7 @@ const Product = () => {
               ...inputForm,
               matchedMenuItem: Number(inputForm?.matchedMenuItem),
             });
-            setInputForm(initialInputForm);
+            setInputForm(initialProductForm);
           }}
           topClassName="flex flex-col gap-2"
         />
@@ -632,11 +484,7 @@ const Product = () => {
             inputs={menuItemInputs}
             formKeys={menuItemFormKeys}
             submitItem={createItem as any}
-            constantValues={{
-              name: rowToAction.name,
-              locations: [1, 2],
-              matchedProduct: rowToAction._id,
-            }}
+            constantValues={menuItemDefaultsFor(rowToAction)}
             folderName="menu"
           />
         ) : null,
