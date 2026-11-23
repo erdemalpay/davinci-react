@@ -18,6 +18,7 @@ import {
 import { useGetStockLocations } from "../../utils/api/location";
 import { getItem, getRefId } from "../../utils/getItem";
 import { orderBgColor } from "./OrderCard";
+import { formatQuantity } from "../../utils/quantity";
 
 type Props = {
   orderStatus: Partial<OrderStatus>[];
@@ -105,7 +106,9 @@ const OrderListForPanelTab = ({
             {/* name and quantity */}
             <div className="flex gap-1 items-center">
               <p>{orderItem?.name}</p>
-              <h1 className="text-xs">({getQuantityBase(order).quantity})</h1>
+              <h1 className="text-xs">
+                ({formatQuantity(getQuantityBase(order).quantity)})
+              </h1>
             </div>
 
             <div className="flex flex-row gap-2 items-center">
