@@ -154,7 +154,12 @@ export function useOrderMutations() {
   const { updateItem: updateOrder, createItem: createOrder } =
     useMutationApi<Order>({
       baseQuery: baseUrl,
+      // Masa kartları, ödeme ekranı ve mutfak sayfası siparişleri bu
+      // listelerden okur; ['/order'] anahtarını okuyan ekran yok.
+      isAdditionalInvalidate: true,
       additionalInvalidates: [
+        [`${Paths.Order}/today`],
+        [`${Paths.Order}/table`],
         [`${Paths.Order}/query`],
         [`${Paths.Order}/collection/query`],
       ],

@@ -1,26 +1,28 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   useCancelOrderForDiscountMutation,
   useCreateOrderForDiscountMutation,
+  useOrderMutations,
 } from "./order";
 
-const mocks = vi.hoisted(() => ({ post: vi.fn() }));
+const mocks = vi.hoisted(() => ({ post: vi.fn(), patch: vi.fn() }));
 
-vi.mock("../index", () => ({ post: mocks.post, patch: vi.fn() }));
+// factory.ts de aynı modülden okur; useOrderMutations gerçek useMutationApi ile
+// test edilir.
+vi.mock("../index", () => ({
+  get: vi.fn(),
+  post: mocks.post,
+  patch: mocks.patch,
+  remove: vi.fn(),
+}));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 vi.mock("react-toastify", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
-}));
-vi.mock("../factory", () => ({
-  Paths: { Order: "/order" },
-  useGet: vi.fn(),
-  useGetList: vi.fn(),
-  useMutationApi: vi.fn(),
 }));
 vi.mock("./../../../context/Date.context", () => ({ useDateContext: vi.fn() }));
 vi.mock("./../../../context/Location.context", () => ({
@@ -83,6 +85,41 @@ describe("discount mutations", () => {
     });
 
     expect(isInvalidated(todayOrdersKey)).toBe(true);
+    expect(isInvalidated(tableOrdersKey)).toBe(true);
+  });
+});
+
+describe("useOrderMutations", () => {
+  beforeEach(() => {
+    mocks.post.mockReset();
+    mocks.post.mockResolvedValue({ _id: 240554 });
+    mocks.patch.mockReset();
+    mocks.patch.mockResolvedValue({ _id: 240554 });
+  });
+
+  // Ödeme ekranında "Ürün Bazlı 1/n" bölme ve sipariş kartlarındaki durum
+  // değişiklikleri updateOrder ile gider.
+  it("refreshes the payment screen's orders after an order is updated", async () => {
+    const { wrapper, isInvalidated } = setup();
+    const { result } = renderHook(() => useOrderMutations(), { wrapper });
+
+    act(() => {
+      result.current.updateOrder({ id: 240554, updates: { division: 4 } });
+    });
+
+    await waitFor(() => expect(isInvalidated(todayOrdersKey)).toBe(true));
+    expect(isInvalidated(tableOrdersKey)).toBe(true);
+  });
+
+  it("refreshes the payment screen's orders after an order is created", async () => {
+    const { wrapper, isInvalidated } = setup();
+    const { result } = renderHook(() => useOrderMutations(), { wrapper });
+
+    act(() => {
+      result.current.createOrder({ table: 87304, item: 39, quantity: 1 });
+    });
+
+    await waitFor(() => expect(isInvalidated(todayOrdersKey)).toBe(true));
     expect(isInvalidated(tableOrdersKey)).toBe(true);
   });
 });
