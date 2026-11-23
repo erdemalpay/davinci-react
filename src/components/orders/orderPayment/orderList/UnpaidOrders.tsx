@@ -35,7 +35,7 @@ import {
 import CustomDiscountDialog from "./CustomDiscountDialog";
 import { remainingToCollect } from "../../../../utils/collectionAmount";
 import OrderScreenHeader from "./OrderScreenHeader";
-import { roundQuantity } from "../../../../utils/quantity";
+import { formatQuantity, roundQuantity } from "../../../../utils/quantity";
 type Props = {
   table: Table;
   tableOrders: Order[];
@@ -268,15 +268,10 @@ const UnpaidOrders = ({
                 <div className="flex flex-row gap-1 text-sm font-medium py-0.2 items-center">
                   <p className="mr-auto">
                     {"("}
-                    {(() => {
-                      const remainingQuantity =
-                        order?.quantity -
-                        (order?.paidQuantity + (tempOrder?.quantity ?? 0));
-
-                      return Number.isInteger(remainingQuantity)
-                        ? remainingQuantity
-                        : remainingQuantity.toFixed(2);
-                    })()}
+                    {formatQuantity(
+                      order?.quantity -
+                        (order?.paidQuantity + (tempOrder?.quantity ?? 0))
+                    )}
                     {")"}-
                   </p>
                   <div className="flex flex-col gap-1 justify-start mr-auto ">

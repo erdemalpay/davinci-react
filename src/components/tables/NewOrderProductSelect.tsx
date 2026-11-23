@@ -5,6 +5,7 @@ import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
 import OrderScreenHeader from "../orders/orderPayment/orderList/OrderScreenHeader";
+import { formatQuantity } from "../../utils/quantity";
 
 const NewOrderProductSelect = () => {
   const { t } = useTranslation();
@@ -123,7 +124,7 @@ const NewOrderProductSelect = () => {
                 {foundOrder?.selectedQuantity ?? ""}
               </p>
               <p>
-                ({order.quantity}) - {orderItem?.name}
+                ({formatQuantity(order.quantity)}) - {orderItem?.name}
               </p>
             </div>
 
