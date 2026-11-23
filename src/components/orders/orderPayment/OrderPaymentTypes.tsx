@@ -30,6 +30,7 @@ import { getItem } from "../../../utils/getItem";
 import { isCollectableAmount } from "../../../utils/collectionAmount";
 import { advanceSplitPayment } from "../../../utils/splitPayment";
 import PointUserSelectionModal from "./PointUserSelectionModal";
+import { roundQuantity } from "../../../utils/quantity";
 
 type Props = {
   tableOrders: Order[];
@@ -122,7 +123,9 @@ const OrderPaymentTypes = ({
           ?.map((order) => {
             return {
               order: order?._id,
-              paidQuantity: order?.quantity - order?.paidQuantity,
+              paidQuantity: roundQuantity(
+                order?.quantity - order?.paidQuantity
+              ),
             };
           })
       : temporaryOrders?.map((order) => ({
@@ -135,7 +138,7 @@ const OrderPaymentTypes = ({
       ?.map((order) => {
         return {
           order: order?._id,
-          paidQuantity: order?.quantity - order?.paidQuantity,
+          paidQuantity: roundQuantity(order?.quantity - order?.paidQuantity),
         };
       });
   }
