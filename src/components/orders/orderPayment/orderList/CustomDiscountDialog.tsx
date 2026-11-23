@@ -7,6 +7,7 @@ import {
   CustomDiscountValues,
   validateCustomDiscountValues,
 } from "./customDiscount";
+import { formatQuantity } from "../../../../utils/quantity";
 
 type Props = {
   isOpen: boolean;
@@ -97,7 +98,7 @@ const CustomDiscountDialog = ({
                       </p>
                     </div>
                     <p className="text-sm text-gray-600">
-                      {t("Remaining quantity")}: {maxQuantity}
+                      {t("Remaining quantity")}: {formatQuantity(maxQuantity)}
                     </p>
                   </div>
 
