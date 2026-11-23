@@ -8,6 +8,7 @@ import { useGetAllCategories } from "../../../../utils/api/menu/category";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
 import OrderScreenHeader from "./OrderScreenHeader";
+import { roundQuantity } from "../../../../utils/quantity";
 
 type Props = {
   tableOrders: Order[];
@@ -77,8 +78,9 @@ const OrderSelect = ({ tableOrders }: Props) => {
                   return {
                     order: order,
                     totalQuantity: order?.quantity ?? 0,
-                    selectedQuantity:
-                      (order?.quantity ?? 0) - (order?.paidQuantity ?? 0),
+                    selectedQuantity: roundQuantity(
+                      (order?.quantity ?? 0) - (order?.paidQuantity ?? 0)
+                    ),
                   };
                 })
               );
@@ -181,7 +183,9 @@ const OrderSelect = ({ tableOrders }: Props) => {
                   const foundSelectedOrder = selectedOrdersMap.get(order._id);
                   if (
                     foundSelectedOrder?.selectedQuantity ===
-                    (order?.quantity ?? 0) - (order?.paidQuantity ?? 0)
+                    roundQuantity(
+                      (order?.quantity ?? 0) - (order?.paidQuantity ?? 0)
+                    )
                   ) {
                     setSelectedOrders([
                       ...selectedOrders.filter(
@@ -196,8 +200,9 @@ const OrderSelect = ({ tableOrders }: Props) => {
                       {
                         order: order,
                         totalQuantity: order.quantity,
-                        selectedQuantity:
-                          (order?.quantity ?? 0) - (order?.paidQuantity ?? 0),
+                        selectedQuantity: roundQuantity(
+                          (order?.quantity ?? 0) - (order?.paidQuantity ?? 0)
+                        ),
                       },
                     ]);
                   }
