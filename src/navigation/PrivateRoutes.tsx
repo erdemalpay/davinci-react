@@ -25,10 +25,15 @@ export function PrivateRoutes() {
 
   if (!user || pages.length === 0 || !allRoutes || !currentRoute) return null;
 
+  // A page without its own record yet falls back to the page it inherits from.
+  const currentPage =
+    pages.find((page) => page.name === currentRoute?.name) ??
+    (currentRoute.permissionsFrom
+      ? pages.find((page) => page.name === currentRoute.permissionsFrom)
+      : undefined);
+
   if (
-    pages
-      .find((page) => page.name === currentRoute?.name)
-      ?.permissionRoles.includes(user.role._id) ||
+    currentPage?.permissionRoles.includes(user.role._id) ||
     allRoutes
       ?.find((route) => route.name === currentRoute?.name)
       ?.exceptionalRoles?.includes(user.role._id)

@@ -250,6 +250,8 @@ export const allRoutes: {
   path?: string;
   isOnSidebar: boolean;
   exceptionalRoles?: number[];
+  // When the page has no permission record yet, start with this page's roles.
+  permissionsFrom?: string;
   link?: string;
   element?: ComponentType;
   tabs?: Tab[];
@@ -871,7 +873,10 @@ export const allRoutes: {
     tabs: RetailerOrdersPageTabs,
   },
   {
-    name: "Consumers",
+    // Own permission record: sharing "Consumers" made the two pages overwrite
+    // each other's tabs, leaving the Consumers page blank.
+    name: "Shopify Customer Detail",
+    permissionsFrom: "Consumers",
     path: Routes.ShopifyCustomerDetail,
     element: ShopifyCustomerDetail,
     isOnSidebar: false,

@@ -35,6 +35,7 @@ import {
 import CustomDiscountDialog from "./CustomDiscountDialog";
 import { remainingToCollect } from "../../../../utils/collectionAmount";
 import OrderScreenHeader from "./OrderScreenHeader";
+import { roundQuantity } from "../../../../utils/quantity";
 type Props = {
   table: Table;
   tableOrders: Order[];
@@ -225,18 +226,20 @@ const UnpaidOrders = ({
 
                           return {
                             ...tempOrder,
-                            quantity: order?.division
-                              ? orderDivisionCondition < 1e-6
-                                ? order?.quantity - order?.paidQuantity
+                            quantity: roundQuantity(
+                              order?.division
+                                ? orderDivisionCondition < 1e-6
+                                  ? order?.quantity - order?.paidQuantity
+                                  : tempOrder.quantity +
+                                    order?.quantity / order?.division
                                 : tempOrder.quantity +
-                                  order?.quantity / order?.division
-                              : tempOrder.quantity +
-                                Math.min(
-                                  order?.quantity -
-                                    order?.paidQuantity -
-                                    tempOrder.quantity,
-                                  1
-                                ),
+                                    Math.min(
+                                      order?.quantity -
+                                        order?.paidQuantity -
+                                        tempOrder.quantity,
+                                      1
+                                    )
+                            ),
                           };
                         }
                         return tempOrder;
@@ -247,9 +250,14 @@ const UnpaidOrders = ({
                       ...temporaryOrders,
                       {
                         order,
-                        quantity: order?.division
-                          ? order?.quantity / order?.division
-                          : Math.min(order?.quantity - order?.paidQuantity, 1),
+                        quantity: roundQuantity(
+                          Math.min(
+                            order?.division
+                              ? order?.quantity / order?.division
+                              : 1,
+                            order?.quantity - order?.paidQuantity
+                          )
+                        ),
                       },
                     ]);
                   }
@@ -528,7 +536,9 @@ const UnpaidOrders = ({
                         ) || []),
                         {
                           order: order,
-                          quantity: order?.quantity - order?.paidQuantity,
+                          quantity: roundQuantity(
+                            order?.quantity - order?.paidQuantity
+                          ),
                         },
                       ]);
                     }}
