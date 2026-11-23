@@ -2,10 +2,6 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
 import {
-  menuItemDefaultsFor,
-  useMenuItemFormInputs,
-} from "../../hooks/useMenuItemFormInputs";
-import {
   ProductForm,
   initialProductForm,
   useProductFormInputs,
@@ -15,7 +11,6 @@ import {
   AccountVendor,
   ActionEnum,
   DisabledConditionEnum,
-  MenuItem,
 } from "../../types";
 import { useAccountBrandMutations } from "../../utils/api/account/brand";
 import {
@@ -27,7 +22,6 @@ import {
   useGetAccountServices,
 } from "../../utils/api/account/service";
 import { useAccountVendorMutations } from "../../utils/api/account/vendor";
-import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
@@ -36,7 +30,6 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import {
   FormKeyTypeEnum,
   GenericInputType,
-  InputTypes,
 } from "../panelComponents/shared/types";
 
 type QuickCreateDefinitionType = "vendor" | "brand";
@@ -46,13 +39,9 @@ export type QuickCreateTarget = { kind: "product" | "service"; id: string };
 
 type SelectCreated = (value: number | string) => void;
 
-type QuickProductForm = ProductForm & { addToMenu?: boolean };
-
 type ProductPayload = Omit<ProductForm, "matchedMenuItem"> & {
   matchedMenuItem: number;
 };
-
-type CreatedProduct = { _id: string; name: string };
 
 const disabledConditionByType = {
   vendor: DisabledConditionEnum.ACCOUNTING_VENDOR,
@@ -61,19 +50,13 @@ const disabledConditionByType = {
 
 // Tanımlamalar > Ürünler'deki ürün formunun aynısı; kayıttan sonra oluşan ürünü seçtirir.
 const QuickCreateProductPanel = ({
-  canAddToMenu,
   close,
   createProduct,
 }: {
-  canAddToMenu: boolean;
   close: () => void;
-  createProduct: (payload: ProductPayload, addToMenu: boolean) => void;
+  createProduct: (payload: ProductPayload) => void;
 }) => {
-  const { t } = useTranslation();
-  const [inputForm, setInputForm] = useState<QuickProductForm>({
-    ...initialProductForm,
-    addToMenu: false,
-  });
+  const [inputForm, setInputForm] = useState<ProductForm>(initialProductForm);
   const { inputs, formKeys } = useProductFormInputs({
     inputForm,
     isAddModalOpen: true,
@@ -84,64 +67,18 @@ const QuickCreateProductPanel = ({
     <GenericAddEditPanel
       isOpen
       close={close}
-      inputs={
-        canAddToMenu
-          ? [
-              ...inputs,
-              {
-                type: InputTypes.CHECKBOX,
-                formKey: "addToMenu",
-                label: t("Also add to menu"),
-                placeholder: t("Also add to menu"),
-                required: false,
-                isTopFlexRow: true,
-              },
-            ]
-          : inputs
-      }
-      formKeys={
-        canAddToMenu
-          ? [...formKeys, { key: "addToMenu", type: FormKeyTypeEnum.BOOLEAN }]
-          : formKeys
-      }
+      inputs={inputs}
+      formKeys={formKeys}
       setForm={setInputForm}
       generalClassName="overflow-visible"
       topClassName="flex flex-col gap-2"
       submitItem={() => undefined}
-      submitFunction={() => {
-        const { addToMenu, ...productFields } = inputForm;
-        createProduct(
-          {
-            ...productFields,
-            matchedMenuItem: Number(productFields.matchedMenuItem),
-          },
-          Boolean(addToMenu)
-        );
-      }}
-    />
-  );
-};
-
-// Tanımlamalar > Ürünler satırındaki "+" ile aynı menü ürünü formu; yeni ürüne bağlı açılır.
-const QuickCreateMenuItemPanel = ({
-  product,
-  close,
-}: {
-  product: CreatedProduct;
-  close: () => void;
-}) => {
-  const { createItem } = useMenuItemMutations();
-  const { inputs, formKeys } = useMenuItemFormInputs();
-
-  return (
-    <GenericAddEditPanel
-      isOpen
-      close={close}
-      inputs={inputs}
-      formKeys={formKeys}
-      submitItem={(item) => createItem(item as Partial<MenuItem>)}
-      constantValues={menuItemDefaultsFor(product)}
-      folderName="menu"
+      submitFunction={() =>
+        createProduct({
+          ...inputForm,
+          matchedMenuItem: Number(inputForm.matchedMenuItem),
+        })
+      }
     />
   );
 };
@@ -170,9 +107,6 @@ export function useQuickCreate() {
     target: QuickCreateTarget;
     select: SelectCreated;
   } | null>(null);
-  const [menuItemProduct, setMenuItemProduct] = useState<CreatedProduct | null>(
-    null
-  );
 
   const isAllowed = useCallback(
     (condition: DisabledConditionEnum, ...actions: ActionEnum[]) =>
@@ -251,27 +185,12 @@ export function useQuickCreate() {
     <>
       {productPending && (
         <QuickCreateProductPanel
-          canAddToMenu={isAllowed(
-            DisabledConditionEnum.ACCOUNTING_PRODUCT,
-            ActionEnum.ADD_TO_ELEMENT
-          )}
           close={() => setProductPending(null)}
-          createProduct={(form, addToMenu) =>
+          createProduct={(form) =>
             createAccountProduct(form, {
-              onSuccess: (created) => {
-                productPending.select(created._id);
-                if (addToMenu) {
-                  setMenuItemProduct({ _id: created._id, name: created.name });
-                }
-              },
+              onSuccess: (created) => productPending.select(created._id),
             })
           }
-        />
-      )}
-      {menuItemProduct && (
-        <QuickCreateMenuItemPanel
-          product={menuItemProduct}
-          close={() => setMenuItemProduct(null)}
         />
       )}
       {definitionPending && (

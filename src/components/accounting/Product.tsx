@@ -17,6 +17,7 @@ import {
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetCategories } from "../../utils/api/menu/category";
 import {
   useGetMenuItems,
   useMenuItemMutations,
@@ -25,10 +26,6 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
-import {
-  menuItemDefaultsFor,
-  useMenuItemFormInputs,
-} from "../../hooks/useMenuItemFormInputs";
 import {
   ProductForm,
   initialProductForm,
@@ -51,6 +48,7 @@ const Product = () => {
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const countLists = useGetAccountCountLists();
+  const categories = useGetCategories();
   const navigate = useNavigate();
   const vendors = useGetAccountVendors();
   const pages = useGetPanelControlPages();
@@ -214,8 +212,61 @@ const Product = () => {
     isEditModalOpen,
   });
 
-  const { inputs: menuItemInputs, formKeys: menuItemFormKeys } =
-    useMenuItemFormInputs();
+  const menuItemInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "category",
+        label: t("Category"),
+        options: categories.map((category) => ({
+          value: category._id,
+          label: category.name,
+        })),
+        placeholder: t("Category"),
+        required: true,
+      },
+      {
+        type: InputTypes.TEXTAREA,
+        formKey: "description",
+        label: t("Description"),
+        placeholder: t("Description"),
+        required: false,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "price",
+        label: `${t("Price")}`,
+        placeholder: `${t("Price")}`,
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "onlinePrice",
+        label: `${t("Online Price")}`,
+        placeholder: `${t("Online Price")}`,
+        required: false,
+      },
+      {
+        type: InputTypes.IMAGE,
+        formKey: "imageUrl",
+        label: "Image",
+        required: false,
+        folderName: "menu",
+      },
+    ],
+    [t, categories]
+  );
+
+  const menuItemFormKeys = useMemo(
+    () => [
+      { key: "category", type: FormKeyTypeEnum.STRING },
+      { key: "description", type: FormKeyTypeEnum.STRING },
+      { key: "price", type: FormKeyTypeEnum.NUMBER },
+      { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
+      { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+    ],
+    []
+  );
 
   const joinProductFormKeys = useMemo(
     () => [
@@ -484,7 +535,11 @@ const Product = () => {
             inputs={menuItemInputs}
             formKeys={menuItemFormKeys}
             submitItem={createItem as any}
-            constantValues={menuItemDefaultsFor(rowToAction)}
+            constantValues={{
+              name: rowToAction.name,
+              locations: [1, 2],
+              matchedProduct: rowToAction._id,
+            }}
             folderName="menu"
           />
         ) : null,
