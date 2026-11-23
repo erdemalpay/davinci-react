@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -1029,18 +1033,19 @@ export function createOrderForDiscount(payload: CreateOrderForDiscountPayload) {
     payload,
   });
 }
+// Ödeme ekranı masanın siparişlerini masa kartından açılınca bugünün
+// siparişlerinden, Masalar sayfasından açılınca masanın kendi listesinden
+// okur. İndirim değişince ikisi de yenilenir; socket'e bel bağlanmaz.
+const refreshDiscountedOrders = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/table`] });
+  queryClient.invalidateQueries({ queryKey: [`${Paths.Order}/today`] });
+};
 export function useCreateOrderForDiscountMutation() {
-  const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   return useMutation({
     mutationFn: createOrderForDiscount,
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
+    onSettled: () => refreshDiscountedOrders(queryClient),
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || t("An unexpected error occurred");
@@ -1055,17 +1060,11 @@ export function cancelOrderForDiscount(payload: CancelOrderForDiscount) {
   });
 }
 export function useCancelOrderForDiscountMutation() {
-  const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   return useMutation({
     mutationFn: cancelOrderForDiscount,
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
+    onSettled: () => refreshDiscountedOrders(queryClient),
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || t("An unexpected error occurred");
