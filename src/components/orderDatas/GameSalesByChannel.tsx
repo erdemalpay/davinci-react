@@ -36,6 +36,7 @@ enum Channel {
   SHOPIFY_SHIPPED = "shopify_shipped",
   TRENDYOL = "trendyol",
   HEPSIBURADA = "hepsiburada",
+  AMAZON = "amazon",
   RETAILER = "retailer",
 }
 
@@ -45,6 +46,7 @@ const channelLabels: Record<Channel, string> = {
   [Channel.SHOPIFY_SHIPPED]: "Shopify Shipped",
   [Channel.TRENDYOL]: "Trendyol",
   [Channel.HEPSIBURADA]: "Hepsiburada",
+  [Channel.AMAZON]: "Amazon",
   [Channel.RETAILER]: "Retailer (Wholesale)",
 };
 
@@ -54,6 +56,7 @@ const channelOrder = [
   Channel.SHOPIFY_SHIPPED,
   Channel.TRENDYOL,
   Channel.HEPSIBURADA,
+  Channel.AMAZON,
   Channel.RETAILER,
 ];
 
@@ -64,6 +67,7 @@ function getChannel(order: Order, retailerId?: number): Channel {
   }
   if (order?.trendyolOrderId) return Channel.TRENDYOL;
   if (order?.hepsiburadaOrderNumber) return Channel.HEPSIBURADA;
+  if (order?.amazonOrderNumber) return Channel.AMAZON;
   return Channel.STORE;
 }
 

@@ -40,6 +40,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickCreateTarget, useQuickCreate } from "../common/QuickCreate";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -95,6 +96,7 @@ const ServiceInvoice = () => {
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
   const services = useGetAccountServices();
+  const { createNewFor, quickCreateModals } = useQuickCreate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
@@ -314,6 +316,14 @@ const ServiceInvoice = () => {
     ],
     []
   );
+  const quickCreateTarget = useMemo<QuickCreateTarget | undefined>(
+    () =>
+      serviceExpenseForm?.service
+        ? { kind: "service", id: serviceExpenseForm.service }
+        : undefined,
+    [serviceExpenseForm?.service]
+  );
+
   const inputs = useMemo(
     () => [
       {
@@ -384,6 +394,7 @@ const ServiceInvoice = () => {
             })) || [],
         placeholder: t("Vendor"),
         required: true,
+        createNew: createNewFor("vendor", quickCreateTarget),
       },
       {
         type: InputTypes.SELECT,
@@ -424,6 +435,8 @@ const ServiceInvoice = () => {
       locations,
       vendors,
       paymentMethods,
+      createNewFor,
+      quickCreateTarget,
     ]
   );
   const formKeys = useMemo(
@@ -1220,6 +1233,7 @@ const ServiceInvoice = () => {
           />
         )}
       </div>
+      {quickCreateModals}
     </>
   );
 };

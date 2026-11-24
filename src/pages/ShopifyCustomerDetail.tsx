@@ -1,10 +1,17 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineAccountCircle, MdOutlineShoppingCart } from "react-icons/md";
+import {
+  MdFavoriteBorder,
+  MdOutlineAccountCircle,
+  MdOutlineShoppingCart,
+  MdOutlineStars,
+} from "react-icons/md";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Select from "react-select";
 import ShopifyCustomerOrders from "../components/consumer/ShopifyCustomerOrders";
 import ShopifyCustomerSummary from "../components/consumer/ShopifyCustomerSummary";
+import ShopifyCustomerFavorites from "../components/favorites/ShopifyCustomerFavorites";
+import ShopifyCustomerLoyalty from "../components/loyalty/ShopifyCustomerLoyalty";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -26,6 +33,20 @@ export const ShopifyCustomerDetailPageTabs = [
     label: "Orders",
     icon: <MdOutlineShoppingCart className="text-lg font-thin" />,
     content: <ShopifyCustomerOrders />,
+    isDisabled: false,
+  },
+  {
+    number: 2,
+    label: "Online Points",
+    icon: <MdOutlineStars className="text-lg font-thin" />,
+    content: <ShopifyCustomerLoyalty />,
+    isDisabled: false,
+  },
+  {
+    number: 3,
+    label: "Favorites",
+    icon: <MdFavoriteBorder className="text-lg font-thin" />,
+    content: <ShopifyCustomerFavorites />,
     isDisabled: false,
   },
 ];
@@ -102,6 +123,20 @@ export default function ShopifyCustomerDetail() {
         label: t("Customer Summary"),
         icon: <MdOutlineAccountCircle className="text-lg font-thin" />,
         content: <ShopifyCustomerSummary customer={customer} />,
+        isDisabled: false,
+      },
+      {
+        number: 2,
+        label: t("Online Points"),
+        icon: <MdOutlineStars className="text-lg font-thin" />,
+        content: <ShopifyCustomerLoyalty customer={customer} />,
+        isDisabled: false,
+      },
+      {
+        number: 3,
+        label: t("Favorites"),
+        icon: <MdFavoriteBorder className="text-lg font-thin" />,
+        content: <ShopifyCustomerFavorites customer={customer} />,
         isDisabled: false,
       },
     ],

@@ -259,6 +259,14 @@ export const BreakButton = ({ onBreakStart }: BreakButtonProps) => {
       );
       return;
     }
+    // The upstairs duty never takes the middleman role.
+    const isOnUpstairsDuty = duties?.some(
+      (d) => !d.finishHour && d.user === user._id
+    );
+    if (isOnUpstairsDuty) {
+      toast.error(t("The upstairs duty cannot be the middleman"));
+      return;
+    }
     createMiddleman({
       user: user._id,
       location: selectedLocationId,

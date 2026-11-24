@@ -40,6 +40,8 @@ export interface FilterType<T> {
   label?: string;
   isUpperSide: boolean;
   isDisabled?: boolean;
+  // Telefonda alt taraftaki filtre de filtre menüsünün içinde gösterilir
+  isInMobileMenu?: boolean;
 }
 
 export interface RowKeyType<T> {
@@ -129,6 +131,11 @@ export interface GenericInputType {
   ) => void;
   onChangeTrigger?: (value: any) => void;
   isReadOnly?: boolean;
+  // onClick, oluşturulan kaydın değerini forma yazan `select` fonksiyonunu alır
+  createNew?: {
+    label: string;
+    onClick: (select: (value: number | string) => void) => void;
+  };
   helperText?: string;
   helperNode?: React.ReactNode;
   invalidateKeys?: {

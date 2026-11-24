@@ -495,6 +495,14 @@ function TableCardComponent({
     setIsDeleteConfirmationDialogOpen(false);
   }, [table._id, tableOrders, deleteTable, t]);
 
+  // Masa açılırken kart sunucu cevabından önce (_id'siz) görünür; o arada
+  // sipariş girilirse masasız kaydolur, bu yüzden pencere açılmaz.
+  const isTableCreated = useCallback(() => {
+    if (table._id) return true;
+    toast.error(t("Table is still being created, please try again shortly"));
+    return false;
+  }, [table._id, t]);
+
   const handleQuickOrderObject = () => {
     if (!menuItems || !categories) return null;
     const selectedMenuItem = getItem(quickOrderForm?.item, menuItems);
@@ -605,6 +613,7 @@ function TableCardComponent({
               <span>
                 <CardAction
                   onClick={() => {
+                    if (!isTableCreated()) return;
                     setIsQuickOrderDialogOpen(true);
                   }}
                   IconComponent={MdFlashOn}
@@ -617,6 +626,7 @@ function TableCardComponent({
               <span>
                 <CardAction
                   onClick={() => {
+                    if (!isTableCreated()) return;
                     setIsTableCardCreateOrderDialogOpen(true);
                   }}
                   IconComponent={MdBorderColor}

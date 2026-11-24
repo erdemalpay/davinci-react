@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { FormElementsState, RowPerPageEnum, ShopifyAdminCustomer } from "../../types";
+import { useGetFavoriteCounts } from "../../utils/api/favorites";
 import {
   useGetShopifyCustomers,
   useRefreshShopifyCustomersMutation,
@@ -44,6 +45,10 @@ const ShopifyCustomers = () => {
     return payload.data;
   }, [payload]);
 
+  const favoriteCounts = useGetFavoriteCounts(
+    rows.map((row) => row.id.split("/").pop() ?? "").filter(Boolean)
+  );
+
   const pagination = useMemo(
     () =>
       payload
@@ -57,6 +62,7 @@ const ShopifyCustomers = () => {
       { key: t("Name"), isSortable: false },
       { key: t("Orders"), isSortable: false },
       { key: t("Total Spent"), isSortable: false },
+      { key: t("Favorites"), isSortable: false },
     ],
     [t]
   );
@@ -92,8 +98,13 @@ const ShopifyCustomers = () => {
         node: (row: ShopifyAdminCustomer) =>
           `${parseFloat(row.amountSpent?.amount ?? "0").toFixed(2)} ₺`,
       },
+      {
+        key: "favorites",
+        node: (row: ShopifyAdminCustomer) =>
+          favoriteCounts?.[row.id.split("/").pop() ?? ""] ?? 0,
+      },
     ],
-    []
+    [favoriteCounts]
   );
 
   const filters = useMemo(

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { Order, OrderCollection } from "../types";
+import { AccountStock, Order, OrderCollection } from "../types";
 import {
+  applyChangedStocks,
   mergeCreatedOrders,
   resyncAfterMissedEvents,
   settleCreatedCollection,
@@ -8,6 +9,62 @@ import {
 } from "./socketSync";
 
 const order = (id: number) => ({ _id: id, table: { _id: 3 } } as Order);
+
+const cola = (quantity: number, revision?: number): AccountStock => ({
+  _id: "cola2",
+  product: "cola",
+  location: 2,
+  quantity,
+  revision,
+});
+
+describe("applyChangedStocks", () => {
+  it("replaces the row with a newer revision", () => {
+    const stocks = [cola(91, 0)];
+
+    expect(applyChangedStocks(stocks, [cola(90, 1)])).toEqual([cola(90, 1)]);
+  });
+
+  it("keeps the row when the change is older", () => {
+    const stocks = [cola(81, 10)];
+
+    expect(applyChangedStocks(stocks, [cola(85, 6)])).toBe(stocks);
+  });
+
+  it("takes a change for a row loaded before revisions existed", () => {
+    expect(applyChangedStocks([cola(91)], [cola(90, 1)])).toEqual([
+      cola(90, 1),
+    ]);
+  });
+
+  it("adds a stock the panel doesn't have yet", () => {
+    const other = { ...cola(5, 0), _id: "fanta2", product: "fanta" };
+
+    expect(applyChangedStocks([other], [cola(3, 0)])).toEqual([
+      other,
+      cola(3, 0),
+    ]);
+  });
+
+  it("leaves an unloaded list alone", () => {
+    expect(applyChangedStocks(undefined, [cola(3, 1)])).toBeUndefined();
+  });
+
+  // Ten simultaneous Cola orders on staging (10 Nov 2026): stock went from
+  // 91 to 81, but the server finished them in this order.
+  it("ends at the real stock when simultaneous orders arrive out of order", () => {
+    const arrivals = [90, 88, 87, 89, 83, 86, 82, 84, 81, 85].map((quantity) =>
+      cola(quantity, 91 - quantity)
+    );
+
+    const stocks = arrivals.reduce<AccountStock[] | undefined>(
+      (list, change) => applyChangedStocks(list, [change]),
+      [cola(91, 0)]
+    );
+
+    expect(stocks).toEqual([cola(81, 10)]);
+  });
+});
 
 describe("mergeCreatedOrders", () => {
   it("adds the created orders to the day's orders", () => {
