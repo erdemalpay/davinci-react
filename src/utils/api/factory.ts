@@ -81,6 +81,7 @@ export const Paths = {
   EventCalendar: "/event-calendar",
   GroupEvents: "/group-events",
   StaffLeave: "/staff-leave",
+  GiftTracking: "/gift-tracking",
 };
 
 interface Props<T> {

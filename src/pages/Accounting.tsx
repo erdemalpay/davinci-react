@@ -6,6 +6,7 @@ import { GrActions } from "react-icons/gr";
 import { IoStorefrontSharp } from "react-icons/io5";
 import {
   MdEditNote,
+  MdOutlineCardGiftcard,
   MdOutlineEventNote,
   MdOutlineInventory2,
   MdOutlinePayment,
@@ -16,11 +17,14 @@ import {
   TbBrandBlogger,
   TbCategoryPlus,
   TbCircleLetterR,
+  TbUserPlus,
   TbZoomMoney,
 } from "react-icons/tb";
 import Actions from "../components/accounting/Actions";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
+import GiftRecipients from "../components/accounting/GiftRecipients";
+import GiftTags from "../components/accounting/GiftTags";
 import InventoryLocations from "../components/accounting/InventoryLocations";
 import KitchenPage from "../components/accounting/Kitchen";
 import LocationPage from "../components/accounting/Location";
@@ -167,6 +171,20 @@ export const AccountingPageTabs = [
     label: "Staff Leave Types",
     icon: <MdOutlineEventNote className="text-lg font-thin" />,
     content: <StaffLeaveTypes />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.GIFTTAGS,
+    label: "Gift Tags",
+    icon: <MdOutlineCardGiftcard className="text-lg font-thin" />,
+    content: <GiftTags />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.GIFTRECIPIENTS,
+    label: "Gift Recipients",
+    icon: <TbUserPlus className="text-lg font-thin" />,
+    content: <GiftRecipients />,
     isDisabled: false,
   },
 ];
