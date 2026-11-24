@@ -4,6 +4,7 @@ import { useOrderContext } from "../../../context/Order.context";
 import { Order } from "../../../types";
 import { startSplitPayment } from "../../../utils/splitPayment";
 import { GenericButton } from "../../common/GenericButton";
+import { roundQuantity } from "../../../utils/quantity";
 
 type Props = {
   tableOrders: Order[];
@@ -103,7 +104,7 @@ const Keypad = ({
             ?.map((order) => {
               return {
                 order: order,
-                quantity: order.quantity - order.paidQuantity,
+                quantity: roundQuantity(order.quantity - order.paidQuantity),
               };
             })
             ?.filter((order) => order !== null);

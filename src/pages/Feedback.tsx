@@ -48,6 +48,8 @@ const Feedback = () => {
       { key: t("Table"), isSortable: true },
       { key: t("Feedback"), isSortable: true },
       { key: t("Star Rating"), isSortable: true },
+      { key: t("Full Name"), isSortable: true },
+      { key: t("Phone"), isSortable: true },
     ],
     [t]
   );
@@ -66,6 +68,11 @@ const Feedback = () => {
       { key: "tableName" },
       { key: "comment" },
       { key: "starRating" },
+      { key: "fullName" },
+      {
+        key: "phone",
+        className: "min-w-32 pr-1",
+      },
     ],
     []
   );

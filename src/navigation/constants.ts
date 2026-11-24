@@ -60,6 +60,7 @@ const UnmetExplanationRequests = lazyWithReload(
 );
 const Anomalies = lazyWithReload(() => import("../pages/Anomalies"));
 const OnlinePoints = lazyWithReload(() => import("../pages/OnlinePoints"));
+const GroupEvents = lazyWithReload(() => import("../pages/GroupEvents"));
 const StaffPerformance = lazyWithReload(
   () => import("../pages/StaffPerformance")
 );
@@ -210,6 +211,7 @@ export enum Routes {
   StaffPerformance = "/staff-performance",
   Anomalies = "/anomalies",
   OnlinePoints = "/online-points",
+  GroupEvents = "/group-events",
   StaffStateSummary = "/staff-state-summary",
   PersonTimeline = "/person-timeline",
   TableTimeline = "/table-timeline",
@@ -250,6 +252,8 @@ export const allRoutes: {
   path?: string;
   isOnSidebar: boolean;
   exceptionalRoles?: number[];
+  // When the page has no permission record yet, start with this page's roles.
+  permissionsFrom?: string;
   link?: string;
   element?: ComponentType;
   tabs?: Tab[];
@@ -871,7 +875,10 @@ export const allRoutes: {
     tabs: RetailerOrdersPageTabs,
   },
   {
-    name: "Consumers",
+    // Own permission record: sharing "Consumers" made the two pages overwrite
+    // each other's tabs, leaving the Consumers page blank.
+    name: "Shopify Customer Detail",
+    permissionsFrom: "Consumers",
     path: Routes.ShopifyCustomerDetail,
     element: ShopifyCustomerDetail,
     isOnSidebar: false,
@@ -1141,6 +1148,12 @@ export const allRoutes: {
     name: "Activities",
     link: "https://docs.google.com/spreadsheets/d/13C_TCrb2gkFifWkYkCDyggyAA4RNDmk_aVrCXnZ2P6Q/edit",
     isOnSidebar: false,
+  },
+  {
+    name: "Group Events",
+    path: Routes.GroupEvents,
+    element: GroupEvents,
+    isOnSidebar: true,
   },
   {
     name: "Tournaments",

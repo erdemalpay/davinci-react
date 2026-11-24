@@ -30,6 +30,7 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
+import { QuickCreateTarget, useQuickCreate } from "../common/QuickCreate";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -84,6 +85,8 @@ const AllExpenses = () => {
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
+  const { createNewProduct, createNewFor, quickCreateModals } =
+    useQuickCreate();
   const services = useGetAccountServices();
   const { createAccountExpense } = useAccountExpenseMutations();
   const { user } = useUserContext();
@@ -348,6 +351,22 @@ const AllExpenses = () => {
     }
   }, [allExpenseForm, vendors, products, services]);
 
+  const quickCreateTarget = useMemo<QuickCreateTarget | undefined>(() => {
+    if (
+      allExpenseForm?.type === ExpenseTypes.STOCKABLE &&
+      allExpenseForm?.product
+    ) {
+      return { kind: "product", id: allExpenseForm.product };
+    }
+    if (
+      allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE &&
+      allExpenseForm?.service
+    ) {
+      return { kind: "service", id: allExpenseForm.service };
+    }
+    return undefined;
+  }, [allExpenseForm?.type, allExpenseForm?.product, allExpenseForm?.service]);
+
   const inputs = useMemo(
     () => [
       {
@@ -387,6 +406,7 @@ const AllExpenses = () => {
         })),
         placeholder: t("Product"),
         required: allExpenseForm?.type === ExpenseTypes.STOCKABLE,
+        createNew: createNewProduct(),
         isDisabled: allExpenseForm?.type !== ExpenseTypes.STOCKABLE,
         invalidateKeys: [
           { key: "expenseType", defaultValue: "" },
@@ -444,6 +464,7 @@ const AllExpenses = () => {
         placeholder: t("Brand"),
         isDisabled: allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE,
         required: false,
+        createNew: createNewFor("brand", quickCreateTarget),
       },
       {
         type: InputTypes.SELECT,
@@ -455,6 +476,7 @@ const AllExpenses = () => {
         })),
         placeholder: t("Vendor"),
         required: true,
+        createNew: createNewFor("vendor", quickCreateTarget),
       },
       {
         type: InputTypes.SELECT,
@@ -506,6 +528,9 @@ const AllExpenses = () => {
       vendorInputOptions,
       paymentMethods,
       allExpenseForm,
+      createNewProduct,
+      createNewFor,
+      quickCreateTarget,
     ]
   );
 
@@ -1011,6 +1036,7 @@ const AllExpenses = () => {
           isAllRowPerPageOption={false}
         />
       </div>
+      {quickCreateModals}
     </>
   );
 };

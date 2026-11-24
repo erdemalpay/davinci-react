@@ -12,6 +12,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import NewOrderProductSelect from "./NewOrderProductSelect";
+import { formatQuantity } from "../../utils/quantity";
 
 type Props = {
   setFormElements?: (value: FormElementsState) => void;
@@ -141,7 +142,9 @@ const NewOrderListPanel = ({ setFormElements, setForm }: Props) => {
                       <div className="flex flex-col gap-1">
                         <div className="flex gap-1 items-center">
                           <p>{orderItem?.name}</p>
-                          <h1 className="text-xs">({order?.quantity})</h1>
+                          <h1 className="text-xs">
+                            ({formatQuantity(order?.quantity)})
+                          </h1>
                         </div>
                       </div>
 

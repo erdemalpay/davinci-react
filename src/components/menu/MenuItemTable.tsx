@@ -1453,6 +1453,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       {
         label: t("Show Prices"),
         isUpperSide: false,
+        isInMobileMenu: true,
         node: (
           <SwitchButton
             checked={showMenuCostPrices}
@@ -1471,6 +1472,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       {
         label: t("Location Edit"),
         isUpperSide: false,
+        isInMobileMenu: true,
         node: (
           <SwitchButton
             checked={isMenuLocationEdit}
@@ -1489,6 +1491,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       {
         label: t("Shown In Menu"),
         isUpperSide: false,
+        isInMobileMenu: true,
         node: (
           <SwitchButton
             checked={isShownInMenu}

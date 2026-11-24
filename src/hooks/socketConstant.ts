@@ -39,6 +39,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.EventCalendar}`],
   },
   {
+    event: "groupEventChanged",
+    invalidateKeys: [`${Paths.GroupEvents}`],
+  },
+  {
     // Başvuru, katılımcı, maç ve puan tablosu sorguları [Paths.Tournaments, ...] ile başlar
     event: "tournamentChanged",
     invalidateKeys: [`${Paths.Tournaments}`],
@@ -76,13 +80,6 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "gameplayChanged",
     invalidateKeys: [`${Paths.Gameplays}`],
-  },
-  {
-    event: "stockChanged",
-    invalidateKeys: [
-      `${Paths.Accounting}/stocks`,
-      `${Paths.Accounting}/stocks/query`,
-    ],
   },
   {
     event: "gameChanged",
@@ -291,6 +288,10 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "loyaltyChanged",
     invalidateKeys: [`${Paths.Loyalty}`],
+  },
+  {
+    event: "favoritesChanged",
+    invalidateKeys: [`${Paths.Favorites}`],
   },
   {
     event: "shiftChangeRequestChanged",

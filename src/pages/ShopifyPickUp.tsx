@@ -24,12 +24,14 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
+  GAMEEXPENSETYPE,
   Order,
   OrderStatus,
   Table,
   commonDateOptions,
   orderFilterStatusOptions,
 } from "../types";
+import { useGetAccountProducts } from "../utils/api/account/product";
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
@@ -61,6 +63,7 @@ const ShopifyPickUp = () => {
   const { updateSimpleOrder, updateSimpleOrdersBulk, isPending } =
     useShopifyPickUpOrderMutation();
   const items = useGetMenuItems();
+  const products = useGetAccountProducts();
   const disabledConditions = useGetDisabledConditions();
   const {
     shopifyPickUpFilterPanelFormElements,
@@ -515,14 +518,33 @@ const ShopifyPickUp = () => {
         type: InputTypes.SELECT,
         formKey: "category",
         label: t("Category"),
-        options: categories?.map((category) => {
-          return {
-            value: category?._id,
-            label: category?.name,
-          };
-        }),
+        options: categories
+          ?.filter((category) => [25, 26, 27, 34].includes(category._id))
+          ?.map((category) => {
+            return {
+              value: category?._id,
+              label: category?.name,
+            };
+          }),
         isMultiple: true,
         placeholder: t("Category"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "item",
+        label: t("Product"),
+        // Siparişler menü öğesini tutar; oyun ürününü eşleştiği menü öğesine çeviriyoruz
+        options: products
+          ?.filter((product) => product?.expenseType?.includes(GAMEEXPENSETYPE))
+          ?.map((product) => ({
+            value: items?.find((item) => item?.matchedProduct === product._id)
+              ?._id,
+            label: product.name,
+          }))
+          ?.filter((option) => option.value !== undefined),
+        isMultiple: true,
+        placeholder: t("Product"),
         required: true,
       },
       {
@@ -566,6 +588,8 @@ const ShopifyPickUp = () => {
       setShopifyPickUpFilterPanelFormElements,
       categories,
       users,
+      items,
+      products,
     ]
   );
 

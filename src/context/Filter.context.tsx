@@ -335,6 +335,7 @@ const FilterContext = createContext<FilterContextType>({
   filtershowGameStockLocationFiltersPanelFormElements: {
     product: [],
     category: [],
+    vendor: "",
     isDaVinciGame: "",
     bahceliMin: "",
     bahceliMax: "",
@@ -875,6 +876,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   ] = useState<FormElementsState>({
     product: [],
     category: [],
+    vendor: "",
     isDaVinciGame: "",
     bahceliMin: "",
     bahceliMax: "",

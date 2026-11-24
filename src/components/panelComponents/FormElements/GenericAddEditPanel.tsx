@@ -625,6 +625,7 @@ const GenericAddEditPanel = <T,>({
                 if (
                   input.type === InputTypes.SELECT &&
                   !input?.required &&
+                  !input?.createNew &&
                   input?.options?.length === 0
                 ) {
                   return null;
@@ -775,6 +776,23 @@ const GenericAddEditPanel = <T,>({
                           isOnClearActive={input?.isOnClearActive ?? true}
                           isReadOnly={input.isReadOnly ?? false}
                           labelClassName={input.labelClassName}
+                          createNew={
+                            input.createNew && {
+                              label: input.createNew.label,
+                              onClick: () =>
+                                input.createNew?.onClick((created) =>
+                                  setFormElements((prev) => ({
+                                    ...prev,
+                                    [input.formKey]: input.isMultiple
+                                      ? [
+                                          ...(prev[input.formKey] ?? []),
+                                          created,
+                                        ]
+                                      : created,
+                                  }))
+                                ),
+                            }
+                          }
                           onClear={() => {
                             handleInputClear(input);
                           }}

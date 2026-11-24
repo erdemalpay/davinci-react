@@ -226,6 +226,8 @@ export type Feedback = {
   table: number;
   comment?: string;
   starRating?: number;
+  fullName?: string;
+  phone?: string;
   createdAt: Date;
 };
 export enum WorkType {
@@ -485,6 +487,7 @@ export type AccountStock = {
   product: string;
   location: number;
   quantity: number;
+  revision?: number;
 };
 export type AccountProductStockHistory = {
   _id: number;
@@ -1915,6 +1918,7 @@ export enum PointsPageTabEnum {
 export enum ConsumerPageTabEnum {
   CAFE_CUSTOMERS,
   SHOPIFY_CUSTOMERS,
+  ONLINE_FAVORITES,
 }
 
 export interface ShopifyCollection {
@@ -3039,6 +3043,7 @@ export enum NotificationEventType {
   SHOPIFYTAKEAWAY = "SHOPIFYTAKEAWAY",
   SHOPIFYORDER = "SHOPIFYORDER",
   CONCURRENTBREAK = "CONCURRENTBREAK",
+  GROUPEVENTREQUEST = "GROUPEVENTREQUEST",
 }
 export const notificationEventsOptions = [
   {
@@ -3120,6 +3125,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.CONCURRENTBREAK,
     label: "Concurrent Break Warning",
+  },
+  {
+    value: NotificationEventType.GROUPEVENTREQUEST,
+    label: "Group Event Request",
   },
 ];
 

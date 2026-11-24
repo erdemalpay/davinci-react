@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { CiCirclePlus } from "react-icons/ci";
 import { IoIosClose } from "react-icons/io";
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
@@ -6,6 +13,7 @@ import Select, {
   CSSObjectWithLabel,
   GroupBase,
   InputActionMeta,
+  MenuListProps,
   MultiValue,
   OptionProps,
   PropsValue,
@@ -58,6 +66,8 @@ interface SelectInputProps {
   menuPortalTarget?: HTMLElement | null;
   menuZIndex?: number;
   labelClassName?: string;
+  // Verilirse menünün en üstünde "yeni ekle" satırı çıkar
+  createNew?: { label: string; onClick: () => void };
 }
 
 const normalizeText = (text: string) => {
@@ -116,6 +126,7 @@ const SelectInput = ({
   menuPortalTarget,
   menuZIndex,
   labelClassName = "",
+  createNew,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -127,6 +138,35 @@ const SelectInput = ({
   );
   const selectRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile(768);
+  // Menü bileşeni her render'da yeniden oluşmasın diye tıklama son haliyle ref'ten okunur
+  const createNewRef = useRef(createNew);
+  createNewRef.current = createNew;
+  const createNewLabel = createNew?.label;
+  const MenuListWithCreate = useMemo(
+    () =>
+      createNewLabel
+        ? (
+            props: MenuListProps<OptionType, boolean, GroupBase<OptionType>>
+          ) => (
+            <components.MenuList {...props}>
+              <button
+                type="button"
+                className="sticky top-0 z-10 flex w-full items-center gap-2 bg-white px-3 py-2 text-left text-blue-700 hover:bg-gray-100"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  props.selectProps.onMenuClose();
+                  createNewRef.current?.onClick();
+                }}
+              >
+                <CiCirclePlus className="text-xl" />
+                {createNewLabel}
+              </button>
+              {props.children}
+            </components.MenuList>
+          )
+        : components.MenuList,
+    [createNewLabel]
+  );
   const customStyles = {
     control: (base: any) => ({
       ...base,
@@ -237,6 +277,12 @@ const SelectInput = ({
     );
   };
 
+  const selectComponents = {
+    Option: CustomOption,
+    DropdownIndicator,
+    MenuList: MenuListWithCreate,
+  };
+
   useEffect(() => {
     if (options.length === 1 && !value && isAutoFill) {
       const actionMeta: ActionMeta<OptionType> = {
@@ -326,7 +372,7 @@ const SelectInput = ({
                 onChangeTrigger && onChangeTrigger(value, actionMeta);
               }}
               value={value}
-              components={{ Option: CustomOption, DropdownIndicator }}
+              components={selectComponents}
               placeholder={placeholder}
               styles={customStyles}
               closeMenuOnSelect={false}
@@ -353,7 +399,7 @@ const SelectInput = ({
                 setIsDownIconClicked(false);
               }}
               value={value}
-              components={{ Option: CustomOption, DropdownIndicator }}
+              components={selectComponents}
               placeholder={placeholder}
               styles={customStyles}
               filterOption={customFilterOption}
