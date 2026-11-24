@@ -79,6 +79,7 @@ export const Paths = {
   Tournaments: "/tournaments",
   EventQr: "/event-qr",
   EventCalendar: "/event-calendar",
+  GroupEvents: "/group-events",
   StaffLeave: "/staff-leave",
 };
 
