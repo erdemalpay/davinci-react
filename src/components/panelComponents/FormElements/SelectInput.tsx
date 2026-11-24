@@ -65,6 +65,7 @@ interface SelectInputProps {
   isExpandedMultiValueLabel?: boolean;
   menuPortalTarget?: HTMLElement | null;
   menuZIndex?: number;
+  labelClassName?: string;
   // Verilirse menünün en üstünde "yeni ekle" satırı çıkar
   createNew?: { label: string; onClick: () => void };
 }
@@ -124,6 +125,7 @@ const SelectInput = ({
   isExpandedMultiValueLabel = false,
   menuPortalTarget,
   menuZIndex,
+  labelClassName = "",
   createNew,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
@@ -305,7 +307,7 @@ const SelectInput = ({
         <H6
           className={`flex items-center gap-2 ${
             isTopFlexRow ? "w-28 flex-shrink-0" : ""
-          }`}
+          } ${labelClassName}`}
         >
           <span>{label}</span>
           {requiredField && <span className="text-red-400">*</span>}

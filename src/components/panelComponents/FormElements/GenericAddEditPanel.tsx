@@ -697,6 +697,7 @@ const GenericAddEditPanel = <T,>({
                           isDebounce={input?.isDebounce ?? false}
                           isReadOnly={input.isReadOnly ?? false}
                           isMinNumber={input?.isMinNumber ?? true}
+                          labelClassName={input.labelClassName}
                           onClear={() => {
                             handleInputClear(input);
                           }}
@@ -774,6 +775,7 @@ const GenericAddEditPanel = <T,>({
                           onChangeTrigger={input?.onChangeTrigger}
                           isOnClearActive={input?.isOnClearActive ?? true}
                           isReadOnly={input.isReadOnly ?? false}
+                          labelClassName={input.labelClassName}
                           createNew={
                             input.createNew && {
                               label: input.createNew.label,
@@ -916,7 +918,9 @@ const GenericAddEditPanel = <T,>({
                           className="flex flex-col gap-2 relative"
                         >
                           <div className="flex items-center">
-                            <H6>{input.label}</H6>
+                            <H6 className={input.labelClassName}>
+                              {input.label}
+                            </H6>
                             {input.required && (
                               <>
                                 <span className="text-red-400">*</span>

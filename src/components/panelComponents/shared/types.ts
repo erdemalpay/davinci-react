@@ -96,6 +96,7 @@ export interface GenericInputType {
   isSelectBelow?: boolean;
   isSelectAlwaysVisible?: boolean;
   inputClassName?: string;
+  labelClassName?: string;
   isMultiple?: boolean;
   isDatePicker?: boolean;
   suggestedOption?: { value: string; label: string }[] | null;
