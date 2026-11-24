@@ -347,7 +347,7 @@ const CategoryBasedSalesReport = () => {
             date,
             formattedDate: formatAsLocalDate(date),
             category: getItem(foundItem?.category, categories)?.name ?? "",
-            product: foundItem?.name ?? "",
+            product: foundItem?.name.replace(/\s+/g, " ").trim() ?? "",
             quantity: order.paidQuantity,
             discount: orderDiscount,
             amount: orderAmount,

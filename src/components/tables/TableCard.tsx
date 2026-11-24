@@ -29,7 +29,6 @@ import { useOrderTaker } from "../../hooks/useOrderTaker";
 import {
   Gameplay,
   MenuItem,
-  OnlineLocationId,
   Order,
   OrderCollection,
   OrderStatus,
@@ -56,6 +55,7 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../../utils/getItem";
+import { getOrderLocation } from "../../utils/orderLocation";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -166,7 +166,7 @@ function TableCardComponent({
     note: "",
     category: "",
     isOnlinePrice: false,
-    location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+    location: getOrderLocation(table, selectedLocationId),
     stockLocation: selectedLocationId,
     activityTableName: "",
     activityPlayer: "",
@@ -188,7 +188,7 @@ function TableCardComponent({
     item: 0,
     quantity: 1,
     isOnlinePrice: false,
-    location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+    location: getOrderLocation(table, selectedLocationId),
     stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
     activityPlayer: "",
     activityTableName: "",
@@ -860,6 +860,14 @@ function TableCardComponent({
     setIsDeleteConfirmationDialogOpen(false);
   }, [table._id, tableOrders, deleteTable, t]);
 
+  // Masa açılırken kart sunucu cevabından önce (_id'siz) görünür; o arada
+  // sipariş girilirse masasız kaydolur, bu yüzden pencere açılmaz.
+  const isTableCreated = useCallback(() => {
+    if (table._id) return true;
+    toast.error(t("Table is still being created, please try again shortly"));
+    return false;
+  }, [table._id, t]);
+
   const handleOrderObject = () => {
     if (!menuItems || !categories) return null;
     const selectedMenuItem = getItem(orderForm?.item, menuItems);
@@ -880,9 +888,10 @@ function TableCardComponent({
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: table?.isOnlineSale
-          ? OnlineLocationId
-          : orderForm?.location ?? selectedLocationId,
+        location: getOrderLocation(
+          table,
+          orderForm?.location ?? selectedLocationId
+        ),
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -902,9 +911,10 @@ function TableCardComponent({
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: table?.isOnlineSale
-          ? OnlineLocationId
-          : orderForm?.location ?? selectedLocationId,
+        location: getOrderLocation(
+          table,
+          orderForm?.location ?? selectedLocationId
+        ),
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -921,9 +931,10 @@ function TableCardComponent({
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
-        location: table?.isOnlineSale
-          ? OnlineLocationId
-          : orderForm?.location ?? selectedLocationId,
+        location: getOrderLocation(
+          table,
+          orderForm?.location ?? selectedLocationId
+        ),
         table: table._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
@@ -964,9 +975,10 @@ function TableCardComponent({
       return {
         ...quickOrderForm,
         createdAt: new Date(),
-        location: table?.isOnlineSale
-          ? OnlineLocationId
-          : quickOrderForm?.location ?? selectedLocationId,
+        location: getOrderLocation(
+          table,
+          quickOrderForm?.location ?? selectedLocationId
+        ),
         table: table._id,
         unitPrice: quickOrderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -987,9 +999,10 @@ function TableCardComponent({
       return {
         ...quickOrderForm,
         createdAt: new Date(),
-        location: table?.isOnlineSale
-          ? OnlineLocationId
-          : quickOrderForm?.location ?? selectedLocationId,
+        location: getOrderLocation(
+          table,
+          quickOrderForm?.location ?? selectedLocationId
+        ),
         table: table._id,
         unitPrice: quickOrderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -1004,9 +1017,10 @@ function TableCardComponent({
 
     return {
       ...quickOrderForm,
-      location: table?.isOnlineSale
-        ? OnlineLocationId
-        : quickOrderForm?.location ?? selectedLocationId,
+      location: getOrderLocation(
+        table,
+        quickOrderForm?.location ?? selectedLocationId
+      ),
       table: table._id,
       status: isOrderConfirmationRequired
         ? OrderStatus.CONFIRMATIONREQ
@@ -1029,7 +1043,7 @@ function TableCardComponent({
     setQuickOrderForm((prev) => ({
       ...prev,
       stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-      location: table?.isOnlineSale ? OnlineLocationId : selectedLocationId,
+      location: getOrderLocation(table, selectedLocationId),
     }));
   }, [selectedLocationId, table?.isOnlineSale]);
   return (
@@ -1051,6 +1065,7 @@ function TableCardComponent({
               <span>
                 <CardAction
                   onClick={() => {
+                    if (!isTableCreated()) return;
                     setIsQuickOrderDialogOpen(true);
                   }}
                   IconComponent={MdFlashOn}
@@ -1063,6 +1078,7 @@ function TableCardComponent({
               <span>
                 <CardAction
                   onClick={() => {
+                    if (!isTableCreated()) return;
                     setIsTableCardCreateOrderDialogOpen(true);
                   }}
                   IconComponent={MdBorderColor}
@@ -1316,9 +1332,7 @@ function TableCardComponent({
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-            location: table?.isOnlineSale
-              ? OnlineLocationId
-              : selectedLocationId,
+            location: getOrderLocation(table, selectedLocationId),
             table: table._id,
             isOnlineSale: table.isOnlineSale,
           }}
@@ -1428,9 +1442,7 @@ function TableCardComponent({
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-            location: table?.isOnlineSale
-              ? OnlineLocationId
-              : selectedLocationId,
+            location: getOrderLocation(table, selectedLocationId),
             isOnlinePrice: false,
             isOnlineSale: table.isOnlineSale,
           }}

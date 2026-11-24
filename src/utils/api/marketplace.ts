@@ -6,22 +6,28 @@ import { post } from ".";
 import { DisabledConditionEnum } from "../../types";
 import { Paths, useGetList } from "./factory";
 
-// Polling ile çalışan pazaryerlerinin (n11, idefix) kanala özel ayarları.
+// Polling ile çalışan pazaryerlerinin (n11, idefix, amazon) kanala özel ayarları.
 // Hook'lar ve sayfalar bu ayarla çalışır; yeni kanal yeni bir ayardır.
 export type MarketplaceChannel<P = any> = {
   // Çeviri anahtarlarının öneki de budur ("n11 Orders", "idefix Orders").
-  label: "n11" | "idefix";
+  label: "n11" | "idefix" | "amazon";
   path: string;
   // Menü ürününde pazaryeri ürününü tutan alan.
-  menuItemField: "n11StockCode" | "idefixBarcode";
+  menuItemField: "n11StockCode" | "idefixBarcode" | "amazonSku";
   // Pazaryeri ürününün anahtarı; stok/fiyat güncellemesinde de bu adla gider.
-  productKey: "stockCode" | "barcode";
+  productKey: "stockCode" | "barcode" | "sellerSku";
   productStock: (product: P) => number;
-  productPrice: (product: P) => number;
+  // Fiyat vermeyen kanalda (amazon: yalnızca FBA stoğu okunur) tanımlanmaz.
+  productPrice?: (product: P) => number;
+  // Pazaryerinde pasif olan ürün stok karşılaştırmasında gösterilmez.
+  isProductActive?: (product: P) => boolean;
   // Eşleştirme sonucunda pazaryeri anahtarının geldiği alan.
-  matchResultKey: "stockCode" | "idefixBarcode";
-  orderNumberField: "n11OrderNumber" | "idefixOrderNumber";
-  lineItemField: "n11LineItemId" | "idefixLineItemId";
+  matchResultKey: "stockCode" | "idefixBarcode" | "amazonSku";
+  orderNumberField:
+    | "n11OrderNumber"
+    | "idefixOrderNumber"
+    | "amazonOrderNumber";
+  lineItemField: "n11LineItemId" | "idefixLineItemId" | "amazonLineItemId";
   ordersDisabledCondition: DisabledConditionEnum;
   excelFileName: string;
 };

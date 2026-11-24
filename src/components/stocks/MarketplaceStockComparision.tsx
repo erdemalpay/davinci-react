@@ -57,6 +57,7 @@ const MarketplaceStockComparision = ({
   }, [products, channelItemProductIds]);
 
   const rows = useMemo(() => {
+    // Pazaryerinde olmayan ya da pasif ürünleri gösterme.
     return channelItemProducts
       ?.map((channelItemProduct) => {
         const foundStock = stocks.find(
@@ -69,7 +70,8 @@ const MarketplaceStockComparision = ({
         const foundProduct = marketplaceProducts?.find(
           (product) =>
             product[channel.productKey] ===
-            foundMenuItem?.[channel.menuItemField]
+              foundMenuItem?.[channel.menuItemField] &&
+            channel.isProductActive?.(product) !== false
         );
 
         return {
@@ -83,6 +85,7 @@ const MarketplaceStockComparision = ({
           foundStock: foundStock,
         };
       })
+      .filter((row) => row.productKey)
       .sort((a, b) => {
         const getOrder = (row: MarketplaceStockRow) => {
           if (row.marketplaceStock > row.storeStock) return 0;

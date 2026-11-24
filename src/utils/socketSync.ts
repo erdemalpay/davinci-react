@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { Order, OrderCollection } from "../types";
+import { AccountStock, Order, OrderCollection } from "../types";
 import { tableIdOf as tableOf } from "./tableGroups";
 
 // After a hidden period this long the socket may be silently dead (the
@@ -36,6 +36,26 @@ export function mergeCreatedOrders(
 
 export const ordersOfTable = (orders: Order[], tableId: number) =>
   orders.filter((order) => tableIdOf(order) === tableId);
+
+// Stocks that came with a socket event replace the panel's rows. Orders
+// placed at the same moment can arrive out of order, so a row only takes a
+// change with a higher revision than its own.
+export function applyChangedStocks(
+  stocks: AccountStock[] | undefined,
+  changed: AccountStock[]
+): AccountStock[] | undefined {
+  if (!stocks) return stocks;
+  let next = stocks;
+  for (const change of changed) {
+    const index = next.findIndex((stock) => stock._id === change._id);
+    if (index === -1) {
+      next = [...next, change];
+    } else if ((change.revision ?? 0) > (next[index].revision ?? 0)) {
+      next = next.map((stock, i) => (i === index ? change : stock));
+    }
+  }
+  return next;
+}
 
 // A collection this panel added itself while the request was on its way: it
 // has no id yet.

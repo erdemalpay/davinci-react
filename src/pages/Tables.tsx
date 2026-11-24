@@ -88,6 +88,7 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../utils/getItem";
+import { getOrderLocation } from "../utils/orderLocation";
 import { getComingReservedTableNames } from "../utils/reservedTables";
 import { sortTable } from "../utils/sort";
 import { NO_ITEMS, tableIdOf } from "../utils/tableGroups";
@@ -2450,7 +2451,7 @@ const Tables = () => {
           constantValues={{
             quantity: 1,
             stockLocation: selectedTable?.isOnlineSale ? 6 : selectedLocationId,
-            location: selectedTable?.isOnlineSale ? 4 : selectedLocationId,
+            location: getOrderLocation(selectedTable, selectedLocationId),
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "

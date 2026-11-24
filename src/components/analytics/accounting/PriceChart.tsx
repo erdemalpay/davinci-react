@@ -25,6 +25,7 @@ type Props = {
   selectedProduct?: AccountProduct;
   selectedCategory?: MenuCategory;
   selectedUpperCategory?: UpperCategory;
+  title?: string;
   customLegend?: LegendItem[];
   hideLegend?: boolean;
 };
@@ -41,6 +42,7 @@ const PriceChart = ({
   selectedProduct,
   selectedCategory,
   selectedUpperCategory,
+  title,
   customLegend,
   hideLegend = false,
 }: Props) => {
@@ -95,6 +97,7 @@ const PriceChart = ({
               {selectedProduct && selectedProduct?.name}
               {selectedCategory && selectedCategory?.name}
               {selectedUpperCategory && selectedUpperCategory?.name}
+              {title}
             </Typography>
           </div>
         </div>

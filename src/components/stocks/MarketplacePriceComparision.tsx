@@ -61,7 +61,7 @@ const MarketplacePriceComparision = ({
         return {
           ...channelItemProduct,
           marketplacePrice: foundProduct
-            ? channel.productPrice(foundProduct)
+            ? channel.productPrice?.(foundProduct) ?? 0
             : 0,
           itemPrice: foundItem?.price,
           itemOnlinePrice: foundItem?.onlinePrice,

@@ -24,6 +24,9 @@ jobs:
 
       - name: Typecheck and build
         run: yarn build
+        env:
+          # Derleme Node'un varsayılan bellek sınırına (~2 GB) yaklaştı; GitHub makinesinde yeterli bellek var.
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Test
         run: yarn test

@@ -47,6 +47,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { isActionDisabled } from "../../utils/permissions";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { QuickCreateTarget, useQuickCreate } from "../common/QuickCreate";
 import { QuickDateRangeFilter } from "../common/QuickDateRangeFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -103,6 +104,8 @@ const Invoice = () => {
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
   const products = useGetAccountProducts();
+  const { createNewProduct, createNewFor, quickCreateModals } =
+    useQuickCreate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
@@ -411,6 +414,14 @@ const Invoice = () => {
     []
   );
 
+  const quickCreateTarget = useMemo<QuickCreateTarget | undefined>(
+    () =>
+      productExpenseForm?.product
+        ? { kind: "product", id: productExpenseForm.product }
+        : undefined,
+    [productExpenseForm?.product]
+  );
+
   const inputs = useMemo(
     () => [
       {
@@ -431,6 +442,7 @@ const Invoice = () => {
         })),
         placeholder: t("Product"),
         required: true,
+        createNew: createNewProduct(),
         invalidateKeys: [
           { key: "expenseType", defaultValue: "" },
           { key: "brand", defaultValue: "" },
@@ -482,6 +494,7 @@ const Invoice = () => {
             })) || [],
         placeholder: t("Brand"),
         required: false,
+        createNew: createNewFor("brand", quickCreateTarget),
       },
       {
         type: InputTypes.SELECT,
@@ -500,6 +513,7 @@ const Invoice = () => {
             })) || [],
         placeholder: t("Vendor"),
         required: true,
+        createNew: createNewFor("vendor", quickCreateTarget),
       },
       {
         type: InputTypes.SELECT,
@@ -551,6 +565,9 @@ const Invoice = () => {
       vendors,
       paymentMethods,
       isEditModalOpen,
+      createNewProduct,
+      createNewFor,
+      quickCreateTarget,
     ]
   );
 
@@ -1382,6 +1399,7 @@ const Invoice = () => {
           />
         )}
       </div>
+      {quickCreateModals}
     </>
   );
 };

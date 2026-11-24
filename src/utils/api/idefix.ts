@@ -19,6 +19,7 @@ export const IDEFIX_CHANNEL: MarketplaceChannel<IdefixProduct> = {
   productKey: "barcode",
   productStock: (product) => product.inventoryQuantity,
   productPrice: (product) => product.price,
+  isProductActive: (product) => product.active !== false,
   matchResultKey: "idefixBarcode",
   orderNumberField: "idefixOrderNumber",
   lineItemField: "idefixLineItemId",

@@ -37,6 +37,7 @@ import { useUserContext } from "../context/User.context";
 import { OrderDataTabEnum } from "../types";
 import { useGetAllCategories } from "../utils/api/menu/category";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+import { AMAZON_CHANNEL } from "../utils/api/amazon";
 import { IDEFIX_CHANNEL } from "../utils/api/idefix";
 import { N11_CHANNEL } from "../utils/api/n11";
 
@@ -165,6 +166,13 @@ export const OrderDataTabs = [
     label: "idefix Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <MarketplaceOrders channel={IDEFIX_CHANNEL} />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.AMAZONORDERS,
+    label: "Amazon Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <MarketplaceOrders channel={AMAZON_CHANNEL} />,
     isDisabled: false,
   },
   {

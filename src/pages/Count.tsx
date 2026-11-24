@@ -38,6 +38,9 @@ import { getItem } from "../utils/getItem";
 import { isActionDisabled } from "../utils/permissions";
 import { getCountExpectedQuantity, getCountStockBgColor } from "../utils/color";
 
+const stockKey = (product: string, location: number) =>
+  `${product}:${location}`;
+
 const Count = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
@@ -78,6 +81,42 @@ const Count = () => {
   );
 
   const countListProducts = currentCountList?.products;
+
+  const productsById = useMemo(
+    () => new Map(products?.map((product) => [product._id, product])),
+    [products]
+  );
+
+  // Aynı ürüne bağlı birden çok menü öğesinde ilki geçerli (find ile aynı).
+  const menuItemByProduct = useMemo(() => {
+    const map = new Map<string, (typeof items)[number]>();
+    for (const item of items ?? []) {
+      if (item?.matchedProduct && !map.has(item.matchedProduct)) {
+        map.set(item.matchedProduct, item);
+      }
+    }
+    return map;
+  }, [items]);
+
+  const stockByProductAndLocation = useMemo(() => {
+    const map = new Map<string, (typeof stocks)[number]>();
+    for (const stock of stocks ?? []) {
+      const key = stockKey(stock?.product, stock?.location);
+      if (!map.has(key)) map.set(key, stock);
+    }
+    return map;
+  }, [stocks]);
+
+  const countProductsById = useMemo(
+    () =>
+      new Map(
+        currentCount?.products?.map((countProduct) => [
+          countProduct.product,
+          countProduct,
+        ])
+      ),
+    [currentCount?.products]
+  );
 
   const pageNavigations = useMemo(
     () => [
@@ -158,18 +197,16 @@ const Count = () => {
             numericLocation !== undefined &&
             countListProduct.locations.includes(numericLocation)
           ) {
-            const foundProduct = products?.find(
-              (p) => p?._id === countListProduct.product
-            );
+            const foundProduct = productsById.get(countListProduct.product);
             // Skip deleted products
             if (!foundProduct || foundProduct.deleted) {
               return { product: "", countQuantity: 0 };
             }
-            const foundMenuItem = items?.find(
-              (it) => it?.matchedProduct === countListProduct.product
+            const foundMenuItem = menuItemByProduct.get(
+              countListProduct.product
             );
-            const countProduct = currentCount?.products?.find(
-              (cp) => cp.product === countListProduct.product
+            const countProduct = countProductsById.get(
+              countListProduct.product
             );
             // Ayrılmış kaydı varsa fark sayının girildiği andaki stoğa göre gösterilir.
             const hasReservedSnapshot = countProduct?.reservedQuantity != null;
@@ -177,12 +214,8 @@ const Count = () => {
               products: currentCount?.products,
               productId: countListProduct.product,
               product: foundProduct?.name || "",
-              countQuantity: currentCount?.products?.find(
-                (cp) => cp.product === countListProduct.product
-              )?.countQuantity ?? 0,
-              productDeleteRequest: currentCount?.products?.find(
-                (cp) => cp.product === countListProduct.product
-              )?.productDeleteRequest,
+              countQuantity: countProduct?.countQuantity ?? 0,
+              productDeleteRequest: countProduct?.productDeleteRequest,
               shelfInfo:
                 foundProduct?.shelfInfo?.find(
                   (shelf: any) => shelf.location === numericLocation
@@ -191,10 +224,8 @@ const Count = () => {
               barcode: foundMenuItem?.barcode || "",
               stockQuantity: hasReservedSnapshot
                 ? countProduct.stockQuantity
-                : stocks?.find(
-                    (s) =>
-                      s?.product === countListProduct.product &&
-                      s?.location === numericLocation
+                : stockByProductAndLocation.get(
+                    stockKey(countListProduct.product, numericLocation)
                   )?.quantity || 0,
               // Sayılmış ama ayrılmış kaydı henüz yoksa bilinmiyor olarak gösterilir.
               reservedQuantity: countProduct ? countProduct.reservedQuantity : 0,
@@ -208,9 +239,10 @@ const Count = () => {
   }, [
     currentCountList?.products,
     numericLocation,
-    products,
-    items,
-    stocks,
+    productsById,
+    menuItemByProduct,
+    stockByProductAndLocation,
+    countProductsById,
     currentCount?.products,
     i18n.language,
   ]);
@@ -362,6 +394,9 @@ const Count = () => {
               }
             >
               {row.product}
+              {row.sku && (
+                <p className="text-xs text-gray-500">{row.sku}</p>
+              )}
             </div>
           );
         },

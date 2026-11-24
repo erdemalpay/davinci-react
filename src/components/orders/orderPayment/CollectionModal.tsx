@@ -23,6 +23,7 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../../panelComponents/shared/types";
+import { formatQuantity } from "../../../utils/quantity";
 
 type Props = {
   table: Table;
@@ -83,7 +84,7 @@ const CollectionModal = ({
                   ?.item,
                 items ?? []
               )?.name,
-              quantity: orderCollectionItem.paidQuantity.toFixed(2),
+              quantity: formatQuantity(orderCollectionItem.paidQuantity),
             })),
             collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
           },

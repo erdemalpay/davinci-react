@@ -39,6 +39,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.EventCalendar}`],
   },
   {
+    event: "groupEventChanged",
+    invalidateKeys: [`${Paths.GroupEvents}`],
+  },
+  {
     // Başvuru, katılımcı, maç ve puan tablosu sorguları [Paths.Tournaments, ...] ile başlar
     event: "tournamentChanged",
     invalidateKeys: [`${Paths.Tournaments}`],
@@ -76,13 +80,6 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "gameplayChanged",
     invalidateKeys: [`${Paths.Gameplays}`],
-  },
-  {
-    event: "stockChanged",
-    invalidateKeys: [
-      `${Paths.Accounting}/stocks`,
-      `${Paths.Accounting}/stocks/query`,
-    ],
   },
   {
     event: "gameChanged",
@@ -289,6 +286,14 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Point}/history`],
   },
   {
+    event: "loyaltyChanged",
+    invalidateKeys: [`${Paths.Loyalty}`],
+  },
+  {
+    event: "favoritesChanged",
+    invalidateKeys: [`${Paths.Favorites}`],
+  },
+  {
     event: "shiftChangeRequestChanged",
     invalidateKeys: [
       `${Paths.ShiftChangeRequest}`,
@@ -324,6 +329,10 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "shopifyProductStockChanged",
     invalidateKeys: [`${Paths.Shopify}/product`, `${Paths.Accounting}/stocks`],
+  },
+  {
+    event: "shopifyProductPriceChanged",
+    invalidateKeys: [`${Paths.Shopify}/product`],
   },
   {
     event: "backInStockChanged",

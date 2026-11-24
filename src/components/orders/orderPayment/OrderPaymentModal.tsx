@@ -50,6 +50,7 @@ import {
   getMenuItemSubText,
   menuItemHasDecrementStock,
 } from "../../../utils/getItem";
+import { getOrderLocation } from "../../../utils/orderLocation";
 import { printTableReceipt } from "../../../utils/printReceipt";
 import { buildReceiptData } from "../../../utils/printReceiptESCPOS";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -175,7 +176,7 @@ const OrderPaymentModal = ({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    location: table?.isOnlineSale ? 4 : selectedLocationId,
+    location: getOrderLocation(table, selectedLocationId),
     stockLocation: selectedLocationId,
     activityTableName: "",
     activityPlayer: "",
@@ -913,7 +914,7 @@ const OrderPaymentModal = ({
         ...orderForm,
         createdBy: orderCreatedBy,
         createdAt: new Date(),
-        location: table?.isOnlineSale ? 4 : selectedLocationId,
+        location: getOrderLocation(table, selectedLocationId),
         table: table?._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -933,7 +934,7 @@ const OrderPaymentModal = ({
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: table?.isOnlineSale ? 4 : selectedLocationId,
+        location: getOrderLocation(table, selectedLocationId),
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -950,7 +951,7 @@ const OrderPaymentModal = ({
         ...orderForm,
         createdAt: new Date(),
         createdBy: orderCreatedBy,
-        location: table?.isOnlineSale ? 4 : selectedLocationId,
+        location: getOrderLocation(table, selectedLocationId),
         table: table?._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
@@ -1001,7 +1002,7 @@ const OrderPaymentModal = ({
         constantValues={{
           quantity: 1,
           stockLocation: selectedLocationId,
-          location: table?.isOnlineSale ? 4 : selectedLocationId,
+          location: getOrderLocation(table, selectedLocationId),
         }}
         isConfirmationDialogRequired={() => {
           const menuItem = items?.find((item) => item?._id === orderForm.item);

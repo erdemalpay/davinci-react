@@ -1,4 +1,4 @@
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -6,13 +6,8 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountingAnalyticsTabEnum } from "../../types";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import MenuItemPriceChart from "./accounting/MenuItemPriceChart";
 import ProductPriceChart from "./accounting/ProductPriceChart";
-import { lazyWithReload } from "../../utils/lazyWithReload";
-
-// Charts load on demand: apexcharts is a large part of the panel's code.
-const MenuItemPriceChart = lazyWithReload(
-  () => import("./accounting/MenuItemPriceChart")
-);
 
 export const AccountingAnalyticsTabs = [
   {
@@ -26,11 +21,7 @@ export const AccountingAnalyticsTabs = [
     number: AccountingAnalyticsTabEnum.MENUITEMPRICECHART,
     label: "Menu Item Price Chart",
     icon: <MdOutlineRestaurantMenu className="text-lg font-thin" />,
-    content: (
-      <Suspense fallback={null}>
-        <MenuItemPriceChart />
-      </Suspense>
-    ),
+    content: <MenuItemPriceChart />,
     isDisabled: false,
   },
 ];
