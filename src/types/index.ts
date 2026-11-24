@@ -485,6 +485,7 @@ export type AccountStock = {
   product: string;
   location: number;
   quantity: number;
+  revision?: number;
 };
 export type AccountProductStockHistory = {
   _id: number;

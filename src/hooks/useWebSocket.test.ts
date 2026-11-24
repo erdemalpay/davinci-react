@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AccountStock } from "../types";
 import { useWebSocket } from "./useWebSocket";
 
 // A stand-in socket.io client: the socket and its manager (socket.io).
@@ -160,5 +161,44 @@ describe("useWebSocket", () => {
 
     expect(today.map((o) => o._id)).toEqual([1, 2]);
     expect(mocks.queryClient.refetchQueries).not.toHaveBeenCalled();
+  });
+
+  const stockList = { queryKey: ["/accounting/stocks"], exact: false };
+  const stockPage = { queryKey: ["/accounting/stocks/query"], exact: false };
+
+  it("updates the stocks that come with stockChanged without reloading them", () => {
+    connect();
+    let stocks: AccountStock[] = [
+      { _id: "cola2", product: "cola", location: 2, quantity: 91 },
+    ];
+    mocks.queryClient.setQueryData.mockImplementation(
+      (key: unknown, update: (old: AccountStock[]) => AccountStock[]) => {
+        if (JSON.stringify(key) === JSON.stringify(stockList.queryKey)) {
+          stocks = update(stocks);
+        }
+      }
+    );
+    const change = { ...stocks[0], quantity: 90, revision: 1 };
+
+    act(() => {
+      mocks.socket.emit("stockChanged", { stocks: [change] });
+    });
+
+    expect(stocks).toEqual([change]);
+    expect(mocks.queryClient.invalidateQueries).not.toHaveBeenCalledWith(
+      stockList
+    );
+    expect(mocks.queryClient.invalidateQueries).toHaveBeenCalledWith(stockPage);
+  });
+
+  it("reloads the stocks when stockChanged comes without stocks", () => {
+    connect();
+
+    act(() => {
+      mocks.socket.emit("stockChanged");
+    });
+
+    expect(mocks.queryClient.invalidateQueries).toHaveBeenCalledWith(stockList);
+    expect(mocks.queryClient.invalidateQueries).toHaveBeenCalledWith(stockPage);
   });
 });
