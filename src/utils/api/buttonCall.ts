@@ -32,13 +32,20 @@ interface UpdateButtonCallPayload {
 const baseUrl = `${Paths.ButtonCalls}`;
 
 export function useButtonCallMutations() {
+  const queryClient = useQueryClient();
   const {
-    deleteItem: deleteButtonCall,
+    deleteItem,
     updateItem: updateButtonCall,
     createItem: createButtonCall,
   } = useMutationApi<ButtonCall>({
     baseQuery: baseUrl,
   });
+
+  // Backend silmede olay yayınlamıyor; listeler silme bitince yenilenir
+  const deleteButtonCall = (id: number | string) =>
+    deleteItem(id, {
+      onSettled: () => queryClient.invalidateQueries({ queryKey: [baseUrl] }),
+    });
 
   return { deleteButtonCall, updateButtonCall, createButtonCall };
 }
@@ -79,7 +86,12 @@ export function useGetQueryButtonCalls(
   const queryString = parts.filter(Boolean).join("&");
   const url = `${baseUrl}/query?${queryString}`;
 
-  return useGet<ButtonCallsPayload>(url, [url, page, limit, filters], true);
+  // Anahtarın ilk elemanı taban adres: buttonCallChanged olayı ve silme bu listeyi yenileyebilsin
+  return useGet<ButtonCallsPayload>(
+    url,
+    [baseUrl, url, page, limit, filters],
+    true
+  );
 }
 
 export function finishButtonCall({
