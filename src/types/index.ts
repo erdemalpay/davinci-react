@@ -3040,6 +3040,7 @@ export enum NotificationEventType {
   SHOPIFYTAKEAWAY = "SHOPIFYTAKEAWAY",
   SHOPIFYORDER = "SHOPIFYORDER",
   CONCURRENTBREAK = "CONCURRENTBREAK",
+  GROUPEVENTREQUEST = "GROUPEVENTREQUEST",
 }
 export const notificationEventsOptions = [
   {
@@ -3121,6 +3122,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.CONCURRENTBREAK,
     label: "Concurrent Break Warning",
+  },
+  {
+    value: NotificationEventType.GROUPEVENTREQUEST,
+    label: "Group Event Request",
   },
 ];
 

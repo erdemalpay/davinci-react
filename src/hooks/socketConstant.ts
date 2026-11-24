@@ -39,6 +39,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.EventCalendar}`],
   },
   {
+    event: "groupEventChanged",
+    invalidateKeys: [`${Paths.GroupEvents}`],
+  },
+  {
     // Başvuru, katılımcı, maç ve puan tablosu sorguları [Paths.Tournaments, ...] ile başlar
     event: "tournamentChanged",
     invalidateKeys: [`${Paths.Tournaments}`],
