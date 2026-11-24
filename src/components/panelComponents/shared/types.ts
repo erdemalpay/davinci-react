@@ -40,6 +40,8 @@ export interface FilterType<T> {
   label?: string;
   isUpperSide: boolean;
   isDisabled?: boolean;
+  // Telefonda alt taraftaki filtre de filtre menüsünün içinde gösterilir
+  isInMobileMenu?: boolean;
 }
 
 export interface RowKeyType<T> {

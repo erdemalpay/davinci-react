@@ -175,6 +175,7 @@ const GenericTable = <T,>({
   const [showHeaderRightButton, setShowHeaderRightButton] = useState(false);
   const headerScrollRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const headerMenusRef = useRef<HTMLDivElement | null>(null);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending";
@@ -208,6 +209,18 @@ const GenericTable = <T,>({
       }));
     }
   }, [title, columns, setTableColumns, tableColumns]);
+
+  // Filtre menüsü, dışına tıklanınca kapanır
+  useEffect(() => {
+    if (!isFilterModalOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!headerMenusRef.current?.contains(event.target as Node)) {
+        setIsFilterModalOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isFilterModalOpen]);
 
   useEffect(() => {
     if (sortConfigKey) {
@@ -1025,7 +1038,9 @@ const GenericTable = <T,>({
         !filter.isDisabled && (
           <div
             key={index}
-            className="flex flex-row gap-2 justify-between items-center"
+            className={`${
+              filter.isInMobileMenu ? "hidden sm:flex" : "flex"
+            } flex-row gap-2 justify-between items-center`}
           >
             {filter.label && <H5 className="w-fit">{filter.label}</H5>}
             {filter.node}
@@ -1130,7 +1145,10 @@ const GenericTable = <T,>({
               isActionsActive &&
               selectedRows.length > 0 &&
               renderActionButtons({} as unknown as T, selectionActions)}
-            <div className="flex flex-row flex-wrap gap-2 sm:gap-4 relative items-center w-full sm:w-auto sm:ml-auto justify-end">
+            <div
+              ref={headerMenusRef}
+              className="flex flex-row flex-wrap gap-2 sm:gap-4 relative items-center w-full sm:w-auto sm:ml-auto justify-end"
+            >
               {!(selectionActions && isSelectionActive) && (
                 <>
                   {/* Alt filters (Total vs) */}
@@ -1157,7 +1175,10 @@ const GenericTable = <T,>({
                   )}
                   {/* Mobile Filter Button - dropdown style */}
                   {filters &&
-                    filters.some((f) => f.isUpperSide && !f.isDisabled) && (
+                    filters.some(
+                      (f) =>
+                        (f.isUpperSide || f.isInMobileMenu) && !f.isDisabled
+                    ) && (
                       <>
                         <Tooltip content={t("Filters")} placement="top">
                           <div
@@ -1174,7 +1195,9 @@ const GenericTable = <T,>({
                             {filters
                               .filter(
                                 (filter) =>
-                                  filter.isUpperSide && !filter.isDisabled
+                                  (filter.isUpperSide ||
+                                    filter.isInMobileMenu) &&
+                                  !filter.isDisabled
                               )
                               .map((filter, index) => (
                                 <div
