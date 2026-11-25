@@ -7,12 +7,12 @@ import {
   useAdjustLoyaltyPointsMutation,
   useGetLoyaltyAccountDetail,
 } from "../../utils/api/loyalty";
+import StatCard from "../common/StatCard";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import {
   CouponStatusBadge,
   formatLoyaltyDate,
   PointChange,
-  StatCard,
   TransactionDetailCell,
   TransactionTypeCell,
 } from "./loyaltyTableParts";
@@ -88,9 +88,9 @@ export default function ShopifyCustomerLoyalty({ customer }: Props) {
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label={t("Online Points Balance")} value={account?.balance ?? 0} hint={t("1 point = 1 ₺")} />
-        <StatCard label={t("Total Earned")} value={account?.totalEarned ?? 0} />
-        <StatCard label={t("Turned into Coupons")} value={account?.totalRedeemed ?? 0} />
+        <StatCard variant="large" label={t("Online Points Balance")} value={account?.balance ?? 0} hint={t("1 point = 1 ₺")} />
+        <StatCard variant="large" label={t("Total Earned")} value={account?.totalEarned ?? 0} />
+        <StatCard variant="large" label={t("Turned into Coupons")} value={account?.totalRedeemed ?? 0} />
       </div>
 
       <div className="border border-gray-200 rounded-md p-4 bg-white flex flex-col gap-3">

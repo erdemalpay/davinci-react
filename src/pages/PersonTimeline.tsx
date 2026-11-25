@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import { DayPicker } from "../components/timeline/DayPicker";
-import { StatCard } from "../components/timeline/StatCard";
+import StatCard from "../components/common/StatCard";
 import { TimelineChart } from "../components/timeline/TimelineChart";
 import {
   durationBetween,

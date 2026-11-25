@@ -7,7 +7,8 @@ import {
   useGetLoyaltySummary,
   useUpdateLoyaltySettingsMutation,
 } from "../../utils/api/loyalty";
-import { formatLoyaltyDate, StatCard } from "./loyaltyTableParts";
+import StatCard from "../common/StatCard";
+import { formatLoyaltyDate } from "./loyaltyTableParts";
 
 type SettingsForm = {
   isActive: boolean;
@@ -68,36 +69,42 @@ export default function LoyaltyOverview() {
     <div className="w-[95%] mx-auto flex flex-col gap-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
+          variant="large"
           label={t("Unused Points")}
           value={`${summary?.outstandingPoints ?? 0} ₺`}
           hint={t("What the points customers hold are worth")}
         />
         <StatCard
+          variant="large"
           label={t("Customers with Points")}
           value={summary?.accountCount ?? 0}
         />
         <StatCard
+          variant="large"
           label={t("Earned This Month")}
           value={monthEarned}
           hint={t("After refunds and cancellations")}
         />
-        <StatCard label={t("Turned into Coupons This Month")} value={monthRedeemed} />
+        <StatCard variant="large" label={t("Turned into Coupons This Month")} value={monthRedeemed} />
         <StatCard
+          variant="large"
           label={t("Active Coupons")}
           value={coupons[LoyaltyCouponStatus.ACTIVE]?.count ?? 0}
           hint={`${coupons[LoyaltyCouponStatus.ACTIVE]?.value ?? 0} ₺`}
         />
         <StatCard
+          variant="large"
           label={t("Used Coupons")}
           value={coupons[LoyaltyCouponStatus.USED]?.count ?? 0}
           hint={`${coupons[LoyaltyCouponStatus.USED]?.value ?? 0} ₺`}
         />
         <StatCard
+          variant="large"
           label={t("Expired Coupons")}
           value={coupons[LoyaltyCouponStatus.EXPIRED]?.count ?? 0}
           hint={`${coupons[LoyaltyCouponStatus.EXPIRED]?.value ?? 0} ₺`}
         />
-        <StatCard label={t("Total Earned")} value={summary?.totalEarned ?? 0} />
+        <StatCard variant="large" label={t("Total Earned")} value={summary?.totalEarned ?? 0} />
       </div>
 
       {form && (
