@@ -9,6 +9,7 @@ const EventCalendarPoster = ({ calendar }: { calendar: EventCalendarForm }) => {
       title: calendar.title,
       items: calendar.items,
       hasQr: calendar.hasQr !== false,
+      background: calendar.background ?? "",
     }),
     [calendar]
   );

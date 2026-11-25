@@ -3,6 +3,9 @@ import { Paths, useGet, useMutationApi } from "./factory";
 
 const latestPath = `${Paths.EventCalendar}/latest`;
 
+// Panelden yüklenen arka planlar bu Cloudinary klasöründe birikir (Resimler sayfasından silinir)
+export const EVENT_CALENDAR_BACKGROUND_FOLDER = "event-calendar-backgrounds";
+
 export type EventCalendarForm = Omit<EventCalendarSetting, "_id">;
 
 export function useEventCalendarMutations() {

@@ -3399,4 +3399,6 @@ export interface EventCalendarSetting {
   items: EventCalendarItem[];
   // Afişte QR gösterilsin mi; eski kayıtlarda yoktur ve gösterilir
   hasQr?: boolean;
+  // Afişin arka planı (https adres); yoksa paketteki varsayılan resim
+  background?: string;
 }

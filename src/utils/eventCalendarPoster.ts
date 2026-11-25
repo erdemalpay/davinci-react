@@ -12,7 +12,7 @@ import {
 import { loadImage } from "./loadImage";
 import { eventsUrl } from "./registrationUrl";
 
-const POSTER_WIDTH = 1080;
+export const POSTER_WIDTH = 1080;
 const POSTER_HEIGHT = 1350;
 
 const FONT = "'Baloo 2', 'Arial Rounded MT Bold', Arial, sans-serif";
@@ -21,6 +21,8 @@ export type PosterData = {
   title: string;
   items: EventCalendarItem[];
   hasQr: boolean;
+  // Boşsa paketteki varsayılan resim
+  background: string;
 };
 
 type Measure = (text: string) => number;
@@ -107,6 +109,26 @@ export const getRowHeight = (count: number) =>
 export const isLightColor = (hex: string) => {
   const [r, g, b] = toRgb(hex);
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62;
+};
+
+// Arka plan dikey ve 4:5'e yakın olmalı (yapay zekâ araçlarının 2:3, 3:4 çıktıları dahil)
+export const isPosterRatio = (width: number, height: number) => {
+  const ratio = width / height;
+  return ratio >= 0.65 && ratio <= 0.85;
+};
+
+// Resmi bozmadan alanı doldurur; taşan kenarlar eşit kırpılır.
+// drawImage'ın kaynak dikdörtgenini döner
+export const getCoverRect = (
+  imageWidth: number,
+  imageHeight: number,
+  width: number,
+  height: number
+) => {
+  const scale = Math.max(width / imageWidth, height / imageHeight);
+  const sw = width / scale;
+  const sh = height / scale;
+  return { sx: (imageWidth - sw) / 2, sy: (imageHeight - sh) / 2, sw, sh };
 };
 
 const upper = (text: string) => text.toLocaleUpperCase("tr-TR");
@@ -460,11 +482,20 @@ const drawFooter = (
   if (qr) ctx.drawImage(qr, 902, 1215, 108, 108);
 };
 
+// Seçilen arka plan silinmiş ya da açılamıyorsa afiş varsayılan resimle çizilir
+const loadBackground = async (src: string) =>
+  (src && (await loadImage(src, true))) || loadImage(POSTER_BACKGROUND_URL);
+
 // Önizleme, indirme ve herkese açık sayfa aynı çizimi kullanır; çıktı 1080x1350 JPEG
-export const renderPoster = async ({ title, items, hasQr }: PosterData) => {
+export const renderPoster = async ({
+  title,
+  items,
+  hasQr,
+  background,
+}: PosterData) => {
   await loadFont();
-  const [background, logo, koaLogo, qr, cards, icons] = await Promise.all([
-    loadImage(POSTER_BACKGROUND_URL),
+  const [backgroundImage, logo, koaLogo, qr, cards, icons] = await Promise.all([
+    loadBackground(background),
     loadImage(DAVINCI_LOGO_URL),
     loadImage(KOA_LOGO_URL),
     hasQr
@@ -489,7 +520,25 @@ export const renderPoster = async ({ title, items, hasQr }: PosterData) => {
   if (!ctx) return "";
   ctx.fillStyle = "#3b2414";
   ctx.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT);
-  if (background) ctx.drawImage(background, 0, 0, POSTER_WIDTH, POSTER_HEIGHT);
+  if (backgroundImage) {
+    const { sx, sy, sw, sh } = getCoverRect(
+      backgroundImage.width,
+      backgroundImage.height,
+      POSTER_WIDTH,
+      POSTER_HEIGHT
+    );
+    ctx.drawImage(
+      backgroundImage,
+      sx,
+      sy,
+      sw,
+      sh,
+      0,
+      0,
+      POSTER_WIDTH,
+      POSTER_HEIGHT
+    );
+  }
   drawTitle(ctx, title);
   const rowHeight = getRowHeight(items.length);
   const badgeSize = getBadgeFontSize(ctx, items, rowHeight);
