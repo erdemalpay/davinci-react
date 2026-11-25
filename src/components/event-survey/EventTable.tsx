@@ -281,7 +281,7 @@ const EventTable = ({ onSelectEvent }: Props) => {
       columns={columns}
       isActionsActive={true}
       rows={(events as SurveyEvent[])?.filter(Boolean) ?? []}
-      title={t("Events")}
+      title={t("Event Forms")}
       addButton={addButton}
     />
   );
