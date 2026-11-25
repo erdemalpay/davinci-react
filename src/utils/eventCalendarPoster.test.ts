@@ -6,8 +6,10 @@ import {
 } from "./eventCalendarAssets";
 import {
   fitSingleLine,
+  getCoverRect,
   getRowHeight,
   isLightColor,
+  isPosterRatio,
   layoutTitle,
   wrapLines,
 } from "./eventCalendarPoster";
@@ -99,5 +101,46 @@ describe("getEventCalendarCard", () => {
   it("maps any other color to the nearest card", () => {
     expect(getEventCalendarCard("#ff0000").key).toBe("red");
     expect(getEventCalendarCard("#0000ff").key).toBe("blue");
+  });
+});
+
+describe("isPosterRatio", () => {
+  it("accepts portrait images close to 4:5", () => {
+    expect(isPosterRatio(1080, 1350)).toBe(true);
+    expect(isPosterRatio(1092, 1440)).toBe(true);
+    expect(isPosterRatio(1024, 1536)).toBe(true);
+  });
+
+  it("rejects landscape and square images", () => {
+    expect(isPosterRatio(1920, 1080)).toBe(false);
+    expect(isPosterRatio(1000, 1000)).toBe(false);
+  });
+});
+
+describe("getCoverRect", () => {
+  it("uses the whole image when the ratio matches", () => {
+    expect(getCoverRect(1080, 1350, 1080, 1350)).toEqual({
+      sx: 0,
+      sy: 0,
+      sw: 1080,
+      sh: 1350,
+    });
+  });
+
+  it("crops top and bottom equally from a taller image", () => {
+    const { sx, sy, sw, sh } = getCoverRect(1092, 1440, 1080, 1350);
+    expect(sx).toBe(0);
+    expect(sw).toBe(1092);
+    expect(sh).toBeCloseTo(1365);
+    expect(sy).toBeCloseTo(37.5);
+  });
+
+  it("crops left and right equally from a wider image", () => {
+    expect(getCoverRect(2000, 1350, 1080, 1350)).toEqual({
+      sx: 460,
+      sy: 0,
+      sw: 1080,
+      sh: 1350,
+    });
   });
 });

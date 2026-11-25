@@ -24,6 +24,7 @@ import {
   shareImage,
 } from "../../../utils/saveImage";
 import { BADGE_COLORS } from "../../../utils/eventCalendarAssets";
+import EventCalendarBackgroundPicker from "./EventCalendarBackgroundPicker";
 import EventCalendarRowEditor from "./EventCalendarRowEditor";
 
 const MAX_ROWS = 8;
@@ -108,6 +109,7 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
     useEventCalendarMutations();
   const [title, setTitle] = useState((saved ?? DEFAULT_CALENDAR).title);
   const [hasQr, setHasQr] = useState(saved?.hasQr !== false);
+  const [background, setBackground] = useState(saved?.background ?? "");
   const [rows, setRows] = useState(() =>
     (saved ?? DEFAULT_CALENDAR).items.map(toRow)
   );
@@ -132,8 +134,9 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
       title,
       items: cleanItems,
       hasQr,
+      background,
     }),
-    [title, cleanItems, hasQr]
+    [title, cleanItems, hasQr, background]
   );
   const { image, isLoading } = useEventCalendarPoster(posterData);
   const fileName = `${title || "etkinlik-takvimi"}.jpg`;
@@ -157,7 +160,7 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
     });
 
   const save = () => {
-    const values = { title, items: cleanItems, hasQr };
+    const values = { title, items: cleanItems, hasQr, background };
     if (saved) updateEventCalendar({ id: saved._id, updates: values });
     else createEventCalendar(values);
   };
@@ -183,6 +186,10 @@ const EventCalendarEditor = ({ saved }: { saved?: EventCalendarSetting }) => {
               {t("Show QR on Poster")}
             </span>
           </div>
+          <EventCalendarBackgroundPicker
+            value={background}
+            onChange={setBackground}
+          />
           {rows.map(({ key, item }, index) => (
             <EventCalendarRowEditor
               key={key}

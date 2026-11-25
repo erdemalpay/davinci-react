@@ -75,18 +75,26 @@ export function useUpdateScreenImagesMutation() {
   });
 }
 
-// Tek resmi /asset/upload/original ile yükler ve adresini döner (aylık afiş, etkinlik takvimi ikonu)
-export async function uploadOriginalImage(file: File, foldername: string) {
+// Tek resmi /asset/upload/original ile yükler ve https adresini döner (aylık afiş, etkinlik takvimi).
+// width verilmezse sunucu resmi en fazla 800 piksel genişliğe indirir
+export async function uploadOriginalImage(
+  file: File,
+  foldername: string,
+  width?: number
+) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("filename", file.name);
   formData.append("foldername", foldername);
-  const { url } = await postWithHeader<FormData, { url: string }>({
-    path: "/asset/upload/original",
-    payload: formData,
-    headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
-  });
-  return url;
+  if (width) formData.append("width", String(width));
+  const { secure_url } = await postWithHeader<FormData, { secure_url: string }>(
+    {
+      path: "/asset/upload/original",
+      payload: formData,
+      headers: new AxiosHeaders({ "Content-Type": "multipart/form-data" }),
+    }
+  );
+  return secure_url;
 }
 
 type UploadParams = {

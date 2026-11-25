@@ -1,9 +1,6 @@
-import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { toast } from "react-toastify";
 import { EventCalendarItem } from "../../../types";
-import { uploadOriginalImage } from "../../../utils/api/asset";
 import {
   BADGE_COLORS,
   EVENT_CALENDAR_ICON_KEYS,
@@ -12,6 +9,7 @@ import {
 } from "../../../utils/eventCalendarAssets";
 import { GenericButton } from "../../common/GenericButton";
 import TextInput from "../../panelComponents/FormElements/TextInput";
+import ImageUploadButton from "./ImageUploadButton";
 
 interface Props {
   item: EventCalendarItem;
@@ -31,21 +29,7 @@ const EventCalendarRowEditor = ({
   onRemove,
 }: Props) => {
   const { t } = useTranslation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const isPreset = EVENT_CALENDAR_ICON_KEYS.includes(item.icon);
-
-  const uploadIcon = async (file: File) => {
-    setIsUploading(true);
-    try {
-      onChange({ icon: await uploadOriginalImage(file, "event-calendar") });
-    } catch {
-      toast.error(t("Image upload failed"));
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
 
   return (
     <div className="border border-gray-200 rounded-xl bg-white p-3 flex flex-col gap-3">
@@ -172,23 +156,10 @@ const EventCalendarRowEditor = ({
             className="w-10 h-10 rounded-lg border border-blue-500 bg-blue-50 p-0.5 object-contain"
           />
         )}
-        <GenericButton
-          variant="outline"
-          size="sm"
-          isLoading={isUploading}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {t("Upload Icon")}
-        </GenericButton>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) uploadIcon(file);
-          }}
+        <ImageUploadButton
+          label={t("Upload Icon")}
+          folder="event-calendar"
+          onUploaded={(icon) => onChange({ icon })}
         />
       </div>
     </div>
