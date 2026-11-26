@@ -9,7 +9,7 @@ import {
   useGetFavoritesSummary,
   useGetTopFavoriteProducts,
 } from "../../utils/api/favorites";
-import { StatCard } from "../loyalty/loyaltyTableParts";
+import StatCard from "../common/StatCard";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import {
   FavoritePriceCell,
@@ -115,10 +115,10 @@ export default function OnlineFavorites() {
   return (
     <div className="w-[95%] mx-auto flex flex-col gap-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label={t("Total Favorites")} value={summary?.totalFavorites ?? 0} />
-        <StatCard label={t("Customers with Favorites")} value={summary?.customerCount ?? 0} />
-        <StatCard label={t("Favorited Products")} value={summary?.productCount ?? 0} />
-        <StatCard label={t("Added in Last 30 Days")} value={summary?.addedLast30Days ?? 0} />
+        <StatCard variant="large" label={t("Total Favorites")} value={summary?.totalFavorites ?? 0} />
+        <StatCard variant="large" label={t("Customers with Favorites")} value={summary?.customerCount ?? 0} />
+        <StatCard variant="large" label={t("Favorited Products")} value={summary?.productCount ?? 0} />
+        <StatCard variant="large" label={t("Added in Last 30 Days")} value={summary?.addedLast30Days ?? 0} />
       </div>
 
       <div className="flex flex-wrap gap-2">

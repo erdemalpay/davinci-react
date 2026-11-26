@@ -16,7 +16,7 @@ import {
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import { DayPicker } from "../components/timeline/DayPicker";
-import { StatCard } from "../components/timeline/StatCard";
+import StatCard from "../components/common/StatCard";
 import {
   defaultLocationId,
   formatDuration,
