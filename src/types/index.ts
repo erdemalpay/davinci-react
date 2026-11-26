@@ -827,6 +827,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
   ORDERDATAS_COLLECTIONS = "collections",
   ORDERDATAS_SHOPIFYCOLLECTIONS = "shopifycollections",
+  ORDERDATAS_SHOPIFYPREORDERS = "shopifypreorders",
   ORDERDATAS_ORDERS = "orders",
   ORDERDATAS_SHOPIFYORDERS = "shopifyorders",
   ORDERDATAS_TRENDYOLORDERS = "trendyolorders",
@@ -977,6 +978,7 @@ export enum ActionEnum {
   AUTO_PRINT = "auto_print",
   ADVANCED_VIEW = "advanced_view",
   ORDER_READY_CALL = "order_ready_call",
+  CREATE_SHIPMENT_ORDER = "create_shipment_order",
 }
 
 export type Membership = {
@@ -1296,6 +1298,8 @@ export type Order = {
   shopifyPickUpStockLocation?: number;
   isShopifyPickUp?: boolean;
   isShipped?: boolean;
+  preOrderShipmentShopifyOrderId?: string;
+  preOrderShipmentShopifyOrderNumber?: string;
   shopifyOrderNumber?: string;
   taxNumberCompanyName?: string;
   shopifyShippingAddress?: ShopifyAddress;

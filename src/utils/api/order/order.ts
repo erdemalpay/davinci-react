@@ -1034,6 +1034,23 @@ export function usePreOrderMutation() {
   return { updateSimpleOrder, isPending };
 }
 
+export type PreOrderShipmentRequest = {
+  _id: number;
+  orderIds: number[];
+  created?: { shopifyOrderId: string; shipmentOrderNumber: string }[];
+  failed?: { shopifyOrderId: string; message: string }[];
+};
+
+export function usePreOrderShipmentMutation() {
+  const { createItem: createPreOrderShipment } =
+    useMutationApi<PreOrderShipmentRequest>({
+      baseQuery: `${Paths.Order}/pre-order-shipment`,
+      isAdditionalInvalidate: true,
+      additionalInvalidates: [[`${Paths.Order}/pre-order/query`]],
+    });
+  return { createPreOrderShipment };
+}
+
 export function createOrderForDiscount(payload: CreateOrderForDiscountPayload) {
   return post<CreateOrderForDiscountPayload, Order>({
     path: `${Paths.Order}/create_order_for_discount`,
