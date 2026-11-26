@@ -455,26 +455,41 @@ export function useWebSocket(shouldConnect = false) {
       );
     });
 
-    // Orders send the changed stocks; other stock changes come without them
-    // and the list is reloaded.
+    // Orders and stock transfers send the changed stocks; other stock changes
+    // come without them and the lists are reloaded.
     socket.on("stockChanged", (event?: { stocks?: AccountStock[] }) => {
       const { queryClient } = latestValuesRef.current;
       const stockListKey = `${Paths.Accounting}/stocks`;
+      const stockPageKey = `${stockListKey}/query`;
       if (event?.stocks?.length) {
         const changed = event.stocks;
         queryClient.setQueryData<AccountStock[]>([stockListKey], (stocks) =>
           applyChangedStocks(stocks, changed)
         );
+        // Tarih seçilmemiş stok sayfaları güncel stoğu gösterir: gelen
+        // stoklar yerinde uygulanır. Tarih seçilmişse sayfa o tarihteki
+        // stoğu hesaplar; yeniden yüklenir.
+        queryClient.setQueriesData<AccountStock[]>(
+          {
+            queryKey: [stockPageKey],
+            predicate: ({ queryKey }) => !queryKey[1],
+          },
+          (stocks) => applyChangedStocks(stocks, changed)
+        );
+        queryClient.invalidateQueries({
+          queryKey: [stockPageKey],
+          predicate: ({ queryKey }) => Boolean(queryKey[1]),
+        });
       } else {
         queryClient.invalidateQueries({
           queryKey: [stockListKey],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: [stockPageKey],
+          exact: false,
+        });
       }
-      queryClient.invalidateQueries({
-        queryKey: [`${stockListKey}/query`],
-        exact: false,
-      });
     });
 
     socket.on("orderDeleted", ({ order }: { order: Order }) => {

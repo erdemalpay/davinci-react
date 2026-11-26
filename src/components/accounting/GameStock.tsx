@@ -654,13 +654,13 @@ const GameStock = () => {
       {
         type: InputTypes.SELECT,
         formKey: "itemCategory",
-        label: t("Item Category"),
+        label: t("Menu Category"),
         options: onlineCategories.map((input) => ({
           value: input._id,
           label: input.name,
         })),
         isMultiple: true,
-        placeholder: t("Item Category"),
+        placeholder: t("Menu Category"),
         required: false,
       },
       {
