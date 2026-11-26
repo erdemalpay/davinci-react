@@ -10,6 +10,7 @@ import {
   OrderDiscount,
   OrderDiscountStatus,
 } from "../../types";
+import { UpdatePayload } from "../../utils/api";
 import {
   useGetOrderDiscounts,
   useOrderDiscountMutations,
@@ -23,7 +24,10 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-import { getDiscountValueFieldState } from "./orderDiscountForm";
+import {
+  getDiscountValueFieldState,
+  toOrderDiscountPayload,
+} from "./orderDiscountForm";
 
 type FormElementsState = { [key: string]: any };
 enum DiscountTypeEnum {
@@ -489,7 +493,14 @@ const OrderDiscountPage = () => {
             inputs={inputs}
             formKeys={formKeys}
             setForm={setForm}
-            submitItem={updateOrderDiscount as any}
+            submitItem={(item) =>
+              updateOrderDiscount({
+                id: rowToAction._id,
+                updates: toOrderDiscountPayload(
+                  (item as UpdatePayload<OrderDiscount>).updates
+                ),
+              })
+            }
             isEditMode
             topClassName="flex flex-col gap-2 "
             itemToEdit={{

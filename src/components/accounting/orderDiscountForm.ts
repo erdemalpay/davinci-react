@@ -1,3 +1,5 @@
+import { OrderDiscount } from "../../types";
+
 export type OrderDiscountValueForm = {
   isCustom?: boolean;
   type?: string;
@@ -16,4 +18,14 @@ export function getDiscountValueFieldState(form: OrderDiscountValueForm) {
     amountRequired: isAmount,
     amountDisabled: !isAmount,
   };
+}
+
+// Backend güncellemede bilinmeyen alanı reddediyor (400); _id ve formdaki
+// type alanı gönderilmez.
+export function toOrderDiscountPayload({
+  _id,
+  type,
+  ...updates
+}: Partial<OrderDiscount> & OrderDiscountValueForm): Partial<OrderDiscount> {
+  return updates;
 }
