@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   queryClient: {
     invalidateQueries: vi.fn(),
     setQueryData: vi.fn(),
+    setQueriesData: vi.fn(),
     getQueryData: vi.fn(),
     refetchQueries: vi.fn(async () => undefined),
   },
@@ -92,6 +93,7 @@ describe("useWebSocket", () => {
       mocks.socket.emit("connect");
     });
     mocks.queryClient.invalidateQueries.mockClear();
+    mocks.queryClient.setQueriesData.mockClear();
   };
 
   it("reloads the data after a reconnect that couldn't replay missed events", () => {
@@ -188,7 +190,38 @@ describe("useWebSocket", () => {
     expect(mocks.queryClient.invalidateQueries).not.toHaveBeenCalledWith(
       stockList
     );
-    expect(mocks.queryClient.invalidateQueries).toHaveBeenCalledWith(stockPage);
+  });
+
+  it("updates the stock pages without a date in place and reloads only the dated ones", () => {
+    connect();
+    const page = (after?: string) => ({
+      queryKey: ["/accounting/stocks/query", after, ""],
+    });
+    const change = {
+      _id: "cola2",
+      product: "cola",
+      location: 2,
+      quantity: 90,
+      revision: 1,
+    };
+
+    act(() => {
+      mocks.socket.emit("stockChanged", { stocks: [change] });
+    });
+
+    const [[filters, update]] = mocks.queryClient.setQueriesData.mock.calls;
+    expect(filters.queryKey).toEqual(["/accounting/stocks/query"]);
+    expect(filters.predicate(page())).toBe(true);
+    expect(filters.predicate(page("2026-11-01"))).toBe(false);
+    expect(update([{ ...change, quantity: 91, revision: 0 }])).toEqual([
+      change,
+    ]);
+
+    const reload = mocks.queryClient.invalidateQueries.mock.calls
+      .map(([filter]) => filter)
+      .find((filter) => filter.queryKey?.[0] === "/accounting/stocks/query");
+    expect(reload.predicate(page("2026-11-01"))).toBe(true);
+    expect(reload.predicate(page())).toBe(false);
   });
 
   it("reloads the stocks when stockChanged comes without stocks", () => {
