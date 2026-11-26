@@ -43,5 +43,6 @@ export function useGetQueryFeedbacks(filter: {
     filter.location,
   ]);
 
-  return useGetList<Feedback>(url, [url], true);
+  // Anahtarın ilk elemanı taban adres: feedbackChanged olayı ve işlemler bu listeyi yenileyebilsin
+  return useGetList<Feedback>(url, [baseUrl, url], true);
 }
