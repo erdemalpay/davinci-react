@@ -1,5 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { getDiscountValueFieldState } from "./orderDiscountForm";
+import {
+  getDiscountValueFieldState,
+  toOrderDiscountPayload,
+} from "./orderDiscountForm";
+
+describe("toOrderDiscountPayload", () => {
+  it("drops _id and the form-only type field", () => {
+    expect(
+      toOrderDiscountPayload({
+        _id: 4,
+        type: "PERCENTAGE",
+        name: "Nakit Oyun",
+        percentage: 11,
+        isCustom: false,
+        isStoreOrder: true,
+      })
+    ).toEqual({
+      name: "Nakit Oyun",
+      percentage: 11,
+      isCustom: false,
+      isStoreOrder: true,
+    });
+  });
+});
 
 describe("getDiscountValueFieldState", () => {
   it("disables preset value fields for a custom discount", () => {
