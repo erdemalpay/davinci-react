@@ -180,6 +180,7 @@ export type Location = {
   isShelfInfoRequired?: boolean;
   isVisibleInBaseQuantity?: boolean;
   seenInOrdersSummaryPage?: boolean;
+  isVisibleInOrder?: boolean;
   phoneNumber?: string;
   fallbackStockLocation?: number;
   googleMapsUrl?: string;
