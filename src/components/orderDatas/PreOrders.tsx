@@ -29,6 +29,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import { usePreOrderShipmentActions } from "./usePreOrderShipmentActions";
 
 const PreOrders = () => {
   const { t } = useTranslation();
@@ -47,6 +48,15 @@ const PreOrders = () => {
     showUnshippedOnly,
     setShowUnshippedOnly,
   } = useOrderContext();
+  const selectedItemIds = useMemo(
+    () =>
+      Array.isArray(preOrderFilterPanelFormElements.item)
+        ? (preOrderFilterPanelFormElements.item as number[])
+        : [],
+    [preOrderFilterPanelFormElements.item]
+  );
+  const { isShipmentDisabled, actions, selectionActions, rowShipmentModal } =
+    usePreOrderShipmentActions({ orders, items, selectedItemIds });
 
   const rows = useMemo(() => {
     const filtered = orders?.filter((order) => {
@@ -117,6 +127,7 @@ const PreOrders = () => {
               { key: t("Product"), isSortable: false },
               { key: t("Quantity"), isSortable: false },
               { key: t("Amount"), isSortable: false },
+              { key: t("Shipment Order"), isSortable: false },
               {
                 key: t("Shipped"),
                 isSortable: false,
@@ -128,6 +139,8 @@ const PreOrders = () => {
               item: getItem(order?.item, items)?.name ?? "",
               quantity: order?.quantity ?? "",
               amount: order?.unitPrice * order?.quantity,
+              shipmentOrderNumber:
+                order?.preOrderShipmentShopifyOrderNumber ?? "",
               isShipped: order?.isShipped ?? false,
             })),
             collapsibleRowKeys: [
@@ -141,6 +154,7 @@ const PreOrders = () => {
                   </p>
                 ),
               },
+              { key: "shipmentOrderNumber" },
               {
                 key: "isShipped",
                 node: (row: any) => {
@@ -239,8 +253,9 @@ const PreOrders = () => {
       { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("Shipped"), isSortable: false, className: "text-center" },
+      ...(isShipmentDisabled ? [] : [{ key: t("Actions"), isSortable: false }]),
     ],
-    [t]
+    [t, isShipmentDisabled]
   );
 
   const rowKeys = useMemo(
@@ -463,7 +478,9 @@ const PreOrders = () => {
         columns={columns}
         rowKeys={rowKeys as any}
         rows={rows as any}
-        isActionsActive={false}
+        isActionsActive={!isShipmentDisabled}
+        actions={actions}
+        selectionActions={isShipmentDisabled ? undefined : selectionActions}
         filterPanel={filterPanel}
         filters={filters}
         isCollapsible={true}
@@ -477,6 +494,7 @@ const PreOrders = () => {
           return row?.isFullyShipped ? "bg-green-50" : "bg-red-50";
         }}
       />
+      {rowShipmentModal}
     </div>
   );
 };
