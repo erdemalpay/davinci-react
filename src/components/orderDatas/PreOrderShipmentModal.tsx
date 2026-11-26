@@ -124,6 +124,14 @@ const PreOrderShipmentModal = ({
                   })
                 );
               }
+              // Kopya açılıp panele bağlanamadıysa mesajda numarası var;
+              // görülmezse tekrar denenip ikinci kopya açılabilir.
+              response?.failed?.forEach((failure) => {
+                const orderNumber = candidates.find(
+                  (order) => order.shopifyOrderId === failure.shopifyOrderId
+                )?.shopifyOrderNumber;
+                toast.error(`${orderNumber ?? ""}: ${failure.message}`);
+              });
               onDone?.();
             },
           }
